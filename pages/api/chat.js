@@ -12,10 +12,7 @@ export default async function handler(req, res) {
     const { messages = [] } = req.body || {};
 
     const systemPrompt =
-      "You are Destiny Blue, a warm and concise AI hotel concierge. " +
-      "Answer clearly. If booking is requested, gather dates, number of guests, " +
-      "preferred unit, and any special needs. Do NOT take payments here—send users " +
-      "to the official booking link when needed.";
+      "You are Destiny Blue, a warm and concise AI hotel concierge.";
 
     const response = await client.chat.completions.create({
       model: "gpt-4o-mini",
@@ -23,8 +20,10 @@ export default async function handler(req, res) {
       messages: [
         { role: "system", content: systemPrompt },
         ...messages.filter(m => m && m.role !== "system")
-      ],
+      ]
     });
+
+    console.log("OpenAI raw response:", JSON.stringify(response, null, 2)); // 👈 log for Vercel
 
     const reply =
       response?.choices?.[0]?.message?.content?.trim() ||

@@ -1,43 +1,40 @@
 // pages/api/chat.js
-import OpenAI from "openai";
-
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  if (!process.env.OPENAI_API_KEY) {
-    return res.status(500).json({ error: "Missing OPENAI_API_KEY" });
-  }
-
   try {
-    const { messages = [] } = req.body || {};
-    const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    const { message } = req.body;
 
-    const completion = await client.chat.completions.create({
-      model: "gpt-4o-mini",
-      temperature: 0.6,
-      max_tokens: 400,
-      messages: [
-        {
-          role: "system",
-          content:
-            "You are Destin Concierge, a friendly local expert for Destin, Florida. \
-Return concise, useful suggestions: neighborhoods, typical nightly price ranges, \
-parking, whether a car is needed, family vs couples options, and a short itinerary. \
-Use bullet points when helpful. If dates/adults/kids/bedrooms are given, tailor the advice.",
-        },
-        ...messages,
-      ],
+    // Call OpenAI
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",  // You can use "gpt-4o-mini" or "gpt-3.5-turbo"
+        messages: [
+          { role: "system", content: "You are Destin Concierge AI. Help with unit, dates, adults, kids." },
+          { role: "user", content: message },
+        ],
+      }),
     });
 
-    const reply =
-      completion.choices?.[0]?.message?.content?.trim() ||
-      "Sorry, I couldn’t generate a response.";
+    const data = await response.json();
 
-    return res.status(200).json({ reply });
+    if (data.error) {
+      console.error("OpenAI error:", data.error);
+      return res.status(500).json({ error: data.error.message });
+    }
+
+    const reply = data.choices?.[0]?.message?.content || "Sorry, I didn’t get that.";
+
+    res.status(200).json({ reply });
   } catch (err) {
-    console.error("AI error:", err);
-    return res.status(500).json({ error: "AI request failed." });
+    console.error("API error:", err);
+    res.status(500).json({ error: "Something went wrong." });
   }
 }

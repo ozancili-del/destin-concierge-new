@@ -1,17 +1,31 @@
 // pages/api/chat.js
 
-// Use your booking URL from env; fallback to your live site so it still works.
+// ---- Config from environment ----
 const BOOK_URL =
   process.env.OWNERREZ_BOOK_URL || "https://www.destincondogetaways.com/book";
+const PROPERTY_PARAM = process.env.OWNERREZ_PROPERTY_PARAM || "property";
+const DEFAULT_PROPERTY = process.env.OWNERREZ_DEFAULT_PROPERTY || "Pelican Beach Resort Unit 1006";
+
+// ---- Small “knowledge” map so we can recognize units mentioned by guests ----
+// Keys are things a guest might type; values are what your booking form expects.
+const PROPERTIES = {
+  "1006": "Pelican Beach Resort Unit 1006",
+  "unit 1006": "Pelican Beach Resort Unit 1006",
+  "pelican beach resort unit 1006": "Pelican Beach Resort Unit 1006",
+
+  // Add more here as you add units:
+  // "1511": "Pelican Beach Resort Unit 1511",
+  // "unit 1511": "Pelican Beach Resort Unit 1511",
+  // "pelican beach resort unit 1511": "Pelican Beach Resort Unit 1511",
+};
 
 /* ----------------------- date parsing helpers ----------------------- */
 
-// normalize 2-digit years (00–69 -> 2000s, 70–99 -> 1900s)
 function normalizeYear(yy) {
   if (!yy) return null;
   if (yy.length === 4) return yy;
   const n = parseInt(yy, 10);
-  return (n < 70 ? "20" : "19") + yy;
+  return (n < 70 ? "20" : "19") + yy; // 00–69 => 2000s, 70–99 => 1900s
 }
 
 const MONTHS = {
@@ -29,7 +43,7 @@ const MONTHS = {
   dec: "12", december: "12",
 };
 
-// Collect ISO dates (YYYY-MM-DD) in the order they appear in text
+// Collect ISO dates in the order they appear
 function collectDates(text = "") {
   const t = String(text);
   const hits = [];
@@ -50,7 +64,7 @@ function collectDates(text = "") {
     });
   }
 
-  // Month DD YYYY  (Oct 10 2025, October 10, 2025)
+  // Month DD YYYY
   for (const m of t.matchAll(/\b([A-Za-z]{3,9})\s+(\d{1,2}),?\s*(\d{2,4})\b/g)) {
     let [_, mname, dd, yy] = m;
     const mo = MONTHS[mname.toLowerCase()];
@@ -67,30 +81,39 @@ function collectDates(text = "") {
   return hits.map(h => h.iso);
 }
 
-function extractDatesAndGuests(text = "") {
+function extractProperty(text = "") {
+  const t = text.toLowerCase();
+  // direct matches first
+  for (const k of Object.keys(PROPERTIES)) {
+    if (t.includes(k)) return PROPERTIES[k];
+  }
+  // “unit 1234” numeric pattern
+  const m = t.match(/unit\s*(\d{3,5})/);
+  if (m && PROPERTIES[m[1]]) return PROPERTIES[m[1]];
+  return null;
+}
+
+function extractDatesGuestsProperty(text = "") {
   const dates = collectDates(text);
 
+  // guests
   let adults, children;
-
   const mAdults = text.match(/(\d+)\s*adults?/i);
   if (mAdults) adults = parseInt(mAdults[1], 10);
-
   const mKids = text.match(/(\d+)\s*(kids?|children?|child)/i);
   if (mKids) children = parseInt(mKids[1], 10);
-
   const mGuests = text.match(/(\d+)\s*guests?/i);
   if (mGuests && adults === undefined && children === undefined) {
     adults = parseInt(mGuests[1], 10);
     children = 0;
   }
-
   if (adults === undefined) adults = 2;
   if (children === undefined) children = 0;
 
+  const propertyValue = extractProperty(text) || DEFAULT_PROPERTY;
+
   if (dates.length >= 2) {
-    const start = dates[0];
-    const end = dates[1];
-    return { start, end, adults, children };
+    return { start: dates[0], end: dates[1], adults, children, propertyValue };
   }
   return null;
 }
@@ -100,22 +123,21 @@ function fmtUS(iso) { // YYYY-MM-DD -> MM/DD/YYYY
   return `${m}/${d}/${y}`;
 }
 
-// Try multiple param styles (one of these should prefill on OwnerRez)
-function buildQuoteLinks({ start, end, adults, children }) {
-  const base = (BOOK_URL || "").replace(/\/$/, "");
-  const q = (u) => u.replace(/\s/g, "%20"); // minimal encode
+// Build a SINGLE link in the format your page expects (US dates + property)
+function buildQuoteLink({ start, end, adults, children, propertyValue }) {
+  const params = new URLSearchParams();
+  params.set("arrival", fmtUS(start));
+  params.set("departure", fmtUS(end));
+  params.set("adults", String(adults));
+  params.set("children", String(children));
+  params.set(PROPERTY_PARAM, propertyValue); // e.g., property=Pelican Beach Resort Unit 1006  OR propertyId=12345
 
-  return [
-    { label: "start/end (ISO)", url: q(`${base}?start=${start}&end=${end}&adults=${adults}&children=${children}`) },
-    { label: "checkin/checkout (ISO)", url: q(`${base}?checkin=${start}&checkout=${end}&adults=${adults}&children=${children}`) },
-    { label: "arrival/departure (US)", url: q(`${base}?arrival=${fmtUS(start)}&departure=${fmtUS(end)}&adults=${adults}&children=${children}`) },
-    { label: "arrive/depart (ISO)", url: q(`${base}?arrive=${start}&depart=${end}&adults=${adults}&children=${children}`) },
-    { label: "startdate/enddate (ISO)", url: q(`${base}?startdate=${start}&enddate=${end}&adults=${adults}&children=${children}`) },
-    { label: "sd/ed (ISO)", url: q(`${base}?sd=${start}&ed=${end}&adults=${adults}&children=${children}`) },
-  ];
+  // For safety, don’t double “/”
+  const base = (BOOK_URL || "").replace(/\/$/, "");
+  return `${base}?${params.toString()}`;
 }
 
-/* ---------------------------- FAQ fallback ---------------------------- */
+/* ------------------------------ FAQ fallback ------------------------------ */
 function norm(s = "") { return s.toLowerCase().replace(/[\s\-_]/g, ""); }
 function faqReply(userText = "") {
   const n = norm(userText);
@@ -130,14 +152,14 @@ function faqReply(userText = "") {
   if (n.includes("pets"))
     return "We welcome small, well-behaved pets with prior approval and a cleaning fee.";
   if (n.includes("book") || n.includes("availability") || n.includes("reserve"))
-    return "Share your check-in/check-out dates and guest count and I’ll create a quote link.";
+    return "Share your check-in/check-out dates, guests, and the unit (e.g., “Unit 1006”), and I’ll create a quote link.";
   return null;
 }
 
-/* ------------------------------ handler ------------------------------ */
+/* -------------------------------- handler -------------------------------- */
 export default async function handler(req, res) {
   if (req.method === "GET") {
-    return res.status(200).json({ ok: true, bookUrl: BOOK_URL });
+    return res.status(200).json({ ok: true, bookUrl: BOOK_URL, propertyParam: PROPERTY_PARAM, defaultProperty: DEFAULT_PROPERTY });
   }
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -147,34 +169,34 @@ export default async function handler(req, res) {
     const { messages = [] } = req.body || {};
     const lastUser = [...messages].reverse().find(m => m.role === "user")?.content || "";
 
-    // 0) User sent dates/guests → return quote links
-    const parsed = extractDatesAndGuests(lastUser);
+    // Dates/Guests/Property → single quote link
+    const parsed = extractDatesGuestsProperty(lastUser);
     if (parsed) {
-      const links = buildQuoteLinks(parsed);
+      const link = buildQuoteLink(parsed);
       const guestLine =
         `${parsed.adults} adult${parsed.adults > 1 ? "s" : ""}` +
         (parsed.children ? ` + ${parsed.children} child${parsed.children > 1 ? "ren" : ""}` : "");
       const reply =
-        `Great — check-in **${parsed.start}**, check-out **${parsed.end}** for **${guestLine}**.\n\n` +
-        `Try these **instant quote links** (one should prefill on your site):\n` +
-        links.map(l => `• ${l.label}: ${l.url}`).join("\n") +
-        `\n\nYou can adjust dates or guests on the booking page.`;
+        `Great — **${parsed.propertyValue}** for **${guestLine}**, ` +
+        `check-in **${parsed.start}**, check-out **${parsed.end}**.\n\n` +
+        `Here’s your **instant quote**:\n${link}\n\n` +
+        `You can adjust details on the booking page.`;
       return res.status(200).json({ reply });
     }
 
-    // 1) FAQs
+    // FAQs
     const faq = faqReply(lastUser);
     if (faq) return res.status(200).json({ reply: faq });
 
-    // 2) Generic prompt
+    // Prompt for the right info
     return res.status(200).json({
       reply:
-        "Please share your **check-in / check-out** dates and **number of guests** (e.g., “2025-10-10 to 2025-10-15, 2 adults 1 child”), and I’ll send you a quote link."
+        "Please share **unit** (e.g., “Unit 1006”), **check-in / check-out** dates, and **guests** (e.g., “2 adults 1 child”). I’ll send a quote link."
     });
   } catch (err) {
     console.error("Chat API error:", err);
     return res.status(200).json({
-      reply: "I hit a temporary error. Please resend your dates and guest count."
+      reply: "I hit a temporary error. Please resend your dates, guests, and unit number."
     });
   }
 }

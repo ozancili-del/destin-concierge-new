@@ -1,15 +1,17 @@
 // pages/api/chat.js
 
-// Use your booking URL from env; fallback to your site so it still works if env is missing.
+// Use your booking URL from env; fallback to your live site so it still works.
 const BOOK_URL =
   process.env.OWNERREZ_BOOK_URL || "https://www.destincondogetaways.com/book";
 
-// ---------- date parsing helpers ----------
+/* ----------------------- date parsing helpers ----------------------- */
+
+// normalize 2-digit years (00–69 -> 2000s, 70–99 -> 1900s)
 function normalizeYear(yy) {
   if (!yy) return null;
   if (yy.length === 4) return yy;
   const n = parseInt(yy, 10);
-  return (n < 70 ? "20" : "19") + yy; // 00–69 => 2000s, 70–99 => 1900s
+  return (n < 70 ? "20" : "19") + yy;
 }
 
 const MONTHS = {
@@ -27,7 +29,7 @@ const MONTHS = {
   dec: "12", december: "12",
 };
 
-// Collect ISO dates in the order they appear
+// Collect ISO dates (YYYY-MM-DD) in the order they appear in text
 function collectDates(text = "") {
   const t = String(text);
   const hits = [];
@@ -48,7 +50,7 @@ function collectDates(text = "") {
     });
   }
 
-  // Month DD YYYY  (e.g., Oct 10 2025 or October 10, 2025)
+  // Month DD YYYY  (Oct 10 2025, October 10, 2025)
   for (const m of t.matchAll(/\b([A-Za-z]{3,9})\s+(\d{1,2}),?\s*(\d{2,4})\b/g)) {
     let [_, mname, dd, yy] = m;
     const mo = MONTHS[mname.toLowerCase()];
@@ -93,14 +95,27 @@ function extractDatesAndGuests(text = "") {
   return null;
 }
 
-function buildQuoteLinks({ start, end, adults, children }) {
-  // Use two common param styles; one should prefill on OwnerRez
-  const primary = `${BOOK_URL}?start=${start}&end=${end}&adults=${adults}&children=${children}`;
-  const alt = `${BOOK_URL}?checkin=${start}&checkout=${end}&adults=${adults}&children=${children}`;
-  return { primary, alt };
+function fmtUS(iso) { // YYYY-MM-DD -> MM/DD/YYYY
+  const [y, m, d] = iso.split("-");
+  return `${m}/${d}/${y}`;
 }
 
-// ---------- FAQ fallback (kept simple) ----------
+// Try multiple param styles (one of these should prefill on OwnerRez)
+function buildQuoteLinks({ start, end, adults, children }) {
+  const base = (BOOK_URL || "").replace(/\/$/, "");
+  const q = (u) => u.replace(/\s/g, "%20"); // minimal encode
+
+  return [
+    { label: "start/end (ISO)", url: q(`${base}?start=${start}&end=${end}&adults=${adults}&children=${children}`) },
+    { label: "checkin/checkout (ISO)", url: q(`${base}?checkin=${start}&checkout=${end}&adults=${adults}&children=${children}`) },
+    { label: "arrival/departure (US)", url: q(`${base}?arrival=${fmtUS(start)}&departure=${fmtUS(end)}&adults=${adults}&children=${children}`) },
+    { label: "arrive/depart (ISO)", url: q(`${base}?arrive=${start}&depart=${end}&adults=${adults}&children=${children}`) },
+    { label: "startdate/enddate (ISO)", url: q(`${base}?startdate=${start}&enddate=${end}&adults=${adults}&children=${children}`) },
+    { label: "sd/ed (ISO)", url: q(`${base}?sd=${start}&ed=${end}&adults=${adults}&children=${children}`) },
+  ];
+}
+
+/* ---------------------------- FAQ fallback ---------------------------- */
 function norm(s = "") { return s.toLowerCase().replace(/[\s\-_]/g, ""); }
 function faqReply(userText = "") {
   const n = norm(userText);
@@ -115,14 +130,14 @@ function faqReply(userText = "") {
   if (n.includes("pets"))
     return "We welcome small, well-behaved pets with prior approval and a cleaning fee.";
   if (n.includes("book") || n.includes("availability") || n.includes("reserve"))
-    return "Tell me your check-in/check-out dates and guest count and I’ll create a quote link.";
+    return "Share your check-in/check-out dates and guest count and I’ll create a quote link.";
   return null;
 }
 
-// ---------- handler ----------
+/* ------------------------------ handler ------------------------------ */
 export default async function handler(req, res) {
   if (req.method === "GET") {
-    return res.status(200).json({ ok: true, bookUrl: BOOK_URL }); // simple health check
+    return res.status(200).json({ ok: true, bookUrl: BOOK_URL });
   }
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -132,33 +147,32 @@ export default async function handler(req, res) {
     const { messages = [] } = req.body || {};
     const lastUser = [...messages].reverse().find(m => m.role === "user")?.content || "";
 
-    // 0) If user sent usable dates/guests → return quote links immediately
+    // 0) User sent dates/guests → return quote links
     const parsed = extractDatesAndGuests(lastUser);
     if (parsed) {
-      const { primary, alt } = buildQuoteLinks(parsed);
+      const links = buildQuoteLinks(parsed);
       const guestLine =
         `${parsed.adults} adult${parsed.adults > 1 ? "s" : ""}` +
         (parsed.children ? ` + ${parsed.children} child${parsed.children > 1 ? "ren" : ""}` : "");
       const reply =
         `Great — check-in **${parsed.start}**, check-out **${parsed.end}** for **${guestLine}**.\n\n` +
-        `Here’s your **instant quote link**:\n${primary}\n\n` +
-        `If it doesn’t prefill on your site, try this version:\n${alt}\n\n` +
-        `You can adjust dates or guests on the booking page.`;
+        `Try these **instant quote links** (one should prefill on your site):\n` +
+        links.map(l => `• ${l.label}: ${l.url}`).join("\n") +
+        `\n\nYou can adjust dates or guests on the booking page.`;
       return res.status(200).json({ reply });
     }
 
-    // 1) FAQ answers
+    // 1) FAQs
     const faq = faqReply(lastUser);
     if (faq) return res.status(200).json({ reply: faq });
 
-    // 2) Generic prompt if nothing matched
+    // 2) Generic prompt
     return res.status(200).json({
       reply:
         "Please share your **check-in / check-out** dates and **number of guests** (e.g., “2025-10-10 to 2025-10-15, 2 adults 1 child”), and I’ll send you a quote link."
     });
   } catch (err) {
     console.error("Chat API error:", err);
-    // Always return JSON so the frontend never trips
     return res.status(200).json({
       reply: "I hit a temporary error. Please resend your dates and guest count."
     });

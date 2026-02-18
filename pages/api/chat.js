@@ -19,8 +19,13 @@ async function checkAvailability(propertyId, arrival, departure) {
     const token = process.env.OWNERREZ_API_TOKEN;
     const credentials = Buffer.from(`${OWNERREZ_USER}:${token}`).toString("base64");
 
-    // v1 listings availability endpoint - pass comma-separated IDs
-    const url = `https://api.ownerrez.com/v1/listings/availability?ids=${propertyId}&startdate=${arrival}&enddate=${departure}`;
+    // OwnerRez v1 expects MM/DD/YYYY format
+    const toOwnerRezDate = (iso) => {
+      const [y, m, d] = iso.split("-");
+      return `${m}/${d}/${y}`;
+    };
+
+    const url = `https://api.ownerrez.com/v1/listings/availability?ids=${propertyId}&startdate=${toOwnerRezDate(arrival)}&enddate=${toOwnerRezDate(departure)}`;
 
     const response = await fetch(url, {
       headers: {
@@ -31,7 +36,9 @@ async function checkAvailability(propertyId, arrival, departure) {
     });
 
     if (!response.ok) {
+      const errorBody = await response.text();
       console.error(`OwnerRez API error: ${response.status} ${response.statusText} for property ${propertyId}`);
+      console.error(`OwnerRez error body:`, errorBody);
       return null;
     }
 

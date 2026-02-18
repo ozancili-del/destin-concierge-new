@@ -12,24 +12,36 @@ const UNIT_707_ID = "293722";
 const UNIT_1006_ID = "410894";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Check availability for a property via OwnerRez API
+// Check availability via OwnerRez API
 // ─────────────────────────────────────────────────────────────────────────────
 async function checkAvailability(propertyId, arrival, departure) {
   try {
     const token = process.env.OWNERREZ_API_TOKEN;
     const credentials = Buffer.from(`${OWNERREZ_USER}:${token}`).toString("base64");
-    const url = `https://api.ownerreservations.com/v2/properties/${propertyId}/availability?start_date=${arrival}&end_date=${departure}`;
+
+    const url = `https://api.ownerrez.com/v2/properties/${propertyId}/availability?start_date=${arrival}&end_date=${departure}`;
+
     const response = await fetch(url, {
       headers: {
         Authorization: `Basic ${credentials}`,
         "Content-Type": "application/json",
+        "Accept": "application/json",
       },
     });
-    if (!response.ok) return null;
+
+    if (!response.ok) {
+      console.error(`OwnerRez API error: ${response.status} ${response.statusText}`);
+      return null;
+    }
+
     const data = await response.json();
+    console.log("OwnerRez response:", JSON.stringify(data).substring(0, 200));
+
+    // Check if any dates are blocked
     const hasBlocked = data?.items?.some((d) => d.available === false);
     return !hasBlocked;
-  } catch {
+  } catch (err) {
+    console.error("OwnerRez fetch error:", err.message);
     return null;
   }
 }
@@ -38,20 +50,24 @@ async function checkAvailability(propertyId, arrival, departure) {
 // Extract dates from message
 // ─────────────────────────────────────────────────────────────────────────────
 function extractDates(text) {
+  // ISO format YYYY-MM-DD
   const isoPattern = /(\d{4}-\d{2}-\d{2})/g;
-  const matches = text.match(isoPattern);
-  if (matches && matches.length >= 2) {
-    return { arrival: matches[0], departure: matches[1] };
+  const isoMatches = text.match(isoPattern);
+  if (isoMatches && isoMatches.length >= 2) {
+    return { arrival: isoMatches[0], departure: isoMatches[1] };
   }
 
-  // Try month name patterns like "March 27" and "April 3"
-  const months = { january:1,february:2,march:3,april:4,may:5,june:6,july:7,august:8,september:9,october:10,november:11,december:12 };
+  // Month name patterns like "March 27" and "April 3"
+  const months = {
+    january:"01",february:"02",march:"03",april:"04",may:"05",june:"06",
+    july:"07",august:"08",september:"09",october:"10",november:"11",december:"12"
+  };
   const monthPattern = /\b(january|february|march|april|may|june|july|august|september|october|november|december)\s+(\d{1,2})/gi;
   const dateMatches = [...text.matchAll(monthPattern)];
   if (dateMatches.length >= 2) {
     const year = new Date().getFullYear();
     const toISO = (m) => {
-      const month = String(months[m[1].toLowerCase()]).padStart(2, "0");
+      const month = months[m[1].toLowerCase()];
       const day = String(m[2]).padStart(2, "0");
       return `${year}-${month}-${day}`;
     };
@@ -89,7 +105,7 @@ export default async function handler(req, res) {
       year: "numeric", month: "long", day: "numeric", weekday: "long",
     });
 
-    // Check if message contains dates - if so, do live availability check
+    // Live availability check if dates found
     let availabilityContext = "";
     const dates = extractDates(lastUser);
 
@@ -99,27 +115,25 @@ export default async function handler(req, res) {
         checkAvailability(UNIT_1006_ID, dates.arrival, dates.departure),
       ]);
 
-      // Extract guest counts
       const adultsMatch = lastUser.match(/(\d+)\s*adult/i);
       const childrenMatch = lastUser.match(/(\d+)\s*(kid|child)/i);
       const adults = adultsMatch ? adultsMatch[1] : "2";
       const children = childrenMatch ? childrenMatch[1] : "0";
 
       if (avail707 === false && avail1006 === false) {
-        availabilityContext = `AVAILABILITY CHECK RESULT: Both units are UNAVAILABLE for ${dates.arrival} to ${dates.departure}. Tell the guest both units are booked for those dates and suggest they check nearby dates or the availability calendar at https://www.destincondogetaways.com/availability`;
+        availabilityContext = `LIVE AVAILABILITY: Both units are BOOKED for ${dates.arrival} to ${dates.departure}. Tell guest both are unavailable and suggest checking https://www.destincondogetaways.com/availability for open dates.`;
       } else if (avail707 === true && avail1006 === false) {
         const link = buildLink("707", dates.arrival, dates.departure, adults, children);
-        availabilityContext = `AVAILABILITY CHECK RESULT: Unit 707 is AVAILABLE, Unit 1006 is NOT available for ${dates.arrival} to ${dates.departure}. Only offer Unit 707. Booking link: ${link} — remind them to use code DESTINY for 10% off.`;
+        availabilityContext = `LIVE AVAILABILITY: Unit 707 is AVAILABLE, Unit 1006 is BOOKED for ${dates.arrival} to ${dates.departure}. Only offer Unit 707. Link: ${link}`;
       } else if (avail707 === false && avail1006 === true) {
         const link = buildLink("1006", dates.arrival, dates.departure, adults, children);
-        availabilityContext = `AVAILABILITY CHECK RESULT: Unit 1006 is AVAILABLE, Unit 707 is NOT available for ${dates.arrival} to ${dates.departure}. Only offer Unit 1006. Booking link: ${link} — remind them to use code DESTINY for 10% off.`;
+        availabilityContext = `LIVE AVAILABILITY: Unit 1006 is AVAILABLE, Unit 707 is BOOKED for ${dates.arrival} to ${dates.departure}. Only offer Unit 1006. Link: ${link}`;
       } else if (avail707 === true && avail1006 === true) {
         const link707 = buildLink("707", dates.arrival, dates.departure, adults, children);
         const link1006 = buildLink("1006", dates.arrival, dates.departure, adults, children);
-        availabilityContext = `AVAILABILITY CHECK RESULT: BOTH units are AVAILABLE for ${dates.arrival} to ${dates.departure}. Offer both options. Unit 707 (7th floor) link: ${link707} — Unit 1006 (10th floor, better views) link: ${link1006} — remind them to use code DESTINY for 10% off.`;
+        availabilityContext = `LIVE AVAILABILITY: BOTH units are AVAILABLE for ${dates.arrival} to ${dates.departure}. Offer both. Unit 707 (7th floor): ${link707} — Unit 1006 (10th floor, best views): ${link1006}`;
       } else {
-        // API call failed - still helpful
-        availabilityContext = `AVAILABILITY CHECK: Could not verify live availability. Direct guest to check https://www.destincondogetaways.com/availability for real-time availability.`;
+        availabilityContext = `AVAILABILITY: Could not verify live availability right now. Direct guest to https://www.destincondogetaways.com/availability`;
       }
     }
 
@@ -128,33 +142,26 @@ You help guests book beachfront condos at Pelican Beach Resort in Destin, Florid
 You are warm, helpful, and love Destin. Keep responses concise and friendly.
 Today's date is ${today}.
 
-${availabilityContext ? availabilityContext + "\n\nIMPORTANT: Use the availability results above to answer the guest. Do not make up availability." : ""}
+${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these availability results. Do not offer units that are booked." : ""}
 
 PROPERTIES:
-Unit 707 (7th floor): 1 bedroom, 2 bathrooms, sleeps up to 6, Gulf views, beachfront
-Unit 1006 (10th floor): 1 bedroom, 2 bathrooms, sleeps up to 6, higher floor = better views, beachfront
+- Unit 707 (7th floor): 1 bed, 2 bath, sleeps 6, Gulf views, beachfront
+- Unit 1006 (10th floor): 1 bed, 2 bath, sleeps 6, higher floor = better views, beachfront
 
-BOTH UNITS INCLUDE:
-- Full kitchen, private balcony with Gulf views, free Wi-Fi, free parking
-- Indoor + outdoor pools, hot tubs, gym, beachfront access, washer/dryer
+BOTH UNITS: Full kitchen, private balcony, free Wi-Fi, free parking, pools (indoor+outdoor), hot tubs, gym, washer/dryer
 
-BOOKING INFO:
-- Use discount code DESTINY for 10% off
-- 50% deposit at booking, 50% before arrival
-- Check-in: 4:00 PM | Check-out: 11:00 AM
-- Early/late subject to availability
+BOOKING: Code DESTINY = 10% off | 50% deposit now, 50% before arrival | Check-in 4pm | Check-out 11am
 
-POLICIES:
-- Small pets allowed with prior approval + cleaning fee
-- No smoking | Max 6 guests per unit
+POLICIES: Small pets OK with approval + fee | No smoking | Max 6 guests
 
 CONTACT: (972) 357-4262 | ozan@destincondogetaways.com
 
-INSTRUCTIONS:
-- Never make up availability - always use the availability check results above
-- Never make up pricing - direct to booking page for current rates
-- Be concise - 2-3 sentences max unless more detail is needed
-- If you don't know something, offer to have Ozan follow up and ask for their email`;
+RULES:
+- Never make up availability - only use the live check results above
+- Never make up pricing - direct to booking page for rates
+- If unknown, offer to have Ozan follow up and ask for email
+- Be concise - 2-3 sentences unless more detail needed
+- Always mention code DESTINY for 10% off when sharing booking links`;
 
     const openAIMessages = [
       { role: "system", content: SYSTEM_PROMPT },
@@ -174,7 +181,7 @@ INSTRUCTIONS:
     return res.status(200).json({ reply });
 
   } catch (err) {
-    console.error("Destiny Blue API error:", err);
+    console.error("Destiny Blue error:", err);
     if (err?.status === 401) {
       return res.status(200).json({
         reply: "I'm having trouble connecting. Please call (972) 357-4262 or email ozan@destincondogetaways.com",

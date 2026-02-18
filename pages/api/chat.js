@@ -125,7 +125,9 @@ export default async function handler(req, res) {
     });
 
     let availabilityContext = "";
-    const dates = extractDates(lastUser);
+    // Search ALL user messages for dates - handles follow-ups like "what about 1006?"
+    const allUserText = messages.filter((m) => m.role === "user").map((m) => m.content).join(" ");
+    const dates = extractDates(lastUser) || extractDates(allUserText);
 
     if (dates) {
       const [avail707, avail1006] = await Promise.all([

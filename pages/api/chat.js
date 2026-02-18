@@ -8,11 +8,28 @@ const openai = new OpenAI({
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Property Knowledge Base - Edit this to update Destiny's knowledge
+// API Handler
 // ─────────────────────────────────────────────────────────────────────────────
-const SYSTEM_PROMPT = `You are Destiny Blue, a friendly and enthusiastic AI concierge for Destin Condo Getaways. 
+export default async function handler(req, res) {
+  if (req.method === "GET") {
+    return res.status(200).json({ ok: true, status: "Destiny Blue is online" });
+  }
+
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  try {
+    const { messages = [] } = req.body || {};
+
+    const today = new Date().toLocaleDateString("en-US", {
+      year: "numeric", month: "long", day: "numeric", weekday: "long",
+    });
+
+    const SYSTEM_PROMPT = `You are Destiny Blue, a friendly and enthusiastic AI concierge for Destin Condo Getaways.
 You help guests book beachfront condos at Pelican Beach Resort in Destin, Florida.
 You are warm, helpful, and love Destin. Keep responses concise and friendly.
+Today's date is ${today}.
 
 PROPERTIES:
 
@@ -23,7 +40,7 @@ Unit 707 (7th floor):
 - Book URL: https://www.destincondogetaways.com/pelican-beach-resort-unit-707-orp5b47b5ax
 
 Unit 1006 (10th floor):
-- 1 bedroom, 2 bathrooms, sleeps up to 6  
+- 1 bedroom, 2 bathrooms, sleeps up to 6
 - Higher floor = more spectacular Gulf views
 - Direct beachfront access
 - Book URL: https://www.destincondogetaways.com/pelican-beach-resort-unit-1006-orp5b6450ex
@@ -59,10 +76,9 @@ CONTACT:
 
 RATINGS: 4.94 stars across 400+ stays, 1000+ happy guests
 
-BUILDING LINKS:
-- Generate booking links with these URL patterns:
-  Unit 707: https://www.destincondogetaways.com/pelican-beach-resort-unit-707-orp5b47b5ax?or_arrival=YYYY-MM-DD&or_departure=YYYY-MM-DD&or_adults=X&or_children=X
-  Unit 1006: https://www.destincondogetaways.com/pelican-beach-resort-unit-1006-orp5b6450ex?or_arrival=YYYY-MM-DD&or_departure=YYYY-MM-DD&or_adults=X&or_children=X
+BOOKING LINK FORMAT:
+Unit 707: https://www.destincondogetaways.com/pelican-beach-resort-unit-707-orp5b47b5ax?or_arrival=YYYY-MM-DD&or_departure=YYYY-MM-DD&or_adults=X&or_children=X
+Unit 1006: https://www.destincondogetaways.com/pelican-beach-resort-unit-1006-orp5b6450ex?or_arrival=YYYY-MM-DD&or_departure=YYYY-MM-DD&or_adults=X&or_children=X
 
 INSTRUCTIONS:
 - When a guest gives you dates and guest count, generate the correct booking link with those parameters filled in
@@ -72,21 +88,6 @@ INSTRUCTIONS:
 - If asked something you don't know, say you'll have Ozan follow up and ask for their email
 - Never make up pricing - tell them the booking page shows current rates
 - Be concise - 2-3 sentences max unless they need detailed info`;
-
-// ─────────────────────────────────────────────────────────────────────────────
-// API Handler
-// ─────────────────────────────────────────────────────────────────────────────
-export default async function handler(req, res) {
-  if (req.method === "GET") {
-    return res.status(200).json({ ok: true, status: "Destiny Blue is online" });
-  }
-
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
-
-  try {
-    const { messages = [] } = req.body || {};
 
     // Build messages array for OpenAI
     const openAIMessages = [

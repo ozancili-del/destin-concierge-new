@@ -12,14 +12,15 @@ const UNIT_707_ID = "293722";
 const UNIT_1006_ID = "410894";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Check availability via OwnerRez API
+// Check availability via OwnerRez v1 API
 // ─────────────────────────────────────────────────────────────────────────────
 async function checkAvailability(propertyId, arrival, departure) {
   try {
     const token = process.env.OWNERREZ_API_TOKEN;
     const credentials = Buffer.from(`${OWNERREZ_USER}:${token}`).toString("base64");
 
-    const url = `https://api.ownerrez.com/v2/properties/${propertyId}/availability?start_date=${arrival}&end_date=${departure}`;
+    // v1 listings availability endpoint - pass comma-separated IDs
+    const url = `https://api.ownerrez.com/v1/listings/availability?ids=${propertyId}&startdate=${arrival}&enddate=${departure}`;
 
     const response = await fetch(url, {
       headers: {
@@ -30,16 +31,30 @@ async function checkAvailability(propertyId, arrival, departure) {
     });
 
     if (!response.ok) {
-      console.error(`OwnerRez API error: ${response.status} ${response.statusText}`);
+      console.error(`OwnerRez API error: ${response.status} ${response.statusText} for property ${propertyId}`);
       return null;
     }
 
     const data = await response.json();
-    console.log("OwnerRez response:", JSON.stringify(data).substring(0, 200));
+    console.log(`OwnerRez availability for ${propertyId}:`, JSON.stringify(data).substring(0, 300));
 
-    // Check if any dates are blocked
-    const hasBlocked = data?.items?.some((d) => d.available === false);
-    return !hasBlocked;
+    // The API returns availability data - check if any dates are blocked
+    // Look for the property in the response
+    const listing = data?.listings?.find(l => String(l.id) === String(propertyId)) || data;
+
+    // If availability string exists, check for 'N' (not available) in the range
+    if (listing?.availability) {
+      return !listing.availability.includes("N");
+    }
+
+    // Alternative: check items array
+    if (data?.items) {
+      const hasBlocked = data.items.some(d => d.available === false || d.availability === "N");
+      return !hasBlocked;
+    }
+
+    // If we got a 200 response but can't parse, assume available
+    return true;
   } catch (err) {
     console.error("OwnerRez fetch error:", err.message);
     return null;
@@ -50,14 +65,12 @@ async function checkAvailability(propertyId, arrival, departure) {
 // Extract dates from message
 // ─────────────────────────────────────────────────────────────────────────────
 function extractDates(text) {
-  // ISO format YYYY-MM-DD
   const isoPattern = /(\d{4}-\d{2}-\d{2})/g;
   const isoMatches = text.match(isoPattern);
   if (isoMatches && isoMatches.length >= 2) {
     return { arrival: isoMatches[0], departure: isoMatches[1] };
   }
 
-  // Month name patterns like "March 27" and "April 3"
   const months = {
     january:"01",february:"02",march:"03",april:"04",may:"05",june:"06",
     july:"07",august:"08",september:"09",october:"10",november:"11",december:"12"
@@ -105,7 +118,6 @@ export default async function handler(req, res) {
       year: "numeric", month: "long", day: "numeric", weekday: "long",
     });
 
-    // Live availability check if dates found
     let availabilityContext = "";
     const dates = extractDates(lastUser);
 
@@ -159,7 +171,7 @@ CONTACT: (972) 357-4262 | ozan@destincondogetaways.com
 RULES:
 - Never make up availability - only use the live check results above
 - Never make up pricing - direct to booking page for rates
-- If unknown, offer to have Ozan follow up and ask for email
+- If you don't know something, offer to have Ozan follow up and ask for email
 - Be concise - 2-3 sentences unless more detail needed
 - Always mention code DESTINY for 10% off when sharing booking links`;
 

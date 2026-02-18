@@ -20,8 +20,11 @@ async function checkAvailability(propertyId, arrival, departure) {
     const token = process.env.OWNERREZ_API_TOKEN;
     const credentials = Buffer.from(`${OWNERREZ_USER}:${token}`).toString("base64");
 
-    // Use v2 bookings endpoint - filter by property and active status
-    const url = `https://api.ownerrez.com/v2/bookings?property_id=${propertyId}&status=active`;
+    // Use v2 bookings endpoint - API requires 'property_ids' (plural) and 'since_utc'
+    const since = new Date();
+    since.setFullYear(since.getFullYear() - 1); // look back 1 year to catch all active bookings
+    const sinceUtc = since.toISOString();
+    const url = `https://api.ownerrez.com/v2/bookings?property_ids=${propertyId}&since_utc=${sinceUtc}&status=active`;
 
     const response = await fetch(url, {
       headers: {

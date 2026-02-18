@@ -8,30 +8,27 @@ const openai = new OpenAI({
 });
 
 const OWNERREZ_USER = "destindreamcondo@gmail.com";
-const UNIT_707_ID = "293722";
-const UNIT_1006_ID = "410894";
+const UNIT_707_PROPERTY_ID = "293722";
+const UNIT_1006_PROPERTY_ID = "410894";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Check availability via OwnerRez v1 API
+// Check availability using OwnerRez v2 bookings API
+// We fetch all active bookings for the property and check for date overlaps
 // ─────────────────────────────────────────────────────────────────────────────
 async function checkAvailability(propertyId, arrival, departure) {
   try {
     const token = process.env.OWNERREZ_API_TOKEN;
     const credentials = Buffer.from(`${OWNERREZ_USER}:${token}`).toString("base64");
 
-    // OwnerRez v1 expects MM/DD/YYYY format
-    const toOwnerRezDate = (iso) => {
-      const [y, m, d] = iso.split("-");
-      return `${m}/${d}/${y}`;
-    };
-
-    const url = `https://api.ownerrez.com/v1/listings/availability?ids=${propertyId}&startdate=${toOwnerRezDate(arrival)}&enddate=${toOwnerRezDate(departure)}`;
+    // Use v2 bookings endpoint - filter by property and active status
+    const url = `https://api.ownerrez.com/v2/bookings?property_id=${propertyId}&status=active`;
 
     const response = await fetch(url, {
       headers: {
         Authorization: `Basic ${credentials}`,
         "Content-Type": "application/json",
         "Accept": "application/json",
+        "User-Agent": "DestinyBlue/1.0",
       },
     });
 
@@ -43,25 +40,24 @@ async function checkAvailability(propertyId, arrival, departure) {
     }
 
     const data = await response.json();
-    console.log(`OwnerRez availability for ${propertyId}:`, JSON.stringify(data).substring(0, 300));
+    console.log(`OwnerRez bookings for property ${propertyId}:`, JSON.stringify(data).substring(0, 500));
 
-    // The API returns availability data - check if any dates are blocked
-    // Look for the property in the response
-    const listing = data?.listings?.find(l => String(l.id) === String(propertyId)) || data;
+    const bookings = data?.items || data?.bookings || [];
 
-    // If availability string exists, check for 'N' (not available) in the range
-    if (listing?.availability) {
-      return !listing.availability.includes("N");
-    }
+    // Convert arrival/departure strings to Date objects for comparison
+    const requestArrival = new Date(arrival);
+    const requestDeparture = new Date(departure);
 
-    // Alternative: check items array
-    if (data?.items) {
-      const hasBlocked = data.items.some(d => d.available === false || d.availability === "N");
-      return !hasBlocked;
-    }
+    // Check if any existing booking overlaps our requested dates
+    // A booking overlaps if: bookingArrival < requestDeparture AND bookingDeparture > requestArrival
+    const hasConflict = bookings.some((booking) => {
+      const bookingArrival = new Date(booking.arrival || booking.check_in || booking.arrivalDate);
+      const bookingDeparture = new Date(booking.departure || booking.check_out || booking.departureDate);
+      return bookingArrival < requestDeparture && bookingDeparture > requestArrival;
+    });
 
-    // If we got a 200 response but can't parse, assume available
-    return true;
+    return !hasConflict; // true = available, false = booked
+
   } catch (err) {
     console.error("OwnerRez fetch error:", err.message);
     return null;
@@ -130,8 +126,8 @@ export default async function handler(req, res) {
 
     if (dates) {
       const [avail707, avail1006] = await Promise.all([
-        checkAvailability(UNIT_707_ID, dates.arrival, dates.departure),
-        checkAvailability(UNIT_1006_ID, dates.arrival, dates.departure),
+        checkAvailability(UNIT_707_PROPERTY_ID, dates.arrival, dates.departure),
+        checkAvailability(UNIT_1006_PROPERTY_ID, dates.arrival, dates.departure),
       ]);
 
       const adultsMatch = lastUser.match(/(\d+)\s*adult/i);
@@ -139,18 +135,20 @@ export default async function handler(req, res) {
       const adults = adultsMatch ? adultsMatch[1] : "2";
       const children = childrenMatch ? childrenMatch[1] : "0";
 
+      console.log(`Availability results - 707: ${avail707}, 1006: ${avail1006}`);
+
       if (avail707 === false && avail1006 === false) {
         availabilityContext = `LIVE AVAILABILITY: Both units are BOOKED for ${dates.arrival} to ${dates.departure}. Tell guest both are unavailable and suggest checking https://www.destincondogetaways.com/availability for open dates.`;
       } else if (avail707 === true && avail1006 === false) {
         const link = buildLink("707", dates.arrival, dates.departure, adults, children);
-        availabilityContext = `LIVE AVAILABILITY: Unit 707 is AVAILABLE, Unit 1006 is BOOKED for ${dates.arrival} to ${dates.departure}. Only offer Unit 707. Link: ${link}`;
+        availabilityContext = `LIVE AVAILABILITY: Unit 707 is AVAILABLE, Unit 1006 is BOOKED for ${dates.arrival} to ${dates.departure}. Only offer Unit 707. Direct booking link: ${link}`;
       } else if (avail707 === false && avail1006 === true) {
         const link = buildLink("1006", dates.arrival, dates.departure, adults, children);
-        availabilityContext = `LIVE AVAILABILITY: Unit 1006 is AVAILABLE, Unit 707 is BOOKED for ${dates.arrival} to ${dates.departure}. Only offer Unit 1006. Link: ${link}`;
+        availabilityContext = `LIVE AVAILABILITY: Unit 1006 is AVAILABLE, Unit 707 is BOOKED for ${dates.arrival} to ${dates.departure}. Only offer Unit 1006. Direct booking link: ${link}`;
       } else if (avail707 === true && avail1006 === true) {
         const link707 = buildLink("707", dates.arrival, dates.departure, adults, children);
         const link1006 = buildLink("1006", dates.arrival, dates.departure, adults, children);
-        availabilityContext = `LIVE AVAILABILITY: BOTH units are AVAILABLE for ${dates.arrival} to ${dates.departure}. Offer both. Unit 707 (7th floor): ${link707} — Unit 1006 (10th floor, best views): ${link1006}`;
+        availabilityContext = `LIVE AVAILABILITY: BOTH units are AVAILABLE for ${dates.arrival} to ${dates.departure}. Offer both. Unit 707 (7th floor) link: ${link707} — Unit 1006 (10th floor, best views) link: ${link1006}`;
       } else {
         availabilityContext = `AVAILABILITY: Could not verify live availability right now. Direct guest to https://www.destincondogetaways.com/availability`;
       }
@@ -161,7 +159,7 @@ You help guests book beachfront condos at Pelican Beach Resort in Destin, Florid
 You are warm, helpful, and love Destin. Keep responses concise and friendly.
 Today's date is ${today}.
 
-${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these availability results. Do not offer units that are booked." : ""}
+${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these availability results. Do not offer units that are booked. Always include the exact booking link(s) provided above in your response." : ""}
 
 PROPERTIES:
 - Unit 707 (7th floor): 1 bed, 2 bath, sleeps 6, Gulf views, beachfront
@@ -180,7 +178,8 @@ RULES:
 - Never make up pricing - direct to booking page for rates
 - If you don't know something, offer to have Ozan follow up and ask for email
 - Be concise - 2-3 sentences unless more detail needed
-- Always mention code DESTINY for 10% off when sharing booking links`;
+- Always mention code DESTINY for 10% off when sharing booking links
+- Always include the direct booking link when availability is confirmed`;
 
     const openAIMessages = [
       { role: "system", content: SYSTEM_PROMPT },

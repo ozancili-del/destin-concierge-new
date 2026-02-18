@@ -102,7 +102,9 @@ function buildLink(unit, arrival, departure, adults, children) {
   const base = unit === "707"
     ? "https://www.destincondogetaways.com/pelican-beach-resort-unit-707-orp5b47b5ax"
     : "https://www.destincondogetaways.com/pelican-beach-resort-unit-1006-orp5b6450ex";
-  return `${base}?or_arrival=${arrival}&or_departure=${departure}&or_adults=${adults}&or_children=${children}`;
+  // or_guests = total headcount (adults + children combined) - this is what OwnerRez widget expects
+  const totalGuests = parseInt(adults) + parseInt(children);
+  return `${base}?or_arrival=${arrival}&or_departure=${departure}&or_adults=${adults}&or_children=${children}&or_guests=${totalGuests}`;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -135,8 +137,9 @@ export default async function handler(req, res) {
         checkAvailability(UNIT_1006_PROPERTY_ID, dates.arrival, dates.departure),
       ]);
 
-      const adultsMatch = lastUser.match(/(\d+)\s*adult/i);
-      const childrenMatch = lastUser.match(/(\d+)\s*(kid|child)/i);
+      // Search full conversation for guest counts, not just last message
+      const adultsMatch = lastUser.match(/(\d+)\s*adult/i) || allUserText.match(/(\d+)\s*adult/i);
+      const childrenMatch = lastUser.match(/(\d+)\s*(kid|child|children)/i) || allUserText.match(/(\d+)\s*(kid|child|children)/i);
       const adults = adultsMatch ? adultsMatch[1] : "2";
       const children = childrenMatch ? childrenMatch[1] : "0";
 

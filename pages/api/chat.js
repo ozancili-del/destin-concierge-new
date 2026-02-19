@@ -356,34 +356,64 @@ RULES — no exceptions:
 
     // 🟢 AVAILABILITY CONTEXT
     if (!dates && !isDiscountRequest && wantsAvailability && mentionedMonth) {
-      // Check 3 sample windows — full month check was wrong:
-      // even 1 booking overlapping the full range = entire month shows "booked"
+      // 10 overlapping 3-night windows covering the full month
       const year = new Date().getFullYear();
       const monthNum = monthNames[mentionedMonth];
       const windows = [
         { arrival: `${year}-${monthNum}-01`, departure: `${year}-${monthNum}-04` },
+        { arrival: `${year}-${monthNum}-04`, departure: `${year}-${monthNum}-07` },
+        { arrival: `${year}-${monthNum}-07`, departure: `${year}-${monthNum}-10` },
         { arrival: `${year}-${monthNum}-10`, departure: `${year}-${monthNum}-13` },
-        { arrival: `${year}-${monthNum}-20`, departure: `${year}-${monthNum}-23` },
+        { arrival: `${year}-${monthNum}-13`, departure: `${year}-${monthNum}-16` },
+        { arrival: `${year}-${monthNum}-16`, departure: `${year}-${monthNum}-19` },
+        { arrival: `${year}-${monthNum}-19`, departure: `${year}-${monthNum}-22` },
+        { arrival: `${year}-${monthNum}-22`, departure: `${year}-${monthNum}-25` },
+        { arrival: `${year}-${monthNum}-25`, departure: `${year}-${monthNum}-28` },
+        { arrival: `${year}-${monthNum}-28`, departure: `${year}-${monthNum}-31` },
       ];
 
-      console.log(`Month check: ${mentionedMonth}, windows:`, JSON.stringify(windows));
-      const windowChecks = await Promise.all(
-        windows.flatMap(w => [
-          checkAvailability(UNIT_707_PROPERTY_ID, w.arrival, w.departure),
-          checkAvailability(UNIT_1006_PROPERTY_ID, w.arrival, w.departure),
-        ])
+      // Check all 10 windows for both units in parallel
+      const results = await Promise.all(
+        windows.map(async (w) => {
+          const [a707, a1006] = await Promise.all([
+            checkAvailability(UNIT_707_PROPERTY_ID, w.arrival, w.departure),
+            checkAvailability(UNIT_1006_PROPERTY_ID, w.arrival, w.departure),
+          ]);
+          return { w, a707, a1006 };
+        })
       );
 
-      console.log(`Month check results for ${mentionedMonth}:`, JSON.stringify(windowChecks));
-      const hasAnyAvailability = windowChecks.some(r => r === true);
-      console.log(`hasAnyAvailability for ${mentionedMonth}:`, hasAnyAvailability);
-      availabilityStatus = `MONTH_QUERY:${mentionedMonth} | windows_checked:3 | any_available:${hasAnyAvailability}`;
+      // Score per unit
+      const open707  = results.filter(r => r.a707  === true).length;
+      const open1006 = results.filter(r => r.a1006 === true).length;
+      const openEither = results.filter(r => r.a707 === true || r.a1006 === true).length;
+      const pct707    = Math.round((open707  / windows.length) * 100);
+      const pct1006   = Math.round((open1006 / windows.length) * 100);
+      const pctEither = Math.round((openEither / windows.length) * 100);
 
-      if (hasAnyAvailability) {
-        availabilityContext = `MONTH AVAILABILITY: Live spot-checks found SOME openings in ${mentionedMonth} but it is not wide open. Do NOT say great news or imply lots of availability. Say something like: "${mentionedMonth} has some openings but dates do fill up — share your exact check-in and check-out dates plus number of adults and children and I'll check live and create a booking link for you! You can also browse open dates at https://www.destincondogetaways.com/availability"`;
-      } else {
-        availabilityContext = `MONTH AVAILABILITY: All spot-checks show ${mentionedMonth} appears heavily booked. Be honest — tell guest it looks like a busy month. Suggest sharing exact dates so you can check precisely, or browsing https://www.destincondogetaways.com/availability for any open gaps.`;
-      }
+      // Availability band
+      let band = "LIMITED";
+      if      (pctEither >= 70) band = "WIDE_OPEN";
+      else if (pctEither >= 40) band = "SOME_OPENINGS";
+      else if (pctEither >= 15) band = "LIMITED";
+      else                      band = "HEAVILY_BOOKED";
+
+      console.log(`Month probe ${mentionedMonth}: pctEither=${pctEither}% pct707=${pct707}% pct1006=${pct1006}% band=${band}`);
+      console.log("Window detail:", results.map(r => ({ from: r.w.arrival, to: r.w.departure, u707: r.a707, u1006: r.a1006 })));
+
+      availabilityStatus = `MONTH:${mentionedMonth} band:${band} pctEither:${pctEither} pct707:${pct707} pct1006:${pct1006}`;
+
+      const bandMessages = {
+        WIDE_OPEN:      `${mentionedMonth} looks fairly open based on a quick spot-check — though exact availability always depends on your specific dates.`,
+        SOME_OPENINGS:  `${mentionedMonth} has some openings, but popular weeks can book up fast.`,
+        LIMITED:        `${mentionedMonth} looks a bit tight — there are some gaps but it is filling up.`,
+        HEAVILY_BOOKED: `${mentionedMonth} appears mostly booked, but there may still be some gaps depending on your exact dates.`,
+      };
+
+      availabilityContext = `MONTH PROBE (10 windows checked): Band is ${band}. pctEither=${pctEither}% pct707=${pct707}% pct1006=${pct1006}%.
+Use this exact phrasing for the month: "${bandMessages[band]}"
+Then always ask: "Share your exact check-in and check-out dates plus number of adults and children — I'll check live availability and create a booking link for you! You can also browse open dates at https://www.destincondogetaways.com/availability"
+Do NOT say "great news" or over-promise. Do NOT say all months sound the same. Be honest about the band.`;
     } else if (!dates && !isDiscountRequest && wantsAvailability) {
       availabilityStatus = "NEEDS_DATES";
       availabilityContext = `NO DATES: Guest is asking about availability/booking but has not given dates. Warmly ask for check-in date, check-out date, number of adults and number of children. Do NOT send to generic page.`;

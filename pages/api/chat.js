@@ -350,7 +350,7 @@ If directly asked "which do you personally recommend?" — say: "I honestly coul
       availabilityStatus = `MONTH_QUERY:${mentionedMonth} | windows_checked:3 | any_available:${hasAnyAvailability}`;
 
       if (hasAnyAvailability) {
-        availabilityContext = `MONTH AVAILABILITY: Live spot-checks found some openings in ${mentionedMonth}. Tell guest warmly that ${mentionedMonth} has some availability! Ask for exact check-in and check-out dates plus number of adults and children so you can create a direct booking link. Also mention https://www.destincondogetaways.com/availability to browse all open dates.`;
+        availabilityContext = `MONTH AVAILABILITY: Live spot-checks found SOME openings in ${mentionedMonth} but it is not wide open. Do NOT say great news or imply lots of availability. Say something like: "${mentionedMonth} has some openings but dates do fill up — share your exact check-in and check-out dates plus number of adults and children and I'll check live and create a booking link for you! You can also browse open dates at https://www.destincondogetaways.com/availability"`;
       } else {
         availabilityContext = `MONTH AVAILABILITY: All spot-checks show ${mentionedMonth} appears heavily booked. Be honest — tell guest it looks like a busy month. Suggest sharing exact dates so you can check precisely, or browsing https://www.destincondogetaways.com/availability for any open gaps.`;
       }

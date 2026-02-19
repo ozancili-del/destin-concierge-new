@@ -226,7 +226,7 @@ async function logToSheets(guestMessage, destinyReply, datesAsked, availabilityR
     const timestamp = new Date().toLocaleString("en-US", { timeZone: "America/Chicago" });
     const row = [timestamp, guestMessage, destinyReply, datesAsked || "", availabilityResult || ""];
 
-    await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Sheet1!A1:append?valueInputOption=USER_ENTERED`, {
+    const sheetRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Sheet1!A1:append?valueInputOption=USER_ENTERED`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -235,7 +235,11 @@ async function logToSheets(guestMessage, destinyReply, datesAsked, availabilityR
       body: JSON.stringify({ values: [row] }),
     });
 
-    console.log("Logged to Google Sheets ✅");
+    const sheetData = await sheetRes.text();
+    console.log("Sheets append response:", sheetRes.status, sheetData.substring(0, 300));
+    if (sheetRes.ok) {
+      console.log("Logged to Google Sheets ✅");
+    }
   } catch (err) {
     console.error("Google Sheets logging error:", err.message);
     // Never let logging failure break the chat

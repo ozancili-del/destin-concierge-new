@@ -171,6 +171,72 @@ function buildLink(unit, arrival, departure, adults, children) {
   return `${base}?or_arrival=${arrival}&or_departure=${departure}&or_adults=${adults}&or_children=${children}&or_guests=${totalGuests}`;
 }
 
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Log conversation to Google Sheets
+// ─────────────────────────────────────────────────────────────────────────────
+async function logToSheets(guestMessage, destinyReply, datesAsked, availabilityResult) {
+  try {
+    const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
+    const rawKey = process.env.GOOGLE_PRIVATE_KEY;
+    const sheetId = process.env.GOOGLE_SHEET_ID;
+
+    if (!email || !rawKey || !sheetId) return;
+
+    // Fix escaped newlines in private key
+    const privateKey = rawKey.replace(/\\n/g, "\n");
+
+    // Create JWT token for Google API auth
+    const header = Buffer.from(JSON.stringify({ alg: "RS256", typ: "JWT" })).toString("base64url");
+    const now = Math.floor(Date.now() / 1000);
+    const claim = Buffer.from(JSON.stringify({
+      iss: email,
+      scope: "https://www.googleapis.com/auth/spreadsheets",
+      aud: "https://oauth2.googleapis.com/token",
+      exp: now + 3600,
+      iat: now,
+    })).toString("base64url");
+
+    // Sign with private key using crypto
+    const { createSign } = await import("crypto");
+    const sign = createSign("RSA-SHA256");
+    sign.update(`${header}.${claim}`);
+    const signature = sign.sign(privateKey, "base64url");
+    const jwt = `${header}.${claim}.${signature}`;
+
+    // Exchange JWT for access token
+    const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=${jwt}`,
+    });
+    const tokenData = await tokenRes.json();
+    const accessToken = tokenData.access_token;
+    if (!accessToken) {
+      console.error("Failed to get Google access token:", tokenData);
+      return;
+    }
+
+    // Append row to sheet
+    const timestamp = new Date().toLocaleString("en-US", { timeZone: "America/Chicago" });
+    const row = [timestamp, guestMessage, destinyReply, datesAsked || "", availabilityResult || ""];
+
+    await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Sheet1!A:E:append?valueInputOption=RAW`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ values: [row] }),
+    });
+
+    console.log("Logged to Google Sheets ✅");
+  } catch (err) {
+    console.error("Google Sheets logging error:", err.message);
+    // Never let logging failure break the chat
+  }
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // API Handler
 // ─────────────────────────────────────────────────────────────────────────────
@@ -414,6 +480,9 @@ ALWAYS:
 
     const reply = completion.choices[0]?.message?.content ||
       "I'm sorry, I couldn't generate a response. Please try again!";
+
+    // Log conversation to Google Sheets (non-blocking)
+    logToSheets(lastUser, reply, dates ? `${dates.arrival} to ${dates.departure}` : "", availabilityContext.substring(0, 100));
 
     return res.status(200).json({ reply });
 

@@ -315,35 +315,41 @@ NEVER name Airbnb, VRBO, or any platform by name — say "booking platforms" ins
     // 🔵 UNIT COMPARISON — inject neutral rule
     if (isUnitComparison) {
       unitComparisonContext = `🔵 UNIT COMPARISON QUESTION DETECTED — FOLLOW THIS EXACTLY:
-Both units are EQUAL in value. You must NEVER recommend one over the other.
-NEVER say one is better, quieter, brighter, more recently renovated, or more suitable.
+Both units are EQUAL in overall value — never say one is objectively better than the other.
+You MAY state factual differences: floor level (7th vs 10th), decor style (classic coastal vs fresh coastal), and that 10th floor gives a higher vantage point for views. These are facts, not recommendations.
+NEVER say one is quieter, better for families, more suitable, or superior overall.
 NEVER mention furniture purchase dates or renovation years.
-Both units have the same WiFi smart lock, same amenities, same views.
-The ONLY differences you may mention: floor level (7th vs 10th) and decor style (classic coastal vs fresh coastal).
+Both units have the same WiFi smart lock, same amenities, same Gulf views.
 Present BOTH options positively and equally, then let the guest decide.
-If directly asked "which do you personally recommend?" — say something like: "I honestly couldn't pick — they're both wonderful in their own way! Unit 707 has that classic coastal warmth and Unit 1006 has a fresh modern feel. It really comes down to your personal style 😊 Would you like me to check availability for both?"`;
+If directly asked "which do you personally recommend?" — say: "I honestly couldn't pick — they're both wonderful! Unit 707 has classic coastal warmth, Unit 1006 has a fresh modern feel and slightly higher vantage point. It really comes down to your personal style 😊 Want me to check availability for both?"`;
     }
 
     // 🟢 AVAILABILITY CONTEXT
     if (!dates && !isDiscountRequest && wantsAvailability && mentionedMonth) {
+      // Check 3 sample windows — full month check was wrong:
+      // even 1 booking overlapping the full range = entire month shows "booked"
       const year = new Date().getFullYear();
       const monthNum = monthNames[mentionedMonth];
-      const monthStart = `${year}-${monthNum}-01`;
-      const daysInMonth = new Date(year, parseInt(monthNum), 0).getDate();
-      const monthEnd = `${year}-${monthNum}-${daysInMonth}`;
+      const windows = [
+        { arrival: `${year}-${monthNum}-01`, departure: `${year}-${monthNum}-04` },
+        { arrival: `${year}-${monthNum}-10`, departure: `${year}-${monthNum}-13` },
+        { arrival: `${year}-${monthNum}-20`, departure: `${year}-${monthNum}-23` },
+      ];
 
-      const [avail707Month, avail1006Month] = await Promise.all([
-        checkAvailability(UNIT_707_PROPERTY_ID, monthStart, monthEnd),
-        checkAvailability(UNIT_1006_PROPERTY_ID, monthStart, monthEnd),
-      ]);
+      const windowChecks = await Promise.all(
+        windows.flatMap(w => [
+          checkAvailability(UNIT_707_PROPERTY_ID, w.arrival, w.departure),
+          checkAvailability(UNIT_1006_PROPERTY_ID, w.arrival, w.departure),
+        ])
+      );
 
-      const hasAnyAvailability = avail707Month || avail1006Month;
-      availabilityStatus = `MONTH_QUERY:${mentionedMonth} | 707:${avail707Month} | 1006:${avail1006Month}`;
+      const hasAnyAvailability = windowChecks.some(r => r === true);
+      availabilityStatus = `MONTH_QUERY:${mentionedMonth} | windows_checked:3 | any_available:${hasAnyAvailability}`;
 
       if (hasAnyAvailability) {
-        availabilityContext = `MONTH AVAILABILITY: Guest asked about ${mentionedMonth} without specific dates. Live check shows availability exists in ${mentionedMonth}. Tell them warmly that ${mentionedMonth} looks great! Ask for exact check-in and check-out dates plus number of adults and children so you can create a direct booking link. Also mention https://www.destincondogetaways.com/availability to browse open dates.`;
+        availabilityContext = `MONTH AVAILABILITY: Live spot-checks found some openings in ${mentionedMonth}. Tell guest warmly that ${mentionedMonth} has some availability! Ask for exact check-in and check-out dates plus number of adults and children so you can create a direct booking link. Also mention https://www.destincondogetaways.com/availability to browse all open dates.`;
       } else {
-        availabilityContext = `MONTH AVAILABILITY: Both units appear fully booked in ${mentionedMonth}. Suggest checking https://www.destincondogetaways.com/availability for open dates or contacting Ozan at (972) 357-4262.`;
+        availabilityContext = `MONTH AVAILABILITY: All spot-checks show ${mentionedMonth} appears heavily booked. Be honest — tell guest it looks like a busy month. Suggest sharing exact dates so you can check precisely, or browsing https://www.destincondogetaways.com/availability for any open gaps.`;
       }
     } else if (!dates && !isDiscountRequest && wantsAvailability) {
       availabilityStatus = "NEEDS_DATES";
@@ -411,7 +417,7 @@ LOCATION: Directly beachfront — no street to cross. Elevator down, few steps p
 IMPORTANT — PELICAN BEACH RESORT TERRACE: This is a DIFFERENT building and is NOT beachfront. Our units are in the main Pelican Beach Resort building, which IS directly on the beach.
 
 UNIT 707 — 7th floor — Classic Coastal Vibe
-Bright, classic coastal style with beachy artwork and warm cozy atmosphere. Open living area with recliner, sofa queen pull-out, large smart TV. Updated kitchen with granite counters, stainless appliances, full cookware. Hamilton Beach FlexBrew coffee maker (single serve + 12-cup carafe), air fryer, wireless phone charger. King bedroom + hallway bunk beds.
+Bright, classic coastal style with beachy artwork and warm cozy atmosphere. Open living area with recliner, sofa queen pull-out, large smart TV. Updated kitchen with granite counters, stainless appliances, full cookware. Hamilton Beach FlexBrew coffee maker (compatible with K-Cup pods, single-serve pods, or ground coffee + full 12-cup carafe), air fryer, wireless phone charger. King bedroom + hallway bunk beds.
 
 UNIT 1006 — 10th floor — Fresh Coastal Vibe  
 Fresh coastal feel with turquoise and sea-glass color pops, lighter finishes, bright and airy. Two smart TVs, sleeper sofa, hallway bunk beds. Same kitchen setup: Hamilton Beach FlexBrew, air fryer, wireless phone charger. WiFi smart lock entry.

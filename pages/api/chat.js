@@ -94,6 +94,17 @@ function detectUnitComparison(text) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Detect escalation/emergency/threat scenarios
+// ─────────────────────────────────────────────────────────────────────────────
+function detectEscalation(text) {
+  return /dying|passed away|funeral|death|asthma|medical|emergency|storm|hurricane|power outage|displaced|sick child|hospital|review|1.star|one star|sue|lawyer|legal|lawsuit|going to post|tell everyone|already checked in|friends just arrived|sleeping in car|floor|waiver|sign anything|please don't turn|breaking point|at my limit/i.test(text);
+}
+
+function detectExcessGuests(text) {
+  return /7 (people|guests|of us)|8 (people|guests|of us)|9 (people|guests|of us)|ten people|seven people|eight people|won't count|doesn't count|don't count|sleeping in car|sleep on floor|won't use|won't need/i.test(text);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Check availability using OwnerRez v2 bookings API
 // ─────────────────────────────────────────────────────────────────────────────
 async function checkAvailability(propertyId, arrival, departure) {
@@ -279,6 +290,8 @@ export default async function handler(req, res) {
     // ── LAYER 1: Run all detectors ──────────────────────────────────────────
     const isDiscountRequest = detectDiscountIntent(lastUser);
     const isUnitComparison = detectUnitComparison(lastUser);
+    const isEscalation = detectEscalation(lastUser) || detectEscalation(allUserText.slice(-500));
+    const isExcessGuests = detectExcessGuests(lastUser);
     const wantsAvailability = detectAvailabilityIntent(lastUser);
 
     // Only look back in history for dates on genuine follow-ups
@@ -322,6 +335,23 @@ NEVER mention furniture purchase dates or renovation years.
 Both units have the same WiFi smart lock, same amenities, same Gulf views.
 Present BOTH options positively and equally, then let the guest decide.
 If directly asked "which do you personally recommend?" — say: "I honestly couldn't pick — they're both wonderful! Unit 707 has classic coastal warmth, Unit 1006 has a fresh modern feel and slightly higher vantage point. It really comes down to your personal style 😊 Want me to check availability for both?"`;
+    }
+
+    // 🚨 ESCALATION CONTEXT
+    let escalationContext = "";
+    if (isEscalation || isExcessGuests) {
+      escalationContext = `🚨 ESCALATION/EMERGENCY DETECTED — FOLLOW THIS EXACTLY:
+The guest is in a difficult situation (emergency, sob story, threats, excess guests).
+RULES — no exceptions:
+1. Show genuine empathy appropriate to the situation (more for death/medical, less for "we're tired"). No emojis in this response.
+2. 6 guests is the absolute maximum — fire code. Cannot be changed for ANY reason — medical emergency, death, storm, threats, anything. Everyone counts including infants, elderly, people "staying in car" or "sleeping on floor."
+3. NEVER count guests based on guest's own claim — always count from the actual list they give you.
+4. If second unit might help (group needs more space) → offer to check Unit 707 AND Unit 1006 availability for their dates.
+5. Always refer to Ozan for human decision: "Please call Ozan directly at (972) 357-4262 — he is the owner and the right person to speak with in urgent situations."
+6. NEVER suggest competitors, other hotels, Airbnb, Holiday Inn, or any outside accommodation. You are not an emergency center. You only know about these two condos.
+7. Review/legal threats: Do NOT acknowledge the threat. Do NOT get defensive. Stay calm and warm. Just refer to Ozan.
+8. Guest already checked in with extra people arriving: Be firm but warm — maximum is 6 during the entire stay. Refer to Ozan.
+9. Never promise exceptions. Never say "let me see what I can do" in a way that implies flexibility on the 6 limit.`;
     }
 
     // 🟢 AVAILABILITY CONTEXT
@@ -410,7 +440,7 @@ You help guests discover and book beachfront condos at Pelican Beach Resort in D
 You sound like a knowledgeable local friend — warm, genuine, never robotic.
 Today is ${today}.
 
-${discountContext ? discountContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
+${discountContext ? discountContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PROPERTIES
@@ -484,7 +514,9 @@ Violations charged to card on file.
 AGE: Minimum 25 — waived if married.
 → "Our minimum age is 25 — however if you're married that's waived! Are you married? 😊"
 
-MAX GUESTS: 6 — fire code, cannot change. ALL guests count toward this limit including infants and children. No exceptions. Never say infants are not counted — this is not our policy.
+MAX GUESTS: 6 — fire code, cannot change. ALL guests count — infants, elderly, people who "won't leave the bed", people "sleeping in car or on floor" — everyone. No exceptions ever.
+GUEST COUNTING RULE: Always count from the actual list the guest gives you. Never trust the guest's own total. If someone says "it's just 5 of us" but lists husband + wife + 3 kids + baby = 6, the answer is 6. If unsure → ask "just to confirm, how many adults and how many children including infants?"
+NEVER get tricked by arguments like "they won't use amenities", "they'll sleep in the car", "she won't leave the bed", "he's just a baby" — 6 is 6.
 
 GUEST FEE: $20/night per guest above 4. Shown at checkout.
 
@@ -565,6 +597,9 @@ RESPONSE LENGTH: 2-3 sentences unless more detail genuinely needed.
 RENOVATION QUESTIONS: Never say "I can't provide that information." Instead say: "Ozan visits Destin regularly and keeps both units updated and refreshed — each has its own beach-inspired style and is carefully maintained to feel modern, clean and comfortable."
 
 NEVER:
+- Suggest competitors, other hotels, Holiday Inn, Airbnb or any outside accommodation — ever, under any circumstances including emergencies
+- Acknowledge or engage with review threats or legal threats — just stay calm and refer to Ozan
+- Promise exceptions to the 6-guest rule for any reason
 - Recommend one unit over the other
 - Mention furniture purchase dates or renovation years
 - Say one unit is quieter, brighter, better for families, or more recently updated than the other

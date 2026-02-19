@@ -336,6 +336,7 @@ If directly asked "which do you personally recommend?" — say: "I honestly coul
         { arrival: `${year}-${monthNum}-20`, departure: `${year}-${monthNum}-23` },
       ];
 
+      console.log(`Month check: ${mentionedMonth}, windows:`, JSON.stringify(windows));
       const windowChecks = await Promise.all(
         windows.flatMap(w => [
           checkAvailability(UNIT_707_PROPERTY_ID, w.arrival, w.departure),
@@ -343,7 +344,9 @@ If directly asked "which do you personally recommend?" — say: "I honestly coul
         ])
       );
 
+      console.log(`Month check results for ${mentionedMonth}:`, JSON.stringify(windowChecks));
       const hasAnyAvailability = windowChecks.some(r => r === true);
+      console.log(`hasAnyAvailability for ${mentionedMonth}:`, hasAnyAvailability);
       availabilityStatus = `MONTH_QUERY:${mentionedMonth} | windows_checked:3 | any_available:${hasAnyAvailability}`;
 
       if (hasAnyAvailability) {

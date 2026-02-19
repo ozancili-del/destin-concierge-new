@@ -181,7 +181,11 @@ async function logToSheets(guestMessage, destinyReply, datesAsked, availabilityR
     const rawKey = process.env.GOOGLE_PRIVATE_KEY;
     const sheetId = process.env.GOOGLE_SHEET_ID;
 
-    if (!email || !rawKey || !sheetId) return;
+    if (!email || !rawKey || !sheetId) {
+      console.error("Google Sheets: missing env vars", { email: !!email, rawKey: !!rawKey, sheetId: !!sheetId });
+      return;
+    }
+    console.log("Google Sheets: starting log attempt...");
 
     // Fix escaped newlines in private key
     const privateKey = rawKey.replace(/\\n/g, "\n");
@@ -212,6 +216,7 @@ async function logToSheets(guestMessage, destinyReply, datesAsked, availabilityR
     });
     const tokenData = await tokenRes.json();
     const accessToken = tokenData.access_token;
+    console.log("Google token response:", JSON.stringify(tokenData).substring(0, 200));
     if (!accessToken) {
       console.error("Failed to get Google access token:", tokenData);
       return;
@@ -221,7 +226,7 @@ async function logToSheets(guestMessage, destinyReply, datesAsked, availabilityR
     const timestamp = new Date().toLocaleString("en-US", { timeZone: "America/Chicago" });
     const row = [timestamp, guestMessage, destinyReply, datesAsked || "", availabilityResult || ""];
 
-    await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Sheet1!A:E:append?valueInputOption=RAW`, {
+    await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Sheet1!A1:append?valueInputOption=USER_ENTERED`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${accessToken}`,

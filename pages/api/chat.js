@@ -2,6 +2,7 @@
 // Destiny Blue - Real AI Concierge powered by OpenAI + OwnerRez live availability
 
 import OpenAI from "openai";
+import { createSign } from "crypto";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -202,7 +203,6 @@ async function logToSheets(guestMessage, destinyReply, datesAsked, availabilityR
     })).toString("base64url");
 
     // Sign with private key using crypto
-    const { createSign } = await import("crypto");
     const sign = createSign("RSA-SHA256");
     sign.update(`${header}.${claim}`);
     const signature = sign.sign(privateKey, "base64url");

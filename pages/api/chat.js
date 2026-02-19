@@ -71,6 +71,9 @@ async function checkAvailability(propertyId, arrival, departure) {
 // Extract dates from message
 // ─────────────────────────────────────────────────────────────────────────────
 function extractDates(text) {
+  const year = new Date().getFullYear();
+
+  // 1. ISO format: 2026-03-27
   const isoPattern = /(\d{4}-\d{2}-\d{2})/g;
   const isoMatches = text.match(isoPattern);
   if (isoMatches && isoMatches.length >= 2) {
@@ -81,19 +84,42 @@ function extractDates(text) {
     january:"01",february:"02",march:"03",april:"04",may:"05",june:"06",
     july:"07",august:"08",september:"09",october:"10",november:"11",december:"12"
   };
-  const monthPattern = /\b(january|february|march|april|may|june|july|august|september|october|november|december)\s+(\d{1,2})/gi;
-  const dateMatches = [...text.matchAll(monthPattern)];
-  if (dateMatches.length >= 2) {
-    const year = new Date().getFullYear();
-    const toISO = (m) => {
-      const month = months[m[1].toLowerCase()];
-      const day = String(m[2]).padStart(2, "0");
-      return `${year}-${month}-${day}`;
+  const mn = Object.keys(months).join("|");
+
+  // 2. Same month range: "May 15-18" or "May 15 - 18"
+  const sameMonthRange = new RegExp("(" + mn + ")\\s+(\\d{1,2})\\s*[-\u2013]\\s*(\\d{1,2})", "i");
+  const sameMatch = text.match(sameMonthRange);
+  if (sameMatch) {
+    const month = months[sameMatch[1].toLowerCase()];
+    return {
+      arrival: `${year}-${month}-${sameMatch[2].padStart(2,"0")}`,
+      departure: `${year}-${month}-${sameMatch[3].padStart(2,"0")}`
     };
-    return { arrival: toISO(dateMatches[0]), departure: toISO(dateMatches[1]) };
   }
+
+  // 3. Cross month or same with to/and/through: "May 15 to 18" or "May 15 to June 18"
+  const crossPattern = new RegExp("(" + mn + ")\\s+(\\d{1,2})(?:\\s+(?:to|and|through|-)\\s+(?:(" + mn + ")\\s+)?(\\d{1,2}))", "i");
+  const crossMatch = text.match(crossPattern);
+  if (crossMatch) {
+    const month1 = months[crossMatch[1].toLowerCase()];
+    const month2 = crossMatch[3] ? months[crossMatch[3].toLowerCase()] : month1;
+    return {
+      arrival: `${year}-${month1}-${crossMatch[2].padStart(2,"0")}`,
+      departure: `${year}-${month2}-${crossMatch[4].padStart(2,"0")}`
+    };
+  }
+
+  // 4. Two separate month+day mentions: "March 27 ... April 3"
+  const monthDayPattern = new RegExp("(" + mn + ")\\s+(\\d{1,2})", "gi");
+  const allMatches = [...text.matchAll(monthDayPattern)];
+  if (allMatches.length >= 2) {
+    const toISO = (m) => `${year}-${months[m[1].toLowerCase()]}-${m[2].padStart(2,"0")}`;
+    return { arrival: toISO(allMatches[0]), departure: toISO(allMatches[1]) };
+  }
+
   return null;
 }
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Build booking link
@@ -130,6 +156,11 @@ export default async function handler(req, res) {
     // Search ALL user messages for dates - handles follow-ups like "what about 1006?"
     const allUserText = messages.filter((m) => m.role === "user").map((m) => m.content).join(" ");
     const dates = extractDates(lastUser) || extractDates(allUserText);
+
+    // If no dates found, ask guest to clarify rather than giving generic answer
+    if (!dates && (lastUser.match(/avail|book|check.?in|check.?out|stay|condo|unit|dates?/i))) {
+      availabilityContext = `NO DATES FOUND: The guest seems to be asking about booking but did not provide clear dates. Politely ask them to provide their check-in and check-out dates so you can check live availability. Do NOT send them to any generic booking page.`;
+    }
 
     if (dates) {
       const [avail707, avail1006] = await Promise.all([

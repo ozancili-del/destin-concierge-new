@@ -80,7 +80,7 @@ async function fetchBlogContent(topic) {
 
 // Detect discount / deal / price negotiation intent
 function detectDiscountIntent(text) {
-  return /discount|deal|better price|cheaper|price match|waive|waiver|military|repeat guest|long.?stay|my friend got|friend.*discount|beat.*price|lower.*price|negotiate|special rate|promo|coupon|cleaning fee.*waive|can you do better|best you can do|last.?minute.*deal/i.test(text);
+  return /discount|deal|better price|cheaper|price match|waive|waiver|military|repeat guest|long.?stay|my friend got|friend.*discount|beat.*price|lower.*price|negotiate|special rate|promo|coupon|cleaning fee.*waive|can you do better|best you can do|last.?minute.*deal|another condo|other condo|competitor.*cheaper|why should i choose|why choose yours|why book with you/i.test(text);
 }
 
 // Detect availability / booking intent (tighter — only real booking signals)
@@ -489,7 +489,7 @@ HURRICANE: If mandatory evacuation officially issued by local authorities during
 
 CANCELLATION: 50% refund if cancelled within 48hrs of booking AND 30+ days before check-in. No refund within 30 days.
 
-BOOKING TRANSFER: Guest should contact Ozan directly at (972) 357-4262 for any transfer requests.
+BOOKING TRANSFER: Never confirm or deny if transfers are possible. Just say: "For booking transfers, please contact Ozan directly at (972) 357-4262 — he can assist you with any specific requests. Would you like to explore availability for your preferred dates? 😊"
 
 BALCONY DOOR: Always closed when AC is on. FAN: AUTO mode only. DISHWASHER: Tablets only.
 TOWELS: Unit towels stay inside. Bring beach towels.

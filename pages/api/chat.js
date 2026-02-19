@@ -273,13 +273,39 @@ export default async function handler(req, res) {
         : null
     );
 
+    // Detect month-only intent: "price in May", "available in July", "2 nights in June"
+    const monthNames = {january:"01",february:"02",march:"03",april:"04",may:"05",june:"06",july:"07",august:"08",september:"09",october:"10",november:"11",december:"12"};
+    const monthOnlyMatch = !dates && lastUser.match(/\b(january|february|march|april|may|june|july|august|september|october|november|december)\b/i);
+    const mentionedMonth = monthOnlyMatch ? monthOnlyMatch[1].toLowerCase() : null;
+
     // Tighter booking intent — only real booking/availability questions trigger date request
-    const wantsAvailability = /avail|availability|open dates|book|booking|reserve|reservation|check.?in|check.?out|when can i|stay.*when|dates.*stay/i.test(lastUser);
+    const wantsAvailability = /avail|availability|open dates|book|booking|reserve|reservation|check.?in|check.?out|when can i|stay.*when|dates.*stay|price|pricing|cost|how much|rate|rates|per night|nightly/i.test(lastUser);
 
     let availabilityContext = "";
     let availabilityStatus = "";
 
-    if (!dates && wantsAvailability) {
+    if (!dates && wantsAvailability && mentionedMonth) {
+      // Guest mentioned a month but no specific dates — check whole month availability
+      const year = new Date().getFullYear();
+      const monthNum = monthNames[mentionedMonth];
+      const monthStart = `${year}-${monthNum}-01`;
+      const daysInMonth = new Date(year, parseInt(monthNum), 0).getDate();
+      const monthEnd = `${year}-${monthNum}-${daysInMonth}`;
+
+      const [avail707Month, avail1006Month] = await Promise.all([
+        checkAvailability(UNIT_707_PROPERTY_ID, monthStart, monthEnd),
+        checkAvailability(UNIT_1006_PROPERTY_ID, monthStart, monthEnd),
+      ]);
+
+      const hasAnyAvailability = avail707Month || avail1006Month;
+      availabilityStatus = `MONTH_QUERY:${mentionedMonth} | 707:${avail707Month} | 1006:${avail1006Month}`;
+
+      if (hasAnyAvailability) {
+        availabilityContext = `MONTH AVAILABILITY: Guest asked about ${mentionedMonth} without specific dates. Live check shows availability exists in ${mentionedMonth}. Tell guest warmly that ${mentionedMonth} looks great and has availability! Ask them to share their exact check-in and check-out dates plus number of adults and children so you can create a direct booking link for them. Also mention https://www.destincondogetaways.com/availability to browse open dates.`;
+      } else {
+        availabilityContext = `MONTH AVAILABILITY: Guest asked about ${mentionedMonth}. Both units appear fully booked for that month. Suggest they check https://www.destincondogetaways.com/availability for open dates or contact Ozan at (972) 357-4262.`;
+      }
+    } else if (!dates && wantsAvailability) {
       availabilityStatus = "NEEDS_DATES";
       availabilityContext = `NO DATES FOUND: Guest is asking about availability or booking but has not provided check-in and check-out dates. Warmly ask for their check-in date, check-out date, number of adults and number of children. Do NOT send them to any generic page.`;
     }

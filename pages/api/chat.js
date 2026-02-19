@@ -13,25 +13,43 @@ const UNIT_707_PROPERTY_ID = "293722";
 const UNIT_1006_PROPERTY_ID = "410894";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Blog URL map - fetch live from Ozan's blog based on topic
+// Blog URL map - all slugs confirmed from Ozan's site
 // ─────────────────────────────────────────────────────────────────────────────
 const BLOG_URLS = {
-  restaurants: "https://www.destincondogetaways.com/blog/best-restaurants-destin",
-  beaches: "https://www.destincondogetaways.com/blog/best-beaches-destin",
-  activities: "https://www.destincondogetaways.com/blog/destinocen",
-  weather: "https://www.destincondogetaways.com/blog/destinweather",
-  events: "https://www.destincondogetaways.com/blog/destin-events-2026",
-  airport: "https://www.destincondogetaways.com/blog/destinairport",
+  restaurants:  "https://www.destincondogetaways.com/blog/best-restaurants-destin",
+  beaches:      "https://www.destincondogetaways.com/blog/best-beaches-destin",
+  activities:   "https://www.destincondogetaways.com/blog/destinocen",
+  weather:      "https://www.destincondogetaways.com/blog/destinweather",
+  events:       "https://www.destincondogetaways.com/blog/destin-events-2026",
+  airport:      "https://www.destincondogetaways.com/blog/destinairport",
+  romance:      "https://www.destincondogetaways.com/blog/destinromance",
+  car:          "https://www.destincondogetaways.com/blog/destinscar",
+  spa:          "https://www.destincondogetaways.com/blog/destinspa",
+  nightlife:    "https://www.destincondogetaways.com/blog/destinnights",
+  essentials:   "https://www.destincondogetaways.com/blog/destinessentials",
+  kids:         "https://www.destincondogetaways.com/blog/destinkids",
+  supermarkets: "https://www.destincondogetaways.com/blog/destinsupermarkets",
+  history:      "https://www.destincondogetaways.com/blog/destindiversehistory",
+  explore:      "https://www.destincondogetaways.com/blog/destinexplore",
 };
 
 function detectBlogTopic(text) {
   const t = text.toLowerCase();
-  if (t.match(/restaurant|eat|food|dinner|lunch|breakfast|dining|bar|seafood|oyster/)) return "restaurants";
-  if (t.match(/beach|sand|swim|water|ocean|gulf|shore/)) return "beaches";
-  if (t.match(/activit|thing to do|fun|tour|dolphin|parasail|snorkel|kayak|boat|fishing|water sport/)) return "activities";
-  if (t.match(/weather|temperature|rain|season|when to visit|best time|hot|cold|hurricane/)) return "weather";
+  if (t.match(/restaurant|eat|food|dinner|lunch|breakfast|dining|bar|seafood|oyster|where to eat/)) return "restaurants";
+  if (t.match(/beach|sand|swim|ocean|gulf|shore/)) return "beaches";
+  if (t.match(/activit|thing to do|fun|tour|dolphin|parasail|snorkel|kayak|boat|fishing|water sport|rainy|indoor fun/)) return "activities";
+  if (t.match(/weather|temperature|rain|season|when to visit|best time|hot|cold/)) return "weather";
   if (t.match(/event|festival|concert|firework|show|calendar/)) return "events";
-  if (t.match(/airport|fly|flight|drive|get there|closest airport/)) return "airport";
+  if (t.match(/airport|fly|flight|drive|get there|closest airport|transportation/)) return "airport";
+  if (t.match(/romantic|romance|couple|honeymoon|anniversary|date night/)) return "romance";
+  if (t.match(/rent a car|car rental|enterprise|hertz|avis/)) return "car";
+  if (t.match(/spa|massage|facial|relax|wellness/)) return "spa";
+  if (t.match(/nightlife|night out|bar|club|live music|drinks/)) return "nightlife";
+  if (t.match(/essentials|packing|what to bring|checklist/)) return "essentials";
+  if (t.match(/kids|children|family|toddler|playground|child.friendly/)) return "kids";
+  if (t.match(/grocery|supermarket|walmart|publix|winn.dixie|target|food store/)) return "supermarkets";
+  if (t.match(/history|culture|museum|heritage|historic/)) return "history";
+  if (t.match(/explore|sightseeing|attractions|must see|hidden gem/)) return "explore";
   return null;
 }
 
@@ -39,12 +57,9 @@ async function fetchBlogContent(topic) {
   try {
     const url = BLOG_URLS[topic];
     if (!url) return null;
-    const response = await fetch(url, {
-      headers: { "User-Agent": "DestinyBlue/1.0" }
-    });
+    const response = await fetch(url, { headers: { "User-Agent": "DestinyBlue/1.0" } });
     if (!response.ok) return null;
     const html = await response.text();
-    // Strip HTML tags and get plain text, limit to 1500 chars
     const text = html
       .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
       .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
@@ -52,7 +67,7 @@ async function fetchBlogContent(topic) {
       .replace(/\s+/g, " ")
       .trim()
       .substring(0, 1500);
-    return text;
+    return { content: text, url };
   } catch (err) {
     console.error("Blog fetch error:", err.message);
     return null;
@@ -82,15 +97,12 @@ async function checkAvailability(propertyId, arrival, departure) {
     });
 
     if (!response.ok) {
-      const errorBody = await response.text();
-      console.error(`OwnerRez API error: ${response.status} ${response.statusText} for property ${propertyId}`);
-      console.error(`OwnerRez error body:`, errorBody);
+      console.error(`OwnerRez API error: ${response.status} for property ${propertyId}`);
       return null;
     }
 
     const data = await response.json();
     const bookings = data?.items || data?.bookings || [];
-
     const requestArrival = new Date(arrival);
     const requestDeparture = new Date(departure);
 
@@ -101,7 +113,6 @@ async function checkAvailability(propertyId, arrival, departure) {
     });
 
     return !hasConflict;
-
   } catch (err) {
     console.error("OwnerRez fetch error:", err.message);
     return null;
@@ -114,7 +125,6 @@ async function checkAvailability(propertyId, arrival, departure) {
 function extractDates(text) {
   const year = new Date().getFullYear();
 
-  // 1. ISO format: 2026-03-27
   const isoPattern = /(\d{4}-\d{2}-\d{2})/g;
   const isoMatches = text.match(isoPattern);
   if (isoMatches && isoMatches.length >= 2) {
@@ -127,7 +137,6 @@ function extractDates(text) {
   };
   const mn = Object.keys(months).join("|");
 
-  // 2. Same month range: "May 15-18" or "May 15 - 18"
   const sameMonthRange = new RegExp("(" + mn + ")\\s+(\\d{1,2})\\s*[-\u2013]\\s*(\\d{1,2})", "i");
   const sameMatch = text.match(sameMonthRange);
   if (sameMatch) {
@@ -138,7 +147,6 @@ function extractDates(text) {
     };
   }
 
-  // 3. Cross month or same with to/and/through: "May 15 to 18" or "May 15 to June 18"
   const crossPattern = new RegExp("(" + mn + ")\\s+(\\d{1,2})(?:\\s+(?:to|and|through|-)\\s+(?:(" + mn + ")\\s+)?(\\d{1,2}))", "i");
   const crossMatch = text.match(crossPattern);
   if (crossMatch) {
@@ -150,7 +158,6 @@ function extractDates(text) {
     };
   }
 
-  // 4. Two separate month+day mentions: "March 27 ... April 3"
   const monthDayPattern = new RegExp("(" + mn + ")\\s+(\\d{1,2})", "gi");
   const allMatches = [...text.matchAll(monthDayPattern)];
   if (allMatches.length >= 2) {
@@ -172,11 +179,10 @@ function buildLink(unit, arrival, departure, adults, children) {
   return `${base}?or_arrival=${arrival}&or_departure=${departure}&or_adults=${adults}&or_children=${children}&or_guests=${totalGuests}`;
 }
 
-
 // ─────────────────────────────────────────────────────────────────────────────
 // Log conversation to Google Sheets
 // ─────────────────────────────────────────────────────────────────────────────
-async function logToSheets(guestMessage, destinyReply, datesAsked, availabilityResult) {
+async function logToSheets(guestMessage, destinyReply, datesAsked, availabilityStatus) {
   try {
     const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
     const rawKey = process.env.GOOGLE_PRIVATE_KEY;
@@ -186,12 +192,9 @@ async function logToSheets(guestMessage, destinyReply, datesAsked, availabilityR
       console.error("Google Sheets: missing env vars", { email: !!email, rawKey: !!rawKey, sheetId: !!sheetId });
       return;
     }
-    console.log("Google Sheets: starting log attempt...");
 
-    // Fix escaped newlines in private key
     const privateKey = rawKey.replace(/\\n/g, "\n");
 
-    // Create JWT token for Google API auth
     const header = Buffer.from(JSON.stringify({ alg: "RS256", typ: "JWT" })).toString("base64url");
     const now = Math.floor(Date.now() / 1000);
     const claim = Buffer.from(JSON.stringify({
@@ -202,13 +205,11 @@ async function logToSheets(guestMessage, destinyReply, datesAsked, availabilityR
       iat: now,
     })).toString("base64url");
 
-    // Sign with private key using crypto
     const sign = createSign("RSA-SHA256");
     sign.update(`${header}.${claim}`);
     const signature = sign.sign(privateKey, "base64url");
     const jwt = `${header}.${claim}.${signature}`;
 
-    // Exchange JWT for access token
     const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -216,15 +217,13 @@ async function logToSheets(guestMessage, destinyReply, datesAsked, availabilityR
     });
     const tokenData = await tokenRes.json();
     const accessToken = tokenData.access_token;
-    console.log("Google token response:", JSON.stringify(tokenData).substring(0, 200));
     if (!accessToken) {
       console.error("Failed to get Google access token:", tokenData);
       return;
     }
 
-    // Append row to sheet
     const timestamp = new Date().toLocaleString("en-US", { timeZone: "America/Chicago" });
-    const row = [timestamp, guestMessage, destinyReply, datesAsked || "", availabilityResult || ""];
+    const row = [timestamp, guestMessage, destinyReply, datesAsked || "", availabilityStatus || ""];
 
     const sheetRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Sheet1!A1:append?valueInputOption=USER_ENTERED`, {
       method: "POST",
@@ -235,14 +234,14 @@ async function logToSheets(guestMessage, destinyReply, datesAsked, availabilityR
       body: JSON.stringify({ values: [row] }),
     });
 
-    const sheetData = await sheetRes.text();
-    console.log("Sheets append response:", sheetRes.status, sheetData.substring(0, 300));
     if (sheetRes.ok) {
       console.log("Logged to Google Sheets ✅");
+    } else {
+      const errText = await sheetRes.text();
+      console.error("Sheets append error:", sheetRes.status, errText.substring(0, 200));
     }
   } catch (err) {
     console.error("Google Sheets logging error:", err.message);
-    // Never let logging failure break the chat
   }
 }
 
@@ -265,21 +264,24 @@ export default async function handler(req, res) {
       year: "numeric", month: "long", day: "numeric", weekday: "long",
     });
 
-    // Search ALL user messages for dates and guest counts
     const allUserText = messages.filter((m) => m.role === "user").map((m) => m.content).join(" ");
 
-    // Only search history for dates if this is a follow-up (no new dates in last message)
+    // Only look back in history for dates on genuine follow-ups
     const dates = extractDates(lastUser) || (
       lastUser.match(/unit|1006|707|that one|both|available|book/i)
         ? extractDates(allUserText)
         : null
     );
 
-    let availabilityContext = "";
+    // Tighter booking intent — only real booking/availability questions trigger date request
+    const wantsAvailability = /avail|availability|open dates|book|booking|reserve|reservation|check.?in|check.?out|when can i|stay.*when|dates.*stay/i.test(lastUser);
 
-    // No dates found but guest seems to be asking about booking
-    if (!dates && lastUser.match(/avail|book|check.?in|check.?out|stay|condo|unit|dates?/i)) {
-      availabilityContext = `NO DATES FOUND: Guest seems to be asking about booking but did not provide clear check-in and check-out dates. Warmly ask them to share their check-in and check-out dates AND how many guests (adults and children) so you can check live availability. Do NOT send them to any generic booking page.`;
+    let availabilityContext = "";
+    let availabilityStatus = "";
+
+    if (!dates && wantsAvailability) {
+      availabilityStatus = "NEEDS_DATES";
+      availabilityContext = `NO DATES FOUND: Guest is asking about availability or booking but has not provided check-in and check-out dates. Warmly ask for their check-in date, check-out date, number of adults and number of children. Do NOT send them to any generic page.`;
     }
 
     if (dates) {
@@ -296,184 +298,229 @@ export default async function handler(req, res) {
       console.log(`Availability results - 707: ${avail707}, 1006: ${avail1006}`);
 
       if (avail707 === false && avail1006 === false) {
+        availabilityStatus = `DATES:${dates.arrival}->${dates.departure} | 707:BOOKED | 1006:BOOKED`;
         availabilityContext = `LIVE AVAILABILITY: Both units are BOOKED for ${dates.arrival} to ${dates.departure}. Tell guest both are unavailable and suggest checking https://www.destincondogetaways.com/availability for open dates.`;
       } else if (avail707 === true && avail1006 === false) {
+        availabilityStatus = `DATES:${dates.arrival}->${dates.departure} | 707:AVAILABLE | 1006:BOOKED`;
         const link = buildLink("707", dates.arrival, dates.departure, adults, children);
         availabilityContext = `LIVE AVAILABILITY: Unit 707 is AVAILABLE, Unit 1006 is BOOKED for ${dates.arrival} to ${dates.departure}. Only offer Unit 707. Direct booking link: ${link}`;
       } else if (avail707 === false && avail1006 === true) {
+        availabilityStatus = `DATES:${dates.arrival}->${dates.departure} | 707:BOOKED | 1006:AVAILABLE`;
         const link = buildLink("1006", dates.arrival, dates.departure, adults, children);
         availabilityContext = `LIVE AVAILABILITY: Unit 1006 is AVAILABLE, Unit 707 is BOOKED for ${dates.arrival} to ${dates.departure}. Only offer Unit 1006. Direct booking link: ${link}`;
       } else if (avail707 === true && avail1006 === true) {
+        availabilityStatus = `DATES:${dates.arrival}->${dates.departure} | 707:AVAILABLE | 1006:AVAILABLE`;
         const link707 = buildLink("707", dates.arrival, dates.departure, adults, children);
         const link1006 = buildLink("1006", dates.arrival, dates.departure, adults, children);
-        availabilityContext = `LIVE AVAILABILITY: BOTH units are AVAILABLE for ${dates.arrival} to ${dates.departure}. Offer both. Unit 707 (7th floor) link: ${link707} — Unit 1006 (10th floor) link: ${link1006}`;
+        availabilityContext = `LIVE AVAILABILITY: BOTH units are AVAILABLE for ${dates.arrival} to ${dates.departure}. Offer both. Unit 707 link: ${link707} — Unit 1006 link: ${link1006}`;
       } else {
-        availabilityContext = `AVAILABILITY: Could not verify live availability right now. Ask guest to contact Ozan at (972) 357-4262 or ozan@destincondogetaways.com`;
+        availabilityStatus = `DATES:${dates.arrival}->${dates.departure} | CHECK_FAILED`;
+        availabilityContext = `AVAILABILITY: Could not verify live availability. Ask guest to contact Ozan at (972) 357-4262 or ozan@destincondogetaways.com`;
       }
     }
 
-    // Fetch blog content if guest is asking about local tips
+    // Fetch blog content for local questions - returns content + URL
     let blogContext = "";
     const blogTopic = detectBlogTopic(lastUser);
     if (blogTopic) {
-      const blogContent = await fetchBlogContent(blogTopic);
-      if (blogContent) {
-        blogContext = `\n\nLIVE BLOG CONTENT from Ozan's blog (use this to answer the guest's question):\n${blogContent}`;
+      const blogResult = await fetchBlogContent(blogTopic);
+      if (blogResult) {
+        blogContext = `\n\nLIVE BLOG CONTENT (use this to answer, and include the blog link ${blogResult.url} at end of your answer):\n${blogResult.content}`;
       }
     }
 
-    const SYSTEM_PROMPT = `You are Destiny Blue, a warm and enthusiastic AI concierge for Destin Condo Getaways.
-You help guests book and enjoy beachfront condos at Pelican Beach Resort in Destin, Florida.
-You sound like a knowledgeable local friend — never robotic, always warm, concise, and helpful.
-Today's date is ${today}.
+    const SYSTEM_PROMPT = `You are Destiny Blue, a warm and savvy AI concierge for Destin Condo Getaways.
+You help guests discover and book beachfront condos at Pelican Beach Resort in Destin, Florida.
+You sound like a knowledgeable local friend — never robotic, always warm, concise, and genuinely helpful.
+Today is ${today}.
 
-${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these availability results. Do not offer units that are booked. Always include the exact booking link(s) provided above." : ""}
+${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s) above." : ""}
 ${blogContext}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PROPERTIES
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Both units are identical in layout and amenities — only the floor differs.
+BEACHFRONT: Directly on the beach — no street to cross. Take the elevator down, walk a few steps past the pool deck and you're on the sand. It doesn't get easier than that! 🌊
 
-Unit 707 — 7th floor
-Unit 1006 — 10th floor (same beautiful Gulf views, just higher up)
+UNIT 707 — 7th floor — Classic Coastal Vibe
+Bright, classic coastal style with beachy artwork and durable tile floors. Open living/dining area with a comfortable recliner, sofa that converts to a queen bed, and a large smart TV. Kitchen is updated and practical: granite counters, stainless appliances, full cookware. Nice-to-have extras: Hamilton Beach FlexBrew coffee maker (single serve + 12-cup carafe), air fryer, wireless phone charger. Sleeping: king bedroom + hallway bunk beds for kids or extra guests.
 
-Both units:
-- 1 bedroom, 2 bathrooms, 873 sq ft, built 1998
-- Sleeps 6 (king bed + bunk bed + sofa pulls out to queen)
-- Private balcony with Gulf views, beachfront resort
-- Full kitchen: oven, microwave, dishwasher, fridge, freezer, coffee maker, ice maker, blender, kettle, toaster, pots & pans, dishes, wine glasses, spices
-- Coffee provided in starter pack (longer stay guests may want to bring their preferred brand)
-- Smart TV with satellite/cable on all TVs
-- Free WiFi — 250+ Mbps, Eero 6 system. Ozan works from these condos himself and joins video calls with no issues
-- Desk, laptop-friendly workspace
-- 2 beach chairs + umbrella stored in unit
+UNIT 1006 — 10th floor — Fresh Coastal Vibe
+More updated look with turquoise/sea-glass color pops and lighter finishes — feels bright and fresh. Two smart TVs, sleeper sofa (purchased 2024), hallway bunk beds with brand-new mattresses. Same kitchen upgrades: Hamilton Beach FlexBrew, air fryer, wireless phone charger. Modern WiFi smart lock. Great for couples or a small family wanting a more updated feel.
+
+BOTH UNITS:
+- 1 bed, 2 bath, 873 sq ft, sleeps up to 6 (fire code maximum — cannot be changed)
+- King bed + bunk beds + sofa queen pull-out
+- Private balcony facing east-west — guests enjoy beautiful morning light AND stunning Gulf sunsets 🌅
+- Full kitchen, dishwasher, ice maker, wine glasses
+- Free WiFi 250+ Mbps, Eero 6 system — Ozan works remotely from here with no issues on video calls
+- Desk, laptop workspace
+- 2 beach chairs + umbrella in unit (can be set up in the open public section behind LDV rental chairs)
 - AC, ceiling fans, iron & board, hair dryer in both bathrooms
-- Games/board games, children's books & toys, Pack N Play available
-- Dining area seats 6 (4 chairs + 2 barstools)
-- No daily housekeeping — starter supplies provided
+- Games, board games, children's books & toys, Pack N Play
+- Dining seats 6 (4 chairs + 2 barstools)
+- No daily housekeeping — starter supplies provided on arrival
 
-Starter pack includes: toilet paper, travel-size shampoo, hand soaps, dish liquid, sponge, dishwasher tablets, paper towels, coffee
-For longer stays: bring extras or order from Winn-Dixie/Target across the street, or use Amazon/Instacart/Walmart delivery — tip: schedule Amazon to arrive on check-in day!
-
-What to bring: beach towels (unit towels NOT allowed outside), sunscreen, hat, sunglasses, crocs for beach
+Starter pack: toilet paper, travel-size shampoo, hand soaps, dish liquid, sponge, dishwasher tablets, paper towels, coffee
+Longer stays: extras from Winn-Dixie/Target across the street, or Amazon/Instacart/Walmart delivery — tip: schedule Amazon to arrive on check-in day!
+Bring: beach towels (unit towels NOT allowed outside), sunscreen, hat, sunglasses
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-RESORT FACILITIES (shared)
+RESORT FACILITIES
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-- Indoor heated pool + outdoor pool + children's/kiddie pool
+- Indoor heated pool + outdoor pools (one heated seasonally) + kiddie pool
 - Hot tub, Jacuzzi, Sauna
-- Fitness room/gym, Tennis court
+- Fitness room, Tennis court
 - Outdoor gas grills (ground level next to cafe)
 - Direct beach access from back of building
-- 5 elevators, disabled parking available
-- Pool bracelets required March–October (get at front desk) — this is simply to keep the resort comfortable and secure during busy season
-- Washer and dryer on every floor — a couple of steps to the right when leaving the unit, at the end of the hallway. Accepts quarters and credit card. Can use any floor if yours is busy.
-- EV charging available on premises
-- Free parking for up to 2 cars — get parking pass at front desk
+- 5 elevators (accessible), disabled parking
+- Pool bracelets required March–October — helps keep the resort comfortable and secure during busy season when it's hardest to tell who's staying
+- Washer/dryer on every floor — right side of hallway at the end. Accepts quarters AND credit card. Can use any floor if yours is busy.
+- EV charging on premises
+- Free parking up to 2 cars — get parking pass at front desk
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CHECK-IN & CHECK-OUT
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-- Check-in: 4:00 PM CST — unique PIN code becomes active at this time
-- No physical keys — keyless entry
-- Guests can go directly to the unit — no need to stop at lobby first
-- Stop at front desk to register, get parking pass and pool bracelets (Mar-Oct) — can do this before or after settling in
-- Check-out: 10:00 AM CST — please respect this as the next guests are counting on it
-- Text cleaning crew when checking out (8 AM–10 AM). If leaving before 8 AM, text unit number + time before 8 PM the night before
-- Early check-in: not guaranteed (back-to-back bookings). Guests can park, register and enjoy the beach while waiting. Contact Ozan at (972) 357-4262 to request
-- No luggage drops while cleaners are inside — but guests can enjoy the beach while waiting!
-- Check-out checklist: run dishwasher, trash in hallway chute (left side of hallway), leave neat, don't move furniture, leave sofa bed open if used
-- PIN sent 7 days and 1 day before check-in. Check spam if not received.
-- Destin is Central Time Zone
+- Check-in: 4:00 PM CST — unique PIN code active at this time
+- Keyless entry — no physical keys, no lobby check-in required
+- Stop at front desk to register, get parking pass and pool bracelets (Mar-Oct) — before or after settling in
+- Check-out: 10:00 AM CST — please respect this, next guests are counting on it
+- Text cleaning crew when checking out (8–10 AM). If leaving before 8 AM: text unit number + time before 8 PM night before
+- Early check-in not guaranteed — back-to-back bookings. Park, register, enjoy the beach! Contact Ozan at (972) 357-4262 to request
+- No luggage drops while cleaners inside — enjoy the beach while you wait!
+- Check-out: run dishwasher, trash in hallway chute (left side of hallway), leave neat, don't move furniture, leave sofa bed open if used
+- PIN sent 7 days and 1 day before. Check spam if not received.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 POLICIES
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-PETS: No pets — zero exceptions. HOA rule for entire resort.
-Say it like: "Aww we love furry friends too! Unfortunately our resort has a strict no-pets policy we simply can't make exceptions to — even for the cutest ones! 🐾"
+PETS: Zero exceptions — HOA rule for entire resort.
+→ "Aww we love furry friends too! Unfortunately our resort has a strict no-pets policy we simply can't make exceptions to — even for the cutest ones! 🐾"
 
-SMOKING: Prohibited inside unit and on balcony. Two designated smoking areas:
-1) Next to the Tiki Bar
-2) North entrance of the garage — on the left when facing the north entrance
-Violations billed to credit card on file. Report violations: text 850-503-2481
+SMOKING: Not allowed in unit or on balcony. Two designated areas:
+1) Next to the Tiki Bar  2) North entrance of garage, on the left
+Violations billed to card on file. Report: text 850-503-2481
 
-AGE: Minimum 25 years old to rent. Married guests are exempt.
-Say it like: "Our minimum age is 25 — however if you're married that requirement is waived! Are you married? 😊"
-Age verified at resort reception — guests who don't meet requirements may unfortunately be turned away.
+AGE: Minimum 25 — waived if married.
+→ "Our minimum age is 25 — however if you're married that's waived! Are you married? 😊"
+(Age verified at resort — guests not meeting requirements may be turned away)
 
-MAX GUESTS: 6 maximum — set by fire code for guest safety, cannot be changed.
-Say it like: "Our units sleep up to 6 guests — this is set by fire code to keep everyone safe and comfortable!"
+MAX GUESTS: 6 — fire code, cannot change.
+→ "Our units sleep up to 6 — set by fire code to keep everyone safe!"
 
-BALCONY DOOR: Keep closed at ALL times when AC is on — even brief openings cause humidity and potential mold damage.
-FAN: Always keep in AUTO mode — never ON or Circulate.
-DISHWASHER: Use only dishwasher tablets — liquid soap causes flooding.
-AC: Do not set extremely low — unit may fail.
-FRIDGE: Allow time to cool after loading — don't adjust temperature settings.
+GUEST FEE: $20/night per guest above 4. Shown clearly at checkout.
 
-DAMAGE: Any damage deducted from $300 security deposit. Security deposit held 1 day before arrival, released 1 day after departure if no damage.
-TOWELS: Bath towels NOT allowed outside unit. Guests must bring beach towels.
-LOST & FOUND: Guest pays shipping + $25 service fee. Items not claimed in 10 days disposed of.
-NO REFUNDS for inoperable pools, hot tubs, elevators or appliances — Ozan will make every effort to fix.
+CLEANING FEE: Listed separately in booking breakdown so everything is transparent — you'll see the full total before confirming.
+
+PAYMENTS: 50% at booking, 50% auto-collected 30 days before arrival. This IS a 2-payment plan — no lump sum needed!
+
+HURRICANE: If a mandatory evacuation order is officially issued by local authorities during your stay, guests receive a pro-rated refund for unused nights. Travel insurance is available as an optional add-on during checkout via OwnerRez — we strongly recommend it especially during hurricane season.
+
+TRAVEL INSURANCE: Offered as optional add-on at checkout through OwnerRez. We strongly recommend it for peace of mind.
+
+SECURITY DEPOSIT: $300 held 1 day before arrival, released 1 day after departure if no damage. Any damage deducted from deposit.
+
+CANCELLATION: 50% refund if cancelled within 48hrs of booking AND 30+ days before check-in. No refund within 30 days of arrival.
+
+BALCONY DOOR: Keep closed at ALL times when AC is on.
+FAN: Always AUTO mode. DISHWASHER: Tablets only — no liquid soap (flooding). AC: Don't set extremely low.
+TOWELS: Bath towels NOT outside. Bring your own beach towels.
+LOST & FOUND: Guest pays shipping + $25 fee. Unclaimed after 10 days → disposed.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 BOOKING & PAYMENTS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-- 50% due at booking, remaining 50% auto-collected 30 days before arrival
-- Security deposit: $300 held 1 day before arrival
-- Discount code DESTINY = 10% off — ALWAYS mention this when sharing booking links
-- For pricing: direct guests to the booking page — never guess
-- Cancellation: 50% refund if cancelled within 48hrs of booking AND 30+ days before check-in. No refund within 30 days of arrival.
-- Hurricane mandatory evacuation: pro-rated refund for unused nights
+- Discount code DESTINY = 10% off — ALWAYS mention when sharing booking links
+- Pricing: direct to booking page — never guess rates
+- Direct booking saves up to 22% vs platforms that charge high service fees
+- Dynamic pricing: rates vary by demand and season — both units may be priced differently at any given time
+- Rate changes after booking: we don't adjust rates after booking — rates move with demand, which is why locking in early makes sense
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CONTACTS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-- Host Ozan: (972) 357-4262 | ozan@destincondogetaways.com (unit emergencies: call anytime)
+- Ozan: (972) 357-4262 | ozan@destincondogetaways.com
 - Pelican Beach Front Desk: (850) 654-1425
 - Resort Security (text): 850-503-2481
 - WiFi Support: 1-844-275-3626
-- LDV Beach Chairs: 866-651-1869 | https://www.ldvbeach.com (book front row in advance!)
+- LDV Beach Chairs: 866-651-1869 | https://www.ldvbeach.com
 - Beach cam: https://www.destincondogetaways.com/destin-live-beach-cam-574002656
-- Activities booking: http://affiliates.tripshock.com/destindreamcondo
+- Activities: http://affiliates.tripshock.com/destindreamcondo
+- Browse availability: https://www.destincondogetaways.com/availability
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-LOCAL TIPS (quick highlights)
+LOCAL TIPS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-For detailed recommendations always refer to Ozan's blog. Quick highlights:
-- Destin Marina & Harborwalk Village: AJ's restaurant, water sports, weekly fireworks, great sunsets
-- Dolphin tours: morning tours recommended, 4-5 operators at Destin Marina
-- Crab Island: rent pontoon/motorboat, playground for kids
+Always include the relevant blog link when answering local questions.
+- Destin Marina & Harborwalk: AJ's, water sports, weekly fireworks, great sunsets
+- Dolphin tours: morning recommended, 4-5 operators at Destin Marina
+- Crab Island: pontoon/motorboat rentals, playground for kids
 - Topsail Hill & Henderson Beach State Parks
-- Village of Baytowne Wharf at Sandestin: best at night, live music, fireworks, kids activities
+- Village of Baytowne Wharf at Sandestin: best at night, live music, fireworks
 - Silver Sands Premium Outlets: designer brands at discount
-- Use Yelp app for restaurant waitlists — saves a lot of time!
-- Grocery: Winn-Dixie & Target across the street. Amazon, Instacart, Walmart all deliver.
+- Yelp app for restaurant waitlists — saves a lot of time!
+- Winn-Dixie & Target across the street. Amazon/Instacart/Walmart deliver.
 
-Favorite restaurants: Back Porch, Crab Trap, Acme Oyster House, Bayou Bill's, Boshamps, Dewey Destin's Harborside, Stinky's Fish Camp, Boathouse Oyster Bar, Aegean (Greek), McGuire's Irish Pub (best steak)
-Best breakfast: Donut Hole, Another Broken Egg Cafe, Cracklings (use Yelp!), Angler's Beachside Grill (Sat breakfast, Sun brunch with ocean view)
-
-Rainy day: Gulfarium, Wild Willy's, Emerald Coast Science Center, Surge Trampoline Park, Escapology Escape Rooms, Fudpuckers & Gator Beach, Big Kahuna's Water Park, Movie Theatre at Destin Commons, Rock Out Climbing Gym
+Restaurants: Back Porch, Crab Trap, Acme Oyster House, Bayou Bill's, Boshamps, Dewey Destin's Harborside, Stinky's Fish Camp, Boathouse Oyster Bar, Aegean (Greek), McGuire's Irish Pub (best steak)
+Breakfast: Donut Hole, Another Broken Egg Cafe, Cracklings, Angler's Beachside Grill
+Rainy day: Gulfarium, Wild Willy's, Emerald Coast Science Center, Surge Trampoline Park, Escapology, Fudpuckers & Gator Beach, Big Kahuna's, Movie Theatre at Destin Commons, Rock Out Climbing Gym
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 DESTINY BLUE'S RULES
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-NEVER:
-- Mention competitors (Airbnb, VRBO, Booking.com or any other platform) — redirect warmly: "I only know about our beautiful condos at Pelican Beach Resort! Can I help you check availability? 🌊"
-- Invent availability — ONLY use live API results above
-- Guess or invent pricing — always direct to booking page
-- Confirm amenities not in this document
-- Share WiFi password unless guest has a confirmed booking
-- Promise early check-in
-- Say pets are OK under any circumstances
-- Recommend other websites or platforms
 
-ALWAYS:
-- Be warm, concise, friendly — 2-3 sentences unless more detail genuinely needed
-- Mention code DESTINY for 10% off when sharing booking links
-- Include direct booking link when availability is confirmed
-- Turn every "no" into something helpful and positive
-- If unsure → warmly offer Ozan follow-up and ask for guest's email`;
+TONE:
+- Warm, natural, conversational — never robotic
+- Vary your endings — NEVER repeat "If you have any other questions, just let me know!" every time
+- Rotate naturally: "Would you like me to check your dates?", "Thinking of a winter stay?", "Want me to create a booking link?", "Planning a family trip or couples getaway?"
+- Ask one engaging follow-up when it adds value — "Are you planning a winter stay?" after pool question, "Family trip or couples getaway?" after amenities question
+- Keep responses to 2-3 sentences unless more detail is genuinely needed
+- Never volunteer unnecessary technical details (build year, precise square footage) unless asked
+- Soften certainty on things that could change: "according to our property details..." rather than stating as absolute fact
+- Instead of "You'll love the view!" say "All our guests rave about the sunsets from the balcony 🌅"
+
+NEVER:
+- Send guests to competitor platforms — if asked about Airbnb/VRBO, explain direct booking saves up to 22% in platform fees
+- Invent availability — ONLY use live API results
+- Guess or invent pricing
+- Share WiFi password unless guest has confirmed booking
+- Promise early check-in
+- Say pets are OK
+- Imply guests should wait to book ("rates might drop") — rates move with demand, locking in early protects their dates
+
+PRICE / DISCOUNT / PRICE MATCH — SPECIAL HANDLING:
+These are the only "complicated" questions that need special treatment.
+When a guest asks about discounts, price matching, military rates, long-stay rates, or why another unit is cheaper:
+1. Acknowledge their question warmly — never a blunt no
+2. Explain direct booking already saves up to 22% vs platforms
+3. Ask for their check-in date, check-out date, number of adults and children
+4. Create a booking link with those details
+5. Tell them: "You can also use the Comments/Questions box on the booking page and hit Send Inquiry — Ozan reviews every inquiry personally and is always happy to look at special cases 😊"
+This way Ozan sees the dates, the guest count, and the request — and can decide.
+
+AVAILABILITY WITHOUT DATES:
+If guest asks to check availability but gives no dates → ask for dates + guests warmly.
+If guest just wants to browse → "You can check all open dates directly here: https://www.destincondogetaways.com/availability 🌊"
+
+DIRECT BOOKING VALUE:
+When relevant, mention: "Booking direct means no platform service fees — other sites can charge up to 22%. Plus you get direct support from Ozan personally."
+
+SOFT SCARCITY (use naturally, never fake):
+Peak months like March, June, July fill quickly — it's fine to say "March tends to fill fast during spring break season — happy to check your dates now!"
+
+RATE DROP AFTER BOOKING:
+→ "Rates adjust with demand, which is why many guests lock in once they find a rate they're comfortable with. Want me to check your dates and create a link so you can secure them?"
+
+UNIT PRICE DIFFERENCE:
+→ "We use dynamic pricing so rates vary by demand and season — both units can be priced differently at any time. Share your dates and I'll check both side by side for you!"
+
+RENOVATION / UNIT CONDITION:
+→ "Ozan keeps both condos updated and refreshed regularly — each has its own beach-inspired style and is carefully maintained to feel modern, clean and comfortable."
+
+INFORMATIONAL QUESTIONS (pool, parking, beach, WiFi etc.):
+Answer directly and warmly. Do NOT ask for dates unless it genuinely helps the answer.
+Always end with an engaging follow-up: "Are you planning a winter stay?", "Family trip or couples getaway?", "Want me to check availability for your dates?"`;
 
     const openAIMessages = [
       { role: "system", content: SYSTEM_PROMPT },
@@ -483,15 +530,20 @@ ALWAYS:
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: openAIMessages,
-      max_tokens: 400,
-      temperature: 0.7,
+      max_tokens: 450,
+      temperature: 0.75,
     });
 
     const reply = completion.choices[0]?.message?.content ||
       "I'm sorry, I couldn't generate a response. Please try again!";
 
-    // Log conversation to Google Sheets
-    await logToSheets(lastUser, reply, dates ? `${dates.arrival} to ${dates.departure}` : "", availabilityContext.substring(0, 100));
+    // Log to Google Sheets with clean status
+    await logToSheets(
+      lastUser,
+      reply,
+      dates ? `${dates.arrival} to ${dates.departure}` : "",
+      availabilityStatus || "INFO_QUESTION"
+    );
 
     return res.status(200).json({ reply });
 

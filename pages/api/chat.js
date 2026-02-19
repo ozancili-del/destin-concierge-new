@@ -159,7 +159,7 @@ export default async function handler(req, res) {
 
     // If no dates found, ask guest to clarify rather than giving generic answer
     if (!dates && (lastUser.match(/avail|book|check.?in|check.?out|stay|condo|unit|dates?/i))) {
-      availabilityContext = `NO DATES FOUND: The guest seems to be asking about booking but did not provide clear dates. Politely ask them to provide their check-in and check-out dates so you can check live availability. Do NOT send them to any generic booking page.`;
+      availabilityContext = `NO DATES FOUND: The guest seems to be asking about booking but did not provide clear dates. Warmly ask them to share their check-in and check-out dates AND how many guests (adults and children) so you can check live availability. Do NOT send them to any generic booking page.`;
     }
 
     if (dates) {

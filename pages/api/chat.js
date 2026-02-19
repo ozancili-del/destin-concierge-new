@@ -410,10 +410,26 @@ RULES — no exceptions:
         HEAVILY_BOOKED: `${mentionedMonth} appears mostly booked, but there may still be some gaps depending on your exact dates.`,
       };
 
-      availabilityContext = `MONTH PROBE (10 windows checked): Band is ${band}. pctEither=${pctEither}% pct707=${pct707}% pct1006=${pct1006}%.
-Use this exact phrasing for the month: "${bandMessages[band]}"
+      // Build per-unit honest message
+      let monthMsg = "";
+      if (pct707 >= 70 && pct1006 >= 70) {
+        monthMsg = `Both units look fairly open in ${mentionedMonth} based on a quick spot-check.`;
+      } else if (pct707 >= 70 && pct1006 < 70) {
+        monthMsg = `Unit 707 looks fairly open in ${mentionedMonth}, but Unit 1006 is filling up — some weeks are already taken.`;
+      } else if (pct707 < 70 && pct1006 >= 70) {
+        monthMsg = `Unit 1006 looks fairly open in ${mentionedMonth}, but Unit 707 is filling up — some weeks are already taken.`;
+      } else if (pct707 >= 40 || pct1006 >= 40) {
+        monthMsg = `${mentionedMonth} has some openings but popular weeks are booking up fast.`;
+      } else if (pct707 >= 15 || pct1006 >= 15) {
+        monthMsg = `${mentionedMonth} is looking quite tight — there are some gaps but it is filling up quickly.`;
+      } else {
+        monthMsg = `${mentionedMonth} appears mostly booked, but there may still be a gap depending on your exact dates.`;
+      }
+
+      availabilityContext = `MONTH PROBE (10 windows checked): pct707=${pct707}% pct1006=${pct1006}% pctEither=${pctEither}%.
+Use this exact phrasing: "${monthMsg}"
 Then always ask: "Share your exact check-in and check-out dates plus number of adults and children — I'll check live availability and create a booking link for you! You can also browse open dates at https://www.destincondogetaways.com/availability"
-Do NOT say "great news" or over-promise. Do NOT say all months sound the same. Be honest about the band.`;
+Do NOT say "great news" or over-promise. Be specific about which unit is open vs filling up.`;
     } else if (!dates && !isDiscountRequest && wantsAvailability) {
       availabilityStatus = "NEEDS_DATES";
       availabilityContext = `NO DATES: Guest is asking about availability/booking but has not given dates. Warmly ask for check-in date, check-out date, number of adults and number of children. Do NOT send to generic page.`;
@@ -623,6 +639,7 @@ Rotate naturally between: "Would you like me to check your dates? 🌊", "Planni
 NEVER end with "If you have any other questions, just let me know!" — this is banned.
 
 RESPONSE LENGTH: 2-3 sentences unless more detail genuinely needed.
+LINKS: Always use plain URLs — never markdown format like [text](url). Write the URL directly so it is clickable without breaking.
 
 RENOVATION QUESTIONS: Never say "I can't provide that information." Instead say: "Ozan visits Destin regularly and keeps both units updated and refreshed — each has its own beach-inspired style and is carefully maintained to feel modern, clean and comfortable."
 

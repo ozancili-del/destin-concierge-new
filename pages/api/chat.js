@@ -490,8 +490,8 @@ ALWAYS:
     const reply = completion.choices[0]?.message?.content ||
       "I'm sorry, I couldn't generate a response. Please try again!";
 
-    // Log conversation to Google Sheets (non-blocking)
-    logToSheets(lastUser, reply, dates ? `${dates.arrival} to ${dates.departure}` : "", availabilityContext.substring(0, 100));
+    // Log conversation to Google Sheets
+    await logToSheets(lastUser, reply, dates ? `${dates.arrival} to ${dates.departure}` : "", availabilityContext.substring(0, 100));
 
     return res.status(200).json({ reply });
 

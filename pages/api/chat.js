@@ -75,6 +75,47 @@ async function fetchBlogContent(topic) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Fetch real Destin weather from Open-Meteo (free, no API key)
+// ─────────────────────────────────────────────────────────────────────────────
+async function fetchDestinWeather() {
+  try {
+    const url = "https://api.open-meteo.com/v1/forecast?latitude=30.3935&longitude=-86.4958&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weathercode&temperature_unit=fahrenheit&timezone=America%2FChicago&forecast_days=7";
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const data = await res.json();
+    const days = data.daily;
+    if (!days) return null;
+
+    // Weather code to description
+    const wxDesc = (code) => {
+      if (code === 0) return "sunny";
+      if (code <= 2) return "mostly sunny";
+      if (code <= 3) return "cloudy";
+      if (code <= 48) return "foggy";
+      if (code <= 57) return "drizzle";
+      if (code <= 67) return "rainy";
+      if (code <= 77) return "snowy";
+      if (code <= 82) return "showers";
+      if (code <= 99) return "stormy";
+      return "mixed";
+    };
+
+    const forecast = days.time.map((date, i) => ({
+      date,
+      high: Math.round(days.temperature_2m_max[i]),
+      low: Math.round(days.temperature_2m_min[i]),
+      rain: days.precipitation_probability_max[i],
+      desc: wxDesc(days.weathercode[i]),
+    }));
+
+    return forecast;
+  } catch (err) {
+    console.error("Open-Meteo fetch error:", err.message);
+    return null;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // LAYER 1 DETECTORS — these run in code, injected at top of prompt
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -159,6 +200,16 @@ function extractDates(text) {
   const isoMatches = text.match(isoPattern);
   if (isoMatches && isoMatches.length >= 2) {
     return { arrival: isoMatches[0], departure: isoMatches[1] };
+  }
+
+  // Slash format: 7/10-7/17 or 7/10 - 7/17
+  const slashPattern = /(\d{1,2})\/(\d{1,2})\s*[-–]\s*(\d{1,2})\/(\d{1,2})/;
+  const slashMatch = text.match(slashPattern);
+  if (slashMatch) {
+    return {
+      arrival:   `${year}-${slashMatch[1].padStart(2,"0")}-${slashMatch[2].padStart(2,"0")}`,
+      departure: `${year}-${slashMatch[3].padStart(2,"0")}-${slashMatch[4].padStart(2,"0")}`,
+    };
   }
 
   const months = {
@@ -470,10 +521,19 @@ Do NOT say "great news" or over-promise. Be specific about which unit is open vs
       }
     }
 
-    // Blog content
+    // Blog content or real weather
     let blogContext = "";
     const blogTopic = detectBlogTopic(lastUser);
-    if (blogTopic) {
+    if (blogTopic === "weather") {
+      // Real-time weather from Open-Meteo instead of blog
+      const forecast = await fetchDestinWeather();
+      if (forecast) {
+        const lines = forecast.map(d =>
+          `${d.date}: ${d.desc}, high ${d.high}°F / low ${d.low}°F, ${d.rain}% rain chance`
+        ).join("\n");
+        blogContext = `\n\nREAL-TIME DESTIN WEATHER FORECAST (7 days) — use this to answer accurately, do not guess:\n${lines}\nRemember: For guaranteed warm swimming year-round → indoor heated pool. Gulf swimming is ideal June–September, cool Oct–May, cold Dec–March.`;
+      }
+    } else if (blogTopic) {
       const blogResult = await fetchBlogContent(blogTopic);
       if (blogResult) {
         blogContext = `\n\nLIVE BLOG CONTENT (use this to answer, include blog link ${blogResult.url} at end of answer):\n${blogResult.content}`;
@@ -634,12 +694,18 @@ WARMTH & EMPATHY:
 - NEVER cold or dismissive
 - ILLNESS / FAMILY EMERGENCY / BAD NEWS: When a guest mentions sickness, injury, family emergency or any difficult personal situation — lead with genuine human empathy FIRST, NO emojis in that response, THEN explain the policy calmly. Example: "I'm so sorry to hear that — I genuinely hope everyone feels better soon. Here's how our cancellation policy works in this situation..."
 
+GULF WATER TEMPERATURE: Never claim the Gulf is warm in winter months. Honest guide:
+- June through September: warm, great for swimming 🌊
+- October, November, April, May: mild, refreshing, some enjoy it
+- December through March: cold (upper 50s to mid 60s°F) — NOT comfortable for swimming. Always suggest the indoor heated pool as the warm swimming option for these months.
+Never tell a guest the Gulf is warm or inviting in February, January, December, March — it is not.
+
 TONE VARIETY — NEVER repeat the same ending:
 Rotate naturally between: "Would you like me to check your dates? 🌊", "Planning a family trip or couples getaway?", "Want me to create a direct booking link?", "Thinking of a summer stay?", "Are you planning a trip soon? 🏖️"
 NEVER end with "If you have any other questions, just let me know!" — this is banned.
 
 RESPONSE LENGTH: 2-3 sentences unless more detail genuinely needed.
-LINKS: CRITICAL — always write URLs as plain text only. NEVER use markdown format like [text](url) or [this link](url). WRONG: [Destin Condo Getaways](https://www.destincondogetaways.com/availability) — RIGHT: https://www.destincondogetaways.com/availability
+LINKS: CRITICAL — always write URLs as plain text only. NEVER use markdown format like [text](url) or [this link](url). WRONG: [Destin Condo Getaways](https://www.destincondogetaways.com/availability) — RIGHT: https://www.destincondogetaways.com/availability — NEVER put a period or punctuation immediately after a URL. End the sentence before the URL or after it with a space and emoji.
 
 RENOVATION QUESTIONS: Never say "I can't provide that information." Instead say: "Ozan visits Destin regularly and keeps both units updated and refreshed — each has its own beach-inspired style and is carefully maintained to feel modern, clean and comfortable."
 

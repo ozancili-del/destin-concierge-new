@@ -81,7 +81,15 @@ async function fetchDestinWeather() {
   try {
     const url = "https://api.open-meteo.com/v1/forecast?latitude=30.3935&longitude=-86.4958&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weathercode&temperature_unit=fahrenheit&timezone=America%2FChicago&forecast_days=7";
     console.log("Calling Open-Meteo for real Destin weather...");
-    const res = await fetch(url);
+
+    // ────────────────────────────────────────────────────────────────
+    // ONLY CHANGE IS HERE: use CORS proxy for Vercel fetch workaround
+    // ────────────────────────────────────────────────────────────────
+    const proxy = "https://corsproxy.io/?";
+    const target = encodeURIComponent(url);
+    const res = await fetch(proxy + target, { cache: 'no-store' });
+    console.log("Proxy fetch attempted:", proxy + target);
+
     if (!res.ok) { console.error("Open-Meteo response not ok:", res.status); return null; }
     const data = await res.json();
     const days = data.daily;

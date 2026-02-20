@@ -50,7 +50,37 @@ function detectBlogTopic(text) {
   if (t.match(/grocery|supermarket|walmart|publix|winn.dixie|target|food store/)) return "supermarkets";
   if (t.match(/history|culture|museum|heritage|historic/)) return "history";
   if (t.match(/explore|sightseeing|attractions|must see|hidden gem/)) return "explore";
+  if (t.match(/photo|picture|image|virtual tour|look like|show me|what does.*look|gallery|interior|inside the unit|see the unit/)) return "photos";
   return null;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Fetch real Destin weather from Google Weather API
+// ─────────────────────────────────────────────────────────────────────────────
+async function fetchDestinWeather() {
+  try {
+    const apiKey = process.env.GOOGLE_WEATHER_API_KEY;
+    if (!apiKey) { console.error("GOOGLE_WEATHER_API_KEY not set"); return null; }
+    const url = `https://weather.googleapis.com/v1/forecast/days:lookup?key=${apiKey}&location.latitude=30.3935&location.longitude=-86.4958&days=7&languageCode=en-US&unitsSystem=IMPERIAL`;
+    console.log("Calling Google Weather API...");
+    const res = await fetch(url);
+    if (!res.ok) { console.error("Google Weather error:", res.status, await res.text()); return null; }
+    const data = await res.json();
+    const days = data.forecastDays || [];
+    if (!days.length) return null;
+    const forecast = days.map(day => ({
+      date: day.date ? `${day.date.year}-${String(day.date.month).padStart(2,"0")}-${String(day.date.day).padStart(2,"0")}` : "",
+      hi:   Math.round(day.maxTemperature?.degrees ?? 0),
+      lo:   Math.round(day.minTemperature?.degrees ?? 0),
+      rain: Math.round((day.precipitationProbability ?? 0) * 100),
+      desc: day.daytimeForecast?.weatherCondition?.description?.text || day.condition?.description?.text || "mixed",
+    }));
+    console.log("Google Weather success:", forecast.length, "days");
+    return forecast;
+  } catch (err) {
+    console.error("Google Weather fetch error:", err.message);
+    return null;
+  }
 }
 
 async function fetchBlogContent(topic) {
@@ -70,56 +100,6 @@ async function fetchBlogContent(topic) {
     return { content: text, url };
   } catch (err) {
     console.error("Blog fetch error:", err.message);
-    return null;
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Fetch real Destin weather from Open-Meteo (free, no API key needed)
-// ─────────────────────────────────────────────────────────────────────────────
-async function fetchDestinWeather() {
-  try {
-    const url = "https://api.open-meteo.com/v1/forecast?latitude=30.3935&longitude=-86.4958&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weathercode&temperature_unit=fahrenheit&timezone=America%2FChicago&forecast_days=7";
-    console.log("Calling Open-Meteo for real Destin weather...");
-
-    // ────────────────────────────────────────────────────────────────
-    // ONLY CHANGE IS HERE: use CORS proxy for Vercel fetch workaround
-    // ────────────────────────────────────────────────────────────────
-    const proxy = "https://corsproxy.io/?";
-    const target = encodeURIComponent(url);
-    const res = await fetch(proxy + target, { cache: 'no-store' });
-    console.log("Proxy fetch attempted:", proxy + target);
-
-    if (!res.ok) { console.error("Open-Meteo response not ok:", res.status); return null; }
-    const data = await res.json();
-    const days = data.daily;
-    if (!days) return null;
-
-    const wxDesc = (code) => {
-      if (code === 0) return "sunny";
-      if (code <= 2) return "mostly sunny";
-      if (code <= 3) return "cloudy";
-      if (code <= 48) return "foggy";
-      if (code <= 57) return "drizzle";
-      if (code <= 67) return "rainy";
-      if (code <= 77) return "snowy";
-      if (code <= 82) return "showers";
-      if (code <= 99) return "stormy";
-      return "mixed";
-    };
-
-    const forecast = days.time.map((date, i) => ({
-      date,
-      high: Math.round(days.temperature_2m_max[i]),
-      low: Math.round(days.temperature_2m_min[i]),
-      rain: days.precipitation_probability_max[i],
-      desc: wxDesc(days.weathercode[i]),
-    }));
-
-    console.log("Open-Meteo success, days returned:", forecast.length);
-    return forecast;
-  } catch (err) {
-    console.error("Open-Meteo fetch error:", err.message);
     return null;
   }
 }
@@ -356,7 +336,7 @@ export default async function handler(req, res) {
 
     // Only look back in history for dates on genuine follow-ups
     const dates = extractDates(lastUser) || (
-      lastUser.match(/unit|1006|707|that one|both|available|book/i)
+      lastUser.match(/unit|1006|707|that one|both|available|book|price|cost|how much|rate|what is the/i)
         ? extractDates(allUserText)
         : null
     );
@@ -489,7 +469,7 @@ RULES — no exceptions:
       availabilityContext = `MONTH PROBE (10 windows checked): pct707=${pct707}% pct1006=${pct1006}% pctEither=${pctEither}%.
 Use this exact phrasing: "${monthMsg}"
 Then always ask: "Share your exact check-in and check-out dates plus number of adults and children — I'll check live availability and create a booking link for you! You can also browse open dates at https://www.destincondogetaways.com/availability"
-Do NOT say great news or over-promise. Be specific about which unit is open vs filling up.`;
+Do NOT say great news or over-promise. Be specific about which unit is open vs filling up.`
     } else if (!dates && !isDiscountRequest && wantsAvailability) {
       availabilityStatus = "NEEDS_DATES";
       availabilityContext = `NO DATES: Guest is asking about availability/booking but has not given dates. Warmly ask for check-in date, check-out date, number of adults and number of children. Do NOT send to generic page.`;
@@ -526,21 +506,25 @@ Do NOT say great news or over-promise. Be specific about which unit is open vs f
         availabilityContext = `LIVE AVAILABILITY: BOTH units AVAILABLE for ${dates.arrival} to ${dates.departure}. Offer both equally. Unit 707 link: ${link707} — Unit 1006 link: ${link1006}`;
       } else {
         availabilityStatus = `DATES:${dates.arrival}->${dates.departure} | CHECK_FAILED`;
-        availabilityContext = `AVAILABILITY CHECK FAILED. Ask guest to contact Ozan at (972) 357-4262.`;
+        const link707fb = buildLink("707", dates.arrival, dates.departure, adults, children);
+        const link1006fb = buildLink("1006", dates.arrival, dates.departure, adults, children);
+        availabilityContext = `AVAILABILITY CHECK FAILED — could not confirm live status. Still provide both booking links so guest can proceed: Unit 707: ${link707fb} — Unit 1006: ${link1006fb} — Tell guest: "I wasn't able to confirm live availability right now, but here are your direct booking links — use code DESTINY for 10% off! If you have any issues, contact Ozan at (972) 357-4262."`;
       }
     }
 
     // Blog content or real weather
     let blogContext = "";
     const blogTopic = detectBlogTopic(lastUser);
-    if (blogTopic === "weather") {
-      console.log("Weather question detected — fetching real Destin forecast...");
+    if (blogTopic === "photos") {
+      blogContext = `\n\nPHOTOS/VIRTUAL TOUR REQUEST: Guest wants to see photos or take a virtual tour. Give them these links directly in plain text:\n- Virtual tour: https://www.destincondogetaways.com/virtual-tour\n- Unit 707 photos & booking: https://www.destincondogetaways.com/pelican-beach-resort-unit-707-orp5b47b5ax\n- Unit 1006 photos & booking: https://www.destincondogetaways.com/pelican-beach-resort-unit-1006-orp5b6450ex\nDo NOT send them to the blog or events page. Share all 3 links warmly and invite them to ask questions.`;
+    } else if (blogTopic === "weather") {
+      console.log("Weather question — fetching real Destin forecast...");
       const forecast = await fetchDestinWeather();
       if (forecast) {
         const lines = forecast.map(d =>
-          `${d.date}: ${d.desc}, high ${d.high}°F / low ${d.low}°F, ${d.rain}% rain chance`
+          `${d.date}: ${d.desc}, high ${d.hi}°F / low ${d.lo}°F, ${d.rain}% rain chance`
         ).join("\n");
-        blogContext = `\n\nREAL-TIME DESTIN WEATHER FORECAST (7 days) — use this to answer accurately, do not guess:\n${lines}\nRemember: For guaranteed warm swimming year-round → indoor heated pool. Gulf swimming is ideal June–September, cool Oct–May, cold Dec–March.`;
+        blogContext = `\n\nREAL-TIME DESTIN WEATHER FORECAST (7 days) — use this data, do not guess:\n${lines}\nSummarize in 2-3 sentences max. No markdown bold. No bullet lists. Just warm conversational text.\nGulf swimming: ideal June-September, cool Oct-May, cold Dec-March → always suggest indoor heated pool for winter months.`;
       }
     } else if (blogTopic) {
       const blogResult = await fetchBlogContent(blogTopic);
@@ -578,7 +562,8 @@ BOTH UNITS HAVE IDENTICAL AMENITIES — only floor level and decor style differ.
 - Full kitchen, dishwasher, ice maker, wine glasses
 - Free WiFi 250+ Mbps, Eero 6 — Ozan works from here himself, video calls with no issues
 - Desk, laptop workspace
-- 2 beach chairs + umbrella (set up in open public section behind LDV rental chairs). If guests want front-row beach service, mention LDV Beach Chairs: 866-651-1869 | https://www.ldvbeach.com — recommend booking in advance!
+- 2 beach chairs + umbrella included — set up in the open public section just behind the LDV rental chairs.
+- For front-row beach service: LDV Beach Chairs (La Dolce Vita) rents 2 umbrellas + chair for $40/day ($50/day for first row). Hours: 9AM-5PM, March 1 through October 31. Book in advance: 866-651-1869 | https://www.ldvbeach.com
 - AC, ceiling fans, iron & board, hair dryer in both bathrooms
 - Games, board games, children's books & toys, Pack N Play
 - Dining seats 6 (4 chairs + 2 barstools)
@@ -591,16 +576,24 @@ Bring: beach towels (unit towels NOT outside), sunscreen, hat, sunglasses
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 RESORT FACILITIES
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-- 3 pools: indoor heated pool (year-round) + 2 outdoor pools (one heated seasonally) + kiddie pool
-- Hot tub, Jacuzzi, Sauna
-- Fitness room, Tennis court
-- Outdoor gas grills (ground level next to cafe)
-- Direct beach access from back of building
+- 3 pools: indoor heated swim-out pool (year-round, heated) + 2 outdoor pools (both heated seasonally) + kiddie pool
+- 2 hot tubs / Jacuzzis
+- Sauna AND steam room
+- Fitness center (free for guests)
+- Tennis AND Pickleball courts (free for guests)
+- Outdoor gas grills (recently renewed) with seating area, ground level next to cafe
+- Seasonal Tiki Bar on the beach — serves cocktails, drinks and food directly to beach seating (seasonal)
+- Seasonal cafe / convenience store in lobby area
+- 24/7 front desk and on-site security
+- Vending machines + change machine in lobby (snacks, drinks, basic amenities)
+- Direct beach access from back of building — private beach
+- 19 floors (20th floor is top floor — no 13th floor)
+- Resort built in 1996. Third pool added south side in 2021. Waterproofing renovations 2022-2023.
 - 5 elevators (accessible), disabled parking
 - Gated resort — security at entrance for guest safety and privacy
 - Pool bracelets required March–October — keeps resort comfortable and secure during busy season
-- Washer/dryer on every floor — right side of hallway at the end. Quarters AND credit card. Any floor.
-- EV charging on premises
+- Coin-operated laundry on every floor — near center stairwell. Accepts quarters AND credit card.
+- 2 on-site EV chargers (J1772, paid)
 - Free parking up to 2 cars — parking pass at front desk
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -609,7 +602,7 @@ CHECK-IN & CHECK-OUT
 - Check-in: 4:00 PM CST — PIN active at this time, keyless entry
 - Go directly to unit — no lobby check-in needed
 - Stop at front desk for parking pass and pool bracelets (Mar-Oct) — before or after settling in
-- Check-out: 10:00 AM CST — next guests are counting on it
+- Check-out: BY 10:00 AM CST — guests can leave any time before 10 AM, just ensure out by 10. Next guests are counting on it.
 - Text cleaning crew when checking out (8–10 AM). Before 8 AM: text unit + time before 8 PM night before
 - Early check-in not guaranteed — park, register, enjoy beach! Contact Ozan (972) 357-4262
 - No luggage drops while cleaners inside — beach is waiting! 🏖️
@@ -622,9 +615,9 @@ POLICIES
 PETS: Zero exceptions — HOA rule for entire resort. No emotional support animals either.
 → "Aww we love furry friends too! Unfortunately our resort has a strict no-pets policy we simply can't make exceptions to — even for the cutest ones! 🐾 We hope you understand!"
 
-SMOKING: Not allowed in unit or on balcony. Two designated areas:
+SMOKING: Not allowed in unit, on balcony, or anywhere in resort except designated areas. Two designated smoking areas:
 1) Next to the Tiki Bar  2) North entrance of garage, left side
-Violations charged to card on file.
+VIOLATION: $250 charge — strictly enforced. Applies to tobacco, marijuana, and vaping. Charged automatically if housekeepers report smell after checkout.
 
 AGE: Minimum 25 — waived if married.
 → "Our minimum age is 25 — however if you're married that's waived! Are you married? 😊"
@@ -648,7 +641,12 @@ CANCELLATION: 50% refund if cancelled within 48hrs of booking AND 30+ days befor
 BOOKING TRANSFER: Never confirm or deny if transfers are possible. Just say: "For booking transfers, please contact Ozan directly at (972) 357-4262 — he can assist you with any specific requests. Would you like to explore availability for your preferred dates? 😊"
 
 BALCONY DOOR: Always closed when AC is on. FAN: AUTO mode only. DISHWASHER: Tablets only.
-TOWELS: Unit towels stay inside. Bring beach towels.
+TOWELS: Unit towels stay inside — never taken to beach. No beach towels provided — bring your own.
+BALCONY RAILS: Never hang towels, sheets, clothing or any items on balcony rails.
+NOISE: Quiet hours 10PM–8AM. No dragging furniture — disturbs guests below.
+KITCHEN: No heavily aromatic cooking (curry, fish, garlic) — requires extra aeration at guest's cost. No shrimp peelings, seafood, eggshells, or hard food in garbage disposal.
+VISITORS: No outside visitors allowed to the resort. Only registered guests may be in the unit.
+AGE GUARDIAN RULE: 1 parent or adult guardian over 25 required for every 3 unmarried guests under 25.
 LOST & FOUND: Shipping + $25 fee. 10 days then disposed.
 NO REFUNDS for pool/appliance/elevator issues — Ozan fixes ASAP. If one pool is closed, guests still have access to the other pools (3 total: 1 indoor heated + 2 outdoor).
 
@@ -687,6 +685,8 @@ Always include the relevant blog link when answering local questions.
 - Silver Sands Premium Outlets: designer brands at discount
 - Yelp app for restaurant waitlists!
 - Winn-Dixie & Target across the street. Amazon/Instacart/Walmart deliver.
+- Walking distance: Target, Walgreens, McDonald's about 1 mile away. Some restaurants just a block or two away.
+- Pelican Beach is minutes from Harborwalk Village and across from Big Kahuna's water park.
 
 Restaurants: Back Porch, Crab Trap, Acme Oyster House, Bayou Bill's, Boshamps, Dewey Destin's Harborside, Stinky's Fish Camp, Boathouse Oyster Bar, Aegean (Greek), McGuire's Irish Pub (best steak)
 Breakfast: Donut Hole, Another Broken Egg Cafe, Cracklings, Angler's Beachside Grill
@@ -706,15 +706,16 @@ WARMTH & EMPATHY:
 GULF WATER TEMPERATURE: Never claim the Gulf is warm in winter months. Honest guide:
 - June through September: warm, great for swimming 🌊
 - October, November, April, May: mild, refreshing, some enjoy it
-- December through March: cold (upper 50s to mid 60s°F) — NOT comfortable for swimming. Always suggest the indoor heated pool as the warm swimming option for these months.
-Never tell a guest the Gulf is warm or inviting in February, January, December, March — it is not.
+- December through March: cold (upper 50s to mid 60s°F) — NOT comfortable for swimming. Always suggest the indoor heated pool.
+Never tell a guest the Gulf is warm or inviting in February, January, December, March.
+
+WEATHER RESPONSES: When giving weather forecasts, NEVER use markdown bold (**text**) or bullet lists. Write as warm conversational prose in 2-3 sentences max. Example: "This week in Destin looks mostly sunny with highs around 68°F — a few showers possible Monday but clearing up nicely after. Nights will be cool in the mid-50s, and the Gulf will be chilly this time of year so our indoor heated pool is perfect for a swim!"
 
 TONE VARIETY — NEVER repeat the same ending:
 Rotate naturally between: "Would you like me to check your dates? 🌊", "Planning a family trip or couples getaway?", "Want me to create a direct booking link?", "Thinking of a summer stay?", "Are you planning a trip soon? 🏖️"
 NEVER end with "If you have any other questions, just let me know!" — this is banned.
 
 RESPONSE LENGTH: 2-3 sentences unless more detail genuinely needed.
-LINKS: CRITICAL — always write URLs as plain text only. NEVER use markdown format like [text](url) or [this link](url). WRONG: [Destin Condo Getaways](https://www.destincondogetaways.com/availability) — RIGHT: https://www.destincondogetaways.com/availability — NEVER put a period or punctuation immediately after a URL. End the sentence before the URL or use a space and emoji after it.
 
 RENOVATION QUESTIONS: Never say "I can't provide that information." Instead say: "Ozan visits Destin regularly and keeps both units updated and refreshed — each has its own beach-inspired style and is carefully maintained to feel modern, clean and comfortable."
 
@@ -752,19 +753,9 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
     let reply = completion.choices[0]?.message?.content ||
       "I'm sorry, I couldn't generate a response. Please try again!";
 
-    // ────────────────────────────────────────────────────────────────
-    // ONLY CHANGE IS HERE: remove trailing punctuation glued to URLs
-    // ────────────────────────────────────────────────────────────────
-    reply = reply.replace(
-      /(https?:\/\/[^\s"'<>]+)[.,!?;:](\s|$)/g,
-      '$1$2'
-    );
-
-    // Also catch if punctuation is right at the very end after URL
-    reply = reply.replace(
-      /(https?:\/\/[^\s"'<>]+)[.,!?;:]$/,
-      '$1'
-    );
+    // Strip trailing punctuation glued to URLs
+    reply = reply.replace(/(https?:\/\/[^\s"'<>]+)[.,!?;:](\s|$)/g, '$1$2');
+    reply = reply.replace(/(https?:\/\/[^\s"'<>]+)[.,!?;:]$/, '$1');
 
     await logToSheets(
       lastUser,

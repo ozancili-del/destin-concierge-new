@@ -75,18 +75,18 @@ async function fetchBlogContent(topic) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Fetch real Destin weather from Open-Meteo (free, no API key)
+// Fetch real Destin weather from Open-Meteo (free, no API key needed)
 // ─────────────────────────────────────────────────────────────────────────────
 async function fetchDestinWeather() {
   try {
     const url = "https://api.open-meteo.com/v1/forecast?latitude=30.3935&longitude=-86.4958&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weathercode&temperature_unit=fahrenheit&timezone=America%2FChicago&forecast_days=7";
+    console.log("Calling Open-Meteo for real Destin weather...");
     const res = await fetch(url);
-    if (!res.ok) return null;
+    if (!res.ok) { console.error("Open-Meteo response not ok:", res.status); return null; }
     const data = await res.json();
     const days = data.daily;
     if (!days) return null;
 
-    // Weather code to description
     const wxDesc = (code) => {
       if (code === 0) return "sunny";
       if (code <= 2) return "mostly sunny";
@@ -108,6 +108,7 @@ async function fetchDestinWeather() {
       desc: wxDesc(days.weathercode[i]),
     }));
 
+    console.log("Open-Meteo success, days returned:", forecast.length);
     return forecast;
   } catch (err) {
     console.error("Open-Meteo fetch error:", err.message);
@@ -480,7 +481,7 @@ RULES — no exceptions:
       availabilityContext = `MONTH PROBE (10 windows checked): pct707=${pct707}% pct1006=${pct1006}% pctEither=${pctEither}%.
 Use this exact phrasing: "${monthMsg}"
 Then always ask: "Share your exact check-in and check-out dates plus number of adults and children — I'll check live availability and create a booking link for you! You can also browse open dates at https://www.destincondogetaways.com/availability"
-Do NOT say "great news" or over-promise. Be specific about which unit is open vs filling up.`;
+Do NOT say great news or over-promise. Be specific about which unit is open vs filling up.`;
     } else if (!dates && !isDiscountRequest && wantsAvailability) {
       availabilityStatus = "NEEDS_DATES";
       availabilityContext = `NO DATES: Guest is asking about availability/booking but has not given dates. Warmly ask for check-in date, check-out date, number of adults and number of children. Do NOT send to generic page.`;
@@ -525,7 +526,7 @@ Do NOT say "great news" or over-promise. Be specific about which unit is open vs
     let blogContext = "";
     const blogTopic = detectBlogTopic(lastUser);
     if (blogTopic === "weather") {
-      // Real-time weather from Open-Meteo instead of blog
+      console.log("Weather question detected — fetching real Destin forecast...");
       const forecast = await fetchDestinWeather();
       if (forecast) {
         const lines = forecast.map(d =>
@@ -705,7 +706,7 @@ Rotate naturally between: "Would you like me to check your dates? 🌊", "Planni
 NEVER end with "If you have any other questions, just let me know!" — this is banned.
 
 RESPONSE LENGTH: 2-3 sentences unless more detail genuinely needed.
-LINKS: CRITICAL — always write URLs as plain text only. NEVER use markdown format like [text](url) or [this link](url). WRONG: [Destin Condo Getaways](https://www.destincondogetaways.com/availability) — RIGHT: https://www.destincondogetaways.com/availability — NEVER put a period or punctuation immediately after a URL. End the sentence before the URL or after it with a space and emoji.
+LINKS: CRITICAL — always write URLs as plain text only. NEVER use markdown format like [text](url) or [this link](url). WRONG: [Destin Condo Getaways](https://www.destincondogetaways.com/availability) — RIGHT: https://www.destincondogetaways.com/availability — NEVER put a period or punctuation immediately after a URL. End the sentence before the URL or use a space and emoji after it.
 
 RENOVATION QUESTIONS: Never say "I can't provide that information." Instead say: "Ozan visits Destin regularly and keeps both units updated and refreshed — each has its own beach-inspired style and is carefully maintained to feel modern, clean and comfortable."
 

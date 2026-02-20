@@ -741,8 +741,22 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
       temperature: 0.75,
     });
 
-    const reply = completion.choices[0]?.message?.content ||
+    let reply = completion.choices[0]?.message?.content ||
       "I'm sorry, I couldn't generate a response. Please try again!";
+
+    // ────────────────────────────────────────────────────────────────
+    // ONLY CHANGE IS HERE: remove trailing punctuation glued to URLs
+    // ────────────────────────────────────────────────────────────────
+    reply = reply.replace(
+      /(https?:\/\/[^\s"'<>]+)[.,!?;:](\s|$)/g,
+      '$1$2'
+    );
+
+    // Also catch if punctuation is right at the very end after URL
+    reply = reply.replace(
+      /(https?:\/\/[^\s"'<>]+)[.,!?;:]$/,
+      '$1'
+    );
 
     await logToSheets(
       lastUser,

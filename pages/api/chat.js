@@ -77,6 +77,7 @@ async function fetchDestinWeather() {
       desc: day.daytimeForecast?.weatherCondition?.description?.text || day.condition?.description?.text || "mixed",
     }));
     console.log("Google Weather success:", forecast.length, "days");
+    console.log("Google Weather data:", JSON.stringify(forecast));
     return forecast;
   } catch (err) {
     console.error("Google Weather fetch error:", err.message);

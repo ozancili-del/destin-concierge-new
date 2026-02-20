@@ -35,10 +35,11 @@ const BLOG_URLS = {
 
 function detectBlogTopic(text) {
   const t = text.toLowerCase();
-  if (t.match(/restaurant|eat|food|dinner|lunch|breakfast|dining|seafood|oyster|where to eat/)) return "restaurants";
+  // Weather MUST come first — "weather" contains "eat" which would match restaurants
+  if (t.match(/weather|forecast|temperature|rain|season|when to visit|best time|how hot|how cold|highs|lows|high and low/)) return "weather";
+  if (t.match(/restaurant|eat|food|dinner|lunch|breakfast|dining|seafood|oyster|where to eat/)) return "restaurants";
   if (t.match(/beach|sand|swim|ocean|gulf|shore/)) return "beaches";
   if (t.match(/activit|thing to do|fun|tour|dolphin|parasail|snorkel|kayak|boat|fishing|water sport|rainy|indoor fun/)) return "activities";
-  if (t.match(/weather|temperature|rain|season|when to visit|best time|hot|cold/)) return "weather";
   if (t.match(/event|festival|concert|firework|show|calendar/)) return "events";
   if (t.match(/airport|fly|flight|drive|get there|closest airport|transportation/)) return "airport";
   if (t.match(/romantic|romance|couple|honeymoon|anniversary|date night/)) return "romance";
@@ -546,6 +547,8 @@ Do NOT say great news or over-promise. Be specific about which unit is open vs f
           `${d.date}: ${d.desc}, high ${d.hi}°F / low ${d.lo}°F, ${d.rain}% rain chance`
         ).join("\n");
         blogContext = `\n\nREAL-TIME DESTIN WEATHER FORECAST (7 days) — use this data, do not guess:\n${lines}\nSummarize in 2-3 sentences max. No markdown bold. No bullet lists. Just warm conversational text.\nGulf swimming: ideal June-September, cool Oct-May, cold Dec-March → always suggest indoor heated pool for winter months.`;
+      } else {
+        blogContext = `\n\nWEATHER DATA UNAVAILABLE: Real-time weather could not be fetched. Do NOT guess or invent temperatures. Tell the guest honestly: "I don't have live weather data at the moment — for the most accurate Destin forecast I'd recommend checking weather.com. What I can say is that February in Destin typically sees highs in the mid-50s to low 60s°F, and the Gulf is quite chilly — our indoor heated pool is perfect this time of year!" Do NOT confidently state specific temperatures you are not sure about.`;
       }
     } else if (blogTopic) {
       const blogResult = await fetchBlogContent(blogTopic);

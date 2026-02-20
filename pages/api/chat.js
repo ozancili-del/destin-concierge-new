@@ -184,6 +184,7 @@ async function checkAvailability(propertyId, arrival, departure) {
 // ─────────────────────────────────────────────────────────────────────────────
 function extractDates(text) {
   const year = new Date().getFullYear();
+  const t = text.toLowerCase();
 
   const isoPattern = /(\d{4}-\d{2}-\d{2})/g;
   const isoMatches = text.match(isoPattern);
@@ -214,6 +215,26 @@ function extractDates(text) {
     return {
       arrival: `${year}-${month}-${sameMatch[2].padStart(2,"0")}`,
       departure: `${year}-${month}-${sameMatch[3].padStart(2,"0")}`
+    };
+  }
+
+  // "1-7 march" format (day range BEFORE month name)
+  const drMatch = t.match(/(\d{1,2})\s*[-–]\s*(\d{1,2})\s+(january|february|march|april|may|june|july|august|september|october|november|december)/i);
+  if (drMatch) {
+    const month = months[drMatch[3].toLowerCase()];
+    return {
+      arrival:   `${year}-${month}-${drMatch[1].padStart(2,"0")}`,
+      departure: `${year}-${month}-${drMatch[2].padStart(2,"0")}`,
+    };
+  }
+
+  // "march 1-7" format (month THEN day range)
+  const mrMatch = t.match(/(january|february|march|april|may|june|july|august|september|october|november|december)\s+(\d{1,2})\s*[-–]\s*(\d{1,2})/i);
+  if (mrMatch) {
+    const month = months[mrMatch[1].toLowerCase()];
+    return {
+      arrival:   `${year}-${month}-${mrMatch[2].padStart(2,"0")}`,
+      departure: `${year}-${month}-${mrMatch[3].padStart(2,"0")}`,
     };
   }
 

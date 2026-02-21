@@ -36,16 +36,16 @@ const BLOG_URLS = {
 // ─────────────────────────────────────────────────────────────────────────────
 // Send emergency Discord alert to Ozan
 // ─────────────────────────────────────────────────────────────────────────────
-async function sendEmergencyDiscord(guestMessage, sessionId) {
+async function sendEmergencyDiscord(guestMessage, sessionId, reason = "Guest needs urgent assistance") {
   try {
     const token = process.env.DISCORD_BOT_TOKEN;
     const channelId = process.env.DISCORD_CHANNEL_ID;
     if (!token || !channelId) return;
 
     const msg = {
-      content: `🚨 **EMERGENCY — CHECK YOUR PHONE OZAN** 🚨
+      content: `🚨 **ALERT — CHECK YOUR PHONE OZAN** 🚨
 
-A guest is locked out and cannot reach you!
+${reason}
 
 **Guest message:** "${guestMessage.substring(0, 300)}"
 **Session:** ${sessionId || "unknown"}
@@ -535,7 +535,7 @@ If directly asked "which do you personally recommend?" — say: "I honestly coul
     if (priorAlertSent) alertWasFired = true;
 
     if (!alertWasFired && (shouldFireAlert || (lockoutInHistory && cantReachNow))) {
-      sendEmergencyDiscord(allUserText.slice(-500), sessionId); // fire and forget
+      sendEmergencyDiscord(allUserText.slice(-500), sessionId, "🔐 Guest locked out / cannot reach Ozan"); // fire and forget
       alertWasFired = true;
     }
 
@@ -575,36 +575,37 @@ If directly asked "which do you personally recommend?" — say: "I honestly coul
     // stillStuckCode only fires when guest shows they have already tried
     const stillStuckCode = /still.*can't find|still.*cant find|still.*no code|still.*forgot|still.*door code|still.*pin/i.test(lastUser);
 
+    // Detect maintenance/issue relay content
+    const maintenanceKeywords = /ac|air.?con|heat|heater|heating|tv|television|wifi|wi.fi|internet|coffee|dishwasher|microwave|oven|stove|fridge|refrigerator|freezer|washer|dryer|shower|toilet|sink|drain|faucet|tap|hot water|water.*hot|lock|door|balcony|window|blind|curtain|light|lamp|outlet|socket|plug|remote|key|safe|pool|elevator|parking|noise|smell|leak|broken|not work|wont work|won't work|doesn't work|stopped work|out of order|need.*fix|need.*repair|replace|clogg|blocked|overflow|back.*up|backed.*up|tub|bathtub/i.test(bestContent || lastUser);
+
     // demandAlert used for system prompt context and alertSummary reason
     const demandAlert = directPing || resendRequest || relayWithContent || followUpRelay;
 
-    // 🔍 DEBUG
-    console.log("RELAY DEBUG:", JSON.stringify({ lastUser: lastUser.substring(0,80), relayTrigger, bestContent, relayWithContent, bareRelayRequest, directPing, demandAlert }));
 
     // ── FIRE DISCORD ALERTS
     // ── FIRE DISCORD ALERTS ───────────────────────────────────────────────────
 
     // Direct pings always fire — explicit action request from guest
     if (directPing) {
-      sendEmergencyDiscord(lastUser, sessionId);
+      sendEmergencyDiscord(lastUser, sessionId, "📣 Guest requesting urgent contact with Ozan");
       alertWasFired = true;
     }
 
     // Resend always fires — guest is explicitly asking again
     if (resendRequest) {
-      sendEmergencyDiscord(lastUser, sessionId);
+      sendEmergencyDiscord(lastUser, sessionId, "🔁 Guest requesting follow-up — no response yet");
       alertWasFired = true;
     }
 
     // Relay with content always fires — guest provided a specific message
     if (relayWithContent || followUpRelay) {
-      sendEmergencyDiscord(lastUser, sessionId);
+      sendEmergencyDiscord(lastUser, sessionId, maintenanceKeywords ? "🔧 MAINTENANCE ISSUE — Guest reporting a problem in the unit" : "💬 Guest message to relay to Ozan");
       alertWasFired = true;
     }
 
     // stillStuckCode fires once only — automatic detection, not explicit request
     if (!alertWasFired && stillStuckCode) {
-      sendEmergencyDiscord(lastUser, sessionId);
+      sendEmergencyDiscord(lastUser, sessionId, "🔐 Guest still cannot find door code");
       alertWasFired = true;
     }
 

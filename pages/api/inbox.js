@@ -329,7 +329,12 @@ const draftStore = new Map();
 export default async function handler(req, res) {
 
   // ── DISCORD INTERACTION HANDLER (button clicks) ──────────────────────────
-  if (req.method === "POST" && req.headers["x-discord-interaction"]) {
+  // Discord sends x-signature-ed25519 for all interactions (buttons, pings, commands)
+  const isDiscordInteraction = req.method === "POST" && (
+    req.headers["x-signature-ed25519"] ||
+    (req.body?.type >= 1 && req.body?.type <= 3)
+  );
+  if (isDiscordInteraction) {
     const interaction = req.body;
 
     if (interaction.type === 1) {

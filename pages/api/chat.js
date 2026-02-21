@@ -442,7 +442,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { messages = [], sessionId = null, alertSent: priorAlertSent = false, pendingRelay: priorPendingRelay = false } = req.body || {};
+    const { messages = [], sessionId = null, alertSent: priorAlertSent = false, pendingRelay: priorPendingRelay = false, ozanAcked: priorOzanAcked = false } = req.body || {};
     const lastUser = [...messages].reverse().find((m) => m.role === "user")?.content || "";
 
     // Fetch session history from Sheets if sessionId provided
@@ -451,7 +451,8 @@ export default async function handler(req, res) {
       checkOzanAcknowledged(sessionId),
     ]);
     const isReturningGuest = sessionHistory.length > 0;
-    console.log(`Session: ${sessionId || "anonymous"} | Returning: ${isReturningGuest} | OzanAck: ${ozanAcknowledged}`);
+    const ozanAcknowledgedFinal = ozanAcknowledged || priorOzanAcked;
+    console.log(`Session: ${sessionId || "anonymous"} | Returning: ${isReturningGuest} | OzanAck: ${ozanAcknowledgedFinal}`);
 
     const today = new Date().toLocaleDateString("en-US", {
       year: "numeric", month: "long", day: "numeric", weekday: "long",
@@ -462,7 +463,7 @@ export default async function handler(req, res) {
     // ── LOCKDOWN EXIT DETECTION ────────────────────────────────────────────
     const isResolutionMessage = /got it|i'm in|i am in|i'm inside|sorted|never mind|found it|found the code|figured it out|all good|thanks got|got in|in now|no worries|never mind|forget it/i.test(lastUser);
     const isOffTopic = detectAvailabilityIntent(lastUser) || detectBlogTopic(lastUser) !== null || detectDiscountIntent(lastUser);
-    const lockdownResolved = ozanAcknowledged || isResolutionMessage || isOffTopic;
+    const lockdownResolved = ozanAcknowledgedFinal || isResolutionMessage || isOffTopic;
 
     // ── LAYER 1: Run all detectors ──────────────────────────────────────────
     const isDiscountRequest = detectDiscountIntent(lastUser);
@@ -526,13 +527,16 @@ If directly asked "which do you personally recommend?" — say: "I honestly coul
     const lockoutInHistory = allUserText.match(/can't get in|cant get in|locked out|stuck outside|forgotten.*code|forgot.*code/i);
     const cantReachNow = /can't reach|cant reach|not answer|no answer|not responding|still stuck|still can't|not picking|voicemail/i.test(lastUser);
     let alertWasFired = false;
-    if (shouldFireAlert || (lockoutInHistory && cantReachNow)) {
+
+    // Persist alert state FIRST — before any firing logic so we never fire twice
+    if (priorAlertSent) alertWasFired = true;
+
+    if (!alertWasFired && (shouldFireAlert || (lockoutInHistory && cantReachNow))) {
       sendEmergencyDiscord(allUserText.slice(-500), sessionId); // fire and forget
       alertWasFired = true;
     }
 
-    // Fix 2: Demand-based OR door code stuck alert
-    // Fires when: guest asks to contact Ozan, OR guest says still can't find/forgot code
+    // Demand-based OR door code stuck alert — also gated on !alertWasFired
     // Bare relay: guest wants to send a message but hasn't provided content yet
     const bareRelayRequest = /send.*ozan|message.*ozan|tell.*ozan|notify.*ozan|reach out.*ozan|contact.*ozan|alert.*ozan/i.test(lastUser)
       && !lastUser.match(/["“”]|:\s*.{10,}/)
@@ -545,13 +549,10 @@ If directly asked "which do you personally recommend?" — say: "I honestly coul
     const demandAlert = relayWithContent || followUpRelay;
     // stillStuckCode only fires when guest shows they've already tried — requires 'still' prefix or cant reach signals
     const stillStuckCode = /still.*can't find|still.*cant find|still.*no code|still.*forgot|still.*door code|still.*pin/i.test(lastUser);
-    if ((demandAlert || stillStuckCode) && !alertWasFired) {
+    if (!alertWasFired && (demandAlert || stillStuckCode)) {
       sendEmergencyDiscord(lastUser, sessionId);
       alertWasFired = true;
     }
-
-    // Persist alert state across turns via frontend echo
-    if (priorAlertSent) alertWasFired = true;
 
     // Build alert summary for Sheets column G
     let alertSummary = "";
@@ -755,7 +756,7 @@ You help guests discover and book beachfront condos at Pelican Beach Resort in D
 You sound like a knowledgeable local friend — warm, genuine, never robotic.
 Today is ${today}.
 
-${ozanAcknowledged ? "✅ OZAN ACKNOWLEDGED THIS SESSION: Ozan has seen the emergency alert and confirmed he is on it. Tell the guest warmly: \"Good news — Ozan has seen your message and will reach out to you very shortly 🙏\" Only say this ONCE — if you have already said it earlier in this conversation, do not repeat it. After saying it, switch to normal helpful mode.\n\n" : ""}${alertWasFired ? "🚨 ALERT SENT THIS SESSION: An emergency Discord alert was automatically sent to Ozan during this conversation. If guest asks if you contacted Ozan or sent a message — say YES, an urgent alert was already sent to him. Do not say you will send it — it is already done.\n\n" : ""}${discountContext ? discountContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
+${ozanAcknowledgedFinal ? "✅ OZAN ACKNOWLEDGED THIS SESSION: Ozan has seen the emergency alert and confirmed he is on it. Tell the guest warmly: \"Good news — Ozan has seen your message and will reach out to you very shortly 🙏\" Only say this ONCE — if you have already said it earlier in this conversation, do not repeat it. After saying it, switch to normal helpful mode.\n\n" : ""}${alertWasFired ? "🚨 ALERT SENT THIS SESSION: An emergency Discord alert was automatically sent to Ozan during this conversation. If guest asks if you contacted Ozan or sent a message — say YES, an urgent alert was already sent to him. Do not say you will send it — it is already done.\n\n" : ""}${discountContext ? discountContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PROPERTIES
@@ -1004,7 +1005,7 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
       alertSummary
     );
 
-    return res.status(200).json({ reply, alertSent: alertWasFired, pendingRelay: bareRelayRequest === true && !alertWasFired });
+    return res.status(200).json({ reply, alertSent: alertWasFired, pendingRelay: bareRelayRequest === true && !alertWasFired, ozanAcked: ozanAcknowledgedFinal });
 
   } catch (err) {
     console.error("Destiny Blue error:", err);

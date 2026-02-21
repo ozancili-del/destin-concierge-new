@@ -36,11 +36,26 @@ const BLOG_URLS = {
 // ─────────────────────────────────────────────────────────────────────────────
 // Send emergency Discord alert to Ozan
 // ─────────────────────────────────────────────────────────────────────────────
-async function sendEmergencyDiscord(guestMessage, sessionId, reason = "Guest needs urgent assistance") {
+async function sendEmergencyDiscord(guestMessage, sessionId, reason = "Guest needs urgent assistance", alertType = "emergency") {
   try {
     const token = process.env.DISCORD_BOT_TOKEN;
     const channelId = process.env.DISCORD_CHANNEL_ID;
     if (!token || !channelId) return;
+
+    const components = alertType === "maintenance" ? [{
+      type: 1,
+      components: [
+        { type: 2, style: 1, label: "🔧 Onsite Ticket", custom_id: `maint_onsite_${sessionId || "unknown"}` },
+        { type: 2, style: 3, label: "👨‍🔧 Ozan Handling", custom_id: `maint_ozan_${sessionId || "unknown"}` },
+        { type: 2, style: 4, label: "🚨 Emergency", custom_id: `maint_emergency_${sessionId || "unknown"}` },
+      ]
+    }] : [{
+      type: 1,
+      components: [{
+        type: 2, style: 3, label: "🫡 I'm on it",
+        custom_id: `ozanack_${sessionId || "unknown"}`,
+      }]
+    }];
 
     const msg = {
       content: `🚨 **ALERT — CHECK YOUR PHONE OZAN** 🚨
@@ -51,15 +66,7 @@ ${reason}
 **Session:** ${sessionId || "unknown"}
 
 ⚡ Please call or text the guest immediately!`,
-      components: [{
-        type: 1,
-        components: [{
-          type: 2,
-          style: 3,
-          label: "🫡 I'm on it",
-          custom_id: `ozanack_${sessionId || "unknown"}`,
-        }],
-      }],
+      components,
     };
 
     await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
@@ -362,24 +369,28 @@ async function getSheetsToken(retries = 3) {
 
 async function checkOzanAcknowledged(sessionId) {
   try {
-    if (!sessionId) return false;
+    if (!sessionId) return null;
     const sheetId = process.env.GOOGLE_SHEET_ID;
-    if (!sheetId) return false;
+    if (!sheetId) return null;
     const accessToken = await getSheetsToken();
-    if (!accessToken) return false;
+    if (!accessToken) return null;
     const sheetRes = await fetch(
       `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Sheet1!A:H`,
       { headers: { Authorization: `Bearer ${accessToken}` } }
     );
-    if (!sheetRes.ok) return false;
+    if (!sheetRes.ok) return null;
     const data = await sheetRes.json();
     const rows = data.values || [];
-    const acked = rows.some(row => row[1] === sessionId && row[7] === "OZAN_ACK");
-    if (acked) console.log(`Ozan acknowledged session ${sessionId} ✅`);
-    return acked;
+    const ackTypes = ["OZAN_ACK", "MAINT_ONSITE", "MAINT_OZAN", "MAINT_EMERGENCY"];
+    const ackRow = rows.find(row => row[1] === sessionId && ackTypes.includes(row[7]));
+    if (ackRow) {
+      console.log(`Ack found [${ackRow[7]}] for session ${sessionId} ✅`);
+      return ackRow[7]; // returns the ack type string
+    }
+    return null;
   } catch (err) {
     console.error("checkOzanAcknowledged error:", err.message);
-    return false;
+    return null;
   }
 }
 
@@ -445,18 +456,19 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { messages = [], sessionId = null, alertSent: priorAlertSent = false, pendingRelay: priorPendingRelay = false, ozanAcked: priorOzanAcked = false } = req.body || {};
+    const { messages = [], sessionId = null, alertSent: priorAlertSent = false, pendingRelay: priorPendingRelay = false, ozanAcked: priorOzanAcked = false, ozanAckType: priorOzanAckType = null } = req.body || {};
     const lastUser = [...messages].reverse().find((m) => m.role === "user")?.content || "";
 
     // Fetch session history from Sheets if sessionId provided
     // If frontend already confirmed ack, skip Sheets read entirely
-    const [sessionHistory, ozanAcknowledged] = await Promise.all([
+    const [sessionHistory, ozanAckFromSheets] = await Promise.all([
       fetchSessionHistory(sessionId),
-      priorOzanAcked ? Promise.resolve(true) : checkOzanAcknowledged(sessionId),
+      priorOzanAcked ? Promise.resolve(priorOzanAckType || "OZAN_ACK") : checkOzanAcknowledged(sessionId),
     ]);
     const isReturningGuest = sessionHistory.length > 0;
-    const ozanAcknowledgedFinal = ozanAcknowledged || priorOzanAcked;
-    console.log(`Session: ${sessionId || "anonymous"} | Returning: ${isReturningGuest} | OzanAck: ${ozanAcknowledgedFinal}`);
+    const ozanAckType = ozanAckFromSheets || priorOzanAckType || null;
+    const ozanAcknowledgedFinal = !!ozanAckType;
+    console.log(`Session: ${sessionId || "anonymous"} | Returning: ${isReturningGuest} | OzanAck: ${ozanAckType || "none"}`);
 
     const today = new Date().toLocaleDateString("en-US", {
       year: "numeric", month: "long", day: "numeric", weekday: "long",
@@ -577,7 +589,8 @@ If directly asked "which do you personally recommend?" — say: "I honestly coul
     const stillStuckCode = /still.*can't find|still.*cant find|still.*no code|still.*forgot|still.*door code|still.*pin/i.test(lastUser);
 
     // Detect maintenance/issue relay content
-    const maintenanceKeywords = /ac|air.?con|heat|heater|heating|tv|television|wifi|wi.fi|internet|coffee|dishwasher|microwave|oven|stove|fridge|refrigerator|freezer|washer|dryer|shower|toilet|sink|drain|faucet|tap|hot water|water.*hot|light|lamp|outlet|socket|plug|pool|noise|smell|leak|broken|not work|wont work|won't work|doesn't work|stopped work|out of order|need.*fix|need.*repair|replace|clogg|blocked|overflow|back.*up|backed.*up|tub|bathtub/i.test(bestContent || lastUser);
+    // maintenanceKeywords removed — GPT now classifies intent (MAINTENANCE/EMERGENCY/INFO)
+    // Discord fires AFTER GPT responds based on INTENT line in reply
 
     // demandAlert used for system prompt context and alertSummary reason
     const demandAlert = directPing || resendRequest || relayWithContent || followUpRelay;
@@ -612,11 +625,7 @@ If directly asked "which do you personally recommend?" — say: "I honestly coul
 
     // Auto-fire for bare maintenance complaints — no relay phrase needed
     const isLockoutMessage = detectLockedOut(lastUser);
-    const bareMaintenance = !alertWasFired && !relayWithContent && !directPing && !resendRequest && !followUpRelay && !isLockoutMessage && maintenanceKeywords;
-    if (bareMaintenance) {
-      sendEmergencyDiscord(lastUser, sessionId, "🔧 MAINTENANCE ISSUE — Guest reporting a problem in the unit");
-      alertWasFired = true;
-    }
+    // bareMaintenance removed — GPT intent classification handles this after response
 
     // Build alert summary for Sheets column G
     let alertSummary = "";
@@ -822,7 +831,7 @@ You help guests discover and book beachfront condos at Pelican Beach Resort in D
 You sound like a knowledgeable local friend — warm, genuine, never robotic.
 Today is ${today}.
 
-${ozanAcknowledgedFinal ? "✅ OZAN ACKNOWLEDGED THIS SESSION: Ozan has seen the emergency alert and confirmed he is on it. Tell the guest warmly: \"Good news — Ozan has seen your message and will reach out to you very shortly 🙏\" Only say this ONCE — if you have already said it earlier in this conversation, do not repeat it. After saying it, switch to normal helpful mode.\n\n" : ""}${alertWasFired ? "🚨 ALERT SENT THIS SESSION: An emergency Discord alert was automatically sent to Ozan during this conversation. If guest asks if you contacted Ozan or sent a message — say YES, an urgent alert was already sent to him. Do not say you will send it — it is already done.\n\n" : ""}${discountContext ? discountContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
+${ozanAckType === "OZAN_ACK" ? "✅ OZAN ACKNOWLEDGED THIS SESSION: Ozan has seen the emergency alert and confirmed he is on it. Tell the guest warmly: \"Good news — Ozan has seen your message and will reach out to you very shortly 🙏\" Only say this ONCE — if you have already said it earlier in this conversation, do not repeat it. After saying it, switch to normal helpful mode.\n\n" : ""}${ozanAckType === "MAINT_ONSITE" ? "✅ MAINTENANCE TICKET OPENED: Ozan has opened an onsite maintenance ticket. Tell the guest: \"Ozan has opened a maintenance ticket and the onsite team will be in touch with you shortly 🙏\" Only say this ONCE then switch to normal helpful mode.\n\n" : ""}${ozanAckType === "MAINT_OZAN" ? "✅ OZAN HANDLING MAINTENANCE: Ozan is personally handling the issue. Tell the guest: \"Ozan has received your request and is working on it — he will get in touch with you shortly 🙏\" Only say this ONCE then switch to normal helpful mode.\n\n" : ""}${ozanAckType === "MAINT_EMERGENCY" ? "🚨 MAINTENANCE EMERGENCY: Ozan is calling the guest right now. Tell the guest: \"Ozan is calling you as we speak — please pick up! 🙏\" Only say this ONCE then switch to normal helpful mode.\n\n" : ""}${alertWasFired ? "🚨 ALERT SENT THIS SESSION: An emergency Discord alert was automatically sent to Ozan during this conversation. If guest asks if you contacted Ozan or sent a message — say YES, an urgent alert was already sent to him. Do not say you will send it — it is already done.\n\n" : ""}${discountContext ? discountContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PROPERTIES
@@ -1018,11 +1027,28 @@ NEVER:
 - Say "I'll keep you posted" — you cannot receive updates back from Ozan
 - Invent policies (booking transfers, date changes) — refer to Ozan
 
-MAINTENANCE ISSUE RULE (applies when guest reports something broken or not working):
-- When a maintenance issue is detected (AC, shower, toilet, TV, WiFi, clogged drain, etc):
+MAINTENANCE ISSUE RULE (applies when guest reports something broken or not working in the unit):
+- When a guest reports a maintenance issue (AC, shower, toilet, TV, WiFi, water pressure, cable, no water, flooding, smell, noise, etc):
   Say: "I've notified Ozan — he will reach out to maintenance and get in touch with you shortly 🙏"
 - Do NOT say "I'll make sure to inform" or "I'll let him know" — the alert is already sent automatically
 - Do NOT add suggestions or ask follow-up questions
+
+INTENT CLASSIFICATION — add this as the VERY LAST LINE of every response, on its own line:
+INTENT: [category]
+
+Categories:
+- INTENT: EMERGENCY — guest cannot access the unit right now, or there is a safety risk (flooding, gas smell, fire)
+  Examples: "locked out", "door code not working", "can't get in", "water flooding", "gas smell"
+  NOT emergency: "how do I get my door code?" (asking how, not stuck)
+
+- INTENT: MAINTENANCE — something inside the unit is broken or not working RIGHT NOW
+  Examples: "AC not cooling", "toilet clogged", "TV won't turn on", "no hot water", "water pressure low", "cable not working", "Cox is out", "no water in unit", "water leaking from ceiling", "remote missing", "blind broken", "smell in unit", "noise from AC"
+  NOT maintenance: "is the AC good?", "does the unit have WiFi?", "do you have cable TV?" (these are INFO questions)
+
+- INTENT: INFO — everything else: booking questions, property questions, policies, general conversation
+  Examples: "what time is check-in?", "is the pool heated?", "do you have cable TV?", "how many guests fit?"
+
+CRITICAL: Always include the INTENT line. Never skip it. It must be the absolute last line.
 
 MESSAGE RELAY RULE (only applies when guest explicitly asks you to send/pass a message to Ozan):
 - If guest asks to relay a message but has NOT provided the content yet:
@@ -1061,8 +1087,31 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
       temperature: 0.75,
     });
 
-    let reply = completion.choices[0]?.message?.content ||
+    let rawReply = completion.choices[0]?.message?.content ||
       "I'm sorry, I couldn't generate a response. Please try again!";
+
+    // ── Extract INTENT from last line of GPT reply ──
+    let detectedIntent = "INFO";
+    const intentMatch = rawReply.match(/INTENT:\s*(MAINTENANCE|EMERGENCY|INFO)\s*$/im);
+    if (intentMatch) {
+      detectedIntent = intentMatch[1].toUpperCase();
+      // Strip INTENT line from reply shown to guest
+      rawReply = rawReply.replace(/\n?INTENT:\s*(MAINTENANCE|EMERGENCY|INFO)\s*$/im, "").trim();
+    }
+    console.log(`Intent detected: ${detectedIntent} | Session: ${sessionId}`);
+
+    // ── Fire Discord based on GPT intent (only if not already fired by lockout/relay logic) ──
+    if (!alertWasFired) {
+      if (detectedIntent === "MAINTENANCE") {
+        sendEmergencyDiscord(lastUser, sessionId, "🔧 MAINTENANCE ISSUE — Guest reporting a problem in the unit", "maintenance");
+        alertWasFired = true;
+      } else if (detectedIntent === "EMERGENCY") {
+        sendEmergencyDiscord(lastUser, sessionId, "🚨 EMERGENCY — Guest needs urgent help", "emergency");
+        alertWasFired = true;
+      }
+    }
+
+    let reply = rawReply;
 
     // Strip trailing punctuation glued to URLs (including closing parenthesis)
     reply = reply.replace(/(https?:\/\/[^\s"'<>)]+)[.,!?;:)]+(\s|$)/g, '$1$2');
@@ -1077,7 +1126,7 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
       alertSummary
     );
 
-    return res.status(200).json({ reply, alertSent: alertWasFired, pendingRelay: bareRelayRequest === true && !alertWasFired, ozanAcked: ozanAcknowledgedFinal });
+    return res.status(200).json({ reply, alertSent: alertWasFired, pendingRelay: bareRelayRequest === true && !alertWasFired, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent });
 
   } catch (err) {
     console.error("Destiny Blue error:", err);

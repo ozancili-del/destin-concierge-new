@@ -479,7 +479,8 @@ export default async function handler(req, res) {
     // ── LOCKDOWN EXIT DETECTION ────────────────────────────────────────────
     const isResolutionMessage = /got it|i'm in|i am in|i'm inside|sorted|never mind|found it|found the code|figured it out|all good|thanks got|got in|in now|no worries|never mind|forget it/i.test(lastUser);
     const isOffTopic = detectAvailabilityIntent(lastUser) || detectBlogTopic(lastUser) !== null || detectDiscountIntent(lastUser);
-    const lockdownResolved = ozanAcknowledgedFinal || isResolutionMessage || isOffTopic;
+    const isMaintenanceAck = ["MAINT_ONSITE", "MAINT_OZAN", "MAINT_EMERGENCY"].includes(ozanAckType);
+    const lockdownResolved = (ozanAcknowledgedFinal && !isMaintenanceAck) || isResolutionMessage || isOffTopic;
 
     // ── LAYER 1: Run all detectors ──────────────────────────────────────────
     const isDiscountRequest = detectDiscountIntent(lastUser);
@@ -831,6 +832,14 @@ You help guests discover and book beachfront condos at Pelican Beach Resort in D
 You sound like a knowledgeable local friend — warm, genuine, never robotic.
 Today is ${today}.
 
+⚠️ CRITICAL INSTRUCTION — READ FIRST:
+Every single response MUST end with this exact line: INTENT: [MAINTENANCE or EMERGENCY or INFO]
+- INTENT: MAINTENANCE → guest is reporting something broken RIGHT NOW ("AC not cooling", "no water", "water pressure low", "TV not working", "toilet clogged", "Cox not working", "leak", "smell", "noise from unit")
+- INTENT: EMERGENCY → guest cannot enter unit or safety risk ("locked out", "door code not working", "flooding", "gas smell")  
+- INTENT: INFO → everything else including any QUESTION about amenities ("is the AC good?", "do you have cable?", "what time is check-in?")
+KEY: Guest REPORTING a problem = MAINTENANCE. Guest ASKING a question = INFO.
+This line is mandatory. Never omit it. It must be the absolute last line of your response.
+
 ${ozanAckType === "OZAN_ACK" ? "✅ OZAN ACKNOWLEDGED THIS SESSION: Ozan has seen the emergency alert and confirmed he is on it. Tell the guest warmly: \"Good news — Ozan has seen your message and will reach out to you very shortly 🙏\" Only say this ONCE — if you have already said it earlier in this conversation, do not repeat it. After saying it, switch to normal helpful mode.\n\n" : ""}${ozanAckType === "MAINT_ONSITE" ? "✅ MAINTENANCE TICKET OPENED: Ozan has opened an onsite maintenance ticket. Tell the guest: \"Ozan has opened a maintenance ticket and the onsite team will be in touch with you shortly 🙏\" Only say this ONCE then switch to normal helpful mode.\n\n" : ""}${ozanAckType === "MAINT_OZAN" ? "✅ OZAN HANDLING MAINTENANCE: Ozan is personally handling the issue. Tell the guest: \"Ozan has received your request and is working on it — he will get in touch with you shortly 🙏\" Only say this ONCE then switch to normal helpful mode.\n\n" : ""}${ozanAckType === "MAINT_EMERGENCY" ? "🚨 MAINTENANCE EMERGENCY: Ozan is calling the guest right now. Tell the guest: \"Ozan is calling you as we speak — please pick up! 🙏\" Only say this ONCE then switch to normal helpful mode.\n\n" : ""}${alertWasFired ? "🚨 ALERT SENT THIS SESSION: An emergency Discord alert was automatically sent to Ozan during this conversation. If guest asks if you contacted Ozan or sent a message — say YES, an urgent alert was already sent to him. Do not say you will send it — it is already done.\n\n" : ""}${discountContext ? discountContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1027,11 +1036,12 @@ NEVER:
 - Say "I'll keep you posted" — you cannot receive updates back from Ozan
 - Invent policies (booking transfers, date changes) — refer to Ozan
 
-MAINTENANCE ISSUE RULE (applies when guest reports something broken or not working in the unit):
-- When a guest reports a maintenance issue (AC, shower, toilet, TV, WiFi, water pressure, cable, no water, flooding, smell, noise, etc):
+MAINTENANCE ISSUE RULE:
+- If the ALERT SENT block appears at the top of this prompt, an alert was already sent to Ozan automatically.
   Say: "I've notified Ozan — he will reach out to maintenance and get in touch with you shortly 🙏"
-- Do NOT say "I'll make sure to inform" or "I'll let him know" — the alert is already sent automatically
-- Do NOT add suggestions or ask follow-up questions
+- Do NOT say this if no alert was sent — do not hallucinate that you notified anyone
+- Do NOT say "I'll make sure to inform" or "I'll let him know"
+- Do NOT add suggestions or ask follow-up questions after reporting a maintenance issue
 
 INTENT CLASSIFICATION — add this as the VERY LAST LINE of every response, on its own line:
 INTENT: [category]
@@ -1041,12 +1051,13 @@ Categories:
   Examples: "locked out", "door code not working", "can't get in", "water flooding", "gas smell"
   NOT emergency: "how do I get my door code?" (asking how, not stuck)
 
-- INTENT: MAINTENANCE — something inside the unit is broken or not working RIGHT NOW
+- INTENT: MAINTENANCE — something inside the unit is broken or not working RIGHT NOW. Guest is reporting an active problem.
   Examples: "AC not cooling", "toilet clogged", "TV won't turn on", "no hot water", "water pressure low", "cable not working", "Cox is out", "no water in unit", "water leaking from ceiling", "remote missing", "blind broken", "smell in unit", "noise from AC"
-  NOT maintenance: "is the AC good?", "does the unit have WiFi?", "do you have cable TV?" (these are INFO questions)
+  NOT maintenance (these are INFO): "is the AC good?", "does the unit have WiFi?", "do you have cable TV?", "does the TV have Netflix?", "is the TV a smart TV?", "how does the TV work?", "where is the remote?", "what channels do you have?", "is there cable?", "does it have Spectrum/Cox/cable?" — any QUESTION about an appliance is INFO, not MAINTENANCE
 
-- INTENT: INFO — everything else: booking questions, property questions, policies, general conversation
-  Examples: "what time is check-in?", "is the pool heated?", "do you have cable TV?", "how many guests fit?"
+- INTENT: INFO — everything else: booking questions, property questions, policies, general conversation, ANY question about amenities even if it mentions appliances
+  Examples: "what time is check-in?", "is the pool heated?", "do you have cable TV?", "how many guests fit?", "does the TV work well?", "is the WiFi fast?", "what streaming services are available?"
+  KEY RULE: If the guest is ASKING about something → INFO. If the guest is REPORTING something broken → MAINTENANCE.
 
 CRITICAL: Always include the INTENT line. Never skip it. It must be the absolute last line.
 

@@ -543,28 +543,17 @@ If directly asked "which do you personally recommend?" — say: "I honestly coul
 
     // Type 1: DIRECT PING — guest wants Ozan alerted/contacted, no message needed
     // Fires immediately — no waiting for content
-    const directPing = /alert.*(?:ozan|owner|host|manager)|ping.*(?:ozan|owner|host)|notify.*(?:ozan|owner|host)|contact.*(?:ozan|owner|host)|reach.*(?:ozan|owner|host)|get.*(?:ozan|owner|host)|call.*(?:ozan|owner|host)|let.*(?:ozan|owner|host).*know|send.*alert|send.*emergency|send.*urgent/i.test(lastUser);
+    const directPing = /alert.*ozan|ping.*ozan|notify.*ozan|contact.*ozan|reach.*ozan|get.*ozan|call.*ozan|let.*ozan.*know|send.*alert|send.*emergency|send.*urgent/i.test(lastUser);
 
     // Type 2: RESEND — guest asks to send again
     const resendRequest = /send again|resend|try again|send it again|alert again|send another|send one more/i.test(lastUser);
 
-                // Type 3: RELAY WITH CONTENT
-    // Trigger: any way guest asks to send a message — with or without naming recipient
-    const relayTrigger = /send.*(?:ozan|owner|host|manager|landlord|the guy|him|them)|message.*(?:ozan|owner|host|manager)|tell.*(?:ozan|owner|host)|pass.*(?:ozan|owner|host)|contact.*(?:ozan|owner|host)|let.*(?:ozan|owner|host).*know|^send\s+a?\s*message|^can\s+you\s+send|^please\s+send/i.test(lastUser);
-    // Extract content after trigger phrase to check if message body is included
-    const relayTriggerMatch = lastUser.match(/(?:send|message|pass|tell|forward|contact|let).*?(?:ozan|owner|host|manager|landlord|the guy|him|them|message)[,:]?\s*(.*)/i);
-    const contentAfterTrigger = relayTriggerMatch ? relayTriggerMatch[1].trim() : "";
-    // Also check: words after "send a message" with no named recipient
-    const bareMessageMatch = lastUser.match(/send\s+a?\s*message\s+(.*)/i);
-    const contentAfterBareMessage = bareMessageMatch ? bareMessageMatch[1].trim() : "";
-    const bestContent = contentAfterTrigger.length > contentAfterBareMessage.length ? contentAfterTrigger : contentAfterBareMessage;
-    const relayWithContent = relayTrigger
-      && (bestContent.split(/\s+/).filter(Boolean).length >= 2
-          || lastUser.match(/[“”"]/)
-          || lastUser.length >= 80);
+    // Type 3: RELAY WITH CONTENT — guest provides actual message to pass to Ozan
+    const relayWithContent = /send.*ozan|message.*ozan|pass.*ozan|forward.*ozan|tell.*ozan/i.test(lastUser)
+      && (lastUser.match(/["“”]/) || lastUser.match(/:\s*.{15,}/) || lastUser.length >= 100);
 
     // Type 4: BARE RELAY — guest asks to relay a message but hasn't provided content yet
-    const bareRelayRequest = relayTrigger
+    const bareRelayRequest = /send.*message.*ozan|pass.*message.*ozan|relay.*ozan/i.test(lastUser)
       && !relayWithContent
       && !directPing
       && lastUser.length < 80;
@@ -577,6 +566,22 @@ If directly asked "which do you personally recommend?" — say: "I honestly coul
 
     // demandAlert used for system prompt context and alertSummary reason
     const demandAlert = directPing || resendRequest || relayWithContent || followUpRelay;
+
+    // 🔍 DEBUG RELAY DETECTION
+    console.log("RELAY DEBUG:", JSON.stringify({
+      lastUser: lastUser.substring(0, 100),
+      relayTrigger,
+      contentAfterTrigger,
+      contentAfterBareMessage,
+      bestContent,
+      relayWithContent,
+      bareRelayRequest,
+      directPing,
+      resendRequest,
+      followUpRelay,
+      priorPendingRelay,
+      demandAlert,
+    }));
 
     // ── FIRE DISCORD ALERTS ───────────────────────────────────────────────────
 
@@ -619,33 +624,27 @@ If directly asked "which do you personally recommend?" — say: "I honestly coul
     // 🔐 LOCKED OUT / DOOR CODE CONTEXT
     let lockedOutContext = "";
     if (isLockedOut) {
-      lockedOutContext = `🔐 DOOR CODE / LOCKOUT — READ THIS CAREFULLY AND FOLLOW EXACTLY.
-
-You are in LOCKOUT MODE. The guest cannot find or access their door code.
-
-⛔ ABSOLUTE RULES — no exceptions, no matter what:
-- NEVER mention the front desk, resort security, or any phone number other than Ozan's
-- NEVER say you cannot provide the code "for security reasons" — just move to the next step
-- NEVER repeat a step the guest already said didn't work
-- NEVER add suggestions outside the 4 steps below
-- NEVER say "I'll keep you updated" — you have no way to receive updates
-
-✅ FOLLOW THESE 4 STEPS IN ORDER — move to next step only when previous didn't work.
-Always respond with warmth and genuine empathy — being locked out is stressful, especially after a long trip.
-
-STEP 1 — Check email:
-Say something like: "Oh no, I'm sorry to hear that — let's get this sorted! Your door code is sent by ozan@destincondogetaways.com, arriving 7 days and 1 day before your check-in. Please check your inbox and spam folder for that email."
-
-STEP 2 — Guest tried email, nothing found:
-Say something like: "No worries, Ozan can resend it right away — please text or call him directly at (972) 357-4262. Texting usually gets a faster response!"
-
-STEP 3 — Guest cannot reach Ozan:
-Say something like: "I completely understand how stressful this is — I've sent an urgent alert to Ozan and he will reach out to you very shortly. Hang tight! 🙏"
-(The alert is sent automatically by the system — you do not need to say you are sending it.)
-
-STEP 4 — Ozan acknowledged (system confirms):
-Say something like: "Good news — Ozan has seen your message and is on his way to help you 🙏"
-Then stop. Do not add any other suggestions.`;
+      lockedOutContext = `🔐 LOCKED OUT / DOOR CODE REQUEST DETECTED — FOLLOW THIS EXACTLY:
+The guest cannot get into their unit or has forgotten/lost their door code.
+NEVER send them to front desk or resort security — they cannot help with unit door codes.
+NEVER say you can't provide the code for security reasons in a loop — that's unhelpful.
+Follow these steps IN ORDER:
+1. Show genuine empathy — being locked out is stressful.
+2. Tell them: "Your PIN code is in your booking confirmation email — search for an email from OwnerRez or Destin Condo Getaways sent around the time you booked. Check your spam folder too."
+3. If they say they deleted the email: "The PIN is also in your booking confirmation on the platform you booked through — check your booking details there."
+4. If still stuck: "Please TEXT Ozan at (972) 357-4262 — texting reaches him faster than calling. He can resend your PIN immediately."
+5. If Ozan not responding: "Please email ozan@destincondogetaways.com — he monitors email closely and can resend your PIN."
+6. NEVER suggest front desk, resort security, or any other party — they have NO access to unit PINs.
+7. NEVER keep repeating the same suggestion if guest says it didn't work — move to the next step.
+8. Stay calm and warm throughout — this is stressful for the guest.
+9. NEVER suggest email in a lockout emergency — email is too slow.
+10. When you say "I'm sending an alert to Ozan" — the system DOES send it automatically. So you CAN say "I'm alerting Ozan right now" when the guest is clearly stuck.
+11. After saying you alerted Ozan, always follow with: "He will reach out to you shortly — hang tight!"
+12. NEVER say "I'll keep you posted" — you cannot receive updates from Ozan.
+11. If the system has already sent an alert (guest said can't reach Ozan): Say "I've already sent an urgent alert directly to Ozan — he will reach out to you very shortly. Hang tight!"
+12. If guest asks "did you send a message?" and alert was sent: Say "Yes — an urgent alert was already sent to Ozan automatically when you mentioned you couldn't reach him."
+13. If guest asks "did you send a message?" and alert was NOT sent yet: Say "Not yet — that alert fires automatically when you've tried reaching Ozan and couldn't. Have you tried texting him at (972) 357-4262?"
+14. NEVER promise future actions you cannot perform. NEVER say "I will keep you updated."`;
     }
 
     // 🚨 ESCALATION CONTEXT
@@ -938,8 +937,8 @@ BOOKING & PAYMENTS
 CONTACTS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 - Ozan: (972) 357-4262 | ozan@destincondogetaways.com
-- Pelican Beach Front Desk: (850) 654-1425 — for resort/common area questions only, NOT for door codes
-- Resort Security (text): 850-503-2481 — for resort safety only, NOT for door codes or unit access
+- Pelican Beach Front Desk: (850) 654-1425
+- Resort Security (text): 850-503-2481
 - WiFi Support: 1-844-275-3626
 - LDV Beach Chairs: 866-651-1869 | https://www.ldvbeach.com
 - Beach cam: https://www.destincondogetaways.com/destin-live-beach-cam-574002656

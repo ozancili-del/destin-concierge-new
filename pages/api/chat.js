@@ -379,14 +379,14 @@ async function fetchSessionHistory(sessionId) {
   }
 }
 
-async function logToSheets(sessionId, guestMessage, destinyReply, datesAsked, availabilityStatus) {
+async function logToSheets(sessionId, guestMessage, destinyReply, datesAsked, availabilityStatus, alertSummary = "") {
   try {
     const sheetId = process.env.GOOGLE_SHEET_ID;
     if (!sheetId) return;
     const accessToken = await getSheetsToken();
     if (!accessToken) return;
     const timestamp = new Date().toLocaleString("en-US", { timeZone: "America/Chicago" });
-    const row = [timestamp, sessionId || "", guestMessage, destinyReply, datesAsked || "", availabilityStatus || ""];
+    const row = [timestamp, sessionId || "", guestMessage, destinyReply, datesAsked || "", availabilityStatus || "", alertSummary];
     const sheetRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Sheet1!A1:append?valueInputOption=USER_ENTERED`, {
       method: "POST",
       headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
@@ -410,7 +410,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { messages = [], sessionId = null } = req.body || {};
+    const { messages = [], sessionId = null, alertSent: priorAlertSent = false } = req.body || {};
     const lastUser = [...messages].reverse().find((m) => m.role === "user")?.content || "";
 
     // Fetch session history from Sheets if sessionId provided
@@ -498,6 +498,21 @@ If directly asked "which do you personally recommend?" — say: "I honestly coul
     if ((demandAlert || stillStuckCode) && !alertWasFired) {
       sendEmergencyDiscord(lastUser, sessionId);
       alertWasFired = true;
+    }
+
+    // Persist alert state across turns via frontend echo
+    if (priorAlertSent) alertWasFired = true;
+
+    // Build alert summary for Sheets column G
+    let alertSummary = "";
+    if (alertWasFired && !priorAlertSent) {
+      const cst = new Date().toLocaleString("en-US", { timeZone: "America/Chicago", month: "2-digit", day: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
+      const reason = isLockedOut ? "Guest locked out / door code issue"
+        : demandAlert ? "Guest requested message relay to Ozan"
+        : stillStuckCode ? "Guest cannot find door code"
+        : isLockoutEscalation ? "Lockout escalation — could not reach Ozan"
+        : "Emergency / escalation alert";
+      alertSummary = `${cst} CST | ${reason}`;
     }
 
     // 🔐 LOCKED OUT / DOOR CODE CONTEXT
@@ -886,6 +901,14 @@ NEVER:
 - Say "I'll keep you posted" — you cannot receive updates back from Ozan
 - Invent policies (booking transfers, date changes) — refer to Ozan
 
+MESSAGE RELAY RULE (only applies when guest explicitly asks you to send/pass a message to Ozan):
+- NEVER negotiate with the guest about their tone or wording
+- NEVER show them a cleaned-up version or ask "how about something more polite?"
+- Silently sanitize the rude parts, fire the Discord alert with the core meaning, and simply say:
+  "I've passed the key details to Ozan — he'll reach out to you shortly 👍"
+- Your job is to make sure Ozan gets the message, not to coach the guest on politeness
+- This rule ONLY applies to explicit message relay requests — all other tone/empathy rules unchanged
+
 INFORMATIONAL QUESTIONS: Answer directly and warmly. Ask one engaging follow-up.
 BOOKING QUESTIONS WITH DATES: Always include booking link + mention code DESTINY.
 DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt exactly.`;
@@ -922,10 +945,11 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
       lastUser,
       reply,
       dates ? `${dates.arrival} to ${dates.departure}` : "",
-      availabilityStatus || "INFO_QUESTION"
+      availabilityStatus || "INFO_QUESTION",
+      alertSummary
     );
 
-    return res.status(200).json({ reply });
+    return res.status(200).json({ reply, alertSent: alertWasFired });
 
   } catch (err) {
     console.error("Destiny Blue error:", err);

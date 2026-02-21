@@ -7,6 +7,58 @@ import { createSign } from "crypto";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Google Sheets auth + Ozan acknowledgment writer
+// ─────────────────────────────────────────────────────────────────────────────
+async function getSheetsToken() {
+  try {
+    const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
+    const rawKey = process.env.GOOGLE_PRIVATE_KEY;
+    if (!email || !rawKey) return null;
+    const privateKey = rawKey.replace(/\\n/g, "\n").replace(/\n/g, "\n").trim();
+    const { createSign } = await import("crypto");
+    const header = Buffer.from(JSON.stringify({ alg: "RS256", typ: "JWT" })).toString("base64url");
+    const now = Math.floor(Date.now() / 1000);
+    const claim = Buffer.from(JSON.stringify({
+      iss: email, scope: "https://www.googleapis.com/auth/spreadsheets",
+      aud: "https://oauth2.googleapis.com/token", exp: now + 3600, iat: now,
+    })).toString("base64url");
+    const sign = createSign("RSA-SHA256");
+    sign.update(`${header}.${claim}`);
+    const signature = sign.sign(privateKey, "base64url");
+    const jwt = `${header}.${claim}.${signature}`;
+    const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=${jwt}`,
+    });
+    const tokenData = await tokenRes.json();
+    return tokenData.access_token || null;
+  } catch (err) {
+    console.error("getSheetsToken error:", err.message);
+    return null;
+  }
+}
+
+async function writeOzanAck(sessionId) {
+  try {
+    const sheetId = process.env.GOOGLE_SHEET_ID;
+    if (!sheetId) return;
+    const accessToken = await getSheetsToken();
+    if (!accessToken) return;
+    const timestamp = new Date().toLocaleString("en-US", { timeZone: "America/Chicago" });
+    const row = [timestamp, sessionId, "", "", "", "", "", "OZAN_ACK"];
+    await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Sheet1!A1:append?valueInputOption=USER_ENTERED`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ values: [row] }),
+    });
+    console.log(`Ozan ack written for session ${sessionId} ✅`);
+  } catch (err) {
+    console.error("writeOzanAck error:", err.message);
+  }
+}
+
 const OWNERREZ_USER = "destindreamcondo@gmail.com";
 const UNIT_707_PROPERTY_ID = "293722";
 const UNIT_1006_PROPERTY_ID = "410894";
@@ -316,6 +368,16 @@ export default async function handler(req, res) {
         return res.status(200).json({
           type: 4,
           data: { content: `🚫 Skipped — handle manually in OwnerRez.`, flags: 64 },
+        });
+      }
+
+      // 🫡 Ozan acknowledged emergency alert
+      if (action === "ozanack") {
+        const sessionId = customId.replace("ozanack_", "");
+        await writeOzanAck(sessionId);
+        return res.status(200).json({
+          type: 4,
+          data: { content: `🫡 Got it — Destiny Blue will let the guest know you're on it!`, flags: 64 },
         });
       }
     }

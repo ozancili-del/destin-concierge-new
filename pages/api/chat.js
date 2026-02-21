@@ -432,6 +432,10 @@ export default async function handler(req, res) {
     const isLockedOut = detectLockedOut(lastUser) || detectLockedOut(allUserText.slice(-300));
     // Deep escalation: locked out AND can't reach Ozan
     const isLockoutEscalation = isLockedOut && /can't reach|cant reach|not answer|no answer|not responding|still stuck|still can't|still cant|not picking|voicemail|tried.*ozan|ozan.*not/i.test(allUserText.slice(-500));
+    // Also catch: forgot/lost code + I don't have it in conversation history
+    const forgotCodeInHistory = /forgot.*code|lost.*code|can't find.*code|dont have.*code|don't have.*code|deleted.*email/i.test(allUserText);
+    const cantReachInHistory = /can't reach|cant reach|not answer|no answer|not responding|not picking/i.test(allUserText);
+    const shouldFireAlert = isLockoutEscalation || (forgotCodeInHistory && cantReachInHistory);
     const wantsAvailability = detectAvailabilityIntent(lastUser);
 
     // Only look back in history for dates on genuine follow-ups
@@ -481,8 +485,17 @@ If directly asked "which do you personally recommend?" — say: "I honestly coul
     // Also trigger if locked out context exists anywhere in conversation + can't reach now
     const lockoutInHistory = allUserText.match(/can't get in|cant get in|locked out|stuck outside|forgotten.*code|forgot.*code/i);
     const cantReachNow = /can't reach|cant reach|not answer|no answer|not responding|still stuck|still can't|not picking|voicemail/i.test(lastUser);
-    if (isLockoutEscalation || (lockoutInHistory && cantReachNow)) {
+    let alertWasFired = false;
+    if (shouldFireAlert || (lockoutInHistory && cantReachNow)) {
       sendEmergencyDiscord(allUserText.slice(-500), sessionId); // fire and forget
+      alertWasFired = true;
+    }
+
+    // Fix 2: Demand-based alert — guest explicitly asks to contact/alert Ozan
+    const demandAlert = /send.*ozan|alert.*ozan|contact.*ozan|message.*ozan|tell.*ozan|notify.*ozan|reach out.*ozan/i.test(lastUser);
+    if (demandAlert && !alertWasFired) {
+      sendEmergencyDiscord(lastUser, sessionId);
+      alertWasFired = true;
     }
 
     // 🔐 LOCKED OUT / DOOR CODE CONTEXT
@@ -501,9 +514,12 @@ Follow these steps IN ORDER:
 6. NEVER suggest front desk, resort security, or any other party — they have NO access to unit PINs.
 7. NEVER keep repeating the same suggestion if guest says it didn't work — move to the next step.
 8. Stay calm and warm throughout — this is stressful for the guest.
-9. NEVER suggest email in a lockout emergency — email is too slow. Skip straight to action.
-10. If guest says they cannot reach Ozan: Do NOT suggest email. Instead say: "I've already sent an urgent alert directly to Ozan — he will reach out to you very shortly. I'm so sorry for the stress this is causing, hang tight!"
-11. NEVER say "let me know if you still can't reach him" — just tell them the alert is already sent.`;
+9. NEVER suggest email in a lockout emergency — email is too slow.
+10. NEVER say "I will send a message" or "I can send a message" or "let me know and I'll alert him" — you do NOT send messages on demand. Alerts are sent AUTOMATICALLY by the system, not by you on request.
+11. If the system has already sent an alert (guest said can't reach Ozan): Say "I've already sent an urgent alert directly to Ozan — he will reach out to you very shortly. Hang tight!"
+12. If guest asks "did you send a message?" and alert was sent: Say "Yes — an urgent alert was already sent to Ozan automatically when you mentioned you couldn't reach him."
+13. If guest asks "did you send a message?" and alert was NOT sent yet: Say "Not yet — that alert fires automatically when you've tried reaching Ozan and couldn't. Have you tried texting him at (972) 357-4262?"
+14. NEVER promise future actions you cannot perform. NEVER say "I will keep you updated."`;
     }
 
     // 🚨 ESCALATION CONTEXT
@@ -670,7 +686,7 @@ You help guests discover and book beachfront condos at Pelican Beach Resort in D
 You sound like a knowledgeable local friend — warm, genuine, never robotic.
 Today is ${today}.
 
-${discountContext ? discountContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
+${alertWasFired ? "🚨 ALERT SENT THIS SESSION: An emergency Discord alert was automatically sent to Ozan during this conversation. If guest asks if you contacted Ozan or sent a message — say YES, an urgent alert was already sent to him. Do not say you will send it — it is already done.\n\n" : ""}${discountContext ? discountContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PROPERTIES

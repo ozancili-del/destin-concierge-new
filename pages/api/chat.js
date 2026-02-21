@@ -572,6 +572,21 @@ If directly asked "which do you personally recommend?" — say: "I honestly coul
       lastUser: lastUser.substring(0, 100),
       relayTrigger,
       contentAfterTrigger,
+      bestContent,
+      relayWithContent,
+      bareRelayRequest,
+      directPing,
+      resendRequest,
+      followUpRelay,
+      priorPendingRelay,
+      demandAlert,
+    }));
+
+    // 🔍 DEBUG RELAY DETECTION
+    console.log("RELAY DEBUG:", JSON.stringify({
+      lastUser: lastUser.substring(0, 100),
+      relayTrigger,
+      contentAfterTrigger,
       contentAfterBareMessage,
       bestContent,
       relayWithContent,

@@ -10,34 +10,38 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 // ─────────────────────────────────────────────────────────────────────────────
 // Google Sheets auth + Ozan acknowledgment writer
 // ─────────────────────────────────────────────────────────────────────────────
-async function getSheetsToken() {
-  try {
-    const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
-    const rawKey = process.env.GOOGLE_PRIVATE_KEY;
-    if (!email || !rawKey) return null;
-    const privateKey = rawKey.replace(/\\n/g, "\n").replace(/\n/g, "\n").trim();
-    const { createSign } = await import("crypto");
-    const header = Buffer.from(JSON.stringify({ alg: "RS256", typ: "JWT" })).toString("base64url");
-    const now = Math.floor(Date.now() / 1000);
-    const claim = Buffer.from(JSON.stringify({
-      iss: email, scope: "https://www.googleapis.com/auth/spreadsheets",
-      aud: "https://oauth2.googleapis.com/token", exp: now + 3600, iat: now,
-    })).toString("base64url");
-    const sign = createSign("RSA-SHA256");
-    sign.update(`${header}.${claim}`);
-    const signature = sign.sign(privateKey, "base64url");
-    const jwt = `${header}.${claim}.${signature}`;
-    const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=${jwt}`,
-    });
-    const tokenData = await tokenRes.json();
-    return tokenData.access_token || null;
-  } catch (err) {
-    console.error("getSheetsToken error:", err.message);
-    return null;
+async function getSheetsToken(retries = 3) {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
+      const rawKey = process.env.GOOGLE_PRIVATE_KEY;
+      if (!email || !rawKey) return null;
+      const privateKey = rawKey.replace(/\\n/g, "\n").replace(/\n/g, "\n").trim();
+      const { createSign } = await import("crypto");
+      const header = Buffer.from(JSON.stringify({ alg: "RS256", typ: "JWT" })).toString("base64url");
+      const now = Math.floor(Date.now() / 1000);
+      const claim = Buffer.from(JSON.stringify({
+        iss: email, scope: "https://www.googleapis.com/auth/spreadsheets",
+        aud: "https://oauth2.googleapis.com/token", exp: now + 3600, iat: now,
+      })).toString("base64url");
+      const sign = createSign("RSA-SHA256");
+      sign.update(`${header}.${claim}`);
+      const signature = sign.sign(privateKey, "base64url");
+      const jwt = `${header}.${claim}.${signature}`;
+      const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=${jwt}`,
+      });
+      const tokenData = await tokenRes.json();
+      if (tokenData.access_token) return tokenData.access_token;
+      throw new Error("No access token in response");
+    } catch (err) {
+      console.error(`getSheetsToken attempt ${attempt} failed:`, err.message);
+      if (attempt < retries) await new Promise(r => setTimeout(r, 500));
+    }
   }
+  return null;
 }
 
 async function writeOzanAck(sessionId) {

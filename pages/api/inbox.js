@@ -44,20 +44,26 @@ async function getSheetsToken(retries = 3) {
   return null;
 }
 
-async function writeOzanAck(sessionId) {
+async function writeOzanAck(sessionId, ackType = "ozanack") {
   try {
     const sheetId = process.env.GOOGLE_SHEET_ID;
     if (!sheetId) return;
     const accessToken = await getSheetsToken();
     if (!accessToken) return;
     const timestamp = new Date().toLocaleString("en-US", { timeZone: "America/Chicago" });
-    const row = [timestamp, sessionId, "", "", "", "", "", "OZAN_ACK"];
+    const ackLabel = {
+      "ozanack": "OZAN_ACK",
+      "maint_onsite": "MAINT_ONSITE",
+      "maint_ozan": "MAINT_OZAN",
+      "maint_emergency": "MAINT_EMERGENCY",
+    }[ackType] || "OZAN_ACK";
+    const row = [timestamp, sessionId, "", "", "", "", "", ackLabel];
     await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Sheet1!A1:append?valueInputOption=USER_ENTERED`, {
       method: "POST",
       headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
       body: JSON.stringify({ values: [row] }),
     });
-    console.log(`Ozan ack written for session ${sessionId} ✅`);
+    console.log(`Ack written [${ackLabel}] for session ${sessionId} ✅`);
   } catch (err) {
     console.error("writeOzanAck error:", err.message);
   }
@@ -404,16 +410,47 @@ export default async function handler(req, res) {
         });
       }
 
-      // 🫡 Ozan acknowledged emergency alert
+      // 🫡 Ozan acknowledged emergency/lockout alert
       if (action === "ozanack") {
         const sessionId = customId.replace("ozanack_", "");
-        // Respond to Discord immediately (must be within 3 seconds)
         res.status(200).json({
           type: 4,
           data: { content: `🫡 Got it — Destiny Blue will let the guest know you're on it!`, flags: 64 },
         });
-        // Await so Vercel keeps function alive until write completes
-        await writeOzanAck(sessionId);
+        await writeOzanAck(sessionId, "ozanack");
+        return;
+      }
+
+      // 🔧 Maintenance — Onsite Ticket opened
+      if (action === "maint_onsite") {
+        const sessionId = customId.replace("maint_onsite_", "");
+        res.status(200).json({
+          type: 4,
+          data: { content: `🔧 Onsite ticket opened — Destiny Blue will notify the guest.`, flags: 64 },
+        });
+        await writeOzanAck(sessionId, "maint_onsite");
+        return;
+      }
+
+      // 👨‍🔧 Maintenance — Ozan handling directly
+      if (action === "maint_ozan") {
+        const sessionId = customId.replace("maint_ozan_", "");
+        res.status(200).json({
+          type: 4,
+          data: { content: `👨‍🔧 Got it — Destiny Blue will let the guest know you're handling it.`, flags: 64 },
+        });
+        await writeOzanAck(sessionId, "maint_ozan");
+        return;
+      }
+
+      // 🚨 Maintenance — Emergency, Ozan calling
+      if (action === "maint_emergency") {
+        const sessionId = customId.replace("maint_emergency_", "");
+        res.status(200).json({
+          type: 4,
+          data: { content: `🚨 Emergency escalated — Destiny Blue will tell the guest you're calling them now.`, flags: 64 },
+        });
+        await writeOzanAck(sessionId, "maint_emergency");
         return;
       }
     }

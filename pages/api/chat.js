@@ -577,7 +577,7 @@ If directly asked "which do you personally recommend?" — say: "I honestly coul
     const stillStuckCode = /still.*can't find|still.*cant find|still.*no code|still.*forgot|still.*door code|still.*pin/i.test(lastUser);
 
     // Detect maintenance/issue relay content
-    const maintenanceKeywords = /ac|air.?con|heat|heater|heating|tv|television|wifi|wi.fi|internet|coffee|dishwasher|microwave|oven|stove|fridge|refrigerator|freezer|washer|dryer|shower|toilet|sink|drain|faucet|tap|hot water|water.*hot|lock|door|balcony|window|blind|curtain|light|lamp|outlet|socket|plug|remote|key|safe|pool|elevator|parking|noise|smell|leak|broken|not work|wont work|won't work|doesn't work|stopped work|out of order|need.*fix|need.*repair|replace|clogg|blocked|overflow|back.*up|backed.*up|tub|bathtub/i.test(bestContent || lastUser);
+    const maintenanceKeywords = /ac|air.?con|heat|heater|heating|tv|television|wifi|wi.fi|internet|coffee|dishwasher|microwave|oven|stove|fridge|refrigerator|freezer|washer|dryer|shower|toilet|sink|drain|faucet|tap|hot water|water.*hot|light|lamp|outlet|socket|plug|pool|noise|smell|leak|broken|not work|wont work|won't work|doesn't work|stopped work|out of order|need.*fix|need.*repair|replace|clogg|blocked|overflow|back.*up|backed.*up|tub|bathtub/i.test(bestContent || lastUser);
 
     // demandAlert used for system prompt context and alertSummary reason
     const demandAlert = directPing || resendRequest || relayWithContent || followUpRelay;
@@ -633,27 +633,29 @@ If directly asked "which do you personally recommend?" — say: "I honestly coul
     // 🔐 LOCKED OUT / DOOR CODE CONTEXT
     let lockedOutContext = "";
     if (isLockedOut) {
-      lockedOutContext = `🔐 LOCKED OUT / DOOR CODE REQUEST DETECTED — FOLLOW THIS EXACTLY:
-The guest cannot get into their unit or has forgotten/lost their door code.
-NEVER send them to front desk or resort security — they cannot help with unit door codes.
-NEVER say you can't provide the code for security reasons in a loop — that's unhelpful.
-Follow these steps IN ORDER:
-1. Show genuine empathy — being locked out is stressful.
-2. Tell them: "Your PIN code is in your booking confirmation email — search for an email from OwnerRez or Destin Condo Getaways sent around the time you booked. Check your spam folder too."
-3. If they say they deleted the email: "The PIN is also in your booking confirmation on the platform you booked through — check your booking details there."
-4. If still stuck: "Please TEXT Ozan at (972) 357-4262 — texting reaches him faster than calling. He can resend your PIN immediately."
-5. If Ozan not responding: "Please email ozan@destincondogetaways.com — he monitors email closely and can resend your PIN."
-6. NEVER suggest front desk, resort security, or any other party — they have NO access to unit PINs.
-7. NEVER keep repeating the same suggestion if guest says it didn't work — move to the next step.
-8. Stay calm and warm throughout — this is stressful for the guest.
-9. NEVER suggest email in a lockout emergency — email is too slow.
-10. When you say "I'm sending an alert to Ozan" — the system DOES send it automatically. So you CAN say "I'm alerting Ozan right now" when the guest is clearly stuck.
-11. After saying you alerted Ozan, always follow with: "He will reach out to you shortly — hang tight!"
-12. NEVER say "I'll keep you posted" — you cannot receive updates from Ozan.
-11. If the system has already sent an alert (guest said can't reach Ozan): Say "I've already sent an urgent alert directly to Ozan — he will reach out to you very shortly. Hang tight!"
-12. If guest asks "did you send a message?" and alert was sent: Say "Yes — an urgent alert was already sent to Ozan automatically when you mentioned you couldn't reach him."
-13. If guest asks "did you send a message?" and alert was NOT sent yet: Say "Not yet — that alert fires automatically when you've tried reaching Ozan and couldn't. Have you tried texting him at (972) 357-4262?"
-14. NEVER promise future actions you cannot perform. NEVER say "I will keep you updated."`;
+      lockedOutContext = `🔐 LOCKED OUT / DOOR CODE ISSUE — FOLLOW THESE 4 STEPS EXACTLY IN ORDER. DO NOT SKIP. DO NOT ADD OTHER SUGGESTIONS.
+
+STEP 1 — Guest just reported the issue (has not tried email yet):
+Say something like: "Oh no, I'm so sorry — let's get this sorted right away! Your door code is sent from ozan@destincondogetaways.com, arriving 7 days and 1 day before check-in. Please check your inbox and spam folder for that email."
+
+STEP 2 — Guest says they checked email and found nothing:
+Say something like: "No worries at all — Ozan can resend it immediately. Please text or call him at (972) 357-4262. Texting usually gets a faster response!"
+
+STEP 3 — Guest says they cannot reach Ozan:
+Say something like: "I completely understand how stressful this is — I've sent an urgent alert to Ozan and he will reach out to you very shortly. Hang tight! 🙏"
+(The system sends the alert automatically at this point.)
+
+STEP 4 — System confirms Ozan acknowledged (ozanAcked = true):
+Say: "Good news — Ozan has seen your message and is on his way to help you 🙏"
+Then stop. Switch to normal helpful mode.
+
+ABSOLUTE RULES — no exceptions:
+- NEVER mention front desk, resort security, or any phone number other than Ozan's (972) 357-4262
+- NEVER say "for security reasons"
+- NEVER repeat a step the guest already tried — always move to the next step
+- NEVER add suggestions outside these 4 steps
+- NEVER say "I'll keep you posted"
+- NEVER mention OwnerRez, Destin Dream Condo, or any other sender — the email comes from ozan@destincondogetaways.com ONLY`;
     }
 
     // 🚨 ESCALATION CONTEXT

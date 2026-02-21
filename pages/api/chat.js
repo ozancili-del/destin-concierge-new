@@ -548,12 +548,23 @@ If directly asked "which do you personally recommend?" — say: "I honestly coul
     // Type 2: RESEND — guest asks to send again
     const resendRequest = /send again|resend|try again|send it again|alert again|send another|send one more/i.test(lastUser);
 
-    // Type 3: RELAY WITH CONTENT — guest provides actual message to pass to Ozan
-    const relayWithContent = /send.*ozan|message.*ozan|pass.*ozan|forward.*ozan|tell.*ozan/i.test(lastUser)
-      && (lastUser.match(/["“”]/) || lastUser.match(/:\s*.{15,}/) || lastUser.length >= 100);
+    // Type 3: RELAY WITH CONTENT
+    // Trigger: any way guest asks to send a message — with or without naming recipient
+    const relayTrigger = /send.*(?:ozan|owner|host|manager|landlord|him|them)|message.*(?:ozan|owner|host|manager)|tell.*(?:ozan|owner|host)|pass.*(?:ozan|owner|host)|^send\s+a?\s*message|^can\s+you\s+send|^please\s+send/i.test(lastUser);
+    // Extract content after trigger phrase
+    const relayTriggerMatch = lastUser.match(/(?:send|message|pass|tell|forward|contact|let).*?(?:ozan|owner|host|manager|landlord|him|them|message)[,:]?\s*(.*)/i);
+    const contentAfterTrigger = relayTriggerMatch ? relayTriggerMatch[1].trim() : "";
+    // Also check: words after "send a message" or "send message" with no named recipient
+    const bareMessageMatch = lastUser.match(/send\s+a?\s*message\s+(.*)/i);
+    const contentAfterBareMessage = bareMessageMatch ? bareMessageMatch[1].trim() : "";
+    const bestContent = contentAfterTrigger.length > contentAfterBareMessage.length ? contentAfterTrigger : contentAfterBareMessage;
+    const relayWithContent = relayTrigger
+      && (bestContent.split(/\s+/).filter(Boolean).length >= 2
+          || lastUser.match(/[“”"]/i)
+          || lastUser.length >= 80);
 
     // Type 4: BARE RELAY — guest asks to relay a message but hasn't provided content yet
-    const bareRelayRequest = /send.*message.*ozan|pass.*message.*ozan|relay.*ozan/i.test(lastUser)
+    const bareRelayRequest = relayTrigger
       && !relayWithContent
       && !directPing
       && lastUser.length < 80;
@@ -567,37 +578,10 @@ If directly asked "which do you personally recommend?" — say: "I honestly coul
     // demandAlert used for system prompt context and alertSummary reason
     const demandAlert = directPing || resendRequest || relayWithContent || followUpRelay;
 
-    // 🔍 DEBUG RELAY DETECTION
-    console.log("RELAY DEBUG:", JSON.stringify({
-      lastUser: lastUser.substring(0, 100),
-      relayTrigger,
-      contentAfterTrigger,
-      bestContent,
-      relayWithContent,
-      bareRelayRequest,
-      directPing,
-      resendRequest,
-      followUpRelay,
-      priorPendingRelay,
-      demandAlert,
-    }));
+    // 🔍 DEBUG
+    console.log("RELAY DEBUG:", JSON.stringify({ lastUser: lastUser.substring(0,80), relayTrigger, bestContent, relayWithContent, bareRelayRequest, directPing, demandAlert }));
 
-    // 🔍 DEBUG RELAY DETECTION
-    console.log("RELAY DEBUG:", JSON.stringify({
-      lastUser: lastUser.substring(0, 100),
-      relayTrigger,
-      contentAfterTrigger,
-      contentAfterBareMessage,
-      bestContent,
-      relayWithContent,
-      bareRelayRequest,
-      directPing,
-      resendRequest,
-      followUpRelay,
-      priorPendingRelay,
-      demandAlert,
-    }));
-
+    // ── FIRE DISCORD ALERTS
     // ── FIRE DISCORD ALERTS ───────────────────────────────────────────────────
 
     // Direct pings always fire — explicit action request from guest

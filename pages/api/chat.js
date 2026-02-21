@@ -33,6 +33,40 @@ const BLOG_URLS = {
   explore:      "https://www.destincondogetaways.com/blog/destinexplore",
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Send emergency Discord alert to Ozan
+// ─────────────────────────────────────────────────────────────────────────────
+async function sendEmergencyDiscord(guestMessage, sessionId) {
+  try {
+    const token = process.env.DISCORD_BOT_TOKEN;
+    const channelId = process.env.DISCORD_CHANNEL_ID;
+    if (!token || !channelId) return;
+
+    const msg = {
+      content: `🚨 **EMERGENCY — CHECK YOUR PHONE OZAN** 🚨
+
+A guest is locked out and cannot reach you!
+
+**Guest message:** "${guestMessage.substring(0, 300)}"
+**Session:** ${sessionId || "unknown"}
+
+⚡ Please call or text the guest immediately!`,
+    };
+
+    await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bot ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(msg),
+    });
+    console.log("Emergency Discord alert sent ✅");
+  } catch (err) {
+    console.error("Emergency Discord error:", err.message);
+  }
+}
+
 function detectBlogTopic(text) {
   const t = text.toLowerCase();
   // Weather MUST come first — "weather" contains "eat" which would match restaurants
@@ -286,7 +320,10 @@ async function getSheetsToken() {
     const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
     const rawKey = process.env.GOOGLE_PRIVATE_KEY;
     if (!email || !rawKey) return null;
-    const privateKey = rawKey.replace(/\n/g, "\n");
+    const privateKey = rawKey
+      .replace(/\\n/g, "\n")  // double-escaped newlines
+      .replace(/\n/g, "\n")    // literal \n strings
+      .trim();
     const header = Buffer.from(JSON.stringify({ alg: "RS256", typ: "JWT" })).toString("base64url");
     const now = Math.floor(Date.now() / 1000);
     const claim = Buffer.from(JSON.stringify({
@@ -392,6 +429,8 @@ export default async function handler(req, res) {
     const isEscalation = detectEscalation(lastUser) || detectEscalation(allUserText.slice(-500));
     const isExcessGuests = detectExcessGuests(lastUser);
     const isLockedOut = detectLockedOut(lastUser) || detectLockedOut(allUserText.slice(-300));
+    // Deep escalation: locked out AND can't reach Ozan
+    const isLockoutEscalation = isLockedOut && /can't reach|cant reach|not answer|no answer|not responding|still stuck|still can't|still cant|not picking|voicemail|tried.*ozan|ozan.*not/i.test(allUserText.slice(-500));
     const wantsAvailability = detectAvailabilityIntent(lastUser);
 
     // Only look back in history for dates on genuine follow-ups
@@ -437,6 +476,11 @@ Present BOTH options positively and equally, then let the guest decide.
 If directly asked "which do you personally recommend?" — say: "I honestly couldn't pick — they're both wonderful! Unit 707 has classic coastal warmth, Unit 1006 has a fresh modern feel and slightly higher vantage point. It really comes down to your personal style 😊 Want me to check availability for both?"`;
     }
 
+    // 🚨 LOCKOUT ESCALATION — fire Discord alert to Ozan
+    if (isLockoutEscalation) {
+      sendEmergencyDiscord(lastUser, sessionId); // fire and forget
+    }
+
     // 🔐 LOCKED OUT / DOOR CODE CONTEXT
     let lockedOutContext = "";
     if (isLockedOut) {
@@ -452,7 +496,8 @@ Follow these steps IN ORDER:
 5. If Ozan not responding: "Please email ozan@destincondogetaways.com — he monitors email closely and can resend your PIN."
 6. NEVER suggest front desk, resort security, or any other party — they have NO access to unit PINs.
 7. NEVER keep repeating the same suggestion if guest says it didn't work — move to the next step.
-8. Stay calm and warm throughout — this is stressful for the guest.`;
+8. Stay calm and warm throughout — this is stressful for the guest.
+9. If guest says they STILL cannot reach Ozan after trying everything: Tell them "I've just sent an urgent alert directly to Ozan — he will reach out to you very shortly. I'm so sorry for the stress this is causing!"`;
     }
 
     // 🚨 ESCALATION CONTEXT

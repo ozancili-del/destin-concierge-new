@@ -548,14 +548,18 @@ If directly asked "which do you personally recommend?" — say: "I honestly coul
     // Type 2: RESEND — guest asks to send again
     const resendRequest = /send again|resend|try again|send it again|alert again|send another|send one more/i.test(lastUser);
 
-             // Type 3: RELAY WITH CONTENT
-    // Trigger: any way guest asks to send a message to Ozan/owner/host
-    const relayTrigger = /send.*(?:ozan|owner|host|manager|landlord|the guy|him|them)|message.*(?:ozan|owner|host|manager)|tell.*(?:ozan|owner|host)|pass.*(?:ozan|owner|host)|contact.*(?:ozan|owner|host)|let.*(?:ozan|owner|host).*know/i.test(lastUser);
-    // Extract content after the trigger reference to check if message is included
-    const relayTriggerMatch = lastUser.match(/(?:send|message|pass|tell|forward|contact|let).*?(?:ozan|owner|host|manager|landlord|the guy|him|them)[,:]?\s*(.*)/i);
+                // Type 3: RELAY WITH CONTENT
+    // Trigger: any way guest asks to send a message — with or without naming recipient
+    const relayTrigger = /send.*(?:ozan|owner|host|manager|landlord|the guy|him|them)|message.*(?:ozan|owner|host|manager)|tell.*(?:ozan|owner|host)|pass.*(?:ozan|owner|host)|contact.*(?:ozan|owner|host)|let.*(?:ozan|owner|host).*know|^send\s+a?\s*message|^can\s+you\s+send|^please\s+send/i.test(lastUser);
+    // Extract content after trigger phrase to check if message body is included
+    const relayTriggerMatch = lastUser.match(/(?:send|message|pass|tell|forward|contact|let).*?(?:ozan|owner|host|manager|landlord|the guy|him|them|message)[,:]?\s*(.*)/i);
     const contentAfterTrigger = relayTriggerMatch ? relayTriggerMatch[1].trim() : "";
+    // Also check: words after "send a message" with no named recipient
+    const bareMessageMatch = lastUser.match(/send\s+a?\s*message\s+(.*)/i);
+    const contentAfterBareMessage = bareMessageMatch ? bareMessageMatch[1].trim() : "";
+    const bestContent = contentAfterTrigger.length > contentAfterBareMessage.length ? contentAfterTrigger : contentAfterBareMessage;
     const relayWithContent = relayTrigger
-      && (contentAfterTrigger.split(/\s+/).filter(Boolean).length >= 3
+      && (bestContent.split(/\s+/).filter(Boolean).length >= 2
           || lastUser.match(/[“”"]/)
           || lastUser.length >= 80);
 

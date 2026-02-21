@@ -181,8 +181,7 @@ function detectExcessGuests(text) {
 
 // Detect locked out / door code emergency
 function detectLockedOut(text) {
-  // Must indicate they are actually stuck/locked out — not just asking about the code
-  return /can't get in|cant get in|locked out|pin.*not work|pin.*wrong|wrong.*pin|code.*not work|code.*wrong|wrong.*code|won't open|wont open|door.*won't|door.*not open|can't enter|cant enter|stuck outside|standing outside|waiting outside|deleted.*email|lost.*code|forgot.*code.*can't|cant.*get.*in/i.test(text);
+  return /can't get in|cant get in|locked out|pin.*not work|pin.*wrong|wrong.*pin|code.*not work|code.*wrong|wrong.*code|won't open|wont open|door.*won't|door.*not open|can't enter|cant enter|stuck outside|standing outside|waiting outside|deleted.*email|lost.*code|forgot.*code.*can't|cant.*get.*in|can't find.*code|cant find.*code|can't find.*pin|cant find.*pin|can't find.*door|cant find.*door|where.*door code|where.*pin code|don't have.*code|dont have.*code|no.*door code|missing.*code|need.*door code|need.*pin|what.*door code|what.*pin/i.test(text);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -325,7 +324,7 @@ function buildLink(unit, arrival, departure, adults, children) {
 // Log conversation to Google Sheets
 // ─────────────────────────────────────────────────────────────────────────────
 
-async function getSheetsToken(retries = 2) {
+async function getSheetsToken(retries = 3) {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
       const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
@@ -355,7 +354,7 @@ async function getSheetsToken(retries = 2) {
       throw new Error("No access token in response");
     } catch (err) {
       console.error(`getSheetsToken attempt ${attempt} failed:`, err.message);
-      if (attempt < retries) await new Promise(r => setTimeout(r, 300));
+      if (attempt < retries) await new Promise(r => setTimeout(r, 500));
     }
   }
   return null;

@@ -892,9 +892,9 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
     let reply = completion.choices[0]?.message?.content ||
       "I'm sorry, I couldn't generate a response. Please try again!";
 
-    // Strip trailing punctuation glued to URLs
-    reply = reply.replace(/(https?:\/\/[^\s"'<>]+)[.,!?;:](\s|$)/g, '$1$2');
-    reply = reply.replace(/(https?:\/\/[^\s"'<>]+)[.,!?;:]$/, '$1');
+    // Strip trailing punctuation glued to URLs (including closing parenthesis)
+    reply = reply.replace(/(https?:\/\/[^\s"'<>)]+)[.,!?;:)]+(\s|$)/g, '$1$2');
+    reply = reply.replace(/(https?:\/\/[^\s"'<>)]+)[.,!?;:)]+$/, '$1');
 
     await logToSheets(
       sessionId,

@@ -410,7 +410,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { messages = [], sessionId = null, alertSent: priorAlertSent = false } = req.body || {};
+    const { messages = [], sessionId = null, alertSent: priorAlertSent = false, pendingRelay: priorPendingRelay = false } = req.body || {};
     const lastUser = [...messages].reverse().find((m) => m.role === "user")?.content || "";
 
     // Fetch session history from Sheets if sessionId provided
@@ -493,8 +493,18 @@ If directly asked "which do you personally recommend?" — say: "I honestly coul
 
     // Fix 2: Demand-based OR door code stuck alert
     // Fires when: guest asks to contact Ozan, OR guest says still can't find/forgot code
-    const demandAlert = /send.*ozan|alert.*ozan|contact.*ozan|message.*ozan|tell.*ozan|notify.*ozan|reach out.*ozan/i.test(lastUser);
-    const stillStuckCode = /still.*can't find|still.*cant find|still.*no code|still.*forgot|can't find.*code|cant find.*code|don't have.*code|dont have.*code|still.*door code|still.*pin|no.*code/i.test(lastUser);
+    // Bare relay: guest wants to send a message but hasn't provided content yet
+    const bareRelayRequest = /send.*ozan|message.*ozan|tell.*ozan|notify.*ozan|reach out.*ozan|contact.*ozan|alert.*ozan/i.test(lastUser)
+      && !lastUser.match(/["“”]|:\s*.{10,}/)
+      && lastUser.length < 80;
+    // Relay with content: guest included the actual message in same turn
+    const relayWithContent = /send.*ozan|message.*ozan|tell.*ozan|notify.*ozan|reach out.*ozan|contact.*ozan|alert.*ozan/i.test(lastUser)
+      && (lastUser.match(/["“”]|:\s*.{10,}/) || lastUser.length >= 80);
+    // Follow-up content: previous turn was a bare relay request, now they provided the message
+    const followUpRelay = priorPendingRelay === true && !bareRelayRequest;
+    const demandAlert = relayWithContent || followUpRelay;
+    // stillStuckCode only fires when guest shows they've already tried — requires 'still' prefix or cant reach signals
+    const stillStuckCode = /still.*can't find|still.*cant find|still.*no code|still.*forgot|still.*door code|still.*pin/i.test(lastUser);
     if ((demandAlert || stillStuckCode) && !alertWasFired) {
       sendEmergencyDiscord(lastUser, sessionId);
       alertWasFired = true;
@@ -902,10 +912,15 @@ NEVER:
 - Invent policies (booking transfers, date changes) — refer to Ozan
 
 MESSAGE RELAY RULE (only applies when guest explicitly asks you to send/pass a message to Ozan):
-- NEVER negotiate with the guest about their tone or wording
+- If guest asks to relay a message but has NOT provided the content yet:
+  Say exactly: "Of course — please share your message and I'll flag it as urgent and send it to Ozan right away 👍"
+  Do NOT send any alert yet. Wait for their next message.
+- If guest provides the actual message content (in quotes, after a colon, or long message):
+  Silently sanitize any rude language, alert fires automatically, say: "I've passed that to Ozan — he'll reach out to you shortly 👍"
+- If the guest's previous message was a bare relay request and now they are providing the content:
+  Same as above — sanitize silently, confirm briefly, do not comment on tone.
+- NEVER negotiate tone or wording with the guest
 - NEVER show them a cleaned-up version or ask "how about something more polite?"
-- Silently sanitize the rude parts, fire the Discord alert with the core meaning, and simply say:
-  "I've passed the key details to Ozan — he'll reach out to you shortly 👍"
 - Your job is to make sure Ozan gets the message, not to coach the guest on politeness
 - This rule ONLY applies to explicit message relay requests — all other tone/empathy rules unchanged
 
@@ -916,7 +931,7 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
     // Build session context note for returning guests
     let sessionNote = "";
     if (isReturningGuest) {
-      sessionNote = `\n\n📋 RETURNING GUEST CONTEXT — This guest has chatted with you before. Their previous conversation history is included below. Use it naturally — if relevant, reference what they asked before. If they ask about something they previously discussed, recall it warmly. Never say "based on our records" — just reply naturally as if you remember.\n`;
+      sessionNote = `\n\n📋 RETURNING GUEST CONTEXT — This guest has chatted with you before. Their previous conversation history is included below as silent background context ONLY. DO NOT volunteer, assume, or bring up any topic from past conversations. DO NOT jump to conclusions based on what was discussed before. Wait for the guest to lead — only reference past context if the guest raises it first in THIS conversation. Never say "based on our records" — just respond naturally to what they are asking right now.\n`;
     }
 
     const openAIMessages = [
@@ -949,7 +964,7 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
       alertSummary
     );
 
-    return res.status(200).json({ reply, alertSent: alertWasFired });
+    return res.status(200).json({ reply, alertSent: alertWasFired, pendingRelay: bareRelayRequest === true && !alertWasFired });
 
   } catch (err) {
     console.error("Destiny Blue error:", err);

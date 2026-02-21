@@ -329,12 +329,36 @@ const draftStore = new Map();
 export default async function handler(req, res) {
 
   // ── DISCORD INTERACTION HANDLER (button clicks) ──────────────────────────
-  // Discord sends x-signature-ed25519 for all interactions (buttons, pings, commands)
-  const isDiscordInteraction = req.method === "POST" && (
-    req.headers["x-signature-ed25519"] ||
-    (req.body?.type >= 1 && req.body?.type <= 3)
-  );
+  const isDiscordInteraction = req.method === "POST" && req.headers["x-signature-ed25519"];
   if (isDiscordInteraction) {
+    // Verify Discord signature (required or Discord rejects the endpoint)
+    const signature = req.headers["x-signature-ed25519"];
+    const timestamp = req.headers["x-signature-timestamp"];
+    const publicKey = process.env.DISCORD_PUBLIC_KEY;
+
+    if (publicKey) {
+      try {
+        const { webcrypto } = await import("crypto");
+        const encoder = new TextEncoder();
+        const rawBody = JSON.stringify(req.body);
+        const cryptoKey = await webcrypto.subtle.importKey(
+          "raw", Buffer.from(publicKey, "hex"),
+          { name: "Ed25519" }, false, ["verify"]
+        );
+        const isValid = await webcrypto.subtle.verify(
+          "Ed25519", cryptoKey,
+          Buffer.from(signature, "hex"),
+          encoder.encode(timestamp + rawBody)
+        );
+        if (!isValid) {
+          console.error("Discord signature invalid");
+          return res.status(401).end("invalid request signature");
+        }
+      } catch (err) {
+        console.error("Signature verify error:", err.message);
+        return res.status(401).end("verification error");
+      }
+    }
     const interaction = req.body;
 
     if (interaction.type === 1) {
@@ -501,3 +525,12 @@ export default async function handler(req, res) {
     // Always return 200 to OwnerRez so it doesn't retry
   }
 }
+
+// Required: disable body parser so Discord signature verification works with raw body
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '1mb',
+    },
+  },
+};

@@ -172,7 +172,8 @@ function detectExcessGuests(text) {
 
 // Detect locked out / door code emergency
 function detectLockedOut(text) {
-  return /forgot.*code|can't get in|cant get in|locked out|door.*code|code.*door|pin.*work|wrong.*code|code.*wrong|code.*not work|won't open|wont open|door.*won't|door.*not open|need.*code|where.*code|what.*code|lost.*code|deleted.*email/i.test(text);
+  // Must indicate they are actually stuck/locked out — not just asking about the code
+  return /can't get in|cant get in|locked out|pin.*not work|pin.*wrong|wrong.*pin|code.*not work|code.*wrong|wrong.*code|won't open|wont open|door.*won't|door.*not open|can't enter|cant enter|stuck outside|standing outside|waiting outside|deleted.*email|lost.*code|forgot.*code.*can't|cant.*get.*in/i.test(text);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -477,8 +478,11 @@ If directly asked "which do you personally recommend?" — say: "I honestly coul
     }
 
     // 🚨 LOCKOUT ESCALATION — fire Discord alert to Ozan
-    if (isLockoutEscalation) {
-      sendEmergencyDiscord(lastUser, sessionId); // fire and forget
+    // Also trigger if locked out context exists anywhere in conversation + can't reach now
+    const lockoutInHistory = allUserText.match(/can't get in|cant get in|locked out|stuck outside|forgotten.*code|forgot.*code/i);
+    const cantReachNow = /can't reach|cant reach|not answer|no answer|not responding|still stuck|still can't|not picking|voicemail/i.test(lastUser);
+    if (isLockoutEscalation || (lockoutInHistory && cantReachNow)) {
+      sendEmergencyDiscord(allUserText.slice(-500), sessionId); // fire and forget
     }
 
     // 🔐 LOCKED OUT / DOOR CODE CONTEXT
@@ -497,7 +501,9 @@ Follow these steps IN ORDER:
 6. NEVER suggest front desk, resort security, or any other party — they have NO access to unit PINs.
 7. NEVER keep repeating the same suggestion if guest says it didn't work — move to the next step.
 8. Stay calm and warm throughout — this is stressful for the guest.
-9. If guest says they STILL cannot reach Ozan after trying everything: Tell them "I've just sent an urgent alert directly to Ozan — he will reach out to you very shortly. I'm so sorry for the stress this is causing!"`;
+9. NEVER suggest email in a lockout emergency — email is too slow. Skip straight to action.
+10. If guest says they cannot reach Ozan: Do NOT suggest email. Instead say: "I've already sent an urgent alert directly to Ozan — he will reach out to you very shortly. I'm so sorry for the stress this is causing, hang tight!"
+11. NEVER say "let me know if you still can't reach him" — just tell them the alert is already sent.`;
     }
 
     // 🚨 ESCALATION CONTEXT

@@ -374,11 +374,14 @@ export default async function handler(req, res) {
       // 🫡 Ozan acknowledged emergency alert
       if (action === "ozanack") {
         const sessionId = customId.replace("ozanack_", "");
-        await writeOzanAck(sessionId);
-        return res.status(200).json({
+        // Respond to Discord immediately (must be within 3 seconds)
+        res.status(200).json({
           type: 4,
           data: { content: `🫡 Got it — Destiny Blue will let the guest know you're on it!`, flags: 64 },
         });
+        // Write to Sheets after responding (fire and forget)
+        writeOzanAck(sessionId).catch(err => console.error("writeOzanAck failed:", err.message));
+        return;
       }
     }
 

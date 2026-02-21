@@ -412,8 +412,8 @@ export default async function handler(req, res) {
           type: 4,
           data: { content: `🫡 Got it — Destiny Blue will let the guest know you're on it!`, flags: 64 },
         });
-        // Write to Sheets after responding (fire and forget)
-        writeOzanAck(sessionId).catch(err => console.error("writeOzanAck failed:", err.message));
+        // Await so Vercel keeps function alive until write completes
+        await writeOzanAck(sessionId);
         return;
       }
     }

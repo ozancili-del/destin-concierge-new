@@ -1,5 +1,9 @@
 // pages/concierge.js
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+
+function generateSessionId() {
+  return "db_" + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+}
 
 export default function Concierge() {
   const [log, setLog] = useState([
@@ -7,6 +11,20 @@ export default function Concierge() {
   ]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
+  const sessionIdRef = useRef(null);
+  const chatEndRef = useRef(null);
+
+  useEffect(() => {
+    try {
+      let sid = localStorage.getItem("destiny_session_id");
+      if (!sid) { sid = generateSessionId(); localStorage.setItem("destiny_session_id", sid); }
+      sessionIdRef.current = sid;
+    } catch (e) {
+      sessionIdRef.current = generateSessionId();
+    }
+  }, []);
+
+  useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [log, busy]);
 
   async function send(e) {
     e.preventDefault();
@@ -19,7 +37,7 @@ export default function Concierge() {
       const r = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: [...log, userMsg] })
+        body: JSON.stringify({ messages: [...log, userMsg], sessionId: sessionIdRef.current })
       });
       const data = await r.json();
       const reply = data?.reply || "Hmm, I didn’t get a reply.";
@@ -66,6 +84,7 @@ export default function Concierge() {
             );
           })}
           {busy && <div style={{ fontSize: 12, color: "#6b7280" }}>Destiny Blue is typing…</div>}
+          <div ref={chatEndRef} />
         </div>
 
         <form onSubmit={send} style={{ display: "flex", gap: 8, borderTop: "1px solid #e5e7eb", padding: 8, background: "#fafafa" }}>

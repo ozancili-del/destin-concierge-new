@@ -12,6 +12,7 @@ export default function Concierge() {
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [alertSent, setAlertSent] = useState(false);
+  const [pendingRelay, setPendingRelay] = useState(false);
   const sessionIdRef = useRef(null);
   const chatEndRef = useRef(null);
 
@@ -38,10 +39,11 @@ export default function Concierge() {
       const r = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: [...log, userMsg], sessionId: sessionIdRef.current, alertSent })
+        body: JSON.stringify({ messages: [...log, userMsg], sessionId: sessionIdRef.current, alertSent, pendingRelay })
       });
       const data = await r.json();
       if (data.alertSent) setAlertSent(true);
+      setPendingRelay(data.pendingRelay === true);
       const reply = data?.reply || "Hmm, I didn’t get a reply.";
       setLog(l => [...l, { role: "assistant", content: reply }]);
     } catch {

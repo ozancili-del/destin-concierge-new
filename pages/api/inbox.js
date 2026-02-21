@@ -380,6 +380,11 @@ export default async function handler(req, res) {
       // Button click
       const customId = interaction.data?.custom_id || "";
       const [action, bookingId, messageId] = customId.split("_");
+      // Maintenance button prefix detection (custom_ids use multi-part prefixes)
+      const maintAction = customId.startsWith("maint_onsite_") ? "maint_onsite"
+        : customId.startsWith("maint_ozan_") ? "maint_ozan"
+        : customId.startsWith("maint_emergency_") ? "maint_emergency"
+        : null;
       const draftKey = `${bookingId}_${messageId}`;
       const draft = draftStore.get(draftKey);
 
@@ -422,7 +427,7 @@ export default async function handler(req, res) {
       }
 
       // 🔧 Maintenance — Onsite Ticket opened
-      if (action === "maint_onsite") {
+      if (maintAction === "maint_onsite") {
         const sessionId = customId.replace("maint_onsite_", "");
         res.status(200).json({
           type: 4,
@@ -433,7 +438,7 @@ export default async function handler(req, res) {
       }
 
       // 👨‍🔧 Maintenance — Ozan handling directly
-      if (action === "maint_ozan") {
+      if (maintAction === "maint_ozan") {
         const sessionId = customId.replace("maint_ozan_", "");
         res.status(200).json({
           type: 4,
@@ -444,7 +449,7 @@ export default async function handler(req, res) {
       }
 
       // 🚨 Maintenance — Emergency, Ozan calling
-      if (action === "maint_emergency") {
+      if (maintAction === "maint_emergency") {
         const sessionId = customId.replace("maint_emergency_", "");
         res.status(200).json({
           type: 4,

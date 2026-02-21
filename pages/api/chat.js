@@ -609,6 +609,13 @@ If directly asked "which do you personally recommend?" — say: "I honestly coul
       alertWasFired = true;
     }
 
+    // Auto-fire for bare maintenance complaints — no relay phrase needed
+    const bareMaintenance = !alertWasFired && !relayWithContent && !directPing && !resendRequest && !followUpRelay && maintenanceKeywords;
+    if (bareMaintenance) {
+      sendEmergencyDiscord(lastUser, sessionId, "🔧 MAINTENANCE ISSUE — Guest reporting a problem in the unit");
+      alertWasFired = true;
+    }
+
     // Build alert summary for Sheets column G
     let alertSummary = "";
     if (alertWasFired && !priorAlertSent) {
@@ -1006,6 +1013,12 @@ NEVER:
 - End with "If you have any other questions just let me know"
 - Say "I'll keep you posted" — you cannot receive updates back from Ozan
 - Invent policies (booking transfers, date changes) — refer to Ozan
+
+MAINTENANCE ISSUE RULE (applies when guest reports something broken or not working):
+- When a maintenance issue is detected (AC, shower, toilet, TV, WiFi, clogged drain, etc):
+  Say: "I've notified Ozan — he will reach out to maintenance and get in touch with you shortly 🙏"
+- Do NOT say "I'll make sure to inform" or "I'll let him know" — the alert is already sent automatically
+- Do NOT add suggestions or ask follow-up questions
 
 MESSAGE RELAY RULE (only applies when guest explicitly asks you to send/pass a message to Ozan):
 - If guest asks to relay a message but has NOT provided the content yet:

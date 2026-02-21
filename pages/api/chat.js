@@ -51,6 +51,15 @@ A guest is locked out and cannot reach you!
 **Session:** ${sessionId || "unknown"}
 
 ⚡ Please call or text the guest immediately!`,
+      components: [{
+        type: 1,
+        components: [{
+          type: 2,
+          style: 3,
+          label: "🫡 I'm on it",
+          custom_id: `ozanack_${sessionId || "unknown"}`,
+        }],
+      }],
     };
 
     await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
@@ -348,6 +357,29 @@ async function getSheetsToken() {
   }
 }
 
+async function checkOzanAcknowledged(sessionId) {
+  try {
+    if (!sessionId) return false;
+    const sheetId = process.env.GOOGLE_SHEET_ID;
+    if (!sheetId) return false;
+    const accessToken = await getSheetsToken();
+    if (!accessToken) return false;
+    const sheetRes = await fetch(
+      `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Sheet1!A:H`,
+      { headers: { Authorization: `Bearer ${accessToken}` } }
+    );
+    if (!sheetRes.ok) return false;
+    const data = await sheetRes.json();
+    const rows = data.values || [];
+    const acked = rows.some(row => row[1] === sessionId && row[7] === "OZAN_ACK");
+    if (acked) console.log(`Ozan acknowledged session ${sessionId} ✅`);
+    return acked;
+  } catch (err) {
+    console.error("checkOzanAcknowledged error:", err.message);
+    return false;
+  }
+}
+
 async function fetchSessionHistory(sessionId) {
   try {
     if (!sessionId) return [];
@@ -414,9 +446,12 @@ export default async function handler(req, res) {
     const lastUser = [...messages].reverse().find((m) => m.role === "user")?.content || "";
 
     // Fetch session history from Sheets if sessionId provided
-    const sessionHistory = await fetchSessionHistory(sessionId);
+    const [sessionHistory, ozanAcknowledged] = await Promise.all([
+      fetchSessionHistory(sessionId),
+      checkOzanAcknowledged(sessionId),
+    ]);
     const isReturningGuest = sessionHistory.length > 0;
-    console.log(`Session: ${sessionId || "anonymous"} | Returning: ${isReturningGuest}`);
+    console.log(`Session: ${sessionId || "anonymous"} | Returning: ${isReturningGuest} | OzanAck: ${ozanAcknowledged}`);
 
     const today = new Date().toLocaleDateString("en-US", {
       year: "numeric", month: "long", day: "numeric", weekday: "long",
@@ -424,12 +459,17 @@ export default async function handler(req, res) {
 
     const allUserText = messages.filter((m) => m.role === "user").map((m) => m.content).join(" ");
 
+    // ── LOCKDOWN EXIT DETECTION ────────────────────────────────────────────
+    const isResolutionMessage = /got it|i'm in|i am in|i'm inside|sorted|never mind|found it|found the code|figured it out|all good|thanks got|got in|in now|no worries|never mind|forget it/i.test(lastUser);
+    const isOffTopic = detectAvailabilityIntent(lastUser) || detectBlogTopic(lastUser) !== null || detectDiscountIntent(lastUser);
+    const lockdownResolved = ozanAcknowledged || isResolutionMessage || isOffTopic;
+
     // ── LAYER 1: Run all detectors ──────────────────────────────────────────
     const isDiscountRequest = detectDiscountIntent(lastUser);
     const isUnitComparison = detectUnitComparison(lastUser);
     const isEscalation = detectEscalation(lastUser) || detectEscalation(allUserText.slice(-500));
     const isExcessGuests = detectExcessGuests(lastUser);
-    const isLockedOut = detectLockedOut(lastUser) || detectLockedOut(allUserText.slice(-300));
+    const isLockedOut = !lockdownResolved && (detectLockedOut(lastUser) || detectLockedOut(allUserText.slice(-300)));
     // Deep escalation: locked out AND can't reach Ozan
     const isLockoutEscalation = isLockedOut && /can't reach|cant reach|not answer|no answer|not responding|still stuck|still can't|still cant|not picking|voicemail|tried.*ozan|ozan.*not/i.test(allUserText.slice(-500));
     // Also catch: forgot/lost code + I don't have it in conversation history
@@ -715,7 +755,7 @@ You help guests discover and book beachfront condos at Pelican Beach Resort in D
 You sound like a knowledgeable local friend — warm, genuine, never robotic.
 Today is ${today}.
 
-${alertWasFired ? "🚨 ALERT SENT THIS SESSION: An emergency Discord alert was automatically sent to Ozan during this conversation. If guest asks if you contacted Ozan or sent a message — say YES, an urgent alert was already sent to him. Do not say you will send it — it is already done.\n\n" : ""}${discountContext ? discountContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
+${ozanAcknowledged ? "✅ OZAN ACKNOWLEDGED THIS SESSION: Ozan has seen the emergency alert and confirmed he is on it. Tell the guest warmly: \"Good news — Ozan has seen your message and will reach out to you very shortly 🙏\" Only say this ONCE — if you have already said it earlier in this conversation, do not repeat it. After saying it, switch to normal helpful mode.\n\n" : ""}${alertWasFired ? "🚨 ALERT SENT THIS SESSION: An emergency Discord alert was automatically sent to Ozan during this conversation. If guest asks if you contacted Ozan or sent a message — say YES, an urgent alert was already sent to him. Do not say you will send it — it is already done.\n\n" : ""}${discountContext ? discountContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PROPERTIES

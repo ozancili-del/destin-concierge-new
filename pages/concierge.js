@@ -14,6 +14,7 @@ export default function Concierge() {
   const [alertSent, setAlertSent] = useState(false);
   const [pendingRelay, setPendingRelay] = useState(false);
   const [ozanAcked, setOzanAcked] = useState(false);
+  const [ozanAckType, setOzanAckType] = useState(null);
   const sessionIdRef = useRef(null);
   const chatEndRef = useRef(null);
 
@@ -40,12 +41,13 @@ export default function Concierge() {
       const r = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: [...log, userMsg], sessionId: sessionIdRef.current, alertSent, pendingRelay, ozanAcked })
+        body: JSON.stringify({ messages: [...log, userMsg], sessionId: sessionIdRef.current, alertSent, pendingRelay, ozanAcked, ozanAckType })
       });
       const data = await r.json();
       if (data.alertSent) setAlertSent(true);
       setPendingRelay(data.pendingRelay === true);
       if (data.ozanAcked) setOzanAcked(true);
+      if (data.ozanAckType) setOzanAckType(data.ozanAckType);
       const reply = data?.reply || "Hmm, I didn’t get a reply.";
       setLog(l => [...l, { role: "assistant", content: reply }]);
     } catch {

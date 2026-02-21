@@ -491,9 +491,11 @@ If directly asked "which do you personally recommend?" — say: "I honestly coul
       alertWasFired = true;
     }
 
-    // Fix 2: Demand-based alert — guest explicitly asks to contact/alert Ozan
+    // Fix 2: Demand-based OR door code stuck alert
+    // Fires when: guest asks to contact Ozan, OR guest says still can't find/forgot code
     const demandAlert = /send.*ozan|alert.*ozan|contact.*ozan|message.*ozan|tell.*ozan|notify.*ozan|reach out.*ozan/i.test(lastUser);
-    if (demandAlert && !alertWasFired) {
+    const stillStuckCode = /still.*can't find|still.*cant find|still.*no code|still.*forgot|can't find.*code|cant find.*code|don't have.*code|dont have.*code|still.*door code|still.*pin|no.*code/i.test(lastUser);
+    if ((demandAlert || stillStuckCode) && !alertWasFired) {
       sendEmergencyDiscord(lastUser, sessionId);
       alertWasFired = true;
     }
@@ -515,7 +517,9 @@ Follow these steps IN ORDER:
 7. NEVER keep repeating the same suggestion if guest says it didn't work — move to the next step.
 8. Stay calm and warm throughout — this is stressful for the guest.
 9. NEVER suggest email in a lockout emergency — email is too slow.
-10. NEVER say "I will send a message" or "I can send a message" or "let me know and I'll alert him" — you do NOT send messages on demand. Alerts are sent AUTOMATICALLY by the system, not by you on request.
+10. When you say "I'm sending an alert to Ozan" — the system DOES send it automatically. So you CAN say "I'm alerting Ozan right now" when the guest is clearly stuck.
+11. After saying you alerted Ozan, always follow with: "He will reach out to you shortly — hang tight!"
+12. NEVER say "I'll keep you posted" — you cannot receive updates from Ozan.
 11. If the system has already sent an alert (guest said can't reach Ozan): Say "I've already sent an urgent alert directly to Ozan — he will reach out to you very shortly. Hang tight!"
 12. If guest asks "did you send a message?" and alert was sent: Say "Yes — an urgent alert was already sent to Ozan automatically when you mentioned you couldn't reach him."
 13. If guest asks "did you send a message?" and alert was NOT sent yet: Say "Not yet — that alert fires automatically when you've tried reaching Ozan and couldn't. Have you tried texting him at (972) 357-4262?"
@@ -879,6 +883,7 @@ NEVER:
 - Volunteer unnecessary facts (build year, sq footage) unless asked
 - Say "You'll love it!" — say "All our guests rave about it 😊"
 - End with "If you have any other questions just let me know"
+- Say "I'll keep you posted" — you cannot receive updates back from Ozan
 - Invent policies (booking transfers, date changes) — refer to Ozan
 
 INFORMATIONAL QUESTIONS: Answer directly and warmly. Ask one engaging follow-up.

@@ -540,25 +540,55 @@ If directly asked "which do you personally recommend?" — say: "I honestly coul
       alertWasFired = true;
     }
 
-    // Demand-based OR door code stuck alert — also gated on !alertWasFired
-    // Bare relay: guest wants to send a message but hasn't provided content yet
-    const bareRelayRequest = /send.*ozan|message.*ozan|tell.*ozan|notify.*ozan|reach out.*ozan|contact.*ozan|alert.*ozan/i.test(lastUser)
-      && !lastUser.match(/["“”]|:\s*.{10,}/)
+    // ── RELAY / ALERT DETECTORS ──────────────────────────────────────────────
+
+    // Type 1: DIRECT PING — guest wants Ozan alerted/contacted, no message needed
+    // Fires immediately — no waiting for content
+    const directPing = /alert.*ozan|ping.*ozan|notify.*ozan|contact.*ozan|reach.*ozan|get.*ozan|call.*ozan|let.*ozan.*know|send.*alert|send.*emergency|send.*urgent/i.test(lastUser);
+
+    // Type 2: RESEND — guest asks to send again
+    const resendRequest = /send again|resend|try again|send it again|alert again|send another|send one more/i.test(lastUser);
+
+    // Type 3: RELAY WITH CONTENT — guest provides actual message to pass to Ozan
+    const relayWithContent = /send.*ozan|message.*ozan|pass.*ozan|forward.*ozan|tell.*ozan/i.test(lastUser)
+      && (lastUser.match(/["“”]/) || lastUser.match(/:\s*.{15,}/) || lastUser.length >= 100);
+
+    // Type 4: BARE RELAY — guest asks to relay a message but hasn't provided content yet
+    const bareRelayRequest = /send.*message.*ozan|pass.*message.*ozan|relay.*ozan/i.test(lastUser)
+      && !relayWithContent
+      && !directPing
       && lastUser.length < 80;
-    // Relay with content: guest included the actual message in same turn
-    const relayWithContent = /send.*ozan|message.*ozan|tell.*ozan|notify.*ozan|reach out.*ozan|contact.*ozan|alert.*ozan/i.test(lastUser)
-      && (lastUser.match(/["“”]|:\s*.{10,}/) || lastUser.length >= 80);
-    // Follow-up content: previous turn was a bare relay request, now they provided the message
-    const followUpRelay = priorPendingRelay === true && !bareRelayRequest;
-    const demandAlert = relayWithContent || followUpRelay;
-    // stillStuckCode only fires when guest shows they've already tried — requires 'still' prefix or cant reach signals
+
+    // Follow-up content: previous turn was a bare relay request
+    const followUpRelay = priorPendingRelay === true && !bareRelayRequest && !directPing;
+
+    // stillStuckCode only fires when guest shows they have already tried
     const stillStuckCode = /still.*can't find|still.*cant find|still.*no code|still.*forgot|still.*door code|still.*pin/i.test(lastUser);
-    // Relay messages always send — each one is a distinct message from the guest
-    if (demandAlert) {
+
+    // demandAlert used for system prompt context and alertSummary reason
+    const demandAlert = directPing || resendRequest || relayWithContent || followUpRelay;
+
+    // ── FIRE DISCORD ALERTS ───────────────────────────────────────────────────
+
+    // Direct pings always fire — explicit action request from guest
+    if (directPing) {
       sendEmergencyDiscord(lastUser, sessionId);
       alertWasFired = true;
     }
-    // stillStuckCode only fires once (gated by alertWasFired)
+
+    // Resend always fires — guest is explicitly asking again
+    if (resendRequest) {
+      sendEmergencyDiscord(lastUser, sessionId);
+      alertWasFired = true;
+    }
+
+    // Relay with content always fires — guest provided a specific message
+    if (relayWithContent || followUpRelay) {
+      sendEmergencyDiscord(lastUser, sessionId);
+      alertWasFired = true;
+    }
+
+    // stillStuckCode fires once only — automatic detection, not explicit request
     if (!alertWasFired && stillStuckCode) {
       sendEmergencyDiscord(lastUser, sessionId);
       alertWasFired = true;

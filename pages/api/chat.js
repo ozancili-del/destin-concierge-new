@@ -449,9 +449,10 @@ export default async function handler(req, res) {
     const lastUser = [...messages].reverse().find((m) => m.role === "user")?.content || "";
 
     // Fetch session history from Sheets if sessionId provided
+    // If frontend already confirmed ack, skip Sheets read entirely
     const [sessionHistory, ozanAcknowledged] = await Promise.all([
       fetchSessionHistory(sessionId),
-      checkOzanAcknowledged(sessionId),
+      priorOzanAcked ? Promise.resolve(true) : checkOzanAcknowledged(sessionId),
     ]);
     const isReturningGuest = sessionHistory.length > 0;
     const ozanAcknowledgedFinal = ozanAcknowledged || priorOzanAcked;
@@ -610,7 +611,8 @@ If directly asked "which do you personally recommend?" — say: "I honestly coul
     }
 
     // Auto-fire for bare maintenance complaints — no relay phrase needed
-    const bareMaintenance = !alertWasFired && !relayWithContent && !directPing && !resendRequest && !followUpRelay && maintenanceKeywords;
+    const isLockoutMessage = detectLockedOut(lastUser);
+    const bareMaintenance = !alertWasFired && !relayWithContent && !directPing && !resendRequest && !followUpRelay && !isLockoutMessage && maintenanceKeywords;
     if (bareMaintenance) {
       sendEmergencyDiscord(lastUser, sessionId, "🔧 MAINTENANCE ISSUE — Guest reporting a problem in the unit");
       alertWasFired = true;

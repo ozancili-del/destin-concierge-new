@@ -136,6 +136,11 @@ function detectExcessGuests(text) {
   return /7 (people|guests|of us)|8 (people|guests|of us)|9 (people|guests|of us)|ten people|seven people|eight people|won't count|doesn't count|don't count|sleeping in car|sleep on floor|won't use|won't need/i.test(text);
 }
 
+// Detect locked out / door code emergency
+function detectLockedOut(text) {
+  return /forgot.*code|can't get in|cant get in|locked out|door.*code|code.*door|pin.*work|wrong.*code|code.*wrong|code.*not work|won't open|wont open|door.*won't|door.*not open|need.*code|where.*code|what.*code|lost.*code|deleted.*email/i.test(text);
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Check availability using OwnerRez v2 bookings API
 // ─────────────────────────────────────────────────────────────────────────────
@@ -329,6 +334,85 @@ async function logToSheets(guestMessage, destinyReply, datesAsked, availabilityS
   }
 }
 
+async function getSheetsToken() {
+  try {
+    const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
+    const rawKey = process.env.GOOGLE_PRIVATE_KEY;
+    if (!email || !rawKey) return null;
+    const privateKey = rawKey.replace(/\n/g, "\n");
+    const header = Buffer.from(JSON.stringify({ alg: "RS256", typ: "JWT" })).toString("base64url");
+    const now = Math.floor(Date.now() / 1000);
+    const claim = Buffer.from(JSON.stringify({
+      iss: email, scope: "https://www.googleapis.com/auth/spreadsheets",
+      aud: "https://oauth2.googleapis.com/token", exp: now + 3600, iat: now,
+    })).toString("base64url");
+    const sign = createSign("RSA-SHA256");
+    sign.update(`${header}.${claim}`);
+    const signature = sign.sign(privateKey, "base64url");
+    const jwt = `${header}.${claim}.${signature}`;
+    const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=${jwt}`,
+    });
+    const tokenData = await tokenRes.json();
+    return tokenData.access_token || null;
+  } catch (err) {
+    console.error("getSheetsToken error:", err.message);
+    return null;
+  }
+}
+
+async function fetchSessionHistory(sessionId) {
+  try {
+    if (!sessionId) return [];
+    const sheetId = process.env.GOOGLE_SHEET_ID;
+    if (!sheetId) return [];
+    const accessToken = await getSheetsToken();
+    if (!accessToken) return [];
+    const sheetRes = await fetch(
+      `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Sheet1!A:F`,
+      { headers: { Authorization: `Bearer ${accessToken}` } }
+    );
+    if (!sheetRes.ok) return [];
+    const data = await sheetRes.json();
+    const rows = data.values || [];
+    // Format: [timestamp, sessionId, guestMessage, destinyReply, dates, status]
+    const history = rows
+      .filter(row => row[1] === sessionId && row[2] && row[3])
+      .slice(-15)
+      .map(row => [
+        { role: "user", content: row[2] },
+        { role: "assistant", content: row[3] },
+      ])
+      .flat();
+    console.log(`Session ${sessionId}: loaded ${history.length / 2} previous exchanges`);
+    return history;
+  } catch (err) {
+    console.error("fetchSessionHistory error:", err.message);
+    return [];
+  }
+}
+
+async function logToSheets(sessionId, guestMessage, destinyReply, datesAsked, availabilityStatus) {
+  try {
+    const sheetId = process.env.GOOGLE_SHEET_ID;
+    if (!sheetId) return;
+    const accessToken = await getSheetsToken();
+    if (!accessToken) return;
+    const timestamp = new Date().toLocaleString("en-US", { timeZone: "America/Chicago" });
+    const row = [timestamp, sessionId || "", guestMessage, destinyReply, datesAsked || "", availabilityStatus || ""];
+    const sheetRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Sheet1!A1:append?valueInputOption=USER_ENTERED`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ values: [row] }),
+    });
+    if (sheetRes.ok) console.log("Logged to Google Sheets ✅");
+  } catch (err) {
+    console.error("Google Sheets logging error:", err.message);
+  }
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // API Handler
 // ─────────────────────────────────────────────────────────────────────────────
@@ -341,8 +425,13 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { messages = [] } = req.body || {};
+    const { messages = [], sessionId = null } = req.body || {};
     const lastUser = [...messages].reverse().find((m) => m.role === "user")?.content || "";
+
+    // Fetch session history from Sheets if sessionId provided
+    const sessionHistory = await fetchSessionHistory(sessionId);
+    const isReturningGuest = sessionHistory.length > 0;
+    console.log(`Session: ${sessionId || "anonymous"} | Returning: ${isReturningGuest}`);
 
     const today = new Date().toLocaleDateString("en-US", {
       year: "numeric", month: "long", day: "numeric", weekday: "long",
@@ -355,6 +444,7 @@ export default async function handler(req, res) {
     const isUnitComparison = detectUnitComparison(lastUser);
     const isEscalation = detectEscalation(lastUser) || detectEscalation(allUserText.slice(-500));
     const isExcessGuests = detectExcessGuests(lastUser);
+    const isLockedOut = detectLockedOut(lastUser) || detectLockedOut(allUserText.slice(-300));
     const wantsAvailability = detectAvailabilityIntent(lastUser);
 
     // Only look back in history for dates on genuine follow-ups
@@ -398,6 +488,24 @@ NEVER mention furniture purchase dates or renovation years.
 Both units have the same WiFi smart lock, same amenities, same Gulf views.
 Present BOTH options positively and equally, then let the guest decide.
 If directly asked "which do you personally recommend?" — say: "I honestly couldn't pick — they're both wonderful! Unit 707 has classic coastal warmth, Unit 1006 has a fresh modern feel and slightly higher vantage point. It really comes down to your personal style 😊 Want me to check availability for both?"`;
+    }
+
+    // 🔐 LOCKED OUT / DOOR CODE CONTEXT
+    let lockedOutContext = "";
+    if (isLockedOut) {
+      lockedOutContext = `🔐 LOCKED OUT / DOOR CODE REQUEST DETECTED — FOLLOW THIS EXACTLY:
+The guest cannot get into their unit or has forgotten/lost their door code.
+NEVER send them to front desk or resort security — they cannot help with unit door codes.
+NEVER say you can't provide the code for security reasons in a loop — that's unhelpful.
+Follow these steps IN ORDER:
+1. Show genuine empathy — being locked out is stressful.
+2. Tell them: "Your PIN code is in your booking confirmation email — search for an email from OwnerRez or Destin Condo Getaways sent around the time you booked. Check your spam folder too."
+3. If they say they deleted the email: "The PIN is also in your booking confirmation on the platform you booked through — check your booking details there."
+4. If still stuck: "Please TEXT Ozan at (972) 357-4262 — texting reaches him faster than calling. He can resend your PIN immediately."
+5. If Ozan not responding: "Please email ozan@destincondogetaways.com — he monitors email closely and can resend your PIN."
+6. NEVER suggest front desk, resort security, or any other party — they have NO access to unit PINs.
+7. NEVER keep repeating the same suggestion if guest says it didn't work — move to the next step.
+8. Stay calm and warm throughout — this is stressful for the guest.`;
     }
 
     // 🚨 ESCALATION CONTEXT
@@ -564,7 +672,7 @@ You help guests discover and book beachfront condos at Pelican Beach Resort in D
 You sound like a knowledgeable local friend — warm, genuine, never robotic.
 Today is ${today}.
 
-${discountContext ? discountContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
+${discountContext ? discountContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PROPERTIES
@@ -763,8 +871,16 @@ INFORMATIONAL QUESTIONS: Answer directly and warmly. Ask one engaging follow-up.
 BOOKING QUESTIONS WITH DATES: Always include booking link + mention code DESTINY.
 DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt exactly.`;
 
+    // Build session context note for returning guests
+    let sessionNote = "";
+    if (isReturningGuest) {
+      sessionNote = `\n\n📋 RETURNING GUEST CONTEXT — This guest has chatted with you before. Their previous conversation history is included below. Use it naturally — if relevant, reference what they asked before. If they ask about something they previously discussed, recall it warmly. Never say "based on our records" — just reply naturally as if you remember.\n`;
+    }
+
     const openAIMessages = [
-      { role: "system", content: SYSTEM_PROMPT },
+      { role: "system", content: SYSTEM_PROMPT + sessionNote },
+      // Inject previous session history BEFORE current conversation
+      ...sessionHistory,
       ...messages.map((m) => ({ role: m.role, content: m.content })),
     ];
 
@@ -783,6 +899,7 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
     reply = reply.replace(/(https?:\/\/[^\s"'<>]+)[.,!?;:]$/, '$1');
 
     await logToSheets(
+      sessionId,
       lastUser,
       reply,
       dates ? `${dates.arrival} to ${dates.departure}` : "",

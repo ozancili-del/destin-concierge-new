@@ -325,36 +325,40 @@ function buildLink(unit, arrival, departure, adults, children) {
 // Log conversation to Google Sheets
 // ─────────────────────────────────────────────────────────────────────────────
 
-async function getSheetsToken() {
-  try {
-    const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
-    const rawKey = process.env.GOOGLE_PRIVATE_KEY;
-    if (!email || !rawKey) return null;
-    const privateKey = rawKey
-      .replace(/\\n/g, "\n")  // double-escaped newlines
-      .replace(/\n/g, "\n")    // literal \n strings
-      .trim();
-    const header = Buffer.from(JSON.stringify({ alg: "RS256", typ: "JWT" })).toString("base64url");
-    const now = Math.floor(Date.now() / 1000);
-    const claim = Buffer.from(JSON.stringify({
-      iss: email, scope: "https://www.googleapis.com/auth/spreadsheets",
-      aud: "https://oauth2.googleapis.com/token", exp: now + 3600, iat: now,
-    })).toString("base64url");
-    const sign = createSign("RSA-SHA256");
-    sign.update(`${header}.${claim}`);
-    const signature = sign.sign(privateKey, "base64url");
-    const jwt = `${header}.${claim}.${signature}`;
-    const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=${jwt}`,
-    });
-    const tokenData = await tokenRes.json();
-    return tokenData.access_token || null;
-  } catch (err) {
-    console.error("getSheetsToken error:", err.message);
-    return null;
+async function getSheetsToken(retries = 2) {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
+      const rawKey = process.env.GOOGLE_PRIVATE_KEY;
+      if (!email || !rawKey) return null;
+      const privateKey = rawKey
+        .replace(/\\n/g, "\n")  // double-escaped newlines
+        .replace(/\n/g, "\n")    // literal \n strings
+        .trim();
+      const header = Buffer.from(JSON.stringify({ alg: "RS256", typ: "JWT" })).toString("base64url");
+      const now = Math.floor(Date.now() / 1000);
+      const claim = Buffer.from(JSON.stringify({
+        iss: email, scope: "https://www.googleapis.com/auth/spreadsheets",
+        aud: "https://oauth2.googleapis.com/token", exp: now + 3600, iat: now,
+      })).toString("base64url");
+      const sign = createSign("RSA-SHA256");
+      sign.update(`${header}.${claim}`);
+      const signature = sign.sign(privateKey, "base64url");
+      const jwt = `${header}.${claim}.${signature}`;
+      const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=${jwt}`,
+      });
+      const tokenData = await tokenRes.json();
+      if (tokenData.access_token) return tokenData.access_token;
+      throw new Error("No access token in response");
+    } catch (err) {
+      console.error(`getSheetsToken attempt ${attempt} failed:`, err.message);
+      if (attempt < retries) await new Promise(r => setTimeout(r, 300));
+    }
   }
+  return null;
 }
 
 async function checkOzanAcknowledged(sessionId) {
@@ -549,7 +553,13 @@ If directly asked "which do you personally recommend?" — say: "I honestly coul
     const demandAlert = relayWithContent || followUpRelay;
     // stillStuckCode only fires when guest shows they've already tried — requires 'still' prefix or cant reach signals
     const stillStuckCode = /still.*can't find|still.*cant find|still.*no code|still.*forgot|still.*door code|still.*pin/i.test(lastUser);
-    if (!alertWasFired && (demandAlert || stillStuckCode)) {
+    // Relay messages always send — each one is a distinct message from the guest
+    if (demandAlert) {
+      sendEmergencyDiscord(lastUser, sessionId);
+      alertWasFired = true;
+    }
+    // stillStuckCode only fires once (gated by alertWasFired)
+    if (!alertWasFired && stillStuckCode) {
       sendEmergencyDiscord(lastUser, sessionId);
       alertWasFired = true;
     }

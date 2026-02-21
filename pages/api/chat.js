@@ -543,17 +543,24 @@ If directly asked "which do you personally recommend?" — say: "I honestly coul
 
     // Type 1: DIRECT PING — guest wants Ozan alerted/contacted, no message needed
     // Fires immediately — no waiting for content
-    const directPing = /alert.*ozan|ping.*ozan|notify.*ozan|contact.*ozan|reach.*ozan|get.*ozan|call.*ozan|let.*ozan.*know|send.*alert|send.*emergency|send.*urgent/i.test(lastUser);
+    const directPing = /alert.*(?:ozan|owner|host|manager)|ping.*(?:ozan|owner|host)|notify.*(?:ozan|owner|host)|contact.*(?:ozan|owner|host)|reach.*(?:ozan|owner|host)|get.*(?:ozan|owner|host)|call.*(?:ozan|owner|host)|let.*(?:ozan|owner|host).*know|send.*alert|send.*emergency|send.*urgent/i.test(lastUser);
 
     // Type 2: RESEND — guest asks to send again
     const resendRequest = /send again|resend|try again|send it again|alert again|send another|send one more/i.test(lastUser);
 
-    // Type 3: RELAY WITH CONTENT — guest provides actual message to pass to Ozan
-    const relayWithContent = /send.*ozan|message.*ozan|pass.*ozan|forward.*ozan|tell.*ozan/i.test(lastUser)
-      && (lastUser.match(/["“”]/) || lastUser.match(/:\s*.{15,}/) || lastUser.length >= 100);
+             // Type 3: RELAY WITH CONTENT
+    // Trigger: any way guest asks to send a message to Ozan/owner/host
+    const relayTrigger = /send.*(?:ozan|owner|host|manager|landlord|the guy|him|them)|message.*(?:ozan|owner|host|manager)|tell.*(?:ozan|owner|host)|pass.*(?:ozan|owner|host)|contact.*(?:ozan|owner|host)|let.*(?:ozan|owner|host).*know/i.test(lastUser);
+    // Extract content after the trigger reference to check if message is included
+    const relayTriggerMatch = lastUser.match(/(?:send|message|pass|tell|forward|contact|let).*?(?:ozan|owner|host|manager|landlord|the guy|him|them)[,:]?\s*(.*)/i);
+    const contentAfterTrigger = relayTriggerMatch ? relayTriggerMatch[1].trim() : "";
+    const relayWithContent = relayTrigger
+      && (contentAfterTrigger.split(/\s+/).filter(Boolean).length >= 3
+          || lastUser.match(/[“”"]/)
+          || lastUser.length >= 80);
 
     // Type 4: BARE RELAY — guest asks to relay a message but hasn't provided content yet
-    const bareRelayRequest = /send.*message.*ozan|pass.*message.*ozan|relay.*ozan/i.test(lastUser)
+    const bareRelayRequest = relayTrigger
       && !relayWithContent
       && !directPing
       && lastUser.length < 80;

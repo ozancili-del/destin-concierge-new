@@ -280,59 +280,6 @@ function buildLink(unit, arrival, departure, adults, children) {
 // ─────────────────────────────────────────────────────────────────────────────
 // Log conversation to Google Sheets
 // ─────────────────────────────────────────────────────────────────────────────
-async function logToSheets(guestMessage, destinyReply, datesAsked, availabilityStatus) {
-  try {
-    const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
-    const rawKey = process.env.GOOGLE_PRIVATE_KEY;
-    const sheetId = process.env.GOOGLE_SHEET_ID;
-
-    if (!email || !rawKey || !sheetId) return;
-
-    const privateKey = rawKey.replace(/\\n/g, "\n");
-
-    const header = Buffer.from(JSON.stringify({ alg: "RS256", typ: "JWT" })).toString("base64url");
-    const now = Math.floor(Date.now() / 1000);
-    const claim = Buffer.from(JSON.stringify({
-      iss: email,
-      scope: "https://www.googleapis.com/auth/spreadsheets",
-      aud: "https://oauth2.googleapis.com/token",
-      exp: now + 3600,
-      iat: now,
-    })).toString("base64url");
-
-    const sign = createSign("RSA-SHA256");
-    sign.update(`${header}.${claim}`);
-    const signature = sign.sign(privateKey, "base64url");
-    const jwt = `${header}.${claim}.${signature}`;
-
-    const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=${jwt}`,
-    });
-    const tokenData = await tokenRes.json();
-    const accessToken = tokenData.access_token;
-    if (!accessToken) return;
-
-    const timestamp = new Date().toLocaleString("en-US", { timeZone: "America/Chicago" });
-    const row = [timestamp, guestMessage, destinyReply, datesAsked || "", availabilityStatus || ""];
-
-    const sheetRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Sheet1!A1:append?valueInputOption=USER_ENTERED`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ values: [row] }),
-    });
-
-    if (sheetRes.ok) {
-      console.log("Logged to Google Sheets ✅");
-    }
-  } catch (err) {
-    console.error("Google Sheets logging error:", err.message);
-  }
-}
 
 async function getSheetsToken() {
   try {

@@ -201,6 +201,12 @@ function detectMaintenance(text) {
   return /broken|not working|isn't working|won't work|doesn't work|not cooling|not heating|no hot water|no water|no power|no electricity|power out|leaking|leak|flooded|flooding|clogged|backed up|toilet.*over|won't flush|wont flush|smell|smells|mold|bug|bugs|roach|ant|mouse|mice|AC.*off|AC.*broken|heat.*off|heat.*broken|TV.*broken|TV.*not|dishwasher|washing machine|dryer.*broken|microwave.*broken|fridge.*broken|freezer.*broken|oven.*broken|stove.*broken|Wi-?Fi.*down|wifi.*not|internet.*down|cable.*out|remote.*missing|remote.*broken|blind.*broken|door.*broken|lock.*broken|key.*stuck|window.*broken|light.*out|lights.*out|bulb.*out|outlet.*not|socket.*not|fan.*broken|fan.*not|noise.*unit|loud.*noise|banging|dripping|running water|water pressure|no pressure/i.test(text);
 }
 
+// Detect accidental damage by guest (plates, glasses, dishes etc) — NOT a maintenance issue
+// These should NOT fire Discord automatically — guest needs empathy + told to reach Ozan directly
+function detectAccidentalDamage(text) {
+  return /broke.*(?:plate|glass|cup|dish|mug|bowl|mirror|vase|frame|window|lamp)|(?:plate|glass|cup|dish|mug|bowl|mirror|vase|frame|lamp).*broke|cracked.*(?:plate|glass|cup|dish|mirror)|(?:plate|glass|cup|dish|mirror).*cracked|accidentally.*broke|accidentally.*broken|broke.*by.*accident|dropped.*(?:plate|glass|cup|dish|mug|bowl)|(?:spilled|stained).*(?:carpet|couch|sofa|mattress|furniture)/i.test(text);
+}
+
 // Summarize raw guest issue descriptions into clean natural phrases
 // Called only when building the ack message — ~300-500ms, worth it for quality
 async function summarizeIssues(issues) {
@@ -585,7 +591,12 @@ export default async function handler(req, res) {
     const forgotCodeInHistory = /forgot.*code|lost.*code|can't find.*code|dont have.*code|don't have.*code|deleted.*email/i.test(allUserText);
     const cantReachInHistory = /can't reach|cant reach|not answer|no answer|not responding|not picking/i.test(allUserText);
     const shouldFireAlert = isLockoutEscalation || (forgotCodeInHistory && cantReachInHistory);
-    const isMaintenanceReport = detectMaintenance(lastUser) && !isLockedOut;
+    // chatoz: direct message protocol — guest explicitly routes message to Ozan
+    const chatOzMatch = lastUser.match(/^chatoz:\s*(.+)/i);
+    const isChatOz = !!chatOzMatch;
+    const chatOzContent = chatOzMatch ? chatOzMatch[1].trim() : "";
+    const isAccidentalDamage = detectAccidentalDamage(lastUser);
+    const isMaintenanceReport = detectMaintenance(lastUser) && !isLockedOut && !isAccidentalDamage;
     const wantsAvailability = detectAvailabilityIntent(lastUser);
 
     // Only look back in history for dates on genuine follow-ups
@@ -721,7 +732,23 @@ If directly asked "which do you personally recommend?" — say: "I honestly coul
       alertWasFired = true;
     }
 
-    // Pre-GPT maintenance firing — fires BEFORE GPT so misclassification cannot block the alert.
+    // ── chatoz: DIRECT MESSAGE — fire immediately, return without GPT ──────────
+    if (isChatOz) {
+      const chatOzMsg = `💬 DIRECT MESSAGE FROM GUEST\n\n"${chatOzContent}"\n\nSession: ${sessionId}`;
+      sendEmergencyDiscord(chatOzContent, sessionId, "💬 Direct guest message via chatoz:", "maintenance");
+      const chatOzReply = "Your message has been sent directly to Ozan 🙏 He'll get back to you shortly!";
+      await logToSheets(sessionId, lastUser, chatOzReply, "", "CHATOZ", chatOzContent);
+      return res.status(200).json({
+        reply: chatOzReply,
+        alertSent: true,
+        pendingRelay: false,
+        ozanAcked: false,
+        ozanAckType,
+        detectedIntent: "INFO",
+      });
+    }
+
+    // ── Pre-GPT maintenance firing — fires BEFORE GPT so misclassification cannot block the alert.
     // Always fires on new maintenance reports regardless of priorAlertSent.
     // This is the reliable path for issue #2, #3, #4 in the same session.
     if (isMaintenanceReport) {
@@ -962,7 +989,7 @@ The guest may be following up or anxious. Your job now:
 - Remind them Ozan is handling it and they should expect direct contact soon
 - Keep it to 1-2 sentences max. Do not ask follow-up questions.
 - Example good responses: "Ozan is on it — you should hear from him or the team very shortly 🙏" / "He's already been notified and is handling this — just hang tight a little longer 🙏"
-\n\n` : ""}${alertWasFired ? "🚨 ALERT SENT THIS SESSION: An emergency Discord alert was automatically sent to Ozan during this conversation. If guest asks if you contacted Ozan or sent a message — say YES, an urgent alert was already sent to him. Do not say you will send it — it is already done.\n\n" : ""}${discountContext ? discountContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
+\n\n` : ""}${isAccidentalDamage ? "⚠️ ACCIDENTAL DAMAGE SCENARIO: Guest has broken something (plates, glasses etc). Follow the ACCIDENTAL DAMAGE RULE exactly. Do NOT say you notified Ozan. Do NOT offer to relay. Empathy first, then direct to Ozan at (972) 357-4262.\n\n" : ""}${alertWasFired ? "🚨 ALERT SENT THIS SESSION: An emergency Discord alert was automatically sent to Ozan during this conversation. If guest asks if you contacted Ozan or sent a message — say YES, an urgent alert was already sent to him. Do not say you will send it — it is already done.\n\n" : ""}${discountContext ? discountContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PROPERTIES
@@ -1206,6 +1233,21 @@ MESSAGE RELAY RULE (only applies when guest explicitly asks you to send/pass a m
 - NEVER show them a cleaned-up version or ask "how about something more polite?"
 - Your job is to make sure Ozan gets the message, not to coach the guest on politeness
 - This rule ONLY applies to explicit message relay requests — all other tone/empathy rules unchanged
+
+ACCIDENTAL DAMAGE RULE (guest broke something — plates, glasses, cups, dishes, mirror etc):
+- Lead with empathy and check they are ok: "Oh no! First things first — is everyone okay? Hope nobody got hurt!"
+- Then reassure warmly: "Accidents happen — please don\'t stress about it!"
+- Then direct to Ozan: "Just give Ozan a quick heads up at (972) 357-4262 and he\'ll sort it out 😊"
+- Do NOT say "I\'ve notified Ozan" — you have NOT sent any alert for accidental damage
+- Do NOT offer to relay the message — guest should contact Ozan directly
+- Keep it warm, light, reassuring — this is NOT a maintenance emergency
+
+CHATOZ: DIRECT MESSAGE PROTOCOL:
+- If a guest wants to send Ozan a message directly for ANY reason, tell them:
+  "You can reach Ozan directly by typing chatoz: followed by your message — for example: chatoz: I have a question about checkout. He\'ll be notified right away! 😊"
+- If the guest\'s message starts with chatoz: — it has already been sent. Just confirm warmly:
+  "Your message has been sent directly to Ozan 🙏 He\'ll get back to you shortly!"
+- Never invent other relay methods — always use chatoz: for direct guest-to-Ozan messaging
 
 INFORMATIONAL QUESTIONS: Answer directly and warmly. Ask one engaging follow-up.
 BOOKING QUESTIONS WITH DATES: If guest provided dates but NOT guest count — ask for adults and children count first, then build link. Never redirect to availability page if dates are known. Always mention code DESTINY with every booking link.

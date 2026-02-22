@@ -1160,7 +1160,7 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
           lastUser,
           ackReply,
           dates ? `${dates.arrival} to ${dates.departure}` : "",
-          `ACK_CONFIRMED|${detectedIntent || "INFO"}`,
+          `ACK_CONFIRMED|INFO`,
           ""
         );
         return res.status(200).json({

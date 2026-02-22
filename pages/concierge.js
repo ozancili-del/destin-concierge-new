@@ -48,6 +48,13 @@ export default function Concierge() {
       setPendingRelay(data.pendingRelay === true);
       if (data.ozanAcked) setOzanAcked(true);
       if (data.ozanAckType) setOzanAckType(data.ozanAckType);
+      // When an ack is confirmed for the first time, reset alert state so a
+      // second maintenance issue in the same session can fire a fresh alert.
+      if (data.ozanAckType && !ozanAckType) {
+        setAlertSent(false);
+        setOzanAcked(false);
+        setOzanAckType(null);
+      }
       const reply = data?.reply || "Hmm, I didn’t get a reply.";
       setLog(l => [...l, { role: "assistant", content: reply }]);
     } catch {

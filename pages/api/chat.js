@@ -373,7 +373,7 @@ function extractDates(text) {
   }
 
   // "4 september 12" or "4th september 12th" — day month day, no connector, second month can be missing/misspelled
-  const dmDayMatch = t.match(/(\d{1,2})(?:st|nd|rd|th)?\s+(?:of\s+)?(january|february|march|april|may|june|july|august|september|october|november|december)\s+(\d{1,2})(?:st|nd|rd|th)?/i);
+  const dmDayMatch = t.match(/(\d{1,2})(?:st|nd|rd|th)?\s+(?:of\s+)?(january|february|march|april|may|june|july|august|september|october|november|december)\s+(\d{1,2})(?:st|nd|rd|th)?(?!\s*(?:adult|child|kid|guest|person|people|infant|baby|toddler|pet|dog|cat|bird|animal))/i);
   if (dmDayMatch) {
     const month = months[dmDayMatch[2].toLowerCase()];
     return {
@@ -633,7 +633,7 @@ export default async function handler(req, res) {
     const isMaintenanceReport = detectMaintenance(lastUser) && !isLockedOut && !isAccidentalDamage;
     const wantsAvailability = detectAvailabilityIntent(lastUser);
     // Pets detector — when mentioned, skip booking intercept and let GPT apply no-pets policy
-    const mentionsPets = /\d+\s*pet|\bwith.*pet\b|\bdog\b|\bcat\b|\bpuppy\b|\bkitten\b|bring.*dog|bring.*cat|bring.*pet|pet.*friendly|emotional support animal|\besa\b|\bservice animal\b/i.test(allUserText);
+    const mentionsPets = /\d+\s*pets?|\bwith.*pets?\b|\bdogs?\b|\bcats?\b|\bpuppies\b|\bkittens?\b|\bbirds?\b|\bparrots?\b|\brabbits?\b|\bhamsters?\b|\bferrets?\b|\bfish\b|\bsnakes?\b|\bturtles?\b|\banimals?\b|bring.*(?:my|our|the)\s+\w+.*(?:pet|dog|cat|bird|animal)|pet.*friendly|emotional support animal|\besa\b|\bservice animal\b/i.test(allUserText);
 
     // Only look back in history for dates on genuine follow-ups
     const dates = extractDates(lastUser) || (

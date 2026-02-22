@@ -298,9 +298,29 @@ async function checkAvailability(propertyId, arrival, departure, retries = 2) {
 // ─────────────────────────────────────────────────────────────────────────────
 // Extract dates from message
 // ─────────────────────────────────────────────────────────────────────────────
+function normalizeMonths(text) {
+  const corrections = [
+    [/\b(decmber|decemer|decmeber|decembre|dcember|decmebr)\b/gi, 'december'],
+    [/\b(novmber|noveber|novemebr|novmeber|novembr|nvember)\b/gi, 'november'],
+    [/\b(septemebr|septmber|sepember|septeber|spetember|setpember)\b/gi, 'september'],
+    [/\b(feburary|febuary|februray|februaray|febrary|febraury)\b/gi, 'february'],
+    [/\b(januray|januaray|janury|janaury)\b/gi, 'january'],
+    [/\b(ocotber|octobr|ocober|octobar)\b/gi, 'october'],
+    [/\b(augest|augst|agust|auguts)\b/gi, 'august'],
+    [/\b(jully|jule|juli)\b/gi, 'july'],
+    [/\b(marh|mrach|mach)\b/gi, 'march'],
+    [/\b(apirl|aprl|aprli)\b/gi, 'april'],
+  ];
+  let out = text;
+  for (const [pattern, correct] of corrections) {
+    out = out.replace(pattern, correct);
+  }
+  return out;
+}
+
 function extractDates(text) {
   const year = new Date().getFullYear();
-  const t = text.toLowerCase();
+  const t = normalizeMonths(text.toLowerCase());
 
   const isoPattern = /(\d{4}-\d{2}-\d{2})/g;
   const isoMatches = text.match(isoPattern);
@@ -659,6 +679,17 @@ export default async function handler(req, res) {
     let availabilityContext = "";
     let unitComparisonContext = "";
     let availabilityStatus = "";
+    let petsContext = "";
+
+    // 🐾 PETS CONTEXT — inject strict no-pets messaging when pets mentioned
+    if (mentionsPets) {
+      petsContext = `🐾 PETS DETECTED — FOLLOW THIS EXACTLY:
+The guest mentioned bringing a pet. Our resort has a STRICT no-pets policy — HOA rule, zero exceptions including emotional support animals.
+1. Respond warmly: "Aww, we love furry friends too! Unfortunately our resort has a strict no-pets policy we simply can't make exceptions to — even for the cutest ones! 🐾 We hope you understand!"
+2. DO NOT suggest children as a substitute for pets — NEVER say "2 kids" or "your family" if the guest only mentioned pets.
+3. DO NOT assume the guest has children. Only reference the actual guest count they gave (adults only if that's all they said).
+4. After the policy message, simply offer to help with the booking for their actual party (adults only).`;
+    }
 
     // 🚨 DISCOUNT DETECTOR — highest priority injection
     if (isDiscountRequest) {
@@ -1054,7 +1085,7 @@ The guest may be following up or anxious. Your job now:
 - Remind them Ozan is handling it and they should expect direct contact soon
 - Keep it to 1-2 sentences max. Do not ask follow-up questions.
 - Example good responses: "Ozan is on it — you should hear from him or the team very shortly 🙏" / "He's already been notified and is handling this — just hang tight a little longer 🙏"
-\n\n` : ""}${isChildSafetyQuestion ? "👶 CHILD/TODDLER SAFETY QUESTION DETECTED — Follow CHILD / TODDLER / FAMILY SAFETY PRIORITY OVERRIDE exactly. Answer the specific safety question FIRST. No excitement opener. No smart lock pivot. Give portable solutions immediately.\n\n" : ""}${isAccidentalDamage ? "⚠️ ACCIDENTAL DAMAGE SCENARIO: Guest has broken something (plates, glasses etc). Follow the ACCIDENTAL DAMAGE RULE exactly. Do NOT say you notified Ozan. Do NOT offer to relay. Empathy first, then direct to Ozan at (972) 357-4262.\n\n" : ""}${alertWasFired ? "🚨 ALERT SENT THIS SESSION: An emergency Discord alert was automatically sent to Ozan during this conversation. If guest asks if you contacted Ozan or sent a message — say YES, an urgent alert was already sent to him. Do not say you will send it — it is already done.\n\n" : ""}${discountContext ? discountContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
+\n\n` : ""}${isChildSafetyQuestion ? "👶 CHILD/TODDLER SAFETY QUESTION DETECTED — Follow CHILD / TODDLER / FAMILY SAFETY PRIORITY OVERRIDE exactly. Answer the specific safety question FIRST. No excitement opener. No smart lock pivot. Give portable solutions immediately.\n\n" : ""}${isAccidentalDamage ? "⚠️ ACCIDENTAL DAMAGE SCENARIO: Guest has broken something (plates, glasses etc). Follow the ACCIDENTAL DAMAGE RULE exactly. Do NOT say you notified Ozan. Do NOT offer to relay. Empathy first, then direct to Ozan at (972) 357-4262.\n\n" : ""}${alertWasFired ? "🚨 ALERT SENT THIS SESSION: An emergency Discord alert was automatically sent to Ozan during this conversation. If guest asks if you contacted Ozan or sent a message — say YES, an urgent alert was already sent to him. Do not say you will send it — it is already done.\n\n" : ""}${petsContext ? petsContext + "\n\n" : ""}${discountContext ? discountContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PROPERTIES

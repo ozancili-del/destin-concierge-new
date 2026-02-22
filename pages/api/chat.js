@@ -1095,6 +1095,38 @@ INFORMATIONAL QUESTIONS: Answer directly and warmly. Ask one engaging follow-up.
 BOOKING QUESTIONS WITH DATES: Always include booking link + mention code DESTINY.
 DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt exactly.`;
 
+    // ── LOCKOUT STEP 3 INTERCEPT ─────────────────────────────────────────────
+    // Fires exactly once: guest is locked out + confirmed can't reach Ozan + alert
+    // already fired. Returns a hardcoded Step 3 message so GPT can never hallucinate
+    // "maintenance" or any other wrong framing into this critical moment.
+    // "Only once" is enforced by checking if the last assistant message in the
+    // current conversation already contains the Step 3 text — if so, skip and
+    // let GPT handle follow-ups naturally with the full lockout context.
+    const STEP3_TEXT = "I completely understand how stressful this is — I've sent an urgent alert to Ozan and he will reach out to you very shortly. Please hang tight! 🙏";
+    const lastAssistantMsg = [...messages].reverse().find(m => m.role === "assistant")?.content || "";
+    const step3AlreadyDelivered = lastAssistantMsg.includes("sent an urgent alert to Ozan");
+    const isLockoutStep3 = isLockedOut && alertWasFired && (cantReachInHistory || cantReachNow) && !step3AlreadyDelivered && !ozanAckType;
+
+    if (isLockoutStep3) {
+      await logToSheets(
+        sessionId,
+        lastUser,
+        STEP3_TEXT,
+        "",
+        "LOCKOUT_STEP3",
+        ""
+      );
+      return res.status(200).json({
+        reply: STEP3_TEXT,
+        alertSent: alertWasFired,
+        pendingRelay: false,
+        ozanAcked: false,
+        ozanAckType: null,
+        detectedIntent: "EMERGENCY",
+      });
+    }
+    // ────────────────────────────────────────────────────────────────────────
+
     // ── ACK SHORT-CIRCUIT ────────────────────────────────────────────────────
     // If Ozan has already acknowledged AND the guest is asking for an update,
     // skip GPT entirely and return the canned ack message deterministically.

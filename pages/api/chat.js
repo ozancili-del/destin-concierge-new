@@ -201,6 +201,43 @@ function detectMaintenance(text) {
   return /broken|not working|isn't working|won't work|doesn't work|not cooling|not heating|no hot water|no water|no power|no electricity|power out|leaking|leak|flooded|flooding|clogged|backed up|toilet.*over|won't flush|wont flush|smell|smells|mold|bug|bugs|roach|ant|mouse|mice|AC.*off|AC.*broken|heat.*off|heat.*broken|TV.*broken|TV.*not|dishwasher|washing machine|dryer.*broken|microwave.*broken|fridge.*broken|freezer.*broken|oven.*broken|stove.*broken|Wi-?Fi.*down|wifi.*not|internet.*down|cable.*out|remote.*missing|remote.*broken|blind.*broken|door.*broken|lock.*broken|key.*stuck|window.*broken|light.*out|lights.*out|bulb.*out|outlet.*not|socket.*not|fan.*broken|fan.*not|noise.*unit|loud.*noise|banging|dripping|running water|water pressure|no pressure/i.test(text);
 }
 
+// Summarize raw guest issue descriptions into clean natural phrases
+// Called only when building the ack message — ~300-500ms, worth it for quality
+async function summarizeIssues(issues) {
+  try {
+    if (!issues || issues.length === 0) return issues;
+    const prompt = `You are cleaning up maintenance issue descriptions reported by hotel guests.
+Convert each raw guest message into a SHORT, CLEAN, NATURAL issue description (3-6 words max).
+Remove filler words like "also", "and", "OMG", "got it", "our", typos.
+Preserve the actual problem.
+
+Examples:
+"OMG TV is not working" → "TV not working"
+"also dishwasher is broken" → "dishwasher broken"
+"got it also there is a water leak" → "water leak"
+"our AC wont turn on" → "AC not working"
+"diswahser is not wkrkin" → "dishwasher not working"
+
+Input issues: ${JSON.stringify(issues)}
+
+Respond with ONLY a JSON array of cleaned strings, nothing else. Example: ["TV not working","dishwasher broken"]`;
+
+    const result = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [{ role: "user", content: prompt }],
+      max_tokens: 100,
+      temperature: 0,
+    });
+    const raw = result.choices[0]?.message?.content?.trim() || "";
+    const cleaned = JSON.parse(raw.replace(/```json|```/g, "").trim());
+    if (Array.isArray(cleaned) && cleaned.length === issues.length) return cleaned;
+    return issues; // fallback to raw if parse fails
+  } catch (err) {
+    console.error("summarizeIssues error:", err.message);
+    return issues; // always fall back gracefully
+  }
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Check availability using OwnerRez v2 bookings API
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1120,7 +1157,11 @@ NEVER:
 MAINTENANCE ISSUE RULE:
 - If the ALERT SENT block appears at the top of this prompt, at least one alert was already sent to Ozan this session.
 - If the guest is NOW reporting a NEW broken thing (even if they start with "got it", "awesome", "thanks", "ok" before mentioning the problem): this is STILL INTENT: MAINTENANCE. Treat each new broken thing as a fresh maintenance report.
-- For EACH new issue: say "I've notified Ozan — he will reach out to maintenance and get in touch with you shortly 🙏"
+- For EACH new issue: acknowledge it warmly and confirm Ozan has been notified. Vary the phrasing naturally — never repeat the exact same sentence twice. Examples:
+  "I'm so sorry to hear that! I've notified Ozan — he'll get this sorted out for you shortly 🙏"
+  "Oh no — I've already flagged this for Ozan and he'll be in touch with you soon 🙏"
+  "I've let Ozan know about this — he'll reach out to you directly to get it handled 🙏"
+  "Already on it — Ozan has been notified and will follow up with you shortly 🙏"
 - If the guest is ONLY following up ("any update?", "did you hear back?") without mentioning a new problem: do NOT say "I've notified Ozan" again — give a warm honest status update instead.
 - The presence of the ALERT SENT block does NOT mean subsequent messages are INFO — always check if the guest is reporting something NEW and broken.
 - Do NOT say this if no alert was sent — do not hallucinate that you notified anyone
@@ -1204,33 +1245,37 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
     //   - If it was already delivered → let GPT run but with tight post-ack instructions
     //     so it gives a warm, varied follow-up instead of "still waiting"
     if (ozanAckType && isAskingForUpdate) {
-      // Build dynamic ack message from ackedIssues (snapshot of what was open when Ozan clicked)
-      // Falls back to current openIssues, then to null for generic canned message
-      const issueSource = ackedIssues.length > 0 ? ackedIssues : openIssues;
-      const issueList = issueSource.length > 0
-        ? issueSource.length === 1
-          ? issueSource[0]
-          : issueSource.slice(0, -1).join(", ") + " and " + issueSource[issueSource.length - 1]
-        : null;
-
-      const actionMap = {
-        OZAN_ACK:        "confirmed he is on it",
-        MAINT_ONSITE:    "opened a maintenance ticket for",
-        MAINT_OZAN:      "confirmed he is personally handling",
-        MAINT_EMERGENCY: "is calling you right now about",
-      };
-      const action = actionMap[ozanAckType] || "confirmed he is on it";
-      const ackReply = issueList
-        ? ozanAckType === "MAINT_EMERGENCY"
-          ? `Ozan is calling you right now about the ${issueList} — please pick up! 🙏`
-          : `Great news — Ozan has ${action} the ${issueList} and will be in touch with you shortly 🙏`
-        : ACK_MESSAGES[ozanAckType];
-
-      // Delivery proof: Sheets ACK_CONFIRMED row OR live frontend messages
+      // Delivery proof check first — if already delivered, skip to GPT
       const ackAlreadyDelivered = ackDeliveredToGuest
-        || messages.some(m => m.role === "assistant" && m.content === ackReply);
+        || messages.some(m => m.role === "assistant" && m.content?.includes("Ozan has") && m.role === "assistant");
 
       if (!ackAlreadyDelivered) {
+        // Build dynamic ack message from ackedIssues (snapshot of what was open when Ozan clicked)
+        const issueSource = ackedIssues.length > 0 ? ackedIssues : openIssues;
+
+        // Summarize raw guest descriptions into clean natural phrases
+        const cleanedIssues = issueSource.length > 0 ? await summarizeIssues(issueSource) : [];
+
+        const issueList = cleanedIssues.length > 0
+          ? cleanedIssues.length === 1
+            ? cleanedIssues[0]
+            : cleanedIssues.slice(0, -1).join(", ") + " and " + cleanedIssues[cleanedIssues.length - 1]
+          : null;
+
+        const actionMap = {
+          OZAN_ACK:        "is on it",
+          MAINT_ONSITE:    "has opened a maintenance ticket for the",
+          MAINT_OZAN:      "is personally handling the",
+          MAINT_EMERGENCY: "is calling you right now about the",
+        };
+        const action = actionMap[ozanAckType] || "is on it";
+
+        const ackReply = issueList
+          ? ozanAckType === "MAINT_EMERGENCY"
+            ? `Ozan is calling you right now about the ${issueList} — please pick up! 🙏`
+            : `Great news — Ozan ${action} ${issueList} and will be in touch with you shortly 🙏`
+          : ACK_MESSAGES[ozanAckType];
+
         await logToSheets(
           sessionId,
           lastUser,

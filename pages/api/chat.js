@@ -249,48 +249,48 @@ Respond with ONLY a JSON array of cleaned strings, nothing else. Example: ["TV n
 // ─────────────────────────────────────────────────────────────────────────────
 async function checkAvailability(propertyId, arrival, departure, retries = 2) {
   for (let attempt = 1; attempt <= retries; attempt++) {
-    try {
-      const token = process.env.OWNERREZ_API_TOKEN;
-      const credentials = Buffer.from(`${OWNERREZ_USER}:${token}`).toString("base64");
+  try {
+    const token = process.env.OWNERREZ_API_TOKEN;
+    const credentials = Buffer.from(`${OWNERREZ_USER}:${token}`).toString("base64");
 
-      const since = new Date();
-      since.setFullYear(since.getFullYear() - 1);
-      const sinceUtc = since.toISOString();
-      const url = `https://api.ownerrez.com/v2/bookings?property_ids=${propertyId}&since_utc=${sinceUtc}&status=active`;
+    const since = new Date();
+    since.setFullYear(since.getFullYear() - 1);
+    const sinceUtc = since.toISOString();
+    const url = `https://api.ownerrez.com/v2/bookings?property_ids=${propertyId}&since_utc=${sinceUtc}&status=active`;
 
-      const response = await fetch(url, {
-        headers: {
-          Authorization: `Basic ${credentials}`,
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-          "User-Agent": "DestinyBlue/1.0",
-        },
-      });
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Basic ${credentials}`,
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "User-Agent": "DestinyBlue/1.0",
+      },
+    });
 
-      if (!response.ok) {
-        console.error(`OwnerRez API error: ${response.status} for property ${propertyId} (attempt ${attempt})`);
-        if (attempt < retries) { await new Promise(r => setTimeout(r, 800)); continue; }
-        return null;
-      }
-
-      const data = await response.json();
-      const bookings = data?.items || data?.bookings || [];
-      const requestArrival = new Date(arrival);
-      const requestDeparture = new Date(departure);
-
-      const hasConflict = bookings.some((booking) => {
-        const bookingArrival = new Date(booking.arrival || booking.check_in || booking.arrivalDate);
-        const bookingDeparture = new Date(booking.departure || booking.check_out || booking.departureDate);
-        return bookingArrival < requestDeparture && bookingDeparture > requestArrival;
-      });
-
-      console.log(`OwnerRez property ${propertyId}: ${hasConflict ? "BOOKED" : "AVAILABLE"} for ${arrival}→${departure}`);
-      return !hasConflict;
-    } catch (err) {
-      console.error(`OwnerRez fetch error (attempt ${attempt}):`, err.message);
+    if (!response.ok) {
+      console.error(`OwnerRez API error: ${response.status} for property ${propertyId} (attempt ${attempt})`);
       if (attempt < retries) { await new Promise(r => setTimeout(r, 800)); continue; }
       return null;
     }
+
+    const data = await response.json();
+    const bookings = data?.items || data?.bookings || [];
+    const requestArrival = new Date(arrival);
+    const requestDeparture = new Date(departure);
+
+    const hasConflict = bookings.some((booking) => {
+      const bookingArrival = new Date(booking.arrival || booking.check_in || booking.arrivalDate);
+      const bookingDeparture = new Date(booking.departure || booking.check_out || booking.departureDate);
+      return bookingArrival < requestDeparture && bookingDeparture > requestArrival;
+    });
+
+    console.log(`OwnerRez property ${propertyId}: ${hasConflict ? "BOOKED" : "AVAILABLE"} for ${arrival}→${departure}`);
+    return !hasConflict;
+  } catch (err) {
+    console.error(`OwnerRez fetch error (attempt ${attempt}):`, err.message);
+    if (attempt < retries) { await new Promise(r => setTimeout(r, 800)); continue; }
+    return null;
+  }
   }
   return null;
 }
@@ -372,21 +372,20 @@ function extractDates(text) {
     return { arrival: toISO(allMatches[0]), departure: toISO(allMatches[1]) };
   }
 
-  // Day-Month format: "4th july", "12 july", "4 July and 12 July" (British/European style)
-  // Using regex literal to avoid double-escaping issues with new RegExp(string)
-  const dmMatches = [...t.matchAll(/(\d{1,2})(?:st|nd|rd|th)?\s+(january|february|march|april|may|june|july|august|september|october|november|december)/gi)];
+  // Day-Month format: "4th july", "4th of july", "12 july", "4 July and 12 July"
+  const dmMatches = [...t.matchAll(/(\d{1,2})(?:st|nd|rd|th)?\s+(?:of\s+)?(january|february|march|april|may|june|july|august|september|october|november|december)/gi)];
   if (dmMatches.length >= 2) {
-    const toISO = (m) => `${year}-${months[m[2].toLowerCase()]}-${m[1].padStart(2,"0")}`;
-    return { arrival: toISO(dmMatches[0]), departure: toISO(dmMatches[1]) };
+    const toISO2 = (m) => `${year}-${months[m[2].toLowerCase()]}-${m[1].padStart(2,"0")}`;
+    return { arrival: toISO2(dmMatches[0]), departure: toISO2(dmMatches[1]) };
   }
 
-  // Single day-month + second day same month: "4th july to 12th"
-  const sdmMatch2 = t.match(/(\d{1,2})(?:st|nd|rd|th)?\s+(january|february|march|april|may|june|july|august|september|october|november|december)\s*(?:to|until|through|and|-)\s*(\d{1,2})/i);
-  if (sdmMatch2) {
-    const month = months[sdmMatch2[2].toLowerCase()];
+  // "4th of july to 12th" — single day+month then second day
+  const sdmMatch = t.match(/(\d{1,2})(?:st|nd|rd|th)?\s+(?:of\s+)?(january|february|march|april|may|june|july|august|september|october|november|december)\s*(?:to|until|through|and|-)\s*(\d{1,2})/i);
+  if (sdmMatch) {
+    const month = months[sdmMatch[2].toLowerCase()];
     return {
-      arrival:   `${year}-${month}-${sdmMatch2[1].padStart(2,"0")}`,
-      departure: `${year}-${month}-${sdmMatch2[3].padStart(2,"0")}`,
+      arrival:   `${year}-${month}-${sdmMatch[1].padStart(2,"0")}`,
+      departure: `${year}-${month}-${sdmMatch[3].padStart(2,"0")}`,
     };
   }
 
@@ -620,7 +619,6 @@ export default async function handler(req, res) {
     const isChatOz = !!chatOzMatch;
     const chatOzContent = chatOzMatch ? chatOzMatch[1].trim() : "";
     const isAccidentalDamage = detectAccidentalDamage(lastUser);
-    const isChildSafetyQuestion = /child|children|\bkid\b|\bkids\b|toddler|\bbaby\b|infant|year.old|little one|safety lock|child lock|baby.?proof|childproof|balcony door|sliding door.*lock|fall risk|safe for kids|railing|\bclimb\b|\bpinch\b/i.test(lastUser);
     const isMaintenanceReport = detectMaintenance(lastUser) && !isLockedOut && !isAccidentalDamage;
     const wantsAvailability = detectAvailabilityIntent(lastUser);
 
@@ -927,8 +925,8 @@ Do NOT say great news or over-promise. Be specific about which unit is open vs f
     }
 
     // If dates found but no guest count anywhere in conversation — ask before building link
+    const isChildSafetyQuestion = /child|children|\bkid\b|\bkids\b|toddler|\bbaby\b|infant|year.old|little one|safety lock|child lock|baby.?proof|childproof|balcony door|sliding door.*lock|fall risk|safe for kids|railing|\bclimb\b|\bpinch\b/i.test(lastUser);
     const hasGuestCount = /(\d+)\s*(adult|kid|child|children|guest|person|people|infant|baby|toddler)/i.test(allUserText);
-    // Hoist guest count extraction to outer scope so booking intercept can use them
     const adultsMatchOuter = lastUser.match(/(\d+)\s*adult/i) || allUserText.match(/(\d+)\s*adult/i);
     const childrenMatchOuter = lastUser.match(/(\d+)\s*(kid|child|children|infant|baby|toddler)/i) || allUserText.match(/(\d+)\s*(kid|child|children|infant|baby|toddler)/i);
     const adults = adultsMatchOuter ? adultsMatchOuter[1] : "2";
@@ -941,7 +939,7 @@ Do NOT say great news or over-promise. Be specific about which unit is open vs f
         checkAvailability(UNIT_1006_PROPERTY_ID, dates.arrival, dates.departure),
       ]);
 
-      // adults/children already extracted in outer scope above
+      // adults/children extracted in outer scope above
 
       console.log(`Availability results - 707: ${avail707}, 1006: ${avail1006}`);
 
@@ -962,8 +960,6 @@ Do NOT say great news or over-promise. Be specific about which unit is open vs f
         const link1006 = buildLink("1006", dates.arrival, dates.departure, adults, children);
         availabilityContext = `LIVE AVAILABILITY: BOTH units AVAILABLE for ${dates.arrival} to ${dates.departure}. Offer both equally. Unit 707 link: ${link707} — Unit 1006 link: ${link1006}`;
       } else {
-        // One or both returned null (API flake) — partial results logic:
-        // If one returned a definite answer and other is null, trust the definite one
         const link707fb = buildLink("707", dates.arrival, dates.departure, adults, children);
         const link1006fb = buildLink("1006", dates.arrival, dates.departure, adults, children);
         if (avail707 === true && avail1006 === null) {
@@ -979,7 +975,6 @@ Do NOT say great news or over-promise. Be specific about which unit is open vs f
           availabilityStatus = `DATES:${dates.arrival}->${dates.departure} | 707:UNKNOWN | 1006:BOOKED`;
           availabilityContext = `LIVE AVAILABILITY: Unit 1006 is BOOKED for ${dates.arrival} to ${dates.departure}. Unit 707 availability could not be confirmed — provide link anyway: ${link707fb}. Tell guest Unit 1006 is unavailable and suggest Unit 707 or contacting Ozan.`;
         } else {
-          // Both null — full CHECK_FAILED
           availabilityStatus = `DATES:${dates.arrival}->${dates.departure} | CHECK_FAILED`;
           availabilityContext = `AVAILABILITY CHECK FAILED — API did not respond. CRITICAL: Use ONLY these pre-built links — do NOT invent or modify URLs: Unit 707: ${link707fb} — Unit 1006: ${link1006fb}. Tell guest honestly: "I wasn't able to confirm live availability right now — here are your direct booking links, use code DESTINY for 10% off! If you have issues contact Ozan at (972) 357-4262."`;
         }
@@ -1310,7 +1305,7 @@ If the guest mentions: child, children, kid, kids, toddler, baby, infant, [age]-
 
 INFORMATIONAL QUESTIONS: Answer directly and warmly. Ask one engaging follow-up.
 BOOKING QUESTIONS WITH DATES: If guest provided dates but NOT guest count — ask for adults and children count first, then build link. Never redirect to availability page if dates are known. Always mention code DESTINY with every booking link.
-DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt exactly.`;
+DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt exactly.\`;
 
     // ── LOCKOUT STEP 3 INTERCEPT ─────────────────────────────────────────────
     // Fires exactly once: guest is locked out + confirmed can't reach Ozan + alert
@@ -1402,11 +1397,8 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
     }
     // ────────────────────────────────────────────────────────────────────────
 
-    // ── BOOKING INTERCEPT — bypass GPT entirely when we have clean availability ──
-    // GPT hallucinate wrong URLs even when given the correct ones in context.
-    // When we have dates + guest count + a definite availability result,
-    // build the reply in code and return directly — never let GPT touch the links.
-    if (availabilityStatus && !availabilityStatus.includes("CHECK_FAILED") 
+    // ── BOOKING INTERCEPT — bypass GPT when we have clean availability + guest count ──
+    if (availabilityStatus && !availabilityStatus.includes("CHECK_FAILED")
         && !availabilityStatus.includes("NEEDS_DATES")
         && !availabilityStatus.includes("DISCOUNT")
         && !availabilityStatus.includes("MONTH")
@@ -1465,22 +1457,16 @@ Use code **DESTINY** for 10% off! For Unit 707 questions contact Ozan at (972) 3
       }
 
       if (bookingReply) {
-        await logToSheets(
-          sessionId, lastUser, bookingReply,
+        await logToSheets(sessionId, lastUser, bookingReply,
           dates ? `${dates.arrival} to ${dates.departure}` : "",
-          availabilityStatus, ""
-        );
+          availabilityStatus, "");
         return res.status(200).json({
-          reply: bookingReply,
-          alertSent: alertWasFired,
-          pendingRelay: false,
-          ozanAcked: ozanAcknowledgedFinal,
-          ozanAckType,
-          detectedIntent: "INFO",
+          reply: bookingReply, alertSent: alertWasFired, pendingRelay: false,
+          ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO",
         });
       }
     }
-    // ────────────────────────────────────────────────────────────────────────
+    // ─────────────────────────────────────────────────────────────────────────
 
     // Build session context note for returning guests
     let sessionNote = "";

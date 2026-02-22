@@ -1117,8 +1117,10 @@ NEVER:
 
 MAINTENANCE ISSUE RULE:
 - If the ALERT SENT block appears at the top of this prompt, at least one alert was already sent to Ozan this session.
-- If the guest is NOW reporting a NEW broken thing (different from what was previously reported): this is STILL a MAINTENANCE intent. Say "I've notified Ozan — he will reach out to maintenance and get in touch with you shortly 🙏" for each new issue. Each new problem gets its own acknowledgment.
-- If the guest is following up on a previously reported issue (asking for updates): do NOT repeat "I've notified Ozan" — instead give a warm honest status update.
+- If the guest is NOW reporting a NEW broken thing (even if they start with "got it", "awesome", "thanks", "ok" before mentioning the problem): this is STILL INTENT: MAINTENANCE. Treat each new broken thing as a fresh maintenance report.
+- For EACH new issue: say "I've notified Ozan — he will reach out to maintenance and get in touch with you shortly 🙏"
+- If the guest is ONLY following up ("any update?", "did you hear back?") without mentioning a new problem: do NOT say "I've notified Ozan" again — give a warm honest status update instead.
+- The presence of the ALERT SENT block does NOT mean subsequent messages are INFO — always check if the guest is reporting something NEW and broken.
 - Do NOT say this if no alert was sent — do not hallucinate that you notified anyone
 - Do NOT say "I'll make sure to inform" or "I'll let him know"
 - Do NOT say "Ozan is coordinating", "the team is on it", "maintenance is aware" — you do NOT know this
@@ -1274,8 +1276,15 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
     const intentMatch = rawReply.match(/INTENT:\s*(MAINTENANCE|EMERGENCY|INFO)\s*$/im);
     if (intentMatch) {
       detectedIntent = intentMatch[1].toUpperCase();
-      // Strip INTENT line from reply shown to guest
       rawReply = rawReply.replace(/\n?INTENT:\s*(MAINTENANCE|EMERGENCY|INFO)\s*$/im, "").trim();
+    }
+
+    // ── Regex overrides GPT when they disagree ────────────────────────────────
+    // If our pre-GPT detector found maintenance but GPT said INFO, trust our detector.
+    // This handles cases where GPT gets confused by "alert already sent" context.
+    if (isMaintenanceReport && detectedIntent === "INFO") {
+      detectedIntent = "MAINTENANCE";
+      console.log(`Intent override: regex=MAINTENANCE GPT=INFO → using MAINTENANCE | Session: ${sessionId}`);
     }
     console.log(`Intent detected: ${detectedIntent} | Session: ${sessionId}`);
 
@@ -1284,34 +1293,39 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
       return text.replace(/[^\w\s,.'!?-]/g, "").trim().substring(0, 60).trim();
     }
 
-    // ── Fire Discord based on GPT intent ─────────────────────────────────────
-    // Always fire on new MAINTENANCE/EMERGENCY — even if a prior alert was sent.
-    // If prior issues exist, bundle them so Ozan sees the full open list.
-    if (detectedIntent === "MAINTENANCE" || detectedIntent === "EMERGENCY") {
+    // ── Post-GPT Discord fire ─────────────────────────────────────────────────
+    // MAINTENANCE: pre-GPT already fired via isMaintenanceReport — just update openIssues
+    // EMERGENCY: always fire here (no pre-GPT emergency detector)
+    if (detectedIntent === "MAINTENANCE") {
       const issueDesc = extractIssueDesc(lastUser);
-      // Append new issue to open list (avoid duplicates)
+      if (issueDesc && !openIssues.includes(issueDesc)) {
+        openIssues.push(issueDesc);
+        // Only fire Discord if pre-GPT didn't already handle it
+        if (!isMaintenanceReport) {
+          const reason = openIssues.length > 1
+            ? `🔧 MAINTENANCE — New issue reported (${openIssues.length} open issues)`
+            : "🔧 MAINTENANCE ISSUE — Guest reporting a problem in the unit";
+          sendEmergencyDiscord(lastUser, sessionId, reason, "maintenance", openIssues);
+          alertWasFired = true;
+        }
+      }
+    } else if (detectedIntent === "EMERGENCY") {
+      const issueDesc = extractIssueDesc(lastUser);
       if (issueDesc && !openIssues.includes(issueDesc)) openIssues.push(issueDesc);
-
-      const alertType = detectedIntent === "EMERGENCY" ? "emergency" : "maintenance";
-      const reason = detectedIntent === "EMERGENCY"
-        ? "🚨 EMERGENCY — Guest needs urgent help"
-        : openIssues.length > 1
-          ? `🔧 MAINTENANCE — New issue reported (${openIssues.length} open issues)`
-          : "🔧 MAINTENANCE ISSUE — Guest reporting a problem in the unit";
-
-      sendEmergencyDiscord(lastUser, sessionId, reason, alertType, openIssues);
+      sendEmergencyDiscord(lastUser, sessionId, "🚨 EMERGENCY — Guest needs urgent help", "emergency", openIssues);
       alertWasFired = true;
     }
 
     let reply = rawReply;
 
     // Strip trailing punctuation glued to URLs (including closing parenthesis)
-    reply = reply.replace(/(https?:\/\/[^\s"'<>)]+)[.,!?;:)]+(\s|$)/g, '$1$2');
+    reply = reply.replace(/(https?:\/\/[^\s"'<>)]+)[.,!?;:)]+(\ |$)/g, '$1$2');
     reply = reply.replace(/(https?:\/\/[^\s"'<>)]+)[.,!?;:)]+$/, '$1');
 
-    // Store openIssues as JSON in col G when a new alert fired, so loadSession can read it back
+    // Store openIssues JSON in col G — gate on isMaintenanceReport OR detectedIntent
+    // so issues detected by regex always get saved even if GPT said INFO
     let finalAlertSummary = alertSummary;
-    if (alertWasFired && (detectedIntent === "MAINTENANCE" || detectedIntent === "EMERGENCY") && openIssues.length > 0) {
+    if (alertWasFired && (isMaintenanceReport || detectedIntent === "MAINTENANCE" || detectedIntent === "EMERGENCY") && openIssues.length > 0) {
       const cst = new Date().toLocaleString("en-US", { timeZone: "America/Chicago", hour: "2-digit", minute: "2-digit" });
       finalAlertSummary = JSON.stringify({ issues: openIssues, ts: cst });
     }

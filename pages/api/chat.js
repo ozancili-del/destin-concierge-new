@@ -367,61 +367,58 @@ async function getSheetsToken(retries = 3) {
   return null;
 }
 
-async function checkOzanAcknowledged(sessionId) {
+// Ack type → natural assistant message GPT can reason from
+const ACK_MESSAGES = {
+  OZAN_ACK:        "Great news — Ozan has seen the alert and confirmed he is on it. He will reach out to you very shortly 🙏",
+  MAINT_ONSITE:    "Great news — Ozan has opened a maintenance ticket and the onsite team will be in touch with you shortly 🙏",
+  MAINT_OZAN:      "Great news — Ozan is personally handling this and will get in touch with you shortly 🙏",
+  MAINT_EMERGENCY: "Ozan is calling you right now — please pick up! 🙏",
+};
+
+const ACK_TYPES = ["OZAN_ACK", "MAINT_ONSITE", "MAINT_OZAN", "MAINT_EMERGENCY"];
+
+// Single function: loads ALL session rows (A:H), returns { history, ozanAckType }
+// Ack rows are injected as real assistant messages in chronological order
+async function loadSession(sessionId) {
   try {
-    if (!sessionId) return null;
+    if (!sessionId) return { history: [], ozanAckType: null };
     const sheetId = process.env.GOOGLE_SHEET_ID;
-    if (!sheetId) return null;
+    if (!sheetId) return { history: [], ozanAckType: null };
     const accessToken = await getSheetsToken();
-    if (!accessToken) return null;
+    if (!accessToken) return { history: [], ozanAckType: null };
+
     const sheetRes = await fetch(
       `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Sheet1!A:H`,
       { headers: { Authorization: `Bearer ${accessToken}` } }
     );
-    if (!sheetRes.ok) return null;
+    if (!sheetRes.ok) return { history: [], ozanAckType: null };
     const data = await sheetRes.json();
-    const rows = data.values || [];
-    const ackTypes = ["OZAN_ACK", "MAINT_ONSITE", "MAINT_OZAN", "MAINT_EMERGENCY"];
-    const ackRow = rows.find(row => row[1] === sessionId && ackTypes.includes(row[7]));
-    if (ackRow) {
-      console.log(`Ack found [${ackRow[7]}] for session ${sessionId} ✅`);
-      return ackRow[7]; // returns the ack type string
-    }
-    return null;
-  } catch (err) {
-    console.error("checkOzanAcknowledged error:", err.message);
-    return null;
-  }
-}
+    const rows = (data.values || []).filter(row => row[1] === sessionId);
 
-async function fetchSessionHistory(sessionId) {
-  try {
-    if (!sessionId) return [];
-    const sheetId = process.env.GOOGLE_SHEET_ID;
-    if (!sheetId) return [];
-    const accessToken = await getSheetsToken();
-    if (!accessToken) return [];
-    const sheetRes = await fetch(
-      `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Sheet1!A:F`,
-      { headers: { Authorization: `Bearer ${accessToken}` } }
-    );
-    if (!sheetRes.ok) return [];
-    const data = await sheetRes.json();
-    const rows = data.values || [];
-    // Format: [timestamp, sessionId, guestMessage, destinyReply, dates, status]
-    const history = rows
-      .filter(row => row[1] === sessionId && row[2] && row[3])
-      .slice(-15)
-      .map(row => [
-        { role: "user", content: row[2] },
-        { role: "assistant", content: row[3] },
-      ])
-      .flat();
-    console.log(`Session ${sessionId}: loaded ${history.length / 2} previous exchanges`);
-    return history;
+    let ozanAckType = null;
+    const messages = [];
+
+    for (const row of rows) {
+      const ackType = row[7];
+      if (ACK_TYPES.includes(ackType)) {
+        // This is an ack row — inject as assistant message
+        ozanAckType = ackType;
+        const ackMsg = ACK_MESSAGES[ackType];
+        if (ackMsg) messages.push({ role: "assistant", content: ackMsg });
+      } else if (row[2] && row[3]) {
+        // Normal conversation row
+        messages.push({ role: "user", content: row[2] });
+        messages.push({ role: "assistant", content: row[3] });
+      }
+    }
+
+    // Keep last 20 messages to avoid context overflow
+    const history = messages.slice(-20);
+    console.log(`Session ${sessionId}: loaded ${history.length} messages (ackType: ${ozanAckType || "none"})`);
+    return { history, ozanAckType };
   } catch (err) {
-    console.error("fetchSessionHistory error:", err.message);
-    return [];
+    console.error("loadSession error:", err.message);
+    return { history: [], ozanAckType: null };
   }
 }
 
@@ -461,10 +458,7 @@ export default async function handler(req, res) {
 
     // Fetch session history from Sheets if sessionId provided
     // If frontend already confirmed ack, skip Sheets read entirely
-    const [sessionHistory, ozanAckFromSheets] = await Promise.all([
-      fetchSessionHistory(sessionId),
-      priorOzanAcked ? Promise.resolve(priorOzanAckType || "OZAN_ACK") : checkOzanAcknowledged(sessionId),
-    ]);
+    const { history: sessionHistory, ozanAckType: ozanAckFromSheets } = await loadSession(sessionId);
     const isReturningGuest = sessionHistory.length > 0;
     const ozanAckType = ozanAckFromSheets || priorOzanAckType || null;
     const ozanAcknowledgedFinal = !!ozanAckType;
@@ -843,11 +837,8 @@ Every single response MUST end with this exact line: INTENT: [MAINTENANCE or EME
 KEY: Guest REPORTING a problem = MAINTENANCE. Guest ASKING a question = INFO.
 This line is mandatory. Never omit it. It must be the absolute last line of your response.
 
-${ozanAckType === "OZAN_ACK" ? `✅ OZAN ACKNOWLEDGED THIS SESSION: Ozan has seen the emergency alert and confirmed he is on it.${isAskingForUpdate ? " ⚠️ GUEST IS ASKING FOR AN UPDATE RIGHT NOW — Lead immediately with: \"Ozan has confirmed he is on it and will reach out to you very shortly 🙏\" Do NOT hesitate or dance around it." : " Tell the guest warmly: \"Good news — Ozan has seen your message and will reach out to you very shortly 🙏\""}
-
-` : ""}${ozanAckType === "MAINT_ONSITE" ? `🚨 UPDATE AVAILABLE — TELL THE GUEST THIS IMMEDIATELY, LEAD WITH IT: "Great news — Ozan has opened a maintenance ticket and the onsite team will be in touch with you shortly 🙏" Say this warmly and clearly. Do NOT say you have no update — you DO have an update now. This overrides everything else.
-
-` : ""}${ozanAckType === "MAINT_OZAN" ? "✅ OZAN HANDLING MAINTENANCE: Ozan is personally handling the issue. Tell the guest: \"Ozan has received your request and is working on it — he will get in touch with you shortly 🙏\" If guest asks for update, confirm clearly: Ozan is personally handling this and will be in touch.\n\n" : ""}${ozanAckType === "MAINT_EMERGENCY" ? "🚨 MAINTENANCE EMERGENCY: Ozan is calling the guest right now. Tell the guest: \"Ozan is calling you as we speak — please pick up! 🙏\" If guest says they missed the call or asks for update, say: \"Please call Ozan back immediately at (972) 357-4262 — he is trying to reach you!\".\n\n" : ""}${alertWasFired ? "🚨 ALERT SENT THIS SESSION: An emergency Discord alert was automatically sent to Ozan during this conversation. If guest asks if you contacted Ozan or sent a message — say YES, an urgent alert was already sent to him. Do not say you will send it — it is already done.\n\n" : ""}${discountContext ? discountContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
+${ozanAckType === "MAINT_EMERGENCY" ? "🚨 OZAN IS CALLING THE GUEST RIGHT NOW — if guest missed the call tell them: \"Please call Ozan back immediately at (972) 357-4262\"\n\n" : ""}
+${alertWasFired ? "🚨 ALERT SENT THIS SESSION: An emergency Discord alert was automatically sent to Ozan during this conversation. If guest asks if you contacted Ozan or sent a message — say YES, an urgent alert was already sent to him. Do not say you will send it — it is already done.\n\n" : ""}${discountContext ? discountContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PROPERTIES

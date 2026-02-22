@@ -412,6 +412,22 @@ async function loadSession(sessionId) {
       }
     }
 
+    // Strip stale "still waiting" assistant messages that were logged before the ack was known.
+    // These teach GPT to keep saying the wrong thing — remove them once an ack exists.
+    if (ozanAckType) {
+      const stillWaitingPattern = /still waiting|no update yet|waiting to hear|haven't heard|not heard back|waiting for.*ozan|ozan.*hasn't/i;
+      const ackMsg = ACK_MESSAGES[ozanAckType];
+      const ackIdx = messages.findIndex(m => m.role === "assistant" && m.content === ackMsg);
+      const cleaned = messages.filter((m, idx) => {
+        if (m.role !== "assistant") return true;
+        if (!stillWaitingPattern.test(m.content)) return true;
+        // Only strip "still waiting" turns that appear BEFORE the ack message
+        return ackIdx !== -1 && idx > ackIdx;
+      });
+      messages.length = 0;
+      cleaned.forEach(m => messages.push(m));
+    }
+
     // Keep last 20 messages to avoid context overflow
     const history = messages.slice(-20);
     console.log(`Session ${sessionId}: loaded ${history.length} messages (ackType: ${ozanAckType || "none"})`);
@@ -1078,6 +1094,32 @@ MESSAGE RELAY RULE (only applies when guest explicitly asks you to send/pass a m
 INFORMATIONAL QUESTIONS: Answer directly and warmly. Ask one engaging follow-up.
 BOOKING QUESTIONS WITH DATES: Always include booking link + mention code DESTINY.
 DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt exactly.`;
+
+    // ── ACK SHORT-CIRCUIT ────────────────────────────────────────────────────
+    // If Ozan has already acknowledged AND the guest is asking for an update,
+    // skip GPT entirely and return the canned ack message deterministically.
+    // This prevents GPT from ever generating a "still waiting" response after
+    // an ack is set — which is what was causing the feedback loop.
+    if (ozanAckType && isAskingForUpdate) {
+      const ackReply = ACK_MESSAGES[ozanAckType];
+      await logToSheets(
+        sessionId,
+        lastUser,
+        ackReply,
+        dates ? `${dates.arrival} to ${dates.departure}` : "",
+        "ACK_CONFIRMED",
+        ""
+      );
+      return res.status(200).json({
+        reply: ackReply,
+        alertSent: alertWasFired,
+        pendingRelay: false,
+        ozanAcked: true,
+        ozanAckType,
+        detectedIntent: "INFO",
+      });
+    }
+    // ────────────────────────────────────────────────────────────────────────
 
     // Build session context note for returning guests
     let sessionNote = "";

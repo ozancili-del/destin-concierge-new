@@ -36,7 +36,7 @@ const BLOG_URLS = {
 // ─────────────────────────────────────────────────────────────────────────────
 // Send emergency Discord alert to Ozan
 // ─────────────────────────────────────────────────────────────────────────────
-async function sendEmergencyDiscord(guestMessage, sessionId, reason = "Guest needs urgent assistance", alertType = "emergency") {
+async function sendEmergencyDiscord(guestMessage, sessionId, reason = "Guest needs urgent assistance", alertType = "emergency", openIssues = []) {
   try {
     const token = process.env.DISCORD_BOT_TOKEN;
     const channelId = process.env.DISCORD_CHANNEL_ID;
@@ -57,13 +57,18 @@ async function sendEmergencyDiscord(guestMessage, sessionId, reason = "Guest nee
       }]
     }];
 
+    // Build open issues list for bundled alerts
+    const issueLines = openIssues.length > 0
+      ? "\n\n📋 **Open issues this session:**\n" + openIssues.map((iss, i) => `  ${i + 1}. ${iss}`).join("\n")
+      : "";
+
     const msg = {
       content: `🚨 **ALERT — CHECK YOUR PHONE OZAN** 🚨
 
 ${reason}
 
 **Guest message:** "${guestMessage.substring(0, 300)}"
-**Session:** ${sessionId || "unknown"}
+**Session:** ${sessionId || "unknown"}${issueLines}
 
 ⚡ Please call or text the guest immediately!`,
       components,
@@ -398,11 +403,13 @@ async function loadSession(sessionId) {
     let ozanAckType = null;
     let ackDeliveredToGuest = false;
     let priorIssueAcked = false;
+    let openIssues = []; // list of unacknowledged issue descriptions
     const messages = [];
 
     for (const row of rows) {
       const ackType = row[7];
       const colF = row[5] || "";
+      const colG = row[6] || "";
       const guestMsg = row[2] || "";
       const assistantMsg = row[3] || "";
 
@@ -414,14 +421,25 @@ async function loadSession(sessionId) {
         ozanAckType = null;
         ackDeliveredToGuest = false;
         priorIssueAcked = false;
+        openIssues = []; // prior issues were acked — start fresh
+      }
+
+      // Read open issues list stored in col G when alert fired
+      if (colG && colG.startsWith("{")) {
+        try {
+          const parsed = JSON.parse(colG);
+          if (Array.isArray(parsed.issues)) openIssues = parsed.issues;
+        } catch (_) {}
       }
 
       // ACK_CONFIRMED in col F = canned ack was already delivered to guest
       if (colF.startsWith("ACK_CONFIRMED")) ackDeliveredToGuest = true;
 
       if (ACK_TYPES.includes(ackType)) {
+        // Ack row — issue(s) acknowledged, clear open issues
         ozanAckType = ackType;
         priorIssueAcked = true;
+        openIssues = []; // acked — clear
         const ackMsg = ACK_MESSAGES[ackType];
         if (ackMsg) messages.push({ role: "assistant", content: ackMsg });
       } else if (guestMsg && assistantMsg) {
@@ -446,11 +464,11 @@ async function loadSession(sessionId) {
 
     // Keep last 20 messages to avoid context overflow
     const history = messages.slice(-20);
-    console.log(`Session ${sessionId}: loaded ${history.length} messages (ackType: ${ozanAckType || "none"} | ackDelivered: ${ackDeliveredToGuest})`);
-    return { history, ozanAckType, ackDeliveredToGuest };
+    console.log(`Session ${sessionId}: loaded ${history.length} messages (ackType: ${ozanAckType || "none"} | ackDelivered: ${ackDeliveredToGuest} | openIssues: ${openIssues.length})`);
+    return { history, ozanAckType, ackDeliveredToGuest, openIssues };
   } catch (err) {
     console.error("loadSession error:", err.message);
-    return { history: [], ozanAckType: null };
+    return { history: [], ozanAckType: null, ackDeliveredToGuest: false, openIssues: [] };
   }
 }
 
@@ -490,7 +508,7 @@ export default async function handler(req, res) {
 
     // Fetch session history from Sheets if sessionId provided
     // If frontend already confirmed ack, skip Sheets read entirely
-    const { history: sessionHistory, ozanAckType: ozanAckFromSheets, ackDeliveredToGuest } = await loadSession(sessionId);
+    const { history: sessionHistory, ozanAckType: ozanAckFromSheets, ackDeliveredToGuest, openIssues: openIssuesFromSheets } = await loadSession(sessionId);
     const isReturningGuest = sessionHistory.length > 0;
     const ozanAckType = ozanAckFromSheets || priorOzanAckType || null;
     const ozanAcknowledgedFinal = !!ozanAckType;
@@ -574,9 +592,12 @@ If directly asked "which do you personally recommend?" — say: "I honestly coul
     const cantReachNow = /can't reach|cant reach|not answer|no answer|not responding|still stuck|still can't|not picking|voicemail/i.test(lastUser);
     let alertWasFired = false;
 
+    // Track open issues — start from what Sheets knows, will append new ones below
+    const openIssues = [...openIssuesFromSheets];
+
     // Persist alert state ONLY if prior alert was sent AND no ack confirmed yet.
-    // If loadSession reset ozanAckType because a new issue started after a prior ack,
-    // ozanAckType will be null here — alertWasFired stays false so fresh alert can fire.
+    // If ozanAckType is null (new issue after ack), alertWasFired stays false so fresh alert fires.
+    // NOTE: For new MAINTENANCE/EMERGENCY we always fire regardless — handled below after GPT.
     if (priorAlertSent && !ozanAckType) alertWasFired = true;
 
     if (!alertWasFired && (shouldFireAlert || (lockoutInHistory && cantReachNow))) {
@@ -1097,6 +1118,7 @@ Categories:
 
 - INTENT: MAINTENANCE — something inside the unit is broken or not working RIGHT NOW. Guest is reporting an active problem.
   Examples: "AC not cooling", "toilet clogged", "TV won't turn on", "no hot water", "water pressure low", "cable not working", "Cox is out", "no water in unit", "water leaking from ceiling", "remote missing", "blind broken", "smell in unit", "noise from AC"
+  MIXED MESSAGE RULE: If a message starts positively ("awesome", "thanks", "got it") but then reports a problem ("also the dishwasher is broken", "but the TV won't turn on") — classify as MAINTENANCE. The positive opener does NOT change the intent. Look at what the guest is REPORTING, not how they started.
   NOT maintenance (these are INFO): "is the AC good?", "does the unit have WiFi?", "do you have cable TV?", "does the TV have Netflix?", "is the TV a smart TV?", "how does the TV work?", "where is the remote?", "what channels do you have?", "is there cable?", "does it have Spectrum/Cox/cable?" — any QUESTION about an appliance is INFO, not MAINTENANCE
 
 - INTENT: INFO — everything else: booking questions, property questions, policies, general conversation, ANY question about amenities even if it mentions appliances
@@ -1160,21 +1182,37 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
     //   - If it was already delivered → let GPT run but with tight post-ack instructions
     //     so it gives a warm, varied follow-up instead of "still waiting"
     if (ozanAckType && isAskingForUpdate) {
-      const ackReply = ACK_MESSAGES[ozanAckType];
-      // Delivery proof comes from Sheets (ACK_CONFIRMED row in col F) OR the live
-      // frontend messages array. We never check sessionHistory — that contains the
-      // synthetically injected ack message used as GPT context, not proof of delivery.
+      // Build dynamic ack message from open issues if available, else use canned message
+      const issueList = openIssues.length > 0
+        ? openIssues.length === 1
+          ? openIssues[0]
+          : openIssues.slice(0, -1).join(", ") + " and " + openIssues[openIssues.length - 1]
+        : null;
+
+      const actionMap = {
+        OZAN_ACK:        "confirmed he is on it",
+        MAINT_ONSITE:    "opened a maintenance ticket for",
+        MAINT_OZAN:      "confirmed he is personally handling",
+        MAINT_EMERGENCY: "is calling you right now about",
+      };
+      const action = actionMap[ozanAckType] || "confirmed he is on it";
+      const ackReply = issueList
+        ? ozanAckType === "MAINT_EMERGENCY"
+          ? `Ozan is calling you right now about the ${issueList} — please pick up! 🙏`
+          : `Great news — Ozan has ${action} the ${issueList} and will be in touch with you shortly 🙏`
+        : ACK_MESSAGES[ozanAckType];
+
+      // Delivery proof: Sheets ACK_CONFIRMED row OR live frontend messages
       const ackAlreadyDelivered = ackDeliveredToGuest
         || messages.some(m => m.role === "assistant" && m.content === ackReply);
 
       if (!ackAlreadyDelivered) {
-        // First time — return canned ack deterministically, skip GPT
         await logToSheets(
           sessionId,
           lastUser,
           ackReply,
           dates ? `${dates.arrival} to ${dates.departure}` : "",
-          `ACK_CONFIRMED|INFO`,
+          "ACK_CONFIRMED|INFO",
           ""
         );
         return res.status(200).json({
@@ -1186,7 +1224,7 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
           detectedIntent: "INFO",
         });
       }
-      // Ack already delivered — fall through to GPT but inject post-ack instructions below
+      // Ack already delivered — fall through to GPT with post-ack instructions
     }
     // ────────────────────────────────────────────────────────────────────────
 
@@ -1223,15 +1261,28 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
     }
     console.log(`Intent detected: ${detectedIntent} | Session: ${sessionId}`);
 
-    // ── Fire Discord based on GPT intent (only if not already fired by lockout/relay logic) ──
-    if (!alertWasFired) {
-      if (detectedIntent === "MAINTENANCE") {
-        sendEmergencyDiscord(lastUser, sessionId, "🔧 MAINTENANCE ISSUE — Guest reporting a problem in the unit", "maintenance");
-        alertWasFired = true;
-      } else if (detectedIntent === "EMERGENCY") {
-        sendEmergencyDiscord(lastUser, sessionId, "🚨 EMERGENCY — Guest needs urgent help", "emergency");
-        alertWasFired = true;
-      }
+    // ── Extract short issue description (first 60 chars, cleaned up) ──
+    function extractIssueDesc(text) {
+      return text.replace(/[^\w\s,.'!?-]/g, "").trim().substring(0, 60).trim();
+    }
+
+    // ── Fire Discord based on GPT intent ─────────────────────────────────────
+    // Always fire on new MAINTENANCE/EMERGENCY — even if a prior alert was sent.
+    // If prior issues exist, bundle them so Ozan sees the full open list.
+    if (detectedIntent === "MAINTENANCE" || detectedIntent === "EMERGENCY") {
+      const issueDesc = extractIssueDesc(lastUser);
+      // Append new issue to open list (avoid duplicates)
+      if (issueDesc && !openIssues.includes(issueDesc)) openIssues.push(issueDesc);
+
+      const alertType = detectedIntent === "EMERGENCY" ? "emergency" : "maintenance";
+      const reason = detectedIntent === "EMERGENCY"
+        ? "🚨 EMERGENCY — Guest needs urgent help"
+        : openIssues.length > 1
+          ? `🔧 MAINTENANCE — New issue reported (${openIssues.length} open issues)`
+          : "🔧 MAINTENANCE ISSUE — Guest reporting a problem in the unit";
+
+      sendEmergencyDiscord(lastUser, sessionId, reason, alertType, openIssues);
+      alertWasFired = true;
     }
 
     let reply = rawReply;
@@ -1240,13 +1291,20 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
     reply = reply.replace(/(https?:\/\/[^\s"'<>)]+)[.,!?;:)]+(\s|$)/g, '$1$2');
     reply = reply.replace(/(https?:\/\/[^\s"'<>)]+)[.,!?;:)]+$/, '$1');
 
+    // Store openIssues as JSON in col G when a new alert fired, so loadSession can read it back
+    let finalAlertSummary = alertSummary;
+    if (alertWasFired && (detectedIntent === "MAINTENANCE" || detectedIntent === "EMERGENCY") && openIssues.length > 0) {
+      const cst = new Date().toLocaleString("en-US", { timeZone: "America/Chicago", hour: "2-digit", minute: "2-digit" });
+      finalAlertSummary = JSON.stringify({ issues: openIssues, ts: cst });
+    }
+
     await logToSheets(
       sessionId,
       lastUser,
       reply,
       dates ? `${dates.arrival} to ${dates.departure}` : "",
       availabilityStatus || detectedIntent || "INFO",
-      alertSummary
+      finalAlertSummary
     );
 
     return res.status(200).json({ reply, alertSent: alertWasFired, pendingRelay: bareRelayRequest === true && !alertWasFired, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent });

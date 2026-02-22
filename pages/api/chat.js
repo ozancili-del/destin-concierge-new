@@ -365,7 +365,7 @@ function extractDates(text) {
     };
   }
 
-  const monthDayPattern = new RegExp("(" + mn + ")\\s+(\\d{1,2})", "gi");
+  const monthDayPattern = new RegExp("(" + mn + ")\\s+(\\d{1,2})(?!\\s*(?:adult|child|kid|guest|person|people|infant|baby|toddler))", "gi");
   const allMatches = [...text.matchAll(monthDayPattern)];
   if (allMatches.length >= 2) {
     const toISO = (m) => `${year}-${months[m[1].toLowerCase()]}-${m[2].padStart(2,"0")}`;

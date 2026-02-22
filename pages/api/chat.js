@@ -198,7 +198,7 @@ function detectLockedOut(text) {
 
 // Detect maintenance issues reported by guest (pre-GPT, used to fire alert reliably)
 function detectMaintenance(text) {
-  return /broken|not working|isn't working|won't work|doesn't work|not cooling|not heating|no hot water|no water|no power|no electricity|power out|leaking|leak|flooded|flooding|clogged|backed up|toilet.*over|won't flush|wont flush|smell|smells|mold|bug|bugs|roach|ant|mouse|mice|AC.*off|AC.*broken|heat.*off|heat.*broken|TV.*broken|TV.*not|dishwasher|washing machine|dryer.*broken|microwave.*broken|fridge.*broken|freezer.*broken|oven.*broken|stove.*broken|Wi-?Fi.*down|wifi.*not|internet.*down|cable.*out|remote.*missing|remote.*broken|blind.*broken|door.*broken|lock.*broken|key.*stuck|window.*broken|light.*out|lights.*out|bulb.*out|outlet.*not|socket.*not|fan.*broken|fan.*not|noise.*unit|loud.*noise|banging|dripping|running water|water pressure|no pressure/i.test(text);
+  return /broken|not working|isn't working|won't work|doesn't work|not cooling|not heating|no hot water|no water|no power|no electricity|power out|leaking|leak|flooded|flooding|clogged|backed up|toilet.*over|won't flush|wont flush|smell|smells|mold|\bbug\b|\bbugs\b|\broach\b|\bants\b|\bant\b(?!ic|ique|hem|i)|\bmouse\b|\bmice\b|AC.*off|AC.*broken|heat.*off|heat.*broken|TV.*broken|TV.*not|dishwasher|washing machine|dryer.*broken|microwave.*broken|fridge.*broken|freezer.*broken|oven.*broken|stove.*broken|Wi-?Fi.*down|wifi.*not|internet.*down|cable.*out|remote.*missing|remote.*broken|blind.*broken|door.*broken|lock.*broken|key.*stuck|window.*broken|light.*out|lights.*out|bulb.*out|outlet.*not|socket.*not|fan.*broken|fan.*not|noise.*unit|loud.*noise|banging|dripping|running water|water pressure|no pressure/i.test(text);
 }
 
 // Detect accidental damage by guest (plates, glasses, dishes etc) — NOT a maintenance issue
@@ -247,46 +247,52 @@ Respond with ONLY a JSON array of cleaned strings, nothing else. Example: ["TV n
 // ─────────────────────────────────────────────────────────────────────────────
 // Check availability using OwnerRez v2 bookings API
 // ─────────────────────────────────────────────────────────────────────────────
-async function checkAvailability(propertyId, arrival, departure) {
-  try {
-    const token = process.env.OWNERREZ_API_TOKEN;
-    const credentials = Buffer.from(`${OWNERREZ_USER}:${token}`).toString("base64");
+async function checkAvailability(propertyId, arrival, departure, retries = 2) {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const token = process.env.OWNERREZ_API_TOKEN;
+      const credentials = Buffer.from(`${OWNERREZ_USER}:${token}`).toString("base64");
 
-    const since = new Date();
-    since.setFullYear(since.getFullYear() - 1);
-    const sinceUtc = since.toISOString();
-    const url = `https://api.ownerrez.com/v2/bookings?property_ids=${propertyId}&since_utc=${sinceUtc}&status=active`;
+      const since = new Date();
+      since.setFullYear(since.getFullYear() - 1);
+      const sinceUtc = since.toISOString();
+      const url = `https://api.ownerrez.com/v2/bookings?property_ids=${propertyId}&since_utc=${sinceUtc}&status=active`;
 
-    const response = await fetch(url, {
-      headers: {
-        Authorization: `Basic ${credentials}`,
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-        "User-Agent": "DestinyBlue/1.0",
-      },
-    });
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Basic ${credentials}`,
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "User-Agent": "DestinyBlue/1.0",
+        },
+      });
 
-    if (!response.ok) {
-      console.error(`OwnerRez API error: ${response.status} for property ${propertyId}`);
+      if (!response.ok) {
+        console.error(`OwnerRez API error: ${response.status} for property ${propertyId} (attempt ${attempt})`);
+        if (attempt < retries) { await new Promise(r => setTimeout(r, 800)); continue; }
+        return null;
+      }
+
+      const data = await response.json();
+      const bookings = data?.items || data?.bookings || [];
+      const requestArrival = new Date(arrival);
+      const requestDeparture = new Date(departure);
+
+      const hasConflict = bookings.some((booking) => {
+        const bookingArrival = new Date(booking.arrival || booking.check_in || booking.arrivalDate);
+        const bookingDeparture = new Date(booking.departure || booking.check_out || booking.departureDate);
+        return bookingArrival < requestDeparture && bookingDeparture > requestArrival;
+      });
+
+      console.log(`OwnerRez property ${propertyId}: ${hasConflict ? "BOOKED" : "AVAILABLE"} for ${arrival}→${departure}`);
+      return !hasConflict;
+    } catch (err) {
+      console.error(`OwnerRez fetch error (attempt ${attempt}):`, err.message);
+      if (attempt < retries) { await new Promise(r => setTimeout(r, 800)); continue; }
       return null;
     }
-
-    const data = await response.json();
-    const bookings = data?.items || data?.bookings || [];
-    const requestArrival = new Date(arrival);
-    const requestDeparture = new Date(departure);
-
-    const hasConflict = bookings.some((booking) => {
-      const bookingArrival = new Date(booking.arrival || booking.check_in || booking.arrivalDate);
-      const bookingDeparture = new Date(booking.departure || booking.check_out || booking.departureDate);
-      return bookingArrival < requestDeparture && bookingDeparture > requestArrival;
-    });
-
-    return !hasConflict;
-  } catch (err) {
-    console.error("OwnerRez fetch error:", err.message);
-    return null;
   }
+  return null;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -596,6 +602,7 @@ export default async function handler(req, res) {
     const isChatOz = !!chatOzMatch;
     const chatOzContent = chatOzMatch ? chatOzMatch[1].trim() : "";
     const isAccidentalDamage = detectAccidentalDamage(lastUser);
+    const isChildSafetyQuestion = /child|children|\bkid\b|\bkids\b|toddler|\bbaby\b|infant|year.old|little one|safety lock|child lock|baby.?proof|childproof|balcony door|sliding door.*lock|fall risk|safe for kids|railing|\bclimb\b|\bpinch\b/i.test(lastUser);
     const isMaintenanceReport = detectMaintenance(lastUser) && !isLockedOut && !isAccidentalDamage;
     const wantsAvailability = detectAvailabilityIntent(lastUser);
 
@@ -902,7 +909,7 @@ Do NOT say great news or over-promise. Be specific about which unit is open vs f
     }
 
     // If dates found but no guest count anywhere in conversation — ask before building link
-    const hasGuestCount = /(\d+)\s*(adult|kid|child|children|guest|person|people)/i.test(allUserText);
+    const hasGuestCount = /(\d+)\s*(adult|kid|child|children|guest|person|people|infant|baby|toddler)/i.test(allUserText);
     if (dates && !isDiscountRequest && !hasGuestCount) {
       availabilityContext = `DATES FOUND: Guest provided dates (${dates.arrival} to ${dates.departure}) but has NOT provided number of adults or children yet. DO NOT send to availability page. Ask warmly: "Perfect — I've got your dates! Just need one more thing: how many adults and children will be staying? I'll create your booking link right away 😊"`;
     } else if (dates && !isDiscountRequest) {
@@ -935,10 +942,27 @@ Do NOT say great news or over-promise. Be specific about which unit is open vs f
         const link1006 = buildLink("1006", dates.arrival, dates.departure, adults, children);
         availabilityContext = `LIVE AVAILABILITY: BOTH units AVAILABLE for ${dates.arrival} to ${dates.departure}. Offer both equally. Unit 707 link: ${link707} — Unit 1006 link: ${link1006}`;
       } else {
-        availabilityStatus = `DATES:${dates.arrival}->${dates.departure} | CHECK_FAILED`;
+        // One or both returned null (API flake) — partial results logic:
+        // If one returned a definite answer and other is null, trust the definite one
         const link707fb = buildLink("707", dates.arrival, dates.departure, adults, children);
         const link1006fb = buildLink("1006", dates.arrival, dates.departure, adults, children);
-        availabilityContext = `AVAILABILITY CHECK FAILED — could not confirm live status. Still provide both booking links so guest can proceed: Unit 707: ${link707fb} — Unit 1006: ${link1006fb} — Tell guest: "I wasn't able to confirm live availability right now, but here are your direct booking links — use code DESTINY for 10% off! If you have any issues, contact Ozan at (972) 357-4262."`;
+        if (avail707 === true && avail1006 === null) {
+          availabilityStatus = `DATES:${dates.arrival}->${dates.departure} | 707:AVAILABLE | 1006:UNKNOWN`;
+          availabilityContext = `LIVE AVAILABILITY: Unit 707 confirmed AVAILABLE for ${dates.arrival} to ${dates.departure} (could not confirm 1006). Lead with Unit 707 booking link: ${link707fb} — also offer Unit 1006 link as option but note availability unconfirmed: ${link1006fb}`;
+        } else if (avail707 === null && avail1006 === true) {
+          availabilityStatus = `DATES:${dates.arrival}->${dates.departure} | 707:UNKNOWN | 1006:AVAILABLE`;
+          availabilityContext = `LIVE AVAILABILITY: Unit 1006 confirmed AVAILABLE for ${dates.arrival} to ${dates.departure} (could not confirm 707). Lead with Unit 1006 booking link: ${link1006fb} — also offer Unit 707 link as option but note availability unconfirmed: ${link707fb}`;
+        } else if (avail707 === false && avail1006 === null) {
+          availabilityStatus = `DATES:${dates.arrival}->${dates.departure} | 707:BOOKED | 1006:UNKNOWN`;
+          availabilityContext = `LIVE AVAILABILITY: Unit 707 is BOOKED for ${dates.arrival} to ${dates.departure}. Unit 1006 availability could not be confirmed — provide link anyway: ${link1006fb}. Tell guest Unit 707 is unavailable and suggest Unit 1006 or contacting Ozan.`;
+        } else if (avail707 === null && avail1006 === false) {
+          availabilityStatus = `DATES:${dates.arrival}->${dates.departure} | 707:UNKNOWN | 1006:BOOKED`;
+          availabilityContext = `LIVE AVAILABILITY: Unit 1006 is BOOKED for ${dates.arrival} to ${dates.departure}. Unit 707 availability could not be confirmed — provide link anyway: ${link707fb}. Tell guest Unit 1006 is unavailable and suggest Unit 707 or contacting Ozan.`;
+        } else {
+          // Both null — full CHECK_FAILED
+          availabilityStatus = `DATES:${dates.arrival}->${dates.departure} | CHECK_FAILED`;
+          availabilityContext = `AVAILABILITY CHECK FAILED — API did not respond. CRITICAL: Use ONLY these pre-built links — do NOT invent or modify URLs: Unit 707: ${link707fb} — Unit 1006: ${link1006fb}. Tell guest honestly: "I wasn't able to confirm live availability right now — here are your direct booking links, use code DESTINY for 10% off! If you have issues contact Ozan at (972) 357-4262."`;
+        }
       }
     }
 
@@ -989,7 +1013,7 @@ The guest may be following up or anxious. Your job now:
 - Remind them Ozan is handling it and they should expect direct contact soon
 - Keep it to 1-2 sentences max. Do not ask follow-up questions.
 - Example good responses: "Ozan is on it — you should hear from him or the team very shortly 🙏" / "He's already been notified and is handling this — just hang tight a little longer 🙏"
-\n\n` : ""}${isAccidentalDamage ? "⚠️ ACCIDENTAL DAMAGE SCENARIO: Guest has broken something (plates, glasses etc). Follow the ACCIDENTAL DAMAGE RULE exactly. Do NOT say you notified Ozan. Do NOT offer to relay. Empathy first, then direct to Ozan at (972) 357-4262.\n\n" : ""}${alertWasFired ? "🚨 ALERT SENT THIS SESSION: An emergency Discord alert was automatically sent to Ozan during this conversation. If guest asks if you contacted Ozan or sent a message — say YES, an urgent alert was already sent to him. Do not say you will send it — it is already done.\n\n" : ""}${discountContext ? discountContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
+\n\n` : ""}${isChildSafetyQuestion ? "👶 CHILD/TODDLER SAFETY QUESTION DETECTED — Follow CHILD / TODDLER / FAMILY SAFETY PRIORITY OVERRIDE exactly. Answer the specific safety question FIRST. No excitement opener. No smart lock pivot. Give portable solutions immediately.\n\n" : ""}${isAccidentalDamage ? "⚠️ ACCIDENTAL DAMAGE SCENARIO: Guest has broken something (plates, glasses etc). Follow the ACCIDENTAL DAMAGE RULE exactly. Do NOT say you notified Ozan. Do NOT offer to relay. Empathy first, then direct to Ozan at (972) 357-4262.\n\n" : ""}${alertWasFired ? "🚨 ALERT SENT THIS SESSION: An emergency Discord alert was automatically sent to Ozan during this conversation. If guest asks if you contacted Ozan or sent a message — say YES, an urgent alert was already sent to him. Do not say you will send it — it is already done.\n\n" : ""}${discountContext ? discountContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PROPERTIES
@@ -1248,6 +1272,21 @@ CHATOZ: DIRECT MESSAGE PROTOCOL:
 - If the guest\'s message starts with chatoz: — it has already been sent. Just confirm warmly:
   "Your message has been sent directly to Ozan 🙏 He\'ll get back to you shortly!"
 - Never invent other relay methods — always use chatoz: for direct guest-to-Ozan messaging
+
+CHILD / TODDLER / FAMILY SAFETY — PRIORITY OVERRIDE:
+If the guest mentions: child, children, kid, kids, toddler, baby, infant, [age]-year-old, little one, safety lock, child lock, baby proof, childproof, balcony door, sliding door lock, fall risk, safe for kids, railing, climb, pinch, gap:
+- Answer the EXACT question FIRST in the very first 1-2 sentences. Do NOT start with excitement, smart lock deflection, or "keep an eye on little ones."
+- Be honest: No built-in child safety locks on the sliding balcony doors (common in beach condos).
+- Immediately give 2-3 practical portable solutions parents can bring:
+  * Portable sliding door safety bar/wedge — drops into door track, no tools, removable (Safety 1st, Mommy's Helper or similar ~$10-20)
+  * Top-mounted handle strap lock — one-hand adult release only
+  * Suction-cup door stop / super stopper — limits how far door opens, prevents pinching
+- For balcony railing concerns: railings are code-compliant, but parents can add removable mesh netting (Velcro-attach) for extra layer. Move furniture/chairs away from edges to prevent climbing.
+- Check if door has a high secondary latch — engage it to limit opening when little ones are around.
+- Add warm empathy: "I totally get wanting everything extra safe for your little one ❤️"
+- Then offer family extras: Pack N Play, kiddie pool, beach toys, indoor heated pool.
+- NEVER lead solely with "supervise your children" — give actionable solutions first. Supervision is a soft secondary note only.
+- INTENT for these questions: always INFO (unless reporting something actively broken → MAINTENANCE)
 
 INFORMATIONAL QUESTIONS: Answer directly and warmly. Ask one engaging follow-up.
 BOOKING QUESTIONS WITH DATES: If guest provided dates but NOT guest count — ask for adults and children count first, then build link. Never redirect to availability page if dates are known. Always mention code DESTINY with every booking link.

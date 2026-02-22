@@ -632,11 +632,13 @@ export default async function handler(req, res) {
     const isAccidentalDamage = detectAccidentalDamage(lastUser);
     const isMaintenanceReport = detectMaintenance(lastUser) && !isLockedOut && !isAccidentalDamage;
     const wantsAvailability = detectAvailabilityIntent(lastUser);
+    // Pets detector — when mentioned, skip booking intercept and let GPT apply no-pets policy
+    const mentionsPets = /\d+\s*pet|\bwith.*pet\b|\bdog\b|\bcat\b|\bpuppy\b|\bkitten\b|bring.*dog|bring.*cat|bring.*pet|pet.*friendly|emotional support animal|\besa\b|\bservice animal\b/i.test(allUserText);
 
     // Only look back in history for dates on genuine follow-ups
     const dates = extractDates(lastUser) || (
       lastUser.match(/unit|1006|707|that one|both|available|book|price|cost|how much|rate|what is the|adult|kid|child|children|guest|people|person|infant|baby|toddler|discount|dis[a-z]*o[a-z]*nt|deal|cheaper|better price|negotiate|promo|coupon/i)
-        ? extractDates(allConvoText)
+        ? extractDates(allUserText)
         : null
     );
 
@@ -1426,7 +1428,7 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
         && !availabilityStatus.includes("NEEDS_DATES")
         && !availabilityStatus.includes("DISCOUNT")
         && !availabilityStatus.includes("MONTH")
-        && dates && hasGuestCount) {
+        && dates && hasGuestCount && !mentionsPets) {
 
       let bookingReply = null;
 

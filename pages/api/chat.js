@@ -634,8 +634,8 @@ export default async function handler(req, res) {
 
     // Only look back in history for dates on genuine follow-ups
     const dates = extractDates(lastUser) || (
-      lastUser.match(/unit|1006|707|that one|both|available|book|price|cost|how much|rate|what is the|adult|kid|child|children|guest|people|person|infant|baby|toddler/i)
-        ? extractDates(allUserText)
+      lastUser.match(/unit|1006|707|that one|both|available|book|price|cost|how much|rate|what is the|adult|kid|child|children|guest|people|person|infant|baby|toddler|discount|deal|cheaper|better price|negotiate|promo|coupon/i)
+        ? extractDates(allConvoText)
         : null
     );
 

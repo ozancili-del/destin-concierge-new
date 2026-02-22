@@ -661,7 +661,7 @@ If directly asked "which do you personally recommend?" — say: "I honestly coul
 
     // Type 3: RELAY WITH CONTENT
     // Trigger: any way guest asks to send a message — with or without naming recipient
-    const relayTrigger = /send.*(?:ozan|owner|host|manager|landlord|him|them)|message.*(?:ozan|owner|host|manager)|tell.*(?:ozan|owner|host)|pass.*(?:ozan|owner|host)|^send\s+a?\s*message|^can\s+you\s+send|^please\s+send/i.test(lastUser);
+    const relayTrigger = /send.*(?:ozan|owner|host|manager|landlord|him|them)|message.*(?:ozan|owner|host|manager)|tell.*(?:ozan|owner|host)|pass.*(?:ozan|owner|host)|let.*(?:ozan|him|her|them).*know|inform.*(?:ozan|him|her|them)|pass.*(?:it|this|that).*on|forward.*(?:to|ozan)|^send\s+a?\s*message|^can\s+you\s+send|^please\s+send/i.test(lastUser);
     // Extract content after trigger phrase
     const relayTriggerMatch = lastUser.match(/(?:send|message|pass|tell|forward|contact|let).*?(?:ozan|owner|host|manager|landlord|him|them|message)[,:]?\s*(.*)/i);
     const contentAfterTrigger = relayTriggerMatch ? relayTriggerMatch[1].trim() : "";
@@ -874,7 +874,11 @@ Do NOT say great news or over-promise. Be specific about which unit is open vs f
       availabilityContext = `NO DATES: Guest is asking about availability/booking but has not given dates. Warmly ask for check-in date, check-out date, number of adults and number of children. Do NOT send to generic page.`;
     }
 
-    if (dates && !isDiscountRequest) {
+    // If dates found but no guest count anywhere in conversation — ask before building link
+    const hasGuestCount = /(\d+)\s*(adult|kid|child|children|guest|person|people)/i.test(allUserText);
+    if (dates && !isDiscountRequest && !hasGuestCount) {
+      availabilityContext = `DATES FOUND: Guest provided dates (${dates.arrival} to ${dates.departure}) but has NOT provided number of adults or children yet. DO NOT send to availability page. Ask warmly: "Perfect — I've got your dates! Just need one more thing: how many adults and children will be staying? I'll create your booking link right away 😊"`;
+    } else if (dates && !isDiscountRequest) {
       const [avail707, avail1006] = await Promise.all([
         checkAvailability(UNIT_707_PROPERTY_ID, dates.arrival, dates.departure),
         checkAvailability(UNIT_1006_PROPERTY_ID, dates.arrival, dates.departure),
@@ -995,7 +999,7 @@ Bring: beach towels (unit towels NOT outside), sunscreen, hat, sunglasses
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 RESORT FACILITIES
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-- 3 pools: indoor heated swim-out pool (year-round, heated) + 2 outdoor pools (both heated seasonally) + kiddie pool
+- 3 pools: indoor heated swim-out pool (year-round, heated) + 2 outdoor pools (only 1 is heated seasonally, the other is not heated) + kiddie pool
 - 2 hot tubs / Jacuzzis
 - Sauna AND steam room
 - Fitness center (free for guests)
@@ -1023,7 +1027,7 @@ CHECK-IN & CHECK-OUT
 - Stop at front desk for parking pass and pool bracelets (Mar-Oct) — before or after settling in
 - Check-out: BY 10:00 AM CST — guests can leave any time before 10 AM, just ensure out by 10. Next guests are counting on it.
 - Text cleaning crew when checking out (8–10 AM). Before 8 AM: text unit + time before 8 PM night before
-- Early check-in not guaranteed — park, register, enjoy beach! Contact Ozan (972) 357-4262
+- Early check-in is not guaranteed — units are often back-to-back so the cleaning schedule may not allow it. Guests can park, check in at the front desk, and enjoy the beach while waiting. For early check-in requests, refer guest to Ozan at (972) 357-4262. Do NOT say "at the discretion of cleaning crew" or invent any policy.
 - No luggage drops while cleaners inside — beach is waiting! 🏖️
 - Check-out: run dishwasher, trash in hallway chute (left side), leave neat, don't move furniture
 - PIN sent 7 days and 1 day before. Check spam if not received.
@@ -1204,7 +1208,7 @@ MESSAGE RELAY RULE (only applies when guest explicitly asks you to send/pass a m
 - This rule ONLY applies to explicit message relay requests — all other tone/empathy rules unchanged
 
 INFORMATIONAL QUESTIONS: Answer directly and warmly. Ask one engaging follow-up.
-BOOKING QUESTIONS WITH DATES: Always include booking link + mention code DESTINY.
+BOOKING QUESTIONS WITH DATES: If guest provided dates but NOT guest count — ask for adults and children count first, then build link. Never redirect to availability page if dates are known. Always mention code DESTINY with every booking link.
 DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt exactly.`;
 
     // ── LOCKOUT STEP 3 INTERCEPT ─────────────────────────────────────────────

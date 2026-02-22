@@ -592,7 +592,7 @@ export default async function handler(req, res) {
     });
 
     const allUserText = messages.filter((m) => m.role === "user").map((m) => m.content).join(" ");
-    const allConvoText = messages.map((m) => m.content).join(" ");
+    const allConvoText = [...messages].reverse().map((m) => m.content).join(" ");
 
     // ── UPDATE REQUEST DETECTION ─────────────────────────────────────────────
     const isAskingForUpdate = /any update|any news|heard.*back|what.*happening|what.*status|still waiting|waiting.*hear|did.*ozan|ozan.*call|ozan.*reach|ozan.*contact|ozan.*back|anything.*ozan|update.*ticket|ticket.*update|fix.*yet|fixed.*yet|someone.*coming|when.*coming|how long|anything yet|anyting|annything|let me know.*hear|hear.*anything|you hear|heard anything|still there|still nothing|no response|no word|any word|update me|keep me|following up/i.test(lastUser);

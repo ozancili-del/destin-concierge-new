@@ -196,6 +196,11 @@ function detectLockedOut(text) {
   return /can't get in|cant get in|locked out|pin.*not work|pin.*wrong|wrong.*pin|code.*not work|code.*wrong|wrong.*code|won't open|wont open|door.*won't|door.*not open|can't enter|cant enter|stuck outside|standing outside|waiting outside|deleted.*email|lost.*code|forgot.*code.*can't|cant.*get.*in|can't find.*code|cant find.*code|can't find.*pin|cant find.*pin|can't find.*door|cant find.*door|where.*door code|where.*pin code|don't have.*code|dont have.*code|no.*door code|missing.*code|need.*door code|need.*pin|what.*door code|what.*pin/i.test(text);
 }
 
+// Detect maintenance issues reported by guest (pre-GPT, used to fire alert reliably)
+function detectMaintenance(text) {
+  return /broken|not working|isn't working|won't work|doesn't work|not cooling|not heating|no hot water|no water|no power|no electricity|power out|leaking|leak|flooded|flooding|clogged|backed up|toilet.*over|won't flush|wont flush|smell|smells|mold|bug|bugs|roach|ant|mouse|mice|AC.*off|AC.*broken|heat.*off|heat.*broken|TV.*broken|TV.*not|dishwasher|washing machine|dryer.*broken|microwave.*broken|fridge.*broken|freezer.*broken|oven.*broken|stove.*broken|Wi-?Fi.*down|wifi.*not|internet.*down|cable.*out|remote.*missing|remote.*broken|blind.*broken|door.*broken|lock.*broken|key.*stuck|window.*broken|light.*out|lights.*out|bulb.*out|outlet.*not|socket.*not|fan.*broken|fan.*not|noise.*unit|loud.*noise|banging|dripping|running water|water pressure|no pressure/i.test(text);
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Check availability using OwnerRez v2 bookings API
 // ─────────────────────────────────────────────────────────────────────────────
@@ -541,6 +546,7 @@ export default async function handler(req, res) {
     const forgotCodeInHistory = /forgot.*code|lost.*code|can't find.*code|dont have.*code|don't have.*code|deleted.*email/i.test(allUserText);
     const cantReachInHistory = /can't reach|cant reach|not answer|no answer|not responding|not picking/i.test(allUserText);
     const shouldFireAlert = isLockoutEscalation || (forgotCodeInHistory && cantReachInHistory);
+    const isMaintenanceReport = detectMaintenance(lastUser) && !isLockedOut;
     const wantsAvailability = detectAvailabilityIntent(lastUser);
 
     // Only look back in history for dates on genuine follow-ups
@@ -666,7 +672,7 @@ If directly asked "which do you personally recommend?" — say: "I honestly coul
 
     // Relay with content always fires — guest provided a specific message
     if (relayWithContent || followUpRelay) {
-      sendEmergencyDiscord(lastUser, sessionId, maintenanceKeywords ? "🔧 MAINTENANCE ISSUE — Guest reporting a problem in the unit" : "💬 Guest message to relay to Ozan");
+      sendEmergencyDiscord(lastUser, sessionId, "💬 Guest message to relay to Ozan");
       alertWasFired = true;
     }
 
@@ -676,9 +682,20 @@ If directly asked "which do you personally recommend?" — say: "I honestly coul
       alertWasFired = true;
     }
 
-    // Auto-fire for bare maintenance complaints — no relay phrase needed
+    // Pre-GPT maintenance firing — fires BEFORE GPT so misclassification cannot block the alert.
+    // Always fires on new maintenance reports regardless of priorAlertSent.
+    // This is the reliable path for issue #2, #3, #4 in the same session.
+    if (isMaintenanceReport) {
+      const issueDesc = lastUser.replace(/[^\w\s,.'!?-]/g, "").trim().substring(0, 60).trim();
+      if (issueDesc && !openIssues.includes(issueDesc)) openIssues.push(issueDesc);
+      const reason = openIssues.length > 1
+        ? `🔧 MAINTENANCE — New issue reported (${openIssues.length} open issues)`
+        : "🔧 MAINTENANCE ISSUE — Guest reporting a problem in the unit";
+      sendEmergencyDiscord(lastUser, sessionId, reason, "maintenance", openIssues);
+      alertWasFired = true;
+    }
+
     const isLockoutMessage = detectLockedOut(lastUser);
-    // bareMaintenance removed — GPT intent classification handles this after response
 
     // Build alert summary for Sheets column G
     let alertSummary = "";
@@ -1099,12 +1116,13 @@ NEVER:
 - Invent policies (booking transfers, date changes) — refer to Ozan
 
 MAINTENANCE ISSUE RULE:
-- If the ALERT SENT block appears at the top of this prompt, an alert was already sent to Ozan automatically.
-  Say: "I've notified Ozan — he will reach out to maintenance and get in touch with you shortly 🙏"
+- If the ALERT SENT block appears at the top of this prompt, at least one alert was already sent to Ozan this session.
+- If the guest is NOW reporting a NEW broken thing (different from what was previously reported): this is STILL a MAINTENANCE intent. Say "I've notified Ozan — he will reach out to maintenance and get in touch with you shortly 🙏" for each new issue. Each new problem gets its own acknowledgment.
+- If the guest is following up on a previously reported issue (asking for updates): do NOT repeat "I've notified Ozan" — instead give a warm honest status update.
 - Do NOT say this if no alert was sent — do not hallucinate that you notified anyone
 - Do NOT say "I'll make sure to inform" or "I'll let him know"
 - Do NOT say "Ozan is coordinating", "the team is on it", "maintenance is aware" — you do NOT know this
-- If guest asks for update and NO ozanAckType exists yet: be honest but warm — vary your wording naturally each time, something like "Still waiting to hear back from Ozan — he'll reach out to you directly soon." Never repeat the exact same sentence twice in a row.
+- If guest asks for update and NO ozanAckType exists yet: be honest but warm — vary your wording each time. Examples: "Still waiting to hear back from Ozan — he'll reach out to you directly soon." / "No update yet — Ozan will be in touch as soon as possible." / "Hanging tight — Ozan will contact you directly." Never repeat the exact same sentence twice.
 - Do NOT invent status: no "Ozan is coordinating", "team is on it", "they should be in touch" — you don't know this
 - Do NOT add suggestions or ask follow-up questions after reporting a maintenance issue
 

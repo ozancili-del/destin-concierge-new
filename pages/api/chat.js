@@ -409,6 +409,7 @@ async function loadSession(sessionId) {
     let ackDeliveredToGuest = false;
     let priorIssueAcked = false;
     let openIssues = []; // list of unacknowledged issue descriptions
+    let ackedIssues = []; // snapshot of issues that were open when Ozan acked
     const messages = [];
 
     for (const row of rows) {
@@ -441,10 +442,11 @@ async function loadSession(sessionId) {
       if (colF.startsWith("ACK_CONFIRMED")) ackDeliveredToGuest = true;
 
       if (ACK_TYPES.includes(ackType)) {
-        // Ack row — issue(s) acknowledged, clear open issues
+        // Ack row — save snapshot of what was open when Ozan acked, then clear
         ozanAckType = ackType;
         priorIssueAcked = true;
-        openIssues = []; // acked — clear
+        ackedIssues = [...openIssues]; // snapshot for dynamic ack message
+        openIssues = []; // clear — these issues are now handled
         const ackMsg = ACK_MESSAGES[ackType];
         if (ackMsg) messages.push({ role: "assistant", content: ackMsg });
       } else if (guestMsg && assistantMsg) {
@@ -470,10 +472,10 @@ async function loadSession(sessionId) {
     // Keep last 20 messages to avoid context overflow
     const history = messages.slice(-20);
     console.log(`Session ${sessionId}: loaded ${history.length} messages (ackType: ${ozanAckType || "none"} | ackDelivered: ${ackDeliveredToGuest} | openIssues: ${openIssues.length})`);
-    return { history, ozanAckType, ackDeliveredToGuest, openIssues };
+    return { history, ozanAckType, ackDeliveredToGuest, openIssues, ackedIssues };
   } catch (err) {
     console.error("loadSession error:", err.message);
-    return { history: [], ozanAckType: null, ackDeliveredToGuest: false, openIssues: [] };
+    return { history: [], ozanAckType: null, ackDeliveredToGuest: false, openIssues: [], ackedIssues: [] };
   }
 }
 
@@ -513,7 +515,7 @@ export default async function handler(req, res) {
 
     // Fetch session history from Sheets if sessionId provided
     // If frontend already confirmed ack, skip Sheets read entirely
-    const { history: sessionHistory, ozanAckType: ozanAckFromSheets, ackDeliveredToGuest, openIssues: openIssuesFromSheets } = await loadSession(sessionId);
+    const { history: sessionHistory, ozanAckType: ozanAckFromSheets, ackDeliveredToGuest, openIssues: openIssuesFromSheets, ackedIssues } = await loadSession(sessionId);
     const isReturningGuest = sessionHistory.length > 0;
     const ozanAckType = ozanAckFromSheets || priorOzanAckType || null;
     const ozanAcknowledgedFinal = !!ozanAckType;
@@ -1202,11 +1204,13 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
     //   - If it was already delivered → let GPT run but with tight post-ack instructions
     //     so it gives a warm, varied follow-up instead of "still waiting"
     if (ozanAckType && isAskingForUpdate) {
-      // Build dynamic ack message from open issues if available, else use canned message
-      const issueList = openIssues.length > 0
-        ? openIssues.length === 1
-          ? openIssues[0]
-          : openIssues.slice(0, -1).join(", ") + " and " + openIssues[openIssues.length - 1]
+      // Build dynamic ack message from ackedIssues (snapshot of what was open when Ozan clicked)
+      // Falls back to current openIssues, then to null for generic canned message
+      const issueSource = ackedIssues.length > 0 ? ackedIssues : openIssues;
+      const issueList = issueSource.length > 0
+        ? issueSource.length === 1
+          ? issueSource[0]
+          : issueSource.slice(0, -1).join(", ") + " and " + issueSource[issueSource.length - 1]
         : null;
 
       const actionMap = {

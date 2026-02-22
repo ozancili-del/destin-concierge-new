@@ -397,27 +397,40 @@ async function loadSession(sessionId) {
 
     let ozanAckType = null;
     let ackDeliveredToGuest = false;
+    let priorIssueAcked = false;
     const messages = [];
 
     for (const row of rows) {
       const ackType = row[7];
       const colF = row[5] || "";
-      // ACK_CONFIRMED in column F means we already sent the canned ack to the guest
+      const guestMsg = row[2] || "";
+      const assistantMsg = row[3] || "";
+
+      // New MAINTENANCE or EMERGENCY row after a prior ack = new issue started.
+      // Reset ack state so it does not bleed into the new issue.
+      const isNewIssueRow = guestMsg && assistantMsg &&
+        (colF === "MAINTENANCE" || colF === "EMERGENCY");
+      if (isNewIssueRow && priorIssueAcked) {
+        ozanAckType = null;
+        ackDeliveredToGuest = false;
+        priorIssueAcked = false;
+      }
+
+      // ACK_CONFIRMED in col F = canned ack was already delivered to guest
       if (colF.startsWith("ACK_CONFIRMED")) ackDeliveredToGuest = true;
+
       if (ACK_TYPES.includes(ackType)) {
-        // This is an ack row — inject as assistant message
         ozanAckType = ackType;
+        priorIssueAcked = true;
         const ackMsg = ACK_MESSAGES[ackType];
         if (ackMsg) messages.push({ role: "assistant", content: ackMsg });
-      } else if (row[2] && row[3]) {
-        // Normal conversation row
-        messages.push({ role: "user", content: row[2] });
-        messages.push({ role: "assistant", content: row[3] });
+      } else if (guestMsg && assistantMsg) {
+        messages.push({ role: "user", content: guestMsg });
+        messages.push({ role: "assistant", content: assistantMsg });
       }
     }
 
-    // Strip stale "still waiting" assistant messages that were logged before the ack was known.
-    // These teach GPT to keep saying the wrong thing — remove them once an ack exists.
+    // Strip stale "still waiting" messages logged before ack was known
     if (ozanAckType) {
       const stillWaitingPattern = /still waiting|no update yet|waiting to hear|haven't heard|not heard back|waiting for.*ozan|ozan.*hasn't/i;
       const ackMsg = ACK_MESSAGES[ozanAckType];
@@ -425,7 +438,6 @@ async function loadSession(sessionId) {
       const cleaned = messages.filter((m, idx) => {
         if (m.role !== "assistant") return true;
         if (!stillWaitingPattern.test(m.content)) return true;
-        // Only strip "still waiting" turns that appear BEFORE the ack message
         return ackIdx !== -1 && idx > ackIdx;
       });
       messages.length = 0;
@@ -562,8 +574,10 @@ If directly asked "which do you personally recommend?" — say: "I honestly coul
     const cantReachNow = /can't reach|cant reach|not answer|no answer|not responding|still stuck|still can't|not picking|voicemail/i.test(lastUser);
     let alertWasFired = false;
 
-    // Persist alert state FIRST — before any firing logic so we never fire twice
-    if (priorAlertSent) alertWasFired = true;
+    // Persist alert state ONLY if prior alert was sent AND no ack confirmed yet.
+    // If loadSession reset ozanAckType because a new issue started after a prior ack,
+    // ozanAckType will be null here — alertWasFired stays false so fresh alert can fire.
+    if (priorAlertSent && !ozanAckType) alertWasFired = true;
 
     if (!alertWasFired && (shouldFireAlert || (lockoutInHistory && cantReachNow))) {
       sendEmergencyDiscord(allUserText.slice(-500), sessionId, "🔐 Guest locked out / cannot reach Ozan"); // fire and forget

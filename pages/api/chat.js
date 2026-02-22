@@ -229,7 +229,7 @@ Input issues: ${JSON.stringify(issues)}
 Respond with ONLY a JSON array of cleaned strings, nothing else. Example: ["TV not working","dishwasher broken"]`;
 
     const result = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-4o",
       messages: [{ role: "user", content: prompt }],
       max_tokens: 100,
       temperature: 0,
@@ -1539,7 +1539,7 @@ Use code **DESTINY** for 10% off! For Unit 707 questions contact Ozan at (972) 3
     ];
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-4o",
       messages: openAIMessages,
       max_tokens: 450,
       temperature: 0.75,

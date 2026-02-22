@@ -372,6 +372,24 @@ function extractDates(text) {
     return { arrival: toISO(allMatches[0]), departure: toISO(allMatches[1]) };
   }
 
+  // Day-Month format: "4th july", "12 july", "4 July and 12 July" (British/European style)
+  // Using regex literal to avoid double-escaping issues with new RegExp(string)
+  const dmMatches = [...t.matchAll(/(\d{1,2})(?:st|nd|rd|th)?\s+(january|february|march|april|may|june|july|august|september|october|november|december)/gi)];
+  if (dmMatches.length >= 2) {
+    const toISO = (m) => `${year}-${months[m[2].toLowerCase()]}-${m[1].padStart(2,"0")}`;
+    return { arrival: toISO(dmMatches[0]), departure: toISO(dmMatches[1]) };
+  }
+
+  // Single day-month + second day same month: "4th july to 12th"
+  const sdmMatch2 = t.match(/(\d{1,2})(?:st|nd|rd|th)?\s+(january|february|march|april|may|june|july|august|september|october|november|december)\s*(?:to|until|through|and|-)\s*(\d{1,2})/i);
+  if (sdmMatch2) {
+    const month = months[sdmMatch2[2].toLowerCase()];
+    return {
+      arrival:   `${year}-${month}-${sdmMatch2[1].padStart(2,"0")}`,
+      departure: `${year}-${month}-${sdmMatch2[3].padStart(2,"0")}`,
+    };
+  }
+
   return null;
 }
 

@@ -1305,7 +1305,7 @@ If the guest mentions: child, children, kid, kids, toddler, baby, infant, [age]-
 
 INFORMATIONAL QUESTIONS: Answer directly and warmly. Ask one engaging follow-up.
 BOOKING QUESTIONS WITH DATES: If guest provided dates but NOT guest count — ask for adults and children count first, then build link. Never redirect to availability page if dates are known. Always mention code DESTINY with every booking link.
-DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt exactly.\`;
+DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt exactly.`;
 
     // ── LOCKOUT STEP 3 INTERCEPT ─────────────────────────────────────────────
     // Fires exactly once: guest is locked out + confirmed can't reach Ozan + alert

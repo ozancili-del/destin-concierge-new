@@ -396,10 +396,14 @@ async function loadSession(sessionId) {
     const rows = (data.values || []).filter(row => row[1] === sessionId);
 
     let ozanAckType = null;
+    let ackDeliveredToGuest = false;
     const messages = [];
 
     for (const row of rows) {
       const ackType = row[7];
+      const colF = row[5] || "";
+      // ACK_CONFIRMED in column F means we already sent the canned ack to the guest
+      if (colF.startsWith("ACK_CONFIRMED")) ackDeliveredToGuest = true;
       if (ACK_TYPES.includes(ackType)) {
         // This is an ack row — inject as assistant message
         ozanAckType = ackType;
@@ -430,8 +434,8 @@ async function loadSession(sessionId) {
 
     // Keep last 20 messages to avoid context overflow
     const history = messages.slice(-20);
-    console.log(`Session ${sessionId}: loaded ${history.length} messages (ackType: ${ozanAckType || "none"})`);
-    return { history, ozanAckType };
+    console.log(`Session ${sessionId}: loaded ${history.length} messages (ackType: ${ozanAckType || "none"} | ackDelivered: ${ackDeliveredToGuest})`);
+    return { history, ozanAckType, ackDeliveredToGuest };
   } catch (err) {
     console.error("loadSession error:", err.message);
     return { history: [], ozanAckType: null };
@@ -474,7 +478,7 @@ export default async function handler(req, res) {
 
     // Fetch session history from Sheets if sessionId provided
     // If frontend already confirmed ack, skip Sheets read entirely
-    const { history: sessionHistory, ozanAckType: ozanAckFromSheets } = await loadSession(sessionId);
+    const { history: sessionHistory, ozanAckType: ozanAckFromSheets, ackDeliveredToGuest } = await loadSession(sessionId);
     const isReturningGuest = sessionHistory.length > 0;
     const ozanAckType = ozanAckFromSheets || priorOzanAckType || null;
     const ozanAcknowledgedFinal = !!ozanAckType;
@@ -1143,9 +1147,11 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
     //     so it gives a warm, varied follow-up instead of "still waiting"
     if (ozanAckType && isAskingForUpdate) {
       const ackReply = ACK_MESSAGES[ozanAckType];
-      // Check if we already delivered the canned ack in this conversation
-      const ackAlreadyDelivered = messages.some(m => m.role === "assistant" && m.content === ackReply)
-        || sessionHistory.some(m => m.role === "assistant" && m.content === ackReply);
+      // Delivery proof comes from Sheets (ACK_CONFIRMED row in col F) OR the live
+      // frontend messages array. We never check sessionHistory — that contains the
+      // synthetically injected ack message used as GPT context, not proof of delivery.
+      const ackAlreadyDelivered = ackDeliveredToGuest
+        || messages.some(m => m.role === "assistant" && m.content === ackReply);
 
       if (!ackAlreadyDelivered) {
         // First time — return canned ack deterministically, skip GPT

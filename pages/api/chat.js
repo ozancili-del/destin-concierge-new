@@ -630,6 +630,13 @@ export default async function handler(req, res) {
         : null
     );
 
+    // Guest count — defined early so discount block can use them
+    const hasGuestCount = /(\d+)\s*(adult|kid|child|children|guest|person|people|infant|baby|toddler)/i.test(allUserText);
+    const adultsMatchOuter = lastUser.match(/(\d+)\s*adult/i) || allUserText.match(/(\d+)\s*adult/i);
+    const childrenMatchOuter = lastUser.match(/(\d+)\s*(kid|child|children|infant|baby|toddler)/i) || allUserText.match(/(\d+)\s*(kid|child|children|infant|baby|toddler)/i);
+    const adults = adultsMatchOuter ? adultsMatchOuter[1] : "2";
+    const children = childrenMatchOuter ? childrenMatchOuter[1] : "0";
+
     // Detect month-only intent
     const monthNames = {january:"01",february:"02",march:"03",april:"04",may:"05",june:"06",july:"07",august:"08",september:"09",october:"10",november:"11",december:"12"};
     const monthOnlyMatch = !dates && lastUser.match(/\b(january|february|march|april|may|june|july|august|september|october|november|december)\b/i);
@@ -644,14 +651,24 @@ export default async function handler(req, res) {
     // 🚨 DISCOUNT DETECTOR — highest priority injection
     if (isDiscountRequest) {
       availabilityStatus = "DISCOUNT_REQUEST";
-      discountContext = `🚨 DISCOUNT/DEAL REQUEST DETECTED — FOLLOW THIS EXACTLY, DO NOT DEVIATE:
+      if (dates && hasGuestCount) {
+        const link707d = buildLink("707", dates.arrival, dates.departure, adults, children);
+        const link1006d = buildLink("1006", dates.arrival, dates.departure, adults, children);
+        discountContext = `🚨 DISCOUNT REQUEST — dates and guest count already known. DO NOT ask for dates again.
+Use these pre-built booking links:
+Unit 707: ${link707d}
+Unit 1006: ${link1006d}
+Tell the guest warmly: share one or both links, tell them to use the Comments/Questions box and click Send Inquiry — Ozan will review their discount request personally 😊
+NEVER name Airbnb, VRBO, or any platform — say "booking platforms" instead.`;
+      } else {
+        discountContext = `🚨 DISCOUNT/DEAL REQUEST DETECTED — FOLLOW THIS EXACTLY, DO NOT DEVIATE:
 The guest is asking about a discount, deal, price match, cleaning fee waiver, or better price.
 Do NOT explain pricing. Do NOT say "we can't offer discounts." Do NOT mention Airbnb by name.
 Instead follow these steps IN ORDER:
 1. Acknowledge their request warmly and with empathy (1 sentence max)
 2. Say: "Share your dates, number of adults and children and I'll create your booking link — you can then use the Comments/Questions box and hit Send Inquiry and Ozan will review your request personally 😊"
-3. If they have already provided dates in this conversation, skip asking — create the booking link immediately and still tell them to use the Comments/Questions box and Send Inquiry for Ozan to review.
 NEVER name Airbnb, VRBO, or any platform by name — say "booking platforms" instead.`;
+      }
     }
 
     // 🔵 UNIT COMPARISON — inject neutral rule
@@ -927,11 +944,7 @@ Do NOT say great news or over-promise. Be specific about which unit is open vs f
 
     // If dates found but no guest count anywhere in conversation — ask before building link
     const isChildSafetyQuestion = /child|children|\bkid\b|\bkids\b|toddler|\bbaby\b|infant|year.old|little one|safety lock|child lock|baby.?proof|childproof|balcony door|sliding door.*lock|fall risk|safe for kids|railing|\bclimb\b|\bpinch\b/i.test(lastUser);
-    const hasGuestCount = /(\d+)\s*(adult|kid|child|children|guest|person|people|infant|baby|toddler)/i.test(allUserText);
-    const adultsMatchOuter = lastUser.match(/(\d+)\s*adult/i) || allUserText.match(/(\d+)\s*adult/i);
-    const childrenMatchOuter = lastUser.match(/(\d+)\s*(kid|child|children|infant|baby|toddler)/i) || allUserText.match(/(\d+)\s*(kid|child|children|infant|baby|toddler)/i);
-    const adults = adultsMatchOuter ? adultsMatchOuter[1] : "2";
-    const children = childrenMatchOuter ? childrenMatchOuter[1] : "0";
+    // adults/children extracted in outer scope above
     if (dates && !isDiscountRequest && !hasGuestCount) {
       availabilityContext = `DATES FOUND: Guest provided dates (${dates.arrival} to ${dates.departure}) but has NOT provided number of adults or children yet. DO NOT send to availability page. Ask warmly: "Perfect — I've got your dates! Just need one more thing: how many adults and children will be staying? I'll create your booking link right away 😊"`;
     } else if (dates && !isDiscountRequest) {

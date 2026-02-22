@@ -361,7 +361,7 @@ async function getSheetsToken(retries = 3) {
       throw new Error("No access token in response");
     } catch (err) {
       console.error(`getSheetsToken attempt ${attempt} failed:`, err.message);
-      if (attempt < retries) await new Promise(r => setTimeout(r, 500));
+      if (attempt < retries) await new Promise(r => setTimeout(r, attempt === 1 ? 1000 : 1500));
     }
   }
   return null;
@@ -487,7 +487,7 @@ export default async function handler(req, res) {
     const allUserText = messages.filter((m) => m.role === "user").map((m) => m.content).join(" ");
 
     // ── UPDATE REQUEST DETECTION ─────────────────────────────────────────────
-    const isAskingForUpdate = /any update|any news|heard.*back|what.*happening|what.*status|still waiting|waiting.*hear|did.*ozan|ozan.*call|ozan.*reach|ozan.*contact|ozan.*back|anything.*ozan|update.*ticket|ticket.*update|fix.*yet|fixed.*yet|someone.*coming|when.*coming|how long/i.test(lastUser);
+    const isAskingForUpdate = /any update|any news|heard.*back|what.*happening|what.*status|still waiting|waiting.*hear|did.*ozan|ozan.*call|ozan.*reach|ozan.*contact|ozan.*back|anything.*ozan|update.*ticket|ticket.*update|fix.*yet|fixed.*yet|someone.*coming|when.*coming|how long|anything yet|anyting|annything|let me know.*hear|hear.*anything|you hear|heard anything|still there|still nothing|no response|no word|any word|update me|keep me|following up/i.test(lastUser);
 
     // ── LOCKDOWN EXIT DETECTION ────────────────────────────────────────────
     const isResolutionMessage = /got it|i'm in|i am in|i'm inside|sorted|never mind|found it|found the code|figured it out|all good|thanks got|got in|in now|no worries|never mind|forget it/i.test(lastUser);
@@ -854,7 +854,16 @@ KEY: Guest REPORTING a problem = MAINTENANCE. Guest ASKING a question = INFO.
 This line is mandatory. Never omit it. It must be the absolute last line of your response.
 
 ${ozanAckType === "MAINT_EMERGENCY" ? "🚨 OZAN IS CALLING THE GUEST RIGHT NOW — if guest missed the call tell them: \"Please call Ozan back immediately at (972) 357-4262\"\n\n" : ""}
-${alertWasFired ? "🚨 ALERT SENT THIS SESSION: An emergency Discord alert was automatically sent to Ozan during this conversation. If guest asks if you contacted Ozan or sent a message — say YES, an urgent alert was already sent to him. Do not say you will send it — it is already done.\n\n" : ""}${discountContext ? discountContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
+${ozanAckType ? `✅ OZAN HAS ALREADY ACKNOWLEDGED — FOLLOW THIS EXACTLY:
+Ozan has responded and the guest has already been told. The confirmed status is: "${ACK_MESSAGES[ozanAckType]}"
+The guest may be following up or anxious. Your job now:
+- Be warm, calm and reassuring — not robotic
+- DO NOT say "still waiting" or "no update yet" — ever. Ozan has already acted.
+- DO NOT repeat the exact ack message word for word — vary it naturally
+- Remind them Ozan is handling it and they should expect direct contact soon
+- Keep it to 1-2 sentences max. Do not ask follow-up questions.
+- Example good responses: "Ozan is on it — you should hear from him or the team very shortly 🙏" / "He's already been notified and is handling this — just hang tight a little longer 🙏"
+\n\n` : ""}${alertWasFired ? "🚨 ALERT SENT THIS SESSION: An emergency Discord alert was automatically sent to Ozan during this conversation. If guest asks if you contacted Ozan or sent a message — say YES, an urgent alert was already sent to him. Do not say you will send it — it is already done.\n\n" : ""}${discountContext ? discountContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PROPERTIES
@@ -1127,29 +1136,37 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
     }
     // ────────────────────────────────────────────────────────────────────────
 
-    // ── ACK SHORT-CIRCUIT ────────────────────────────────────────────────────
-    // If Ozan has already acknowledged AND the guest is asking for an update,
-    // skip GPT entirely and return the canned ack message deterministically.
-    // This prevents GPT from ever generating a "still waiting" response after
-    // an ack is set — which is what was causing the feedback loop.
+    // ── ACK HANDLING ─────────────────────────────────────────────────────────
+    // When ozanAckType is set and guest is asking for an update:
+    //   - If the canned ack message hasn't been delivered yet → send it (once, deterministic)
+    //   - If it was already delivered → let GPT run but with tight post-ack instructions
+    //     so it gives a warm, varied follow-up instead of "still waiting"
     if (ozanAckType && isAskingForUpdate) {
       const ackReply = ACK_MESSAGES[ozanAckType];
-      await logToSheets(
-        sessionId,
-        lastUser,
-        ackReply,
-        dates ? `${dates.arrival} to ${dates.departure}` : "",
-        "ACK_CONFIRMED",
-        ""
-      );
-      return res.status(200).json({
-        reply: ackReply,
-        alertSent: alertWasFired,
-        pendingRelay: false,
-        ozanAcked: true,
-        ozanAckType,
-        detectedIntent: "INFO",
-      });
+      // Check if we already delivered the canned ack in this conversation
+      const ackAlreadyDelivered = messages.some(m => m.role === "assistant" && m.content === ackReply)
+        || sessionHistory.some(m => m.role === "assistant" && m.content === ackReply);
+
+      if (!ackAlreadyDelivered) {
+        // First time — return canned ack deterministically, skip GPT
+        await logToSheets(
+          sessionId,
+          lastUser,
+          ackReply,
+          dates ? `${dates.arrival} to ${dates.departure}` : "",
+          `ACK_CONFIRMED|${detectedIntent || "INFO"}`,
+          ""
+        );
+        return res.status(200).json({
+          reply: ackReply,
+          alertSent: alertWasFired,
+          pendingRelay: false,
+          ozanAcked: true,
+          ozanAckType,
+          detectedIntent: "INFO",
+        });
+      }
+      // Ack already delivered — fall through to GPT but inject post-ack instructions below
     }
     // ────────────────────────────────────────────────────────────────────────
 
@@ -1208,7 +1225,7 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
       lastUser,
       reply,
       dates ? `${dates.arrival} to ${dates.departure}` : "",
-      availabilityStatus || "INFO_QUESTION",
+      availabilityStatus || detectedIntent || "INFO",
       alertSummary
     );
 

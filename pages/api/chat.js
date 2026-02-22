@@ -910,6 +910,11 @@ Do NOT say great news or over-promise. Be specific about which unit is open vs f
 
     // If dates found but no guest count anywhere in conversation — ask before building link
     const hasGuestCount = /(\d+)\s*(adult|kid|child|children|guest|person|people|infant|baby|toddler)/i.test(allUserText);
+    // Hoist guest count extraction to outer scope so booking intercept can use them
+    const adultsMatchOuter = lastUser.match(/(\d+)\s*adult/i) || allUserText.match(/(\d+)\s*adult/i);
+    const childrenMatchOuter = lastUser.match(/(\d+)\s*(kid|child|children|infant|baby|toddler)/i) || allUserText.match(/(\d+)\s*(kid|child|children|infant|baby|toddler)/i);
+    const adults = adultsMatchOuter ? adultsMatchOuter[1] : "2";
+    const children = childrenMatchOuter ? childrenMatchOuter[1] : "0";
     if (dates && !isDiscountRequest && !hasGuestCount) {
       availabilityContext = `DATES FOUND: Guest provided dates (${dates.arrival} to ${dates.departure}) but has NOT provided number of adults or children yet. DO NOT send to availability page. Ask warmly: "Perfect — I've got your dates! Just need one more thing: how many adults and children will be staying? I'll create your booking link right away 😊"`;
     } else if (dates && !isDiscountRequest) {
@@ -918,10 +923,7 @@ Do NOT say great news or over-promise. Be specific about which unit is open vs f
         checkAvailability(UNIT_1006_PROPERTY_ID, dates.arrival, dates.departure),
       ]);
 
-      const adultsMatch = lastUser.match(/(\d+)\s*adult/i) || allUserText.match(/(\d+)\s*adult/i);
-      const childrenMatch = lastUser.match(/(\d+)\s*(kid|child|children)/i) || allUserText.match(/(\d+)\s*(kid|child|children)/i);
-      const adults = adultsMatch ? adultsMatch[1] : "2";
-      const children = childrenMatch ? childrenMatch[1] : "0";
+      // adults/children already extracted in outer scope above
 
       console.log(`Availability results - 707: ${avail707}, 1006: ${avail1006}`);
 
@@ -1379,6 +1381,86 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
         });
       }
       // Ack already delivered — fall through to GPT with post-ack instructions
+    }
+    // ────────────────────────────────────────────────────────────────────────
+
+    // ── BOOKING INTERCEPT — bypass GPT entirely when we have clean availability ──
+    // GPT hallucinate wrong URLs even when given the correct ones in context.
+    // When we have dates + guest count + a definite availability result,
+    // build the reply in code and return directly — never let GPT touch the links.
+    if (availabilityStatus && !availabilityStatus.includes("CHECK_FAILED") 
+        && !availabilityStatus.includes("NEEDS_DATES")
+        && !availabilityStatus.includes("DISCOUNT")
+        && !availabilityStatus.includes("MONTH")
+        && dates && hasGuestCount) {
+
+      let bookingReply = null;
+
+      if (availabilityStatus.includes("707:AVAILABLE") && availabilityStatus.includes("1006:BOOKED")) {
+        const link = buildLink("707", dates.arrival, dates.departure, adults, children);
+        bookingReply = `Great news — Unit 707 is available for your dates! 🎉 Unit 1006 is already booked for that period.
+
+🔗 **Book Unit 707:** ${link}
+
+Don't forget to use code **DESTINY** for 10% off! Let me know if you have any questions 😊`;
+
+      } else if (availabilityStatus.includes("707:BOOKED") && availabilityStatus.includes("1006:AVAILABLE")) {
+        const link = buildLink("1006", dates.arrival, dates.departure, adults, children);
+        bookingReply = `Great news — Unit 1006 is available for your dates! 🎉 Unit 707 is already booked for that period.
+
+🔗 **Book Unit 1006:** ${link}
+
+Don't forget to use code **DESTINY** for 10% off! Let me know if you have any questions 😊`;
+
+      } else if (availabilityStatus.includes("707:AVAILABLE") && availabilityStatus.includes("1006:AVAILABLE")) {
+        const link707 = buildLink("707", dates.arrival, dates.departure, adults, children);
+        const link1006 = buildLink("1006", dates.arrival, dates.departure, adults, children);
+        bookingReply = `Great news — both units are available for your dates! 🎉
+
+🔗 **Unit 707** (7th floor, Classic Coastal): ${link707}
+🔗 **Unit 1006** (10th floor, Fresh Coastal): ${link1006}
+
+Use code **DESTINY** for 10% off either unit! Want me to tell you more about the differences? 😊`;
+
+      } else if (availabilityStatus.includes("707:BOOKED") && availabilityStatus.includes("1006:BOOKED")) {
+        bookingReply = `I'm sorry — both units are booked for ${dates.arrival} to ${dates.departure}. You can browse other open dates at https://www.destincondogetaways.com/availability or contact Ozan at (972) 357-4262 — he may have options not listed online!`;
+
+      } else if (availabilityStatus.includes("707:AVAILABLE") && availabilityStatus.includes("1006:UNKNOWN")) {
+        const link707 = buildLink("707", dates.arrival, dates.departure, adults, children);
+        const link1006 = buildLink("1006", dates.arrival, dates.departure, adults, children);
+        bookingReply = `Unit 707 is available for your dates! 🎉 I wasn't able to confirm Unit 1006's status right now.
+
+🔗 **Book Unit 707:** ${link707}
+🔗 **Unit 1006 (unconfirmed):** ${link1006}
+
+Use code **DESTINY** for 10% off! For Unit 1006 questions contact Ozan at (972) 357-4262 😊`;
+
+      } else if (availabilityStatus.includes("707:UNKNOWN") && availabilityStatus.includes("1006:AVAILABLE")) {
+        const link707 = buildLink("707", dates.arrival, dates.departure, adults, children);
+        const link1006 = buildLink("1006", dates.arrival, dates.departure, adults, children);
+        bookingReply = `Unit 1006 is available for your dates! 🎉 I wasn't able to confirm Unit 707's status right now.
+
+🔗 **Book Unit 1006:** ${link1006}
+🔗 **Unit 707 (unconfirmed):** ${link707}
+
+Use code **DESTINY** for 10% off! For Unit 707 questions contact Ozan at (972) 357-4262 😊`;
+      }
+
+      if (bookingReply) {
+        await logToSheets(
+          sessionId, lastUser, bookingReply,
+          dates ? `${dates.arrival} to ${dates.departure}` : "",
+          availabilityStatus, ""
+        );
+        return res.status(200).json({
+          reply: bookingReply,
+          alertSent: alertWasFired,
+          pendingRelay: false,
+          ozanAcked: ozanAcknowledgedFinal,
+          ozanAckType,
+          detectedIntent: "INFO",
+        });
+      }
     }
     // ────────────────────────────────────────────────────────────────────────
 

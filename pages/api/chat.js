@@ -679,8 +679,31 @@ export default async function handler(req, res) {
     const mentionedMonth = monthOnlyMatch ? monthOnlyMatch[1].toLowerCase() : null;
 
     // Guest count — defined early so discount block can use them
-    const hasGuestCount = /(\d+)\s*(adult|kid|child|children|guest|person|people|infant|baby|toddler)/i.test(allUserText);
-    const adultsMatchOuter = lastUser.match(/(\d+)\s*adult/i) || allUserText.match(/(\d+)\s*adult/i);
+    // Natural language guest count normalizer
+    // Converts "just the 2 of us", "me and my wife", "only me" etc → numeric adult count in allUserText
+    function normalizeGuestCount(text) {
+      return text
+        .replace(/\bjust\s+the\s+two\s+of\s+us\b/gi,       "2 adults")
+        .replace(/\bjust\s+the\s+2\s+of\s+us\b/gi,         "2 adults")
+        .replace(/\bjust\s+us\s+two\b/gi,                    "2 adults")
+        .replace(/\bonly\s+the\s+two\s+of\s+us\b/gi,       "2 adults")
+        .replace(/\bonly\s+2\s+of\s+us\b/gi,                "2 adults")
+        .replace(/\b(\d+)\s+of\s+us\b/gi,                   "$1 adults")
+        .replace(/\bjust\s+the\s+(\d+)\s+of\s+us\b/gi,    "$1 adults")
+        .replace(/\bjust\s+(\d+)\s+of\s+us\b/gi,           "$1 adults")
+        .replace(/\bonly\s+(\d+)\s+of\s+us\b/gi,           "$1 adults")
+        .replace(/\bme\s+(and\s+)?my\s+(wife|husband|partner|girlfriend|boyfriend|fiance|fiancee|spouse)\b/gi, "2 adults")
+        .replace(/\bmy\s+(wife|husband|partner|girlfriend|boyfriend|fiance|fiancee|spouse)\s+(and\s+)?(me|i)\b/gi, "2 adults")
+        .replace(/\bmy\s+(wife|husband|partner|girlfriend|boyfriend|fiance|fiancee|spouse)\b(?!\s+and\s+(me|i))/gi, "2 adults")
+        .replace(/\bjust\s+(me|us)\b(?!\s+and)/gi,           "1 adults")
+        .replace(/\bonly\s+me\b/gi,                           "1 adults")
+        .replace(/\bsolo\s+trip\b/gi,                         "1 adults")
+        .replace(/\btraveling\s+alone\b/gi,                   "1 adults")
+        .replace(/\bjust\s+myself\b/gi,                       "1 adults");
+    }
+    const normalizedUserText = normalizeGuestCount(allUserText);
+    const hasGuestCount = /(\d+)\s*(adult|kid|child|children|guest|person|people|infant|baby|toddler)/i.test(normalizedUserText);
+    const adultsMatchOuter = normalizeGuestCount(lastUser).match(/(\d+)\s*adult/i) || normalizedUserText.match(/(\d+)\s*adult/i);
     const childrenMatchOuter = lastUser.match(/(\d+)\s*(kid|child|children|infant|baby|toddler)/i) || allUserText.match(/(\d+)\s*(kid|child|children|infant|baby|toddler)/i);
     const adults = adultsMatchOuter ? adultsMatchOuter[1] : "2";
     const children = childrenMatchOuter ? childrenMatchOuter[1] : "0";

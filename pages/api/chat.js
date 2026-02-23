@@ -634,6 +634,8 @@ export default async function handler(req, res) {
 
     const allUserText = messages.filter((m) => m.role === "user").map((m) => m.content).join(" ");
     const allConvoText = [...messages].reverse().map((m) => m.content).join(" ");
+    // True if booking links were already sent earlier in this conversation
+    const bookingLinksSent = messages.some(m => m.role === "assistant" && m.content && m.content.includes("pelican-beach-resort-unit-"));
 
     // ── UPDATE REQUEST DETECTION ─────────────────────────────────────────────
     const isAskingForUpdate = /any update|any news|heard.*back|what.*happening|what.*status|still waiting|waiting.*hear|did.*ozan|ozan.*call|ozan.*reach|ozan.*contact|ozan.*back|anything.*ozan|update.*ticket|ticket.*update|fix.*yet|fixed.*yet|someone.*coming|when.*coming|how long|anything yet|anyting|annything|let me know.*hear|hear.*anything|you hear|heard anything|still there|still nothing|no response|no word|any word|update me|keep me|following up/i.test(lastUser);
@@ -714,6 +716,15 @@ export default async function handler(req, res) {
 
     // ── LAYER 1: Build injected context blocks ──────────────────────────────
     let discountContext = "";
+    let bookingLinksContext = bookingLinksSent ? `📎 BOOKING LINKS ALREADY SENT: You already sent booking links earlier in this conversation. DO NOT send links again unless the guest explicitly asks for them again.
+The guest is now in follow-up conversation mode. Answer their questions naturally and conversationally:
+- If they ask about price/cost → explain the link shows total pricing, use DESTINY for 10% off
+- If they ask for a price match → direct them warmly to the Comments/Questions box on the booking page
+- If they ask about booking direct benefits → explain: no platform fees, DESTINY code for 10%, personal service from Ozan
+- If they ask which unit → give an honest neutral comparison (since 1006 is booked, tell them 707 is the one available)
+- NEVER start your response with "Great news" or repeat the availability status they already know
+- NEVER ask "Are you planning a trip soon?" — they already have dates
+- Be warm, concise, and conversational — like a helpful friend, not a broken record` : "";
     let availabilityContext = "";
     let unitComparisonContext = "";
     let availabilityStatus = "";
@@ -1136,7 +1147,7 @@ The guest may be following up or anxious. Your job now:
 - Remind them Ozan is handling it and they should expect direct contact soon
 - Keep it to 1-2 sentences max. Do not ask follow-up questions.
 - Example good responses: "Ozan is on it — you should hear from him or the team very shortly 🙏" / "He's already been notified and is handling this — just hang tight a little longer 🙏"
-\n\n` : ""}${isChildSafetyQuestion ? "👶 CHILD/TODDLER SAFETY QUESTION DETECTED — Follow CHILD / TODDLER / FAMILY SAFETY PRIORITY OVERRIDE exactly. Answer the specific safety question FIRST. No excitement opener. No smart lock pivot. Give portable solutions immediately.\n\n" : ""}${isAccidentalDamage ? "⚠️ ACCIDENTAL DAMAGE SCENARIO: Guest has broken something (plates, glasses etc). Follow the ACCIDENTAL DAMAGE RULE exactly. Do NOT say you notified Ozan. Do NOT offer to relay. Empathy first, then direct to Ozan at (972) 357-4262.\n\n" : ""}${alertWasFired ? "🚨 ALERT SENT THIS SESSION: An emergency Discord alert was automatically sent to Ozan during this conversation. If guest asks if you contacted Ozan or sent a message — say YES, an urgent alert was already sent to him. Do not say you will send it — it is already done.\n\n" : ""}${petsContext ? petsContext + "\n\n" : ""}${discountContext ? discountContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
+\n\n` : ""}${isChildSafetyQuestion ? "👶 CHILD/TODDLER SAFETY QUESTION DETECTED — Follow CHILD / TODDLER / FAMILY SAFETY PRIORITY OVERRIDE exactly. Answer the specific safety question FIRST. No excitement opener. No smart lock pivot. Give portable solutions immediately.\n\n" : ""}${isAccidentalDamage ? "⚠️ ACCIDENTAL DAMAGE SCENARIO: Guest has broken something (plates, glasses etc). Follow the ACCIDENTAL DAMAGE RULE exactly. Do NOT say you notified Ozan. Do NOT offer to relay. Empathy first, then direct to Ozan at (972) 357-4262.\n\n" : ""}${alertWasFired ? "🚨 ALERT SENT THIS SESSION: An emergency Discord alert was automatically sent to Ozan during this conversation. If guest asks if you contacted Ozan or sent a message — say YES, an urgent alert was already sent to him. Do not say you will send it — it is already done.\n\n" : ""}${bookingLinksContext ? bookingLinksContext + "\n\n" : ""}${petsContext ? petsContext + "\n\n" : ""}${discountContext ? discountContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PROPERTIES
@@ -1511,7 +1522,7 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
         && !availabilityStatus.includes("NEEDS_DATES")
         && !availabilityStatus.includes("DISCOUNT")
         && !availabilityStatus.includes("MONTH")
-        && dates && hasGuestCount && !mentionsPets && (wantsAvailability || isGuestCountReply)) {
+        && dates && hasGuestCount && !mentionsPets && !bookingLinksSent && (wantsAvailability || isGuestCountReply)) {
 
       let bookingReply = null;
 

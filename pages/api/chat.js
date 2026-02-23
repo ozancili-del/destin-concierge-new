@@ -338,6 +338,17 @@ function extractDates(text) {
     };
   }
 
+  // Slash format with words: 7/12 to 7/28, 7/12 until 7/28
+  const slashWordPattern = /(\d{1,2})\/(\d{1,2})\s*(?:to|until|through|thru)\s*(\d{1,2})\/(\d{1,2})/i;
+  const slashWordMatch = text.match(slashWordPattern);
+  if (slashWordMatch) {
+    return {
+      arrival:   `${year}-${slashWordMatch[1].padStart(2,"0")}-${slashWordMatch[2].padStart(2,"0")}`,
+      departure: `${year}-${slashWordMatch[3].padStart(2,"0")}-${slashWordMatch[4].padStart(2,"0")}`,
+    };
+  }
+
+
   const months = {
     january:"01",february:"02",march:"03",april:"04",may:"05",june:"06",
     july:"07",august:"08",september:"09",october:"10",november:"11",december:"12"
@@ -1066,6 +1077,10 @@ Do NOT say great news or over-promise. Be specific about which unit is open vs f
 You help guests discover and book beachfront condos at Pelican Beach Resort in Destin, Florida.
 You sound like a knowledgeable local friend — warm, genuine, never robotic.
 Today is ${today}.
+
+AMENITIES ACCURACY RULE:
+- Never invent resort/unit amenities.
+- If a guest asks "Why book with you" or compares to hotels (gym/sauna/pickleball/tennis), reference the RESORT FACILITIES list below (fitness center, sauna & steam room, tennis AND pickleball courts, pools/hot tubs, beachfront access).
 
 ⚠️ CRITICAL INSTRUCTION — READ FIRST:
 Every single response MUST end with this exact line: INTENT: [MAINTENANCE or EMERGENCY or INFO]

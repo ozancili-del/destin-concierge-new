@@ -1483,7 +1483,7 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
         && !availabilityStatus.includes("NEEDS_DATES")
         && !availabilityStatus.includes("DISCOUNT")
         && !availabilityStatus.includes("MONTH")
-        && dates && hasGuestCount && !mentionsPets) {
+        && dates && hasGuestCount && !mentionsPets && wantsAvailability) {
 
       let bookingReply = null;
 

@@ -1077,7 +1077,7 @@ Do NOT say great news or over-promise. Be specific about which unit is open vs f
     } else if (blogTopic) {
       const blogResult = await fetchBlogContent(blogTopic);
       if (blogResult) {
-        blogContext = `\n\nLIVE BLOG CONTENT (use this to answer, include blog link ${blogResult.url} at end of answer):\n${blogResult.content}`;
+        blogContext = `\n\nLIVE BLOG CONTENT (use this to answer, include blog link at end of answer as plain text URL on its own line — NO markdown, NO parentheses, just the raw URL: ${blogResult.url}):\n${blogResult.content}`;
       }
     }
 
@@ -1619,7 +1619,11 @@ Use code **DESTINY** for 10% off! For Unit 707 questions contact Ozan at (972) 3
 
     let reply = rawReply;
 
-    // Strip trailing punctuation glued to URLs (including closing parenthesis)
+    // Convert markdown links [text](url) → plain url
+    reply = reply.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '$2');
+    // Strip opening parenthesis wrapping a URL (https://...)
+    reply = reply.replace(/\((https?:\/\/[^\s)]+)\)/g, '$1');
+    // Strip trailing punctuation glued to URLs
     reply = reply.replace(/(https?:\/\/[^\s"'<>)]+)[.,!?;:)]+(\ |$)/g, '$1$2');
     reply = reply.replace(/(https?:\/\/[^\s"'<>)]+)[.,!?;:)]+$/, '$1');
 

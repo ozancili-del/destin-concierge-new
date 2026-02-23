@@ -708,20 +708,28 @@ The guest mentioned bringing a pet. Our resort has a STRICT no-pets policy — H
       if (dates && hasGuestCount) {
         const link707d = buildLink("707", dates.arrival, dates.departure, adults, children);
         const link1006d = buildLink("1006", dates.arrival, dates.departure, adults, children);
-        discountContext = `🚨 DISCOUNT REQUEST — dates and guest count already known. DO NOT ask for dates again.
-Use these pre-built booking links:
+        discountContext = `🚨 DISCOUNT / "CHEAPER ELSEWHERE" — dates and guest count already known. DO NOT ask for dates again. DO NOT list amenities or justify the price.
+Use these pre-built booking links (paste them exactly):
 Unit 707: ${link707d}
 Unit 1006: ${link1006d}
-Tell the guest warmly: share one or both links, tell them to use the Comments/Questions box and click Send Inquiry — Ozan will review their discount request personally 😊
+
+Reply pattern (keep it tight, friendly, and urgent):
+1) Acknowledge: "Totally fair — prices can vary!"
+2) Tell them: open the link(s) above and in the Comments/Questions box write: "Marriott is cheaper" (and include the nightly rate if they have it), then click **Send Inquiry**.
+3) Tell them: "Ozan will personally review your dates and see what he can do."
+4) Reassure: "We’ll do our best."
+
 NEVER name Airbnb, VRBO, or any platform — say "booking platforms" instead.`;
       } else {
-        discountContext = `🚨 DISCOUNT/DEAL REQUEST DETECTED — FOLLOW THIS EXACTLY, DO NOT DEVIATE:
-The guest is asking about a discount, deal, price match, cleaning fee waiver, or better price.
-Do NOT explain pricing. Do NOT say "we can't offer discounts." Do NOT mention Airbnb by name.
+        discountContext = `🚨 DISCOUNT / "CHEAPER ELSEWHERE" — follow exactly, do not deviate:
+The guest is asking about a discount, deal, price match, cleaning fee waiver, or saying a competitor is cheaper.
+DO NOT explain pricing. DO NOT list amenities. DO NOT argue value. DO NOT say "we can't".
 Instead follow these steps IN ORDER:
-1. Acknowledge their request warmly and with empathy (1 sentence max)
-2. Say: "Share your dates, number of adults and children and I'll create your booking link — you can then use the Comments/Questions box and hit Send Inquiry and Ozan will review your request personally 😊"
-NEVER name Airbnb, VRBO, or any platform by name — say "booking platforms" instead.`;
+1) Acknowledge their request warmly (1 sentence max)
+2) Ask for: check-in date, check-out date, number of adults, number of children
+3) Say: "I’ll create your direct booking link — then use the Comments/Questions box and click Send Inquiry, and Ozan will personally review your request 😊"
+
+NEVER name Airbnb, VRBO, or any platform — say "booking platforms" instead.`;
       }
     }
 

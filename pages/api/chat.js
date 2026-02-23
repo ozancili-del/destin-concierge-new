@@ -1140,7 +1140,7 @@ BOTH UNITS HAVE IDENTICAL AMENITIES — only floor level and decor style differ.
 - No daily housekeeping — starter supplies on arrival
 
 Starter pack: toilet paper, shampoo, soaps, dish liquid, sponge, dishwasher tablets, paper towels, coffee
-Longer stays: Winn-Dixie/Target across the street, or Amazon/Instacart/Walmart delivery
+Longer stays: Winn-Dixie/Target across the street, or Amazon/Instacart/Walmart delivery, or Tesla Supercharger across the street next to Winn-Dixie
 Bring: beach towels (unit towels NOT outside), sunscreen, hat, sunglasses
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

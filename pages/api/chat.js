@@ -198,7 +198,7 @@ function detectLockedOut(text) {
 
 // Detect maintenance issues reported by guest (pre-GPT, used to fire alert reliably)
 function detectMaintenance(text) {
-  return /broken|not working|isn't working|won't work|doesn't work|not cooling|not heating|no hot water|no water|no power|no electricity|power out|leaking|leak|flooded|flooding|clogged|backed up|toilet.*over|won't flush|wont flush|smell|smells|mold|\bbug\b|\bbugs\b|\broach\b|\bants\b|\bant\b(?!ic|ique|hem|i)|\bmouse\b|\bmice\b|AC.*off|AC.*broken|heat.*off|heat.*broken|TV.*broken|TV.*not|dishwasher|washing machine|dryer.*broken|microwave.*broken|fridge.*broken|freezer.*broken|oven.*broken|stove.*broken|Wi-?Fi.*down|wifi.*not|internet.*down|cable.*out|remote.*missing|remote.*broken|blind.*broken|door.*broken|lock.*broken|key.*stuck|window.*broken|light.*out|lights.*out|bulb.*out|outlet.*not|socket.*not|fan.*broken|fan.*not|noise.*unit|loud.*noise|banging|dripping|running water|water pressure|no pressure/i.test(text);
+  return /broken|not working|isn't working|won't work|doesn't work|not cooling|not heating|no hot water|no water|no power|no electricity|power out|power outage|lights out|power went out|electricity out|lost power|loud.*heat|heat.*loud|noise.*heat|heating.*noise|loud.*AC|AC.*loud|loud.*unit|leaking|leak|flooded|flooding|clogged|backed up|toilet.*over|won't flush|wont flush|smell|smells|mold|\bbug\b|\bbugs\b|\broach\b|\bants\b|\bant\b(?!ic|ique|hem|i)|\bmouse\b|\bmice\b|AC.*off|AC.*broken|heat.*off|heat.*broken|TV.*broken|TV.*not|dishwasher|washing machine|dryer.*broken|microwave.*broken|fridge.*broken|freezer.*broken|oven.*broken|stove.*broken|Wi-?Fi.*down|wifi.*not|internet.*down|cable.*out|remote.*missing|remote.*broken|blind.*broken|door.*broken|lock.*broken|key.*stuck|window.*broken|light.*out|lights.*out|bulb.*out|outlet.*not|socket.*not|fan.*broken|fan.*not|noise.*unit|loud.*noise|banging|dripping|running water|water pressure|no pressure/i.test(text);
 }
 
 // Detect accidental damage by guest (plates, glasses, dishes etc) — NOT a maintenance issue
@@ -645,7 +645,7 @@ export default async function handler(req, res) {
     const lockdownResolved = (ozanAcknowledgedFinal && !isMaintenanceAck) || isResolutionMessage || isOffTopic;
 
     // ── LAYER 1: Run all detectors ──────────────────────────────────────────
-    const isDiscountRequest = detectDiscountIntent(lastUser) || (availabilityStatus === "DISCOUNT_REQUEST");
+    const isDiscountRequest = detectDiscountIntent(lastUser);
     const isUnitComparison = detectUnitComparison(lastUser);
     const isEscalation = detectEscalation(lastUser) || detectEscalation(allUserText.slice(-500));
     const isExcessGuests = detectExcessGuests(lastUser);
@@ -768,7 +768,8 @@ If directly asked "which do you personally recommend?" — say: "I honestly coul
 
     // Type 1: DIRECT PING — guest wants Ozan alerted/contacted, no message needed
     // Fires immediately — no waiting for content
-    const directPing = /alert.*ozan|ping.*ozan|notify.*ozan|contact.*ozan|reach.*ozan|get.*ozan|call.*ozan|let.*ozan.*know|send.*alert|send.*emergency|send.*urgent/i.test(lastUser);
+    const isQuestionAboutNotifying = /how.*(?:notify|alert|contact|reach|ping|tell)|are you (?:going to|able to)|will you|can you actually|did you|have you.*(?:notif|alert|contact|told|sent)/i.test(lastUser);
+    const directPing = !isQuestionAboutNotifying && /alert.*ozan|ping.*ozan|notify.*ozan|contact.*ozan|reach.*ozan|get.*ozan|call.*ozan|let.*ozan.*know|send.*alert|send.*emergency|send.*urgent/i.test(lastUser);
 
     // Type 2: RESEND — guest asks to send again
     const resendRequest = /send again|resend|try again|send it again|alert again|send another|send one more/i.test(lastUser);

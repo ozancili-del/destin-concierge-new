@@ -50,10 +50,12 @@ export default function Concierge() {
       if (data.ozanAckType) setOzanAckType(data.ozanAckType);
       // When an ack is confirmed for the first time, reset alert state so a
       // second maintenance issue in the same session can fire a fresh alert.
+      // NOTE: do NOT clear ozanAckType — it must persist so Destiny knows Ozan
+      // already responded on all subsequent follow-up messages.
       if (data.ozanAckType && !ozanAckType) {
         setAlertSent(false);
         setOzanAcked(false);
-        setOzanAckType(null);
+        // ozanAckType intentionally NOT cleared — persists for rest of conversation
       }
       const reply = data?.reply || "Hmm, I didn’t get a reply.";
       setLog(l => [...l, { role: "assistant", content: reply }]);

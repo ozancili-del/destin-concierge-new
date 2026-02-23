@@ -1063,7 +1063,68 @@ Do NOT say great news or over-promise. Be specific about which unit is open vs f
 
       if (avail707 === false && avail1006 === false) {
         availabilityStatus = `DATES:${dates.arrival}->${dates.departure} | 707:BOOKED | 1006:BOOKED`;
-        availabilityContext = `LIVE AVAILABILITY: Both units BOOKED for ${dates.arrival} to ${dates.departure}. Tell guest both unavailable and suggest https://www.destincondogetaways.com/availability for open dates.`;
+        // Both fully booked — check calendar for partial windows
+        try {
+          const calRes = await fetch(`https://destin-concierge-new.vercel.app/api/calendar?arrival=${dates.arrival}&departure=${dates.departure}`);
+          if (calRes.ok) {
+            const cal = await calRes.json();
+            const u707 = cal.unit707;
+            const u1006 = cal.unit1006;
+            const rec = cal.recommendation;
+
+            if (rec === "BOTH_PARTIAL" && u707.longestWindow && u1006.longestWindow) {
+              // Check if together they cover the full stay (1006 starts at arrival, 707 ends at departure or vice versa)
+              const w707 = u707.longestWindow;
+              const w1006 = u1006.longestWindow;
+              const link707p = buildLink("707", w707.from, w707.to, adults, children);
+              const link1006p = buildLink("1006", w1006.from, w1006.to, adults, children);
+
+              // Check if the two windows together cover the full requested stay
+              const coversStart = (w1006.from === dates.arrival && w707.to === dates.departure) ||
+                                  (w707.from === dates.arrival && w1006.to === dates.departure);
+              const windowsMeet = w1006.to === w707.from || w707.to === w1006.from;
+
+              if (coversStart && windowsMeet) {
+                // Perfect combined stay — unit switch mid-trip
+                const firstUnit  = w1006.from === dates.arrival ? "1006" : "707";
+                const secondUnit = firstUnit === "1006" ? "707" : "1006";
+                const firstWindow  = firstUnit === "1006" ? w1006 : w707;
+                const secondWindow = firstUnit === "1006" ? w707 : w1006;
+                const firstLink  = firstUnit === "1006" ? link1006p : link707p;
+                const secondLink = firstUnit === "1006" ? link707p : link1006p;
+                availabilityStatus = `DATES:${dates.arrival}->${dates.departure} | COMBINED_PARTIAL`;
+                availabilityContext = `LIVE AVAILABILITY: Neither unit is available for the full stay, BUT together they cover it completely!
+Unit ${firstUnit} is available ${firstWindow.from} to ${firstWindow.to}: ${firstLink}
+Unit ${secondUnit} is available ${secondWindow.from} to ${secondWindow.to}: ${secondLink}
+Tell the guest warmly: both units are booked for the full period BUT we have a creative solution — they can start in Unit ${firstUnit} (${firstWindow.from} to ${firstWindow.to}) then move to Unit ${secondUnit} (${secondWindow.from} to ${secondWindow.to}) — same resort, same beach, just a quick unit switch mid-stay! Both booking links above. Use code DESTINY for 10% off each.`;
+              } else {
+                // Partial windows but don't cover full stay together
+                availabilityStatus = `DATES:${dates.arrival}->${dates.departure} | BOTH_PARTIAL`;
+                availabilityContext = `LIVE AVAILABILITY: Neither unit available for full stay. Partial options:
+Unit 707 has ${u707.longestDays} days free (${w707.from} to ${w707.to}): ${link707p}
+Unit 1006 has ${u1006.longestDays} days free (${w1006.from} to ${w1006.to}): ${link1006p}
+Tell guest warmly that neither unit is free for the full stay, but offer these shorter alternatives. Use code DESTINY for 10% off.`;
+              }
+            } else if (rec === "ONLY_707_PARTIAL" && u707.longestWindow) {
+              const w = u707.longestWindow;
+              const link = buildLink("707", w.from, w.to, adults, children);
+              availabilityStatus = `DATES:${dates.arrival}->${dates.departure} | 707:PARTIAL`;
+              availabilityContext = `LIVE AVAILABILITY: Both units booked for the full requested stay. However Unit 707 has a ${u707.longestDays}-night window available (${w.from} to ${w.to}). Offer this shorter stay warmly: "Unit 707 isn't free for the full week, but I do have ${w.from} to ${w.to} available — would a shorter stay work for you?" Booking link: ${link} Use code DESTINY for 10% off.`;
+            } else if (rec === "ONLY_1006_PARTIAL" && u1006.longestWindow) {
+              const w = u1006.longestWindow;
+              const link = buildLink("1006", w.from, w.to, adults, children);
+              availabilityStatus = `DATES:${dates.arrival}->${dates.departure} | 1006:PARTIAL`;
+              availabilityContext = `LIVE AVAILABILITY: Both units booked for the full requested stay. However Unit 1006 has a ${u1006.longestDays}-night window available (${w.from} to ${w.to}). Offer this shorter stay warmly: "Unit 1006 isn't free for the full week, but I do have ${w.from} to ${w.to} available — would a shorter stay work for you?" Booking link: ${link} Use code DESTINY for 10% off.`;
+            } else {
+              availabilityContext = `LIVE AVAILABILITY: Both units BOOKED for ${dates.arrival} to ${dates.departure}. Tell guest both unavailable and suggest https://www.destincondogetaways.com/availability for open dates.`;
+            }
+          } else {
+            availabilityContext = `LIVE AVAILABILITY: Both units BOOKED for ${dates.arrival} to ${dates.departure}. Tell guest both unavailable and suggest https://www.destincondogetaways.com/availability for open dates.`;
+          }
+        } catch (calErr) {
+          console.error("Calendar check error:", calErr.message);
+          availabilityContext = `LIVE AVAILABILITY: Both units BOOKED for ${dates.arrival} to ${dates.departure}. Tell guest both unavailable and suggest https://www.destincondogetaways.com/availability for open dates.`;
+        }
       } else if (avail707 === true && avail1006 === false) {
         availabilityStatus = `DATES:${dates.arrival}->${dates.departure} | 707:AVAILABLE | 1006:BOOKED`;
         const link = buildLink("707", dates.arrival, dates.departure, adults, children);

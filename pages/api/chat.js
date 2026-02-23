@@ -645,7 +645,9 @@ export default async function handler(req, res) {
     const lockdownResolved = (ozanAcknowledgedFinal && !isMaintenanceAck) || isResolutionMessage || isOffTopic;
 
     // ── LAYER 1: Run all detectors ──────────────────────────────────────────
-    const isDiscountRequest = detectDiscountIntent(lastUser);
+    const isDiscountRequest =
+    detectDiscountIntent(lastUser) ||
+    (availabilityStatus === "DISCOUNT_REQUEST");
     const isUnitComparison = detectUnitComparison(lastUser);
     const isEscalation = detectEscalation(lastUser) || detectEscalation(allUserText.slice(-500));
     const isExcessGuests = detectExcessGuests(lastUser);

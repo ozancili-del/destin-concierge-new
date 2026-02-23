@@ -714,8 +714,8 @@ Unit 707: ${link707d}
 Unit 1006: ${link1006d}
 
 Reply pattern (keep it tight, friendly, and urgent):
-1) Acknowledge: "Totally fair — prices can vary!"
-2) Tell them: open the link(s) above and in the Comments/Questions box write: "Marriott is cheaper" (and include the nightly rate if they have it), then click **Send Inquiry**.
+1) Acknowledge warmly in 1 sentence (vary wording; do NOT repeat the same phrase every time). Example: "Totally fair — rates can vary by unit and week."
+2) Tell them: open the link(s) above and in the Comments/Questions box write a short note that copies THEIR exact wording (e.g., “my friend booked Unit 706 and it’s cheaper”) and include the nightly rate if they have it, then click **Send Inquiry**. (Do NOT mention Marriott unless the guest did.)
 3) Tell them: "Ozan will personally review your dates and see what he can do."
 4) Reassure: "We’ll do our best."
 

@@ -1672,7 +1672,7 @@ Use code **DESTINY** for 10% off! For Unit 707 questions contact Ozan at (972) 3
       finalAlertSummary
     );
 
-    return res.status(200).json({ reply, alertSent: alertWasFired, pendingRelay: bareRelayRequest === true && !alertWasFired, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent });
+    return res.status(200).json({ reply, alertSent: alertWasFired, pendingRelay: bareRelayRequest === true && !alertWasFired, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent, debug: { availabilityStatus, hasGuestCount, wantsAvailability, dates, adults, children, mentionsPets, isGuestCountReply: typeof isGuestCountReply !== "undefined" ? isGuestCountReply : "N/A" } });
 
   } catch (err) {
     console.error("Destiny Blue error:", err);

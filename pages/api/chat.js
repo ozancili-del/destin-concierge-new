@@ -663,6 +663,10 @@ export default async function handler(req, res) {
     const isAccidentalDamage = detectAccidentalDamage(lastUser);
     const isMaintenanceReport = detectMaintenance(lastUser) && !isLockedOut && !isAccidentalDamage;
     const wantsAvailability = detectAvailabilityIntent(lastUser);
+    // True when bot just asked for guest count and guest is answering
+    const lastBotMsg = [...messages].reverse().find(m => m.role === "assistant");
+    const botAskedGuestCount = lastBotMsg && /how many (adult|child|guest|people|person)|how many.*staying|number of (adult|guest|people)/i.test(lastBotMsg.content);
+    const isGuestCountReply = botAskedGuestCount && hasGuestCount && !wantsAvailability;
     // Pets detector — when mentioned, skip booking intercept and let GPT apply no-pets policy
     const mentionsPets = /\d+\s*pets?|\bwith.*pets?\b|\bdogs?\b|\bcats?\b|\bpuppies\b|\bkittens?\b|\bbirds?\b|\bparrots?\b|\brabbits?\b|\bhamsters?\b|\bferrets?\b|\bfish\b|\bsnakes?\b|\bturtles?\b|\banimals?\b|bring.*(?:my|our|the)\s+\w+.*(?:pet|dog|cat|bird|animal)|pet.*friendly|emotional support animal|\besa\b|\bservice animal\b/i.test(allUserText);
 
@@ -1507,7 +1511,7 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
         && !availabilityStatus.includes("NEEDS_DATES")
         && !availabilityStatus.includes("DISCOUNT")
         && !availabilityStatus.includes("MONTH")
-        && dates && hasGuestCount && !mentionsPets && wantsAvailability) {
+        && dates && hasGuestCount && !mentionsPets && (wantsAvailability || isGuestCountReply)) {
 
       let bookingReply = null;
 

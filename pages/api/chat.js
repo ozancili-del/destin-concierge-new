@@ -310,6 +310,13 @@ function normalizeMonths(text) {
     [/\b(jully|jule|juli)\b/gi, 'july'],
     [/\b(marh|mrach|mach)\b/gi, 'march'],
     [/\b(apirl|aprl|aprli)\b/gi, 'april'],
+    // Common preposition typos
+    [/\buntl\b/gi, 'until'],
+    [/\bunitl\b/gi, 'until'],
+    [/\bunil\b/gi, 'until'],
+    [/\btill\b/gi, 'until'],
+    [/\bthru\b/gi, 'through'],
+    [/\btrhough\b/gi, 'through'],
   ];
   let out = text;
   for (const [pattern, correct] of corrections) {
@@ -385,7 +392,7 @@ function extractDates(text) {
     };
   }
 
-  const crossPattern = new RegExp("(" + mn + ")\\s+(\\d{1,2})(?:\\s+(?:to|and|through|-)\\s+(?:(" + mn + ")\\s+)?(\\d{1,2}))", "i");
+  const crossPattern = new RegExp("(" + mn + ")\\s+(\\d{1,2})(?:\\s+(?:to|and|through|until|till|untl|thru|-)\\s+(?:(" + mn + ")\\s+)?(\\d{1,2}))", "i");
   const crossMatch = text.match(crossPattern);
   if (crossMatch) {
     const month1 = months[crossMatch[1].toLowerCase()];

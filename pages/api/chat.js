@@ -1082,9 +1082,15 @@ Do NOT say great news or over-promise. Be specific about which unit is open vs f
               // Check if the two windows together cover the full requested stay
               const coversStart = (w1006.from === dates.arrival && w707.to === dates.departure) ||
                                   (w707.from === dates.arrival && w1006.to === dates.departure);
+              // Continuous = windows share exact same date (10-13 then 13-17), NOT a gap (10-13 then 14-17)
               const windowsMeet = w1006.to === w707.from || w707.to === w1006.from;
+              // Minimum 3 nights total requested, and each window must be at least 2 nights
+              const totalNights = (new Date(dates.departure) - new Date(dates.arrival)) / 86400000;
+              const nights707  = (new Date(w707.to)  - new Date(w707.from))  / 86400000;
+              const nights1006 = (new Date(w1006.to) - new Date(w1006.from)) / 86400000;
+              const meetsMinimum = totalNights >= 3 && nights707 >= 2 && nights1006 >= 2;
 
-              if (coversStart && windowsMeet) {
+              if (coversStart && windowsMeet && meetsMinimum) {
                 // Perfect combined stay — unit switch mid-trip
                 const firstUnit  = w1006.from === dates.arrival ? "1006" : "707";
                 const secondUnit = firstUnit === "1006" ? "707" : "1006";
@@ -1096,7 +1102,9 @@ Do NOT say great news or over-promise. Be specific about which unit is open vs f
                 availabilityContext = `LIVE AVAILABILITY: Neither unit is available for the full stay, BUT together they cover it completely!
 Unit ${firstUnit} is available ${firstWindow.from} to ${firstWindow.to}: ${firstLink}
 Unit ${secondUnit} is available ${secondWindow.from} to ${secondWindow.to}: ${secondLink}
-Tell the guest warmly: both units are booked for the full period BUT we have a creative solution — they can start in Unit ${firstUnit} (${firstWindow.from} to ${firstWindow.to}) then move to Unit ${secondUnit} (${secondWindow.from} to ${secondWindow.to}) — same resort, same beach, just a quick unit switch mid-stay! Both booking links above. Use code DESTINY for 10% off each.`;
+Tell the guest warmly: both units are booked for the full period BUT we have a creative solution — they can start in Unit ${firstUnit} (${firstWindow.from} to ${firstWindow.to}) then move to Unit ${secondUnit} (${secondWindow.from} to ${secondWindow.to}) — same resort, same beach, just a quick unit switch mid-stay!
+IMPORTANT: Include this disclaimer naturally in your message: "Just a heads up — there will be a standard checkout and check-in process between the two units. We'll coordinate with our cleaning crew to get Unit ${secondUnit} ready as quickly as possible to minimize any wait time for you."
+Both booking links above. Use code DESTINY for 10% off each.`;
               } else {
                 // Partial windows but don't cover full stay together
                 availabilityStatus = `DATES:${dates.arrival}->${dates.departure} | BOTH_PARTIAL`;

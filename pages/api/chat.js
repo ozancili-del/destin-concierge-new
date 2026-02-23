@@ -97,7 +97,7 @@ function detectBlogTopic(text) {
   if (t.match(/activit|thing to do|fun|tour|dolphin|parasail|snorkel|kayak|boat|fishing|water sport|rainy|indoor fun/)) return "activities";
   if (t.match(/event|festival|concert|firework|show|calendar/)) return "events";
   if (t.match(/airport|fly|flight|drive|get there|closest airport|transportation/)) return "airport";
-  if (t.match(/romantic|romance|couple|honeymoon|anniversary|date night/)) return "romance";
+  if (t.match(/romantic.*thing|romantic.*place|romantic.*spot|romantic.*idea|romantic.*activity|romantic.*do|romance.*destin|date night.*destin|honeymoon.*do|anniversary.*thing|anniversary.*do|anniversary.*plan|where.*romantic|what.*romantic|most romantic|things.*couple/)) return "romance";
   if (t.match(/rent a car|car rental|enterprise|hertz|avis/)) return "car";
   if (t.match(/spa|massage|facial|relax|wellness/)) return "spa";
   if (t.match(/nightlife|night out|club|live music|drinks/)) return "nightlife";

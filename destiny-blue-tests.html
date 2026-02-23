@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Destiny Blue — Test Harness</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@400;500;600&display=swap');
+
+  :root {
+    --bg: #0d0f14;
+    --surface: #161920;
+    --border: #252830;
+    --pass: #1a3a2a;
+    --pass-text: #4ade80;
+    --fail: #3a1a1a;
+    --fail-text: #f87171;
+    --warn: #2d2510;
+    --warn-text: #fbbf24;
+    --skip: #1e2030;
+    --skip-text: #64748b;
+    --running: #1a2540;
+    --running-text: #60a5fa;
+    --accent: #6366f1;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --tag-bg: #1e2235;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  header {
+    padding: 20px 28px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 100;
+  }
+
+  .logo { font-weight: 600; font-size: 15px; letter-spacing: -0.3px; }
+  .logo span { color: var(--accent); }
+
+  .stats {
+    display: flex;
+    gap: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+  }
+
+  .stat-pass { color: var(--pass-text); }
+  .stat-fail { color: var(--fail-text); }
+  .stat-warn { color: var(--warn-text); }
+  .stat-total { color: var(--muted); }
+
+  .controls {
+    padding: 14px 28px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  button {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+  .btn-primary:hover { background: #5254d4; }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted);
+  }
+  .btn-ghost:hover { color: var(--text); border-color: #3a3d4a; }
+  .btn-ghost.active { color: var(--accent); border-color: var(--accent); background: #1a1b2e; }
+
+  .url-input {
+    flex: 1;
+    max-width: 340px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 12px;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+  }
+
+  .progress-bar {
+    height: 2px;
+    background: var(--border);
+    margin: 0 28px;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.3s;
+    width: 0%;
+  }
+
+  .categories {
+    padding: 16px 28px 0;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .tests-grid {
+    padding: 16px 28px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .category-header {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 16px 0 6px;
+  }
+
+  .test-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .test-card.status-pass { border-color: #2d5a3d; }
+  .test-card.status-fail { border-color: #5a2d2d; }
+  .test-card.status-warn { border-color: #5a4a1a; }
+  .test-card.status-running { border-color: #2d4a70; }
+
+  .test-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .test-header:hover { background: rgba(255,255,255,0.02); }
+
+  .status-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .badge-pending { background: var(--skip); color: var(--skip-text); }
+  .badge-running { background: var(--running); color: var(--running-text); animation: pulse 1s infinite; }
+  .badge-pass    { background: var(--pass);    color: var(--pass-text); }
+  .badge-fail    { background: var(--fail);    color: var(--fail-text); }
+  .badge-warn    { background: var(--warn);    color: var(--warn-text); }
+
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+
+  .test-info { flex: 1; min-width: 0; }
+
+  .test-name {
+    font-weight: 500;
+    font-size: 13px;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+
+  .test-messages {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .test-tags {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+  }
+
+  .tag {
+    font-size: 10px;
+    padding: 1px 7px;
+    border-radius: 10px;
+    background: var(--tag-bg);
+    color: var(--muted);
+  }
+
+  .tag.must-contain { background: #1a2535; color: #60a5fa; }
+  .tag.must-not     { background: #2a1a1a; color: #f87171; }
+  .tag.intent       { background: #1a2a1a; color: #4ade80; }
+
+  .run-btn {
+    font-size: 11px;
+    padding: 4px 10px;
+    flex-shrink: 0;
+    align-self: center;
+  }
+
+  .test-detail {
+    display: none;
+    border-top: 1px solid var(--border);
+    padding: 12px 14px;
+    gap: 12px;
+    flex-direction: column;
+  }
+
+  .test-detail.open { display: flex; }
+
+  .conversation-block {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .msg {
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    max-width: 85%;
+  }
+
+  .msg-user {
+    background: #1e2540;
+    align-self: flex-end;
+    color: #a5b4fc;
+  }
+
+  .msg-assistant {
+    background: #1a1f2e;
+    align-self: flex-start;
+    color: var(--text);
+    border: 1px solid var(--border);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .checks-block { display: flex; flex-direction: column; gap: 4px; }
+
+  .check-row {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .check-icon { flex-shrink: 0; margin-top: 1px; }
+  .check-pass .check-icon { color: var(--pass-text); }
+  .check-fail .check-icon { color: var(--fail-text); }
+  .check-warn .check-icon { color: var(--warn-text); }
+  .check-na   .check-icon { color: var(--muted); }
+
+  .check-label { color: var(--muted); }
+  .check-fail .check-label { color: var(--fail-text); }
+
+  .error-msg {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--fail-text);
+    background: var(--fail);
+    padding: 8px 12px;
+    border-radius: 6px;
+  }
+
+  .intent-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 1px 7px;
+    border-radius: 4px;
+    background: var(--tag-bg);
+    color: var(--muted);
+  }
+
+  .meta-row {
+    display: flex;
+    gap: 12px;
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    align-items: center;
+  }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Destiny <span>Blue</span> · Test Harness</div>
+  <div class="stats">
+    <span class="stat-pass">✓ <span id="count-pass">0</span></span>
+    <span class="stat-fail">✗ <span id="count-fail">0</span></span>
+    <span class="stat-warn">⚠ <span id="count-warn">0</span></span>
+    <span class="stat-total">/ <span id="count-total">0</span></span>
+  </div>
+</header>
+
+<div class="controls">
+  <button class="btn-primary" id="btn-run-all">▶ Run All</button>
+  <button class="btn-ghost" id="btn-run-failed">Run Failed</button>
+  <button class="btn-ghost" id="btn-reset">Reset</button>
+  <input class="url-input" id="api-url" value="https://www.destincondogetaways.com/api/chat" placeholder="API URL" />
+  <span style="color:var(--muted);font-size:11px;" id="run-status"></span>
+</div>
+
+<div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+
+<div class="categories" id="category-filters"></div>
+<div class="tests-grid" id="tests-grid"></div>
+
+<script>
+// ─── TEST DEFINITIONS ────────────────────────────────────────────────────────
+const TESTS = [
+
+  // ── BOOKING FLOW ────────────────────────────────────────────────────────────
+  { id: 1, cat: "Booking", name: "Slash date format",
+    messages: [{ role:"user", content:"7/28-7/31" }],
+    mustContain: ["adults","children","how many"],
+    mustNotContain: ["destincondogetaways.com/pelican"],
+    expectedIntent: null },
+
+  { id: 2, cat: "Booking", name: "Date + guest count → links",
+    messages: [
+      { role:"user", content:"july 4 to july 10" },
+      { role:"assistant", content:"Got it! How many adults and children?" },
+      { role:"user", content:"2 adults 1 kid" }
+    ],
+    mustContain: ["destincondogetaways.com/pelican","DESTINY"],
+    mustNotContain: [],
+    expectedIntent: "INFO" },
+
+  { id: 3, cat: "Booking", name: "Typo month — decmber",
+    messages: [{ role:"user", content:"2 decmber 10 december" }],
+    mustContain: ["adults","children","how many"],
+    mustNotContain: ["destincondogetaways.com/pelican"],
+    expectedIntent: null },
+
+  { id: 4, cat: "Booking", name: "Typo month — novemebr",
+    messages: [{ role:"user", content:"4 novemebr 12 november 2 adults" }],
+    mustContain: ["destincondogetaways.com/pelican","DESTINY"],
+    mustNotContain: [],
+    expectedIntent: "INFO" },
+
+  { id: 5, cat: "Booking", name: "After booking — topic switch should NOT re-send links",
+    messages: [
+      { role:"user", content:"july 4 to july 10" },
+      { role:"assistant", content:"How many adults and children?" },
+      { role:"user", content:"2 adults" },
+      { role:"assistant", content:"Great news — both units are available! [links]" },
+      { role:"user", content:"Is it tranquil there or is it noisy?" }
+    ],
+    mustNotContain: ["destincondogetaways.com/pelican"],
+    mustContain: ["tranquil","peaceful","beach"],
+    expectedIntent: "INFO" },
+
+  { id: 6, cat: "Booking", name: "Discount after dates + count → pre-built links",
+    messages: [
+      { role:"user", content:"july 4 to july 10" },
+      { role:"assistant", content:"How many adults and children?" },
+      { role:"user", content:"2 adults" },
+      { role:"assistant", content:"Great news — both units are available! [links]" },
+      { role:"user", content:"my friend booked it cheaper" }
+    ],
+    mustContain: ["Comments","Inquiry","Ozan"],
+    mustNotContain: ["share your dates","what are your dates"],
+    expectedIntent: "INFO" },
+
+  { id: 7, cat: "Booking", name: "Month only — availability probe",
+    messages: [{ role:"user", content:"Are you available in July?" }],
+    mustContain: ["july","dates","availability"],
+    mustNotContain: [],
+    expectedIntent: "INFO" },
+
+  { id: 8, cat: "Booking", name: "DESTINY code always mentioned with links",
+    messages: [
+      { role:"user", content:"august 5 to august 12 2 adults" }
+    ],
+    mustContain: ["DESTINY"],
+    mustNotContain: [],
+    expectedIntent: "INFO" },
+
+  // ── PETS ────────────────────────────────────────────────────────────────────
+  { id: 9, cat: "Pets", name: "2 dogs — no-pets policy, no kids invented",
+    messages: [
+      { role:"user", content:"july 4 to july 10" },
+      { role:"assistant", content:"How many adults and children?" },
+      { role:"user", content:"2 adults 2 dogs" }
+    ],
+    mustContain: ["no-pets","policy","furry"],
+    mustNotContain: ["2 kids","2 children","your family","for the family"],
+    expectedIntent: "INFO" },
+
+  { id: 10, cat: "Pets", name: "Cat mention",
+    messages: [{ role:"user", content:"Can I bring my cat?" }],
+    mustContain: ["no-pets","policy"],
+    mustNotContain: [],
+    expectedIntent: "INFO" },
+
+  { id: 11, cat: "Pets", name: "ESA — no exception",
+    messages: [{ role:"user", content:"I have an emotional support animal, is that ok?" }],
+    mustContain: ["no-pets","policy","exception"],
+    mustNotContain: [],
+    expectedIntent: "INFO" },
+
+  { id: 12, cat: "Pets", name: "Bird / parrot",
+    messages: [{ role:"user", content:"I'm bringing my parrot, is that fine?" }],
+    mustContain: ["no-pets","policy"],
+    mustNotContain: [],
+    expectedIntent: "INFO" },
+
+  // ── DISCOUNT ────────────────────────────────────────────────────────────────
+  { id: 13, cat: "Discount", name: "Discount no dates yet — ask for dates",
+    messages: [{ role:"user", content:"Can I get a discount?" }],
+    mustContain: ["dates","adults","children"],
+    mustNotContain: ["we can't","cannot offer","not possible"],
+    expectedIntent: "INFO" },
+
+  { id: 14, cat: "Discount", name: "Military discount ask",
+    messages: [{ role:"user", content:"Do you offer military discounts?" }],
+    mustContain: ["dates","Ozan","Inquiry"],
+    mustNotContain: ["we can't","not available"],
+    expectedIntent: "INFO" },
+
+  { id: 15, cat: "Discount", name: "Cheaper elsewhere — no platform named",
+    messages: [{ role:"user", content:"I saw it cheaper on another site" }],
+    mustNotContain: ["Airbnb","VRBO","booking.com"],
+    mustContain: ["Ozan","Inquiry"],
+    expectedIntent: "INFO" },
+
+  // ── MAINTENANCE ─────────────────────────────────────────────────────────────
+  { id: 16, cat: "Maintenance", name: "AC not working — fires MAINTENANCE",
+    messages: [{ role:"user", content:"The AC is not cooling at all" }],
+    mustContain: ["Ozan"],
+    mustNotContain: ["I'll keep you posted"],
+    expectedIntent: "MAINTENANCE" },
+
+  { id: 17, cat: "Maintenance", name: "Power outage — fires MAINTENANCE",
+    messages: [{ role:"user", content:"The power just went out in the unit" }],
+    mustContain: ["Ozan"],
+    mustNotContain: ["I can notify","I'll notify","will notify"],
+    expectedIntent: "MAINTENANCE" },
+
+  { id: 18, cat: "Maintenance", name: "Loud AC — MAINTENANCE not INFO",
+    messages: [{ role:"user", content:"The AC is making a really loud noise" }],
+    mustContain: ["Ozan"],
+    mustNotContain: [],
+    expectedIntent: "MAINTENANCE" },
+
+  { id: 19, cat: "Maintenance", name: "Question about AC — INFO not MAINTENANCE",
+    messages: [{ role:"user", content:"Is the AC good in the unit?" }],
+    mustNotContain: [],
+    mustContain: ["AC","cooling"],
+    expectedIntent: "INFO" },
+
+  { id: 20, cat: "Maintenance", name: "Loud nightlife question — INFO not MAINTENANCE",
+    messages: [{ role:"user", content:"Is it loud near the nightlife areas?" }],
+    mustNotContain: ["Ozan has been notified","I've notified","alert"],
+    mustContain: [],
+    expectedIntent: "INFO" },
+
+  { id: 21, cat: "Maintenance", name: "TV not working — MAINTENANCE",
+    messages: [{ role:"user", content:"The TV won't turn on" }],
+    mustContain: ["Ozan"],
+    expectedIntent: "MAINTENANCE" },
+
+  { id: 22, cat: "Maintenance", name: "Question about TV — INFO",
+    messages: [{ role:"user", content:"Does the TV have Netflix?" }],
+    mustNotContain: ["Ozan has been notified"],
+    mustContain: ["smart","Netflix"],
+    expectedIntent: "INFO" },
+
+  { id: 23, cat: "Maintenance", name: "Mixed — thanks then reports issue",
+    messages: [{ role:"user", content:"Got it thanks! Also the dishwasher is broken" }],
+    mustContain: ["Ozan"],
+    expectedIntent: "MAINTENANCE" },
+
+  // ── LOCKED OUT ──────────────────────────────────────────────────────────────
+  { id: 24, cat: "Locked Out", name: "Step 1 — can't get in, first message",
+    messages: [{ role:"user", content:"I can't get into the unit, the code isn't working" }],
+    mustContain: ["ozan@destincondogetaways.com","spam","inbox"],
+    mustNotContain: ["front desk","resort security","for security reasons"],
+    expectedIntent: "EMERGENCY" },
+
+  { id: 25, cat: "Locked Out", name: "Step 2 — checked email, nothing",
+    messages: [
+      { role:"user", content:"I can't get into the unit" },
+      { role:"assistant", content:"Check your email at ozan@destincondogetaways.com" },
+      { role:"user", content:"I checked my email and spam, nothing there" }
+    ],
+    mustContain: ["972","357-4262","text"],
+    mustNotContain: ["front desk","resort security"],
+    expectedIntent: "EMERGENCY" },
+
+  { id: 26, cat: "Locked Out", name: "No competitor suggestion when locked out",
+    messages: [{ role:"user", content:"Locked out, can't get in, door code wrong" }],
+    mustNotContain: ["Holiday Inn","Marriott","hotel","another place"],
+    mustContain: [],
+    expectedIntent: "EMERGENCY" },
+
+  // ── ESCALATION ──────────────────────────────────────────────────────────────
+  { id: 27, cat: "Escalation", name: "7 guests — firm on 6 max",
+    messages: [{ role:"user", content:"We have 7 people, is that ok?" }],
+    mustContain: ["6","maximum","fire code"],
+    mustNotContain: ["exception","can make","special case"],
+    expectedIntent: "INFO" },
+
+  { id: 28, cat: "Escalation", name: "Review threat — no acknowledgment",
+    messages: [{ role:"user", content:"I'm going to leave a 1-star review if you don't fix this" }],
+    mustNotContain: ["I understand your frustration with the review","we take reviews seriously"],
+    mustContain: ["Ozan","972"],
+    expectedIntent: "INFO" },
+
+  { id: 29, cat: "Escalation", name: "No competitor suggestion in emergency",
+    messages: [{ role:"user", content:"This is unacceptable, we need to find another place to stay" }],
+    mustNotContain: ["Holiday Inn","Marriott","Hilton","hotel nearby","other options nearby"],
+    mustContain: ["Ozan"],
+    expectedIntent: "INFO" },
+
+  // ── POLICIES ────────────────────────────────────────────────────────────────
+  { id: 30, cat: "Policies", name: "Check-in time",
+    messages: [{ role:"user", content:"What time is check-in?" }],
+    mustContain: ["4:00","4 PM","PM"],
+    mustNotContain: [],
+    expectedIntent: "INFO" },
+
+  { id: 31, cat: "Policies", name: "Smoking policy",
+    messages: [{ role:"user", content:"Can I smoke on the balcony?" }],
+    mustContain: ["250","designated"],
+    mustNotContain: [],
+    expectedIntent: "INFO" },
+
+  { id: 32, cat: "Policies", name: "Age policy — warm tone",
+    messages: [{ role:"user", content:"I'm 22, can I book?" }],
+    mustContain: ["25","married"],
+    mustNotContain: ["cannot book","not allowed","denied"],
+    expectedIntent: "INFO" },
+
+  { id: 33, cat: "Policies", name: "Early check-in — refer to Ozan only",
+    messages: [{ role:"user", content:"Can I check in at 2pm? I'll pay extra" }],
+    mustContain: ["Ozan","972"],
+    mustNotContain: ["cleaning crew","at the discretion of"],
+    expectedIntent: "INFO" },
+
+  { id: 34, cat: "Policies", name: "Cancellation policy",
+    messages: [{ role:"user", content:"What is your cancellation policy?" }],
+    mustContain: ["50%","48","30 days"],
+    mustNotContain: [],
+    expectedIntent: "INFO" },
+
+  // ── INFO / LOCAL ────────────────────────────────────────────────────────────
+  { id: 35, cat: "Info", name: "EV charger — specific location",
+    messages: [{ role:"user", content:"Is there a Tesla Supercharger nearby?" }],
+    mustContain: ["across the street","Winn-Dixie"],
+    mustNotContain: ["nearby in Destin","somewhere in Destin"],
+    expectedIntent: "INFO" },
+
+  { id: 36, cat: "Info", name: "Pool — heated indoor year round",
+    messages: [{ role:"user", content:"Are the pools heated?" }],
+    mustContain: ["indoor","heated","year-round"],
+    mustNotContain: [],
+    expectedIntent: "INFO" },
+
+  { id: 37, cat: "Info", name: "Competitor mention — never suggest",
+    messages: [{ role:"user", content:"We were thinking of booking the Marriott instead, why choose you?" }],
+    mustNotContain: ["Marriott is","Holiday Inn","other hotels","consider the Marriott"],
+    mustContain: ["beach","pool","amenities"],
+    expectedIntent: "INFO" },
+
+  { id: 38, cat: "Info", name: "Unit comparison — neutral",
+    messages: [{ role:"user", content:"Which unit is better, 707 or 1006?" }],
+    mustNotContain: ["707 is better","1006 is better","recommend 707","recommend 1006","quieter"],
+    mustContain: ["707","1006","floor"],
+    expectedIntent: "INFO" },
+
+  { id: 39, cat: "Info", name: "Gulf temperature in winter — honest",
+    messages: [{ role:"user", content:"Is the Gulf warm in February?" }],
+    mustNotContain: ["warm","great for swimming","perfect for a swim"],
+    mustContain: ["cold","indoor","heated pool"],
+    expectedIntent: "INFO" },
+
+  { id: 40, cat: "Info", name: "Banned ending phrase",
+    messages: [{ role:"user", content:"What restaurants are nearby?" }],
+    mustNotContain: ["If you have any other questions, just let me know"],
+    mustContain: [],
+    expectedIntent: "INFO" },
+
+  // ── EDGE CASES ──────────────────────────────────────────────────────────────
+  { id: 41, cat: "Edge Cases", name: "chatoz: direct message",
+    messages: [{ role:"user", content:"chatoz: Please call me about an issue" }],
+    mustContain: ["sent","Ozan","shortly"],
+    mustNotContain: [],
+    expectedIntent: "INFO" },
+
+  { id: 42, cat: "Edge Cases", name: "directPing false positive — questioning the bot",
+    messages: [{ role:"user", content:"how are you going to notify ozan exactly?" }],
+    mustNotContain: [],
+    mustContain: [],
+    alertShouldNotFire: true,
+    expectedIntent: "INFO" },
+
+  { id: 43, cat: "Edge Cases", name: "Accidental damage — no Discord claim",
+    messages: [{ role:"user", content:"I accidentally broke a glass, sorry!" }],
+    mustContain: ["okay","Ozan","972"],
+    mustNotContain: ["I've notified Ozan","alert has been sent","I notified"],
+    expectedIntent: "INFO" },
+
+  { id: 44, cat: "Edge Cases", name: "No banned ending",
+    messages: [{ role:"user", content:"How many guests can stay?" }],
+    mustNotContain: ["If you have any other questions, just let me know"],
+    mustContain: ["6"],
+    expectedIntent: "INFO" },
+
+  { id: 45, cat: "Edge Cases", name: "Child safety — specific solutions first",
+    messages: [{ role:"user", content:"I have a 2 year old, are the balcony doors safe?" }],
+    mustContain: ["sliding door","bar","wedge"],
+    mustNotContain: ["supervise","keep an eye"],
+    expectedIntent: "INFO" },
+];
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let results = {};
+let activeCategory = "All";
+let running = false;
+
+// ─── CATEGORIES ───────────────────────────────────────────────────────────────
+const categories = ["All", ...new Set(TESTS.map(t => t.cat))];
+
+function renderCategoryFilters() {
+  const el = document.getElementById("category-filters");
+  el.innerHTML = categories.map(c => `
+    <button class="btn-ghost ${c === activeCategory ? 'active' : ''}" onclick="setCategory('${c}')">${c}</button>
+  `).join("");
+}
+
+function setCategory(cat) {
+  activeCategory = cat;
+  renderCategoryFilters();
+  renderTests();
+}
+
+// ─── RENDER TESTS ─────────────────────────────────────────────────────────────
+function renderTests() {
+  const grid = document.getElementById("tests-grid");
+  const visibleTests = activeCategory === "All" ? TESTS : TESTS.filter(t => t.cat === activeCategory);
+
+  let html = "";
+  let currentCat = null;
+
+  for (const test of visibleTests) {
+    if (test.cat !== currentCat) {
+      currentCat = test.cat;
+      html += `<div class="category-header">${test.cat}</div>`;
+    }
+    html += renderTestCard(test);
+  }
+
+  grid.innerHTML = html;
+  updateStats();
+}
+
+function renderTestCard(test) {
+  const r = results[test.id];
+  const status = r ? r.status : "pending";
+  const badgeClass = `badge-${status}`;
+  const badgeText = status === "pending" ? "PENDING" : status === "running" ? "RUNNING" : status.toUpperCase();
+
+  const preview = test.messages.map(m => `${m.role === "user" ? "👤" : "🤖"} ${m.content.substring(0,50)}${m.content.length > 50 ? "…" : ""}`).join(" → ");
+
+  const tags = [
+    ...(test.mustContain || []).slice(0,2).map(t => `<span class="tag must-contain">contains: ${t}</span>`),
+    ...(test.mustNotContain || []).slice(0,2).map(t => `<span class="tag must-not">never: ${t}</span>`),
+    ...(test.expectedIntent ? [`<span class="tag intent">intent: ${test.expectedIntent}</span>`] : []),
+  ].join("");
+
+  return `
+    <div class="test-card status-${status}" id="card-${test.id}">
+      <div class="test-header" onclick="toggleDetail(${test.id})">
+        <span class="status-badge ${badgeClass}">${badgeText}</span>
+        <div class="test-info">
+          <div class="test-name">#${test.id} ${test.name}</div>
+          <div class="test-messages">${preview}</div>
+          <div class="test-tags">${tags}</div>
+        </div>
+        <button class="btn-ghost run-btn" onclick="event.stopPropagation(); runTest(${test.id})">Run</button>
+      </div>
+      <div class="test-detail ${r ? 'open' : ''}" id="detail-${test.id}">
+        ${r ? renderDetail(test, r) : ""}
+      </div>
+    </div>`;
+}
+
+function renderDetail(test, r) {
+  if (r.status === "running") return `<div style="color:var(--running-text);font-family:monospace;font-size:12px;padding:4px">Running…</div>`;
+  if (r.error) return `<div class="error-msg">Error: ${r.error}</div>`;
+
+  const convo = [...test.messages];
+  if (r.reply) convo.push({ role: "assistant", content: r.reply });
+
+  const msgs = convo.map(m => `<div class="msg msg-${m.role}">${escHtml(m.content)}</div>`).join("");
+
+  const checks = r.checks ? r.checks.map(c => {
+    const cls = c.pass === null ? "check-na" : c.pass ? "check-pass" : "check-fail";
+    const icon = c.pass === null ? "·" : c.pass ? "✓" : "✗";
+    return `<div class="check-row ${cls}"><span class="check-icon">${icon}</span><span class="check-label">${escHtml(c.label)}</span></div>`;
+  }).join("") : "";
+
+  const meta = r.intent ? `<div class="meta-row">
+    <span>detected intent: <span class="intent-badge">${r.intent}</span></span>
+    ${r.alertSent ? '<span style="color:var(--fail-text)">⚡ alert fired</span>' : '<span style="color:var(--muted)">no alert</span>'}
+    ${r.elapsed ? `<span>${r.elapsed}ms</span>` : ""}
+  </div>` : "";
+
+  return `
+    <div class="conversation-block">${msgs}</div>
+    ${checks ? `<div class="checks-block">${checks}</div>` : ""}
+    ${meta}`;
+}
+
+function toggleDetail(id) {
+  const el = document.getElementById(`detail-${id}`);
+  const r = results[id];
+  if (!r) return;
+  el.classList.toggle("open");
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+// ─── RUN SINGLE TEST ──────────────────────────────────────────────────────────
+async function runTest(id) {
+  const test = TESTS.find(t => t.id === id);
+  if (!test) return;
+
+  const apiUrl = document.getElementById("api-url").value.trim();
+  const sessionId = "test_" + Math.random().toString(36).slice(2);
+
+  // Set running
+  results[id] = { status: "running" };
+  updateCard(test);
+
+  const t0 = Date.now();
+  try {
+    const resp = await fetch(apiUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        messages: test.messages,
+        sessionId,
+      })
+    });
+
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const data = await resp.json();
+    const elapsed = Date.now() - t0;
+
+    const reply = data.reply || "";
+    const intent = data.detectedIntent || null;
+    const alertSent = data.alertSent || false;
+
+    // Run checks
+    const checks = [];
+
+    for (const phrase of (test.mustContain || [])) {
+      checks.push({
+        label: `must contain: "${phrase}"`,
+        pass: reply.toLowerCase().includes(phrase.toLowerCase())
+      });
+    }
+
+    for (const phrase of (test.mustNotContain || [])) {
+      checks.push({
+        label: `must NOT contain: "${phrase}"`,
+        pass: !reply.toLowerCase().includes(phrase.toLowerCase())
+      });
+    }
+
+    if (test.expectedIntent) {
+      checks.push({
+        label: `intent = ${test.expectedIntent} (got: ${intent || "none"})`,
+        pass: intent === test.expectedIntent
+      });
+    }
+
+    if (test.alertShouldNotFire) {
+      checks.push({
+        label: `alert should NOT fire (fired: ${alertSent})`,
+        pass: !alertSent
+      });
+    }
+
+    const failCount = checks.filter(c => c.pass === false).length;
+    const warnCount = checks.filter(c => c.pass === null).length;
+    const status = failCount > 0 ? "fail" : "pass";
+
+    results[id] = { status, reply, intent, alertSent, checks, elapsed };
+
+  } catch (err) {
+    results[id] = { status: "fail", error: err.message, checks: [] };
+  }
+
+  updateCard(test);
+  updateStats();
+}
+
+function updateCard(test) {
+  const card = document.getElementById(`card-${test.id}`);
+  if (!card) return;
+  const r = results[test.id];
+  card.className = `test-card status-${r.status}`;
+  card.innerHTML = renderTestCard(test).replace(/^<div[^>]*>/, "").replace(/<\/div>$/, "");
+
+  // Re-open detail if was open
+  const detail = document.getElementById(`detail-${test.id}`);
+  if (detail && r && r.status !== "pending" && r.status !== "running") {
+    detail.classList.add("open");
+    detail.innerHTML = renderDetail(test, r);
+  }
+}
+
+// ─── RUN ALL ──────────────────────────────────────────────────────────────────
+async function runAll(testsToRun) {
+  if (running) return;
+  running = true;
+  document.getElementById("btn-run-all").disabled = true;
+
+  const total = testsToRun.length;
+  let done = 0;
+
+  for (const test of testsToRun) {
+    document.getElementById("run-status").textContent = `Running ${done + 1}/${total}…`;
+    document.getElementById("progress").style.width = `${(done / total) * 100}%`;
+    await runTest(test.id);
+    done++;
+    await new Promise(r => setTimeout(r, 300)); // small delay to avoid hammering API
+  }
+
+  document.getElementById("progress").style.width = "100%";
+  document.getElementById("run-status").textContent = `Done — ${done} tests run`;
+  document.getElementById("btn-run-all").disabled = false;
+  running = false;
+}
+
+// ─── STATS ────────────────────────────────────────────────────────────────────
+function updateStats() {
+  const all = Object.values(results);
+  document.getElementById("count-pass").textContent = all.filter(r => r.status === "pass").length;
+  document.getElementById("count-fail").textContent = all.filter(r => r.status === "fail").length;
+  document.getElementById("count-warn").textContent = all.filter(r => r.status === "warn").length;
+  document.getElementById("count-total").textContent = TESTS.length;
+}
+
+// ─── BUTTONS ─────────────────────────────────────────────────────────────────
+document.getElementById("btn-run-all").onclick = () => {
+  const visible = activeCategory === "All" ? TESTS : TESTS.filter(t => t.cat === activeCategory);
+  runAll(visible);
+};
+
+document.getElementById("btn-run-failed").onclick = () => {
+  const failed = TESTS.filter(t => results[t.id] && results[t.id].status === "fail");
+  if (failed.length) runAll(failed);
+};
+
+document.getElementById("btn-reset").onclick = () => {
+  results = {};
+  document.getElementById("progress").style.width = "0%";
+  document.getElementById("run-status").textContent = "";
+  renderTests();
+  updateStats();
+};
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+renderCategoryFilters();
+renderTests();
+updateStats();
+</script>
+</body>
+</html>

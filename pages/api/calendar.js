@@ -13,8 +13,8 @@ const UNIT_1006_ID  = "410894";
 // ─────────────────────────────────────────────────────────────────────────────
 async function fetchBookings(propertyId) {
   try {
-    const apiKey = process.env.OWNERREZ_API_KEY;
-    if (!apiKey) throw new Error("OWNERREZ_API_KEY not set");
+    const apiKey = process.env.OWNERREZ_API_TOKEN;
+    if (!apiKey) throw new Error("OWNERREZ_API_TOKEN not set");
 
     const today = new Date();
     const sixMonths = new Date();

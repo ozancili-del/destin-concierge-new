@@ -895,7 +895,9 @@ If directly asked "which do you personally recommend?" — say: "I honestly coul
     // Always fires on new maintenance reports regardless of priorAlertSent.
     // This is the reliable path for issue #2, #3, #4 in the same session.
     if (isMaintenanceReport) {
-      const issueDesc = lastUser.replace(/[^\w\s,.'!?-]/g, "").trim().substring(0, 60).trim();
+      const rawDesc = lastUser.replace(/[^\w\s,.'!?-]/g, "").trim().substring(0, 60).trim();
+      const isFollowUp = /^(do you|did you|have you|any word|any update|any news|ok let me|let me know|hanging|still waiting|heard back|when will|when is he|is he coming|will he|can you check|anything yet|any response|got it|thanks|ok|sure|alright|sounds good)/i.test(lastUser.trim());
+      const issueDesc = (!isFollowUp && rawDesc.length >= 8) ? rawDesc : null;
       if (issueDesc && !openIssues.includes(issueDesc)) openIssues.push(issueDesc);
       const reason = openIssues.length > 1
         ? `🔧 MAINTENANCE — New issue reported (${openIssues.length} open issues)`
@@ -1670,7 +1672,11 @@ Use code **DESTINY** for 10% off! For Unit 707 questions contact Ozan at (972) 3
 
     // ── Extract short issue description (first 60 chars, cleaned up) ──
     function extractIssueDesc(text) {
-      return text.replace(/[^\w\s,.'!?-]/g, "").trim().substring(0, 60).trim();
+      const t = text.trim();
+      // Ignore follow-up questions and short acknowledgements — not actual issues
+      if (/^(do you|did you|have you|any word|any update|any news|ok let me|let me know|hanging|still waiting|heard back|when will|when is he|is he coming|will he|can you check|anything yet|any response|got it|thanks|ok|sure|alright|sounds good)/i.test(t)) return null;
+      if (t.length < 8) return null;
+      return t.replace(/[^\w\s,.'!?-]/g, "").trim().substring(0, 60).trim();
     }
 
     // ── Post-GPT Discord fire ─────────────────────────────────────────────────

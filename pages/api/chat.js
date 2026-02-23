@@ -1140,7 +1140,7 @@ BOTH UNITS HAVE IDENTICAL AMENITIES — only floor level and decor style differ.
 - No daily housekeeping — starter supplies on arrival
 
 Starter pack: toilet paper, shampoo, soaps, dish liquid, sponge, dishwasher tablets, paper towels, coffee
-Longer stays: Winn-Dixie/Target across the street, or Amazon/Instacart/Walmart delivery, or Tesla Supercharger across the street next to Winn-Dixie
+Longer stays: Winn-Dixie/Target across the street, or Amazon/Instacart/Walmart delivery
 Bring: beach towels (unit towels NOT outside), sunscreen, hat, sunglasses
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1164,6 +1164,7 @@ RESORT FACILITIES
 - Pool bracelets required March–October — keeps resort comfortable and secure during busy season
 - Coin-operated laundry on every floor — near center stairwell. Accepts quarters AND credit card.
 - 2 on-site EV chargers (J1772, paid)
+- Tesla Supercharger station directly across the street next to Winn-Dixie
 - Free parking up to 2 cars — parking pass at front desk
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

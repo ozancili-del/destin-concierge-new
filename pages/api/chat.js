@@ -206,6 +206,17 @@ function detectMaintenance(text) {
 function detectAccidentalDamage(text) {
   return /broke.*(?:plate|glass|cup|dish|mug|bowl|mirror|vase|frame|window|lamp)|(?:plate|glass|cup|dish|mug|bowl|mirror|vase|frame|lamp).*broke|cracked.*(?:plate|glass|cup|dish|mirror)|(?:plate|glass|cup|dish|mirror).*cracked|accidentally.*broke|accidentally.*broken|broke.*by.*accident|dropped.*(?:plate|glass|cup|dish|mug|bowl)|(?:spilled|stained).*(?:carpet|couch|sofa|mattress|furniture)/i.test(text);
 }
+// Detect external disturbance — noise/construction/smell from OUTSIDE the unit
+// These are NOT maintenance issues — Ozan cannot fix them
+function detectExternalDisturbance(text) {
+  return /jackhammer|jack hammer|jack-hammer|construction.*noise|remodel.*noise|renovation.*noise|noise.*construction|noise.*remodel|noise.*neighbor|neighbor.*noise|hammering|drilling|sawing|loud.*next door|next door.*loud|noise.*above|noise.*below|floor.*above|floor.*below|someone.*above|someone.*below|music.*beach|beach.*music|loud.*outside|outside.*noise|smell.*outside|outside.*smell|smoke.*hallway|hallway.*smoke|weed|marijuana|cigarette.*smell|smoke.*smell|garbage.*smell|smell.*garbage|trash.*smell|fireworks|loud.*party.*outside|outside.*party/i.test(text);
+}
+
+// Detect competitor mention — guest saying they will book elsewhere or found cheaper
+function detectCompetitorMention(text) {
+  return /(?:book|booking|booked|going|found|found it|try|trying|going with|going to use|choosing|chose|decided|prefer|using|use|looking at|looked at|check(?:ing|ed)? out)\s+(?:with\s+)?(?:another|other|different|a\s+(?:different|other|cheaper|better))\s+(?:site|website|platform|place|company|rental|condo|option|listing)|(?:destincondorent|vrbo|airbnb|tripadvisor|booking\.com|expedia|vacasa|evolve|turnkey|hipcamp|houfy)\s*(?:\.com)?|(?:your\s+(?:prices?|rates?|costs?)\s+(?:are\s+)?(?:too\s+)?(?:high|expensive|much|steep)|(?:too\s+)?(?:expensive|high|pricey|steep)\s+(?:for\s+(?:us|me)|compared|vs)|(?:found|saw|see)\s+(?:it\s+)?(?:cheaper|less expensive|better price|lower price|better deal)(?:\s+(?:elsewhere|somewhere|online|on another))?|(?:going\s+(?:with|to use)|book(?:ing)?\s+(?:with|from|at|through))\s+(?:someone else|another|a different|other))/i.test(text);
+}
+
 
 // Summarize raw guest issue descriptions into clean natural phrases
 // Called only when building the ack message — ~300-500ms, worth it for quality
@@ -681,7 +692,9 @@ export default async function handler(req, res) {
     const isChatOz = !!chatOzMatch;
     const chatOzContent = chatOzMatch ? chatOzMatch[1].trim() : "";
     const isAccidentalDamage = detectAccidentalDamage(lastUser);
-    const isMaintenanceReport = detectMaintenance(lastUser) && !isLockedOut && !isAccidentalDamage;
+    const isMaintenanceReport = detectMaintenance(lastUser) && !isLockedOut && !isAccidentalDamage && !detectExternalDisturbance(lastUser);
+    const isExternalDisturbance = detectExternalDisturbance(lastUser) && !isMaintenanceReport;
+    const isCompetitorMention = detectCompetitorMention(lastUser);
     const wantsAvailability = detectAvailabilityIntent(lastUser);
     // Pets detector — when mentioned, skip booking intercept and let GPT apply no-pets policy
     const mentionsPets = /\d+\s*pets?|\bwith.*pets?\b|\bdogs?\b|\bcats?\b|\bpuppies\b|\bkittens?\b|\bbirds?\b|\bparrots?\b|\brabbits?\b|\bhamsters?\b|\bferrets?\b|\bfish\b|\bsnakes?\b|\bturtles?\b|\banimals?\b|bring.*(?:my|our|the)\s+\w+.*(?:pet|dog|cat|bird|animal)|pet.*friendly|emotional support animal|\besa\b|\bservice animal\b/i.test(allUserText);
@@ -734,6 +747,8 @@ export default async function handler(req, res) {
 
     // ── LAYER 1: Build injected context blocks ──────────────────────────────
     let discountContext = "";
+    let externalDisturbanceContext = "";
+    let competitorContext = "";
     let bookingLinksContext = bookingLinksSent ? `📎 BOOKING LINKS ALREADY SENT: You already sent booking links earlier in this conversation. DO NOT send links again unless the guest explicitly asks for them again.
 The guest is now in follow-up conversation mode. Answer their questions naturally and conversationally:
 - If they ask about price/cost → explain the link shows total pricing, use DESTINY for 10% off
@@ -790,6 +805,39 @@ NEVER name Airbnb, VRBO, or any platform — say "booking platforms" instead.`;
       }
     }
 
+    // 🟡 COMPETITOR MENTION — guest says they found cheaper / booking elsewhere
+    if (isCompetitorMention && !isDiscountRequest) {
+      if (dates && hasGuestCount) {
+        const link707c = buildLink("707", dates.arrival, dates.departure, adults, children);
+        const link1006c = buildLink("1006", dates.arrival, dates.departure, adults, children);
+        competitorContext = `🟡 COMPETITOR MENTION — guest is considering booking elsewhere or says our prices are high.
+DO NOT mention platform fee savings (22%) — this is a direct competitor comparison, that argument is irrelevant.
+DO NOT get defensive. DO NOT list amenities unprompted. DO NOT beg.
+Dates and guest count are already known. Use these booking links:
+Unit 707: ${link707c}
+Unit 1006: ${link1006c}
+
+Follow this approach:
+1) Acknowledge warmly, zero pressure — 1 sentence (vary wording)
+2) Say: "Pricing in Destin can vary a lot by week — sometimes guests are surprised when they compare the same dates side by side."
+3) Invite them: "If you want, I can send you a direct booking link right now — just drop your note in the Comments/Questions box and hit Send Inquiry. Ozan reviews every one personally and will do his best."
+4) Soft close: "Either way, hope you have an amazing trip to Destin! 😊"
+NEVER name the competitor site directly.`;
+      } else {
+        competitorContext = `🟡 COMPETITOR MENTION — guest is considering booking elsewhere or says our prices are high.
+DO NOT mention platform fee savings (22%) — this is a direct competitor comparison, that argument is irrelevant.
+DO NOT get defensive. DO NOT list amenities unprompted. DO NOT beg.
+
+Follow this approach:
+1) Acknowledge warmly, zero pressure — 1 sentence
+2) Say: "Pricing varies a lot in Destin depending on the week — sometimes guests are surprised when they compare the same dates."
+3) Ask for their dates so you can build a direct booking link
+4) Tell them: "Once I have your dates I'll send you a direct link — you can drop a note in the Comments/Questions box and Ozan will personally review it 😊"
+5) Soft close: "No pressure — hope you find what works best for you!"
+NEVER name the competitor site directly.`;
+      }
+    }
+
     // 🔵 UNIT COMPARISON — inject neutral rule
     if (isUnitComparison) {
       unitComparisonContext = `🔵 UNIT COMPARISON QUESTION DETECTED — FOLLOW THIS EXACTLY:
@@ -800,6 +848,26 @@ NEVER mention furniture purchase dates or renovation years.
 Both units have the same WiFi smart lock, same amenities, same Gulf views.
 Present BOTH options positively and equally, then let the guest decide.
 If directly asked "which do you personally recommend?" — say: "I honestly couldn't pick — they're both wonderful! Unit 707 has classic coastal warmth, Unit 1006 has a fresh modern feel and slightly higher vantage point. It really comes down to your personal style 😊 Want me to check availability for both?"`;
+    }
+
+    // 🟠 EXTERNAL DISTURBANCE — noise/construction/smell outside unit's control
+    if (isExternalDisturbance) {
+      externalDisturbanceContext = `🟠 EXTERNAL DISTURBANCE DETECTED — noise, construction, smell, or issue from OUTSIDE the unit (neighboring remodel, jackhammer, music, smoke from hallway, etc.)
+THIS IS NOT A MAINTENANCE ISSUE — Ozan cannot fix external disturbances.
+INTENT: INFO (do not call this MAINTENANCE)
+
+Critical: DO NOT say "Ozan is already aware" or "Ozan is addressing this" — he is not. He has been notified and will investigate, that is all.
+DO NOT say "reaching out to address it" — construction/remodeling is beyond anyone's control.
+
+Follow this approach:
+1) Lead with genuine empathy — 1 sentence (vary wording, never parrot exactly)
+2) Be honest: neighboring remodels and construction happen occasionally, especially off-season, and are beyond the resort's or owner's control
+3) Say Ozan has been notified and will look into what's happening and update the guest when he knows more
+4) Offer a small comfort gesture: suggest the indoor heated pool, beach, or another way to enjoy the stay away from the noise
+5) End warmly
+
+Example tone (do NOT copy verbatim — vary naturally):
+"Oh no, I'm really sorry — that sounds genuinely disruptive! Unfortunately construction and remodeling in neighboring units can happen, especially in the off-season, and it's outside anyone's direct control. I've flagged this to Ozan and he'll look into what's going on and update you as soon as he can. In the meantime — is there anything we can help with to make your stay more comfortable despite the noise?"`;
     }
 
     // 🚨 LOCKOUT ESCALATION — fire Discord alert to Ozan
@@ -1245,7 +1313,7 @@ The guest may be following up or anxious. Your job now:
 - Remind them Ozan is handling it and they should expect direct contact soon
 - Keep it to 1-2 sentences max. Do not ask follow-up questions.
 - Example good responses: "Ozan is on it — you should hear from him or the team very shortly 🙏" / "He's already been notified and is handling this — just hang tight a little longer 🙏"
-\n\n` : ""}${isChildSafetyQuestion ? "👶 CHILD/TODDLER SAFETY QUESTION DETECTED — Follow CHILD / TODDLER / FAMILY SAFETY PRIORITY OVERRIDE exactly. Answer the specific safety question FIRST. No excitement opener. No smart lock pivot. Give portable solutions immediately.\n\n" : ""}${isAccidentalDamage ? "⚠️ ACCIDENTAL DAMAGE SCENARIO: Guest has broken something (plates, glasses etc). Follow the ACCIDENTAL DAMAGE RULE exactly. Do NOT say you notified Ozan. Do NOT offer to relay. Empathy first, then direct to Ozan at (972) 357-4262.\n\n" : ""}${alertWasFired ? "🚨 ALERT SENT THIS SESSION: An emergency Discord alert was automatically sent to Ozan during this conversation. If guest asks if you contacted Ozan or sent a message — say YES, an urgent alert was already sent to him. Do not say you will send it — it is already done.\n\n" : ""}${bookingLinksContext ? bookingLinksContext + "\n\n" : ""}${petsContext ? petsContext + "\n\n" : ""}${discountContext ? discountContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
+\n\n` : ""}${isChildSafetyQuestion ? "👶 CHILD/TODDLER SAFETY QUESTION DETECTED — Follow CHILD / TODDLER / FAMILY SAFETY PRIORITY OVERRIDE exactly. Answer the specific safety question FIRST. No excitement opener. No smart lock pivot. Give portable solutions immediately.\n\n" : ""}${isAccidentalDamage ? "⚠️ ACCIDENTAL DAMAGE SCENARIO: Guest has broken something (plates, glasses etc). Follow the ACCIDENTAL DAMAGE RULE exactly. Do NOT say you notified Ozan. Do NOT offer to relay. Empathy first, then direct to Ozan at (972) 357-4262.\n\n" : ""}${alertWasFired ? "🚨 ALERT SENT THIS SESSION: An emergency Discord alert was automatically sent to Ozan during this conversation. If guest asks if you contacted Ozan or sent a message — say YES, an urgent alert was already sent to him. Do not say you will send it — it is already done.\n\n" : ""}${bookingLinksContext ? bookingLinksContext + "\n\n" : ""}${petsContext ? petsContext + "\n\n" : ""}${competitorContext ? competitorContext + "\n\n" : ""}${discountContext ? discountContext + "\n\n" : ""}${externalDisturbanceContext ? externalDisturbanceContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PROPERTIES

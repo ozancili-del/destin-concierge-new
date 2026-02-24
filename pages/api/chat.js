@@ -640,8 +640,14 @@ export default async function handler(req, res) {
     const ozanAcknowledgedFinal = !!ozanAckType;
     console.log(`Session: ${sessionId || "anonymous"} | Returning: ${isReturningGuest} | OzanAck: ${ozanAckType || "none"}`);
 
-    const today = new Date().toLocaleDateString("en-US", {
+    const now = new Date();
+    const today = now.toLocaleDateString("en-US", {
       year: "numeric", month: "long", day: "numeric", weekday: "long",
+      timeZone: "America/Chicago",
+    });
+    const currentTime = now.toLocaleTimeString("en-US", {
+      hour: "numeric", minute: "2-digit", hour12: true,
+      timeZone: "America/Chicago",
     });
 
     const allUserText = messages.filter((m) => m.role === "user").map((m) => m.content).join(" ");
@@ -1191,10 +1197,18 @@ Tell guest warmly that neither unit is free for the full stay, but offer these s
       if (forecast) {
         const lines = forecast.map(d =>
           `${d.date}: ${d.desc}, high ${d.hi}°F / low ${d.lo}°F, ${d.rain}% rain chance`
-        ).join("\n");
-        blogContext = `\n\nREAL-TIME DESTIN WEATHER FORECAST (7 days) — use this data, do not guess:\n${lines}\nSummarize in 2-3 sentences max. No markdown bold. No bullet lists. Just warm conversational text.\nGulf swimming: ideal June-September, cool Oct-May, cold Dec-March → always suggest indoor heated pool for winter months.`;
+        ).join("
+");
+        blogContext = `
+
+REAL-TIME DESTIN WEATHER FORECAST (7 days) — use this data, do not guess:
+${lines}
+Summarize in 2-3 sentences max. No markdown bold. No bullet lists. Just warm conversational text.
+Gulf swimming: ideal June-September, cool Oct-May, cold Dec-March → always suggest indoor heated pool for winter months.`;
       } else {
-        blogContext = `\n\nWEATHER DATA UNAVAILABLE: Real-time weather could not be fetched. Do NOT guess or invent temperatures. Tell the guest honestly: "I don't have live weather data at the moment — for the most accurate Destin forecast I'd recommend checking weather.com. What I can say is that February in Destin typically sees highs in the mid-50s to low 60s°F, and the Gulf is quite chilly — our indoor heated pool is perfect this time of year!" Do NOT confidently state specific temperatures you are not sure about.`;
+        blogContext = `
+
+WEATHER DATA UNAVAILABLE: Real-time weather could not be fetched. Do NOT guess or invent temperatures. Tell the guest honestly: "I don't have live weather data at the moment — for the most accurate Destin forecast I'd recommend checking weather.com. What I can say is that February in Destin typically sees highs in the mid-50s to low 60s°F, and the Gulf is quite chilly — our indoor heated pool is perfect this time of year!" Do NOT confidently state specific temperatures you are not sure about.`;
       }
     } else if (blogTopic) {
       const blogResult = await fetchBlogContent(blogTopic);
@@ -1208,7 +1222,7 @@ Tell guest warmly that neither unit is free for the full stay, but offer these s
 You help guests discover and book beachfront condos at Pelican Beach Resort in Destin, Florida.
 You sound like a knowledgeable local friend — warm, genuine, never robotic.
 When a guest asks how they can trust you as an AI: be honest and humble. Say something like: "I do my best to give you accurate information — but for anything you want to double-check, Ozan is always available and better to cross-reference with him directly at (972) 357-4262 or ozan@destincondogetaways.com." Never claim your responses are "verified" or "guaranteed accurate."
-Today is ${today}.
+Today is ${today}. Current time in Destin: ${currentTime} CST.
 
 AMENITIES ACCURACY RULE:
 - Never invent resort/unit amenities.

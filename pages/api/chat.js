@@ -1201,9 +1201,9 @@ Tell guest warmly that neither unit is free for the full stay, but offer these s
 ");
         blogContext = `
 
-REAL-TIME DESTIN WEATHER FORECAST (7 days) — use this data, do not guess:
+DESTIN WEATHER FORECAST — use this data, do not guess:
 ${lines}
-Summarize in 2-3 sentences max. No markdown bold. No bullet lists. Just warm conversational text.
+FRAMING: Present this as today's forecast and 7-day outlook, NOT live current conditions. Open with something like: "Here's today's forecast and the week ahead for Destin!" Never say "right now it is X degrees" — this is forecast data, not a live thermometer. Summarize today in 1-2 sentences, then the week ahead. No markdown bold. No bullet lists. Warm conversational tone.
 Gulf swimming: ideal June-September, cool Oct-May, cold Dec-March → always suggest indoor heated pool for winter months.`;
       } else {
         blogContext = `

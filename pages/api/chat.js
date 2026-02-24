@@ -1197,8 +1197,7 @@ Tell guest warmly that neither unit is free for the full stay, but offer these s
       if (forecast) {
         const lines = forecast.map(d =>
           `${d.date}: ${d.desc}, high ${d.hi}°F / low ${d.lo}°F, ${d.rain}% rain chance`
-        ).join("
-");
+        ).join("\n");
         blogContext = `
 
 DESTIN WEATHER FORECAST — use this data, do not guess:

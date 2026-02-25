@@ -42,7 +42,7 @@ export default function Concierge() {
     const poll = async () => {
       if (!sessionIdRef.current) return;
       try {
-        const r = await fetch(`/api/ozan-poll?s=${sessionIdRef.current}&since=${lastSeenTsRef.current}`);
+        const r = await fetch(`/api/ozan-poll?s=${sessionIdRef.current}&since=${lastSeenTsRef.current}&_t=${Date.now()}`);
         const data = await r.json();
 
         // Ozan just joined (transition from PENDING to TRUE)

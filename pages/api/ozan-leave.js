@@ -30,8 +30,8 @@ async function getSheetsToken() {
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).end();
-  const { sessionId, key } = req.body || {};
-  if (key !== process.env.OZAN_KEY) return res.status(401).json({ error: "Unauthorized" });
+  const { sessionId, t: token } = req.body || {};
+  if (!token || !sessionId) return res.status(401).json({ error: "Unauthorized" });
   if (!sessionId) return res.status(400).json({ error: "Missing session" });
 
   try {
@@ -39,7 +39,7 @@ export default async function handler(req, res) {
     if (!token) return res.status(500).json({ error: "Auth failed" });
 
     const sheetRes = await fetch(
-      `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SESS_TAB}!A:F`,
+      `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SESS_TAB}!A:G`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
     const data = await sheetRes.json();
@@ -62,7 +62,7 @@ export default async function handler(req, res) {
     ];
 
     await fetch(
-      `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SESS_TAB}!A${rowIndex}:F${rowIndex}?valueInputOption=USER_ENTERED`,
+      `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SESS_TAB}!A${rowIndex}:G${rowIndex}?valueInputOption=USER_ENTERED`,
       { method: "PUT", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify({ values: [updatedRow] }) }
     );

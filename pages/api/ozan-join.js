@@ -31,7 +31,7 @@ async function getSheetsToken() {
 
 async function readSessRow(token, sessionId) {
   const res = await fetch(
-    `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SESS_TAB}!A:F`,
+    `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SESS_TAB}!A:G`,
     { headers: { Authorization: `Bearer ${token}` } }
   );
   if (!res.ok) return null;
@@ -46,7 +46,7 @@ async function readSessRow(token, sessionId) {
 async function writeSessRow(token, sessionId, rowData, rowIndex) {
   if (rowIndex) {
     await fetch(
-      `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SESS_TAB}!A${rowIndex}:F${rowIndex}?valueInputOption=USER_ENTERED`,
+      `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SESS_TAB}!A${rowIndex}:G${rowIndex}?valueInputOption=USER_ENTERED`,
       { method: "PUT", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify({ values: [rowData] }) }
     );
@@ -60,22 +60,26 @@ async function writeSessRow(token, sessionId, rowData, rowIndex) {
 }
 
 export default async function handler(req, res) {
-  // Allow GET (from Discord link tap) and POST
   const sessionId = req.query.s || req.body?.sessionId;
-  const key = req.query.key || req.body?.key;
+  const token = req.query.t || req.body?.t;
 
-  if (key !== process.env.OZAN_KEY) {
-    return res.status(401).json({ error: "Unauthorized" });
+  if (!sessionId || !token) {
+    return res.status(400).json({ error: "Missing session or token" });
   }
   if (!sessionId) {
     return res.status(400).json({ error: "Missing session" });
   }
 
   try {
-    const token = await getSheetsToken();
-    if (!token) return res.status(500).json({ error: "Auth failed" });
+    const accessToken = await getSheetsToken();
+    if (!accessToken) return res.status(500).json({ error: "Auth failed" });
 
-    const existing = await readSessRow(token, sessionId);
+    const existing = await readSessRow(accessToken, sessionId);
+    // Validate invite token matches what was stored in sessions sheet col G
+    const storedToken = existing?.row?.[6] || null;
+    if (!existing || !storedToken || storedToken !== token) {
+      return res.status(403).json({ error: "Invalid or expired invite link" });
+    }
     const currentRow = existing?.row || [];
 
     const updatedRow = [
@@ -85,9 +89,10 @@ export default async function handler(req, res) {
       currentRow[3] || "[]",    // ozanMessages — preserve existing
       new Date().toISOString(), // lastUpdate
       currentRow[5] || "",      // ozanAckType — preserve
+      currentRow[6] || "",      // inviteToken — preserve
     ];
 
-    await writeSessRow(token, sessionId, updatedRow, existing?.rowIndex);
+    await writeSessRow(accessToken, sessionId, updatedRow, existing?.rowIndex);
     console.log(`Ozan joined session ${sessionId} ✅`);
     return res.status(200).json({ ok: true });
   } catch (err) {

@@ -15,9 +15,13 @@ export default function Concierge() {
   const [pendingRelay, setPendingRelay] = useState(false);
   const [ozanAcked, setOzanAcked] = useState(false);
   const [ozanAckType, setOzanAckType] = useState(null);
+  const [ozanInvited, setOzanInvited] = useState(false);  // @ozan typed, waiting
+  const [ozanIsActive, setOzanIsActive] = useState(false); // Ozan in chat
+  const [lastSeenTs, setLastSeenTs] = useState(0);
   const sessionIdRef = useRef(null);
   const chatEndRef = useRef(null);
-  const scrollContainerRef = useRef(null); // ← ref on the scrollable div
+  const scrollContainerRef = useRef(null);
+  const pollIntervalRef = useRef(null);
 
   useEffect(() => {
     try {
@@ -28,6 +32,46 @@ export default function Concierge() {
       sessionIdRef.current = generateSessionId();
     }
   }, []);
+
+  // Poll for Ozan activity when invited or active
+  useEffect(() => {
+    if (!ozanInvited && !ozanIsActive) return;
+    if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+
+    const poll = async () => {
+      if (!sessionIdRef.current) return;
+      try {
+        const r = await fetch(`/api/ozan-poll?s=${sessionIdRef.current}&since=${lastSeenTs}`);
+        const data = await r.json();
+
+        // Ozan just joined
+        if (data.ozanActive === "TRUE" && !ozanIsActive) {
+          setOzanIsActive(true);
+          setOzanInvited(false);
+          setLog(l => [...l, { role: "system", content: "🟢 Ozan has joined the chat" }]);
+        }
+
+        // Ozan left
+        if (data.ozanActive === "FALSE" && ozanIsActive) {
+          setOzanIsActive(false);
+          clearInterval(pollIntervalRef.current);
+          setLog(l => [...l, { role: "system", content: "Ozan has left the chat — I'm back! 😊" }]);
+        }
+
+        // New messages from Ozan
+        if (data.messages?.length > 0) {
+          const newMsgs = data.messages.filter(m => m.role === "ozan");
+          if (newMsgs.length > 0) {
+            setLog(l => [...l, ...newMsgs.map(m => ({ role: "ozan", content: m.text }))]);
+            setLastSeenTs(Math.max(...newMsgs.map(m => m.ts)));
+          }
+        }
+      } catch (e) { /* ignore */ }
+    };
+
+    pollIntervalRef.current = setInterval(poll, 3000);
+    return () => clearInterval(pollIntervalRef.current);
+  }, [ozanInvited, ozanIsActive, lastSeenTs]);
 
   // Scroll INSIDE the chat box, not the whole page
   useEffect(() => {
@@ -58,7 +102,16 @@ export default function Concierge() {
         setAlertSent(false);
         setOzanAcked(false);
       }
-      const reply = data?.reply || "Hmm, I didn't get a reply.";
+      // @ozan invited — start polling, show waiting message
+      if (data.ozanInvited) setOzanInvited(true);
+      // Ozan is active — guest message was stored, no bot reply
+      if (data.ozanActive) {
+        setOzanIsActive(true);
+        return; // don't add bot bubble
+      }
+      // Empty reply = ozan active, skip bot bubble
+      const reply = data?.reply;
+      if (!reply) return;
       setLog(l => [...l, { role: "assistant", content: reply }]);
     } catch {
       setLog(l => [...l, { role: "assistant", content: "Sorry—there was an error reaching the bot." }]);
@@ -82,29 +135,33 @@ export default function Concierge() {
           style={{ height: 520, overflowY: "auto", padding: 12, background: "#fff" }}
         >
           {log.map((m, i) => {
+            if (m.role === "system") return (
+              <div key={i} style={{ textAlign: "center", fontSize: 11, color: "#9ca3af", margin: "6px 0", fontStyle: "italic" }}>
+                {m.content}
+              </div>
+            );
             const isUser = m.role === "user";
+            const isOzan = m.role === "ozan";
             return (
               <div key={i} style={{ display: "flex", justifyContent: isUser ? "flex-end" : "flex-start", marginBottom: 8 }}>
-                <div
-                  style={{
-                    maxWidth: "82%",
-                    padding: "8px 12px",
-                    borderRadius: 14,
-                    background: isUser ? "#111827" : "#f3f4f6",
-                    color: isUser ? "#fff" : "#111827",
-                    wordBreak: "break-word"
-                  }}
-                >
-                  {isUser ? (
-                    m.content
-                  ) : (
-                    <div dangerouslySetInnerHTML={{ __html: linkify(m.content) }} />
-                  )}
+                <div style={{ maxWidth: "82%" }}>
+                  {isOzan && <div style={{ fontSize: 10, color: "#6b7280", marginBottom: 2, fontWeight: "bold" }}>Ozan</div>}
+                  <div
+                    style={{
+                      padding: "8px 12px",
+                      borderRadius: 14,
+                      background: isUser ? "#111827" : isOzan ? "#0369a1" : "#f3f4f6",
+                      color: isUser || isOzan ? "#fff" : "#111827",
+                      wordBreak: "break-word"
+                    }}
+                  >
+                    {isUser ? m.content : <div dangerouslySetInnerHTML={{ __html: linkify(m.content) }} />}
+                  </div>
                 </div>
               </div>
             );
           })}
-          {busy && <div style={{ fontSize: 12, color: "#6b7280" }}>Destiny Blue is typing…</div>}
+          {busy && <div style={{ fontSize: 12, color: "#6b7280" }}>{ozanIsActive ? "Ozan is typing…" : "Destiny Blue is typing…"}</div>}
           <div ref={chatEndRef} />
         </div>
 

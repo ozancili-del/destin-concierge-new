@@ -802,8 +802,8 @@ export default async function handler(req, res) {
     const adjustedDates = isDateAdjust && priorDates ? parseDateAdjustment(lastUser, priorDates) : null;
 
 
-    // Final dates: confirmation > adjusted > explicit > holiday > null
-    const dates = confirmationDates || adjustedDates || rawDates || (holidayDates ? { arrival: holidayDates.arrival, departure: holidayDates.departure } : null);
+    // Final dates: adjusted > explicit > holiday > null (confirmation may override below after lastBotMsg)
+    let dates = adjustedDates || rawDates || (holidayDates ? { arrival: holidayDates.arrival, departure: holidayDates.departure } : null);
 
     // Detect month-only intent
     const monthNames = {january:"01",february:"02",march:"03",april:"04",may:"05",june:"06",july:"07",august:"08",september:"09",october:"10",november:"11",december:"12"};
@@ -843,6 +843,8 @@ export default async function handler(req, res) {
     const isSimpleConfirmation = /^\s*(yes|yeah|yep|sure|ok|okay|go ahead|please|sounds good|perfect|great|do it|check it|check that|let's do it|let's go|yes please|please check)\s*[!.]*\s*$/i.test(lastUser.trim());
     const botProposedDates = lastBotMsg && lastBotMsg.content ? extractDates(lastBotMsg.content) : null;
     const confirmationDates = isSimpleConfirmation && botProposedDates ? botProposedDates : null;
+    // Override dates with confirmation if guest said yes/ok to a proposed date shift
+    if (confirmationDates) { dates.arrival = confirmationDates.arrival; dates.departure = confirmationDates.departure; }
     const adultsMatchOuter = normalizeGuestCount(normalizedLastUser).match(/(\d+)\s*adult/i) || normalizedUserText.match(/(\d+)\s*adult/i) || (bareNumberReply ? normalizedLastUser.match(/(\d+)/) : null);
     const childrenMatchOuter = lastUser.match(/(\d+)\s*(kid|child|children|infant|baby|toddler)/i) || allUserText.match(/(\d+)\s*(kid|child|children|infant|baby|toddler)/i);
     const adults = adultsMatchOuter ? adultsMatchOuter[1] : "2";

@@ -611,7 +611,7 @@ async function readSessState(sessionId) {
     const token = await getSheetsToken();
     if (!token) return null;
     const res = await fetch(
-      `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${SESS_TAB}!A:G`,
+      `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(SESS_TAB)}!A:G`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
     if (!res.ok) return null;
@@ -629,13 +629,39 @@ async function readSessState(sessionId) {
     return null;
   } catch(e) { console.error("readSessState:", e.message); return null; }
 }
-async function writeSessState(sessionId, updates) {
+async function writeSessState(sessionId, updates, existingToken) {
+  // existingToken: pass already-fetched token to avoid double auth
   try {
     const sheetId = process.env.GOOGLE_SHEET_ID;
-    if (!sessionId || !sheetId) return;
-    const token = await getSheetsToken();
-    if (!token) return;
-    const existing = await readSessState(sessionId);
+    if (!sessionId || !sheetId) { console.error("writeSessState: missing sessionId or sheetId"); return; }
+    const token = existingToken || await getSheetsToken();
+    if (!token) { console.error("writeSessState: no auth token"); return; }
+
+    // Read existing row first to merge (single read, reuse token)
+    const readRes = await fetch(
+      `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(SESS_TAB)}!A:G`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    let rowIndex = null;
+    let existing = null;
+    if (readRes.ok) {
+      const readData = await readRes.json();
+      const rows = readData.values || [];
+      for (let i = 1; i < rows.length; i++) {
+        if (rows[i][0] === sessionId) {
+          rowIndex = i + 1;
+          existing = {
+            ozanAcked: rows[i][1] === "TRUE",
+            ozanActive: rows[i][2] || "FALSE",
+            ozanMessages: rows[i][3] ? JSON.parse(rows[i][3]) : [],
+            ozanAckType: rows[i][5] || null,
+            inviteToken: rows[i][6] || null,
+          };
+          break;
+        }
+      }
+    }
+
     const merged = {
       ozanAcked: existing?.ozanAcked ?? false,
       ozanActive: existing?.ozanActive ?? "FALSE",
@@ -644,22 +670,34 @@ async function writeSessState(sessionId, updates) {
       inviteToken: existing?.inviteToken ?? "",
       ...updates,
     };
-    const row = [sessionId, merged.ozanAcked ? "TRUE" : "FALSE", merged.ozanActive,
-      JSON.stringify(merged.ozanMessages), new Date().toISOString(), merged.ozanAckType || "", merged.inviteToken || ""];
-    if (existing?.rowIndex) {
-      await fetch(
-        `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${SESS_TAB}!A${existing.rowIndex}:F${existing.rowIndex}?valueInputOption=USER_ENTERED`,
+    const row = [
+      sessionId,
+      merged.ozanAcked ? "TRUE" : "FALSE",
+      merged.ozanActive,
+      JSON.stringify(merged.ozanMessages),
+      new Date().toISOString(),
+      merged.ozanAckType || "",
+      merged.inviteToken || "",
+    ];
+
+    if (rowIndex) {
+      const putRes = await fetch(
+        `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(SESS_TAB)}!A${rowIndex}:G${rowIndex}?valueInputOption=USER_ENTERED`,
         { method: "PUT", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
           body: JSON.stringify({ values: [row] }) }
       );
+      if (!putRes.ok) console.error("writeSessState PUT failed:", await putRes.text());
+      else console.log("writeSessState PUT ok for", sessionId);
     } else {
-      await fetch(
-        `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${SESS_TAB}!A1:append?valueInputOption=USER_ENTERED`,
+      const postRes = await fetch(
+        `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(SESS_TAB)}!A1:append?valueInputOption=USER_ENTERED`,
         { method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
           body: JSON.stringify({ values: [row] }) }
       );
+      if (!postRes.ok) console.error("writeSessState POST failed:", await postRes.text());
+      else console.log("writeSessState POST ok for", sessionId);
     }
-  } catch(e) { console.error("writeSessState:", e.message); }
+  } catch(e) { console.error("writeSessState exception:", e.message); }
 }
 
 
@@ -816,7 +854,7 @@ export default async function handler(req, res) {
     // sessions tab is authoritative ack source — overrides Sheet1 scan to fix unreliable detection
     const ozanAckType = sessState?.ozanAckType || ozanAckFromSheets || priorOzanAckType || null;
     const ozanActiveState = sessState?.ozanActive || "FALSE"; // FALSE | PENDING | TRUE
-    const ozanIsActive = ozanActiveState === "TRUE";
+    const ozanIsActive = ozanActiveState === "TRUE" || ozanActiveState === "PENDING"; // PENDING = invited, not yet joined — still silence Destiny
     const ozanAcknowledgedFinal = !!ozanAckType;
     console.log(`Session: ${sessionId || "anonymous"} | Returning: ${isReturningGuest} | OzanAck: ${ozanAckType || "none"}`);
 
@@ -1245,17 +1283,20 @@ Example tone (do NOT copy verbatim — vary naturally):
     // Check sesssing if Ozan was already invited for this session
     const ozanAlreadyInvited = ozanActiveState === "TRUE" || ozanActiveState === "PENDING" || sessState?.ozanAcked === false && priorAlertSent;
     if (isChatOz) {
-      // Generate short-lived invite token — never expose master key in URL
-      const inviteToken = Buffer.from(`${sessionId}:${Date.now()}`).toString("base64url").substring(0, 20);
-      await writeSessState(sessionId, { ozanActive: "PENDING", inviteToken });
+      // Only fire alert once per session
+      const shouldFireOzanAlert = !ozanAlreadyInvited && !priorAlertSent;
+
+      // Reuse stored token if already invited, else generate new one
+      let inviteToken = sessState?.inviteToken || null;
+      if (shouldFireOzanAlert) {
+        inviteToken = Buffer.from(`${sessionId}:${Date.now()}`).toString("base64url").substring(0, 20);
+        await writeSessState(sessionId, { ozanActive: "PENDING", inviteToken });
+      }
+
       const enterChatUrl = `https://destin-concierge-new.vercel.app/ozan?s=${sessionId}&t=${inviteToken}`;
       const ozanMsg = chatOzContent
         ? `💬 **Guest wants to talk:** "${chatOzContent}"`
         : "💬 **Guest is requesting to chat with you directly**";
-
-      // Send Discord alert only once per session — not on every @ozan message
-      const shouldFireOzanAlert = !ozanAlreadyInvited && !priorAlertSent;
-      if (shouldFireOzanAlert) await writeSessState(sessionId, { ozanActive: "PENDING" });
 
       // Send Discord alert with Enter Chat button (URL button style:5)
       try {
@@ -1288,6 +1329,7 @@ Example tone (do NOT copy verbatim — vary naturally):
         ozanAcked: false,
         ozanAckType,
         ozanInvited: true,
+        ozanToken: inviteToken,
         detectedIntent: "INFO",
       });
     }
@@ -1300,8 +1342,8 @@ Example tone (do NOT copy verbatim — vary naturally):
         ozanMessages: [...currentMsgs, { role: "guest", text: lastUser, ts: Date.now() }],
       });
       return res.status(200).json({
-        reply: "", // empty — concierge.js will not show a bot bubble
-        ozanActive: true,
+        reply: "", // empty — concierge.js suppresses empty replies when ozanActive
+        ozanActive: ozanActiveState, // pass actual state so concierge polls correctly
         alertSent: priorAlertSent,
         pendingRelay: false,
         ozanAcked: ozanAcknowledgedFinal,

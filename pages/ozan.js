@@ -12,7 +12,7 @@ export default function OzanChat() {
   const [busy, setBusy] = useState(false);
   const [joined, setJoined] = useState(false);
   const [left, setLeft] = useState(false);
-  const [lastSeen, setLastSeen] = useState(0);
+  const lastSeenRef = useRef(0); // useRef avoids stale closure in setInterval
   const scrollRef = useRef(null);
   const pollRef = useRef(null);
 
@@ -72,7 +72,7 @@ export default function OzanChat() {
         const newMsgs = data.messages.filter(m => m.ts > lastSeen);
         if (newMsgs.length > 0) {
           setLog(l => [...l, ...newMsgs]);
-          setLastSeen(Math.max(...newMsgs.map(m => m.ts)));
+          lastSeenRef.current = Math.max(...newMsgs.map(m => m.ts));
         }
       }
     } catch (e) { /* ignore poll errors */ }

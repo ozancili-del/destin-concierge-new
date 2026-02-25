@@ -17,7 +17,7 @@ export default function Concierge() {
   const [ozanAckType, setOzanAckType] = useState(null);
   const [ozanInvited, setOzanInvited] = useState(false);  // @ozan typed, waiting
   const [ozanIsActive, setOzanIsActive] = useState(false); // Ozan in chat
-  const [lastSeenTs, setLastSeenTs] = useState(0);
+  const lastSeenTsRef = useRef(0); // useRef avoids stale closure in setInterval
   const sessionIdRef = useRef(null);
   const chatEndRef = useRef(null);
   const scrollContainerRef = useRef(null);
@@ -42,7 +42,7 @@ export default function Concierge() {
     const poll = async () => {
       if (!sessionIdRef.current) return;
       try {
-        const r = await fetch(`/api/ozan-poll?s=${sessionIdRef.current}&since=${lastSeenTs}`);
+        const r = await fetch(`/api/ozan-poll?s=${sessionIdRef.current}&since=${lastSeenTsRef.current}`);
         const data = await r.json();
 
         // Ozan just joined (transition from PENDING to TRUE)
@@ -65,7 +65,7 @@ export default function Concierge() {
           const newMsgs = data.messages.filter(m => m.role === "ozan");
           if (newMsgs.length > 0) {
             setLog(l => [...l, ...newMsgs.map(m => ({ role: "ozan", content: m.text }))]);
-            setLastSeenTs(Math.max(...newMsgs.map(m => m.ts)));
+            lastSeenTsRef.current = Math.max(...newMsgs.map(m => m.ts));
           }
         }
       } catch (e) { /* ignore */ }
@@ -73,7 +73,7 @@ export default function Concierge() {
 
     pollIntervalRef.current = setInterval(poll, 3000);
     return () => clearInterval(pollIntervalRef.current);
-  }, [ozanInvited, ozanIsActive, lastSeenTs]);
+  }, [ozanInvited, ozanIsActive]); // lastSeenTs is now a ref, no dep needed
 
   // Scroll INSIDE the chat box, not the whole page
   useEffect(() => {

@@ -22,6 +22,7 @@ export default function Concierge() {
   const chatEndRef = useRef(null);
   const scrollContainerRef = useRef(null);
   const pollIntervalRef = useRef(null);
+  const ozanTokenRef = useRef(null); // stores invite token for ozan-send calls
 
   useEffect(() => {
     try {
@@ -44,12 +45,13 @@ export default function Concierge() {
         const r = await fetch(`/api/ozan-poll?s=${sessionIdRef.current}&since=${lastSeenTs}`);
         const data = await r.json();
 
-        // Ozan just joined
+        // Ozan just joined (transition from PENDING to TRUE)
         if (data.ozanActive === "TRUE" && !ozanIsActive) {
           setOzanIsActive(true);
           setOzanInvited(false);
           setLog(l => [...l, { role: "system", content: "🟢 Ozan has joined the chat" }]);
         }
+        // Still pending — keep polling silently
 
         // Ozan left
         if (data.ozanActive === "FALSE" && ozanIsActive) {
@@ -83,9 +85,28 @@ export default function Concierge() {
   async function send(e) {
     e.preventDefault();
     if (!input.trim() || busy) return;
-    const userMsg = { role: "user", content: input.trim() };
-    setLog(l => [...l, userMsg]);
+    const text = input.trim();
     setInput("");
+
+    // If Ozan is invited or active — route to Ozan, don't call Destiny Blue
+    if (ozanIsActive || ozanInvited) {
+      setLog(l => [...l, { role: "user", content: text }]);
+      try {
+        await fetch("/api/ozan-send", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sessionId: sessionIdRef.current, text, t: ozanTokenRef.current || "pending", role: "guest" }),
+        });
+      } catch(e) { /* store best-effort */ }
+      if (!ozanIsActive) {
+        // Still waiting for Ozan to join — show holding message
+        setLog(l => [...l, { role: "system", content: "⏳ Message held — Ozan will see it when he joins" }]);
+      }
+      return;
+    }
+
+    const userMsg = { role: "user", content: text };
+    setLog(l => [...l, userMsg]);
     setBusy(true);
     try {
       const r = await fetch("/api/chat", {
@@ -102,16 +123,20 @@ export default function Concierge() {
         setAlertSent(false);
         setOzanAcked(false);
       }
-      // @ozan invited — start polling, show waiting message
-      if (data.ozanInvited) setOzanInvited(true);
-      // Ozan is active — guest message was stored, no bot reply
-      if (data.ozanActive) {
-        setOzanIsActive(true);
-        return; // don't add bot bubble
+      // @ozan invited — start polling
+      if (data.ozanInvited) {
+        setOzanInvited(true);
+        if (data.ozanToken) ozanTokenRef.current = data.ozanToken;
       }
-      // Empty reply = ozan active, skip bot bubble
+      // Ozan active (TRUE or PENDING) — suppress bot reply, ensure polling runs
+      if (data.ozanActive === "TRUE" || data.ozanActive === "PENDING" || data.ozanActive === true) {
+        if (data.ozanActive === "TRUE") setOzanIsActive(true);
+        setOzanInvited(true); // start polling regardless
+        return; // no bot bubble
+      }
+      // Sentinel or empty reply — suppress
       const reply = data?.reply;
-      if (!reply) return;
+      if (!reply || reply === "⏳") return;
       setLog(l => [...l, { role: "assistant", content: reply }]);
     } catch {
       setLog(l => [...l, { role: "assistant", content: "Sorry—there was an error reaching the bot." }]);
@@ -161,7 +186,13 @@ export default function Concierge() {
               </div>
             );
           })}
-          {busy && <div style={{ fontSize: 12, color: "#6b7280" }}>{ozanIsActive ? "Ozan is typing…" : "Destiny Blue is typing…"}</div>}
+          {ozanInvited && !ozanIsActive && (
+        <div style={{ fontSize: 12, color: "#0369a1", fontWeight: "bold", padding: "4px 0" }}>
+          🟡 Connecting you with Ozan — type and he'll see your messages when he joins…
+        </div>
+      )}
+      {busy && !ozanInvited && <div style={{ fontSize: 12, color: "#6b7280" }}>Destiny Blue is typing…</div>}
+      {ozanIsActive && busy && <div style={{ fontSize: 12, color: "#6b7280" }}>Ozan is typing…</div>}
           <div ref={chatEndRef} />
         </div>
 

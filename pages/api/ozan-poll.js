@@ -29,11 +29,12 @@ async function getSheetsToken() {
 }
 
 export default async function handler(req, res) {
-  // Prevent any caching — poll must always get fresh data
   res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
-  res.setHeader("Pragma", "no-cache");
 
-  const { s: sessionId, since = "0" } = req.query;
+  // Accept both GET (concierge) and POST (ozan.js) — read from whichever has data
+  const params = req.method === "POST" ? (req.body || {}) : (req.query || {});
+  const sessionId = params.s || params.sessionId;
+  const since = params.since || "0";
   if (!sessionId) return res.status(400).json({ error: "Missing session" });
 
   try {

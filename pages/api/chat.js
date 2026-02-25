@@ -603,7 +603,7 @@ async function getSheetsToken(retries = 3) {
 }
 
 // ─── sessions tab helpers ────────────────────────────────────────────────────
-const SESS_TAB = "sessions";
+const SESS_TAB = "ozanchat";
 async function readSessState(sessionId) {
   try {
     const sheetId = process.env.GOOGLE_SHEET_ID;
@@ -690,7 +690,7 @@ async function writeSessState(sessionId, updates, existingToken) {
       else console.log("writeSessState PUT ok for", sessionId);
     } else {
       const postRes = await fetch(
-        `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${SESS_TAB}!A:append?valueInputOption=USER_ENTERED`,
+        `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${SESS_TAB}!A1:append?valueInputOption=USER_ENTERED`,
         { method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
           body: JSON.stringify({ values: [row] }) }
       );

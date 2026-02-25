@@ -778,6 +778,10 @@ export default async function handler(req, res) {
     // Pets detector — when mentioned, skip booking intercept and let GPT apply no-pets policy
     const mentionsPets = /\d+\s*pets?|\bwith.*pets?\b|\bdogs?\b|\bcats?\b|\bpuppies\b|\bkittens?\b|\bbirds?\b|\bparrots?\b|\brabbits?\b|\bhamsters?\b|\bferrets?\b|\bfish\b|\bsnakes?\b|\bturtles?\b|\banimals?\b|bring.*(?:my|our|the)\s+\w+.*(?:pet|dog|cat|bird|animal)|pet.*friendly|emotional support animal|\besa\b|\bservice animal\b/i.test(allUserText);
 
+    // lastBotMsg needed for confirmation detection — must be before date extraction
+    const lastBotMsg = [...messages].reverse().find(m => m.role === "assistant");
+    const botAskedGuestCount = lastBotMsg && /how many (adult|child|guest|people|person)|how many.*staying|number of (adult|guest|people)/i.test(lastBotMsg.content);
+
     // Holiday / vague / adjustment detection
     const holidayDates    = extractHolidayDates(lastUser) || extractHolidayDates(allUserText.slice(-300));
     const isSpringBreak   = detectSpringBreak(lastUser);
@@ -797,10 +801,6 @@ export default async function handler(req, res) {
       (extractHolidayDates(priorUserText) ? { arrival: extractHolidayDates(priorUserText).arrival, departure: extractHolidayDates(priorUserText).departure } : null);
     const adjustedDates = isDateAdjust && priorDates ? parseDateAdjustment(lastUser, priorDates) : null;
 
-    // "yes/ok/sure/go ahead" confirmation — carry forward dates bot just proposed
-    const isSimpleConfirmation = /^\s*(yes|yeah|yep|sure|ok|okay|go ahead|please|sounds good|perfect|great|do it|check it|check that|let\'s do it|let\'s go|yes please|please check)\s*[!.]*\s*$/i.test(lastUser.trim());
-    const botProposedDates = lastBotMsg && lastBotMsg.content && extractDates(lastBotMsg.content);
-    const confirmationDates = isSimpleConfirmation && botProposedDates ? botProposedDates : null;
 
     // Final dates: confirmation > adjusted > explicit > holiday > null
     const dates = confirmationDates || adjustedDates || rawDates || (holidayDates ? { arrival: holidayDates.arrival, departure: holidayDates.departure } : null);
@@ -834,13 +834,15 @@ export default async function handler(req, res) {
         .replace(/\bjust\s+myself\b/gi,                       "1 adults");
     }
     const normalizedUserText = normalizeGuestCount(allUserText);
-    const lastBotMsg = [...messages].reverse().find(m => m.role === "assistant");
-    const botAskedGuestCount = lastBotMsg && /how many (adult|child|guest|people|person)|how many.*staying|number of (adult|guest|people)/i.test(lastBotMsg.content);
     // If bot asked for guest count and guest replied with a bare number (e.g. "2", "4"), treat it as adult count
     const bareNumberReply = botAskedGuestCount && /^\s*\d+\s*$/.test(lastUser.trim());
     const normalizedLastUser = bareNumberReply ? lastUser.trim().replace(/^(\d+)$/, "$1 adults") : lastUser;
     const hasGuestCount = /(\d+)\s*(adult|kid|child|children|guest|person|people|infant|baby|toddler)/i.test(normalizedUserText) || bareNumberReply;
     const isGuestCountReply = botAskedGuestCount && hasGuestCount && !wantsAvailability;
+    // "yes/ok/sure" confirmation — carry forward dates bot just proposed in previous message
+    const isSimpleConfirmation = /^\s*(yes|yeah|yep|sure|ok|okay|go ahead|please|sounds good|perfect|great|do it|check it|check that|let's do it|let's go|yes please|please check)\s*[!.]*\s*$/i.test(lastUser.trim());
+    const botProposedDates = lastBotMsg && lastBotMsg.content ? extractDates(lastBotMsg.content) : null;
+    const confirmationDates = isSimpleConfirmation && botProposedDates ? botProposedDates : null;
     const adultsMatchOuter = normalizeGuestCount(normalizedLastUser).match(/(\d+)\s*adult/i) || normalizedUserText.match(/(\d+)\s*adult/i) || (bareNumberReply ? normalizedLastUser.match(/(\d+)/) : null);
     const childrenMatchOuter = lastUser.match(/(\d+)\s*(kid|child|children|infant|baby|toddler)/i) || allUserText.match(/(\d+)\s*(kid|child|children|infant|baby|toddler)/i);
     const adults = adultsMatchOuter ? adultsMatchOuter[1] : "2";

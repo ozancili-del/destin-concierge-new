@@ -792,11 +792,18 @@ export default async function handler(req, res) {
     );
 
     // Date adjustment — modify prior dates if guest says "2 days later" etc
-    const priorDates = extractDates(allUserText.replace(lastUser, "").trim());
+    const priorUserText = allUserText.replace(lastUser, "").trim();
+    const priorDates = extractDates(priorUserText) ||
+      (extractHolidayDates(priorUserText) ? { arrival: extractHolidayDates(priorUserText).arrival, departure: extractHolidayDates(priorUserText).departure } : null);
     const adjustedDates = isDateAdjust && priorDates ? parseDateAdjustment(lastUser, priorDates) : null;
 
-    // Final dates: adjusted > explicit > holiday > null
-    const dates = adjustedDates || rawDates || (holidayDates ? { arrival: holidayDates.arrival, departure: holidayDates.departure } : null);
+    // "yes/ok/sure/go ahead" confirmation — carry forward dates bot just proposed
+    const isSimpleConfirmation = /^\s*(yes|yeah|yep|sure|ok|okay|go ahead|please|sounds good|perfect|great|do it|check it|check that|let\'s do it|let\'s go|yes please|please check)\s*[!.]*\s*$/i.test(lastUser.trim());
+    const botProposedDates = lastBotMsg && lastBotMsg.content && extractDates(lastBotMsg.content);
+    const confirmationDates = isSimpleConfirmation && botProposedDates ? botProposedDates : null;
+
+    // Final dates: confirmation > adjusted > explicit > holiday > null
+    const dates = confirmationDates || adjustedDates || rawDates || (holidayDates ? { arrival: holidayDates.arrival, departure: holidayDates.departure } : null);
 
     // Detect month-only intent
     const monthNames = {january:"01",february:"02",march:"03",april:"04",may:"05",june:"06",july:"07",august:"08",september:"09",october:"10",november:"11",december:"12"};
@@ -827,12 +834,14 @@ export default async function handler(req, res) {
         .replace(/\bjust\s+myself\b/gi,                       "1 adults");
     }
     const normalizedUserText = normalizeGuestCount(allUserText);
-    const hasGuestCount = /(\d+)\s*(adult|kid|child|children|guest|person|people|infant|baby|toddler)/i.test(normalizedUserText);
-    // True when bot just asked for guest count and guest is now answering it
     const lastBotMsg = [...messages].reverse().find(m => m.role === "assistant");
     const botAskedGuestCount = lastBotMsg && /how many (adult|child|guest|people|person)|how many.*staying|number of (adult|guest|people)/i.test(lastBotMsg.content);
+    // If bot asked for guest count and guest replied with a bare number (e.g. "2", "4"), treat it as adult count
+    const bareNumberReply = botAskedGuestCount && /^\s*\d+\s*$/.test(lastUser.trim());
+    const normalizedLastUser = bareNumberReply ? lastUser.trim().replace(/^(\d+)$/, "$1 adults") : lastUser;
+    const hasGuestCount = /(\d+)\s*(adult|kid|child|children|guest|person|people|infant|baby|toddler)/i.test(normalizedUserText) || bareNumberReply;
     const isGuestCountReply = botAskedGuestCount && hasGuestCount && !wantsAvailability;
-    const adultsMatchOuter = normalizeGuestCount(lastUser).match(/(\d+)\s*adult/i) || normalizedUserText.match(/(\d+)\s*adult/i);
+    const adultsMatchOuter = normalizeGuestCount(normalizedLastUser).match(/(\d+)\s*adult/i) || normalizedUserText.match(/(\d+)\s*adult/i) || (bareNumberReply ? normalizedLastUser.match(/(\d+)/) : null);
     const childrenMatchOuter = lastUser.match(/(\d+)\s*(kid|child|children|infant|baby|toddler)/i) || allUserText.match(/(\d+)\s*(kid|child|children|infant|baby|toddler)/i);
     const adults = adultsMatchOuter ? adultsMatchOuter[1] : "2";
     const children = childrenMatchOuter ? childrenMatchOuter[1] : "0";
@@ -934,14 +943,24 @@ NEVER name the competitor site directly.`;
 
     // 🗓️ HOLIDAY DATES — propose standard dates, invite adjustment
     if (holidayDates && !rawDates) {
-      holidayContext = `🗓️ HOLIDAY WEEKEND DETECTED: Guest mentioned "${holidayDates.label}".
-We have assumed standard dates: arrival ${holidayDates.arrival}, departure ${holidayDates.departure}.
-Availability has been checked for these dates (see results below).
+      if (hasGuestCount) {
+        holidayContext = `🗓️ HOLIDAY WEEKEND DETECTED: Guest mentioned "${holidayDates.label}".
+Standard dates assumed: arrival ${holidayDates.arrival}, departure ${holidayDates.departure}.
+Availability has been checked — see results below.
 FOLLOW THIS EXACTLY:
-1) Warmly confirm the dates you assumed: "I've checked ${holidayDates.label} for you!"
-2) Share availability result naturally
-3) Always add: "If you'd like to arrive a day earlier or stay a day longer, just let me know and I'll check right away!"
-NEVER present these as the only option — always invite them to adjust.`;
+1) Warmly confirm: "I\'ve checked ${holidayDates.label} for you — here\'s what I found!"
+2) Share the availability result with booking links
+3) Always add: "If you\'d like to arrive a day earlier or stay a day longer, just say the word and I\'ll check right away!"
+NEVER present these as the only option — always invite adjustment.`;
+      } else {
+        holidayContext = `🗓️ HOLIDAY WEEKEND DETECTED: Guest mentioned "${holidayDates.label}".
+Standard dates assumed: arrival ${holidayDates.arrival}, departure ${holidayDates.departure}.
+Guest count NOT yet known — do NOT run availability check yet.
+FOLLOW THIS EXACTLY in ONE message:
+1) Confirm dates warmly: "I\'ve got ${holidayDates.label} — that\'s ${holidayDates.arrival} to ${holidayDates.departure}!"
+2) Ask immediately: "Just need one more thing — how many adults and children will be staying? I\'ll check live availability for both units right away 😊"
+3) Do NOT give weather info, blog links, or anything else — just confirm dates and ask for guest count.`;
+      }
     }
 
     // 📅 DATE ADJUSTMENT — guest is shifting arrival or departure
@@ -1425,6 +1444,9 @@ You help guests discover and book beachfront condos at Pelican Beach Resort in D
 You sound like a knowledgeable local friend — warm, genuine, never robotic.
 When a guest asks how they can trust you as an AI: be honest and humble. Say something like: "I do my best to give you accurate information — but for anything you want to double-check, Ozan is always available and better to cross-reference with him directly at (972) 357-4262 or ozan@destincondogetaways.com." Never claim your responses are "verified" or "guaranteed accurate."
 Today is ${today}. Current time in Destin: ${currentTime} CST.
+
+⛔ CRITICAL URL RULE — NO EXCEPTIONS:
+NEVER invent, generate, guess, or modify booking URLs. The ONLY valid booking URLs are pre-built by the system and provided to you in the context below (they contain "or_arrival=" and "or_departure="). If no pre-built URL is provided, do NOT send any booking link — ask for missing info instead.
 
 AMENITIES ACCURACY RULE:
 - Never invent resort/unit amenities.

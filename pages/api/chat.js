@@ -611,7 +611,7 @@ async function readSessState(sessionId) {
     const token = await getSheetsToken();
     if (!token) return null;
     const res = await fetch(
-      `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(SESS_TAB)}!A:G`,
+      `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${SESS_TAB}!A:G`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
     if (!res.ok) return null;
@@ -639,7 +639,7 @@ async function writeSessState(sessionId, updates, existingToken) {
 
     // Read existing row first to merge (single read, reuse token)
     const readRes = await fetch(
-      `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(SESS_TAB)}!A:G`,
+      `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${SESS_TAB}!A:G`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
     let rowIndex = null;
@@ -682,7 +682,7 @@ async function writeSessState(sessionId, updates, existingToken) {
 
     if (rowIndex) {
       const putRes = await fetch(
-        `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(SESS_TAB)}!A${rowIndex}:G${rowIndex}?valueInputOption=USER_ENTERED`,
+        `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${SESS_TAB}!A${rowIndex}:G${rowIndex}?valueInputOption=USER_ENTERED`,
         { method: "PUT", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
           body: JSON.stringify({ values: [row] }) }
       );
@@ -690,7 +690,7 @@ async function writeSessState(sessionId, updates, existingToken) {
       else console.log("writeSessState PUT ok for", sessionId);
     } else {
       const postRes = await fetch(
-        `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(SESS_TAB)}!A1:append?valueInputOption=USER_ENTERED`,
+        `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${SESS_TAB}!A:append?valueInputOption=USER_ENTERED`,
         { method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
           body: JSON.stringify({ values: [row] }) }
       );

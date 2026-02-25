@@ -836,8 +836,25 @@ export default async function handler(req, res) {
     const normalizedUserText = normalizeGuestCount(allUserText);
     // If bot asked for guest count and guest replied with a bare number (e.g. "2", "4"), treat it as adult count
     const bareNumberReply = botAskedGuestCount && /^\s*\d+\s*$/.test(lastUser.trim());
+
+    // Scan full history for a prior bare-number guest count reply (e.g. guest said "2" after bot asked "how many?")
+    // This ensures guest count carries forward even after date adjustments
+    function extractGuestCountFromHistory(msgs) {
+      for (let i = 1; i < msgs.length; i++) {
+        const msg = msgs[i];
+        if (msg.role === "user" && /^\s*\d+\s*$/.test(msg.content.trim())) {
+          const prevBot = msgs[i - 1];
+          if (prevBot && prevBot.role === "assistant" &&
+            /how many (adult|child|guest|people|person)|how many.*staying|number of (adult|guest|people)/i.test(prevBot.content)) {
+            return msg.content.trim();
+          }
+        }
+      }
+      return null;
+    }
+    const historicBareCount = extractGuestCountFromHistory(messages);
     const normalizedLastUser = bareNumberReply ? lastUser.trim().replace(/^(\d+)$/, "$1 adults") : lastUser;
-    const hasGuestCount = /(\d+)\s*(adult|kid|child|children|guest|person|people|infant|baby|toddler)/i.test(normalizedUserText) || bareNumberReply;
+    const hasGuestCount = /(\d+)\s*(adult|kid|child|children|guest|person|people|infant|baby|toddler)/i.test(normalizedUserText) || bareNumberReply || !!historicBareCount;
     const isGuestCountReply = botAskedGuestCount && hasGuestCount && !wantsAvailability;
     // "yes/ok/sure" confirmation — carry forward dates bot just proposed in previous message
     const isSimpleConfirmation = /^\s*(yes|yeah|yep|sure|ok|okay|go ahead|please|sounds good|perfect|great|do it|check it|check that|let's do it|let's go|yes please|please check)\s*[!.]*\s*$/i.test(lastUser.trim());
@@ -845,7 +862,7 @@ export default async function handler(req, res) {
     const confirmationDates = isSimpleConfirmation && botProposedDates ? botProposedDates : null;
     // Override dates with confirmation if guest said yes/ok to a proposed date shift
     if (confirmationDates) { dates.arrival = confirmationDates.arrival; dates.departure = confirmationDates.departure; }
-    const adultsMatchOuter = normalizeGuestCount(normalizedLastUser).match(/(\d+)\s*adult/i) || normalizedUserText.match(/(\d+)\s*adult/i) || (bareNumberReply ? normalizedLastUser.match(/(\d+)/) : null);
+    const adultsMatchOuter = normalizeGuestCount(normalizedLastUser).match(/(\d+)\s*adult/i) || normalizedUserText.match(/(\d+)\s*adult/i) || (bareNumberReply ? normalizedLastUser.match(/(\d+)/) : null) || (historicBareCount ? [null, historicBareCount] : null);
     const childrenMatchOuter = lastUser.match(/(\d+)\s*(kid|child|children|infant|baby|toddler)/i) || allUserText.match(/(\d+)\s*(kid|child|children|infant|baby|toddler)/i);
     const adults = adultsMatchOuter ? adultsMatchOuter[1] : "2";
     const children = childrenMatchOuter ? childrenMatchOuter[1] : "0";

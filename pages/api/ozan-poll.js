@@ -37,7 +37,7 @@ export default async function handler(req, res) {
     if (!token) return res.status(200).json({ ozanActive: "FALSE", messages: [] });
 
     const sheetRes = await fetch(
-      `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SESS_TAB}!A:F`,
+      `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SESS_TAB}!A:G`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
     if (!sheetRes.ok) return res.status(200).json({ ozanActive: "FALSE", messages: [] });

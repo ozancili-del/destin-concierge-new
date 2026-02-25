@@ -611,7 +611,7 @@ async function readSessState(sessionId) {
     const token = await getSheetsToken();
     if (!token) return null;
     const res = await fetch(
-      `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${SESS_TAB}!A:F`,
+      `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${SESS_TAB}!A:G`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
     if (!res.ok) return null;
@@ -622,7 +622,8 @@ async function readSessState(sessionId) {
         return { rowIndex: i + 1, ozanAcked: rows[i][1] === "TRUE",
           ozanActive: rows[i][2] || "FALSE",
           ozanMessages: rows[i][3] ? JSON.parse(rows[i][3]) : [],
-          ozanAckType: rows[i][5] || null };
+          ozanAckType: rows[i][5] || null,
+          inviteToken: rows[i][6] || null };
       }
     }
     return null;
@@ -640,10 +641,11 @@ async function writeSessState(sessionId, updates) {
       ozanActive: existing?.ozanActive ?? "FALSE",
       ozanMessages: existing?.ozanMessages ?? [],
       ozanAckType: existing?.ozanAckType ?? null,
+      inviteToken: existing?.inviteToken ?? "",
       ...updates,
     };
     const row = [sessionId, merged.ozanAcked ? "TRUE" : "FALSE", merged.ozanActive,
-      JSON.stringify(merged.ozanMessages), new Date().toISOString(), merged.ozanAckType || ""];
+      JSON.stringify(merged.ozanMessages), new Date().toISOString(), merged.ozanAckType || "", merged.inviteToken || ""];
     if (existing?.rowIndex) {
       await fetch(
         `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${SESS_TAB}!A${existing.rowIndex}:F${existing.rowIndex}?valueInputOption=USER_ENTERED`,
@@ -1240,17 +1242,26 @@ Example tone (do NOT copy verbatim — vary naturally):
     }
 
     // ── @ozan — guest wants direct chat with Ozan ─────────────────────────────
+    // Check sesssing if Ozan was already invited for this session
+    const ozanAlreadyInvited = ozanActiveState === "TRUE" || ozanActiveState === "PENDING" || sessState?.ozanAcked === false && priorAlertSent;
     if (isChatOz) {
-      const enterChatUrl = `https://www.destincondogetaways.com/ozan?s=${sessionId}&key=${process.env.OZAN_KEY || ""}`;
+      // Generate short-lived invite token — never expose master key in URL
+      const inviteToken = Buffer.from(`${sessionId}:${Date.now()}`).toString("base64url").substring(0, 20);
+      await writeSessState(sessionId, { ozanActive: "PENDING", inviteToken });
+      const enterChatUrl = `https://destin-concierge-new.vercel.app/ozan?s=${sessionId}&t=${inviteToken}`;
       const ozanMsg = chatOzContent
         ? `💬 **Guest wants to talk:** "${chatOzContent}"`
         : "💬 **Guest is requesting to chat with you directly**";
+
+      // Send Discord alert only once per session — not on every @ozan message
+      const shouldFireOzanAlert = !ozanAlreadyInvited && !priorAlertSent;
+      if (shouldFireOzanAlert) await writeSessState(sessionId, { ozanActive: "PENDING" });
 
       // Send Discord alert with Enter Chat button (URL button style:5)
       try {
         const token = process.env.DISCORD_BOT_TOKEN;
         const channelId = process.env.DISCORD_CHANNEL_ID;
-        if (token && channelId) {
+        if (token && channelId && shouldFireOzanAlert) {
           await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
             method: "POST",
             headers: { Authorization: `Bot ${token}`, "Content-Type": "application/json" },
@@ -1268,7 +1279,7 @@ Example tone (do NOT copy verbatim — vary naturally):
         }
       } catch(e) { console.error("@ozan discord error:", e.message); }
 
-      const chatOzReply = "I'm connecting you with Ozan now! He'll join the chat shortly 🙏";
+      const chatOzReply = ozanAlreadyInvited ? "Ozan has already been notified and will join shortly — hang tight! 🙏" : "I'm connecting you with Ozan now! He'll join the chat shortly 🙏";
       await logToSheets(sessionId, lastUser, chatOzReply, "", "CHATOZ", chatOzContent);
       return res.status(200).json({
         reply: chatOzReply,

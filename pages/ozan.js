@@ -6,7 +6,7 @@ import { useState, useEffect, useRef } from "react";
 export default function OzanChat() {
   const [authorized, setAuthorized] = useState(false);
   const [sessionId, setSessionId] = useState(null);
-  const [key, setKey] = useState(null);
+  const [token, setToken] = useState(null);
   const [log, setLog] = useState([]); // { role: "guest"|"ozan"|"system", text, ts }
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
@@ -20,10 +20,10 @@ export default function OzanChat() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const s = params.get("s");
-    const k = params.get("key");
-    if (!s || !k) return;
+    const t = params.get("t");
+    if (!s || !t) return;
     setSessionId(s);
-    setKey(k);
+    setToken(t);
     setAuthorized(true);
   }, []);
 
@@ -40,9 +40,9 @@ export default function OzanChat() {
 
   async function joinChat() {
     try {
-      const r = await fetch(`/api/ozan-join?s=${sessionId}&key=${key}`, { method: "POST",
+      const r = await fetch(`/api/ozan-join?s=${sessionId}&t=${token}`, { method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sessionId, key }) });
+        body: JSON.stringify({ sessionId, t: token }) });
       if (r.ok) {
         setJoined(true);
         addSystem("You joined the chat. Guest will see: 🟢 Ozan has joined.");
@@ -91,7 +91,7 @@ export default function OzanChat() {
       await fetch("/api/ozan-send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sessionId, text, key, role: "ozan" }),
+        body: JSON.stringify({ sessionId, text, t: token, role: "ozan" }),
       });
     } catch (e) {
       addSystem("⚠️ Send failed — try again.");
@@ -107,7 +107,7 @@ export default function OzanChat() {
       await fetch("/api/ozan-leave", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sessionId, key }),
+        body: JSON.stringify({ sessionId, t: token }),
       });
       setLeft(true);
       addSystem("You left the chat. Destiny Blue has resumed.");

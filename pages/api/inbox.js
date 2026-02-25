@@ -45,7 +45,7 @@ async function getSheetsToken(retries = 3) {
 }
 
 // ─── sessions tab helper ─────────────────────────────────────────────────────
-const SESS_TAB = "sessions";
+const SESS_TAB = "ozanchat";
 async function readSessState(sessionId) {
   try {
     const sheetId = process.env.GOOGLE_SHEET_ID;
@@ -53,7 +53,7 @@ async function readSessState(sessionId) {
     const token = await getSheetsToken();
     if (!token) return null;
     const res = await fetch(
-      `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${SESS_TAB}!A:F`,
+      `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(SESS_TAB)}!A:G`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
     if (!res.ok) return null;
@@ -80,10 +80,11 @@ async function writeSessState(sessionId, updates) {
       ozanActive: existing?.ozanActive ?? "FALSE",
       ozanMessages: existing?.ozanMessages ?? [],
       ozanAckType: existing?.ozanAckType ?? null,
+      inviteToken: existing?.inviteToken ?? "",
       ...updates,
     };
     const row = [sessionId, merged.ozanAcked ? "TRUE" : "FALSE", merged.ozanActive,
-      JSON.stringify(merged.ozanMessages), new Date().toISOString(), merged.ozanAckType || ""];
+      JSON.stringify(merged.ozanMessages), new Date().toISOString(), merged.ozanAckType || "", merged.inviteToken || ""];
     if (existing?.rowIndex) {
       await fetch(
         `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${SESS_TAB}!A${existing.rowIndex}:F${existing.rowIndex}?valueInputOption=USER_ENTERED`,
@@ -92,7 +93,7 @@ async function writeSessState(sessionId, updates) {
       );
     } else {
       await fetch(
-        `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${SESS_TAB}!A1:append?valueInputOption=USER_ENTERED`,
+        `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(SESS_TAB)}!A1:append?valueInputOption=USER_ENTERED`,
         { method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
           body: JSON.stringify({ values: [row] }) }
       );

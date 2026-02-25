@@ -44,6 +44,63 @@ async function getSheetsToken(retries = 3) {
   return null;
 }
 
+// ─── sessions tab helper ─────────────────────────────────────────────────────
+const SESS_TAB = "sessions";
+async function readSessState(sessionId) {
+  try {
+    const sheetId = process.env.GOOGLE_SHEET_ID;
+    if (!sessionId || !sheetId) return null;
+    const token = await getSheetsToken();
+    if (!token) return null;
+    const res = await fetch(
+      `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${SESS_TAB}!A:F`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    if (!res.ok) return null;
+    const data = await res.json();
+    const rows = data.values || [];
+    for (let i = 1; i < rows.length; i++) {
+      if (rows[i][0] === sessionId) {
+        return { rowIndex: i + 1, ozanAcked: rows[i][1] === "TRUE", ozanActive: rows[i][2] || "FALSE",
+          ozanMessages: rows[i][3] ? JSON.parse(rows[i][3]) : [], ozanAckType: rows[i][5] || null };
+      }
+    }
+    return null;
+  } catch(e) { console.error("readSessState:", e.message); return null; }
+}
+async function writeSessState(sessionId, updates) {
+  try {
+    const sheetId = process.env.GOOGLE_SHEET_ID;
+    if (!sessionId || !sheetId) return;
+    const token = await getSheetsToken();
+    if (!token) return;
+    const existing = await readSessState(sessionId);
+    const merged = {
+      ozanAcked: existing?.ozanAcked ?? false,
+      ozanActive: existing?.ozanActive ?? "FALSE",
+      ozanMessages: existing?.ozanMessages ?? [],
+      ozanAckType: existing?.ozanAckType ?? null,
+      ...updates,
+    };
+    const row = [sessionId, merged.ozanAcked ? "TRUE" : "FALSE", merged.ozanActive,
+      JSON.stringify(merged.ozanMessages), new Date().toISOString(), merged.ozanAckType || ""];
+    if (existing?.rowIndex) {
+      await fetch(
+        `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${SESS_TAB}!A${existing.rowIndex}:F${existing.rowIndex}?valueInputOption=USER_ENTERED`,
+        { method: "PUT", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+          body: JSON.stringify({ values: [row] }) }
+      );
+    } else {
+      await fetch(
+        `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${SESS_TAB}!A1:append?valueInputOption=USER_ENTERED`,
+        { method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+          body: JSON.stringify({ values: [row] }) }
+      );
+    }
+  } catch(e) { console.error("writeSessState:", e.message); }
+}
+
+
 async function writeOzanAck(sessionId, ackType = "ozanack") {
   try {
     const sheetId = process.env.GOOGLE_SHEET_ID;
@@ -64,6 +121,9 @@ async function writeOzanAck(sessionId, ackType = "ozanack") {
       body: JSON.stringify({ values: [row] }),
     });
     console.log(`Ack written [${ackLabel}] for session ${sessionId} ✅`);
+
+    // Also write to sessions tab as authoritative ack source — fixes unreliable ack detection
+    await writeSessState(sessionId, { ozanAcked: true, ozanAckType: ackLabel });
   } catch (err) {
     console.error("writeOzanAck error:", err.message);
   }

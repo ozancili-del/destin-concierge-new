@@ -817,10 +817,14 @@ export default async function handler(req, res) {
     );
 
     // Date adjustment — modify prior dates if guest says "2 days later" etc
+    // Base for adjustment: explicit dates in current msg > holiday in current msg > dates in prior conversation
     const priorUserText = allUserText.replace(lastUser, "").trim();
-    const priorDates = extractDates(priorUserText) ||
+    const priorConvoDates = extractDates(priorUserText) ||
       (extractHolidayDates(priorUserText) ? { arrival: extractHolidayDates(priorUserText).arrival, departure: extractHolidayDates(priorUserText).departure } : null);
-    const adjustedDates = isDateAdjust && priorDates ? parseDateAdjustment(lastUser, priorDates) : null;
+    // Also check bot's last message for dates (e.g. bot confirmed "Sept 4-7" in prior turn)
+    const lastBotDates = lastBotMsg && lastBotMsg.content ? extractDates(lastBotMsg.content) : null;
+    const adjustBase = rawDates || (holidayDates ? { arrival: holidayDates.arrival, departure: holidayDates.departure } : null) || lastBotDates || priorConvoDates;
+    const adjustedDates = isDateAdjust && adjustBase ? parseDateAdjustment(lastUser, adjustBase) : null;
 
 
     // Final dates: adjusted > explicit > holiday > null (confirmation may override below after lastBotMsg)

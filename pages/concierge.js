@@ -7,7 +7,7 @@ function generateSessionId() {
 
 export default function Concierge() {
   const [log, setLog] = useState([
-    { role: "assistant", content: "Hi! I’m Destiny Blue. How can I help with your stay?" }
+    { role: "assistant", content: "Hi! I'm Destiny Blue. How can I help with your stay?" }
   ]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
@@ -17,6 +17,7 @@ export default function Concierge() {
   const [ozanAckType, setOzanAckType] = useState(null);
   const sessionIdRef = useRef(null);
   const chatEndRef = useRef(null);
+  const scrollContainerRef = useRef(null); // ← ref on the scrollable div
 
   useEffect(() => {
     try {
@@ -28,7 +29,12 @@ export default function Concierge() {
     }
   }, []);
 
-  useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [log, busy]);
+  // Scroll INSIDE the chat box, not the whole page
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
+    }
+  }, [log, busy]);
 
   async function send(e) {
     e.preventDefault();
@@ -48,16 +54,11 @@ export default function Concierge() {
       setPendingRelay(data.pendingRelay === true);
       if (data.ozanAcked) setOzanAcked(true);
       if (data.ozanAckType) setOzanAckType(data.ozanAckType);
-      // When an ack is confirmed for the first time, reset alert state so a
-      // second maintenance issue in the same session can fire a fresh alert.
-      // NOTE: do NOT clear ozanAckType — it must persist so Destiny knows Ozan
-      // already responded on all subsequent follow-up messages.
       if (data.ozanAckType && !ozanAckType) {
         setAlertSent(false);
         setOzanAcked(false);
-        // ozanAckType intentionally NOT cleared — persists for rest of conversation
       }
-      const reply = data?.reply || "Hmm, I didn’t get a reply.";
+      const reply = data?.reply || "Hmm, I didn't get a reply.";
       setLog(l => [...l, { role: "assistant", content: reply }]);
     } catch {
       setLog(l => [...l, { role: "assistant", content: "Sorry—there was an error reaching the bot." }]);
@@ -66,7 +67,6 @@ export default function Concierge() {
     }
   }
 
-  // turn URLs in assistant messages into clickable links
   const linkify = (t) =>
     t.replace(/(https?:\/\/[^\s]+)/g, (u) => `<a href="${u}" target="_blank" rel="noopener noreferrer">${u}</a>`)
      .replace(/\n/g, "<br/>");
@@ -76,7 +76,11 @@ export default function Concierge() {
       <h1 style={{ fontSize: 22, margin: "8px 0" }}>Destiny Blue — Your AI Concierge</h1>
 
       <div style={{ border: "1px solid #e5e7eb", borderRadius: 16, overflow: "hidden" }}>
-        <div style={{ height: 520, overflowY: "auto", padding: 12, background: "#fff" }}>
+        {/* scrollContainerRef on THIS div — scrolls internally, page stays still */}
+        <div
+          ref={scrollContainerRef}
+          style={{ height: 520, overflowY: "auto", padding: 12, background: "#fff" }}
+        >
           {log.map((m, i) => {
             const isUser = m.role === "user";
             return (

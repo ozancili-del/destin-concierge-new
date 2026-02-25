@@ -353,33 +353,54 @@ function detectDateAdjustment(text) {
 function parseDateAdjustment(text, currentDates) {
   if (!currentDates) return null;
   const t = text.toLowerCase();
-
-  // Which direction and how many days
-  const days = /two|2/.test(t) ? 2 : 1;
-  const later = /later|after|more|extra/.test(t);
-  const earlier = /earlier|sooner|before|fewer|less/.test(t);
-
-  // Which anchor moves
-  const checkoutMove = /check[\s-]?out|leave|depart|departure/.test(t);
-  const checkinMove  = /check[\s-]?in|arrive|arrival/.test(t);
-
   const addDays = (dateStr, n) => {
     const d = new Date(dateStr + "T12:00:00Z");
     d.setUTCDate(d.getUTCDate() + n);
     return d.toISOString().slice(0, 10);
   };
 
-  let { arrival, departure } = currentDates;
+  function extractDays(clause) {
+    if (/ten|10/.test(clause)) return 10;
+    if (/nine|9/.test(clause))  return 9;
+    if (/eight|8/.test(clause)) return 8;
+    if (/seven|7/.test(clause)) return 7;
+    if (/six|6/.test(clause))   return 6;
+    if (/five|5/.test(clause))  return 5;
+    if (/four|4/.test(clause))  return 4;
+    if (/three|3/.test(clause)) return 3;
+    if (/two|2/.test(clause))   return 2;
+    return 1;
+  }
 
-  if (checkoutMove) {
-    departure = addDays(departure, later ? days : -days);
-  } else if (checkinMove) {
-    arrival = addDays(arrival, earlier ? -days : days);
-  } else {
-    // Generic "X days later/earlier" — move both
-    const shift = later ? days : -days;
-    arrival   = addDays(arrival, shift);
-    departure = addDays(departure, shift);
+  let { arrival, departure } = currentDates;
+  // Split on "and" or comma to catch both check-in and check-out adjustments
+  const clauses = t.split(/\band\b|,/);
+  let checkinHandled = false;
+  let checkoutHandled = false;
+
+  for (const clause of clauses) {
+    const isCheckout = /check[\s-]?out|leave|depart|departure/.test(clause);
+    const isCheckin  = /check[\s-]?in|arrive|arrival/.test(clause);
+    const isLater    = /later|after|more|extra/.test(clause);
+    const isEarlier  = /earlier|sooner|before|fewer|less/.test(clause);
+    const hasNumber  = /one|two|three|\d/.test(clause);
+    if (!hasNumber) continue;
+    const days = extractDays(clause);
+    if (isCheckout && !checkoutHandled) {
+      departure = addDays(departure, isLater ? days : -days);
+      checkoutHandled = true;
+    } else if (isCheckin && !checkinHandled) {
+      arrival = addDays(arrival, isEarlier ? -days : days);
+      checkinHandled = true;
+    }
+  }
+
+  if (!checkinHandled && !checkoutHandled) {
+    const days = extractDays(t);
+    const isLater   = /later|after|more|extra/.test(t);
+    const isEarlier = /earlier|sooner|before|fewer|less/.test(t);
+    const shift = isLater ? days : isEarlier ? -days : 0;
+    if (shift !== 0) { arrival = addDays(arrival, shift); departure = addDays(departure, shift); }
   }
 
   return { arrival, departure };
@@ -1000,10 +1021,8 @@ FOLLOW THIS EXACTLY in ONE message:
 New dates after adjustment: arrival ${adjustedDates.arrival}, departure ${adjustedDates.departure}.
 Availability has been checked for the NEW dates (see results below).
 FOLLOW THIS EXACTLY:
-1) Confirm the adjusted dates naturally: "Got it — I've updated that to [new dates]!"
-2) Share the new availability result
-3) If available, send the booking link with adjusted dates
-4) If not available, offer to try another shift (e.g., "+/- 1 more day")
+1) Confirm the adjusted dates naturally: "Got it — I\'ve updated that to [new dates]!"
+2) Share the new availability result with booking links
 Keep it conversational — never robotic.`;
     }
 

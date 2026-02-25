@@ -70,11 +70,7 @@ export default function OzanChat() {
     const sid = sessionIdRef.current;
     if (!sid) return;
     try {
-      const r = await fetch("/api/ozan-poll", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ s: sid, since: lastSeenRef.current }),
-      });
+      const r = await fetch(`/api/ozan-poll?s=${sid}&since=${lastSeenRef.current}&_t=${Date.now()}`);
       if (!r.ok) return;
       const data = await r.json();
 

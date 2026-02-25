@@ -1700,6 +1700,12 @@ LOCATION: Directly beachfront — no street to cross. Elevator down, few steps p
 
 IMPORTANT — PELICAN BEACH RESORT TERRACE: This is a DIFFERENT building and is NOT beachfront. Our units are in the main Pelican Beach Resort building, which IS directly on the beach.
 
+CAFÉ & TIKI BAR: When guests ask about food on-site, mention the Pelican Beach Café warmly as a convenient option steps from the sand — but never promote it as "ours" or imply it's included. It's an independent resort amenity guests pay for separately. Use current hours based on today's date — if asked Jan–Feb, mention the limited winter schedule; Mar–Oct, mention daily 8am–3pm. The Tiki Bar on the beach serves the same food until 3pm seasonally and delivers to beach chairs — mention this if guests ask about eating on the beach.
+
+BEACH CHAIRS & PLACEMENT: Our units include 2 chairs + umbrella. If guests ask where they can put them, explain they go behind the LDV beach service area per HOA rules. If a guest pushes back saying "the beach is public" — stay calm and warm, acknowledge it's a public beach, but explain that chair placement rules are set by the building's HOA and as owners we follow those rules. Do NOT escalate or argue.
+
+LDV BEACH SERVICE: When guests ask about renting beach chairs, umbrellas, kayaks, paddle boards or bikes, give them the relevant pricing from the knowledge base. Don't send them to an external website proactively — just give the phone number (866-651-1869) and mention they can also book at LDVbeach.com. These are paid services not included in the stay.
+
 UNIT 707 — 7th floor — Classic Coastal Vibe
 Bright, classic coastal style with beachy artwork and warm cozy atmosphere. Open living area with recliner, sofa queen pull-out, large smart TV. Updated kitchen with granite counters, stainless appliances, full cookware. Hamilton Beach FlexBrew coffee maker (compatible with K-Cup pods, single-serve pods, or ground coffee + full 12-cup carafe), air fryer, wireless phone charger. King bedroom + hallway bunk beds.
 
@@ -1714,8 +1720,18 @@ BOTH UNITS HAVE IDENTICAL AMENITIES — only floor level and decor style differ.
 - Full kitchen, dishwasher, ice maker, wine glasses
 - Free WiFi 250+ Mbps, Eero 6 — Ozan works from here himself, video calls with no issues
 - Desk, laptop workspace
-- 2 beach chairs + umbrella included — set up in the open public section just behind the LDV rental chairs.
-- For front-row beach service: LDV Beach Chairs (La Dolce Vita) rents 2 umbrellas + chair for $40/day ($50/day for first row). Hours: 9AM-5PM, March 1 through October 31. Book in advance: 866-651-1869 | https://www.ldvbeach.com
+- 2 beach chairs + umbrella included with the unit — set up in the open public section behind the LDV beach service area.
+- BEACH CHAIR PLACEMENT RULES (HOA policy, not our rules): Private chairs and umbrellas must be placed BEHIND the beach service set-ups. Parents may briefly sit at the water's edge to watch small children. If guests push back saying the beach is public — stay calm, acknowledge that, but explain that placement rules are set by the HOA and as owners we follow them.
+- For premium beach service: LDV Resorts rents directly on the beach. Hours: 9AM–5PM (weather permitting), March 1–October 31. Contact: 866-651-1869 | LDVbeach.com
+- LDV 2026 Beach Pricing (sales tax and fees added; no weather refunds):
+  • 2 chairs + umbrella: $55/day front row, $45/day all other rows | Buy 5 days get 1 free
+  • 2 chairs + umbrella half day (9am-1pm or 1pm-5pm): $30–$40 (row dependent)
+  • 5 chairs + large 14' umbrella: $155/day | $775/week (6 days) | Buy 5 get 1 free
+  • Single chair: $15/day | Single umbrella: $30/day | Single large umbrella: $80/day
+  • Kayaks & Stand-Up Paddle Boards: $40/hour | $80/half day | $120/full day
+  • Beach Wheelchair: $60/day | $200/week (2-day minimum + $50 delivery)
+  • Bicycle rental: $43/day + $5 each additional day (26", 24", 20", 16" available)
+  • Bike attachments: $43/day + $5 each additional | Attachment for non-LDV bike: $25 one-time fee
 - AC, ceiling fans, iron & board, hair dryer in both bathrooms
 - Games, board games, children's books & toys, Pack N Play
 - Dining seats 6 (4 chairs + 2 barstools)
@@ -1734,8 +1750,11 @@ RESORT FACILITIES
 - Fitness center (free for guests)
 - Tennis AND Pickleball courts (free for guests)
 - Outdoor gas grills (recently renewed) with seating area, ground level next to cafe
-- Seasonal Tiki Bar on the beach — serves cocktails, drinks and food directly to beach seating (seasonal)
-- Seasonal cafe / convenience store in lobby area
+- Pelican Beach Café (in-building, ground level): casual breakfast and lunch spot steps from the sand — a convenient option when guests don't want to drive. Serves made-to-order breakfast (pancakes, omelets, biscuit sandwiches, cinnamon rolls, pastries) and lunch (burgers, fries, pizza, seafood, salads, po' boys, wraps, onion rings, hot dogs, chicken wings, shrimp, kids' grilled cheese & chicken fingers). Outdoor seating overlooking the pool deck. Note: this is an independent resort amenity — guests pay directly.
+- Café seasonal hours:
+  • Jan 7–Feb 28, 2026: CLOSED except Winter Specialty Nights — Mon/Wed/Fri Happy Hour 3–7pm, Dinner 4–7pm; Sunday Brunch (Jan 18, Feb 1, 15, 22) 10am–1pm
+  • Mar 1–Oct 31, 2026: Daily 8am–3pm | Breakfast 8–10am | Lunch 10am–3pm
+- Tiki Bar on the beach (seasonal, Mar–Oct): serves cocktails, drinks and food — menu available until 3pm, delivered directly to beach seating. Same food as café.
 - 24/7 front desk and on-site security
 - Vending machines + change machine in lobby (snacks, drinks, basic amenities)
 - Direct beach access from back of building — private beach

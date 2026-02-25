@@ -3,7 +3,7 @@
 import { createSign } from "crypto";
 
 const SHEET_ID = process.env.GOOGLE_SHEET_ID;
-const SESS_TAB = "sessions";
+const SESS_TAB = "ozanchat";
 
 async function getSheetsToken() {
   const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
@@ -39,7 +39,7 @@ export default async function handler(req, res) {
     if (!token) return res.status(500).json({ error: "Auth failed" });
 
     const sheetRes = await fetch(
-      `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SESS_TAB}!A:G`,
+      `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SESS_TAB)}!A:G`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
     const data = await sheetRes.json();
@@ -62,7 +62,7 @@ export default async function handler(req, res) {
     ];
 
     await fetch(
-      `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SESS_TAB}!A${rowIndex}:G${rowIndex}?valueInputOption=USER_ENTERED`,
+      `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SESS_TAB)}!A${rowIndex}:G${rowIndex}?valueInputOption=USER_ENTERED`,
       { method: "PUT", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify({ values: [updatedRow] }) }
     );

@@ -4,7 +4,7 @@
 import { createSign } from "crypto";
 
 const SHEET_ID = process.env.GOOGLE_SHEET_ID;
-const SESS_TAB = "sessions";
+const SESS_TAB = "ozanchat";
 
 async function getSheetsToken() {
   const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;

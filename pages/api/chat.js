@@ -814,6 +814,16 @@ export default async function handler(req, res) {
     // Natural language guest count normalizer
     // Converts "just the 2 of us", "me and my wife", "only me" etc → numeric adult count in allUserText
     function normalizeGuestCount(text) {
+      // Convert word numbers to digits first so regex can match them
+      text = text
+        .replace(/\bone\b(?=\s*(adult|kid|child|children|guest|person|people|infant|baby|toddler))/gi, "1")
+        .replace(/\btwo\b(?=\s*(adult|kid|child|children|guest|person|people|infant|baby|toddler))/gi, "2")
+        .replace(/\bthree\b(?=\s*(adult|kid|child|children|guest|person|people|infant|baby|toddler))/gi, "3")
+        .replace(/\bfour\b(?=\s*(adult|kid|child|children|guest|person|people|infant|baby|toddler))/gi, "4")
+        .replace(/\bfive\b(?=\s*(adult|kid|child|children|guest|person|people|infant|baby|toddler))/gi, "5")
+        .replace(/\bsix\b(?=\s*(adult|kid|child|children|guest|person|people|infant|baby|toddler))/gi, "6")
+        // Also handle "a kid", "a child" → "1 kid"
+        .replace(/\ba\s+(kid|child|children|infant|baby|toddler)\b/gi, "1 $1");
       return text
         .replace(/\bjust\s+the\s+two\s+of\s+us\b/gi,       "2 adults")
         .replace(/\bjust\s+the\s+2\s+of\s+us\b/gi,         "2 adults")

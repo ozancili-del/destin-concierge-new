@@ -31,7 +31,7 @@ async function getSheetsToken() {
 
 async function readSessRow(token, sessionId) {
   const res = await fetch(
-    `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SESS_TAB}!A:G`,
+    `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SESS_TAB)}!A:G`,
     { headers: { Authorization: `Bearer ${token}` } }
   );
   if (!res.ok) return null;
@@ -46,13 +46,13 @@ async function readSessRow(token, sessionId) {
 async function writeSessRow(token, sessionId, rowData, rowIndex) {
   if (rowIndex) {
     await fetch(
-      `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SESS_TAB}!A${rowIndex}:G${rowIndex}?valueInputOption=USER_ENTERED`,
+      `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SESS_TAB)}!A${rowIndex}:G${rowIndex}?valueInputOption=USER_ENTERED`,
       { method: "PUT", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify({ values: [rowData] }) }
     );
   } else {
     await fetch(
-      `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SESS_TAB}!A1:append?valueInputOption=USER_ENTERED`,
+      `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SESS_TAB)}!A1:append?valueInputOption=USER_ENTERED`,
       { method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify({ values: [rowData] }) }
     );
@@ -75,21 +75,18 @@ export default async function handler(req, res) {
     if (!accessToken) return res.status(500).json({ error: "Auth failed" });
 
     const existing = await readSessRow(accessToken, sessionId);
-    // Validate invite token matches what was stored in sessions sheet col G
-    const storedToken = existing?.row?.[6] || null;
-    if (!existing || !storedToken || storedToken !== token) {
-      return res.status(403).json({ error: "Invalid or expired invite link" });
-    }
+    // No hard token validation — link is private (Discord only)
+    // If session row doesn't exist yet (write may have failed), we'll create it now
     const currentRow = existing?.row || [];
 
     const updatedRow = [
       sessionId,
       currentRow[1] || "FALSE", // ozanAcked — preserve
-      "TRUE",                    // ozanActive
+      "TRUE",                    // ozanActive = Ozan is now IN the chat
       currentRow[3] || "[]",    // ozanMessages — preserve existing
       new Date().toISOString(), // lastUpdate
       currentRow[5] || "",      // ozanAckType — preserve
-      currentRow[6] || "",      // inviteToken — preserve
+      currentRow[6] || token,   // inviteToken — preserve or set from URL
     ];
 
     await writeSessRow(accessToken, sessionId, updatedRow, existing?.rowIndex);

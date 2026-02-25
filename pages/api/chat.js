@@ -172,7 +172,7 @@ function detectDiscountIntent(text) {
 
 // Detect availability / booking intent (tighter — only real booking signals)
 function detectAvailabilityIntent(text) {
-  return /avail|availability|open dates|book|booking|reserve|reservation|check.?in|check.?out|when can i|stay.*when|dates.*stay|price|pricing|cost|how much|rate|rates|per night|nightly|\d+\s*(adult|guest|person|people|of us)|just (the )?(two|2|one|1|three|3|four|4) of us|just (me|us)|just myself|only me|solo trip|traveling alone|me and my (wife|husband|partner)|just the \d+ of us/i.test(text);
+  return /avail|availability|open dates|book|booking|reserve|reservation|check.?in|check.?out|when can i|stay.*when|dates.*stay|price|pricing|cost|how much|rate|rates|per night|nightly|\d+\s*(adult|guest|person|people|of us)|just (the )?(two|2|one|1|three|3|four|4) of us|just (me|us)|just myself|only me|solo trip|traveling alone|me and my (wife|husband|partner)|just the \d+ of us|labor day|labour day|memorial day|fourth of july|4th of july|july 4|independence day|thanksgiving|christmas|new year|spring break|spring vacation/i.test(text);
 }
 
 // Detect unit comparison questions that need neutral handling
@@ -304,6 +304,85 @@ async function checkAvailability(propertyId, arrival, departure, retries = 2) {
   }
   }
   return null;
+}
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Holiday date lookup — hardcoded 2026/2027, update each January
+// ─────────────────────────────────────────────────────────────────────────────
+const HOLIDAY_DATES = {
+  "labor day":         { arrival: "2026-09-04", departure: "2026-09-07", label: "Labor Day weekend (Sept 4–7, 2026)" },
+  "labour day":        { arrival: "2026-09-04", departure: "2026-09-07", label: "Labor Day weekend (Sept 4–7, 2026)" },
+  "memorial day":      { arrival: "2026-05-22", departure: "2026-05-25", label: "Memorial Day weekend (May 22–25, 2026)" },
+  "fourth of july":    { arrival: "2026-07-03", departure: "2026-07-06", label: "4th of July weekend (July 3–6, 2026)" },
+  "4th of july":       { arrival: "2026-07-03", departure: "2026-07-06", label: "4th of July weekend (July 3–6, 2026)" },
+  "july 4th":          { arrival: "2026-07-03", departure: "2026-07-06", label: "4th of July weekend (July 3–6, 2026)" },
+  "july fourth":       { arrival: "2026-07-03", departure: "2026-07-06", label: "4th of July weekend (July 3–6, 2026)" },
+  "independence day":  { arrival: "2026-07-03", departure: "2026-07-06", label: "4th of July weekend (July 3–6, 2026)" },
+  "thanksgiving":      { arrival: "2026-11-25", departure: "2026-11-29", label: "Thanksgiving weekend (Nov 25–29, 2026)" },
+  "christmas":         { arrival: "2026-12-24", departure: "2026-12-27", label: "Christmas (Dec 24–27, 2026)" },
+  "new year":          { arrival: "2026-12-31", departure: "2027-01-02", label: "New Year's (Dec 31–Jan 2, 2027)" },
+  "new years":         { arrival: "2026-12-31", departure: "2027-01-02", label: "New Year's (Dec 31–Jan 2, 2027)" },
+  "new year's":        { arrival: "2026-12-31", departure: "2027-01-02", label: "New Year's (Dec 31–Jan 2, 2027)" },
+};
+
+function extractHolidayDates(text) {
+  const t = text.toLowerCase();
+  for (const [key, val] of Object.entries(HOLIDAY_DATES)) {
+    if (t.includes(key)) return val;
+  }
+  return null;
+}
+
+// Detect spring break mention — dates vary, always ask
+function detectSpringBreak(text) {
+  return /spring break|spring vacation/i.test(text);
+}
+
+// Detect vague week phrases — ask for exact dates
+function detectVagueWeek(text) {
+  return /(first|last|middle|mid|early|late)\s+(week|part)\s+of\s+(january|february|march|april|may|june|july|august|september|october|november|december)/i.test(text);
+}
+
+// Detect date adjustment requests — "2 days later", "one day earlier", "check out one day later" etc
+// Max 2 days in either direction
+function detectDateAdjustment(text) {
+  return /((one|1|two|2)\s+day[s]?\s+(earlier|later|sooner|before|after)|check[\s-]?(?:in|out)\s+(?:one|1|two|2)\s+day[s]?\s+(?:earlier|later|sooner|before|after)|stay\s+(?:one|1|two|2)\s+(?:more|extra|fewer|less)\s+day[s]?|arrive\s+(?:one|1|two|2)\s+day[s]?\s+(?:earlier|sooner|before)|leave\s+(?:one|1|two|2)\s+day[s]?\s+(?:later|after))/i.test(text);
+}
+
+function parseDateAdjustment(text, currentDates) {
+  if (!currentDates) return null;
+  const t = text.toLowerCase();
+
+  // Which direction and how many days
+  const days = /two|2/.test(t) ? 2 : 1;
+  const later = /later|after|more|extra/.test(t);
+  const earlier = /earlier|sooner|before|fewer|less/.test(t);
+
+  // Which anchor moves
+  const checkoutMove = /check[\s-]?out|leave|depart|departure/.test(t);
+  const checkinMove  = /check[\s-]?in|arrive|arrival/.test(t);
+
+  const addDays = (dateStr, n) => {
+    const d = new Date(dateStr + "T12:00:00Z");
+    d.setUTCDate(d.getUTCDate() + n);
+    return d.toISOString().slice(0, 10);
+  };
+
+  let { arrival, departure } = currentDates;
+
+  if (checkoutMove) {
+    departure = addDays(departure, later ? days : -days);
+  } else if (checkinMove) {
+    arrival = addDays(arrival, earlier ? -days : days);
+  } else {
+    // Generic "X days later/earlier" — move both
+    const shift = later ? days : -days;
+    arrival   = addDays(arrival, shift);
+    departure = addDays(departure, shift);
+  }
+
+  return { arrival, departure };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -699,12 +778,25 @@ export default async function handler(req, res) {
     // Pets detector — when mentioned, skip booking intercept and let GPT apply no-pets policy
     const mentionsPets = /\d+\s*pets?|\bwith.*pets?\b|\bdogs?\b|\bcats?\b|\bpuppies\b|\bkittens?\b|\bbirds?\b|\bparrots?\b|\brabbits?\b|\bhamsters?\b|\bferrets?\b|\bfish\b|\bsnakes?\b|\bturtles?\b|\banimals?\b|bring.*(?:my|our|the)\s+\w+.*(?:pet|dog|cat|bird|animal)|pet.*friendly|emotional support animal|\besa\b|\bservice animal\b/i.test(allUserText);
 
+    // Holiday / vague / adjustment detection
+    const holidayDates    = extractHolidayDates(lastUser) || extractHolidayDates(allUserText.slice(-300));
+    const isSpringBreak   = detectSpringBreak(lastUser);
+    const isVagueWeek     = detectVagueWeek(lastUser);
+    const isDateAdjust    = detectDateAdjustment(lastUser);
+
     // Only look back in history for dates on genuine follow-ups
-    const dates = extractDates(lastUser) || (
+    const rawDates = extractDates(lastUser) || (
       lastUser.match(/unit|1006|707|that one|both|available|book|price|cost|how much|rate|what is the|adult|kid|child|children|guest|people|person|infant|baby|toddler|discount|dis[a-z]*o[a-z]*nt|deal|cheaper|better price|negotiate|promo|coupon|of us|just me|just us|myself|husband|wife|partner|girlfriend|boyfriend|fiance|solo|alone|traveling alone/i)
         ? extractDates(allUserText)
         : null
     );
+
+    // Date adjustment — modify prior dates if guest says "2 days later" etc
+    const priorDates = extractDates(allUserText.replace(lastUser, "").trim());
+    const adjustedDates = isDateAdjust && priorDates ? parseDateAdjustment(lastUser, priorDates) : null;
+
+    // Final dates: adjusted > explicit > holiday > null
+    const dates = adjustedDates || rawDates || (holidayDates ? { arrival: holidayDates.arrival, departure: holidayDates.departure } : null);
 
     // Detect month-only intent
     const monthNames = {january:"01",february:"02",march:"03",april:"04",may:"05",june:"06",july:"07",august:"08",september:"09",october:"10",november:"11",december:"12"};
@@ -749,6 +841,8 @@ export default async function handler(req, res) {
     let discountContext = "";
     let externalDisturbanceContext = "";
     let competitorContext = "";
+    let holidayContext = "";
+    let dateAdjustContext = "";
     let bookingLinksContext = bookingLinksSent ? `📎 BOOKING LINKS ALREADY SENT: You already sent booking links earlier in this conversation. DO NOT send links again unless the guest explicitly asks for them again.
 The guest is now in follow-up conversation mode. Answer their questions naturally and conversationally:
 - If they ask about price/cost → explain the link shows total pricing, use DESTINY for 10% off
@@ -836,6 +930,47 @@ Follow this approach:
 5) Soft close: "No pressure — hope you find what works best for you!"
 NEVER name the competitor site directly.`;
       }
+    }
+
+    // 🗓️ HOLIDAY DATES — propose standard dates, invite adjustment
+    if (holidayDates && !rawDates) {
+      holidayContext = `🗓️ HOLIDAY WEEKEND DETECTED: Guest mentioned "${holidayDates.label}".
+We have assumed standard dates: arrival ${holidayDates.arrival}, departure ${holidayDates.departure}.
+Availability has been checked for these dates (see results below).
+FOLLOW THIS EXACTLY:
+1) Warmly confirm the dates you assumed: "I've checked ${holidayDates.label} for you!"
+2) Share availability result naturally
+3) Always add: "If you'd like to arrive a day earlier or stay a day longer, just let me know and I'll check right away!"
+NEVER present these as the only option — always invite them to adjust.`;
+    }
+
+    // 📅 DATE ADJUSTMENT — guest is shifting arrival or departure
+    if (isDateAdjust && adjustedDates) {
+      dateAdjustContext = `📅 DATE ADJUSTMENT DETECTED: Guest asked to shift their dates.
+New dates after adjustment: arrival ${adjustedDates.arrival}, departure ${adjustedDates.departure}.
+Availability has been checked for the NEW dates (see results below).
+FOLLOW THIS EXACTLY:
+1) Confirm the adjusted dates naturally: "Got it — I've updated that to [new dates]!"
+2) Share the new availability result
+3) If available, send the booking link with adjusted dates
+4) If not available, offer to try another shift (e.g., "+/- 1 more day")
+Keep it conversational — never robotic.`;
+    }
+
+    // 🌴 SPRING BREAK — dates vary, always ask
+    if (isSpringBreak && !rawDates && !holidayDates) {
+      holidayContext = `🌴 SPRING BREAK DETECTED: Spring break dates vary by school district and state.
+DO NOT guess dates. DO NOT check availability yet — we don't have dates.
+FOLLOW THIS EXACTLY:
+Say warmly: "Spring break in Destin is amazing! 🌊 Since spring break dates vary by school district, could you share your exact check-in and check-out dates? Also, how many adults and kids will be joining? I'll check availability for both units right away!"`;
+    }
+
+    // 📆 VAGUE WEEK — first/last/middle of month, ask for exact dates
+    if (isVagueWeek && !rawDates && !holidayDates) {
+      holidayContext = `📆 VAGUE DATE RANGE DETECTED: Guest used a vague phrase like "first week of" or "middle of [month]".
+DO NOT guess exact dates. DO NOT check availability yet.
+FOLLOW THIS EXACTLY:
+Ask warmly for exact dates: "Sounds like a great time to visit! Could you share your exact check-in and check-out dates? Once I have those I can check live availability for both units right away 😊"`;
     }
 
     // 🔵 UNIT COMPARISON — inject neutral rule
@@ -1313,7 +1448,7 @@ The guest may be following up or anxious. Your job now:
 - Remind them Ozan is handling it and they should expect direct contact soon
 - Keep it to 1-2 sentences max. Do not ask follow-up questions.
 - Example good responses: "Ozan is on it — you should hear from him or the team very shortly 🙏" / "He's already been notified and is handling this — just hang tight a little longer 🙏"
-\n\n` : ""}${isChildSafetyQuestion ? "👶 CHILD/TODDLER SAFETY QUESTION DETECTED — Follow CHILD / TODDLER / FAMILY SAFETY PRIORITY OVERRIDE exactly. Answer the specific safety question FIRST. No excitement opener. No smart lock pivot. Give portable solutions immediately.\n\n" : ""}${isAccidentalDamage ? "⚠️ ACCIDENTAL DAMAGE SCENARIO: Guest has broken something (plates, glasses etc). Follow the ACCIDENTAL DAMAGE RULE exactly. Do NOT say you notified Ozan. Do NOT offer to relay. Empathy first, then direct to Ozan at (972) 357-4262.\n\n" : ""}${alertWasFired ? "🚨 ALERT SENT THIS SESSION: An emergency Discord alert was automatically sent to Ozan during this conversation. If guest asks if you contacted Ozan or sent a message — say YES, an urgent alert was already sent to him. Do not say you will send it — it is already done.\n\n" : ""}${bookingLinksContext ? bookingLinksContext + "\n\n" : ""}${petsContext ? petsContext + "\n\n" : ""}${competitorContext ? competitorContext + "\n\n" : ""}${discountContext ? discountContext + "\n\n" : ""}${externalDisturbanceContext ? externalDisturbanceContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
+\n\n` : ""}${isChildSafetyQuestion ? "👶 CHILD/TODDLER SAFETY QUESTION DETECTED — Follow CHILD / TODDLER / FAMILY SAFETY PRIORITY OVERRIDE exactly. Answer the specific safety question FIRST. No excitement opener. No smart lock pivot. Give portable solutions immediately.\n\n" : ""}${isAccidentalDamage ? "⚠️ ACCIDENTAL DAMAGE SCENARIO: Guest has broken something (plates, glasses etc). Follow the ACCIDENTAL DAMAGE RULE exactly. Do NOT say you notified Ozan. Do NOT offer to relay. Empathy first, then direct to Ozan at (972) 357-4262.\n\n" : ""}${alertWasFired ? "🚨 ALERT SENT THIS SESSION: An emergency Discord alert was automatically sent to Ozan during this conversation. If guest asks if you contacted Ozan or sent a message — say YES, an urgent alert was already sent to him. Do not say you will send it — it is already done.\n\n" : ""}${bookingLinksContext ? bookingLinksContext + "\n\n" : ""}${petsContext ? petsContext + "\n\n" : ""}${holidayContext ? holidayContext + "\n\n" : ""}${dateAdjustContext ? dateAdjustContext + "\n\n" : ""}${competitorContext ? competitorContext + "\n\n" : ""}${discountContext ? discountContext + "\n\n" : ""}${externalDisturbanceContext ? externalDisturbanceContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PROPERTIES

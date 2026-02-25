@@ -602,6 +602,65 @@ async function getSheetsToken(retries = 3) {
   return null;
 }
 
+// ─── sessions tab helpers ────────────────────────────────────────────────────
+const SESS_TAB = "sessions";
+async function readSessState(sessionId) {
+  try {
+    const sheetId = process.env.GOOGLE_SHEET_ID;
+    if (!sessionId || !sheetId) return null;
+    const token = await getSheetsToken();
+    if (!token) return null;
+    const res = await fetch(
+      `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${SESS_TAB}!A:F`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    if (!res.ok) return null;
+    const data = await res.json();
+    const rows = data.values || [];
+    for (let i = 1; i < rows.length; i++) {
+      if (rows[i][0] === sessionId) {
+        return { rowIndex: i + 1, ozanAcked: rows[i][1] === "TRUE",
+          ozanActive: rows[i][2] || "FALSE",
+          ozanMessages: rows[i][3] ? JSON.parse(rows[i][3]) : [],
+          ozanAckType: rows[i][5] || null };
+      }
+    }
+    return null;
+  } catch(e) { console.error("readSessState:", e.message); return null; }
+}
+async function writeSessState(sessionId, updates) {
+  try {
+    const sheetId = process.env.GOOGLE_SHEET_ID;
+    if (!sessionId || !sheetId) return;
+    const token = await getSheetsToken();
+    if (!token) return;
+    const existing = await readSessState(sessionId);
+    const merged = {
+      ozanAcked: existing?.ozanAcked ?? false,
+      ozanActive: existing?.ozanActive ?? "FALSE",
+      ozanMessages: existing?.ozanMessages ?? [],
+      ozanAckType: existing?.ozanAckType ?? null,
+      ...updates,
+    };
+    const row = [sessionId, merged.ozanAcked ? "TRUE" : "FALSE", merged.ozanActive,
+      JSON.stringify(merged.ozanMessages), new Date().toISOString(), merged.ozanAckType || ""];
+    if (existing?.rowIndex) {
+      await fetch(
+        `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${SESS_TAB}!A${existing.rowIndex}:F${existing.rowIndex}?valueInputOption=USER_ENTERED`,
+        { method: "PUT", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+          body: JSON.stringify({ values: [row] }) }
+      );
+    } else {
+      await fetch(
+        `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${SESS_TAB}!A1:append?valueInputOption=USER_ENTERED`,
+        { method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+          body: JSON.stringify({ values: [row] }) }
+      );
+    }
+  } catch(e) { console.error("writeSessState:", e.message); }
+}
+
+
 // Ack type → natural assistant message GPT can reason from
 const ACK_MESSAGES = {
   OZAN_ACK:        "Great news — Ozan has seen the alert and confirmed he is on it. He will reach out to you very shortly 🙏",
@@ -645,8 +704,9 @@ async function loadSession(sessionId) {
       const assistantMsg = row[3] || "";
 
       // New MAINTENANCE or EMERGENCY row after a prior ack = new issue started.
-      // Reset ack state so it does not bleed into the new issue.
-      const isNewIssueRow = guestMsg && assistantMsg &&
+      // ONLY reset if it's a genuine new issue description, not a follow-up "any update?" message.
+      const isFollowUpMsg = /any update|any news|heard.*back|anything yet|still waiting|did.*ozan|ozan.*call|anything|any word|update me|following up/i.test(guestMsg);
+      const isNewIssueRow = guestMsg && assistantMsg && !isFollowUpMsg &&
         (colF === "MAINTENANCE" || colF === "EMERGENCY");
       if (isNewIssueRow && priorIssueAcked) {
         ozanAckType = null;
@@ -745,9 +805,16 @@ export default async function handler(req, res) {
 
     // Fetch session history from Sheets if sessionId provided
     // If frontend already confirmed ack, skip Sheets read entirely
-    const { history: sessionHistory, ozanAckType: ozanAckFromSheets, ackDeliveredToGuest, openIssues: openIssuesFromSheets, ackedIssues } = await loadSession(sessionId);
+    const [sessionData, sessState] = await Promise.all([
+      loadSession(sessionId),
+      readSessState(sessionId),
+    ]);
+    const { history: sessionHistory, ozanAckType: ozanAckFromSheets, ackDeliveredToGuest, openIssues: openIssuesFromSheets, ackedIssues } = sessionData;
     const isReturningGuest = sessionHistory.length > 0;
-    const ozanAckType = ozanAckFromSheets || priorOzanAckType || null;
+    // sessions tab is authoritative ack source — overrides Sheet1 scan to fix unreliable detection
+    const ozanAckType = sessState?.ozanAckType || ozanAckFromSheets || priorOzanAckType || null;
+    const ozanActiveState = sessState?.ozanActive || "FALSE"; // FALSE | PENDING | TRUE
+    const ozanIsActive = ozanActiveState === "TRUE";
     const ozanAcknowledgedFinal = !!ozanAckType;
     console.log(`Session: ${sessionId || "anonymous"} | Returning: ${isReturningGuest} | OzanAck: ${ozanAckType || "none"}`);
 
@@ -790,10 +857,10 @@ export default async function handler(req, res) {
     const forgotCodeInHistory = /forgot.*code|lost.*code|can't find.*code|dont have.*code|don't have.*code|deleted.*email/i.test(allUserText);
     const cantReachInHistory = /can't reach|cant reach|not answer|no answer|not responding|not picking/i.test(allUserText);
     const shouldFireAlert = isLockoutEscalation || (forgotCodeInHistory && cantReachInHistory);
-    // chatoz: direct message protocol — guest explicitly routes message to Ozan
-    const chatOzMatch = lastUser.match(/^chatoz:\s*(.+)/i);
+    // @ozan — guest wants to talk directly with Ozan
+    const chatOzMatch = lastUser.match(/^@ozan\b(.*)$/i) || lastUser.match(/^chatoz:\s*(.+)/i); // support both old and new
     const isChatOz = !!chatOzMatch;
-    const chatOzContent = chatOzMatch ? chatOzMatch[1].trim() : "";
+    const chatOzContent = chatOzMatch ? chatOzMatch[1].trim() : lastUser.trim();
     const isAccidentalDamage = detectAccidentalDamage(lastUser);
     const isMaintenanceReport = detectMaintenance(lastUser) && !isLockedOut && !isAccidentalDamage && !detectExternalDisturbance(lastUser);
     const isExternalDisturbance = detectExternalDisturbance(lastUser) && !isMaintenanceReport;
@@ -1172,11 +1239,36 @@ Example tone (do NOT copy verbatim — vary naturally):
       alertWasFired = true;
     }
 
-    // ── chatoz: DIRECT MESSAGE — fire immediately, return without GPT ──────────
+    // ── @ozan — guest wants direct chat with Ozan ─────────────────────────────
     if (isChatOz) {
-      const chatOzMsg = `💬 DIRECT MESSAGE FROM GUEST\n\n"${chatOzContent}"\n\nSession: ${sessionId}`;
-      sendEmergencyDiscord(chatOzContent, sessionId, "💬 Direct guest message via chatoz:", "maintenance");
-      const chatOzReply = "Your message has been sent directly to Ozan 🙏 He'll get back to you shortly!";
+      const enterChatUrl = `https://www.destincondogetaways.com/ozan?s=${sessionId}&key=${process.env.OZAN_KEY || ""}`;
+      const ozanMsg = chatOzContent
+        ? `💬 **Guest wants to talk:** "${chatOzContent}"`
+        : "💬 **Guest is requesting to chat with you directly**";
+
+      // Send Discord alert with Enter Chat button (URL button style:5)
+      try {
+        const token = process.env.DISCORD_BOT_TOKEN;
+        const channelId = process.env.DISCORD_CHANNEL_ID;
+        if (token && channelId) {
+          await fetch(`https://discord.com/api/v10/channels/${channelId}/messages`, {
+            method: "POST",
+            headers: { Authorization: `Bot ${token}`, "Content-Type": "application/json" },
+            body: JSON.stringify({
+              content: `🙋 **GUEST WANTS TO CHAT**\n\n${ozanMsg}\n**Session:** ${sessionId}\n\nTap below to enter the live chat 👇`,
+              components: [{
+                type: 1,
+                components: [{
+                  type: 2, style: 5, label: "💬 Enter Chat",
+                  url: enterChatUrl,
+                }]
+              }]
+            })
+          });
+        }
+      } catch(e) { console.error("@ozan discord error:", e.message); }
+
+      const chatOzReply = "I'm connecting you with Ozan now! He'll join the chat shortly 🙏";
       await logToSheets(sessionId, lastUser, chatOzReply, "", "CHATOZ", chatOzContent);
       return res.status(200).json({
         reply: chatOzReply,
@@ -1184,7 +1276,26 @@ Example tone (do NOT copy verbatim — vary naturally):
         pendingRelay: false,
         ozanAcked: false,
         ozanAckType,
+        ozanInvited: true,
         detectedIntent: "INFO",
+      });
+    }
+
+    // ── OZAN ACTIVE — skip GPT, store guest message for Ozan to see ────────────
+    if (ozanIsActive) {
+      // Append guest message to sessions ozanMessages so Ozan sees it in /ozan page
+      const currentMsgs = sessState?.ozanMessages || [];
+      await writeSessState(sessionId, {
+        ozanMessages: [...currentMsgs, { role: "guest", text: lastUser, ts: Date.now() }],
+      });
+      return res.status(200).json({
+        reply: "", // empty — concierge.js will not show a bot bubble
+        ozanActive: true,
+        alertSent: priorAlertSent,
+        pendingRelay: false,
+        ozanAcked: ozanAcknowledgedFinal,
+        ozanAckType,
+        detectedIntent: "OZAN_ACTIVE",
       });
     }
 
@@ -1818,10 +1929,10 @@ ACCIDENTAL DAMAGE RULE (guest broke something — plates, glasses, cups, dishes,
 
 CHATOZ: DIRECT MESSAGE PROTOCOL:
 - If a guest wants to send Ozan a message directly for ANY reason, tell them:
-  "You can reach Ozan directly by typing chatoz: followed by your message — for example: chatoz: I have a question about checkout. He\'ll be notified right away! 😊"
-- If the guest\'s message starts with chatoz: — it has already been sent. Just confirm warmly:
+  "You can reach Ozan directly by typing @ozan followed by your message — for example: @ozan I have a question about checkout. He\'ll be notified right away! 😊"
+- If the guest\'s message starts with @ozan — it has already been sent. Just confirm warmly:
   "Your message has been sent directly to Ozan 🙏 He\'ll get back to you shortly!"
-- Never invent other relay methods — always use chatoz: for direct guest-to-Ozan messaging
+- Never invent other relay methods — always use @ozan for direct guest-to-Ozan messaging
 
 CHILD / TODDLER / FAMILY SAFETY — PRIORITY OVERRIDE:
 If the guest mentions: child, children, kid, kids, toddler, baby, infant, [age]-year-old, little one, safety lock, child lock, baby proof, childproof, balcony door, sliding door lock, fall risk, safe for kids, railing, climb, pinch, gap:

@@ -84,8 +84,9 @@ export default function OzanChat() {
     const text = input.trim();
     setInput("");
     setBusy(true);
-    // Optimistically show message
+    // Optimistically show message — update lastSeenRef immediately to prevent poll duplicating it
     const msg = { role: "ozan", text, ts: Date.now() };
+    lastSeenRef.current = Math.max(lastSeenRef.current, msg.ts);
     setLog(l => [...l, msg]);
     try {
       await fetch("/api/ozan-send", {

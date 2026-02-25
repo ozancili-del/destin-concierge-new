@@ -44,7 +44,7 @@ export default async function handler(req, res) {
 
     // Read current row
     const sheetRes = await fetch(
-      `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SESS_TAB)}!A:G`,
+      `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SESS_TAB}!A:G`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
     const sheetData = await sheetRes.json();
@@ -68,7 +68,7 @@ export default async function handler(req, res) {
 
     if (rowIndex) {
       const wr = await fetch(
-        `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SESS_TAB)}!A${rowIndex}:G${rowIndex}?valueInputOption=USER_ENTERED`,
+        `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SESS_TAB}!A${rowIndex}:G${rowIndex}?valueInputOption=USER_ENTERED`,
         { method: "PUT", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
           body: JSON.stringify({ values: [newRow] }) }
       );
@@ -77,7 +77,7 @@ export default async function handler(req, res) {
     } else {
       // No existing session row — create it (first message before ozan-join completes)
       const wr = await fetch(
-        `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(SESS_TAB)}!A1:append?valueInputOption=USER_ENTERED`,
+        `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SESS_TAB}!A1:append?valueInputOption=USER_ENTERED`,
         { method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
           body: JSON.stringify({ values: [newRow] }) }
       );

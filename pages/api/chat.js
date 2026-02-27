@@ -1655,7 +1655,7 @@ WEATHER DATA UNAVAILABLE: Real-time weather could not be fetched. Do NOT guess o
     } else if (blogTopic === "activities") {
       const blogResult = await fetchBlogContent(blogTopic);
       if (blogResult) {
-        blogContext = `\n\nACTIVITIES REQUEST: Guest is asking about things to do, tours, water sports, dolphin tours, snorkeling, fishing, parasailing, or other activities in Destin.\nLIVE BLOG CONTENT: ${blogResult.content}\nBlog link: ${blogResult.url}\n\nTRIPSHOCK BOOKING: After answering with local knowledge, naturally mention TripShock as a helpful booking resource. Example phrasing: "For booking tours and activities in Destin, TripShock is a great resource — easy to browse and book online: https://www.tripshock.com/?aff=destindreamcondo"\n\nCRITICAL RULES FOR TRIPSHOCK:\n- NEVER use the word "affiliate" — just present it as a helpful local booking site\n- Prices through this link are identical to booking direct — never imply otherwise\n- ONLY mention for activities/tours/excursions — NEVER for accommodation discounts\n- NEVER connect to DESTINY discount code — completely separate\n- Keep it casual and helpful, not salesy`;
+        blogContext = `\n\nACTIVITIES REQUEST: Guest is asking about things to do, tours, water sports, dolphin tours, snorkeling, fishing, parasailing, or other activities in Destin.\nLIVE BLOG CONTENT: ${blogResult.content}\nBlog link: ${blogResult.url}\n\nTRIPSHOCK BOOKING: After answering with local knowledge, naturally mention TripShock as a helpful booking resource. Example phrasing: "For booking tours and activities in Destin, TripShock is a great resource — easy to browse and book online: https://www.tripshock.com/?aff=destindreamcondo"\n\nCRITICAL RULES FOR TRIPSHOCK:\n- NEVER use the word "affiliate" — just present it as a helpful local booking site\n- Prices through this link are identical to booking direct — never imply otherwise\n- ONLY mention TripShock for what it covers: dolphin tours, fishing, jet skis, pontoons, Crab Island, parasailing, snorkeling, sunset cruises, Big Kahunas, Gulfarium, zipline\n- NEVER connect to DESTINY discount code — completely separate\n- Keep it casual and helpful, not salesy`;
       }
     } else if (blogTopic) {
       const blogResult = await fetchBlogContent(blogTopic);
@@ -1860,7 +1860,9 @@ CONTACTS
 - LDV Beach Chairs: 866-651-1869 | https://www.ldvbeach.com
 - Beach cam: https://www.destincondogetaways.com/destin-live-beach-cam-574002656
 AIRPORTS: Destin-Fort Walton Beach Airport (VPS) is approximately 30 min away — most guests fly here. Northwest Florida Beaches International Airport (ECP, Panama City) is about 45-50 min away and has more airline options. Both are good options depending on the guest's origin.
-- Activities booking (TripShock affiliate): https://www.tripshock.com/?aff=destindreamcondo
+- Activities booking (TripShock): https://www.tripshock.com/?aff=destindreamcondo
+- TripShock DOES cover: dolphin cruises, fishing charters (deep sea, semi-private, kids), pontoon boat rentals, jet ski/waverunner rentals, Crab Island trips, parasailing, kayak tours, snorkeling, sunset cruises, sailing, pirate cruises (kids), zipline at HarborWalk, rock climbing wall HarborWalk, Big Kahuna's Water Park tickets, Gulfarium Marine Adventure Park tickets, banana boat rides
+- TripShock does NOT cover: restaurants, spas, golf courses, shopping, Henderson Beach State Park entry, free beach access, LDV beach chairs/umbrellas, bike rentals (those are LDV), grocery delivery, car rentals
 - Browse availability: https://www.destincondogetaways.com/availability
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

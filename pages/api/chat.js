@@ -158,6 +158,23 @@ function detectTripShockCategory(text) {
   return null;
 }
 
+
+// Extract single date for TripShock activity links (does not affect availability checking)
+function extractSingleDate(text) {
+  const year = new Date().getFullYear();
+  const months = {
+    january:"01",february:"02",march:"03",april:"04",may:"05",june:"06",
+    july:"07",august:"08",september:"09",october:"10",november:"11",december:"12"
+  };
+  const mn = Object.keys(months).join("|");
+  // "March 12th", "March 12", "12th March", "12 March"
+  const m1 = text.match(new RegExp("(" + mn + ")\\s+(\\d{1,2})(?:st|nd|rd|th)?", "i"));
+  if (m1) return `${year}-${months[m1[1].toLowerCase()]}-${m1[2].padStart(2,"0")}`;
+  const m2 = text.match(new RegExp("(\\d{1,2})(?:st|nd|rd|th)?\\s+(?:of\\s+)?(" + mn + ")", "i"));
+  if (m2) return `${year}-${months[m2[2].toLowerCase()]}-${m2[1].padStart(2,"0")}`;
+  return null;
+}
+
 function buildTripShockLink(category, dates) {
   const slug = TRIPSHOCK_CATEGORIES[category];
   let from, to;
@@ -1092,7 +1109,7 @@ The guest is now in follow-up conversation mode. Answer their questions naturall
 - If they ask for a price match → direct them warmly to the Comments/Questions box on the booking page
 - If they ask about booking direct benefits → explain: no platform fees, DESTINY code for 10%, personal service from Ozan
 - If they ask which unit → give an honest neutral comparison (since 1006 is booked, tell them 707 is the one available)
-- NEVER start your response with "Great news" robotically — vary openers based on context
+- Vary your opening phrases — don't always start with "Great news". Mix in alternatives like "You're in luck! 🎉", "Perfect timing!", "Love those dates!", "Oh nice choice!", "Those dates work!", or just lead directly with the info. Keep it human and fresh.
 - NEVER ask "Are you planning a trip soon?" or "Would you like me to check availability?" — they already have dates and availability was already checked
 - NEVER offer to check availability again when dates are already known
 - Be warm, concise, and conversational — like a helpful friend, not a broken record` : "";
@@ -1723,7 +1740,17 @@ WEATHER DATA UNAVAILABLE: Real-time weather could not be fetched. Do NOT guess o
     } else if (blogTopic === "activities") {
       const blogResult = await fetchBlogContent(blogTopic);
       const tsCategory = detectTripShockCategory(lastUser);
-      const tsLink = buildTripShockLink(tsCategory || "dolphin", dates);
+      // Use full dates if available, fall back to single date +1, then general link
+      let tsDates = dates;
+      if (!tsDates) {
+        const singleDate = extractSingleDate(lastUser);
+        if (singleDate) {
+          const next = new Date(singleDate); next.setDate(next.getDate() + 1);
+          const pad = n => String(n).padStart(2,"0");
+          tsDates = { arrival: singleDate, departure: `${next.getFullYear()}-${pad(next.getMonth()+1)}-${pad(next.getDate())}` };
+        }
+      }
+      const tsLink = buildTripShockLink(tsCategory || "dolphin", tsDates);
       const tsGeneral = `https://www.tripshock.com/?${TRIPSHOCK_AFF}`;
       if (blogResult) {
         blogContext = `\n\nACTIVITIES REQUEST: Guest is asking about things to do, tours, or activities in Destin.\nLIVE BLOG CONTENT: ${blogResult.content}\nBlog link: ${blogResult.url}\n\nTRIPSHOCK BOOKING:\n${tsCategory ? `- Specific activity detected (${tsCategory}): send this pre-filtered link: ${tsLink}` : `- No specific activity detected: send general link: ${tsGeneral}`}\n- ONE TripShock link only — never repeat it\n- Present naturally: "You can browse and book [activity] directly here: [link]"\n\nCRITICAL RULES:\n- NEVER use the word "affiliate"\n- Prices are identical to booking direct — never imply otherwise\n- NEVER connect to DESTINY discount code — completely separate\n- If availability context is also present: answer the activity question FIRST, then add availability as a P.S. — never lead with booking links when guest asked about activities\n- Keep it casual and helpful, not salesy`;
@@ -2217,7 +2244,16 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
       const wantsActivityToo = detectTripShockCategory(lastUser) !== null ||
         /activit|thing to do|fun|tour|dolphin|parasail|snorkel|kayak|boat|fishing|water.sport|jet.?ski|pontoon|crab.?island|sunset|pirate/i.test(lastUser);
       const tsActivityCategory = detectTripShockCategory(lastUser);
-      const tsActivityLink = buildTripShockLink(tsActivityCategory, dates);
+      let tsActivityDates = dates;
+      if (!tsActivityDates) {
+        const sd = extractSingleDate(lastUser);
+        if (sd) {
+          const nx = new Date(sd); nx.setDate(nx.getDate() + 1);
+          const pd = n => String(n).padStart(2,"0");
+          tsActivityDates = { arrival: sd, departure: `${nx.getFullYear()}-${pd(nx.getMonth()+1)}-${pd(nx.getDate())}` };
+        }
+      }
+      const tsActivityLink = buildTripShockLink(tsActivityCategory, tsActivityDates);
       const activityPS = wantsActivityToo
         ? `\n\nP.S. For ${tsActivityCategory ? tsActivityCategory.replace(/([a-z])([A-Z])/g, '$1 $2') + ' tours' : 'activities'} during your stay, you can browse and book here: ${tsActivityLink} 🐬`
         : "";

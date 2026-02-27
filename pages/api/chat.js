@@ -1652,6 +1652,11 @@ Gulf swimming: ideal June-September, cool Oct-May, cold Dec-March → always sug
 
 WEATHER DATA UNAVAILABLE: Real-time weather could not be fetched. Do NOT guess or invent temperatures. Tell the guest honestly: "I don't have live weather data at the moment — for the most accurate Destin forecast I'd recommend checking weather.com. What I can say is that February in Destin typically sees highs in the mid-50s to low 60s°F, and the Gulf is quite chilly — our indoor heated pool is perfect this time of year!" Do NOT confidently state specific temperatures you are not sure about.`;
       }
+    } else if (blogTopic === "activities") {
+      const blogResult = await fetchBlogContent(blogTopic);
+      if (blogResult) {
+        blogContext = `\n\nACTIVITIES REQUEST: Guest is asking about things to do, tours, water sports, dolphin tours, snorkeling, fishing, parasailing, or other activities in Destin.\nLIVE BLOG CONTENT: ${blogResult.content}\nBlog link: ${blogResult.url}\n\nTRIPSHOCK BOOKING: After answering with local knowledge, ALWAYS add this line: "To book activities and tours directly, check out TripShock — they have everything in one place: https://www.tripshock.com/?aff=destindreamcondo"\n\nCRITICAL RULES FOR TRIPSHOCK:\n- ONLY mention TripShock for activities/tours/excursions — NEVER for accommodation discounts\n- NEVER say TripShock offers discounts on our condos\n- NEVER connect TripShock to the DESTINY discount code — they are completely separate\n- Frame it naturally: "To book [dolphin tour / parasailing / etc.] directly..." not as a sales pitch`;
+      }
     } else if (blogTopic) {
       const blogResult = await fetchBlogContent(blogTopic);
       if (blogResult) {
@@ -1668,6 +1673,12 @@ Today is ${today}. Current time in Destin: ${currentTime} CST.
 
 ⛔ CRITICAL URL RULE — NO EXCEPTIONS:
 NEVER invent, generate, guess, or modify booking URLs. The ONLY valid booking URLs are pre-built by the system and provided to you in the context below (they contain "or_arrival=" and "or_departure="). If no pre-built URL is provided, do NOT send any booking link — ask for missing info instead.
+
+TRIPSHOCK AFFILIATE RULE:
+- TripShock (https://www.tripshock.com/?aff=destindreamcondo) is ONLY for booking local activities and tours — dolphin tours, parasailing, snorkeling, fishing charters, water sports, etc.
+- NEVER mention TripShock in response to discount requests, condo pricing questions, or booking our units
+- NEVER connect TripShock to code DESTINY or any accommodation discount
+- ONLY bring it up naturally when a guest asks about things to do, tours, or activities
 
 AMENITIES ACCURACY RULE:
 - Never invent resort/unit amenities.
@@ -1849,7 +1860,7 @@ CONTACTS
 - LDV Beach Chairs: 866-651-1869 | https://www.ldvbeach.com
 - Beach cam: https://www.destincondogetaways.com/destin-live-beach-cam-574002656
 AIRPORTS: Destin-Fort Walton Beach Airport (VPS) is approximately 30 min away — most guests fly here. Northwest Florida Beaches International Airport (ECP, Panama City) is about 45-50 min away and has more airline options. Both are good options depending on the guest's origin.
-- Activities: http://affiliates.tripshock.com/destindreamcondo
+- Activities booking (TripShock affiliate): https://www.tripshock.com/?aff=destindreamcondo
 - Browse availability: https://www.destincondogetaways.com/availability
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

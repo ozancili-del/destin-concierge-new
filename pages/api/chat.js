@@ -2213,6 +2213,14 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
         && dates && hasGuestCount && !mentionsPets && !bookingLinksSent && (wantsAvailability || isGuestCountReply)) {
 
       let bookingReply = null;
+      // Detect if guest also asked about activities alongside booking
+      const wantsActivityToo = detectTripShockCategory(lastUser) !== null ||
+        /activit|thing to do|fun|tour|dolphin|parasail|snorkel|kayak|boat|fishing|water.sport|jet.?ski|pontoon|crab.?island|sunset|pirate/i.test(lastUser);
+      const tsActivityCategory = detectTripShockCategory(lastUser);
+      const tsActivityLink = buildTripShockLink(tsActivityCategory, dates);
+      const activityPS = wantsActivityToo
+        ? `\n\nP.S. For ${tsActivityCategory ? tsActivityCategory.replace(/([a-z])([A-Z])/g, '$1 $2') + ' tours' : 'activities'} during your stay, you can browse and book here: ${tsActivityLink} 🐬`
+        : "";
 
       if (availabilityStatus.includes("707:AVAILABLE") && availabilityStatus.includes("1006:BOOKED")) {
         const link = buildLink("707", dates.arrival, dates.departure, adults, children);
@@ -2220,7 +2228,7 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
 
 🔗 **Book Unit 707:** ${link}
 
-Don't forget to use code **DESTINY** for 10% off! Let me know if you have any questions 😊`;
+Don't forget to use code **DESTINY** for 10% off! Let me know if you have any questions 😊${activityPS}`;
 
       } else if (availabilityStatus.includes("707:BOOKED") && availabilityStatus.includes("1006:AVAILABLE")) {
         const link = buildLink("1006", dates.arrival, dates.departure, adults, children);
@@ -2228,7 +2236,7 @@ Don't forget to use code **DESTINY** for 10% off! Let me know if you have any qu
 
 🔗 **Book Unit 1006:** ${link}
 
-Don't forget to use code **DESTINY** for 10% off! Let me know if you have any questions 😊`;
+Don't forget to use code **DESTINY** for 10% off! Let me know if you have any questions 😊${activityPS}`;
 
       } else if (availabilityStatus.includes("707:AVAILABLE") && availabilityStatus.includes("1006:AVAILABLE")) {
         const link707 = buildLink("707", dates.arrival, dates.departure, adults, children);
@@ -2238,7 +2246,7 @@ Don't forget to use code **DESTINY** for 10% off! Let me know if you have any qu
 🔗 **Unit 707** (7th floor, Classic Coastal): ${link707}
 🔗 **Unit 1006** (10th floor, Fresh Coastal): ${link1006}
 
-Use code **DESTINY** for 10% off either unit! Want me to tell you more about the differences? 😊`;
+Use code **DESTINY** for 10% off either unit! Want me to tell you more about the differences? 😊${activityPS}`;
 
       } else if (availabilityStatus.includes("707:BOOKED") && availabilityStatus.includes("1006:BOOKED")) {
         bookingReply = `I'm sorry — both units are booked for ${dates.arrival} to ${dates.departure}. You can browse other open dates at https://www.destincondogetaways.com/availability or contact Ozan at (972) 357-4262 — he may have options not listed online!`;
@@ -2251,7 +2259,7 @@ Use code **DESTINY** for 10% off either unit! Want me to tell you more about the
 🔗 **Book Unit 707:** ${link707}
 🔗 **Unit 1006 (unconfirmed):** ${link1006}
 
-Use code **DESTINY** for 10% off! For Unit 1006 questions contact Ozan at (972) 357-4262 😊`;
+Use code **DESTINY** for 10% off! For Unit 1006 questions contact Ozan at (972) 357-4262 😊${activityPS}`;
 
       } else if (availabilityStatus.includes("707:UNKNOWN") && availabilityStatus.includes("1006:AVAILABLE")) {
         const link707 = buildLink("707", dates.arrival, dates.departure, adults, children);

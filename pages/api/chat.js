@@ -23,7 +23,7 @@ const BLOG_URLS = {
   events:       "https://www.destincondogetaways.com/blog/destin-events-2026",
   airport:      "https://www.destincondogetaways.com/blog/destinairport",
   romance:      "https://www.destincondogetaways.com/blog/destinromance",
-  car:          "https://www.destincondogetaways.com/blog/destinscar",
+  car:          "https://www.destincondogetaways.com/blog/destincar",
   spa:          "https://www.destincondogetaways.com/blog/destinspa",
   nightlife:    "https://www.destincondogetaways.com/blog/destinnights",
   essentials:   "https://www.destincondogetaways.com/blog/destinessentials",

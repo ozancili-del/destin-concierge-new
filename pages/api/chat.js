@@ -110,6 +110,74 @@ function detectBlogTopic(text) {
   return null;
 }
 
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TripShock deep link builder
+// ─────────────────────────────────────────────────────────────────────────────
+const TRIPSHOCK_BASE = "https://www.tripshock.com";
+const TRIPSHOCK_AFF  = "aff=destindreamcondo";
+const TRIPSHOCK_CATEGORIES = {
+  dolphin:      "dolphin-cruises-and-tours",
+  fishing:      "fishing-charters",
+  jetski:       "jet-ski-rentals-tours",
+  waverunner:   "jet-ski-rentals-tours",
+  pontoon:      "boat-rentals",
+  boat:         "boat-rentals",
+  parasail:     "parasailing",
+  crabisland:   "crab-island-tours-and-activities",
+  snorkel:      "snorkeling-tours",
+  sunset:       "sunset-cruises-tours",
+  pirate:       "pirate-cruises",
+  kayak:        "canoe-kayak-paddleboard-rentals",
+  paddleboard:  "canoe-kayak-paddleboard-rentals",
+  fireworks:    "fireworks-cruises",
+  tiki:         "tiki-boats",
+  banana:       "banana-boat-rides",
+  photographer: "beach-photographers",
+  boattour:     "boat-tours",
+};
+
+function detectTripShockCategory(text) {
+  const t = text.toLowerCase();
+  if (t.match(/dolphin/))                          return "dolphin";
+  if (t.match(/fish|charter|angl/))                return "fishing";
+  if (t.match(/jet.?ski|waverunner/))              return "jetski";
+  if (t.match(/pontoon|boat.rent/))                return "pontoon";
+  if (t.match(/parasail/))                         return "parasail";
+  if (t.match(/crab.?island/))                     return "crabisland";
+  if (t.match(/snorkel/))                          return "snorkel";
+  if (t.match(/sunset.?cruis|sunset.?tour/))       return "sunset";
+  if (t.match(/pirate/))                           return "pirate";
+  if (t.match(/kayak/))                            return "kayak";
+  if (t.match(/paddleboard|paddle.?board/))        return "paddleboard";
+  if (t.match(/firework/))                         return "fireworks";
+  if (t.match(/tiki/))                             return "tiki";
+  if (t.match(/banana.?boat/))                     return "banana";
+  if (t.match(/beach.?photo|photo.*beach/))        return "photographer";
+  if (t.match(/boat.?tour|tour.*boat/))            return "boattour";
+  return null;
+}
+
+function buildTripShockLink(category, dates) {
+  const slug = TRIPSHOCK_CATEGORIES[category];
+  let from, to;
+  if (dates && dates.arrival && dates.departure) {
+    const fmt = d => { const p = d.split("-"); return `${p[1]}/${p[2]}/${p[0]}`; };
+    from = fmt(dates.arrival);
+    to   = fmt(dates.departure);
+  } else if (dates && dates.arrival) {
+    const fmt = d => { const p = d.split("-"); return `${p[1]}/${p[2]}/${p[0]}`; };
+    from = fmt(dates.arrival);
+    const next = new Date(dates.arrival); next.setDate(next.getDate() + 1);
+    const pad = n => String(n).padStart(2,"0");
+    to = `${pad(next.getMonth()+1)}/${pad(next.getDate())}/${next.getFullYear()}`;
+  }
+  if (slug && from && to) {
+    return `${TRIPSHOCK_BASE}/destination/fl/destin/things-to-do/${slug}/?from=${from}&to=${to}&${TRIPSHOCK_AFF}`;
+  }
+  return `${TRIPSHOCK_BASE}/?${TRIPSHOCK_AFF}`;
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Fetch real Destin weather from Google Weather API
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1654,8 +1722,11 @@ WEATHER DATA UNAVAILABLE: Real-time weather could not be fetched. Do NOT guess o
       }
     } else if (blogTopic === "activities") {
       const blogResult = await fetchBlogContent(blogTopic);
+      const tsCategory = detectTripShockCategory(lastUser);
+      const tsLink = buildTripShockLink(tsCategory || "dolphin", dates);
+      const tsGeneral = `https://www.tripshock.com/?${TRIPSHOCK_AFF}`;
       if (blogResult) {
-        blogContext = `\n\nACTIVITIES REQUEST: Guest is asking about things to do, tours, water sports, dolphin tours, snorkeling, fishing, parasailing, or other activities in Destin.\nLIVE BLOG CONTENT: ${blogResult.content}\nBlog link: ${blogResult.url}\n\nTRIPSHOCK BOOKING: After answering with local knowledge, naturally mention TripShock as a helpful booking resource. Example phrasing: "For booking tours and activities in Destin, TripShock is a great resource — easy to browse and book online: https://www.tripshock.com/?aff=destindreamcondo"\n\nCRITICAL RULES FOR TRIPSHOCK:\n- NEVER use the word "affiliate" — just present it as a helpful local booking site\n- Prices through this link are identical to booking direct — never imply otherwise\n- ONLY mention TripShock for what it covers: dolphin tours, fishing, jet skis, pontoons, Crab Island, parasailing, snorkeling, sunset cruises, Big Kahunas, Gulfarium, zipline\n- NEVER connect to DESTINY discount code — completely separate\n- Keep it casual and helpful, not salesy`;
+        blogContext = `\n\nACTIVITIES REQUEST: Guest is asking about things to do, tours, or activities in Destin.\nLIVE BLOG CONTENT: ${blogResult.content}\nBlog link: ${blogResult.url}\n\nTRIPSHOCK BOOKING:\n${tsCategory ? `- Specific activity detected (${tsCategory}): send this pre-filtered link: ${tsLink}` : `- No specific activity detected: send general link: ${tsGeneral}`}\n- ONE TripShock link only — never repeat it\n- Present naturally: "You can browse and book [activity] directly here: [link]"\n\nCRITICAL RULES:\n- NEVER use the word "affiliate"\n- Prices are identical to booking direct — never imply otherwise\n- NEVER connect to DESTINY discount code — completely separate\n- If availability context is also present: answer the activity question FIRST, then add availability as a P.S. — never lead with booking links when guest asked about activities\n- Keep it casual and helpful, not salesy`;
       }
     } else if (blogTopic) {
       const blogResult = await fetchBlogContent(blogTopic);
@@ -1675,10 +1746,13 @@ Today is ${today}. Current time in Destin: ${currentTime} CST.
 NEVER invent, generate, guess, or modify booking URLs. The ONLY valid booking URLs are pre-built by the system and provided to you in the context below (they contain "or_arrival=" and "or_departure="). If no pre-built URL is provided, do NOT send any booking link — ask for missing info instead.
 
 TRIPSHOCK AFFILIATE RULE:
-- TripShock (https://www.tripshock.com/?aff=destindreamcondo) is ONLY for booking local activities and tours — dolphin tours, parasailing, snorkeling, fishing charters, water sports, etc.
-- NEVER mention TripShock in response to discount requests, condo pricing questions, or booking our units
-- NEVER connect TripShock to code DESTINY or any accommodation discount
-- ONLY bring it up naturally when a guest asks about things to do, tours, or activities
+- TripShock links are ONLY for booking local activities — dolphin tours, fishing, jet skis, pontoons, parasailing, Crab Island, snorkeling, sunset cruises, pirate cruises, kayaks, beach photographers, fireworks cruises, tiki boats
+- NEVER mention TripShock for discount requests, condo pricing, or booking our units
+- NEVER connect TripShock to code DESTINY — completely separate
+- When activity context provides a pre-filtered TripShock link, use THAT link — never use the generic homepage link if a specific one is provided
+- Use ONE TripShock link per response — never repeat it
+- If a guest asks about activities BUT also triggered availability (dates + guest count), ALWAYS answer the activity question first with recommendations, then add availability as a natural P.S. at the end. Never lead with booking links when the primary question was about activities
+- Keep it casual: "You can book [activity] here: [link]" not a sales pitch
 
 AMENITIES ACCURACY RULE:
 - Never invent resort/unit amenities.

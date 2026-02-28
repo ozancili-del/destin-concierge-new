@@ -925,7 +925,9 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { messages = [], sessionId = null, alertSent: priorAlertSent = false, pendingRelay: priorPendingRelay = false, ozanAcked: priorOzanAcked = false, ozanAckType: priorOzanAckType = null } = req.body || {};
+    // pageSource: frontend bubble should send pageSource: "ai-concierge" when on /ai-concierge page
+    // In concierge.js fetch body add: pageSource: window.location.pathname.includes("ai-concierge") ? "ai-concierge" : null
+    const { messages = [], sessionId = null, alertSent: priorAlertSent = false, pendingRelay: priorPendingRelay = false, ozanAcked: priorOzanAcked = false, ozanAckType: priorOzanAckType = null, pageSource = null } = req.body || {};
     const lastUser = [...messages].reverse().find((m) => m.role === "user")?.content || "";
 
     // Fetch session history from Sheets if sessionId provided
@@ -1763,6 +1765,12 @@ WEATHER DATA UNAVAILABLE: Real-time weather could not be fetched. Do NOT guess o
     }
 
     // ── BUILD SYSTEM PROMPT ─────────────────────────────────────────────────
+    // AI Concierge page opening message
+    const isConciergePage = pageSource === "ai-concierge";
+    const conciergePageContext = isConciergePage ? `
+🌊 CONCIERGE PAGE OPENING: Guest landed on the dedicated AI Concierge page. If this is their first message, open with something that shows off your capabilities — something like: "Hey there! 👋 I'm Destiny Blue — I can check live availability for both units, build you a booking link in seconds, recommend dolphin tours and activities with direct booking links, or connect you straight to Ozan. What can I help you with? 😊" — keep it warm, specific, and show them what you can DO.
+` : "";
+
     const SYSTEM_PROMPT = `You are Destiny Blue, a warm and caring AI concierge for Destin Condo Getaways.
 You help guests discover and book beachfront condos at Pelican Beach Resort in Destin, Florida.
 You sound like a knowledgeable local friend — warm, genuine, never robotic.
@@ -1804,7 +1812,7 @@ The guest may be following up or anxious. Your job now:
 - Remind them Ozan is handling it and they should expect direct contact soon
 - Keep it to 1-2 sentences max. Do not ask follow-up questions.
 - Example good responses: "Ozan is on it — you should hear from him or the team very shortly 🙏" / "He's already been notified and is handling this — just hang tight a little longer 🙏"
-\n\n` : ""}${isChildSafetyQuestion ? "👶 CHILD/TODDLER SAFETY QUESTION DETECTED — Follow CHILD / TODDLER / FAMILY SAFETY PRIORITY OVERRIDE exactly. Answer the specific safety question FIRST. No excitement opener. No smart lock pivot. Give portable solutions immediately.\n\n" : ""}${isAccidentalDamage ? "⚠️ ACCIDENTAL DAMAGE SCENARIO: Guest has broken something (plates, glasses etc). Follow the ACCIDENTAL DAMAGE RULE exactly. Do NOT say you notified Ozan. Do NOT offer to relay. Empathy first, then direct to Ozan at (972) 357-4262.\n\n" : ""}${alertWasFired ? "🚨 ALERT SENT THIS SESSION: An emergency Discord alert was automatically sent to Ozan during this conversation. If guest asks if you contacted Ozan or sent a message — say YES, an urgent alert was already sent to him. Do not say you will send it — it is already done.\n\n" : ""}${bookingLinksContext ? bookingLinksContext + "\n\n" : ""}${petsContext ? petsContext + "\n\n" : ""}${holidayContext ? holidayContext + "\n\n" : ""}${dateAdjustContext ? dateAdjustContext + "\n\n" : ""}${competitorContext ? competitorContext + "\n\n" : ""}${discountContext ? discountContext + "\n\n" : ""}${externalDisturbanceContext ? externalDisturbanceContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
+\n\n` : ""}${isChildSafetyQuestion ? "👶 CHILD/TODDLER SAFETY QUESTION DETECTED — Follow CHILD / TODDLER / FAMILY SAFETY PRIORITY OVERRIDE exactly. Answer the specific safety question FIRST. No excitement opener. No smart lock pivot. Give portable solutions immediately.\n\n" : ""}${isAccidentalDamage ? "⚠️ ACCIDENTAL DAMAGE SCENARIO: Guest has broken something (plates, glasses etc). Follow the ACCIDENTAL DAMAGE RULE exactly. Do NOT say you notified Ozan. Do NOT offer to relay. Empathy first, then direct to Ozan at (972) 357-4262.\n\n" : ""}${alertWasFired ? "🚨 ALERT SENT THIS SESSION: An emergency Discord alert was automatically sent to Ozan during this conversation. If guest asks if you contacted Ozan or sent a message — say YES, an urgent alert was already sent to him. Do not say you will send it — it is already done.\n\n" : ""}${bookingLinksContext ? bookingLinksContext + "\n\n" : ""}${petsContext ? petsContext + "\n\n" : ""}${holidayContext ? holidayContext + "\n\n" : ""}${dateAdjustContext ? dateAdjustContext + "\n\n" : ""}${competitorContext ? competitorContext + "\n\n" : ""}${conciergePageContext}${discountContext ? discountContext + "\n\n" : ""}${externalDisturbanceContext ? externalDisturbanceContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PROPERTIES
@@ -1944,7 +1952,7 @@ If a guest asks how long the property has been renting, wants to know more about
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 BOOKING & PAYMENTS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-- Code DESTINY = 10% off — always mention with booking links
+- Code DESTINY = 10% off — always mention with booking links. If a guest asks about a discount code or mentions DESTINY: respond with warmth and a little giggle — something like "Good news — no need to worry about any codes, your 10% direct booking discount is already automatically applied! 🎉 You're welcome 😄" — keep it light, fun, make them feel taken care of. NEVER connect this to TripShock — completely separate.
 - Pricing: direct to booking page — never guess
 - Direct booking saves vs booking platforms (which can charge up to 22% in fees) — NEVER name specific platforms
 - Dynamic pricing: rates vary by demand and season only — NEVER mention decor or floor level as a reason for price difference

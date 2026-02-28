@@ -7,7 +7,7 @@ function generateSessionId() {
 
 export default function Concierge() {
   const [log, setLog] = useState([
-    { role: "assistant", content: "Hi! I'm Destiny Blue. How can I help with your stay?" }
+    { role: "assistant", content: "Hey there! 👋 I'm Destiny Blue — I can check live availability for both units, build you a booking link in seconds, recommend dolphin tours and activities, or connect you straight to Ozan. What can I help you with? 😊" }
   ]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
@@ -112,7 +112,7 @@ export default function Concierge() {
       const r = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: [...log, userMsg], sessionId: sessionIdRef.current, alertSent, pendingRelay, ozanAcked, ozanAckType })
+        body: JSON.stringify({ messages: [...log, userMsg], sessionId: sessionIdRef.current, alertSent, pendingRelay, ozanAcked, ozanAckType, pageSource: typeof window !== "undefined" && window.location.pathname.includes("ai-concierge") ? "ai-concierge" : null })
       });
       const data = await r.json();
       if (data.alertSent) setAlertSent(true);

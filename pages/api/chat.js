@@ -2455,19 +2455,19 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
 
       if (availabilityStatus.includes("707:AVAILABLE") && availabilityStatus.includes("1006:BOOKED")) {
         const link = buildLink("707", dates.arrival, dates.departure, adults, children);
-        bookingReply = `Great news — Unit 707 is available for your dates! 🎉 Unit 1006 is already booked for that period.
+        bookingReply = `Great news — Unit 707 is available for your dates! 🎉 Unit 1006 is already booked for that period, so grab Unit 707 before it goes too!
 
 🔗 **Book Unit 707:** ${link}
 
-Don't forget to use code **DESTINY** for 10% off! Let me know if you have any questions 😊${activityPS}`;
+Use code **DESTINY** for 10% off! Let me know if you have any questions 😊${activityPS}`;
 
       } else if (availabilityStatus.includes("707:BOOKED") && availabilityStatus.includes("1006:AVAILABLE")) {
         const link = buildLink("1006", dates.arrival, dates.departure, adults, children);
-        bookingReply = `Great news — Unit 1006 is available for your dates! 🎉 Unit 707 is already booked for that period.
+        bookingReply = `Great news — Unit 1006 is available for your dates! 🎉 Unit 707 is already booked for that period, so grab Unit 1006 before it goes too!
 
 🔗 **Book Unit 1006:** ${link}
 
-Don't forget to use code **DESTINY** for 10% off! Let me know if you have any questions 😊${activityPS}`;
+Use code **DESTINY** for 10% off! Let me know if you have any questions 😊${activityPS}`;
 
       } else if (availabilityStatus.includes("707:AVAILABLE") && availabilityStatus.includes("1006:AVAILABLE")) {
         const link707 = buildLink("707", dates.arrival, dates.departure, adults, children);

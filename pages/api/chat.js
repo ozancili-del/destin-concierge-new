@@ -341,6 +341,71 @@ Respond with ONLY a JSON array of cleaned strings, nothing else. Example: ["TV n
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Fetch guest booking by booking ID (magic link flow)
+// ─────────────────────────────────────────────────────────────────────────────
+async function fetchGuestBooking(bookingId) {
+  try {
+    const token = process.env.OWNERREZ_API_TOKEN;
+    const credentials = Buffer.from(`${OWNERREZ_USER}:${token}`).toString("base64");
+    const url = `https://api.ownerrez.com/v2/bookings/${bookingId}`;
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Basic ${credentials}`,
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "User-Agent": "DestinyBlue/1.0",
+      },
+    });
+    if (!response.ok) {
+      console.error(`fetchGuestBooking error: ${response.status} for booking ${bookingId}`);
+      return null;
+    }
+    const b = await response.json();
+    if (b.is_block || b.status === "canceled") return null;
+
+    // Calculate days until arrival
+    const todayDate = new Date();
+    todayDate.setHours(0,0,0,0);
+    const arrival = new Date(b.arrival + "T00:00:00");
+    const departure = new Date(b.departure + "T00:00:00");
+    const daysUntilArrival = Math.ceil((arrival - todayDate) / (1000 * 60 * 60 * 24));
+    const isCheckedIn = todayDate >= arrival && todayDate < departure;
+    const isCheckedOut = todayDate >= departure;
+
+    // Door code: only show if within 7 days of arrival or during stay, not after checkout
+    const showDoorCode = !isCheckedOut && (isCheckedIn || daysUntilArrival <= 7);
+    const doorCode = showDoorCode && b.door_codes?.length > 0 ? b.door_codes[0].code : null;
+
+    const fmtDate = (d) => new Date(d + "T12:00:00").toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+
+    return {
+      guestFirstName: b.guest?.first_name || null,
+      guestLastName:  b.guest?.last_name || null,
+      unit:           b.property?.name?.includes("707") ? "707" : "1006",
+      propertyName:   b.property?.name || "your unit",
+      arrival:        b.arrival,
+      departure:      b.departure,
+      arrivalFmt:     fmtDate(b.arrival),
+      departureFmt:   fmtDate(b.departure),
+      checkIn:        b.check_in || "16:00",
+      checkOut:       b.check_out || "10:00",
+      nights:         Math.ceil((departure - arrival) / (1000 * 60 * 60 * 24)),
+      doorCode,
+      showDoorCode,
+      daysUntilArrival,
+      isCheckedIn,
+      isCheckedOut,
+      adults:         b.adults,
+      children:       b.children,
+      status:         b.status,
+    };
+  } catch (err) {
+    console.error("fetchGuestBooking error:", err.message);
+    return null;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Check availability using OwnerRez v2 bookings API
 // ─────────────────────────────────────────────────────────────────────────────
 async function checkAvailability(propertyId, arrival, departure, retries = 2) {
@@ -927,8 +992,39 @@ export default async function handler(req, res) {
   try {
     // pageSource: frontend bubble should send pageSource: "ai-concierge" when on /ai-concierge page
     // In concierge.js fetch body add: pageSource: window.location.pathname.includes("ai-concierge") ? "ai-concierge" : null
-    const { messages = [], sessionId = null, alertSent: priorAlertSent = false, pendingRelay: priorPendingRelay = false, ozanAcked: priorOzanAcked = false, ozanAckType: priorOzanAckType = null, pageSource = null } = req.body || {};
+    const { messages = [], sessionId = null, alertSent: priorAlertSent = false, pendingRelay: priorPendingRelay = false, ozanAcked: priorOzanAcked = false, ozanAckType: priorOzanAckType = null, pageSource = null, guestBid = null } = req.body || {};
     const lastUser = [...messages].reverse().find((m) => m.role === "user")?.content || "";
+
+
+    // ── MAGIC LINK: Guest arrived via personalized email link ──────────────────
+    if (guestBid && messages.length === 0) {
+      const booking = await fetchGuestBooking(guestBid);
+      if (booking && !booking.isCheckedOut) {
+        const name = booking.guestFirstName || "there";
+        const checkInTime = booking.checkIn === "16:00" ? "4:00 PM" : booking.checkIn;
+        const checkOutTime = booking.checkOut === "10:00" ? "10:00 AM" : booking.checkOut;
+
+        let greeting = `Hey ${name}! 🌊 So excited for your Destin getaway! Here's a quick look at your stay:\n\n`;
+        greeting += `🏖️ **Unit ${booking.unit}** at Pelican Beach Resort\n`;
+        greeting += `📅 **${booking.arrivalFmt}** → **${booking.departureFmt}** (${booking.nights} nights)\n`;
+        greeting += `🕓 Check-in: **${checkInTime}** · Check-out: **${checkOutTime}**\n`;
+
+        if (booking.doorCode) {
+          greeting += `🔑 **Door code: ${booking.doorCode}**\n`;
+        } else if (booking.daysUntilArrival > 7) {
+          greeting += `🔑 Door code: Will be sent **7 days before arrival** (${booking.daysUntilArrival} days to go!)\n`;
+        }
+
+        greeting += `📶 WiFi: **Pelican-guest.encowifi.com** · Password: **54541884**\n`;
+        greeting += `\nAsk me anything — dolphin tours, restaurants, beach tips, or anything about your stay! 😊`;
+
+        return res.status(200).json({ reply: greeting, guestBooking: booking, alertSent: false, pendingRelay: false, ozanAcked: false, ozanAckType: null });
+      } else if (booking?.isCheckedOut) {
+        return res.status(200).json({ reply: `Hey ${booking.guestFirstName || "there"}! 🌊 Looks like your stay has wrapped up — hope you had an amazing time at Pelican Beach! We'd love a review if you have a moment. Anything else I can help with? 😊`, alertSent: false, pendingRelay: false, ozanAcked: false, ozanAckType: null });
+      } else {
+        return res.status(200).json({ reply: "Hey there! 🌊 I had a little trouble pulling up your booking — but I'm still here to help! Ask me anything about your stay 😊", alertSent: false, pendingRelay: false, ozanAcked: false, ozanAckType: null });
+      }
+    }
 
     // Fetch session history from Sheets if sessionId provided
     // If frontend already confirmed ack, skip Sheets read entirely

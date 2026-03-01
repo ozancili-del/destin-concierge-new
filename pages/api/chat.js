@@ -1285,7 +1285,7 @@ The guest is now in follow-up conversation mode. Answer their questions naturall
     // e.g. "5th march. 2 ppl" → extractDates returns null, but extractSingleDate finds "2026-03-05"
     // Guard: only fire when message has no range indicator (to/until/through or digit-dash-digit)
     const hasRangeIndicator = /\d\s*[-–]\s*\d|\b(to|until|through|thru)\b/i.test(lastUser);
-    const singleCheckinDate = (!dates && !hasRangeIndicator) ? extractSingleDate(lastUser) : null;
+    const singleCheckinDate = (!dates && !hasRangeIndicator && !guestBooking) ? extractSingleDate(lastUser) : null;
     const nightsMatch = lastUser.match(/(\d+)\s*nights?/i);
     if (!dates && singleCheckinDate) {
       if (nightsMatch) {
@@ -2464,7 +2464,7 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
     }
 
     // ── BOOKING INTERCEPT — bypass GPT when we have clean availability + guest count ──
-    if (availabilityStatus && !availabilityStatus.includes("CHECK_FAILED")
+    if (!guestBooking && availabilityStatus && !availabilityStatus.includes("CHECK_FAILED")
         && !availabilityStatus.includes("NEEDS_DATES") && !availabilityStatus.includes("NEEDS_CHECKOUT") && !availabilityStatus.includes("NEEDS_GUEST_COUNT")
         && !availabilityStatus.includes("DISCOUNT")
         && !availabilityStatus.includes("MONTH")

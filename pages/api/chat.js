@@ -591,6 +591,8 @@ function normalizeMonths(text) {
 
 function extractDates(text) {
   const year = new Date().getFullYear();
+  // Strip trailing punctuation from words so "march." "march," "march!" all match
+  text = text.replace(/([a-zA-Z])[.,!?;:]+(\s|$)/g, '$1$2');
   const t = normalizeMonths(text.toLowerCase());
 
   const isoPattern = /(\d{4}-\d{2}-\d{2})/g;
@@ -674,21 +676,29 @@ function extractDates(text) {
     return { arrival: toISO(allMatches[0]), departure: toISO(allMatches[1]) };
   }
 
-  // "4 september 12" or "4th september 12th" — day month day, no connector, second month can be missing/misspelled
-  const dmDayMatch = t.match(/(\d{1,2})(?:st|nd|rd|th)?\s+(?:of\s+)?(january|february|march|april|may|june|july|august|september|october|november|december)\s+(\d{1,2})(?:st|nd|rd|th)?(?!\s*(?:adult|child|kid|guest|person|people|infant|baby|toddler|pet|dog|cat|bird|animal))/i);
+  // Day-Month format: "4th july", "4th of july", "12 july", "4 July and 12 July"
+  // Must come BEFORE dmDayMatch to avoid "12th of march 2" being misread as day-month-day
+  // Filter out "day month" matches where the match is immediately followed by a guest count word
+  // e.g. "12th of march 2 ppl" → the "2" after "march" is a guest count, not a second date
+  const dmMatchesRaw = [...t.matchAll(/(\d{1,2})(?:st|nd|rd|th)?\s+(?:of\s+)?(january|february|march|april|may|june|july|august|september|october|november|december)/gi)];
+  const dmMatches = dmMatchesRaw.filter(m => {
+    const after = t.slice(m.index + m[0].length, m.index + m[0].length + 12);
+    return !/^\s*(\d+\s*)?(adult|kid|child|children|guest|person|people|ppl|pax|infant|baby|toddler)/i.test(after);
+  });
+  if (dmMatches.length >= 2) {
+    const toISO2 = (m) => `${year}-${months[m[2].toLowerCase()]}-${m[1].padStart(2,"0")}`;
+    return { arrival: toISO2(dmMatches[0]), departure: toISO2(dmMatches[1]) };
+  }
+
+  // "4 september 12" or "4th september 12th" — day month day, no connector
+  // Only runs when dmMatches found fewer than 2 matches
+  const dmDayMatch = t.match(/(\d{1,2})(?:st|nd|rd|th)?\s+(?:of\s+)?(january|february|march|april|may|june|july|august|september|october|november|december)\s+(\d{1,2})(?:st|nd|rd|th)?(?!\s*(?:adult|kid|child|children|guest|person|people|ppl|pax|infant|baby|toddler|pet|dog|cat|bird|animal))/i);
   if (dmDayMatch) {
     const month = months[dmDayMatch[2].toLowerCase()];
     return {
       arrival:   `${year}-${month}-${dmDayMatch[1].padStart(2,"0")}`,
       departure: `${year}-${month}-${dmDayMatch[3].padStart(2,"0")}`,
     };
-  }
-
-  // Day-Month format: "4th july", "4th of july", "12 july", "4 July and 12 July"
-  const dmMatches = [...t.matchAll(/(\d{1,2})(?:st|nd|rd|th)?\s+(?:of\s+)?(january|february|march|april|may|june|july|august|september|october|november|december)/gi)];
-  if (dmMatches.length >= 2) {
-    const toISO2 = (m) => `${year}-${months[m[2].toLowerCase()]}-${m[1].padStart(2,"0")}`;
-    return { arrival: toISO2(dmMatches[0]), departure: toISO2(dmMatches[1]) };
   }
 
   // "4th of july to 12th" — single day+month then second day

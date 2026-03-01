@@ -1,11 +1,13 @@
 // pages/concierge.js
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/router";
 
 function generateSessionId() {
   return "db_" + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 }
 
 export default function Concierge() {
+  const router = useRouter();
   const [log, setLog] = useState([
     { role: "assistant", content: "Hey there! 👋 I'm Destiny Blue — I can check live availability for both units, build you a booking link in seconds, recommend dolphin tours and activities, or connect you straight to Ozan. What can I help you with? 😊" }
   ]);
@@ -36,11 +38,9 @@ export default function Concierge() {
     }
 
     // Read magic link params from URL: ?fname=Elsa&bid=16610757
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      const bid = params.get("bid");
-      const fname = params.get("fname");
-      if (bid) {
+    const bid = router.query.bid || (typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("bid") : null);
+    const fname = router.query.fname || (typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("fname") : null);
+    if (bid) {
         guestBidRef.current = bid;
         setLog([]); // clear default greeting — API returns personalized one
         setBusy(true);
@@ -61,9 +61,8 @@ export default function Concierge() {
             setLog([{ role: "assistant", content: `Hey${fname ? " " + fname : " there"}! 🌊 I'm Destiny Blue — ask me anything about your stay! 😊` }]);
           })
           .finally(() => setBusy(false));
-      }
     }
-  }, []);
+  }, [router.isReady]);
 
   // Poll for Ozan activity when invited or active
   useEffect(() => {

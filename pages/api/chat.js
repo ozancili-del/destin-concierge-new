@@ -1219,6 +1219,27 @@ The guest is now in follow-up conversation mode. Answer their questions naturall
     let availabilityStatus = "";
     let petsContext = "";
 
+
+    // 🔍 SINGLE CHECK-IN DATE DETECTION — guest gave check-in but no check-out
+    // e.g. "5th march. 2 ppl" → extractDates returns null, but extractSingleDate finds "2026-03-05"
+    const singleCheckinDate = !dates ? extractSingleDate(lastUser) || extractSingleDate(allUserText.slice(-200)) : null;
+    const nightsMatch = lastUser.match(/(\d+)\s*nights?/i);
+    if (!dates && singleCheckinDate) {
+      if (nightsMatch) {
+        // Check-in + nights → compute checkout automatically
+        const depDate = new Date(singleCheckinDate + "T12:00:00Z");
+        depDate.setUTCDate(depDate.getUTCDate() + parseInt(nightsMatch[1]));
+        const pad = n => String(n).padStart(2,"0");
+        dates = { arrival: singleCheckinDate, departure: `${depDate.getUTCFullYear()}-${pad(depDate.getUTCMonth()+1)}-${pad(depDate.getUTCDate())}` };
+        console.log(`Single date + nights resolved: ${dates.arrival} -> ${dates.departure}`);
+      } else {
+        // Check-in only, no checkout — ask for it
+        availabilityStatus = "NEEDS_CHECKOUT";
+        availabilityContext = `PARTIAL DATE: Guest gave a check-in date (${singleCheckinDate}) but NOT a check-out date. Do NOT check availability. Ask warmly: "Got it — and when would you like to check out? Once I have that I'll pull up live availability right away 😊"`;
+        console.log(`Single check-in date only (${singleCheckinDate}) — asking for checkout`);
+      }
+    }
+
     // 🐾 PETS CONTEXT — inject strict no-pets messaging when pets mentioned
     if (mentionsPets) {
       petsContext = `🐾 PETS DETECTED — FOLLOW THIS EXACTLY:
@@ -2344,7 +2365,7 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
 
     // ── BOOKING INTERCEPT — bypass GPT when we have clean availability + guest count ──
     if (availabilityStatus && !availabilityStatus.includes("CHECK_FAILED")
-        && !availabilityStatus.includes("NEEDS_DATES")
+        && !availabilityStatus.includes("NEEDS_DATES") && !availabilityStatus.includes("NEEDS_CHECKOUT")
         && !availabilityStatus.includes("DISCOUNT")
         && !availabilityStatus.includes("MONTH")
         && dates && hasGuestCount && !mentionsPets && !bookingLinksSent && (wantsAvailability || isGuestCountReply)) {

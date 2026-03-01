@@ -682,8 +682,12 @@ function extractDates(text) {
   // e.g. "12th of march 2 ppl" → the "2" after "march" is a guest count, not a second date
   const dmMatchesRaw = [...t.matchAll(/(\d{1,2})(?:st|nd|rd|th)?\s+(?:of\s+)?(january|february|march|april|may|june|july|august|september|october|november|december)/gi)];
   const dmMatches = dmMatchesRaw.filter(m => {
-    const after = t.slice(m.index + m[0].length, m.index + m[0].length + 12);
-    return !/^\s*(\d+\s*)?(adult|kid|child|children|guest|person|people|ppl|pax|infant|baby|toddler)/i.test(after);
+    const after = t.slice(m.index + m[0].length, m.index + m[0].length + 20);
+    // Only drop if immediately followed by a guest-count word (with optional number prefix)
+    // Do NOT drop if followed by punctuation, dash, "to", "until", "through", or another date
+    if (/^\s*[-–,]?\s*(to|until|through|thru)\b/i.test(after)) return true; // date range connector — keep
+    if (/^\s*[-–]\s*\d/i.test(after)) return true; // dash then another date — keep
+    return !/^\s*\d*\s*(adult|kid|child|children|guest|person|people|ppl|pax|infant|baby|toddler)/i.test(after);
   });
   if (dmMatches.length >= 2) {
     const toISO2 = (m) => `${year}-${months[m[2].toLowerCase()]}-${m[1].padStart(2,"0")}`;
@@ -1217,9 +1221,8 @@ export default async function handler(req, res) {
     const normalizedLastUser = bareNumberReply ? lastUser.trim().replace(/^(\d+)$/, "$1 adults") : lastUser;
     const hasGuestCount = /(\d+)\s*(adult|kid|child|children|guest|person|people|ppl|pax|infant|baby|toddler)/i.test(normalizedUserText) || bareNumberReply || !!historicBareCount;
     const isGuestCountReply = botAskedGuestCount && hasGuestCount && !wantsAvailability;
-    // isCheckoutReply: bot asked for checkout date and guest replied with a date (bare day OR full date)
-    // This ensures the booking intercept fires instead of falling through to GPT
-    const isCheckoutReply = botAskedForCheckout && !!dates;
+    // NOTE: isCheckoutReply is defined AFTER the singleCheckinDate block below so that
+    // dates has already been reconstructed before we evaluate it.
     // "yes/ok/sure" confirmation — carry forward dates bot just proposed in previous message
     const isSimpleConfirmation = /^\s*(yes|yeah|yep|sure|ok|okay|go ahead|please|sounds good|perfect|great|do it|check it|check that|let's do it|let's go|yes please|please check)\s*[!.]*\s*$/i.test(lastUser.trim());
     const botProposedDates = lastBotMsg && lastBotMsg.content ? extractDates(lastBotMsg.content) : null;
@@ -1255,7 +1258,10 @@ The guest is now in follow-up conversation mode. Answer their questions naturall
 
     // 🔍 SINGLE CHECK-IN DATE DETECTION — guest gave check-in but no check-out
     // e.g. "5th march. 2 ppl" → extractDates returns null, but extractSingleDate finds "2026-03-05"
-    const singleCheckinDate = !dates ? extractSingleDate(lastUser) || extractSingleDate(allUserText.slice(-200)) : null;
+    // Guard: only fire when message does NOT contain a date range indicator
+    // (if it has "to", "until", "through", or a dash between numbers it should have been caught by extractDates already)
+    const hasRangeIndicator = /\d\s*[-–]\s*\d|\b(to|until|through|thru)\b/i.test(lastUser);
+    const singleCheckinDate = (!dates && !hasRangeIndicator) ? extractSingleDate(lastUser) : null;
     const nightsMatch = lastUser.match(/(\d+)\s*nights?/i);
     if (!dates && singleCheckinDate) {
       if (nightsMatch) {
@@ -1272,6 +1278,11 @@ The guest is now in follow-up conversation mode. Answer their questions naturall
         console.log(`Single check-in date only (${singleCheckinDate}) — asking for checkout`);
       }
     }
+
+    const isNightsReply = !!nightsMatch && !!dates && !wantsAvailability && !isGuestCountReply;
+
+    // isCheckoutReply: defined HERE (after singleCheckinDate block) so dates is already reconstructed
+    const isCheckoutReply = botAskedForCheckout && !!dates;
 
     // 🐾 PETS CONTEXT — inject strict no-pets messaging when pets mentioned
     if (mentionsPets) {
@@ -2402,7 +2413,7 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
         && !availabilityStatus.includes("NEEDS_DATES") && !availabilityStatus.includes("NEEDS_CHECKOUT") && !availabilityStatus.includes("NEEDS_GUEST_COUNT")
         && !availabilityStatus.includes("DISCOUNT")
         && !availabilityStatus.includes("MONTH")
-        && dates && hasGuestCount && !mentionsPets && !bookingLinksSent && (wantsAvailability || isGuestCountReply || isCheckoutReply)) {
+        && dates && hasGuestCount && !mentionsPets && !bookingLinksSent && (wantsAvailability || isGuestCountReply || isCheckoutReply || isNightsReply)) {
 
       let bookingReply = null;
       // Detect if guest also asked about activities alongside booking
@@ -2584,7 +2595,7 @@ Use code **DESTINY** for 10% off! For Unit 707 questions contact Ozan at (972) 3
       finalAlertSummary
     );
 
-    return res.status(200).json({ reply, alertSent: alertWasFired, pendingRelay: bareRelayRequest === true && !alertWasFired, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent, debug: { availabilityStatus, hasGuestCount, wantsAvailability, dates, adults, children, mentionsPets, isGuestCountReply: typeof isGuestCountReply !== "undefined" ? isGuestCountReply : "N/A" } });
+    return res.status(200).json({ reply, alertSent: alertWasFired, pendingRelay: bareRelayRequest === true && !alertWasFired, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent, debug: { availabilityStatus, hasGuestCount, wantsAvailability, dates, adults, children, mentionsPets, isGuestCountReply: typeof isGuestCountReply !== "undefined" ? isGuestCountReply : "N/A", isCheckoutReply: typeof isCheckoutReply !== "undefined" ? isCheckoutReply : "N/A", isNightsReply: typeof isNightsReply !== "undefined" ? isNightsReply : "N/A" } });
 
   } catch (err) {
     console.error("Destiny Blue error:", err);

@@ -1202,7 +1202,7 @@ export default async function handler(req, res) {
     }
     const historicBareCount = extractGuestCountFromHistory(messages);
     const normalizedLastUser = bareNumberReply ? lastUser.trim().replace(/^(\d+)$/, "$1 adults") : lastUser;
-    const hasGuestCount = /(\d+)\s*(adult|kid|child|children|guest|person|people|infant|baby|toddler)/i.test(normalizedUserText) || bareNumberReply || !!historicBareCount;
+    const hasGuestCount = /(\d+)\s*(adult|kid|child|children|guest|person|people|ppl|pax|infant|baby|toddler)/i.test(normalizedUserText) || bareNumberReply || !!historicBareCount;
     const isGuestCountReply = botAskedGuestCount && hasGuestCount && !wantsAvailability;
     // isCheckoutReply: bot asked for checkout date and guest replied with a date (bare day OR full date)
     // This ensures the booking intercept fires instead of falling through to GPT
@@ -1738,6 +1738,7 @@ Do NOT say great news or over-promise. Be specific about which unit is open vs f
     const isChildSafetyQuestion = /child|children|\bkid\b|\bkids\b|toddler|\bbaby\b|infant|year.old|little one|safety lock|child lock|baby.?proof|childproof|balcony door|sliding door.*lock|fall risk|safe for kids|railing|\bclimb\b|\bpinch\b/i.test(lastUser);
     // adults/children extracted in outer scope above
     if (dates && !isDiscountRequest && !hasGuestCount) {
+      availabilityStatus = "NEEDS_GUEST_COUNT";
       availabilityContext = `DATES FOUND: Guest provided dates (${dates.arrival} to ${dates.departure}) but has NOT provided number of adults or children yet. DO NOT send to availability page. Ask warmly: "Perfect — I've got your dates! Just need one more thing: how many adults and children will be staying? I'll create your booking link right away 😊"`;
     } else if (dates && !isDiscountRequest) {
       const [avail707, avail1006] = await Promise.all([
@@ -2385,7 +2386,7 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
 
     // ── BOOKING INTERCEPT — bypass GPT when we have clean availability + guest count ──
     if (availabilityStatus && !availabilityStatus.includes("CHECK_FAILED")
-        && !availabilityStatus.includes("NEEDS_DATES") && !availabilityStatus.includes("NEEDS_CHECKOUT")
+        && !availabilityStatus.includes("NEEDS_DATES") && !availabilityStatus.includes("NEEDS_CHECKOUT") && !availabilityStatus.includes("NEEDS_GUEST_COUNT")
         && !availabilityStatus.includes("DISCOUNT")
         && !availabilityStatus.includes("MONTH")
         && dates && hasGuestCount && !mentionsPets && !bookingLinksSent && (wantsAvailability || isGuestCountReply || isCheckoutReply)) {

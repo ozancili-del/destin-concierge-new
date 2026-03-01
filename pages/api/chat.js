@@ -2419,6 +2419,21 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
     }
     // ────────────────────────────────────────────────────────────────────────
 
+    // ── NEEDS_CHECKOUT INTERCEPT — hardcoded reply, GPT cannot hallucinate links here ──
+    if (availabilityStatus === "NEEDS_CHECKOUT" && singleCheckinDate) {
+      const checkoutReply = `Got it — and when would you like to check out? Once I have that I'll pull up live availability right away 😊`;
+      await logToSheets(sessionId, lastUser, checkoutReply, "", "NEEDS_CHECKOUT", "");
+      return res.status(200).json({ reply: checkoutReply, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
+    }
+
+    // ── NEEDS_GUEST_COUNT INTERCEPT — hardcoded, GPT cannot hallucinate links here ──
+    if (availabilityStatus === "NEEDS_GUEST_COUNT" && dates) {
+      const guestCountReply = `Perfect — I've got your dates! Just need one more thing: how many adults and children will be staying? I'll create your booking link right away 😊`;
+      await logToSheets(sessionId, lastUser, guestCountReply, `${dates.arrival} to ${dates.departure}`, "NEEDS_GUEST_COUNT", "");
+      return res.status(200).json({ reply: guestCountReply, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
+    }
+    // ─────────────────────────────────────────────────────────────────────────────────
+
     // ── BOOKING INTERCEPT — bypass GPT when we have clean availability + guest count ──
     if (availabilityStatus && !availabilityStatus.includes("CHECK_FAILED")
         && !availabilityStatus.includes("NEEDS_DATES") && !availabilityStatus.includes("NEEDS_CHECKOUT") && !availabilityStatus.includes("NEEDS_GUEST_COUNT")

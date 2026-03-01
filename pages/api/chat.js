@@ -992,7 +992,7 @@ export default async function handler(req, res) {
   try {
     // pageSource: frontend bubble should send pageSource: "ai-concierge" when on /ai-concierge page
     // In concierge.js fetch body add: pageSource: window.location.pathname.includes("ai-concierge") ? "ai-concierge" : null
-    const { messages = [], sessionId = null, alertSent: priorAlertSent = false, pendingRelay: priorPendingRelay = false, ozanAcked: priorOzanAcked = false, ozanAckType: priorOzanAckType = null, pageSource = null, guestBid = null } = req.body || {};
+    const { messages = [], sessionId = null, alertSent: priorAlertSent = false, pendingRelay: priorPendingRelay = false, ozanAcked: priorOzanAcked = false, ozanAckType: priorOzanAckType = null, pageSource = null, guestBid = null, guestBooking = null } = req.body || {};
     const lastUser = [...messages].reverse().find((m) => m.role === "user")?.content || "";
 
 
@@ -2433,8 +2433,27 @@ Use code **DESTINY** for 10% off! For Unit 707 questions contact Ozan at (972) 3
       sessionNote = `\n\n📋 RETURNING GUEST CONTEXT — This guest has chatted with you before. Their previous conversation history is included below as silent background context ONLY. DO NOT volunteer, assume, or bring up any topic from past conversations. DO NOT jump to conclusions based on what was discussed before. Wait for the guest to lead — only reference past context if the guest raises it first in THIS conversation. Never say "based on our records" — just respond naturally to what they are asking right now.\n`;
     }
 
+
+    // ── GUEST BOOKING CONTEXT — inject into system prompt for personalized replies ──
+    let guestContext = "";
+    if (guestBooking) {
+      const gc = guestBooking;
+      guestContext = `\n\n🏖️ GUEST BOOKING CONTEXT — This guest arrived via a personalized magic link. You already know who they are. Use their name and details naturally in conversation. NEVER say you don't know their WiFi, door code, or booking info — you have it all below.\n`;
+      guestContext += `Guest: ${gc.guestFirstName} ${gc.guestLastName || ""}\n`;
+      guestContext += `Unit: ${gc.unit} at Pelican Beach Resort\n`;
+      guestContext += `Arrival: ${gc.arrivalFmt} | Departure: ${gc.departureFmt} (${gc.nights} nights)\n`;
+      guestContext += `Check-in: 4:00 PM | Check-out: 10:00 AM\n`;
+      guestContext += `WiFi: Pelican-guest.encowifi.com | Password: 54541884\n`;
+      if (gc.doorCode) {
+        guestContext += `Door code: ${gc.doorCode}\n`;
+      } else {
+        guestContext += `Door code: Not yet available (sent 7 days before arrival)\n`;
+      }
+      guestContext += `\nWhen the guest asks about WiFi, door code, check-in time, check-out, or their unit — answer directly from this data. Do NOT say to check their email or contact Ozan for this info.`;
+    }
+
     const openAIMessages = [
-      { role: "system", content: SYSTEM_PROMPT + sessionNote },
+      { role: "system", content: SYSTEM_PROMPT + sessionNote + guestContext },
       // Inject previous session history BEFORE current conversation
       ...sessionHistory,
       ...messages.map((m) => ({ role: m.role, content: m.content })),

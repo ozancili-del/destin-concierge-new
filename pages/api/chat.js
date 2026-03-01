@@ -417,7 +417,7 @@ async function checkAvailability(propertyId, arrival, departure, retries = 2) {
     const since = new Date();
     since.setFullYear(since.getFullYear() - 1);
     const sinceUtc = since.toISOString();
-    const url = `https://api.ownerrez.com/v2/bookings?property_ids=${propertyId}&since_utc=${sinceUtc}`;
+    const url = `https://api.ownerrez.com/v2/bookings?property_ids=${propertyId}&since_utc=${sinceUtc}&status=active`;
 
     const response = await fetch(url, {
       headers: {
@@ -599,6 +599,17 @@ function extractDates(text) {
   const isoMatches = text.match(isoPattern);
   if (isoMatches && isoMatches.length >= 2) {
     return { arrival: isoMatches[0], departure: isoMatches[1] };
+  }
+
+  // Numeric M-D to M-D format: "3-3 to 3-12", "03-03 until 03-12", "3-3 through 3-12"
+  // Must come BEFORE slash patterns to avoid confusion — dash-separated month-day pairs
+  const mdToMdPattern = /(\d{1,2})-(\d{1,2})\s*(?:to|until|through|thru)\s*(\d{1,2})-(\d{1,2})/i;
+  const mdToMdMatch = text.match(mdToMdPattern);
+  if (mdToMdMatch) {
+    return {
+      arrival:   `${year}-${mdToMdMatch[1].padStart(2,"0")}-${mdToMdMatch[2].padStart(2,"0")}`,
+      departure: `${year}-${mdToMdMatch[3].padStart(2,"0")}-${mdToMdMatch[4].padStart(2,"0")}`,
+    };
   }
 
   // Slash format: 7/10-7/17 or 7/10 - 7/17

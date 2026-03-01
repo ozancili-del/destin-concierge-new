@@ -24,6 +24,8 @@ export default function Concierge() {
   const pollIntervalRef = useRef(null);
   const ozanTokenRef = useRef(null); // stores invite token for ozan-send calls
 
+  const guestBidRef = useRef(null);
+
   useEffect(() => {
     try {
       let sid = localStorage.getItem("destiny_session_id");
@@ -31,6 +33,35 @@ export default function Concierge() {
       sessionIdRef.current = sid;
     } catch (e) {
       sessionIdRef.current = generateSessionId();
+    }
+
+    // Read magic link params from URL: ?fname=Elsa&bid=16610757
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const bid = params.get("bid");
+      const fname = params.get("fname");
+      if (bid) {
+        guestBidRef.current = bid;
+        setLog([]); // clear default greeting — API returns personalized one
+        setBusy(true);
+        fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ messages: [], sessionId: sessionIdRef.current, guestBid: bid, pageSource: "ai-concierge" }),
+        })
+          .then(r => r.json())
+          .then(data => {
+            if (data?.reply) {
+              setLog([{ role: "assistant", content: data.reply }]);
+            } else {
+              setLog([{ role: "assistant", content: `Hey${fname ? " " + fname : " there"}! 🌊 I'm Destiny Blue — ask me anything about your stay! 😊` }]);
+            }
+          })
+          .catch(() => {
+            setLog([{ role: "assistant", content: `Hey${fname ? " " + fname : " there"}! 🌊 I'm Destiny Blue — ask me anything about your stay! 😊` }]);
+          })
+          .finally(() => setBusy(false));
+      }
     }
   }, []);
 

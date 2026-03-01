@@ -27,6 +27,7 @@ export default function Concierge() {
   const ozanTokenRef = useRef(null); // stores invite token for ozan-send calls
 
   const guestBidRef = useRef(null);
+  const guestBookingRef = useRef(null); // stores booking data for context in follow-up messages
 
   // Effect 1: session ID init (runs once on mount)
   useEffect(() => {
@@ -67,6 +68,7 @@ export default function Concierge() {
       .then(data => {
         if (data?.reply) {
           setLog([{ role: "assistant", content: data.reply }]);
+          if (data.guestBooking) guestBookingRef.current = data.guestBooking;
         } else {
           setLog([{ role: "assistant", content: `Hey${fname ? " " + fname : " there"}! 🌊 I'm Destiny Blue — ask me anything about your stay! 😊` }]);
         }
@@ -155,7 +157,7 @@ export default function Concierge() {
       const r = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: [...log, userMsg], sessionId: sessionIdRef.current, alertSent, pendingRelay, ozanAcked, ozanAckType, pageSource: typeof window !== "undefined" && window.location.pathname.includes("ai-concierge") ? "ai-concierge" : null })
+        body: JSON.stringify({ messages: [...log, userMsg], sessionId: sessionIdRef.current, alertSent, pendingRelay, ozanAcked, ozanAckType, pageSource: typeof window !== "undefined" && window.location.pathname.includes("ai-concierge") ? "ai-concierge" : null, guestBooking: guestBookingRef.current || null })
       });
       const data = await r.json();
       if (data.alertSent) setAlertSent(true);

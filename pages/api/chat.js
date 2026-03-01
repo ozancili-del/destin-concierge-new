@@ -1128,7 +1128,7 @@ export default async function handler(req, res) {
 
     // BARE DAY REPLY: guest replied with just "12th" or "12" after bot asked for checkout
     // Combine with the check-in month/year from prior conversation to build full departure date
-    const botAskedForCheckout = lastBotMsg && /when would you like to check out|check.?out date|what.*check.?out|departure date/i.test(lastBotMsg.content);
+    const botAskedForCheckout = lastBotMsg && /when would you like to check out|check.?out date|what.*check.?out|departure date|check out/i.test(lastBotMsg.content);
     const bareDayMatch = !dates && botAskedForCheckout && lastUser.trim().match(/^(\d{1,2})(?:st|nd|rd|th)?[.!?\s]*$/);
     if (bareDayMatch) {
       // Find the checkin date from prior conversation to steal the month/year
@@ -1204,6 +1204,9 @@ export default async function handler(req, res) {
     const normalizedLastUser = bareNumberReply ? lastUser.trim().replace(/^(\d+)$/, "$1 adults") : lastUser;
     const hasGuestCount = /(\d+)\s*(adult|kid|child|children|guest|person|people|infant|baby|toddler)/i.test(normalizedUserText) || bareNumberReply || !!historicBareCount;
     const isGuestCountReply = botAskedGuestCount && hasGuestCount && !wantsAvailability;
+    // isCheckoutReply: bot asked for checkout date and guest replied with a date (bare day OR full date)
+    // This ensures the booking intercept fires instead of falling through to GPT
+    const isCheckoutReply = botAskedForCheckout && !!dates;
     // "yes/ok/sure" confirmation — carry forward dates bot just proposed in previous message
     const isSimpleConfirmation = /^\s*(yes|yeah|yep|sure|ok|okay|go ahead|please|sounds good|perfect|great|do it|check it|check that|let's do it|let's go|yes please|please check)\s*[!.]*\s*$/i.test(lastUser.trim());
     const botProposedDates = lastBotMsg && lastBotMsg.content ? extractDates(lastBotMsg.content) : null;
@@ -2385,7 +2388,7 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
         && !availabilityStatus.includes("NEEDS_DATES") && !availabilityStatus.includes("NEEDS_CHECKOUT")
         && !availabilityStatus.includes("DISCOUNT")
         && !availabilityStatus.includes("MONTH")
-        && dates && hasGuestCount && !mentionsPets && !bookingLinksSent && (wantsAvailability || isGuestCountReply)) {
+        && dates && hasGuestCount && !mentionsPets && !bookingLinksSent && (wantsAvailability || isGuestCountReply || isCheckoutReply)) {
 
       let bookingReply = null;
       // Detect if guest also asked about activities alongside booking

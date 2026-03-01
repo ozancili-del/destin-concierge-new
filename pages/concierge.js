@@ -28,6 +28,7 @@ export default function Concierge() {
 
   const guestBidRef = useRef(null);
 
+  // Effect 1: session ID init (runs once on mount)
   useEffect(() => {
     try {
       let sid = localStorage.getItem("destiny_session_id");
@@ -36,33 +37,45 @@ export default function Concierge() {
     } catch (e) {
       sessionIdRef.current = generateSessionId();
     }
+  }, []);
 
-    // Read magic link params from URL: ?fname=Elsa&bid=16610757
-    const bid = router.query.bid || (typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("bid") : null);
-    const fname = router.query.fname || (typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("fname") : null);
-    if (bid) {
-        guestBidRef.current = bid;
-        setLog([]); // clear default greeting — API returns personalized one
-        setBusy(true);
-        fetch("/api/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ messages: [], sessionId: sessionIdRef.current, guestBid: bid, pageSource: "ai-concierge" }),
-        })
-          .then(r => r.json())
-          .then(data => {
-            if (data?.reply) {
-              setLog([{ role: "assistant", content: data.reply }]);
-            } else {
-              setLog([{ role: "assistant", content: `Hey${fname ? " " + fname : " there"}! 🌊 I'm Destiny Blue — ask me anything about your stay! 😊` }]);
-            }
-          })
-          .catch(() => {
-            setLog([{ role: "assistant", content: `Hey${fname ? " " + fname : " there"}! 🌊 I'm Destiny Blue — ask me anything about your stay! 😊` }]);
-          })
-          .finally(() => setBusy(false));
+  // Effect 2: magic link — runs when router is ready and has query params
+  useEffect(() => {
+    if (!router.isReady) return;
+    const bid = router.query.bid;
+    const fname = router.query.fname;
+    if (!bid) return;
+
+    guestBidRef.current = bid;
+    setLog([]);
+    setBusy(true);
+
+    // Ensure session ID exists before fetching
+    let sid = sessionIdRef.current;
+    if (!sid) {
+      try { sid = localStorage.getItem("destiny_session_id") || generateSessionId(); }
+      catch(e) { sid = generateSessionId(); }
+      sessionIdRef.current = sid;
     }
-  }, [router.isReady]);
+
+    fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages: [], sessionId: sid, guestBid: bid, pageSource: "ai-concierge" }),
+    })
+      .then(r => r.json())
+      .then(data => {
+        if (data?.reply) {
+          setLog([{ role: "assistant", content: data.reply }]);
+        } else {
+          setLog([{ role: "assistant", content: `Hey${fname ? " " + fname : " there"}! 🌊 I'm Destiny Blue — ask me anything about your stay! 😊` }]);
+        }
+      })
+      .catch(() => {
+        setLog([{ role: "assistant", content: `Hey${fname ? " " + fname : " there"}! 🌊 I'm Destiny Blue — ask me anything about your stay! 😊` }]);
+      })
+      .finally(() => setBusy(false));
+  }, [router.isReady, router.query.bid]);
 
   // Poll for Ozan activity when invited or active
   useEffect(() => {

@@ -1035,7 +1035,7 @@ export default async function handler(req, res) {
   try {
     // pageSource: frontend bubble should send pageSource: "ai-concierge" when on /ai-concierge page
     // In concierge.js fetch body add: pageSource: window.location.pathname.includes("ai-concierge") ? "ai-concierge" : null
-    const { messages = [], sessionId = null, alertSent: priorAlertSent = false, pendingRelay: priorPendingRelay = false, ozanAcked: priorOzanAcked = false, ozanAckType: priorOzanAckType = null, pageSource = null, guestBid = null } = req.body || {};
+    const { messages = [], sessionId = null, alertSent: priorAlertSent = false, pendingRelay: priorPendingRelay = false, ozanAcked: priorOzanAcked = false, ozanAckType: priorOzanAckType = null, pageSource = null, guestBid = null, guestBooking = null } = req.body || {};
     const lastUser = [...messages].reverse().find((m) => m.role === "user")?.content || "";
 
 
@@ -1955,6 +1955,23 @@ WEATHER DATA UNAVAILABLE: Real-time weather could not be fetched. Do NOT guess o
     // ── BUILD SYSTEM PROMPT ─────────────────────────────────────────────────
     // AI Concierge page opening message
     const isConciergePage = pageSource === "ai-concierge";
+
+    // ── EXISTING GUEST CONTEXT (magic link) ──────────────────────────────────
+    const existingGuestContext = guestBooking ? `
+🏠 EXISTING GUEST — CONCIERGE MODE:
+This is ${guestBooking.guestFirstName || "a guest"} who has an active booking with us.
+- Unit: ${guestBooking.unit}
+- Stay: ${guestBooking.arrivalFmt} → ${guestBooking.departureFmt}
+- Status: ${guestBooking.isCheckedIn ? "Currently checked in" : guestBooking.isCheckedOut ? "Checked out" : "Upcoming stay"}
+
+ROUTING RULES FOR THIS GUEST:
+- Any date mentioned that falls within or near their stay (${guestBooking.arrival} to ${guestBooking.departure}) = activity/concierge question, NOT a booking request
+- Only treat as a new booking inquiry if: dates are clearly outside their stay AND they use explicit booking language ("book", "reserve", "check availability")
+- NEVER offer booking links for their existing stay dates
+- DO NOT ask for check-in/check-out dates — they already have a booking
+- Focus on being a helpful concierge: activities, local tips, stay questions
+` : "";
+
     const conciergePageContext = isConciergePage ? `
 🌊 CONCIERGE PAGE OPENING: Guest landed on the dedicated AI Concierge page. If this is their first message, open with something that shows off your capabilities — something like: "Hey there! 👋 I'm Destiny Blue — I can check live availability for both units, build you a booking link in seconds, recommend dolphin tours and activities with direct booking links, or connect you straight to Ozan. What can I help you with? 😊" — keep it warm, specific, and show them what you can DO.
 ` : "";
@@ -1964,6 +1981,7 @@ You help guests discover and book beachfront condos at Pelican Beach Resort in D
 You sound like a knowledgeable local friend — warm, genuine, never robotic.
 When a guest asks how they can trust you as an AI: be honest and humble. Say something like: "I do my best to give you accurate information — but for anything you want to double-check, Ozan is always available and better to cross-reference with him directly at (972) 357-4262 or ozan@destincondogetaways.com." Never claim your responses are "verified" or "guaranteed accurate."
 Today is ${today}. Current time in Destin: ${currentTime} CST.
+${existingGuestContext}
 
 ⛔ CRITICAL URL RULE — NO EXCEPTIONS:
 NEVER invent, generate, guess, or modify booking URLs. The ONLY valid booking URLs are pre-built by the system and provided to you in the context below (they contain "or_arrival=" and "or_departure="). If no pre-built URL is provided, do NOT send any booking link — ask for missing info instead.

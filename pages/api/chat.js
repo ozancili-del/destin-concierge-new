@@ -1126,6 +1126,23 @@ export default async function handler(req, res) {
     // Final dates: adjusted > explicit > holiday > null (confirmation may override below after lastBotMsg)
     let dates = adjustedDates || rawDates || (holidayDates ? { arrival: holidayDates.arrival, departure: holidayDates.departure } : null);
 
+    // BARE DAY REPLY: guest replied with just "12th" or "12" after bot asked for checkout
+    // Combine with the check-in month/year from prior conversation to build full departure date
+    const botAskedForCheckout = lastBotMsg && /when would you like to check out|check.?out date|what.*check.?out|departure date/i.test(lastBotMsg.content);
+    const bareDayMatch = !dates && botAskedForCheckout && lastUser.trim().match(/^(\d{1,2})(?:st|nd|rd|th)?[.!?\s]*$/);
+    if (bareDayMatch) {
+      // Find the checkin date from prior conversation to steal the month/year
+      const priorArrival = extractSingleDate(allUserText.replace(lastUser, "")) ||
+        (extractDates(allUserText.replace(lastUser, ""))?.arrival) ||
+        null;
+      if (priorArrival) {
+        const [yr, mo] = priorArrival.split("-");
+        const day = bareDayMatch[1].padStart(2, "0");
+        dates = { arrival: priorArrival, departure: `${yr}-${mo}-${day}` };
+        console.log(`Bare day reply resolved: departure ${dates.departure} from arrival ${priorArrival}`);
+      }
+    }
+
     // Detect month-only intent
     const monthNames = {january:"01",february:"02",march:"03",april:"04",may:"05",june:"06",july:"07",august:"08",september:"09",october:"10",november:"11",december:"12"};
     const monthOnlyMatch = !dates && lastUser.match(/\b(january|february|march|april|may|june|july|august|september|october|november|december)\b/i);

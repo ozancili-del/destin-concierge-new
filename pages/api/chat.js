@@ -1136,20 +1136,22 @@ export default async function handler(req, res) {
     // Final dates: adjusted > explicit > holiday > null (confirmation may override below after lastBotMsg)
     let dates = adjustedDates || rawDates || (holidayDates ? { arrival: holidayDates.arrival, departure: holidayDates.departure } : null);
 
-    // BARE DAY REPLY: guest replied with just "12th" or "12" after bot asked for checkout
-    // Combine with the check-in month/year from prior conversation to build full departure date
+    // ── CHECKOUT REPLY: bot asked for checkout, guest replied with a single date ──
+    // e.g. bot: "when would you like to check out?" → guest: "12th of march" or "the 12th"
+    // Combine with prior arrival date to form complete date pair
     const botAskedForCheckout = lastBotMsg && /when would you like to check out|check.?out date|what.*check.?out|departure date|check out/i.test(lastBotMsg.content);
-    const bareDayMatch = !dates && botAskedForCheckout && lastUser.trim().match(/^(\d{1,2})(?:st|nd|rd|th)?[.!?\s]*$/);
-    if (bareDayMatch) {
-      // Find the checkin date from prior conversation to steal the month/year
-      const priorArrival = extractSingleDate(allUserText.replace(lastUser, "")) ||
-        (extractDates(allUserText.replace(lastUser, ""))?.arrival) ||
-        null;
-      if (priorArrival) {
+    if (!dates && botAskedForCheckout) {
+      const singleReply = extractSingleDate(lastUser);
+      const bareDayReply = lastUser.trim().replace(/^the\s+/i, "").match(/^(\d{1,2})(?:st|nd|rd|th)?[.,!?\s]*$/);
+      const priorArrival = extractSingleDate(allUserText.replace(lastUser, "").trim()) ||
+        extractDates(allUserText.replace(lastUser, "").trim())?.arrival || null;
+      if (priorArrival && singleReply) {
+        dates = { arrival: priorArrival, departure: singleReply };
+        console.log(`Checkout reply resolved: ${priorArrival} -> ${singleReply}`);
+      } else if (priorArrival && bareDayReply) {
         const [yr, mo] = priorArrival.split("-");
-        const day = bareDayMatch[1].padStart(2, "0");
-        dates = { arrival: priorArrival, departure: `${yr}-${mo}-${day}` };
-        console.log(`Bare day reply resolved: departure ${dates.departure} from arrival ${priorArrival}`);
+        dates = { arrival: priorArrival, departure: `${yr}-${mo}-${bareDayReply[1].padStart(2,"0")}` };
+        console.log(`Bare day checkout resolved: ${priorArrival} -> ${dates.departure}`);
       }
     }
 

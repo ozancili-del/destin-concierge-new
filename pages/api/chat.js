@@ -172,11 +172,15 @@ function extractSingleDate(text) {
   if (m1) return `${year}-${months[m1[1].toLowerCase()]}-${m1[2].padStart(2,"0")}`;
   const m2 = text.match(new RegExp("(\\d{1,2})(?:st|nd|rd|th)?\\s+(?:of\\s+)?(" + mn + ")", "i"));
   if (m2) return `${year}-${months[m2[2].toLowerCase()]}-${m2[1].padStart(2,"0")}`;
-  // M/D slash format: "3/3", "03/15" — only when no range indicator present
-  const m3 = text.match(/(?<![\d/])(\d{1,2})\/( \d{1,2})(?![\d/])/);
+  // M/D slash format: "3/3", "03/15"
   const m3b = text.match(/\b(\d{1,2})\/(\d{1,2})\b/);
   if (m3b && parseInt(m3b[1]) >= 1 && parseInt(m3b[1]) <= 12 && parseInt(m3b[2]) >= 1 && parseInt(m3b[2]) <= 31) {
     return `${year}-${m3b[1].padStart(2,"0")}-${m3b[2].padStart(2,"0")}`;
+  }
+  // M.D dot format: "3.12", "03.15"
+  const m4 = text.match(/\b(\d{1,2})\.(\d{1,2})\b/);
+  if (m4 && parseInt(m4[1]) >= 1 && parseInt(m4[1]) <= 12 && parseInt(m4[2]) >= 1 && parseInt(m4[2]) <= 31) {
+    return `${year}-${m4[1].padStart(2,"0")}-${m4[2].padStart(2,"0")}`;
   }
   return null;
 }
@@ -636,7 +640,15 @@ function extractDates(text) {
       departure: `${year}-${slashWordMatch[3].padStart(2,"0")}-${slashWordMatch[4].padStart(2,"0")}`,
     };
   }
-
+  // M.D to M.D dot with any connector: "3.5 to 3.12", "3.5 - 3.12"
+  const dotPattern = /(\d{1,2})\.(\d{1,2})\s*(?:to|until|through|thru|[-–])\s*(\d{1,2})\.(\d{1,2})/i;
+  const dotMatch = text.match(dotPattern);
+  if (dotMatch) {
+    return {
+      arrival:   `${year}-${dotMatch[1].padStart(2,"0")}-${dotMatch[2].padStart(2,"0")}`,
+      departure: `${year}-${dotMatch[3].padStart(2,"0")}-${dotMatch[4].padStart(2,"0")}`,
+    };
+  }
 
   const months = {
     january:"01",february:"02",march:"03",april:"04",may:"05",june:"06",

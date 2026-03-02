@@ -452,7 +452,7 @@ async function checkAvailability(propertyId, arrival, departure, retries = 2) {
     const hasConflict = bookings.some((booking) => {
       // Skip only canceled/blocked — all other statuses (confirmed, ok_pre_arrival, etc.) count as occupied
       const status = (booking.status || "").toLowerCase();
-      if (status === "cancelled" || status === "canceled" || booking.is_block) return false;
+      if (status === "cancelled" || status === "canceled") return false;
       const bookingArrival = new Date(booking.arrival || booking.check_in || booking.arrivalDate);
       const bookingDeparture = new Date(booking.departure || booking.check_out || booking.departureDate);
       return bookingArrival < requestDeparture && bookingDeparture > requestArrival;

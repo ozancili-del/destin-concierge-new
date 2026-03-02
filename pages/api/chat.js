@@ -1268,9 +1268,9 @@ export default async function handler(req, res) {
     let dateAdjustContext = "";
     let bookingLinksContext = bookingLinksSent ? `📎 BOOKING LINKS ALREADY SENT: You already sent booking links earlier in this conversation. DO NOT send links again unless the guest explicitly asks for them again.
 The guest is now in follow-up conversation mode. Answer their questions naturally and conversationally:
-- If they ask about price/cost → explain the link shows total pricing, use DESTINY for 10% off
+- If they ask about price/cost → explain the link shows total pricing with 10% discount already applied
 - If they ask for a price match → direct them warmly to the Comments/Questions box on the booking page
-- If they ask about booking direct benefits → explain: no platform fees, DESTINY code for 10%, personal service from Ozan
+- If they ask about booking direct benefits → explain: no platform fees, 10% discount already applied automatically, personal service from Ozan
 - If they ask which unit → give an honest neutral comparison (since 1006 is booked, tell them 707 is the one available)
 - Vary your opening phrases — don't always start with "Great news". Mix in alternatives like "You're in luck! 🎉", "Perfect timing!", "Love those dates!", "Oh nice choice!", "Those dates work!", or just lead directly with the info. Keep it human and fresh.
 - NEVER ask "Are you planning a trip soon?" or "Would you like me to check availability?" — they already have dates and availability was already checked
@@ -1804,7 +1804,7 @@ Do NOT say great news or over-promise. Be specific about which unit is open vs f
     // If dates found but no guest count anywhere in conversation — ask before building link
     const isChildSafetyQuestion = /child|children|\bkid\b|\bkids\b|toddler|\bbaby\b|infant|year.old|little one|safety lock|child lock|baby.?proof|childproof|balcony door|sliding door.*lock|fall risk|safe for kids|railing|\bclimb\b|\bpinch\b/i.test(lastUser);
     // adults/children extracted in outer scope above
-    if (dates && !isDiscountRequest && !hasGuestCount) {
+    if (dates && !isDiscountRequest && !hasGuestCount && !guestBooking) {
       availabilityStatus = "NEEDS_GUEST_COUNT";
       availabilityContext = `DATES FOUND: Guest provided dates (${dates.arrival} to ${dates.departure}) but has NOT provided number of adults or children yet. DO NOT send to availability page. Ask warmly: "Perfect — I've got your dates! Just need one more thing: how many adults and children will be staying? I'll create your booking link right away 😊"`;
     } else if (dates && !isDiscountRequest) {
@@ -1860,25 +1860,25 @@ Unit ${firstUnit} is available ${firstWindow.from} to ${firstWindow.to}: ${first
 Unit ${secondUnit} is available ${secondWindow.from} to ${secondWindow.to}: ${secondLink}
 Tell the guest warmly: both units are booked for the full period BUT we have a creative solution — they can start in Unit ${firstUnit} (${firstWindow.from} to ${firstWindow.to}) then move to Unit ${secondUnit} (${secondWindow.from} to ${secondWindow.to}) — same resort, same beach, just a quick unit switch mid-stay!
 IMPORTANT: Include this disclaimer naturally in your message: "Just a heads up — there will be a standard checkout and check-in process between the two units. We'll coordinate with our cleaning crew to get Unit ${secondUnit} ready as quickly as possible to minimize any wait time for you."
-Both booking links above. Use code DESTINY for 10% off each.`;
+Both booking links above. Your 10% direct booking discount is already applied on both! 🎉`;
               } else {
                 // Partial windows but don't cover full stay together
                 availabilityStatus = `DATES:${dates.arrival}->${dates.departure} | BOTH_PARTIAL`;
                 availabilityContext = `LIVE AVAILABILITY: Neither unit available for full stay. Partial options:
 Unit 707 has ${u707.longestDays} days free (${w707.from} to ${w707.to}): ${link707p}
 Unit 1006 has ${u1006.longestDays} days free (${w1006.from} to ${w1006.to}): ${link1006p}
-Tell guest warmly that neither unit is free for the full stay, but offer these shorter alternatives. Use code DESTINY for 10% off.`;
+Tell guest warmly that neither unit is free for the full stay, but offer these shorter alternatives. Your 10% direct booking discount is already applied! 🎉`;
               }
             } else if (rec === "ONLY_707_PARTIAL" && u707.longestWindow) {
               const w = u707.longestWindow;
               const link = buildLink("707", w.from, w.to, adults, children);
               availabilityStatus = `DATES:${dates.arrival}->${dates.departure} | 707:PARTIAL`;
-              availabilityContext = `LIVE AVAILABILITY: Both units booked for the full requested stay. However Unit 707 has a ${u707.longestDays}-night window available (${w.from} to ${w.to}). Offer this shorter stay warmly: "Unit 707 isn't free for the full week, but I do have ${w.from} to ${w.to} available — would a shorter stay work for you?" Booking link: ${link} Use code DESTINY for 10% off.`;
+              availabilityContext = `LIVE AVAILABILITY: Both units booked for the full requested stay. However Unit 707 has a ${u707.longestDays}-night window available (${w.from} to ${w.to}). Offer this shorter stay warmly: "Unit 707 isn't free for the full week, but I do have ${w.from} to ${w.to} available — would a shorter stay work for you?" Booking link: ${link} Your 10% direct booking discount is already applied! 🎉`;
             } else if (rec === "ONLY_1006_PARTIAL" && u1006.longestWindow) {
               const w = u1006.longestWindow;
               const link = buildLink("1006", w.from, w.to, adults, children);
               availabilityStatus = `DATES:${dates.arrival}->${dates.departure} | 1006:PARTIAL`;
-              availabilityContext = `LIVE AVAILABILITY: Both units booked for the full requested stay. However Unit 1006 has a ${u1006.longestDays}-night window available (${w.from} to ${w.to}). Offer this shorter stay warmly: "Unit 1006 isn't free for the full week, but I do have ${w.from} to ${w.to} available — would a shorter stay work for you?" Booking link: ${link} Use code DESTINY for 10% off.`;
+              availabilityContext = `LIVE AVAILABILITY: Both units booked for the full requested stay. However Unit 1006 has a ${u1006.longestDays}-night window available (${w.from} to ${w.to}). Offer this shorter stay warmly: "Unit 1006 isn't free for the full week, but I do have ${w.from} to ${w.to} available — would a shorter stay work for you?" Booking link: ${link} Your 10% direct booking discount is already applied! 🎉`;
             } else {
               availabilityContext = `LIVE AVAILABILITY: Both units BOOKED for ${dates.arrival} to ${dates.departure}. Tell guest both unavailable and suggest https://www.destincondogetaways.com/availability for open dates.`;
             }
@@ -1919,7 +1919,7 @@ Tell guest warmly that neither unit is free for the full stay, but offer these s
           availabilityContext = `LIVE AVAILABILITY: Unit 1006 is BOOKED for ${dates.arrival} to ${dates.departure}. Unit 707 availability could not be confirmed — provide link anyway: ${link707fb}. Tell guest Unit 1006 is unavailable and suggest Unit 707 or contacting Ozan.`;
         } else {
           availabilityStatus = `DATES:${dates.arrival}->${dates.departure} | CHECK_FAILED`;
-          availabilityContext = `AVAILABILITY CHECK FAILED — API did not respond. CRITICAL: Use ONLY these pre-built links — do NOT invent or modify URLs: Unit 707: ${link707fb} — Unit 1006: ${link1006fb}. Tell guest honestly: "I wasn't able to confirm live availability right now — here are your direct booking links, use code DESTINY for 10% off! If you have issues contact Ozan at (972) 357-4262."`;
+          availabilityContext = `AVAILABILITY CHECK FAILED — API did not respond. CRITICAL: Use ONLY these pre-built links — do NOT invent or modify URLs: Unit 707: ${link707fb} — Unit 1006: ${link1006fb}. Tell guest honestly: "I wasn't able to confirm live availability right now — here are your direct booking links, your 10% direct booking discount is already applied! If you have issues contact Ozan at (972) 357-4262."`;
         }
       }
     }
@@ -2008,7 +2008,7 @@ NEVER invent, generate, guess, or modify booking URLs. The ONLY valid booking UR
 TRIPSHOCK AFFILIATE RULE:
 - TripShock links are ONLY for booking local activities — dolphin tours, fishing, jet skis, pontoons, parasailing, Crab Island, snorkeling, sunset cruises, pirate cruises, kayaks, beach photographers, fireworks cruises, tiki boats
 - NEVER mention TripShock for discount requests, condo pricing, or booking our units
-- NEVER connect TripShock to code DESTINY — completely separate
+- NEVER connect TripShock to the direct booking discount — completely separate
 - When activity context provides a pre-filtered TripShock link, use THAT link — never use the generic homepage link if a specific one is provided
 - Use ONE TripShock link per response — never repeat it
 - If a guest asks about activities BUT also triggered availability (dates + guest count), ALWAYS answer the activity question first with recommendations, then add availability as a natural P.S. at the end. Never lead with booking links when the primary question was about activities
@@ -2177,7 +2177,7 @@ If a guest asks how long the property has been renting, wants to know more about
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 BOOKING & PAYMENTS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-- Code DESTINY = 10% off — always mention with booking links. If a guest asks about a discount code or mentions DESTINY: respond with warmth and a little giggle — something like "Good news — no need to worry about any codes, your 10% direct booking discount is already automatically applied! 🎉 You're welcome 😄" — keep it light, fun, make them feel taken care of. NEVER connect this to TripShock — completely separate.
+- 10% direct booking discount is automatically applied — no code needed. If a guest asks about a discount code or mentions DESTINY: respond with warmth and a little giggle — something like "Good news — no need to worry about any codes, your 10% direct booking discount is already automatically applied! 🎉 You're welcome 😄" — keep it light, fun, make them feel taken care of. NEVER connect this to TripShock — completely separate.
 - Pricing: direct to booking page — never guess
 - Direct booking saves vs booking platforms (which can charge up to 22% in fees) — NEVER name specific platforms
 - Dynamic pricing: rates vary by demand and season only — NEVER mention decor or floor level as a reason for price difference
@@ -2373,7 +2373,7 @@ If the guest mentions: child, children, kid, kids, toddler, baby, infant, [age]-
 - INTENT for these questions: always INFO (unless reporting something actively broken → MAINTENANCE)
 
 INFORMATIONAL QUESTIONS: Answer directly and warmly. Ask one engaging follow-up.
-BOOKING QUESTIONS WITH DATES: If guest provided dates but NOT guest count — ask for adults and children count first, then build link. Never redirect to availability page if dates are known. Always mention code DESTINY with every booking link.
+BOOKING QUESTIONS WITH DATES: If guest provided dates but NOT guest count — ask for adults and children count first, then build link. Never redirect to availability page if dates are known. Always remind guest their 10% direct booking discount is already applied — no code needed.
 
 SPECIAL OCCASIONS (anniversary, birthday, honeymoon, proposal, engagement, graduation, retirement, bachelorette, celebration): When a guest mentions any of these, warmly suggest they add a note in the Comments/Questions box on the booking page. Say something like: "Ozan loves making special stays memorable — add a note in the Comments box when you book and he'll do his best to make it extra special for you 🥂"
 DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt exactly.`;
@@ -2522,7 +2522,7 @@ Your 10% direct booking discount is already applied! 🎉 Let me know if you hav
 
 🔗 **Book Unit 1006:** ${link}
 
-Use code **DESTINY** for 10% off! Let me know if you have any questions 😊${activityPS}`;
+Your 10% direct booking discount is already applied! 🎉 Let me know if you have any questions 😊${activityPS}`;
 
       } else if (availabilityStatus.includes("707:AVAILABLE") && availabilityStatus.includes("1006:AVAILABLE")) {
         const link707 = buildLink("707", dates.arrival, dates.departure, adults, children);

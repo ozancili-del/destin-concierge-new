@@ -1954,20 +1954,41 @@ WEATHER DATA UNAVAILABLE: Real-time weather could not be fetched. Do NOT guess o
     } else if (blogTopic === "activities") {
       const blogResult = await fetchBlogContent(blogTopic);
       const tsCategory = detectTripShockCategory(lastUser);
-      // Use full dates if available, fall back to single date +1, then general link
+      // Use full dates if available, fall back to single date +1, fall back to history dates
       let tsDates = dates;
       if (!tsDates) {
         const singleDate = extractSingleDate(lastUser);
         if (singleDate) {
-          const next = new Date(singleDate); next.setDate(next.getDate() + 1);
+          const next = new Date(singleDate + "T12:00:00Z"); next.setUTCDate(next.getUTCDate() + 1);
           const pad = n => String(n).padStart(2,"0");
-          tsDates = { arrival: singleDate, departure: `${next.getFullYear()}-${pad(next.getMonth()+1)}-${pad(next.getDate())}` };
+          tsDates = { arrival: singleDate, departure: `${next.getUTCFullYear()}-${pad(next.getUTCMonth()+1)}-${pad(next.getUTCDate())}` };
+        }
+      }
+      // Fall back to dates found in conversation history
+      if (!tsDates) {
+        const historyDate = extractSingleDate(allUserText.replace(lastUser, "").trim());
+        if (historyDate) {
+          const next = new Date(historyDate + "T12:00:00Z"); next.setUTCDate(next.getUTCDate() + 1);
+          const pad = n => String(n).padStart(2,"0");
+          tsDates = { arrival: historyDate, departure: `${next.getUTCFullYear()}-${pad(next.getUTCMonth()+1)}-${pad(next.getUTCDate())}` };
+        }
+      }
+      // Gap-based availability PS — compare activity date to today
+      let activityAvailPS = "";
+      const activityArrival = tsDates ? tsDates.arrival : null;
+      if (activityArrival) {
+        const gapDays = Math.round((new Date(activityArrival) - new Date(today)) / 86400000);
+        if (gapDays > 7) {
+          activityAvailPS = `Looks like you're planning ahead for ${activityArrival} — if you haven't booked your stay yet, I'd love to check availability for you! 😊`;
+        } else if (gapDays >= 3) {
+          activityAvailPS = `I'm sure you've got your stay sorted, but if not — happy to check availability! 😊`;
         }
       }
       const tsLink = buildTripShockLink(tsCategory || "dolphin", tsDates);
       const tsGeneral = `https://www.tripshock.com/?${TRIPSHOCK_AFF}`;
       // TripShock context always set — blog content is bonus, not required
-      blogContext = `\n\nACTIVITIES REQUEST: Guest is asking about things to do, tours, or activities in Destin.\n${blogResult ? `LIVE BLOG CONTENT: ${blogResult.content}\nBlog link: ${blogResult.url}\n\n` : ""}TRIPSHOCK BOOKING:\n${tsCategory ? `- Specific activity detected (${tsCategory}): send this pre-filtered link: ${tsLink}` : `- No specific activity detected: send general link: ${tsGeneral}`}\n- ONE TripShock link only — never repeat it\n- Present naturally: "You can browse and book [activity] directly here: [link]"\n\nCRITICAL RULES:\n- NEVER use the word "affiliate"\n- Prices are identical to booking direct — never imply otherwise\n- NEVER connect to DESTINY discount code — completely separate\n- If availability context is also present: answer the activity question FIRST, then add availability as a P.S. — never lead with booking links when guest asked about activities\n- Keep it casual and helpful, not salesy`;
+      blogContext = `\n\nACTIVITIES REQUEST: Guest is asking about things to do, tours, or activities in Destin.\n${blogResult ? `LIVE BLOG CONTENT: ${blogResult.content}\nBlog link: ${blogResult.url}\n\n` : ""}TRIPSHOCK BOOKING:\n${tsCategory ? `- Specific activity detected (${tsCategory}): send this pre-filtered link: ${tsLink}` : `- No specific activity detected: send general link: ${tsGeneral}`}\n- ONE TripShock link only — never repeat it\n- Present naturally: "You can browse and book [activity] directly here: [link]"\n\nCRITICAL RULES:\n- NEVER use the word "affiliate"\n- Prices are identical to booking direct — never imply otherwise\n- NEVER connect to DESTINY discount code — completely separate\n- If availability context is also present: answer the activity question FIRST, then add availability as a P.S. — never lead with booking links when guest asked about activities\n- Keep it casual and helpful, not salesy
+${activityAvailPS ? `- End with exactly this P.S. on a new line: "P.S. ${activityAvailPS}"` : "- Do NOT add any availability PS or offer to check availability"}`;
     } else if (blogTopic) {
       const blogResult = await fetchBlogContent(blogTopic);
       if (blogResult) {

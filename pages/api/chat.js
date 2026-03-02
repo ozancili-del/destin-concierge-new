@@ -1255,7 +1255,7 @@ export default async function handler(req, res) {
     const botProposedDates = lastBotMsg && lastBotMsg.content ? extractDates(lastBotMsg.content) : null;
     const confirmationDates = isSimpleConfirmation && botProposedDates ? botProposedDates : null;
     // Override dates with confirmation if guest said yes/ok to a proposed date shift
-    if (confirmationDates) { dates.arrival = confirmationDates.arrival; dates.departure = confirmationDates.departure; }
+    if (confirmationDates) { if (!dates) dates = {}; dates.arrival = confirmationDates.arrival; dates.departure = confirmationDates.departure; }
     const adultsMatchOuter = normalizeGuestCount(normalizedLastUser).match(/(\d+)\s*adult/i) || normalizedUserText.match(/(\d+)\s*adult/i) || (bareNumberReply ? normalizedLastUser.match(/(\d+)/) : null) || (historicBareCount ? [null, historicBareCount] : null);
     const childrenMatchOuter = lastUser.match(/(\d+)\s*(kid|child|children|infant|baby|toddler)/i) || allUserText.match(/(\d+)\s*(kid|child|children|infant|baby|toddler)/i);
     // For existing guests, fall back to their booking's guest count if not specified in message

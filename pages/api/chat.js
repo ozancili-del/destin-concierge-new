@@ -93,6 +93,8 @@ function detectBlogTopic(text) {
   // Weather MUST come first — "weather" contains "eat" which would match restaurants
   if (t.match(/weather|forecast|temperature|rain|season|when to visit|best time|how hot|how cold|highs|lows|high and low/)) return "weather";
   if (t.match(/restaurant|eat|food|dinner|lunch|breakfast|dining|seafood|oyster|where to eat/)) return "restaurants";
+  // Photographer MUST come before beaches — "beach family pictures" contains "beach"
+  if (t.match(/beach.?photo|photo.*beach|beach.*picture|picture.*beach|family.*photo|photo.*family|family.*picture|picture.*family|photographer|photography session|photo session|someone.*photo|someone.*picture|take.*photo|take.*picture/)) return "activities";
   if (t.match(/beach|sand|swim|ocean|gulf|shore/)) return "beaches";
   if (t.match(/activit|thing to do|fun|tour|dolphin|parasail|snorkel|kayak|boat|fishing|water sport|rainy|indoor fun/)) return "activities";
   if (t.match(/event|festival|concert|firework|show|calendar/)) return "events";

@@ -106,8 +106,6 @@ function detectBlogTopic(text) {
   if (t.match(/grocery|supermarket|walmart|publix|winn.dixie|target|food store/)) return "supermarkets";
   if (t.match(/history|culture|museum|heritage|historic/)) return "history";
   if (t.match(/explore|sightseeing|attractions|must see|hidden gem/)) return "explore";
-  // Photographer service requests must be caught BEFORE generic photo check
-  if (t.match(/beach.?photo|photo.*beach|beach.*picture|picture.*beach|family.*photo|photo.*family|family.*picture|picture.*family|photographer|photography session|photo session|someone.*photo|someone.*picture|take.*photo|take.*picture/)) return "activities";
   if (t.match(/photo|picture|image|virtual tour|look like|show me|what does.*look|gallery|interior|inside the unit|see the unit/)) return "photos";
   return null;
 }

@@ -93,8 +93,6 @@ function detectBlogTopic(text) {
   // Weather MUST come first — "weather" contains "eat" which would match restaurants
   if (t.match(/weather|forecast|temperature|rain|season|when to visit|best time|how hot|how cold|highs|lows|high and low/)) return "weather";
   if (t.match(/restaurant|eat|food|dinner|lunch|breakfast|dining|seafood|oyster|where to eat/)) return "restaurants";
-  // Photographer MUST come before beaches — "beach family pictures" contains "beach"
-  if (t.match(/beach.?photo|photo.*beach|beach.*picture|picture.*beach|family.*photo|photo.*family|family.*picture|picture.*family|photographer|photography session|photo session|someone.*photo|someone.*picture|take.*photo|take.*picture/)) return "activities";
   if (t.match(/beach|sand|swim|ocean|gulf|shore/)) return "beaches";
   if (t.match(/activit|thing to do|fun|tour|dolphin|parasail|snorkel|kayak|boat|fishing|water sport|rainy|indoor fun/)) return "activities";
   if (t.match(/event|festival|concert|firework|show|calendar/)) return "events";
@@ -108,6 +106,8 @@ function detectBlogTopic(text) {
   if (t.match(/grocery|supermarket|walmart|publix|winn.dixie|target|food store/)) return "supermarkets";
   if (t.match(/history|culture|museum|heritage|historic/)) return "history";
   if (t.match(/explore|sightseeing|attractions|must see|hidden gem/)) return "explore";
+  // Photographer service requests must be caught BEFORE generic photo check
+  if (t.match(/beach.?photo|photo.*beach|beach.*picture|picture.*beach|family.*photo|photo.*family|family.*picture|picture.*family|photographer|photography session|photo session|someone.*photo|someone.*picture|take.*photo|take.*picture/)) return "activities";
   if (t.match(/photo|picture|image|virtual tour|look like|show me|what does.*look|gallery|interior|inside the unit|see the unit/)) return "photos";
   return null;
 }
@@ -1134,6 +1134,17 @@ export default async function handler(req, res) {
     const isAccidentalDamage = detectAccidentalDamage(lastUser);
     const isMaintenanceReport = detectMaintenance(lastUser) && !isLockedOut && !isAccidentalDamage && !detectExternalDisturbance(lastUser);
     const isExternalDisturbance = detectExternalDisturbance(lastUser) && !isMaintenanceReport;
+
+    // Silent special occasion alert — no promise to guest, Ozan handles it
+    const isSpecialOccasion = guestBooking && /anniversary|birthday|honeymoon|proposal|engaged|engagement|graduation|retirement|bachelorette|celebrating/i.test(lastUser);
+    if (isSpecialOccasion) {
+      sendEmergencyDiscord(
+        `🎉 Special occasion — ${lastUser.substring(0,200)}`,
+        sessionId,
+        `🎉 SPECIAL OCCASION: ${guestBooking.guestFirstName || "Guest"} mentioned a special occasion during their stay (Unit ${guestBooking.unit}, ${guestBooking.arrivalFmt}→${guestBooking.departureFmt})`,
+        "emergency"
+      );
+    }
     const isCompetitorMention = detectCompetitorMention(lastUser);
     const wantsAvailability = detectAvailabilityIntent(lastUser);
     // Pets detector — when mentioned, skip booking intercept and let GPT apply no-pets policy
@@ -1954,7 +1965,7 @@ WEATHER DATA UNAVAILABLE: Real-time weather could not be fetched. Do NOT guess o
     } else if (blogTopic === "activities") {
       const blogResult = await fetchBlogContent(blogTopic);
       const tsCategory = detectTripShockCategory(lastUser);
-      // Use full dates if available, fall back to single date +1, fall back to history dates
+      // Use full dates if available, fall back to single date +1, then general link
       let tsDates = dates;
       if (!tsDates) {
         const singleDate = extractSingleDate(lastUser);
@@ -1963,6 +1974,12 @@ WEATHER DATA UNAVAILABLE: Real-time weather could not be fetched. Do NOT guess o
           const pad = n => String(n).padStart(2,"0");
           tsDates = { arrival: singleDate, departure: `${next.getUTCFullYear()}-${pad(next.getUTCMonth()+1)}-${pad(next.getUTCDate())}` };
         }
+      }
+      // For existing guests — use today→checkout as activity dates
+      if (!tsDates && guestBooking && !guestBooking.isCheckedOut) {
+        const pad = n => String(n).padStart(2,"0");
+        const todayIso = `${now.getUTCFullYear()}-${pad(now.getUTCMonth()+1)}-${pad(now.getUTCDate())}`;
+        tsDates = { arrival: todayIso, departure: guestBooking.departure };
       }
       // Fall back to dates found in conversation history
       if (!tsDates) {
@@ -1973,22 +1990,10 @@ WEATHER DATA UNAVAILABLE: Real-time weather could not be fetched. Do NOT guess o
           tsDates = { arrival: historyDate, departure: `${next.getUTCFullYear()}-${pad(next.getUTCMonth()+1)}-${pad(next.getUTCDate())}` };
         }
       }
-      // Gap-based availability PS — compare activity date to today
-      let activityAvailPS = "";
-      const activityArrival = tsDates ? tsDates.arrival : null;
-      if (activityArrival) {
-        const gapDays = Math.round((new Date(activityArrival) - new Date(today)) / 86400000);
-        if (gapDays > 7) {
-          activityAvailPS = `Looks like you're planning ahead for ${activityArrival} — if you haven't booked your stay yet, I'd love to check availability for you! 😊`;
-        } else if (gapDays >= 3) {
-          activityAvailPS = `I'm sure you've got your stay sorted, but if not — happy to check availability! 😊`;
-        }
-      }
       const tsLink = buildTripShockLink(tsCategory || "dolphin", tsDates);
       const tsGeneral = `https://www.tripshock.com/?${TRIPSHOCK_AFF}`;
       // TripShock context always set — blog content is bonus, not required
-      blogContext = `\n\nACTIVITIES REQUEST: Guest is asking about things to do, tours, or activities in Destin.\n${blogResult ? `LIVE BLOG CONTENT: ${blogResult.content}\nBlog link: ${blogResult.url}\n\n` : ""}TRIPSHOCK BOOKING:\n${tsCategory ? `- Specific activity detected (${tsCategory}): send this pre-filtered link: ${tsLink}` : `- No specific activity detected: send general link: ${tsGeneral}`}\n- ONE TripShock link only — never repeat it\n- Present naturally: "You can browse and book [activity] directly here: [link]"\n\nCRITICAL RULES:\n- NEVER use the word "affiliate"\n- Prices are identical to booking direct — never imply otherwise\n- NEVER connect to DESTINY discount code — completely separate\n- If availability context is also present: answer the activity question FIRST, then add availability as a P.S. — never lead with booking links when guest asked about activities\n- Keep it casual and helpful, not salesy
-${activityAvailPS ? `- End with exactly this P.S. on a new line: "P.S. ${activityAvailPS}"` : "- Do NOT add any availability PS or offer to check availability"}`;
+      blogContext = `\n\nACTIVITIES REQUEST: Guest is asking about things to do, tours, or activities in Destin.\n${blogResult ? `LIVE BLOG CONTENT: ${blogResult.content}\nBlog link: ${blogResult.url}\n\n` : ""}TRIPSHOCK BOOKING:\n${tsCategory ? `- Specific activity detected (${tsCategory}): send this pre-filtered link: ${tsLink}` : `- No specific activity detected: send general link: ${tsGeneral}`}\n- ONE TripShock link only — never repeat it\n- Present naturally: "You can browse and book [activity] directly here: [link]"\n\nCRITICAL RULES:\n- NEVER use the word "affiliate"\n- Prices are identical to booking direct — never imply otherwise\n- NEVER connect to DESTINY discount code — completely separate\n- If availability context is also present: answer the activity question FIRST, then add availability as a P.S. — never lead with booking links when guest asked about activities\n- Keep it casual and helpful, not salesy`;
     } else if (blogTopic) {
       const blogResult = await fetchBlogContent(blogTopic);
       if (blogResult) {
@@ -2013,9 +2018,6 @@ ROUTING RULES FOR THIS GUEST:
 - Explicit booking language for FUTURE dates = new booking inquiry, run full flow
 - If guest asks for door code → repeat ${guestBooking.doorCode || "their code"} immediately, do not ask them to check email
 - Extension requests and other-unit checks have been pre-computed — availability results are in the context below
-
-TONE FOR THIS GUEST:
-You are ${guestBooking.guestFirstName || "this guest"}'s personal concierge, not a sales agent. She already chose us. Your job now is to make her stay perfect. Use her name when appropriate. Reference her specific dates only when relevant. Make every answer feel like it comes from someone who genuinely cares and knows about her trip. No sales language. No booking pitches. Just warmth and helpfulness.
 ` : "";
 
     const conciergePageContext = isConciergePage ? `
@@ -2439,7 +2441,7 @@ If the guest mentions: child, children, kid, kids, toddler, baby, infant, [age]-
 INFORMATIONAL QUESTIONS: Answer directly and warmly. Ask one engaging follow-up.
 BOOKING QUESTIONS WITH DATES: If guest provided dates but NOT guest count — ask for adults and children count first, then build link. Never redirect to availability page if dates are known. Always remind guest their 10% direct booking discount is already applied — no code needed.
 
-SPECIAL OCCASIONS (anniversary, birthday, honeymoon, proposal, engagement, graduation, retirement, bachelorette, celebration): When a guest mentions any of these, warmly suggest they add a note in the Comments/Questions box on the booking page. Say something like: "Ozan loves making special stays memorable — add a note in the Comments box when you book and he'll do his best to make it extra special for you 🥂"
+SPECIAL OCCASIONS (anniversary, birthday, honeymoon, proposal, engagement, graduation, retirement, bachelorette, celebration): When a guest mentions any of these, warmly acknowledge it and make warm recommendations (restaurants, sunset cruises, activities). Do NOT promise Ozan will do anything special — just be warm and helpful.
 DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt exactly.`;
 
     // ── LOCKOUT STEP 3 INTERCEPT ─────────────────────────────────────────────

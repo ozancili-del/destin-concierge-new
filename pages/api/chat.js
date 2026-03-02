@@ -1059,6 +1059,8 @@ export default async function handler(req, res) {
         }
 
         greeting += `📶 WiFi: **Pelican-guest.encowifi.com** · Password: **54541884**\n`;
+        greeting += `📍 **Address:** 1002 Highway 98 E, Destin, FL 32541 · Front desk: (850) 654-1425\n`;
+        greeting += `🚗 Located on Hwy 98 right across from Big Kahuna's Waterpark. Mention your unit number at the security gate until you pick up your parking pass from the front desk!\n`;
         greeting += `\nAsk me anything — dolphin tours, restaurants, beach tips, or anything about your stay! 😊`;
 
         return res.status(200).json({ reply: greeting, guestBooking: booking, alertSent: false, pendingRelay: false, ozanAcked: false, ozanAckType: null });
@@ -2083,9 +2085,15 @@ BOTH UNITS HAVE IDENTICAL AMENITIES — only floor level and decor style differ.
 - Dining seats 6 (4 chairs + 2 barstools)
 - No daily housekeeping — starter supplies on arrival
 
-Starter pack: toilet paper, shampoo, soaps, dish liquid, sponge, dishwasher tablets, paper towels, coffee
+Starter pack: toilet paper, shampoo, soaps, dish liquid, sponge, dishwasher tablets, paper towels, coffee (may be short — bring yours + filters)
 Longer stays: Winn-Dixie/Target across the street, or Amazon/Instacart/Walmart delivery
-Bring: beach towels (unit towels NOT outside), sunscreen, hat, sunglasses
+
+WHAT TO PACK:
+- Beach: swimsuits, beach/pool towels, sunscreen, hat, sunglasses, crocs for beach
+- Shoes: walking shoes for national parks, tennis shoes for gym
+- Extras to bring (we provide starter supply for 1-2 days): laundry detergent/softener, shampoo, conditioner, soap, dishwasher detergent, garbage bags, paper towels, toilet paper, facial tissue
+- Kitchen: coffee, coffee filters, salt, pepper, sugar, oil, favorite spices
+- All of the above can be purchased at Winn-Dixie/Target right across the street
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 RESORT FACILITIES
@@ -2121,11 +2129,34 @@ CHECK-IN & CHECK-OUT
 - Go directly to unit — no lobby check-in needed
 - Stop at front desk for parking pass and pool bracelets (Mar-Oct) — before or after settling in
 - Check-out: BY 10:00 AM CST — guests can leave any time before 10 AM, just ensure out by 10. Next guests are counting on it.
-- Text cleaning crew when checking out (8–10 AM). Before 8 AM: text unit + time before 8 PM night before
+- Text Ozan at (972) 357-4262 when checking out — between 8–10 AM. If leaving before 8 AM: text your unit number and checkout time before 8 PM the night before — this is important so cleaners can be scheduled for the next guest
 - Early check-in is not guaranteed — units are often back-to-back so the cleaning schedule may not allow it. Guests can park, check in at the front desk, and enjoy the beach while waiting. For early check-in requests, refer guest to Ozan at (972) 357-4262. Do NOT say "at the discretion of cleaning crew" or invent any policy.
 - No luggage drops while cleaners inside — beach is waiting! 🏖️
 - Check-out: run dishwasher, trash in hallway chute (left side), leave neat, don't move furniture
 - PIN sent 7 days and 1 day before. Check spam if not received.
+- Pull-out sofa: if used during stay, leave in OPEN position at checkout so cleaners can properly prepare it
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+APPLIANCE & UNIT RULES (critical — share proactively if relevant)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+AC RULES — very important, violations cause real damage:
+- NEVER leave balcony door open more than 1 minute with AC on — causes humidity, condensation, mold, ceiling/AC damage
+- Always keep fan in AUTO mode — never ON or Circulate — creates undesired humidity
+- Do NOT set AC extremely low — unit will run continuously and may fail
+
+FRIDGE WARNING:
+- Loading a previously empty fridge/freezer causes temperature to drop drastically — give it significant time to cool after loading
+- Do NOT adjust temperature from factory settings — lowering temp does NOT speed up cooling, it causes the unit to freeze up and stop working
+
+DOOR LOCK — LOW BATTERY ALARM:
+- If the lock beeps alternating high/low tones AND flashes red after opening — that means low battery
+- This is NOT a malfunction — the door still works, but report to Ozan ASAP at (972) 357-4262
+
+LUGGAGE CARTS:
+- Available in the lobby — NOT allowed inside the unit
+
+BEDROOM ELECTRICAL OUTLETS:
+- Outlets next to nightstands may be controlled by the bedroom door light switch — if outlet has no power, try flipping the light switch by the door
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 POLICIES

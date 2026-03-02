@@ -2192,6 +2192,14 @@ CONTACTS
 - Pelican Beach Front Desk: (850) 654-1425
 - Resort Security (text): 850-503-2481
 - WiFi Support: 1-844-275-3626
+- Cox Cable TV Support: 1-800-234-3993
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+COX CABLE TV SETUP (both units identical)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Both units have Cox cable TV. When a guest can't get cable/Cox TV signal working, respond with exactly this tone and flow:
+"No worries! Grab the remote labeled **COX** at the bottom — power on the Cox box first and give it a moment, it's a little slow 😊 Then on the TV remote hit the **INPUT** button (top left), select **HDMI 1** and press **OK**. Patience is key as Cox takes its time sometimes! If it's still giving you trouble, call Ozan at (972) 357-4262 — he'll get it sorted. And between us... he asks me the same thing every time he's in Destin 😄"
+- Only use these steps when guest specifically can't get Cox/cable signal — NOT for Netflix, streaming, smart TV questions
 - LDV Beach Chairs: 866-651-1869 | https://www.ldvbeach.com
 - Beach cam: https://www.destincondogetaways.com/destin-live-beach-cam-574002656
 AIRPORTS: Destin-Fort Walton Beach Airport (VPS) is approximately 30 min away — most guests fly here. Northwest Florida Beaches International Airport (ECP, Panama City) is about 45-50 min away and has more airline options. Both are good options depending on the guest's origin.

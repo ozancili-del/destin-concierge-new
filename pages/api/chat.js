@@ -1286,6 +1286,25 @@ The guest is now in follow-up conversation mode. Answer their questions naturall
     // Guard: only fire when message has no range indicator (to/until/through or digit-dash-digit)
     const hasRangeIndicator = /\d\s*[-–]\s*\d|\b(to|until|through|thru)\b/i.test(lastUser);
     const singleCheckinDate = (!dates && !hasRangeIndicator && !guestBooking) ? extractSingleDate(lastUser) : null;
+
+    // ── EXISTING GUEST EXTENSION DETECTION ───────────────────────────────────
+    const isExtensionRequest = guestBooking && !dates && /stay.*(one|1|two|2|three|3|an?)?\s*(more|extra|another|longer|additional)\s*night|extend.*stay|one more night|stay longer|check.?out.*later|late check.?out|leave.*later/i.test(lastUser);
+    if (isExtensionRequest && guestBooking.departure) {
+      const extNightsMatch = lastUser.match(/(one|1|two|2|three|3)/i);
+      const extNights = extNightsMatch ? ({ one:1, "1":1, two:2, "2":2, three:3, "3":3 }[extNightsMatch[1].toLowerCase()] || 1) : 1;
+      const depDate = new Date(guestBooking.departure + "T12:00:00Z");
+      depDate.setUTCDate(depDate.getUTCDate() + extNights);
+      const pad = n => String(n).padStart(2,"0");
+      dates = { arrival: guestBooking.departure, departure: `${depDate.getUTCFullYear()}-${pad(depDate.getUTCMonth()+1)}-${pad(depDate.getUTCDate())}` };
+      console.log(`Extension detected: ${guestBooking.departure} -> ${dates.departure} (${extNights} night(s))`);
+    }
+
+    // ── EXISTING GUEST OTHER-UNIT CHECK ──────────────────────────────────────
+    const isOtherUnitRequest = guestBooking && !dates && /other unit|other condo|unit 707|unit 1006|friend.*book|book.*friend/i.test(lastUser);
+    if (isOtherUnitRequest && guestBooking.arrival && guestBooking.departure) {
+      dates = { arrival: guestBooking.arrival, departure: guestBooking.departure };
+      console.log(`Other unit check: using guest dates ${dates.arrival} -> ${dates.departure}`);
+    }
     const nightsMatch = lastUser.match(/(\d+)\s*nights?/i);
     if (!dates && singleCheckinDate) {
       if (nightsMatch) {
@@ -1956,20 +1975,19 @@ WEATHER DATA UNAVAILABLE: Real-time weather could not be fetched. Do NOT guess o
     // AI Concierge page opening message
     const isConciergePage = pageSource === "ai-concierge";
 
-    // ── EXISTING GUEST CONTEXT (magic link) ──────────────────────────────────
     const existingGuestContext = guestBooking ? `
 🏠 EXISTING GUEST — CONCIERGE MODE:
 This is ${guestBooking.guestFirstName || "a guest"} who has an active booking with us.
 - Unit: ${guestBooking.unit}
 - Stay: ${guestBooking.arrivalFmt} → ${guestBooking.departureFmt}
+- Door code: ${guestBooking.doorCode || "not yet available"}
 - Status: ${guestBooking.isCheckedIn ? "Currently checked in" : guestBooking.isCheckedOut ? "Checked out" : "Upcoming stay"}
 
 ROUTING RULES FOR THIS GUEST:
-- Any date mentioned that falls within or near their stay (${guestBooking.arrival} to ${guestBooking.departure}) = activity/concierge question, NOT a booking request
-- Only treat as a new booking inquiry if: dates are clearly outside their stay AND they use explicit booking language ("book", "reserve", "check availability")
-- NEVER offer booking links for their existing stay dates
-- DO NOT ask for check-in/check-out dates — they already have a booking
-- Focus on being a helpful concierge: activities, local tips, stay questions
+- Any date within or near their stay (${guestBooking.arrival} to ${guestBooking.departure}) = concierge question, NOT a new booking
+- Explicit booking language for FUTURE dates = new booking inquiry, run full flow
+- If guest asks for door code → repeat ${guestBooking.doorCode || "their code"} immediately, do not ask them to check email
+- Extension requests and other-unit checks have been pre-computed — availability results are in the context below
 ` : "";
 
     const conciergePageContext = isConciergePage ? `
@@ -2464,7 +2482,7 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
     }
 
     // ── BOOKING INTERCEPT — bypass GPT when we have clean availability + guest count ──
-    if (!guestBooking && availabilityStatus && !availabilityStatus.includes("CHECK_FAILED")
+    if (availabilityStatus && !availabilityStatus.includes("CHECK_FAILED")
         && !availabilityStatus.includes("NEEDS_DATES") && !availabilityStatus.includes("NEEDS_CHECKOUT") && !availabilityStatus.includes("NEEDS_GUEST_COUNT")
         && !availabilityStatus.includes("DISCOUNT")
         && !availabilityStatus.includes("MONTH")

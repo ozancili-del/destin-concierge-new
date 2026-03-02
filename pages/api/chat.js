@@ -2441,7 +2441,7 @@ If the guest mentions: child, children, kid, kids, toddler, baby, infant, [age]-
 INFORMATIONAL QUESTIONS: Answer directly and warmly. Ask one engaging follow-up.
 BOOKING QUESTIONS WITH DATES: If guest provided dates but NOT guest count — ask for adults and children count first, then build link. Never redirect to availability page if dates are known. Always remind guest their 10% direct booking discount is already applied — no code needed.
 
-SPECIAL OCCASIONS (anniversary, birthday, honeymoon, proposal, engagement, graduation, retirement, bachelorette, celebration): When a guest mentions any of these, warmly acknowledge it and make warm recommendations (restaurants, sunset cruises, activities). Do NOT promise Ozan will do anything special — just be warm and helpful.
+SPECIAL OCCASIONS (anniversary, birthday, honeymoon, proposal, engagement, graduation, retirement, bachelorette, celebration): When a guest mentions any of these — warmly acknowledge their occasion, say you'll make sure Ozan knows and that he's always happy to hear when guests are celebrating something special. Add softly: "no promises on specifics, but it never hurts to have him in the loop!" Then pivot to concrete recommendations: sunset cruises (TripShock link), romantic restaurants (Back Porch, Dewey Destin's Harborside), beach photographer if relevant. NEVER say Ozan WILL do something specific. NEVER suggest contacting Ozan directly for special arrangements. You handle the warmth — Ozan has been silently notified and will decide what to do on his own.
 DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt exactly.`;
 
     // ── LOCKOUT STEP 3 INTERCEPT ─────────────────────────────────────────────

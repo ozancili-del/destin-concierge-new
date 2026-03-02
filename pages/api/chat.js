@@ -1256,8 +1256,9 @@ export default async function handler(req, res) {
     if (confirmationDates) { dates.arrival = confirmationDates.arrival; dates.departure = confirmationDates.departure; }
     const adultsMatchOuter = normalizeGuestCount(normalizedLastUser).match(/(\d+)\s*adult/i) || normalizedUserText.match(/(\d+)\s*adult/i) || (bareNumberReply ? normalizedLastUser.match(/(\d+)/) : null) || (historicBareCount ? [null, historicBareCount] : null);
     const childrenMatchOuter = lastUser.match(/(\d+)\s*(kid|child|children|infant|baby|toddler)/i) || allUserText.match(/(\d+)\s*(kid|child|children|infant|baby|toddler)/i);
-    const adults = adultsMatchOuter ? adultsMatchOuter[1] : "2";
-    const children = childrenMatchOuter ? childrenMatchOuter[1] : "0";
+    // For existing guests, fall back to their booking's guest count if not specified in message
+    const adults = adultsMatchOuter ? adultsMatchOuter[1] : (guestBooking ? String(guestBooking.adults || 2) : "2");
+    const children = childrenMatchOuter ? childrenMatchOuter[1] : (guestBooking ? String(guestBooking.children || 0) : "0");
 
     // ── LAYER 1: Build injected context blocks ──────────────────────────────
     let discountContext = "";
@@ -2475,7 +2476,7 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
     }
 
     // ── NEEDS_GUEST_COUNT INTERCEPT — hardcoded, GPT cannot hallucinate links here ──
-    if (availabilityStatus === "NEEDS_GUEST_COUNT" && dates) {
+    if (!guestBooking && availabilityStatus === "NEEDS_GUEST_COUNT" && dates) {
       const guestCountReply = `Perfect — I've got your dates! Just need one more thing: how many adults and children will be staying? I'll create your booking link right away 😊`;
       await logToSheets(sessionId, lastUser, guestCountReply, `${dates.arrival} to ${dates.departure}`, "NEEDS_GUEST_COUNT", "");
       return res.status(200).json({ reply: guestCountReply, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
@@ -2513,7 +2514,7 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
 
 🔗 **Book Unit 707:** ${link}
 
-Use code **DESTINY** for 10% off! Let me know if you have any questions 😊${activityPS}`;
+Your 10% direct booking discount is already applied! 🎉 Let me know if you have any questions 😊${activityPS}`;
 
       } else if (availabilityStatus.includes("707:BOOKED") && availabilityStatus.includes("1006:AVAILABLE")) {
         const link = buildLink("1006", dates.arrival, dates.departure, adults, children);
@@ -2531,7 +2532,7 @@ Use code **DESTINY** for 10% off! Let me know if you have any questions 😊${ac
 🔗 **Unit 707** (7th floor, Classic Coastal): ${link707}
 🔗 **Unit 1006** (10th floor, Fresh Coastal): ${link1006}
 
-Use code **DESTINY** for 10% off either unit! Want me to tell you more about the differences? 😊${activityPS}`;
+Your 10% direct booking discount is already applied on both! 🎉 Want me to tell you more about the differences? 😊${activityPS}`;
 
       } else if (availabilityStatus.includes("707:BOOKED") && availabilityStatus.includes("1006:BOOKED")) {
         bookingReply = `I'm sorry — both units are booked for ${dates.arrival} to ${dates.departure}. You can browse other open dates at https://www.destincondogetaways.com/availability or contact Ozan at (972) 357-4262 — he may have options not listed online!`;
@@ -2544,7 +2545,7 @@ Use code **DESTINY** for 10% off either unit! Want me to tell you more about the
 🔗 **Book Unit 707:** ${link707}
 🔗 **Unit 1006 (unconfirmed):** ${link1006}
 
-Use code **DESTINY** for 10% off! For Unit 1006 questions contact Ozan at (972) 357-4262 😊${activityPS}`;
+Your 10% direct booking discount is already applied! 🎉 For Unit 1006 questions contact Ozan at (972) 357-4262 😊${activityPS}`;
 
       } else if (availabilityStatus.includes("707:UNKNOWN") && availabilityStatus.includes("1006:AVAILABLE")) {
         const link707 = buildLink("707", dates.arrival, dates.departure, adults, children);
@@ -2554,7 +2555,7 @@ Use code **DESTINY** for 10% off! For Unit 1006 questions contact Ozan at (972) 
 🔗 **Book Unit 1006:** ${link1006}
 🔗 **Unit 707 (unconfirmed):** ${link707}
 
-Use code **DESTINY** for 10% off! For Unit 707 questions contact Ozan at (972) 357-4262 😊`;
+Your 10% direct booking discount is already applied! 🎉 For Unit 707 questions contact Ozan at (972) 357-4262 😊`;
       }
 
       if (bookingReply) {

@@ -1277,16 +1277,22 @@ export default async function handler(req, res) {
 
     // ── OCCUPANCY GUARD ──────────────────────────────────────────────────────
     const totalGuestsCalc = parseInt(adults) + parseInt(children);
+    const numAdults = parseInt(adults);
+    const numChildren = parseInt(children);
+    const requiredAdults = Math.ceil(numChildren / 3);
     const occupancyExceeded = totalGuestsCalc > 6;
-    // uncertain when no adults explicitly stated but 5+ kids detected — could be 1 or 2 adults
-    const occupancyUncertain = !adultsMatchOuter && childrenMatchOuter && parseInt(childrenMatchOuter[1]) >= 5;
+    const hoaViolation = numChildren > 0 && numAdults < requiredAdults && totalGuestsCalc <= 6;
+    // uncertain: only "me and 4 kids" — could be valid if second adult joins (2+4=6). 5 kids = no valid path.
+    const occupancyUncertain = !adultsMatchOuter && childrenMatchOuter && numChildren === 4;
 
     // ── LAYER 1: Build injected context blocks ──────────────────────────────
     let discountContext = "";
     let occupancyContext = occupancyExceeded
-      ? `🚨 OCCUPANCY EXCEEDED: Guest count (${totalGuestsCalc}) exceeds the maximum of 6. DO NOT build any booking links. Politely explain that our units sleep a maximum of 6 guests due to fire code — no exceptions. If the count might be wrong (e.g. guest said "me and my kids" without specifying adults), ask them to confirm: "Just to confirm — how many adults and how many children will be staying? I want to make sure the unit fits everyone comfortably 😊"`
+      ? `🚨 OCCUPANCY EXCEEDED: Guest count (${totalGuestsCalc}) exceeds the maximum of 6 guests (fire code — no exceptions). DO NOT build any booking links. Politely explain the max is 6 total guests.`
+      : hoaViolation
+      ? `🚨 HOA VIOLATION: Guest has ${numChildren} children but only ${numAdults} adult(s). Our HOA requires 1 adult per 3 children (minimum ${requiredAdults} adult(s) for ${numChildren} kids). DO NOT build booking links. Politely explain: "Our HOA requires at least 1 adult per 3 children — with ${numChildren} kids, we'd need at least ${requiredAdults} adults in the group. Unfortunately we wouldn't be able to accommodate this group under those conditions. 😊"`
       : occupancyUncertain
-      ? `⚠️ OCCUPANCY UNCERTAIN: Guest mentioned ${childrenMatchOuter ? childrenMatchOuter[1] : "several"} kids but didn't specify number of adults. Before building booking links, ask: "Just to confirm — how many adults will be joining the kids? I want to make sure the unit comfortably fits everyone 😊" — our max is 6 guests total.`
+      ? `⚠️ HOA ADULT CONFIRMATION NEEDED: Guest mentioned ${numChildren} kids but didn't specify how many adults. With ${numChildren} kids, our HOA requires at least ${requiredAdults} adults. Before building any booking links, ask: "Just to make sure we're set up correctly — our HOA requires at least 1 adult per 3 children. With ${numChildren} kids, we'd need ${requiredAdults} adults in the group. Will there be a second adult joining? 😊"`
       : "";
     let externalDisturbanceContext = "";
     let competitorContext = "";

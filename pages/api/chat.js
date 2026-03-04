@@ -1294,6 +1294,12 @@ export default async function handler(req, res) {
         await logToSheets(sessionId, lastUser, declineReply, dates ? `${dates.arrival} to ${dates.departure}` : "", "HOA_VIOLATION", "");
         return res.status(200).json({ reply: declineReply, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
       }
+      // Find original adult count from the message that first triggered the HOA question
+      const hoaQuestionIdx = messages.reduce((last, m, i) =>
+        m.role === "assistant" && m.content && /HOA requires|we're not able to accommodate/i.test(m.content) ? i : last, -1);
+      const msgBeforeHOA = hoaQuestionIdx > 0 ? messages[hoaQuestionIdx - 1] : null;
+      const originalAdultsMatch = msgBeforeHOA ? normalizeGuestCount(msgBeforeHOA.content).match(/(\d+)\s*adult/i) : null;
+      const originalAdults = originalAdultsMatch ? parseInt(originalAdultsMatch[1], 10) : 1;
       try {
         const miniRes = await fetch("https://api.openai.com/v1/chat/completions", {
           method: "POST",
@@ -1304,7 +1310,7 @@ export default async function handler(req, res) {
             temperature: 0.2,
             messages: [{
               role: "system",
-              content: `A vacation rental guest originally stated their group has 1 adult and ${children} children. They are now describing additional people joining. Count ONLY the additional adults they mention — do not count the original 1 adult.
+              content: `A vacation rental guest originally stated their group has ${originalAdults} adult${originalAdults !== 1 ? "s" : ""} and ${children} children. They are now describing additional people joining. Count ONLY the additional adults they mention — do not count the original ${originalAdults}.
 Reply with ONLY a single integer. No words, no explanation.
 Examples:
 - "my sister is joining" = 1
@@ -1316,7 +1322,7 @@ Examples:
 - "3 more friends joining us" = 3`
             }, {
               role: "user",
-              content: `Guest reply: "${lastUser}"\n\nHow many ADDITIONAL adults are joining (not counting the original 1 adult already in the group)?`
+              content: `Guest reply: "${lastUser}"\n\nHow many ADDITIONAL adults are joining (not counting the original ${originalAdults} adult${originalAdults !== 1 ? "s" : ""} already in the group)?`
             }]
           })
         });
@@ -1324,15 +1330,15 @@ Examples:
         const miniText = miniData.choices?.[0]?.message?.content?.trim() || "";
         const miniCount = parseInt(miniText.match(/\d+/)?.[0], 10);
         if (!isNaN(miniCount) && miniCount >= 0 && miniCount <= 11) {
-          adults = String(miniCount + 1);
-          console.log(`[MINI] Raw: "${miniText}" → additional: ${miniCount}, total: ${miniCount + 1}`);
+          adults = String(miniCount + originalAdults);
+          console.log(`[MINI] Raw: "${miniText}" → additional: ${miniCount}, original: ${originalAdults}, total: ${miniCount + originalAdults}`);
         }
       } catch (e) {
         console.error("[MINI] Failed:", e.message);
       }
       // If 4o returned 0 — either refusal or ambiguous like "yes"
       // "yes" on turn 3 means confirming the split, not setting adult count — let it fall through to GPT
-      if (parseInt(adults, 10) <= 1) {
+      if (parseInt(adults, 10) <= originalAdults) {
         const isConfirmation = /^(yes|yeah|yep|sure|ok|okay|sounds good|perfect|great|confirmed|confirm|that works|go ahead|let's do it|lets do it)[\s!.]*$/i.test(lastUser.trim());
         if (isConfirmation) {
           // Guest is confirming the split — let GPT handle it with existing context

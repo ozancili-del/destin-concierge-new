@@ -1969,6 +1969,21 @@ Unit 1006: ${link1006hoa}`;
         // Fall through to GPT — do NOT early return
       }
 
+      // HOA uncertain 1+4 — bot already asked but guest replied without a number
+      // If refusal → decline. Otherwise ask for explicit count.
+      else if (hoaViolation && adultsNum === 1 && childrenNum === 4 && messages.some(m =>
+        m.role === "assistant" && m.content && /HOA requires|second adult|will a second adult/i.test(m.content)
+      )) {
+        availabilityStatus = "HOA_UNCERTAIN";
+        availabilityContext = "";
+        const isRefusal = /\bno\b|nope|just me|only me|just us|only (one|1)|won't|wont|not going to|nobody|no one|no adult/i.test(lastUser);
+        const hardcodedReply = isRefusal
+          ? `No worries at all! Unfortunately without a second adult we wouldn't be able to accommodate the group due to our HOA rules. If plans change, feel free to reach out — we'd love to have you! 😊`
+          : `Got it! Just to confirm — how many adults total will there be in your group, including yourself? 😊`;
+        await logToSheets(sessionId, lastUser, hardcodedReply, `${dates.arrival} to ${dates.departure}`, "HOA_UNCERTAIN", "");
+        return res.status(200).json({ reply: hardcodedReply, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
+      }
+
       // HOA hard violation: any other HOA violation with no valid path in a single unit
       // (e.g. 1 adult + 6+ kids, 2 adults + 7+ kids, etc.) — hard reject
       else if (hoaViolation && !needsTwoCondos) {

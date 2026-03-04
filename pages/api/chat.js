@@ -1890,6 +1890,16 @@ Do NOT say great news or over-promise. Be specific about which unit is open vs f
           }
           // Pick the most balanced split as the suggestion (minimize difference in group sizes)
           const suggested = validSplits.sort((x, y) => Math.abs((x.a1+x.c1)-(x.a2+x.c2)) - Math.abs((y.a1+y.c1)-(y.a2+y.c2)))[0];
+
+          // No valid split exists — hard reject, don't hand to GPT with empty links
+          if (!suggested) {
+            availabilityStatus = "HOA_VIOLATION";
+            availabilityContext = "";
+            const noSplitReply = `Unfortunately there's no way to split your group of ${totalGuests} across our two units while satisfying the HOA requirement of 1 adult per 3 children. With ${adultsNum} adult${adultsNum !== 1 ? "s" : ""} and ${childrenNum} children, you'd need at least ${Math.ceil(childrenNum / 3)} adults total. If your group composition changes, feel free to reach out! 😊`;
+            await logToSheets(sessionId, lastUser, noSplitReply, `${dates.arrival} to ${dates.departure}`, "HOA_VIOLATION", "");
+            return res.status(200).json({ reply: noSplitReply, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
+          }
+
           let splitLinksText = "";
           if (suggested) {
             const sugLink707  = buildLink("707",  dates.arrival, dates.departure, String(suggested.a1), String(suggested.c1));

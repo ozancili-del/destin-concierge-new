@@ -1858,13 +1858,39 @@ Do NOT say great news or over-promise. Be specific about which unit is open vs f
         const oneAvail  = avail707tc === true || avail1006tc === true;
         availabilityStatus = "TWO_CONDO_PATH";
         if (bothAvail) {
-          const link707tc  = buildLink("707",  dates.arrival, dates.departure, adults, children);
-          const link1006tc = buildLink("1006", dates.arrival, dates.departure, adults, children);
-          availabilityContext = `TWO-CONDO OPPORTUNITY: Group of ${totalGuests} (${adultsNum} adult${adultsNum !== 1 ? "s" : ""} + ${childrenNum} child${childrenNum !== 1 ? "ren" : ""}) exceeds single-unit fire code maximum of 6 BUT can be split across BOTH units which are available for ${dates.arrival} to ${dates.departure}.
-HOA rule: 1 adult per 3 children must be maintained within each unit after split.
-Unit 707 base link: ${link707tc}
-Unit 1006 base link: ${link1006tc}
-YOUR JOB: Warmly suggest splitting the group across both units. Help the guest figure out a sensible split that keeps HOA ratio in each unit. Once they confirm the split, build TWO separate links with the correct adult/child counts for each unit. DO NOT build links until split is confirmed.`;
+          // Pre-calculate all valid splits so GPT just picks one and pastes the links
+          // A valid split: each unit ≤ 6 guests, HOA ratio (1 adult per 3 kids) satisfied in each unit
+          const validSplits = [];
+          for (let a1 = 0; a1 <= adultsNum; a1++) {
+            const a2 = adultsNum - a1;
+            for (let c1 = 0; c1 <= childrenNum; c1++) {
+              const c2 = childrenNum - c1;
+              if (a1 + c1 > 6 || a2 + c2 > 6) continue; // fire code per unit
+              if (a1 + c1 === 0 || a2 + c2 === 0) continue; // both units must have guests
+              if (a1 === 0 || a2 === 0) continue; // each unit needs at least 1 adult
+              const hoa1 = c1 === 0 || a1 >= Math.ceil(c1 / 3);
+              const hoa2 = c2 === 0 || a2 >= Math.ceil(c2 / 3);
+              if (!hoa1 || !hoa2) continue; // HOA ratio per unit
+              validSplits.push({ a1, c1, a2, c2 });
+            }
+          }
+          // Pick the most balanced split as the suggestion (minimize difference in group sizes)
+          const suggested = validSplits.sort((x, y) => Math.abs((x.a1+x.c1)-(x.a2+x.c2)) - Math.abs((y.a1+y.c1)-(y.a2+y.c2)))[0];
+          let splitLinksText = "";
+          if (suggested) {
+            const sugLink707  = buildLink("707",  dates.arrival, dates.departure, String(suggested.a1), String(suggested.c1));
+            const sugLink1006 = buildLink("1006", dates.arrival, dates.departure, String(suggested.a2), String(suggested.c2));
+            splitLinksText = `
+SUGGESTED SPLIT (most balanced):
+- Unit 707: ${suggested.a1} adult${suggested.a1!==1?"s":""} + ${suggested.c1} child${suggested.c1!==1?"ren":""} → ${sugLink707}
+- Unit 1006: ${suggested.a2} adult${suggested.a2!==1?"s":""} + ${suggested.c2} child${suggested.c2!==1?"ren":""} → ${sugLink1006}
+USE THESE EXACT LINKS once guest confirms this split. Do NOT modify them.`;
+          }
+          const altSplits = validSplits.slice(1, 4).map(s => `${s.a1}A+${s.c1}K / ${s.a2}A+${s.c2}K`).join(", ");
+          availabilityContext = `TWO-CONDO OPPORTUNITY: Group of ${totalGuests} (${adultsNum} adult${adultsNum !== 1 ? "s" : ""} + ${childrenNum} child${childrenNum !== 1 ? "ren" : ""}) cannot fit in one unit (max 6, fire code) BUT both units are available for ${dates.arrival} to ${dates.departure}.
+HOA rule: 1 adult per 3 children must be maintained within each unit after split.${splitLinksText}
+${altSplits ? `Other valid splits if guest prefers: ${altSplits}` : ""}
+YOUR JOB: Suggest the split above warmly. If guest prefers a different split, confirm it's valid (each unit ≤6, HOA ratio). Once confirmed, paste the exact pre-built links — do NOT invent or modify URLs.`;
         } else if (oneAvail) {
           const availUnit = avail707tc === true ? "707" : "1006";
           availabilityContext = `TWO-CONDO OPPORTUNITY: Group of ${totalGuests} needs both units but only Unit ${availUnit} is available for ${dates.arrival} to ${dates.departure}. Unfortunately we cannot split the group as the other unit is booked. Let the guest know warmly and suggest alternative dates if possible.`;

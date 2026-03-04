@@ -1300,28 +1300,28 @@ export default async function handler(req, res) {
             temperature: 0,
             messages: [{
               role: "system",
-              content: `You count total adults in a vacation rental group from a conversation.
-CRITICAL: The person asking is ALWAYS adult #1. Count them plus any additional adults they mention.
+              content: `You count how many ADDITIONAL adults are joining a vacation rental group.
+Do NOT count the original person asking — only count new people they mention joining.
 Reply with ONLY a single integer. No words, no explanation.
 Examples:
-- "my sister is joining" = 2 (me=1 + sister=1)
-- "my mom and husband are coming" = 3 (me=1 + mom=1 + husband=1)
-- "my mom will join alongside my husband" = 3 (me=1 + mom=1 + husband=1)
-- "just me and my partner" = 2 (me=1 + partner=1)
-- "yes we will have 2 adults" = 2
-- "no nobody else" = 1
-- "me and 3 friends" = 4 (me=1 + 3 friends)`
+- "my sister is joining" = 1
+- "my mom and husband are coming" = 2
+- "my mom will join alongside my husband" = 2
+- "just me and my partner" = 1
+- "yes we will have 2 adults total" = 1 (2 total minus the original = 1 additional)
+- "no nobody else" = 0
+- "me and 3 friends" = 3`
             }, {
               role: "user",
-              content: `Original group: 1 adult. Conversation:\n${conversationAfterHOA}\n\nHow many adults total including the original person?`
+              content: `Original group: 1 adult. Conversation:\n${conversationAfterHOA}\n\nHow many ADDITIONAL adults are joining (not counting the original person)?`
             }]
           })
         });
         const miniData = await miniRes.json();
         const miniCount = parseInt(miniData.choices?.[0]?.message?.content?.trim(), 10);
-        if (!isNaN(miniCount) && miniCount >= 1 && miniCount <= 12) {
-          adults = String(miniCount);
-          console.log(`[MINI] Adult count extracted: ${miniCount}`);
+        if (!isNaN(miniCount) && miniCount >= 0 && miniCount <= 11) {
+          adults = String(miniCount + 1); // +1 for the original person
+          console.log(`[MINI] Additional adults: ${miniCount}, total: ${miniCount + 1}`);
         }
       } catch (e) {
         console.error("[MINI] Failed:", e.message);

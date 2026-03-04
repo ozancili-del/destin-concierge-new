@@ -1340,6 +1340,7 @@ Examples:
       // "yes" on turn 3 means confirming the split, not setting adult count — let it fall through to GPT
       if (parseInt(adults, 10) <= originalAdults) {
         const isConfirmation = /^(yes|yeah|yep|sure|ok|okay|sounds good|perfect|great|confirmed|confirm|that works|go ahead|let's do it|lets do it)[\s!.]*$/i.test(lastUser.trim());
+        console.log(`[MINI FALLBACK] adults=${adults} originalAdults=${originalAdults} isConfirmation=${isConfirmation} lastUser="${lastUser.trim()}"`);
         if (isConfirmation) {
           // Guest is confirming the split — let GPT handle it with existing context
           // don't intercept, fall through

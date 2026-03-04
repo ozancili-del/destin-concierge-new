@@ -1292,7 +1292,7 @@ export default async function handler(req, res) {
       if (isRefusal) {
         const declineReply = `No worries at all! Unfortunately without additional adults we wouldn't be able to accommodate the group due to our HOA rules. If plans change, feel free to reach out — we'd love to have you! 😊`;
         await logToSheets(sessionId, lastUser, declineReply, dates ? `${dates.arrival} to ${dates.departure}` : "", "HOA_VIOLATION", "");
-        return res.status(200).json({ reply: declineReply, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
+        return res.status(200).json({ reply: declineReply, alertSent: priorAlertSent || false, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal || false, ozanAckType: ozanAckType || null, detectedIntent: "INFO" });
       }
       // If bot already asked "how many adults total" and guest replied with a bare number — use it directly, skip 4o
       const botAlreadyAskedCount = messages.some(m =>
@@ -1352,7 +1352,7 @@ Examples:
         if (!isConfirmation) {
           const fallbackAsk = `Got it! Just to confirm — how many adults total will there be in your group, including yourself? 😊`;
           await logToSheets(sessionId, lastUser, fallbackAsk, dates ? `${dates.arrival} to ${dates.departure}` : "", "HOA_UNCERTAIN", "");
-          return res.status(200).json({ reply: fallbackAsk, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
+          return res.status(200).json({ reply: fallbackAsk, alertSent: priorAlertSent || false, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal || false, ozanAckType: ozanAckType || null, detectedIntent: "INFO" });
         }
       }
       } // close else block from bareNumberMatch check

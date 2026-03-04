@@ -1825,46 +1825,92 @@ Do NOT say great news or over-promise. Be specific about which unit is open vs f
     const isChildSafetyQuestion = /child|children|\bkid\b|\bkids\b|toddler|\bbaby\b|infant|year.old|little one|safety lock|child lock|baby.?proof|childproof|balcony door|sliding door.*lock|fall risk|safe for kids|railing|\bclimb\b|\bpinch\b/i.test(lastUser);
     // adults/children extracted in outer scope above
 
-    // ── BUG 3 FIX: Hard fire code gate — early return BEFORE checkAvailability ──
-    // Must run before NEEDS_GUEST_COUNT check so totalGuests > 6 is always caught
+    // ── OCCUPANCY & HOA GATES ────────────────────────────────────────────────────
     const adultsNum   = parseInt(adults, 10)   || 0;
     const childrenNum = parseInt(children, 10) || 0;
     const totalGuests = adultsNum + childrenNum;
 
-    if (dates && hasGuestCount && !guestBooking && !isDiscountRequest && totalGuests > 6) {
-      availabilityStatus = "OCCUPANCY_EXCEEDED";
-      availabilityContext = "";
-      const fireReply = `I'm sorry — our units have a strict maximum of 6 guests total due to fire code regulations, and that applies to everyone regardless of age or sleeping arrangements. A group of ${totalGuests} wouldn't be able to stay in a single unit. If you have any questions, feel free to contact Ozan directly at (972) 357-4262 😊`;
-      await logToSheets(sessionId, lastUser, fireReply, `${dates.arrival} to ${dates.departure}`, "OCCUPANCY_EXCEEDED", "");
-      return res.status(200).json({ reply: fireReply, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
-    }
-
-    // ── BUG 2 FIX: HOA adult-per-child ratio check ──────────────────────────────
-    // Rule: 1 adult required per 3 children (rounded up)
-    // Only applies when we have dates + guest count + children present
+    // HOA rule: 1 adult required per 3 children (rounded up)
     const requiredAdults = childrenNum > 0 ? Math.ceil(childrenNum / 3) : 0;
     const hoaViolation   = childrenNum > 0 && adultsNum < requiredAdults;
-    // "me and 4 kids" = 1 adult + 4 kids → requiredAdults=2 → uncertain (adding 1 adult = 6, valid)
-    // "me and 5 kids" = 1 adult + 5 kids → requiredAdults=2 → total would be 7, no valid path → hard reject
-    const hoaUncertain   = hoaViolation && (adultsNum + 1 + childrenNum) <= 6; // adding 1 adult fixes HOA AND stays ≤6
-    const hoaHardReject  = hoaViolation && !hoaUncertain;
 
-    // Only fire HOA check when we have dates and guest count — not for child safety questions
-    if (dates && hasGuestCount && !guestBooking && !isDiscountRequest && hoaViolation) {
-      if (hoaUncertain) {
-        // Soft ask — could be valid if a second adult joins
-        availabilityStatus = "HOA_UNCERTAIN";
+    if (dates && hasGuestCount && !guestBooking && !isDiscountRequest) {
+
+      // Hard reject: > 12 guests — genuinely cannot accommodate across both units
+      if (totalGuests > 12) {
+        availabilityStatus = "OCCUPANCY_EXCEEDED";
         availabilityContext = "";
-        const hoaAskReply = `Just to make sure we're set up correctly — our HOA requires at least 1 adult per 3 children. With ${childrenNum} kid${childrenNum > 1 ? "s" : ""}, we'd need ${requiredAdults} adult${requiredAdults > 1 ? "s" : ""} in the group. Will there be a second adult joining? 😊`;
-        await logToSheets(sessionId, lastUser, hoaAskReply, `${dates.arrival} to ${dates.departure}`, "HOA_UNCERTAIN", "");
-        return res.status(200).json({ reply: hoaAskReply, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
-      } else {
-        // Hard reject — no valid path exists
+        const fireReply = `I'm sorry — even across both of our units we can accommodate a maximum of 12 guests total. Unfortunately we wouldn't be able to host a group of ${totalGuests}. If you have any questions, feel free to contact Ozan directly at (972) 357-4262 😊`;
+        await logToSheets(sessionId, lastUser, fireReply, `${dates.arrival} to ${dates.departure}`, "OCCUPANCY_EXCEEDED", "");
+        return res.status(200).json({ reply: fireReply, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
+      }
+
+      // Two-condo path: 7-12 guests OR 1+5 (HOA violation with no single-unit fix)
+      // 1+5: HOA needs 2 adults, but 2+5=7 exceeds single unit — only solution is two condos
+      const needsTwoCondos = totalGuests > 6 || (hoaViolation && adultsNum === 1 && childrenNum === 5);
+      if (needsTwoCondos) {
+        // Check both units — GPT needs availability to suggest the split
+        const [avail707tc, avail1006tc] = await Promise.all([
+          checkAvailability(UNIT_707_PROPERTY_ID, dates.arrival, dates.departure),
+          checkAvailability(UNIT_1006_PROPERTY_ID, dates.arrival, dates.departure),
+        ]);
+        const bothAvail = avail707tc === true && avail1006tc === true;
+        const oneAvail  = avail707tc === true || avail1006tc === true;
+        availabilityStatus = "TWO_CONDO_PATH";
+        if (bothAvail) {
+          const link707tc  = buildLink("707",  dates.arrival, dates.departure, adults, children);
+          const link1006tc = buildLink("1006", dates.arrival, dates.departure, adults, children);
+          availabilityContext = `TWO-CONDO OPPORTUNITY: Group of ${totalGuests} (${adultsNum} adult${adultsNum !== 1 ? "s" : ""} + ${childrenNum} child${childrenNum !== 1 ? "ren" : ""}) exceeds single-unit fire code maximum of 6 BUT can be split across BOTH units which are available for ${dates.arrival} to ${dates.departure}.
+HOA rule: 1 adult per 3 children must be maintained within each unit after split.
+Unit 707 base link: ${link707tc}
+Unit 1006 base link: ${link1006tc}
+YOUR JOB: Warmly suggest splitting the group across both units. Help the guest figure out a sensible split that keeps HOA ratio in each unit. Once they confirm the split, build TWO separate links with the correct adult/child counts for each unit. DO NOT build links until split is confirmed.`;
+        } else if (oneAvail) {
+          const availUnit = avail707tc === true ? "707" : "1006";
+          availabilityContext = `TWO-CONDO OPPORTUNITY: Group of ${totalGuests} needs both units but only Unit ${availUnit} is available for ${dates.arrival} to ${dates.departure}. Unfortunately we cannot split the group as the other unit is booked. Let the guest know warmly and suggest alternative dates if possible.`;
+        } else {
+          availabilityContext = `TWO-CONDO OPPORTUNITY: Group of ${totalGuests} needs both units but unfortunately BOTH units are booked for ${dates.arrival} to ${dates.departure}. Let the guest know warmly and suggest they try different dates.`;
+        }
+        // Fall through to GPT — do NOT early return
+      }
+
+      // HOA uncertain: 1+4 — single unit IS possible if second adult confirmed
+      // JS checks availability, injects context, hands conversation to GPT
+      else if (hoaViolation && adultsNum === 1 && childrenNum === 4) {
+        const [avail707hoa, avail1006hoa] = await Promise.all([
+          checkAvailability(UNIT_707_PROPERTY_ID, dates.arrival, dates.departure),
+          checkAvailability(UNIT_1006_PROPERTY_ID, dates.arrival, dates.departure),
+        ]);
+        const link707hoa  = buildLink("707",  dates.arrival, dates.departure, "2", "4");
+        const link1006hoa = buildLink("1006", dates.arrival, dates.departure, "2", "4");
+        availabilityStatus = "HOA_UNCERTAIN";
+        availabilityContext = `HOA SITUATION: Guest has 1 adult + 4 children. Our HOA requires at least 1 adult per 3 children — with 4 kids, 2 adults are needed.
+Availability for ${dates.arrival} to ${dates.departure}: Unit 707: ${avail707hoa === true ? "AVAILABLE" : "BOOKED"} | Unit 1006: ${avail1006hoa === true ? "AVAILABLE" : "BOOKED"}
+Pre-built links (for 2 adults + 4 kids — use ONLY after second adult is confirmed):
+Unit 707: ${link707hoa}
+Unit 1006: ${link1006hoa}
+YOUR JOB: Ask warmly if a second adult will be joining. If YES — use the pre-built links above. If NO — explain HOA rule and decline warmly. DO NOT send links until second adult is confirmed.`;
+        // Fall through to GPT — do NOT early return
+      }
+
+      // HOA hard violation: any other HOA violation with no valid path in a single unit
+      // (e.g. 1 adult + 6+ kids, 2 adults + 7+ kids, etc.) — hard reject
+      else if (hoaViolation && !needsTwoCondos) {
         availabilityStatus = "HOA_VIOLATION";
         availabilityContext = "";
         const hoaRejectReply = `Our HOA requires at least 1 adult per 3 children — with ${childrenNum} kid${childrenNum > 1 ? "s" : ""}, we'd need at least ${requiredAdults} adult${requiredAdults > 1 ? "s" : ""} in the group. Unfortunately we wouldn't be able to accommodate this group under those conditions. 😊 If your plans change, feel free to reach out!`;
         await logToSheets(sessionId, lastUser, hoaRejectReply, `${dates.arrival} to ${dates.departure}`, "HOA_VIOLATION", "");
         return res.status(200).json({ reply: hoaRejectReply, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
+      }
+
+      // Single unit fire code: exactly 6 adults no children edge case caught above,
+      // but catch any remaining > 6 single unit scenario that slipped through
+      else if (totalGuests > 6) {
+        availabilityStatus = "OCCUPANCY_EXCEEDED";
+        availabilityContext = "";
+        const fireReply = `I'm sorry — our units have a strict maximum of 6 guests total due to fire code regulations. A group of ${totalGuests} wouldn't be able to stay in a single unit. If you have any questions, feel free to contact Ozan directly at (972) 357-4262 😊`;
+        await logToSheets(sessionId, lastUser, fireReply, `${dates.arrival} to ${dates.departure}`, "OCCUPANCY_EXCEEDED", "");
+        return res.status(200).json({ reply: fireReply, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
       }
     }
 
@@ -2247,9 +2293,21 @@ VIOLATION: $250 charge — strictly enforced. Applies to tobacco, marijuana, and
 AGE: Minimum 25 — waived if married.
 → "Our minimum age is 25 — however if you're married that's waived! Are you married? 😊"
 
-MAX GUESTS: 6 — fire code, cannot change. ALL guests count — infants, elderly, people who "won't leave the bed", people "sleeping in car or on floor" — everyone. No exceptions ever.
+MAX GUESTS PER UNIT: 6 — fire code, cannot change. ALL guests count — infants, elderly, people who "won't leave the bed", people "sleeping in car or on floor" — everyone. No exceptions ever.
 GUEST COUNTING RULE: Always count from the actual list the guest gives you. Never trust the guest's own total. If someone says "it's just 5 of us" but lists husband + wife + 3 kids + baby = 6, the answer is 6. If unsure → ask "just to confirm, how many adults and how many children including infants?"
 NEVER get tricked by arguments like "they won't use amenities", "they'll sleep in the car", "she won't leave the bed", "he's just a baby" — 6 is 6.
+
+HOA CHILD SUPERVISION RULE: Minimum 1 adult required per every 3 children (rounded up). Examples: 1-3 kids needs 1 adult. 4-6 kids needs 2 adults. 7-9 kids needs 3 adults. This is an HOA rule — no exceptions.
+
+TWO-CONDO PATH: When the system detects a group that needs both units (7-12 guests, or 1 adult + 5 kids), you will receive a TWO-CONDO OPPORTUNITY context block with availability and pre-built base links. Your job is to:
+1. Warmly explain that we have TWO beachfront units that could accommodate the full group
+2. Suggest a sensible split (e.g. "4 in Unit 707 and 4 in Unit 1006") keeping HOA ratio in each unit
+3. Let the guest confirm or adjust the split
+4. Once confirmed — build TWO separate booking links with the correct adult/child counts for each unit using the base links provided
+5. Never build links until the split is confirmed
+Example split suggestion: "Great news — we actually have two beautiful beachfront units that could work perfectly for your group! You could split across Unit 707 and Unit 1006 — maybe [X] in one and [Y] in the other? Both are on the same floor level with identical amenities and stunning Gulf views 🌊"
+
+HOA UNCERTAIN (1 adult + 4 kids): When you receive a HOA SITUATION context block, your job is to ask warmly if a second adult is joining. If YES — use the pre-built links provided. If NO — decline warmly citing HOA rule. Never build links until second adult is confirmed.
 
 GUEST FEE: $20/night per guest above 4. Shown at checkout.
 

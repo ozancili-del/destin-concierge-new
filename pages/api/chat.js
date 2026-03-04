@@ -2660,6 +2660,10 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
         && !availabilityStatus.includes("NEEDS_DATES") && !availabilityStatus.includes("NEEDS_CHECKOUT") && !availabilityStatus.includes("NEEDS_GUEST_COUNT")
         && !availabilityStatus.includes("DISCOUNT")
         && !availabilityStatus.includes("MONTH")
+        && !availabilityStatus.includes("TWO_CONDO_PATH")
+        && !availabilityStatus.includes("HOA_UNCERTAIN")
+        && !availabilityStatus.includes("HOA_VIOLATION")
+        && !availabilityStatus.includes("OCCUPANCY_EXCEEDED")
         && dates && hasGuestCount && !mentionsPets && !bookingLinksSent && (wantsAvailability || isGuestCountReply || isCheckoutReply || isNightsReply)) {
 
       let bookingReply = null;

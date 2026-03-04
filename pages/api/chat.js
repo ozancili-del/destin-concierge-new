@@ -1910,12 +1910,12 @@ YOUR JOB: Suggest the split above warmly. If guest prefers a different split, co
         const link707hoa  = buildLink("707",  dates.arrival, dates.departure, "2", "4");
         const link1006hoa = buildLink("1006", dates.arrival, dates.departure, "2", "4");
         availabilityStatus = "HOA_UNCERTAIN";
-        availabilityContext = `HOA SITUATION: Guest has 1 adult + 4 children. Our HOA requires at least 1 adult per 3 children — with 4 kids, 2 adults are needed.
-Availability for ${dates.arrival} to ${dates.departure}: Unit 707: ${avail707hoa === true ? "AVAILABLE" : "BOOKED"} | Unit 1006: ${avail1006hoa === true ? "AVAILABLE" : "BOOKED"}
-Pre-built links (for 2 adults + 4 kids — use ONLY after second adult is confirmed):
+        availabilityContext = `⚠️ HOA ADULT RATIO: Guest said 1 adult + 4 kids. HOA requires 2 adults minimum for 4 kids. You already asked about the second adult OR you are about to.
+IMPORTANT: This is a normal SINGLE UNIT booking once a second adult is confirmed. 2 adults + 4 kids = 6 guests = fits in one unit. Do NOT mention splitting or two units.
+Unit 707: ${avail707hoa === true ? "AVAILABLE" : "BOOKED"} | Unit 1006: ${avail1006hoa === true ? "AVAILABLE" : "BOOKED"}
+Once second adult confirmed → send these links (do not modify them):
 Unit 707: ${link707hoa}
-Unit 1006: ${link1006hoa}
-YOUR JOB: Ask warmly if a second adult will be joining. If YES — the group fits in ONE unit. Send both pre-built links so guest can choose. If NO — explain HOA rule and decline warmly. DO NOT send links until second adult is confirmed. DO NOT suggest splitting across two units.`;
+Unit 1006: ${link1006hoa}`;
         // Fall through to GPT — do NOT early return
       }
 

@@ -1288,6 +1288,23 @@ export default async function handler(req, res) {
     // uncertain: only "me and 4 kids" — could be valid if second adult joins (2+4=6). 5 kids = no valid path.
     const occupancyUncertain = !adultsMatchOuter && childrenMatchOuter && numChildren === 4;
 
+    // ── EARLY RETURN: OCCUPANCY EXCEEDED — bypass GPT entirely ──────────────
+    // If we know for certain total > 6, return immediately. No GPT call.
+    // This is the only 100% reliable fix — GPT cannot override a JS return.
+    if (occupancyExceeded && !occupancyUncertain) {
+      const hardReject = `Unfortunately our units have a strict maximum of 6 guests total due to fire code — we wouldn't be able to accommodate a group of ${totalGuestsCalc}. 😔 If your group size changes, I'd love to help you find the perfect unit!`;
+      await logToSheets(sessionId, lastUser, hardReject, dates ? `${dates.arrival} to ${dates.departure}` : "", "OCCUPANCY_EXCEEDED", "");
+      return res.status(200).json({ reply: hardReject, alertSent: false, pendingRelay: false, ozanAcked: false, ozanAckType: null, detectedIntent: "INFO" });
+    }
+
+    // ── EARLY RETURN: HOA VIOLATION (explicit, not uncertain) ───────────────
+    if (hoaViolation && !occupancyUncertain) {
+      const hoaReject = `Our HOA requires at least 1 adult per 3 children — with ${numChildren} kids, we'd need at least ${requiredAdults} adults in the group. Unfortunately we wouldn't be able to accommodate this group under those conditions. 😊 If your plans change, feel free to reach out!`;
+      await logToSheets(sessionId, lastUser, hoaReject, dates ? `${dates.arrival} to ${dates.departure}` : "", "HOA_VIOLATION", "");
+      return res.status(200).json({ reply: hoaReject, alertSent: false, pendingRelay: false, ozanAcked: false, ozanAckType: null, detectedIntent: "INFO" });
+    }
+    // ────────────────────────────────────────────────────────────────────────
+
     // ── LAYER 1: Build injected context blocks ──────────────────────────────
     let discountContext = "";
     let occupancyContext = occupancyExceeded
@@ -2741,30 +2758,6 @@ Your 10% direct booking discount is already applied! 🎉 For Unit 707 questions
     // Strip trailing punctuation glued to URLs
     reply = reply.replace(/(https?:\/\/[^\s"'<>)]+)[.,!?;:)]+(\ |$)/g, '$1$2');
     reply = reply.replace(/(https?:\/\/[^\s"'<>)]+)[.,!?;:)]+$/, '$1');
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // HALLUCINATED URL FILTER — strips fake booking links GPT invents
-    // Only fires when no real links were intentionally built this turn.
-    // Does NOT touch blog links, review links, availability page links.
-    // ─────────────────────────────────────────────────────────────────────────
-    const intentionallyBuiltLinks =
-      availabilityStatus?.includes("AVAILABLE") ||
-      availabilityStatus?.includes("COMBINED_PARTIAL") ||
-      availabilityStatus?.includes("DISCOUNT_REQUEST") ||
-      availabilityStatus?.includes("COMPETITOR") ||
-      bookingLinksSent;
-
-    if (!intentionallyBuiltLinks) {
-      // Match any destincondogetaways.com URL that looks like a booking link
-      // (contains or_arrival= — that's the fingerprint of a real booking link)
-      const fakeBookingPattern = /https?:\/\/[^\s"'<>)]*destincondogetaways\.com[^\s"'<>)]*or_arrival=[^\s"'<>)]*/gi;
-      const fakeMatches = reply.match(fakeBookingPattern);
-      if (fakeMatches) {
-        console.warn(`🚫 HALLUCINATED BOOKING URL BLOCKED in session ${sessionId}: ${fakeMatches.join(" | ")}`);
-        reply = reply.replace(fakeBookingPattern, "[booking link unavailable — please ask me again and I'll get you the correct link]");
-      }
-    }
-    // ─────────────────────────────────────────────────────────────────────────
 
     // Store openIssues JSON in col G — gate on isMaintenanceReport OR detectedIntent
     // so issues detected by regex always get saved even if GPT said INFO

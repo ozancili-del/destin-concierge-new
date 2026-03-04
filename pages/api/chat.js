@@ -1913,11 +1913,12 @@ Do NOT say great news or over-promise. Be specific about which unit is open vs f
               await logToSheets(sessionId, lastUser, noSplitReply, `${dates.arrival} to ${dates.departure}`, "HOA_VIOLATION", "");
               return res.status(200).json({ reply: noSplitReply, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
             } else {
-              // Already rejected once — guest is saying someone is joining. Ask for the total count.
+              // Already rejected once — guest is saying someone is joining. Ask for exact count.
               availabilityStatus = "HOA_VIOLATION";
-              availabilityContext = `⚠️ HOA SITUATION: Guest originally had ${adultsNum} adult + ${childrenNum} kids. You already explained the HOA rule. Guest is now indicating more adults may join.
-Ask warmly: "That's great — how many adults total will be in your group? Once I have that I can check what options we have for you 😊"
-Do NOT repeat the rejection. Do NOT send any links yet.`;
+              availabilityContext = "";
+              const askCountReply = `Got it! Just to confirm — how many adults total will there be in your group, including yourself? 😊`;
+              await logToSheets(sessionId, lastUser, askCountReply, `${dates.arrival} to ${dates.departure}`, "HOA_VIOLATION", "");
+              return res.status(200).json({ reply: askCountReply, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
             }
           }
 
@@ -1959,7 +1960,7 @@ YOUR JOB: First briefly explain that because of fire code (max 6 per unit), larg
         const link1006hoa = buildLink("1006", dates.arrival, dates.departure, "2", "4");
         availabilityStatus = "HOA_UNCERTAIN";
         availabilityContext = `⚠️ HOA ADULT RATIO: Guest mentioned 1 adult + 4 kids. HOA requires a minimum of 2 adults for 4 children.
-Ask warmly: "Just to confirm — our HOA requires at least 2 adults for a group with 4 kids. Will there be a second adult joining, and if so how many adults total will be in your group? 😊"
+Ask warmly: "Our HOA requires at least 2 adults for a group with 4 kids — will a second adult be joining your group? 😊"
 Do NOT send links yet. Wait for their answer with a number.
 Unit 707: ${avail707hoa === true ? "AVAILABLE" : "BOOKED"} | Unit 1006: ${avail1006hoa === true ? "AVAILABLE" : "BOOKED"}
 Pre-built links for 2 adults + 4 kids (use once guest confirms 2 adults):

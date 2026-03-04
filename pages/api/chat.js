@@ -1930,7 +1930,12 @@ Do NOT say great news or over-promise. Be specific about which unit is open vs f
       const needsTwoCondos = totalGuests > 6 || (hoaViolation && adultsNum === 1 && childrenNum === 5);
       if (needsTwoCondos) {
         // HOA total group check FIRST — ratio must be satisfied before we offer any split
-        if (hoaViolation) {
+        // Exception: if bot already suggested a split and guest is confirming, skip HOA recheck
+        const botAlreadySuggestedSplit = messages.some(m =>
+          m.role === "assistant" && m.content && /unit 707|unit 1006/i.test(m.content)
+        );
+        const guestIsConfirming = /^(yes|yeah|yep|sure|ok|okay|sounds good|perfect|great|confirmed|confirm|that works|go ahead|let's do it|lets do it|i would love|love that|book it|let's book|lets book)[\s!.]*$/i.test(lastUser.trim());
+        if (hoaViolation && !(botAlreadySuggestedSplit && guestIsConfirming)) {
           availabilityStatus = "HOA_VIOLATION";
           availabilityContext = "";
           const noSplitReply = `Our HOA requires at least 1 adult for every 3 children — with ${childrenNum} kids, you'd need a minimum of ${Math.ceil(childrenNum / 3)} adults in your group. With just ${adultsNum} adult${adultsNum !== 1 ? "s" : ""}, we're not able to accommodate this arrangement even across both of our units. If another adult is able to join your trip, I'd love to help you get booked — just reach out and we'll sort it out! 😊`;

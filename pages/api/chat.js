@@ -1104,9 +1104,7 @@ export default async function handler(req, res) {
     const bookingLinksSentRaw = messages.some(m => m.role === "assistant" && m.content && m.content.includes("pelican-beach-resort-unit-"));
     // Date adjustments always need fresh links with new dates — treat as if links not yet sent
     const isDateAdjustEarly = detectDateAdjustment(lastUser);
-    // Group composition changes need fresh links too
-    const isGuestCountChange = /\b(not coming|won't be coming|can't make it|cannot make it|joining|joining us|coming also|coming too|joining also|joining too|instead|replacing|bringing|added|adding|plus|one more|another adult|another person)\b/i.test(lastUser);
-    const bookingLinksSent = bookingLinksSentRaw && !isDateAdjustEarly && !isGuestCountChange;
+    const bookingLinksSent = bookingLinksSentRaw && !isDateAdjustEarly;
 
     // ── UPDATE REQUEST DETECTION ─────────────────────────────────────────────
     const isAskingForUpdate = /any update|any news|heard.*back|what.*happening|what.*status|still waiting|waiting.*hear|did.*ozan|ozan.*call|ozan.*reach|ozan.*contact|ozan.*back|anything.*ozan|update.*ticket|ticket.*update|fix.*yet|fixed.*yet|someone.*coming|when.*coming|how long|anything yet|anyting|annything|let me know.*hear|hear.*anything|you hear|heard anything|still there|still nothing|no response|no word|any word|update me|keep me|following up/i.test(lastUser);
@@ -1271,51 +1269,14 @@ export default async function handler(req, res) {
     const confirmationDates = isSimpleConfirmation && botProposedDates ? botProposedDates : null;
     // Override dates with confirmation if guest said yes/ok to a proposed date shift
     if (confirmationDates) { if (!dates) dates = {}; dates.arrival = confirmationDates.arrival; dates.departure = confirmationDates.departure; }
-    // detect "my husband/wife/partner/spouse is coming" as +1 adult signal
-    const spousePattern = /\b(husband|wife|spouse|partner|boyfriend|girlfriend|fiance|fiancee|significant other)\b/i;
-    const spouseMentioned = spousePattern.test(allUserText);
-    const adultsMatchOuter = normalizeGuestCount(normalizedLastUser).match(/(\d+)\s*adult/i) || normalizedUserText.match(/(\d+)\s*adult/i) || (bareNumberReply ? normalizedLastUser.match(/(\d+)/) : null) || (historicBareCount ? [null, historicBareCount] : null) || (spouseMentioned ? [null, "2"] : null);
+    const adultsMatchOuter = normalizeGuestCount(normalizedLastUser).match(/(\d+)\s*adult/i) || normalizedUserText.match(/(\d+)\s*adult/i) || (bareNumberReply ? normalizedLastUser.match(/(\d+)/) : null) || (historicBareCount ? [null, historicBareCount] : null);
     const childrenMatchOuter = lastUser.match(/(\d+)\s*(kid|child|children|infant|baby|toddler)/i) || allUserText.match(/(\d+)\s*(kid|child|children|infant|baby|toddler)/i);
     // For existing guests, fall back to their booking's guest count if not specified in message
-    const adults = adultsMatchOuter ? adultsMatchOuter[1] : (guestBooking ? String(guestBooking.adults || 2) : (childrenMatchOuter ? "1" : "2"));
+    const adults = adultsMatchOuter ? adultsMatchOuter[1] : (guestBooking ? String(guestBooking.adults || 2) : "2");
     const children = childrenMatchOuter ? childrenMatchOuter[1] : (guestBooking ? String(guestBooking.children || 0) : "0");
-
-    // ── OCCUPANCY GUARD ──────────────────────────────────────────────────────
-    const totalGuestsCalc = parseInt(adults) + parseInt(children);
-    const numAdults = parseInt(adults);
-    const numChildren = parseInt(children);
-    const requiredAdults = Math.ceil(numChildren / 3);
-    const occupancyExceeded = totalGuestsCalc > 6;
-    const hoaViolation = numChildren > 0 && numAdults < requiredAdults && totalGuestsCalc <= 6;
-    // uncertain: only "me and 4 kids" — could be valid if second adult joins (2+4=6). 5 kids = no valid path.
-    const occupancyUncertain = !adultsMatchOuter && childrenMatchOuter && numChildren === 4;
-
-    // ── EARLY RETURN: OCCUPANCY EXCEEDED — bypass GPT entirely ──────────────
-    // If we know for certain total > 6, return immediately. No GPT call.
-    // This is the only 100% reliable fix — GPT cannot override a JS return.
-    if (occupancyExceeded && !occupancyUncertain) {
-      const hardReject = `Unfortunately our units have a strict maximum of 6 guests total due to fire code — we wouldn't be able to accommodate a group of ${totalGuestsCalc}. 😔 If your group size changes, I'd love to help you find the perfect unit!`;
-      await logToSheets(sessionId, lastUser, hardReject, dates ? `${dates.arrival} to ${dates.departure}` : "", "OCCUPANCY_EXCEEDED", "");
-      return res.status(200).json({ reply: hardReject, alertSent: false, pendingRelay: false, ozanAcked: false, ozanAckType: null, detectedIntent: "INFO" });
-    }
-
-    // ── EARLY RETURN: HOA VIOLATION (explicit, not uncertain) ───────────────
-    if (hoaViolation && !occupancyUncertain) {
-      const hoaReject = `Our HOA requires at least 1 adult per 3 children — with ${numChildren} kids, we'd need at least ${requiredAdults} adults in the group. Unfortunately we wouldn't be able to accommodate this group under those conditions. 😊 If your plans change, feel free to reach out!`;
-      await logToSheets(sessionId, lastUser, hoaReject, dates ? `${dates.arrival} to ${dates.departure}` : "", "HOA_VIOLATION", "");
-      return res.status(200).json({ reply: hoaReject, alertSent: false, pendingRelay: false, ozanAcked: false, ozanAckType: null, detectedIntent: "INFO" });
-    }
-    // ────────────────────────────────────────────────────────────────────────
 
     // ── LAYER 1: Build injected context blocks ──────────────────────────────
     let discountContext = "";
-    let occupancyContext = occupancyExceeded
-      ? `🚨🚨🚨 OCCUPANCY EXCEEDED — HARD STOP: ${totalGuestsCalc} guests exceeds the absolute maximum of 6 (fire code — zero exceptions, no overrides). DO NOT build ANY booking links. DO NOT send ANY URLs. DO NOT say "you're all set" or any positive opener. Go straight to the bad news: "Unfortunately our units have a strict maximum of 6 guests total due to fire code — we wouldn't be able to accommodate a group of ${totalGuestsCalc}. 😊" STOP. No links. No workarounds.`
-      : occupancyUncertain
-      ? `⚠️ HOA ADULT CONFIRMATION NEEDED: Guest mentioned ${numChildren} kids but didn't specify how many adults. With ${numChildren} kids, our HOA requires at least ${requiredAdults} adults. Before building any booking links, ask: "Just to make sure we're set up correctly — our HOA requires at least 1 adult per 3 children. With ${numChildren} kids, we'd need ${requiredAdults} adults in the group. Will there be a second adult joining? 😊"`
-      : hoaViolation
-      ? `🚨 HOA VIOLATION: Guest has ${numChildren} children but only ${numAdults} adult(s). Our HOA requires 1 adult per 3 children (minimum ${requiredAdults} adult(s) for ${numChildren} kids). DO NOT build booking links. Politely explain: "Our HOA requires at least 1 adult per 3 children — with ${numChildren} kids, we'd need at least ${requiredAdults} adults in the group. Unfortunately we wouldn't be able to accommodate this group under those conditions. 😊"`
-      : `✅ GUEST COUNT CONFIRMED: ${numAdults} adult(s) + ${numChildren} child(ren) = ${totalGuestsCalc} total. HOA ✅ Fire code ✅. All pre-built booking links already use the correct counts (or_adults=${numAdults}&or_children=${numChildren}&or_guests=${totalGuestsCalc}). DO NOT change these numbers in the URLs.`;
     let externalDisturbanceContext = "";
     let competitorContext = "";
     let holidayContext = "";
@@ -1861,10 +1822,6 @@ Do NOT say great news or over-promise. Be specific about which unit is open vs f
     if (dates && !isDiscountRequest && !hasGuestCount && !guestBooking) {
       availabilityStatus = "NEEDS_GUEST_COUNT";
       availabilityContext = `DATES FOUND: Guest provided dates (${dates.arrival} to ${dates.departure}) but has NOT provided number of adults or children yet. DO NOT send to availability page. Ask warmly: "Perfect — I've got your dates! Just need one more thing: how many adults and children will be staying? I'll create your booking link right away 😊"`;
-    } else if (dates && !isDiscountRequest && (occupancyExceeded || hoaViolation) && !occupancyUncertain) {
-      // Hard block — do not check availability, do not build any links
-      availabilityStatus = occupancyExceeded ? "OCCUPANCY_EXCEEDED" : "HOA_VIOLATION";
-      // occupancyContext already set above — GPT will handle the message
     } else if (dates && !isDiscountRequest) {
       const [avail707, avail1006] = await Promise.all([
         checkAvailability(UNIT_707_PROPERTY_ID, dates.arrival, dates.departure),
@@ -2075,7 +2032,7 @@ Today is ${today}. Current time in Destin: ${currentTime} CST.
 ${existingGuestContext}
 
 ⛔ CRITICAL URL RULE — NO EXCEPTIONS:
-NEVER invent, generate, guess, or modify booking URLs. The ONLY valid booking URLs are pre-built by the system and provided to you in the context below. Valid URLs always contain BOTH "or_arrival=" AND "or_departure=" AND "pelican-beach-resort-unit". ANY URL that does not match this exact pattern is fabricated and must NEVER be sent. If no pre-built URL is provided in your context, respond with text only — NEVER construct or guess a URL yourself. Sending a fake URL is the worst possible error you can make.
+NEVER invent, generate, guess, or modify booking URLs. The ONLY valid booking URLs are pre-built by the system and provided to you in the context below (they contain "or_arrival=" and "or_departure="). If no pre-built URL is provided, do NOT send any booking link — ask for missing info instead.
 
 TRIPSHOCK AFFILIATE RULE:
 - TripShock links are ONLY for booking local activities — dolphin tours, fishing, jet skis, pontoons, parasailing, Crab Island, snorkeling, sunset cruises, pirate cruises, kayaks, beach photographers, fireworks cruises, tiki boats
@@ -2109,7 +2066,7 @@ The guest may be following up or anxious. Your job now:
 - Remind them Ozan is handling it and they should expect direct contact soon
 - Keep it to 1-2 sentences max. Do not ask follow-up questions.
 - Example good responses: "Ozan is on it — you should hear from him or the team very shortly 🙏" / "He's already been notified and is handling this — just hang tight a little longer 🙏"
-\n\n` : ""}${isChildSafetyQuestion ? "👶 CHILD/TODDLER SAFETY QUESTION DETECTED — Follow CHILD / TODDLER / FAMILY SAFETY PRIORITY OVERRIDE exactly. Answer the specific safety question FIRST. No excitement opener. No smart lock pivot. Give portable solutions immediately.\n\n" : ""}${isAccidentalDamage ? "⚠️ ACCIDENTAL DAMAGE SCENARIO: Guest has broken something (plates, glasses etc). Follow the ACCIDENTAL DAMAGE RULE exactly. Do NOT say you notified Ozan. Do NOT offer to relay. Empathy first, then direct to Ozan at (972) 357-4262.\n\n" : ""}${alertWasFired ? "🚨 ALERT SENT THIS SESSION: An emergency Discord alert was automatically sent to Ozan during this conversation. If guest asks if you contacted Ozan or sent a message — say YES, an urgent alert was already sent to him. Do not say you will send it — it is already done.\n\n" : ""}${bookingLinksContext ? bookingLinksContext + "\n\n" : ""}${petsContext ? petsContext + "\n\n" : ""}${holidayContext ? holidayContext + "\n\n" : ""}${dateAdjustContext ? dateAdjustContext + "\n\n" : ""}${competitorContext ? competitorContext + "\n\n" : ""}${conciergePageContext}${occupancyContext ? occupancyContext + "\n\n" : ""}${discountContext ? discountContext + "\n\n" : ""}${externalDisturbanceContext ? externalDisturbanceContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
+\n\n` : ""}${isChildSafetyQuestion ? "👶 CHILD/TODDLER SAFETY QUESTION DETECTED — Follow CHILD / TODDLER / FAMILY SAFETY PRIORITY OVERRIDE exactly. Answer the specific safety question FIRST. No excitement opener. No smart lock pivot. Give portable solutions immediately.\n\n" : ""}${isAccidentalDamage ? "⚠️ ACCIDENTAL DAMAGE SCENARIO: Guest has broken something (plates, glasses etc). Follow the ACCIDENTAL DAMAGE RULE exactly. Do NOT say you notified Ozan. Do NOT offer to relay. Empathy first, then direct to Ozan at (972) 357-4262.\n\n" : ""}${alertWasFired ? "🚨 ALERT SENT THIS SESSION: An emergency Discord alert was automatically sent to Ozan during this conversation. If guest asks if you contacted Ozan or sent a message — say YES, an urgent alert was already sent to him. Do not say you will send it — it is already done.\n\n" : ""}${bookingLinksContext ? bookingLinksContext + "\n\n" : ""}${petsContext ? petsContext + "\n\n" : ""}${holidayContext ? holidayContext + "\n\n" : ""}${dateAdjustContext ? dateAdjustContext + "\n\n" : ""}${competitorContext ? competitorContext + "\n\n" : ""}${conciergePageContext}${discountContext ? discountContext + "\n\n" : ""}${externalDisturbanceContext ? externalDisturbanceContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PROPERTIES

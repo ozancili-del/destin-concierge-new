@@ -2742,6 +2742,30 @@ Your 10% direct booking discount is already applied! 🎉 For Unit 707 questions
     reply = reply.replace(/(https?:\/\/[^\s"'<>)]+)[.,!?;:)]+(\ |$)/g, '$1$2');
     reply = reply.replace(/(https?:\/\/[^\s"'<>)]+)[.,!?;:)]+$/, '$1');
 
+    // ─────────────────────────────────────────────────────────────────────────
+    // HALLUCINATED URL FILTER — strips fake booking links GPT invents
+    // Only fires when no real links were intentionally built this turn.
+    // Does NOT touch blog links, review links, availability page links.
+    // ─────────────────────────────────────────────────────────────────────────
+    const intentionallyBuiltLinks =
+      availabilityStatus?.includes("AVAILABLE") ||
+      availabilityStatus?.includes("COMBINED_PARTIAL") ||
+      availabilityStatus?.includes("DISCOUNT_REQUEST") ||
+      availabilityStatus?.includes("COMPETITOR") ||
+      bookingLinksSent;
+
+    if (!intentionallyBuiltLinks) {
+      // Match any destincondogetaways.com URL that looks like a booking link
+      // (contains or_arrival= — that's the fingerprint of a real booking link)
+      const fakeBookingPattern = /https?:\/\/[^\s"'<>)]*destincondogetaways\.com[^\s"'<>)]*or_arrival=[^\s"'<>)]*/gi;
+      const fakeMatches = reply.match(fakeBookingPattern);
+      if (fakeMatches) {
+        console.warn(`🚫 HALLUCINATED BOOKING URL BLOCKED in session ${sessionId}: ${fakeMatches.join(" | ")}`);
+        reply = reply.replace(fakeBookingPattern, "[booking link unavailable — please ask me again and I'll get you the correct link]");
+      }
+    }
+    // ─────────────────────────────────────────────────────────────────────────
+
     // Store openIssues JSON in col G — gate on isMaintenanceReport OR detectedIntent
     // so issues detected by regex always get saved even if GPT said INFO
     let finalAlertSummary = alertSummary;

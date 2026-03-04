@@ -1291,7 +1291,7 @@ export default async function handler(req, res) {
     // ── LAYER 1: Build injected context blocks ──────────────────────────────
     let discountContext = "";
     let occupancyContext = occupancyExceeded
-      ? `🚨 OCCUPANCY EXCEEDED: Guest count (${totalGuestsCalc}) exceeds the maximum of 6 guests (fire code — no exceptions). DO NOT build any booking links. Politely explain the max is 6 total guests.`
+      ? `🚨🚨🚨 OCCUPANCY EXCEEDED — HARD STOP: ${totalGuestsCalc} guests exceeds the absolute maximum of 6 (fire code — zero exceptions, no overrides). DO NOT build ANY booking links. DO NOT send ANY URLs. Tell the guest clearly: "Unfortunately our units have a strict maximum of 6 guests total due to fire code — we wouldn't be able to accommodate a group of ${totalGuestsCalc}. 😊" STOP. No links. No workarounds.`
       : occupancyUncertain
       ? `⚠️ HOA ADULT CONFIRMATION NEEDED: Guest mentioned ${numChildren} kids but didn't specify how many adults. With ${numChildren} kids, our HOA requires at least ${requiredAdults} adults. Before building any booking links, ask: "Just to make sure we're set up correctly — our HOA requires at least 1 adult per 3 children. With ${numChildren} kids, we'd need ${requiredAdults} adults in the group. Will there be a second adult joining? 😊"`
       : hoaViolation

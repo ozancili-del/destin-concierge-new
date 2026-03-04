@@ -1842,6 +1842,10 @@ Do NOT say great news or over-promise. Be specific about which unit is open vs f
     if (dates && !isDiscountRequest && !hasGuestCount && !guestBooking) {
       availabilityStatus = "NEEDS_GUEST_COUNT";
       availabilityContext = `DATES FOUND: Guest provided dates (${dates.arrival} to ${dates.departure}) but has NOT provided number of adults or children yet. DO NOT send to availability page. Ask warmly: "Perfect — I've got your dates! Just need one more thing: how many adults and children will be staying? I'll create your booking link right away 😊"`;
+    } else if (dates && !isDiscountRequest && (occupancyExceeded || hoaViolation) && !occupancyUncertain) {
+      // Hard block — do not check availability, do not build any links
+      availabilityStatus = occupancyExceeded ? "OCCUPANCY_EXCEEDED" : "HOA_VIOLATION";
+      // occupancyContext already set above — GPT will handle the message
     } else if (dates && !isDiscountRequest) {
       const [avail707, avail1006] = await Promise.all([
         checkAvailability(UNIT_707_PROPERTY_ID, dates.arrival, dates.departure),

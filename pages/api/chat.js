@@ -1299,7 +1299,7 @@ export default async function handler(req, res) {
           method: "POST",
           headers: { "Content-Type": "application/json", "Authorization": `Bearer ${process.env.OPENAI_API_KEY}` },
           body: JSON.stringify({
-            model: "gpt-4o-mini",
+            model: "gpt-4o",
             max_tokens: 50,
             temperature: 0.2,
             messages: [{

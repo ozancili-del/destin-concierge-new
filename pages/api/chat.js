@@ -1104,7 +1104,9 @@ export default async function handler(req, res) {
     const bookingLinksSentRaw = messages.some(m => m.role === "assistant" && m.content && m.content.includes("pelican-beach-resort-unit-"));
     // Date adjustments always need fresh links with new dates — treat as if links not yet sent
     const isDateAdjustEarly = detectDateAdjustment(lastUser);
-    const bookingLinksSent = bookingLinksSentRaw && !isDateAdjustEarly;
+    // Group composition changes need fresh links too
+    const isGuestCountChange = /\b(not coming|won't be coming|can't make it|cannot make it|joining|joining us|coming also|coming too|joining also|joining too|instead|replacing|bringing|added|adding|plus|one more|another adult|another person)\b/i.test(lastUser);
+    const bookingLinksSent = bookingLinksSentRaw && !isDateAdjustEarly && !isGuestCountChange;
 
     // ── UPDATE REQUEST DETECTION ─────────────────────────────────────────────
     const isAskingForUpdate = /any update|any news|heard.*back|what.*happening|what.*status|still waiting|waiting.*hear|did.*ozan|ozan.*call|ozan.*reach|ozan.*contact|ozan.*back|anything.*ozan|update.*ticket|ticket.*update|fix.*yet|fixed.*yet|someone.*coming|when.*coming|how long|anything yet|anyting|annything|let me know.*hear|hear.*anything|you hear|heard anything|still there|still nothing|no response|no word|any word|update me|keep me|following up/i.test(lastUser);

@@ -1300,8 +1300,8 @@ export default async function handler(req, res) {
           headers: { "Content-Type": "application/json", "Authorization": `Bearer ${process.env.OPENAI_API_KEY}` },
           body: JSON.stringify({
             model: "gpt-4o-mini",
-            max_tokens: 10,
-            temperature: 0,
+            max_tokens: 50,
+            temperature: 0.2,
             messages: [{
               role: "system",
               content: `A vacation rental guest originally stated their group has 1 adult and ${children} children. They are now describing additional people joining. Count ONLY the additional adults they mention — do not count the original 1 adult.
@@ -1321,10 +1321,11 @@ Examples:
           })
         });
         const miniData = await miniRes.json();
-        const miniCount = parseInt(miniData.choices?.[0]?.message?.content?.trim(), 10);
+        const miniText = miniData.choices?.[0]?.message?.content?.trim() || "";
+        const miniCount = parseInt(miniText.match(/\d+/)?.[0], 10);
         if (!isNaN(miniCount) && miniCount >= 0 && miniCount <= 11) {
-          adults = String(miniCount + 1); // +1 for the original person
-          console.log(`[MINI] Additional adults: ${miniCount}, total: ${miniCount + 1}`);
+          adults = String(miniCount + 1);
+          console.log(`[MINI] Raw: "${miniText}" → additional: ${miniCount}, total: ${miniCount + 1}`);
         }
       } catch (e) {
         console.error("[MINI] Failed:", e.message);

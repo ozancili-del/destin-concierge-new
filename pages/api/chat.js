@@ -1287,10 +1287,14 @@ export default async function handler(req, res) {
       /how many adults total|HOA requires|adults total will be|we're not able to accommodate/i.test(m.content)
     );
     if (botPreviouslyAskedHOA && parseInt(adults, 10) === 1) {
+      // First check for refusal — no need for mini
+      const isRefusal = /\bno\b|nope|just me|only me|only (one|1)|won't|wont|not going to|nobody|no one|no adult/i.test(lastUser);
+      if (isRefusal) {
+        const declineReply = `No worries at all! Unfortunately without additional adults we wouldn't be able to accommodate the group due to our HOA rules. If plans change, feel free to reach out — we'd love to have you! 😊`;
+        await logToSheets(sessionId, lastUser, declineReply, dates ? `${dates.arrival} to ${dates.departure}` : "", "HOA_VIOLATION", "");
+        return res.status(200).json({ reply: declineReply, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
+      }
       try {
-        const hoaQuestionIdx = messages.reduce((last, m, i) =>
-          m.role === "assistant" && m.content && /how many adults total|HOA requires|adults total will be|we're not able to accommodate/i.test(m.content) ? i : last, -1);
-        const conversationAfterHOA = messages.slice(hoaQuestionIdx).map(m => `${m.role}: ${m.content}`).join("\n");
         const miniRes = await fetch("https://api.openai.com/v1/chat/completions", {
           method: "POST",
           headers: { "Content-Type": "application/json", "Authorization": `Bearer ${process.env.OPENAI_API_KEY}` },
@@ -1300,7 +1304,7 @@ export default async function handler(req, res) {
             temperature: 0,
             messages: [{
               role: "system",
-                content: `A vacation rental guest originally stated their group has 1 adult and ${children} children. They are now describing additional people joining. Count ONLY the additional adults they mention — do not count the original 1 adult.
+              content: `A vacation rental guest originally stated their group has 1 adult and ${children} children. They are now describing additional people joining. Count ONLY the additional adults they mention — do not count the original 1 adult.
 Reply with ONLY a single integer. No words, no explanation.
 Examples:
 - "my sister is joining" = 1
@@ -1324,7 +1328,12 @@ Examples:
         }
       } catch (e) {
         console.error("[MINI] Failed:", e.message);
-        // Fall through with adults=1, JS gates handle it
+      }
+      // If mini still returned 0 additional (adults still=1) — ask for explicit count
+      if (parseInt(adults, 10) === 1) {
+        const askReply = `Got it! Just to confirm — how many adults total will there be in your group, including yourself? 😊`;
+        await logToSheets(sessionId, lastUser, askReply, dates ? `${dates.arrival} to ${dates.departure}` : "", "HOA_UNCERTAIN", "");
+        return res.status(200).json({ reply: askReply, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
       }
     }
 

@@ -1330,11 +1330,18 @@ Examples:
       } catch (e) {
         console.error("[MINI] Failed:", e.message);
       }
-      // If mini still returned 0 additional (adults still=1) — ask for explicit count
-      // If 4o returned 0 or adults still too low — ask explicitly
+      // If 4o returned 0 — either refusal or ambiguous like "yes"
+      // "yes" on turn 3 means confirming the split, not setting adult count — let it fall through to GPT
       if (parseInt(adults, 10) <= 1) {
-        await logToSheets(sessionId, lastUser, askReply, dates ? `${dates.arrival} to ${dates.departure}` : "", "HOA_UNCERTAIN", "");
-        return res.status(200).json({ reply: askReply, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
+        const isConfirmation = /^(yes|yeah|yep|sure|ok|okay|sounds good|perfect|great|confirmed|confirm|that works|go ahead|let's do it|lets do it)[\s!.]*$/i.test(lastUser.trim());
+        if (isConfirmation) {
+          // Guest is confirming the split — let GPT handle it with existing context
+          // don't intercept, fall through
+        } else {
+          const fallbackAsk = `Got it! Just to confirm — how many adults total will there be in your group, including yourself? 😊`;
+          await logToSheets(sessionId, lastUser, fallbackAsk, dates ? `${dates.arrival} to ${dates.departure}` : "", "HOA_UNCERTAIN", "");
+          return res.status(200).json({ reply: fallbackAsk, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
+        }
       }
     }
 

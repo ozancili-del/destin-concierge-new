@@ -1945,11 +1945,11 @@ YOUR JOB: First briefly explain that because of fire code (max 6 per unit), larg
         const link707hoa  = buildLink("707",  dates.arrival, dates.departure, "2", "4");
         const link1006hoa = buildLink("1006", dates.arrival, dates.departure, "2", "4");
         availabilityStatus = "HOA_UNCERTAIN";
-        availabilityContext = `⚠️ HOA ADULT RATIO: Guest said 1 adult + 4 kids. HOA requires 2 adults minimum for 4 kids.
-IMPORTANT: Ask the guest exactly this: "Just to make sure we're all set — how many adults total will be in your group? 😊"
-Do NOT send links yet. Wait for their answer. Once they confirm 2+ adults, the system will send the correct booking links automatically.
+        availabilityContext = `⚠️ HOA ADULT RATIO: Guest mentioned 1 adult + 4 kids. HOA requires a minimum of 2 adults for 4 children.
+Ask warmly: "Just to confirm — our HOA requires at least 2 adults for a group with 4 kids. Will there be a second adult joining, and if so how many adults total will be in your group? 😊"
+Do NOT send links yet. Wait for their answer with a number.
 Unit 707: ${avail707hoa === true ? "AVAILABLE" : "BOOKED"} | Unit 1006: ${avail1006hoa === true ? "AVAILABLE" : "BOOKED"}
-Pre-built links for 2 adults + 4 kids (system will use these once count confirmed):
+Pre-built links for 2 adults + 4 kids (use once guest confirms 2 adults):
 Unit 707: ${link707hoa}
 Unit 1006: ${link1006hoa}`;
         // Fall through to GPT — do NOT early return

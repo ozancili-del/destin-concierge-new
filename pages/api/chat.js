@@ -1287,13 +1287,22 @@ export default async function handler(req, res) {
       /how many adults total|HOA requires|adults total will be|we're not able to accommodate/i.test(m.content)
     );
     if (botPreviouslyAskedHOA) {
-      // First check for refusal — no need for mini
+      // First check for refusal — no need for 4o
       const isRefusal = /\bno\b|nope|just me|only me|only (one|1)|won't|wont|not going to|nobody|no one|no adult/i.test(lastUser);
       if (isRefusal) {
         const declineReply = `No worries at all! Unfortunately without additional adults we wouldn't be able to accommodate the group due to our HOA rules. If plans change, feel free to reach out — we'd love to have you! 😊`;
         await logToSheets(sessionId, lastUser, declineReply, dates ? `${dates.arrival} to ${dates.departure}` : "", "HOA_VIOLATION", "");
         return res.status(200).json({ reply: declineReply, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
       }
+      // If bot already asked "how many adults total" and guest replied with a bare number — use it directly, skip 4o
+      const botAlreadyAskedCount = messages.some(m =>
+        m.role === "assistant" && m.content && /how many adults total will there be/i.test(m.content)
+      );
+      const bareNumberMatch = lastUser.trim().match(/^(\d+)$/);
+      if (botAlreadyAskedCount && bareNumberMatch) {
+        adults = bareNumberMatch[1];
+        console.log(`[HOA] Guest gave explicit count: ${adults}`);
+      } else {
       // Find original adult count from the message that first triggered the HOA question
       const hoaQuestionIdx = messages.reduce((last, m, i) =>
         m.role === "assistant" && m.content && /HOA requires|we're not able to accommodate/i.test(m.content) ? i : last, -1);
@@ -1336,20 +1345,17 @@ Examples:
       } catch (e) {
         console.error("[MINI] Failed:", e.message);
       }
-      // If 4o returned 0 — either refusal or ambiguous like "yes"
-      // "yes" on turn 3 means confirming the split, not setting adult count — let it fall through to GPT
+      // If 4o returned 0 — either confirmation or ambiguous
       if (parseInt(adults, 10) <= originalAdults) {
         const isConfirmation = /^(yes|yeah|yep|sure|ok|okay|sounds good|perfect|great|confirmed|confirm|that works|go ahead|let's do it|lets do it)[\s!.]*$/i.test(lastUser.trim());
         console.log(`[MINI FALLBACK] adults=${adults} originalAdults=${originalAdults} isConfirmation=${isConfirmation} lastUser="${lastUser.trim()}"`);
-        if (isConfirmation) {
-          // Guest is confirming the split — let GPT handle it with existing context
-          // don't intercept, fall through
-        } else {
+        if (!isConfirmation) {
           const fallbackAsk = `Got it! Just to confirm — how many adults total will there be in your group, including yourself? 😊`;
           await logToSheets(sessionId, lastUser, fallbackAsk, dates ? `${dates.arrival} to ${dates.departure}` : "", "HOA_UNCERTAIN", "");
           return res.status(200).json({ reply: fallbackAsk, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
         }
       }
+      } // close else block from bareNumberMatch check
     }
 
     // ── LAYER 1: Build injected context blocks ──────────────────────────────

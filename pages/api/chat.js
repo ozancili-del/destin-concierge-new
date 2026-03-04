@@ -1104,7 +1104,10 @@ export default async function handler(req, res) {
     const bookingLinksSentRaw = messages.some(m => m.role === "assistant" && m.content && m.content.includes("pelican-beach-resort-unit-"));
     // Date adjustments always need fresh links with new dates — treat as if links not yet sent
     const isDateAdjustEarly = detectDateAdjustment(lastUser);
-    const bookingLinksSent = bookingLinksSentRaw && !isDateAdjustEarly;
+    // Bug 5 fix: group composition changes also need fresh links
+    // Detect add/remove/change of group members in last message
+    const isGuestCountChange = /\b(add|adding|remove|removing|not coming|won't come|wont come|decided not|isn't coming|isnt coming|is coming|also coming|joining|will join|joining us|bringing|not joining|dropping out|changed.*mind.*guest|my (wife|husband|partner|mom|dad|mother|father|girlfriend|boyfriend|friend|kid|child|kids|children|baby|infant|toddler))\b/i.test(lastUser) && !detectDateAdjustment(lastUser);
+    const bookingLinksSent = bookingLinksSentRaw && !isDateAdjustEarly && !isGuestCountChange;
 
     // ── UPDATE REQUEST DETECTION ─────────────────────────────────────────────
     const isAskingForUpdate = /any update|any news|heard.*back|what.*happening|what.*status|still waiting|waiting.*hear|did.*ozan|ozan.*call|ozan.*reach|ozan.*contact|ozan.*back|anything.*ozan|update.*ticket|ticket.*update|fix.*yet|fixed.*yet|someone.*coming|when.*coming|how long|anything yet|anyting|annything|let me know.*hear|hear.*anything|you hear|heard anything|still there|still nothing|no response|no word|any word|update me|keep me|following up/i.test(lastUser);
@@ -1272,7 +1275,9 @@ export default async function handler(req, res) {
     const adultsMatchOuter = normalizeGuestCount(normalizedLastUser).match(/(\d+)\s*adult/i) || normalizedUserText.match(/(\d+)\s*adult/i) || (bareNumberReply ? normalizedLastUser.match(/(\d+)/) : null) || (historicBareCount ? [null, historicBareCount] : null);
     const childrenMatchOuter = lastUser.match(/(\d+)\s*(kid|child|children|infant|baby|toddler)/i) || allUserText.match(/(\d+)\s*(kid|child|children|infant|baby|toddler)/i);
     // For existing guests, fall back to their booking's guest count if not specified in message
-    const adults = adultsMatchOuter ? adultsMatchOuter[1] : (guestBooking ? String(guestBooking.adults || 2) : "2");
+    // Bug 1 fix: when children are mentioned but no adult count stated, default to 1 (the "me")
+    // not 2 — so "me and 4 kids" = 1 adult + 4 kids, correctly triggering HOA check
+    const adults = adultsMatchOuter ? adultsMatchOuter[1] : (guestBooking ? String(guestBooking.adults || 2) : (childrenMatchOuter ? "1" : "2"));
     const children = childrenMatchOuter ? childrenMatchOuter[1] : (guestBooking ? String(guestBooking.children || 0) : "0");
 
     // ── LAYER 1: Build injected context blocks ──────────────────────────────
@@ -1819,6 +1824,50 @@ Do NOT say great news or over-promise. Be specific about which unit is open vs f
     // If dates found but no guest count anywhere in conversation — ask before building link
     const isChildSafetyQuestion = /child|children|\bkid\b|\bkids\b|toddler|\bbaby\b|infant|year.old|little one|safety lock|child lock|baby.?proof|childproof|balcony door|sliding door.*lock|fall risk|safe for kids|railing|\bclimb\b|\bpinch\b/i.test(lastUser);
     // adults/children extracted in outer scope above
+
+    // ── BUG 3 FIX: Hard fire code gate — early return BEFORE checkAvailability ──
+    // Must run before NEEDS_GUEST_COUNT check so totalGuests > 6 is always caught
+    const adultsNum   = parseInt(adults, 10)   || 0;
+    const childrenNum = parseInt(children, 10) || 0;
+    const totalGuests = adultsNum + childrenNum;
+
+    if (dates && hasGuestCount && !guestBooking && !isDiscountRequest && totalGuests > 6) {
+      availabilityStatus = "OCCUPANCY_EXCEEDED";
+      availabilityContext = "";
+      const fireReply = `I'm sorry — our units have a strict maximum of 6 guests total due to fire code regulations, and that applies to everyone regardless of age or sleeping arrangements. A group of ${totalGuests} wouldn't be able to stay in a single unit. If you have any questions, feel free to contact Ozan directly at (972) 357-4262 😊`;
+      await logToSheets(sessionId, lastUser, fireReply, `${dates.arrival} to ${dates.departure}`, "OCCUPANCY_EXCEEDED", "");
+      return res.status(200).json({ reply: fireReply, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
+    }
+
+    // ── BUG 2 FIX: HOA adult-per-child ratio check ──────────────────────────────
+    // Rule: 1 adult required per 3 children (rounded up)
+    // Only applies when we have dates + guest count + children present
+    const requiredAdults = childrenNum > 0 ? Math.ceil(childrenNum / 3) : 0;
+    const hoaViolation   = childrenNum > 0 && adultsNum < requiredAdults;
+    // "me and 4 kids" = 1 adult + 4 kids → requiredAdults=2 → uncertain (adding 1 adult = 6, valid)
+    // "me and 5 kids" = 1 adult + 5 kids → requiredAdults=2 → total would be 7, no valid path → hard reject
+    const hoaUncertain   = hoaViolation && (adultsNum + 1 + childrenNum) <= 6; // adding 1 adult fixes HOA AND stays ≤6
+    const hoaHardReject  = hoaViolation && !hoaUncertain;
+
+    // Only fire HOA check when we have dates and guest count — not for child safety questions
+    if (dates && hasGuestCount && !guestBooking && !isDiscountRequest && hoaViolation) {
+      if (hoaUncertain) {
+        // Soft ask — could be valid if a second adult joins
+        availabilityStatus = "HOA_UNCERTAIN";
+        availabilityContext = "";
+        const hoaAskReply = `Just to make sure we're set up correctly — our HOA requires at least 1 adult per 3 children. With ${childrenNum} kid${childrenNum > 1 ? "s" : ""}, we'd need ${requiredAdults} adult${requiredAdults > 1 ? "s" : ""} in the group. Will there be a second adult joining? 😊`;
+        await logToSheets(sessionId, lastUser, hoaAskReply, `${dates.arrival} to ${dates.departure}`, "HOA_UNCERTAIN", "");
+        return res.status(200).json({ reply: hoaAskReply, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
+      } else {
+        // Hard reject — no valid path exists
+        availabilityStatus = "HOA_VIOLATION";
+        availabilityContext = "";
+        const hoaRejectReply = `Our HOA requires at least 1 adult per 3 children — with ${childrenNum} kid${childrenNum > 1 ? "s" : ""}, we'd need at least ${requiredAdults} adult${requiredAdults > 1 ? "s" : ""} in the group. Unfortunately we wouldn't be able to accommodate this group under those conditions. 😊 If your plans change, feel free to reach out!`;
+        await logToSheets(sessionId, lastUser, hoaRejectReply, `${dates.arrival} to ${dates.departure}`, "HOA_VIOLATION", "");
+        return res.status(200).json({ reply: hoaRejectReply, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
+      }
+    }
+
     if (dates && !isDiscountRequest && !hasGuestCount && !guestBooking) {
       availabilityStatus = "NEEDS_GUEST_COUNT";
       availabilityContext = `DATES FOUND: Guest provided dates (${dates.arrival} to ${dates.departure}) but has NOT provided number of adults or children yet. DO NOT send to availability page. Ask warmly: "Perfect — I've got your dates! Just need one more thing: how many adults and children will be staying? I'll create your booking link right away 😊"`;
@@ -2709,6 +2758,28 @@ Your 10% direct booking discount is already applied! 🎉 For Unit 707 questions
     }
 
     let reply = rawReply;
+
+    // Bug 4 fix: strip hallucinated destincondogetaways.com booking URLs
+    // Real system-built URLs always use the full property slug format:
+    //   /pelican-beach-resort-unit-707-orp5b47b5ax?or_arrival=...
+    //   /pelican-beach-resort-unit-1006-orp5b6450ex?or_arrival=...
+    // GPT hallucinations look like: /booking?unit=707, /instant/book?..., /book?pelican-beach-resort-unit=707
+    // We strip any destincondogetaways.com URL that contains booking params but NOT the real slug pattern
+    const realUrlPattern = /destincondogetaways\.com\/pelican-beach-resort-unit-(707-orp5b47b5ax|1006-orp5b6450ex)\?or_arrival=/;
+    reply = reply.replace(/https?:\/\/(?:www\.)?destincondogetaways\.com\/[^\s"'<>)]+/g, (url) => {
+      // Keep real system-built URLs and all non-booking URLs (blog, availability, etc.)
+      if (realUrlPattern.test(url)) return url;
+      // Keep known safe non-booking URLs
+      if (/destincondogetaways\.com\/(blog|availability|reviews|virtual-tour|aboutus|ai-concierge|destin-live|pelican-beach-resort-unit-707-orp|pelican-beach-resort-unit-1006-orp)/.test(url)) return url;
+      // Strip anything else that looks like a booking attempt
+      if (/\?or_arrival=|\?unit=|\/booking\?|\/instant\/|\/book\?/.test(url)) {
+        console.log(`Bug4 filter stripped hallucinated URL: ${url}`);
+        return "";
+      }
+      return url;
+    });
+    // Clean up any double spaces or orphaned punctuation left by stripped URLs
+    reply = reply.replace(/\s{2,}/g, " ").trim();
 
     // Convert markdown links [text](url) → plain url
     reply = reply.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '$2');

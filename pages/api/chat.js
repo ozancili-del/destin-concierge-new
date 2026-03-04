@@ -1280,23 +1280,51 @@ export default async function handler(req, res) {
     const children = childrenMatchOuter ? childrenMatchOuter[1] : (guestBooking ? String(guestBooking.children || 0) : "0");
 
     // HOA resolution override: if bot previously asked "how many adults total" and guest replied with a number
-    // use that number directly — no guessing from "yes" or names
+    // HOA resolution: if bot previously asked HOA question and adults still parsing as 1
+    // use GPT-4o mini to intelligently count total adults from the conversation
     const botPreviouslyAskedHOA = messages.some(m =>
       m.role === "assistant" && m.content &&
       /how many adults total|HOA requires|adults total will be|we're not able to accommodate/i.test(m.content)
     );
     if (botPreviouslyAskedHOA && parseInt(adults, 10) === 1) {
-      // Scan recent user messages for an explicit adult count after the HOA question
-      const hoaQuestionIdx = messages.reduce((last, m, i) =>
-        m.role === "assistant" && m.content && /how many adults total|HOA requires|adults total will be/i.test(m.content) ? i : last, -1);
-      const repliesAfterHOA = messages.slice(hoaQuestionIdx + 1).filter(m => m.role === "user");
-      for (const reply of repliesAfterHOA) {
-        const normalized = normalizeGuestCount(reply.content);
-        const match = normalized.match(/(\d+)\s*adult/i) || normalized.match(/^(\d+)$/);
-        if (match) {
-          adults = match[1];
-          break;
+      try {
+        const hoaQuestionIdx = messages.reduce((last, m, i) =>
+          m.role === "assistant" && m.content && /how many adults total|HOA requires|adults total will be|we're not able to accommodate/i.test(m.content) ? i : last, -1);
+        const conversationAfterHOA = messages.slice(hoaQuestionIdx).map(m => `${m.role}: ${m.content}`).join("\n");
+        const miniRes = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Authorization": `Bearer ${process.env.OPENAI_API_KEY}` },
+          body: JSON.stringify({
+            model: "gpt-4o-mini",
+            max_tokens: 10,
+            temperature: 0,
+            messages: [{
+              role: "system",
+              content: `You count total adults in a vacation rental group from a conversation. 
+The original guest counts as 1 adult. Count any additional adults they mention joining.
+Reply with ONLY a single integer. No words, no explanation.
+Examples:
+- "my sister is joining" = 2
+- "my mom and husband are coming" = 3  
+- "just me and my partner" = 2
+- "yes we will have 2 adults" = 2
+- "no nobody else" = 1
+- "my mom will join alongside my husband" = 3`
+            }, {
+              role: "user",
+              content: `Original group: 1 adult. Conversation:\n${conversationAfterHOA}\n\nHow many adults total including the original person?`
+            }]
+          })
+        });
+        const miniData = await miniRes.json();
+        const miniCount = parseInt(miniData.choices?.[0]?.message?.content?.trim(), 10);
+        if (!isNaN(miniCount) && miniCount >= 1 && miniCount <= 12) {
+          adults = String(miniCount);
+          console.log(`[MINI] Adult count extracted: ${miniCount}`);
         }
+      } catch (e) {
+        console.error("[MINI] Failed:", e.message);
+        // Fall through with adults=1, JS gates handle it
       }
     }
 

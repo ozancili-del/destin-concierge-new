@@ -1283,7 +1283,7 @@ export default async function handler(req, res) {
     // use that number directly — no guessing from "yes" or names
     const botPreviouslyAskedHOA = messages.some(m =>
       m.role === "assistant" && m.content &&
-      /how many adults total|HOA requires|adults total will be/i.test(m.content)
+      /how many adults total|HOA requires|adults total will be|we're not able to accommodate/i.test(m.content)
     );
     if (botPreviouslyAskedHOA && parseInt(adults, 10) === 1) {
       // Scan recent user messages for an explicit adult count after the HOA question
@@ -1899,13 +1899,26 @@ Do NOT say great news or over-promise. Be specific about which unit is open vs f
           // Pick the most balanced split as the suggestion (minimize difference in group sizes)
           const suggested = validSplits.sort((x, y) => Math.abs((x.a1+x.c1)-(x.a2+x.c2)) - Math.abs((y.a1+y.c1)-(y.a2+y.c2)))[0];
 
-          // No valid split exists — hard reject, don't hand to GPT with empty links
+          // No valid split exists with current adult count
           if (!suggested) {
-            availabilityStatus = "HOA_VIOLATION";
-            availabilityContext = "";
-            const noSplitReply = `Our HOA requires at least 1 adult for every 3 children — with ${childrenNum} kids, you'd need a minimum of ${Math.ceil(childrenNum / 3)} adults in your group. With just ${adultsNum} adult, we're not able to accommodate this arrangement even across both of our units. If another adult is able to join your trip, I'd love to help you get booked — just reach out and we'll sort it out! 😊`;
-            await logToSheets(sessionId, lastUser, noSplitReply, `${dates.arrival} to ${dates.departure}`, "HOA_VIOLATION", "");
-            return res.status(200).json({ reply: noSplitReply, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
+            const alreadyRejected = messages.some(m =>
+              m.role === "assistant" && m.content &&
+              /we're not able to accommodate|how many adults total/i.test(m.content)
+            );
+            if (!alreadyRejected) {
+              // First time — explain and ask for adult count
+              availabilityStatus = "HOA_VIOLATION";
+              availabilityContext = "";
+              const noSplitReply = `Our HOA requires at least 1 adult for every 3 children — with ${childrenNum} kids, you'd need a minimum of ${Math.ceil(childrenNum / 3)} adults in your group. With just ${adultsNum} adult, we're not able to accommodate this arrangement even across both of our units. If another adult is able to join your trip, I'd love to help you get booked — just reach out and we'll sort it out! 😊`;
+              await logToSheets(sessionId, lastUser, noSplitReply, `${dates.arrival} to ${dates.departure}`, "HOA_VIOLATION", "");
+              return res.status(200).json({ reply: noSplitReply, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
+            } else {
+              // Already rejected once — guest is saying someone is joining. Ask for the total count.
+              availabilityStatus = "HOA_VIOLATION";
+              availabilityContext = `⚠️ HOA SITUATION: Guest originally had ${adultsNum} adult + ${childrenNum} kids. You already explained the HOA rule. Guest is now indicating more adults may join.
+Ask warmly: "That's great — how many adults total will be in your group? Once I have that I can check what options we have for you 😊"
+Do NOT repeat the rejection. Do NOT send any links yet.`;
+            }
           }
 
           let splitLinksText = "";

@@ -1298,7 +1298,7 @@ export default async function handler(req, res) {
       const botAlreadyAskedCount = messages.some(m =>
         m.role === "assistant" && m.content && /how many adults total will there be/i.test(m.content)
       );
-      const bareNumberMatch = lastUser.trim().match(/^(\d+)$/);
+      const bareNumberMatch = lastUser.trim().match(/^(\d+)(\s*(adults?|people|of us|total))?[\s!.]*$/i);
       if (botAlreadyAskedCount && bareNumberMatch) {
         adults = bareNumberMatch[1];
         console.log(`[HOA] Guest gave explicit count: ${adults}`);
@@ -1938,8 +1938,8 @@ Do NOT say great news or over-promise. Be specific about which unit is open vs f
         const oneAvail  = avail707tc === true || avail1006tc === true;
         availabilityStatus = "TWO_CONDO_PATH";
         if (bothAvail) {
-          // Pre-calculate all valid splits so GPT just picks one and pastes the links
-          // A valid split: each unit ≤ 6 guests, HOA ratio (1 adult per 3 kids) satisfied in each unit
+          // Valid split: each unit ≤ 6 guests, each unit has ≥ 1 adult
+          // HOA ratio (1 adult per 3 kids) is checked against the TOTAL group only, not per unit
           const validSplits = [];
           for (let a1 = 0; a1 <= adultsNum; a1++) {
             const a2 = adultsNum - a1;
@@ -1948,9 +1948,6 @@ Do NOT say great news or over-promise. Be specific about which unit is open vs f
               if (a1 + c1 > 6 || a2 + c2 > 6) continue; // fire code per unit
               if (a1 + c1 === 0 || a2 + c2 === 0) continue; // both units must have guests
               if (a1 === 0 || a2 === 0) continue; // each unit needs at least 1 adult
-              const hoa1 = c1 === 0 || a1 >= Math.ceil(c1 / 3);
-              const hoa2 = c2 === 0 || a2 >= Math.ceil(c2 / 3);
-              if (!hoa1 || !hoa2) continue; // HOA ratio per unit
               validSplits.push({ a1, c1, a2, c2 });
             }
           }
@@ -1970,13 +1967,24 @@ Do NOT say great news or over-promise. Be specific about which unit is open vs f
               const noSplitReply = `Our HOA requires at least 1 adult for every 3 children — with ${childrenNum} kids, you'd need a minimum of ${Math.ceil(childrenNum / 3)} adults in your group. With just ${adultsNum} adult, we're not able to accommodate this arrangement even across both of our units. If another adult is able to join your trip, I'd love to help you get booked — just reach out and we'll sort it out! 😊`;
               await logToSheets(sessionId, lastUser, noSplitReply, `${dates.arrival} to ${dates.departure}`, "HOA_VIOLATION", "");
               return res.status(200).json({ reply: noSplitReply, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
-            } else {
-              // Already rejected once — guest is saying someone is joining. Ask for exact count.
+            }
+            const alreadyAskedCount = messages.some(m =>
+              m.role === "assistant" && m.content && /how many adults total will there be/i.test(m.content)
+            );
+            if (!alreadyAskedCount) {
+              // Already rejected once — ask for exact count
               availabilityStatus = "HOA_VIOLATION";
               availabilityContext = "";
               const askCountReply = `Got it! Just to confirm — how many adults total will there be in your group, including yourself? 😊`;
               await logToSheets(sessionId, lastUser, askCountReply, `${dates.arrival} to ${dates.departure}`, "HOA_VIOLATION", "");
               return res.status(200).json({ reply: askCountReply, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
+            } else {
+              // Already asked for count AND still no valid split — hard decline
+              availabilityStatus = "HOA_VIOLATION";
+              availabilityContext = "";
+              const hardDecline = `Unfortunately even with ${adultsNum} adults and ${childrenNum} kids, we're not able to find a valid arrangement across our two units that meets both the fire code (max 6 per unit) and HOA supervision requirements. We're so sorry we can't make this work — if your group size or composition changes, please reach out and we'll do our best! 😊`;
+              await logToSheets(sessionId, lastUser, hardDecline, `${dates.arrival} to ${dates.departure}`, "HOA_VIOLATION", "");
+              return res.status(200).json({ reply: hardDecline, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
             }
           }
 
@@ -1992,9 +2000,9 @@ USE THESE EXACT LINKS once guest confirms this split. Do NOT modify them.`;
           }
           const altSplits = validSplits.slice(1, 4).map(s => `${s.a1}A+${s.c1}K / ${s.a2}A+${s.c2}K`).join(", ");
           availabilityContext = `TWO-CONDO OPPORTUNITY: Group of ${totalGuests} (${adultsNum} adult${adultsNum !== 1 ? "s" : ""} + ${childrenNum} child${childrenNum !== 1 ? "ren" : ""}) cannot fit in one unit (max 6, fire code) BUT both units are available for ${dates.arrival} to ${dates.departure}.
-HOA rule: 1 adult per 3 children must be maintained within each unit after split.${splitLinksText}
+HOA rule: each unit must have at least 1 adult.${splitLinksText}
 ${altSplits ? `Other valid splits if guest prefers: ${altSplits}` : ""}
-YOUR JOB: First briefly explain that because of fire code (max 6 per unit), larger groups can book BOTH units simultaneously — same resort, same beach, same amenities, just two separate condos. Then suggest the split warmly. If guest prefers a different arrangement, confirm it's valid (each unit ≤6, HOA ratio). Once guest confirms ANY split — paste the exact pre-built links for THAT split — do NOT change the split, do NOT invent or modify URLs.`;
+YOUR JOB: First briefly explain that because of fire code (max 6 per unit), larger groups can book BOTH units simultaneously — same resort, same beach, same amenities, just two separate condos. Then suggest the split warmly. If guest prefers a different arrangement, confirm it's valid (each unit ≤6, each unit has at least 1 adult). Once guest confirms ANY split — paste the exact pre-built links for THAT split — do NOT change the split, do NOT invent or modify URLs.`;
         } else if (oneAvail) {
           const availUnit = avail707tc === true ? "707" : "1006";
           availabilityContext = `TWO-CONDO OPPORTUNITY: Group of ${totalGuests} needs both units but only Unit ${availUnit} is available for ${dates.arrival} to ${dates.departure}. Unfortunately we cannot split the group as the other unit is booked. Let the guest know warmly and suggest alternative dates if possible.`;

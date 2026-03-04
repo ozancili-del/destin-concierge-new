@@ -1300,20 +1300,19 @@ export default async function handler(req, res) {
             temperature: 0,
             messages: [{
               role: "system",
-              content: `You count how many ADDITIONAL adults are joining a vacation rental group.
-Do NOT count the original person asking — only count new people they mention joining.
+                content: `A vacation rental guest originally stated their group has 1 adult and ${children} children. They are now describing additional people joining. Count ONLY the additional adults they mention — do not count the original 1 adult.
 Reply with ONLY a single integer. No words, no explanation.
 Examples:
 - "my sister is joining" = 1
 - "my mom and husband are coming" = 2
 - "my mom will join alongside my husband" = 2
 - "just me and my partner" = 1
-- "yes we will have 2 adults total" = 1 (2 total minus the original = 1 additional)
+- "yes we will have 2 adults total" = 1
 - "no nobody else" = 0
-- "me and 3 friends" = 3`
+- "3 more friends joining us" = 3`
             }, {
               role: "user",
-              content: `Original group: 1 adult. Conversation:\n${conversationAfterHOA}\n\nHow many ADDITIONAL adults are joining (not counting the original person)?`
+              content: `Guest reply: "${lastUser}"\n\nHow many ADDITIONAL adults are joining (not counting the original 1 adult already in the group)?`
             }]
           })
         });

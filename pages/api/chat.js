@@ -1895,7 +1895,7 @@ Do NOT say great news or over-promise. Be specific about which unit is open vs f
           if (!suggested) {
             availabilityStatus = "HOA_VIOLATION";
             availabilityContext = "";
-            const noSplitReply = `Unfortunately there's no way to split your group of ${totalGuests} across our two units while satisfying the HOA requirement of 1 adult per 3 children. With ${adultsNum} adult${adultsNum !== 1 ? "s" : ""} and ${childrenNum} children, you'd need at least ${Math.ceil(childrenNum / 3)} adults total. If your group composition changes, feel free to reach out! 😊`;
+            const noSplitReply = `Our HOA requires at least 1 adult for every 3 children — with ${childrenNum} kids, you'd need a minimum of ${Math.ceil(childrenNum / 3)} adults in your group. With just ${adultsNum} adult, we're not able to accommodate this arrangement even across both of our units. If another adult is able to join your trip, I'd love to help you get booked — just reach out and we'll sort it out! 😊`;
             await logToSheets(sessionId, lastUser, noSplitReply, `${dates.arrival} to ${dates.departure}`, "HOA_VIOLATION", "");
             return res.status(200).json({ reply: noSplitReply, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
           }
@@ -1914,7 +1914,7 @@ USE THESE EXACT LINKS once guest confirms this split. Do NOT modify them.`;
           availabilityContext = `TWO-CONDO OPPORTUNITY: Group of ${totalGuests} (${adultsNum} adult${adultsNum !== 1 ? "s" : ""} + ${childrenNum} child${childrenNum !== 1 ? "ren" : ""}) cannot fit in one unit (max 6, fire code) BUT both units are available for ${dates.arrival} to ${dates.departure}.
 HOA rule: 1 adult per 3 children must be maintained within each unit after split.${splitLinksText}
 ${altSplits ? `Other valid splits if guest prefers: ${altSplits}` : ""}
-YOUR JOB: Suggest the split above warmly. If guest prefers a different split, confirm it's valid (each unit ≤6, HOA ratio). Once confirmed, paste the exact pre-built links — do NOT invent or modify URLs.`;
+YOUR JOB: First briefly explain that because of fire code (max 6 per unit), larger groups can book BOTH units simultaneously — same resort, same beach, same amenities, just two separate condos. Then suggest the split warmly. If guest prefers a different arrangement, confirm it's valid (each unit ≤6, HOA ratio). Once confirmed, paste the exact pre-built links — do NOT invent or modify URLs.`;
         } else if (oneAvail) {
           const availUnit = avail707tc === true ? "707" : "1006";
           availabilityContext = `TWO-CONDO OPPORTUNITY: Group of ${totalGuests} needs both units but only Unit ${availUnit} is available for ${dates.arrival} to ${dates.departure}. Unfortunately we cannot split the group as the other unit is booked. Let the guest know warmly and suggest alternative dates if possible.`;

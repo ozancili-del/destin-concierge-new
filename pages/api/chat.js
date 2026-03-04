@@ -1286,7 +1286,7 @@ export default async function handler(req, res) {
       m.role === "assistant" && m.content &&
       /how many adults total|HOA requires|adults total will be|we're not able to accommodate/i.test(m.content)
     );
-    if (botPreviouslyAskedHOA && parseInt(adults, 10) === 1) {
+    if (botPreviouslyAskedHOA) {
       // First check for refusal — no need for mini
       const isRefusal = /\bno\b|nope|just me|only me|only (one|1)|won't|wont|not going to|nobody|no one|no adult/i.test(lastUser);
       if (isRefusal) {
@@ -1331,8 +1331,8 @@ Examples:
         console.error("[MINI] Failed:", e.message);
       }
       // If mini still returned 0 additional (adults still=1) — ask for explicit count
-      if (parseInt(adults, 10) === 1) {
-        const askReply = `Got it! Just to confirm — how many adults total will there be in your group, including yourself? 😊`;
+      // If 4o returned 0 or adults still too low — ask explicitly
+      if (parseInt(adults, 10) <= 1) {
         await logToSheets(sessionId, lastUser, askReply, dates ? `${dates.arrival} to ${dates.departure}` : "", "HOA_UNCERTAIN", "");
         return res.status(200).json({ reply: askReply, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
       }

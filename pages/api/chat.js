@@ -1915,7 +1915,7 @@ Availability for ${dates.arrival} to ${dates.departure}: Unit 707: ${avail707hoa
 Pre-built links (for 2 adults + 4 kids — use ONLY after second adult is confirmed):
 Unit 707: ${link707hoa}
 Unit 1006: ${link1006hoa}
-YOUR JOB: Ask warmly if a second adult will be joining. If YES — use the pre-built links above. If NO — explain HOA rule and decline warmly. DO NOT send links until second adult is confirmed.`;
+YOUR JOB: Ask warmly if a second adult will be joining. If YES — the group fits in ONE unit. Send both pre-built links so guest can choose. If NO — explain HOA rule and decline warmly. DO NOT send links until second adult is confirmed. DO NOT suggest splitting across two units.`;
         // Fall through to GPT — do NOT early return
       }
 

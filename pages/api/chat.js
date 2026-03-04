@@ -1929,6 +1929,14 @@ Do NOT say great news or over-promise. Be specific about which unit is open vs f
       // 1+5: HOA needs 2 adults, but 2+5=7 exceeds single unit — only solution is two condos
       const needsTwoCondos = totalGuests > 6 || (hoaViolation && adultsNum === 1 && childrenNum === 5);
       if (needsTwoCondos) {
+        // HOA total group check FIRST — ratio must be satisfied before we offer any split
+        if (hoaViolation) {
+          availabilityStatus = "HOA_VIOLATION";
+          availabilityContext = "";
+          const noSplitReply = `Our HOA requires at least 1 adult for every 3 children — with ${childrenNum} kids, you'd need a minimum of ${Math.ceil(childrenNum / 3)} adults in your group. With just ${adultsNum} adult${adultsNum !== 1 ? "s" : ""}, we're not able to accommodate this arrangement even across both of our units. If another adult is able to join your trip, I'd love to help you get booked — just reach out and we'll sort it out! 😊`;
+          await logToSheets(sessionId, lastUser, noSplitReply, `${dates.arrival} to ${dates.departure}`, "HOA_VIOLATION", "");
+          return res.status(200).json({ reply: noSplitReply, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
+        }
         // Check both units — GPT needs availability to suggest the split
         const [avail707tc, avail1006tc] = await Promise.all([
           checkAvailability(UNIT_707_PROPERTY_ID, dates.arrival, dates.departure),

@@ -1269,7 +1269,10 @@ export default async function handler(req, res) {
     const confirmationDates = isSimpleConfirmation && botProposedDates ? botProposedDates : null;
     // Override dates with confirmation if guest said yes/ok to a proposed date shift
     if (confirmationDates) { if (!dates) dates = {}; dates.arrival = confirmationDates.arrival; dates.departure = confirmationDates.departure; }
-    const adultsMatchOuter = normalizeGuestCount(normalizedLastUser).match(/(\d+)\s*adult/i) || normalizedUserText.match(/(\d+)\s*adult/i) || (bareNumberReply ? normalizedLastUser.match(/(\d+)/) : null) || (historicBareCount ? [null, historicBareCount] : null);
+    // detect "my husband/wife/partner/spouse is coming" as +1 adult signal
+    const spousePattern = /\b(husband|wife|spouse|partner|boyfriend|girlfriend|fiance|fiancee|significant other)\b/i;
+    const spouseMentioned = spousePattern.test(allUserText);
+    const adultsMatchOuter = normalizeGuestCount(normalizedLastUser).match(/(\d+)\s*adult/i) || normalizedUserText.match(/(\d+)\s*adult/i) || (bareNumberReply ? normalizedLastUser.match(/(\d+)/) : null) || (historicBareCount ? [null, historicBareCount] : null) || (spouseMentioned ? [null, "2"] : null);
     const childrenMatchOuter = lastUser.match(/(\d+)\s*(kid|child|children|infant|baby|toddler)/i) || allUserText.match(/(\d+)\s*(kid|child|children|infant|baby|toddler)/i);
     // For existing guests, fall back to their booking's guest count if not specified in message
     const adults = adultsMatchOuter ? adultsMatchOuter[1] : (guestBooking ? String(guestBooking.adults || 2) : (childrenMatchOuter ? "1" : "2"));
@@ -1289,11 +1292,11 @@ export default async function handler(req, res) {
     let discountContext = "";
     let occupancyContext = occupancyExceeded
       ? `🚨 OCCUPANCY EXCEEDED: Guest count (${totalGuestsCalc}) exceeds the maximum of 6 guests (fire code — no exceptions). DO NOT build any booking links. Politely explain the max is 6 total guests.`
-      : hoaViolation
-      ? `🚨 HOA VIOLATION: Guest has ${numChildren} children but only ${numAdults} adult(s). Our HOA requires 1 adult per 3 children (minimum ${requiredAdults} adult(s) for ${numChildren} kids). DO NOT build booking links. Politely explain: "Our HOA requires at least 1 adult per 3 children — with ${numChildren} kids, we'd need at least ${requiredAdults} adults in the group. Unfortunately we wouldn't be able to accommodate this group under those conditions. 😊"`
       : occupancyUncertain
       ? `⚠️ HOA ADULT CONFIRMATION NEEDED: Guest mentioned ${numChildren} kids but didn't specify how many adults. With ${numChildren} kids, our HOA requires at least ${requiredAdults} adults. Before building any booking links, ask: "Just to make sure we're set up correctly — our HOA requires at least 1 adult per 3 children. With ${numChildren} kids, we'd need ${requiredAdults} adults in the group. Will there be a second adult joining? 😊"`
-      : "";
+      : hoaViolation
+      ? `🚨 HOA VIOLATION: Guest has ${numChildren} children but only ${numAdults} adult(s). Our HOA requires 1 adult per 3 children (minimum ${requiredAdults} adult(s) for ${numChildren} kids). DO NOT build booking links. Politely explain: "Our HOA requires at least 1 adult per 3 children — with ${numChildren} kids, we'd need at least ${requiredAdults} adults in the group. Unfortunately we wouldn't be able to accommodate this group under those conditions. 😊"`
+      : `✅ GUEST COUNT CONFIRMED: ${numAdults} adult(s) + ${numChildren} child(ren) = ${totalGuestsCalc} total. HOA ✅ Fire code ✅. All pre-built booking links already use the correct counts (or_adults=${numAdults}&or_children=${numChildren}&or_guests=${totalGuestsCalc}). DO NOT change these numbers in the URLs.`;
     let externalDisturbanceContext = "";
     let competitorContext = "";
     let holidayContext = "";

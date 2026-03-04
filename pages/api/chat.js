@@ -1277,8 +1277,22 @@ export default async function handler(req, res) {
     // For existing guests, fall back to their booking's guest count if not specified in message
     // Bug 1 fix: when children are mentioned but no adult count stated, default to 1 (the "me")
     // not 2 — so "me and 4 kids" = 1 adult + 4 kids, correctly triggering HOA check
-    const adults = adultsMatchOuter ? adultsMatchOuter[1] : (guestBooking ? String(guestBooking.adults || 2) : (childrenMatchOuter ? "1" : "2"));
+    let adults = adultsMatchOuter ? adultsMatchOuter[1] : (guestBooking ? String(guestBooking.adults || 2) : (childrenMatchOuter ? "1" : "2"));
     const children = childrenMatchOuter ? childrenMatchOuter[1] : (guestBooking ? String(guestBooking.children || 0) : "0");
+
+    // HOA resolution override: if bot previously asked about second adult AND guest confirmed one is coming
+    // upgrade adults to 2 so JS builds correct links on all subsequent turns
+    const botPreviouslyAskedHOA = messages.some(m =>
+      m.role === "assistant" && m.content &&
+      /HOA requires|second adult|supervision rules|at least 2 adult|at least two adult/i.test(m.content)
+    );
+    const guestConfirmedSecondAdult = messages.some(m =>
+      m.role === "user" && m.content &&
+      /yes|yeah|yep|sure|ok|okay|my (sister|husband|wife|mom|dad|mother|father|partner|boyfriend|girlfriend|friend|brother|uncle|aunt|colleague|nanny|joining|coming|will come|gonna come)/i.test(m.content)
+    );
+    if (botPreviouslyAskedHOA && guestConfirmedSecondAdult && parseInt(adults) === 1) {
+      adults = "2";
+    }
 
     // ── LAYER 1: Build injected context blocks ──────────────────────────────
     let discountContext = "";
@@ -1901,11 +1915,10 @@ YOUR JOB: Suggest the split above warmly. If guest prefers a different split, co
       }
 
       // HOA uncertain: 1+4 — single unit IS possible if second adult confirmed
-      // JS checks availability, injects context, hands conversation to GPT
-      // BUT only if HOA hasn't already been resolved in this conversation
-      else if (hoaViolation && adultsNum === 1 && childrenNum === 4 && !(
-        messages.some(m => m.role === "assistant" && m.content && /HOA requires|second adult|supervision rules/i.test(m.content)) &&
-        messages.some(m => m.role === "user" && m.content && /yes|yeah|yep|sure|ok|my /i.test(m.content))
+      // JS fires this ONCE — if bot already asked HOA question in this session, never fire again
+      // GPT owns the conversation from that point forward
+      else if (hoaViolation && adultsNum === 1 && childrenNum === 4 && !messages.some(m =>
+        m.role === "assistant" && m.content && /HOA requires|second adult|supervision rules|at least 2 adult|at least two adult/i.test(m.content)
       )) {
         const [avail707hoa, avail1006hoa] = await Promise.all([
           checkAvailability(UNIT_707_PROPERTY_ID, dates.arrival, dates.departure),

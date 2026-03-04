@@ -1902,7 +1902,11 @@ YOUR JOB: Suggest the split above warmly. If guest prefers a different split, co
 
       // HOA uncertain: 1+4 — single unit IS possible if second adult confirmed
       // JS checks availability, injects context, hands conversation to GPT
-      else if (hoaViolation && adultsNum === 1 && childrenNum === 4) {
+      // BUT only if HOA hasn't already been resolved in this conversation
+      else if (hoaViolation && adultsNum === 1 && childrenNum === 4 && !(
+        messages.some(m => m.role === "assistant" && m.content && /HOA requires|second adult|supervision rules/i.test(m.content)) &&
+        messages.some(m => m.role === "user" && m.content && /yes|yeah|yep|sure|ok|my /i.test(m.content))
+      )) {
         const [avail707hoa, avail1006hoa] = await Promise.all([
           checkAvailability(UNIT_707_PROPERTY_ID, dates.arrival, dates.departure),
           checkAvailability(UNIT_1006_PROPERTY_ID, dates.arrival, dates.departure),

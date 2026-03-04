@@ -1165,8 +1165,7 @@ export default async function handler(req, res) {
 
     // Only look back in history for dates on genuine follow-ups
     const rawDates = extractDates(lastUser) || (
-      lastUser.match(/unit|1006|707|that one|both|available|book|price|cost|how much|rate|what is the|adult|kid|child|children|guest|people|person|infant|baby|toddler|discount|dis[a-z]*o[a-z]*nt|deal|cheaper|better price|negotiate|promo|coupon|of us|just me|just us|myself|husband|wife|partner|girlfriend|boyfriend|fiance|solo|alone|traveling alone/i)
-        && !extractSingleDate(lastUser) // don't scan allUserText if lastUser already has a date — trust singleCheckinDate path
+      messages.length > 0 && !extractSingleDate(lastUser)
         ? extractDates(allUserText)
         : null
     );
@@ -1280,18 +1279,25 @@ export default async function handler(req, res) {
     let adults = adultsMatchOuter ? adultsMatchOuter[1] : (guestBooking ? String(guestBooking.adults || 2) : (childrenMatchOuter ? "1" : "2"));
     const children = childrenMatchOuter ? childrenMatchOuter[1] : (guestBooking ? String(guestBooking.children || 0) : "0");
 
-    // HOA resolution override: if bot previously asked about second adult AND guest confirmed one is coming
-    // upgrade adults to 2 so JS builds correct links on all subsequent turns
+    // HOA resolution override: if bot previously asked "how many adults total" and guest replied with a number
+    // use that number directly — no guessing from "yes" or names
     const botPreviouslyAskedHOA = messages.some(m =>
       m.role === "assistant" && m.content &&
-      /HOA requires|second adult|supervision rules|at least 2 adult|at least two adult/i.test(m.content)
+      /how many adults total|HOA requires|adults total will be/i.test(m.content)
     );
-    const guestConfirmedSecondAdult = messages.some(m =>
-      m.role === "user" && m.content &&
-      /yes|yeah|yep|sure|ok|okay|my (sister|husband|wife|mom|dad|mother|father|partner|boyfriend|girlfriend|friend|brother|uncle|aunt|colleague|nanny|joining|coming|will come|gonna come)/i.test(m.content)
-    );
-    if (botPreviouslyAskedHOA && guestConfirmedSecondAdult && parseInt(adults) === 1) {
-      adults = "2";
+    if (botPreviouslyAskedHOA && parseInt(adults, 10) === 1) {
+      // Scan recent user messages for an explicit adult count after the HOA question
+      const hoaQuestionIdx = messages.reduce((last, m, i) =>
+        m.role === "assistant" && m.content && /how many adults total|HOA requires|adults total will be/i.test(m.content) ? i : last, -1);
+      const repliesAfterHOA = messages.slice(hoaQuestionIdx + 1).filter(m => m.role === "user");
+      for (const reply of repliesAfterHOA) {
+        const normalized = normalizeGuestCount(reply.content);
+        const match = normalized.match(/(\d+)\s*adult/i) || normalized.match(/^(\d+)$/);
+        if (match) {
+          adults = match[1];
+          break;
+        }
+      }
     }
 
     // ── LAYER 1: Build injected context blocks ──────────────────────────────
@@ -1939,10 +1945,11 @@ YOUR JOB: First briefly explain that because of fire code (max 6 per unit), larg
         const link707hoa  = buildLink("707",  dates.arrival, dates.departure, "2", "4");
         const link1006hoa = buildLink("1006", dates.arrival, dates.departure, "2", "4");
         availabilityStatus = "HOA_UNCERTAIN";
-        availabilityContext = `⚠️ HOA ADULT RATIO: Guest said 1 adult + 4 kids. HOA requires 2 adults minimum for 4 kids. You already asked about the second adult OR you are about to.
-IMPORTANT: This is a normal SINGLE UNIT booking once a second adult is confirmed. 2 adults + 4 kids = 6 guests = fits in one unit. Do NOT mention splitting or two units.
+        availabilityContext = `⚠️ HOA ADULT RATIO: Guest said 1 adult + 4 kids. HOA requires 2 adults minimum for 4 kids.
+IMPORTANT: Ask the guest exactly this: "Just to make sure we're all set — how many adults total will be in your group? 😊"
+Do NOT send links yet. Wait for their answer. Once they confirm 2+ adults, the system will send the correct booking links automatically.
 Unit 707: ${avail707hoa === true ? "AVAILABLE" : "BOOKED"} | Unit 1006: ${avail1006hoa === true ? "AVAILABLE" : "BOOKED"}
-Once second adult confirmed → send these links (do not modify them):
+Pre-built links for 2 adults + 4 kids (system will use these once count confirmed):
 Unit 707: ${link707hoa}
 Unit 1006: ${link1006hoa}`;
         // Fall through to GPT — do NOT early return

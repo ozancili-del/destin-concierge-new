@@ -1448,7 +1448,7 @@ Unit 1006: ${link1006d}
 
 Reply pattern (keep it tight, friendly, and urgent):
 1) Acknowledge warmly in 1 sentence (vary wording; do NOT repeat the same phrase every time). Example: "Totally fair — rates can vary by unit and week."
-2) Tell them: open the link(s) above and in the Comments/Questions box write a short note that copies THEIR exact wording (e.g., “my friend booked Unit 706 and it’s cheaper”) and include the nightly rate if they have it, then click **Send Inquiry**. (Do NOT mention Marriott unless the guest did.)
+2) Tell them: open the link(s) above and in the Comments/Questions box write a short note about their request, then click **Send Inquiry**. (Do NOT mention Marriott unless the guest did.)
 3) Tell them: "Ozan will personally review your dates and see what he can do."
 4) Reassure: "We’ll do our best."
 
@@ -2504,7 +2504,8 @@ If a guest asks how long the property has been renting, wants to know more about
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 BOOKING & PAYMENTS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-- 10% direct booking discount is automatically applied — no code needed. If a guest asks about a discount code or mentions DESTINY: respond with warmth and a little giggle — something like "Good news — no need to worry about any codes, your 10% direct booking discount is already automatically applied! 🎉 You're welcome 😄" — keep it light, fun, make them feel taken care of. NEVER connect this to TripShock — completely separate.
+- 10% direct booking discount is automatically applied — no code needed. If a guest asks about a discount code or mentions DESTINY: respond with warmth and a little giggle — something like "No need for any codes — your 10% direct booking discount is already automatically applied! 🎉 You're welcome 😄" — keep it light, fun, make them feel taken care of. NEVER connect this to TripShock — completely separate.
+- MONTHLY STAY DISCOUNT: For stays of 28 nights or more between November 1, 2026 and February 28, 2027, a 40% discount is automatically applied at checkout — no code needed. If a guest asks about monthly rates, long stays, or discounts for that period, lead with this enthusiastically but naturally (don't say "Great news" every time).
 - Pricing: direct to booking page — never guess
 - Direct booking saves vs booking platforms (which can charge up to 22% in fees) — NEVER name specific platforms
 - Dynamic pricing: rates vary by demand and season only — NEVER mention decor or floor level as a reason for price difference
@@ -2849,7 +2850,7 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
 
       if (availabilityStatus.includes("707:AVAILABLE") && availabilityStatus.includes("1006:BOOKED")) {
         const link = buildLink("707", dates.arrival, dates.departure, adults, children);
-        bookingReply = `Great news — Unit 707 is available for your dates! 🎉 Unit 1006 is already booked for that period, so grab Unit 707 before it goes too!
+        bookingReply = `Unit 707 is available for your dates! 🎉 Unit 1006 is already booked for that period, so grab Unit 707 before it goes too!
 
 🔗 **Book Unit 707:** ${link}
 
@@ -2857,7 +2858,7 @@ Your 10% direct booking discount is already applied! 🎉 Let me know if you hav
 
       } else if (availabilityStatus.includes("707:BOOKED") && availabilityStatus.includes("1006:AVAILABLE")) {
         const link = buildLink("1006", dates.arrival, dates.departure, adults, children);
-        bookingReply = `Great news — Unit 1006 is available for your dates! 🎉 Unit 707 is already booked for that period, so grab Unit 1006 before it goes too!
+        bookingReply = `Unit 1006 is available for your dates! 🎉 Unit 707 is already booked for that period, so grab Unit 1006 before it goes too!
 
 🔗 **Book Unit 1006:** ${link}
 
@@ -2866,7 +2867,7 @@ Your 10% direct booking discount is already applied! 🎉 Let me know if you hav
       } else if (availabilityStatus.includes("707:AVAILABLE") && availabilityStatus.includes("1006:AVAILABLE")) {
         const link707 = buildLink("707", dates.arrival, dates.departure, adults, children);
         const link1006 = buildLink("1006", dates.arrival, dates.departure, adults, children);
-        bookingReply = `Great news — both units are available for your dates! 🎉
+        bookingReply = `Both units are available for your dates! 🎉
 
 🔗 **Unit 707** (7th floor, Classic Coastal): ${link707}
 🔗 **Unit 1006** (10th floor, Fresh Coastal): ${link1006}

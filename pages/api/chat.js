@@ -1848,6 +1848,8 @@ Do NOT say great news or over-promise. Be specific about which unit is open vs f
     const requiredAdults = childrenNum > 0 ? Math.ceil(childrenNum / 3) : 0;
     const hoaViolation   = childrenNum > 0 && adultsNum < requiredAdults;
 
+    const _adultsNumDbg = parseInt(adults,10)||0, _childrenNumDbg = parseInt(children,10)||0;
+    console.log(`[GATE DEBUG] adults=${adults} children=${children} total=${_adultsNumDbg+_childrenNumDbg} hasGuestCount=${hasGuestCount} hasDates=${!!dates} botAskedHOA=${messages.some(m=>m.role==="assistant"&&m.content&&/HOA requires|second adult|supervision rules/i.test(m.content))} guestConfirmed=${messages.some(m=>m.role==="user"&&m.content&&/yes|yeah|my /i.test(m.content))}`);
     if (dates && hasGuestCount && !guestBooking && !isDiscountRequest) {
 
       // Hard reject: > 12 guests — genuinely cannot accommodate across both units

@@ -2475,7 +2475,7 @@ GUEST FEE: $20/night per guest above 4. Shown at checkout.
 
 CLEANING FEE: Listed separately in booking breakdown — full transparent total shown before confirming.
 
-PAYMENTS: 20% at booking, 80% auto-collected 30 days before arrival — already a built-in 2-payment plan!
+PAYMENTS: 20% at booking, 80% auto-collected 45 days before arrival — already a built-in 2-payment plan!
 
 SECURITY DEPOSIT: $300 held 1 day before arrival, released after departure if no damage.
 

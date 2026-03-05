@@ -2475,13 +2475,13 @@ GUEST FEE: $20/night per guest above 4. Shown at checkout.
 
 CLEANING FEE: Listed separately in booking breakdown — full transparent total shown before confirming.
 
-PAYMENTS: 50% at booking, 50% auto-collected 30 days before arrival — already a built-in 2-payment plan!
+PAYMENTS: 20% at booking, 80% auto-collected 30 days before arrival — already a built-in 2-payment plan!
 
 SECURITY DEPOSIT: $300 held 1 day before arrival, released after departure if no damage.
 
 HURRICANE: If mandatory evacuation officially issued by local authorities during stay → pro-rated refund for unused nights. Travel insurance strongly recommended — available as optional add-on at checkout via OwnerRez. IMPORTANT: Only mention the cancellation/refund policy if the guest specifically asks about it. Do NOT proactively volunteer hurricane cancellation info when a guest simply asks if hurricane season is a concern.
 
-CANCELLATION: 50% refund if cancelled within 48hrs of booking AND 30+ days before check-in. No refund within 30 days.
+CANCELLATION: 20% refund if cancelled within 24hrs of booking, excluding any processing or administrative/managment fees,  AND 45+ days before check-in. No refund within 45 days.
 
 BOOKING TRANSFER: Never confirm or deny if transfers are possible. Just say: "For booking transfers, please contact Ozan directly at (972) 357-4262 — he can assist you with any specific requests. Would you like to explore availability for your preferred dates? 😊"
 

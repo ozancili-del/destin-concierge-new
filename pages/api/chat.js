@@ -8,7 +8,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-const OWNERREZ_USER = "destindreamcondo@gmail.com";
+const OWNERREZ_USER = "ozan@destincondogetaways.com";
 const UNIT_707_PROPERTY_ID = "293722";
 const UNIT_1006_PROPERTY_ID = "410894";
 

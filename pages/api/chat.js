@@ -2830,6 +2830,29 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
         && dates && hasGuestCount && !mentionsPets && !bookingLinksSent && (wantsAvailability || isGuestCountReply || isCheckoutReply || isNightsReply)) {
 
       let bookingReply = null;
+
+      // Rotating openers — pure JS, no GPT, no URL risk
+      const bothAvailOpeners = [
+        "Both units are available for your dates! 🎉",
+        "Great news — both units are wide open for those dates! 🎉",
+        "You're in luck — both units are free! 🎉",
+        "Perfect timing — both units are available! 🎉",
+        "Love those dates — both units are open! 🎉",
+        "Those dates work perfectly — both units are available! 🎉",
+      ];
+      const only707Openers = [
+        "Unit 707 is available for your dates! 🎉",
+        "Great news — Unit 707 is open for those dates! 🎉",
+        "You're in luck — Unit 707 is free! 🎉",
+        "Perfect timing — Unit 707 is available! 🎉",
+      ];
+      const only1006Openers = [
+        "Unit 1006 is available for your dates! 🎉",
+        "Great news — Unit 1006 is open for those dates! 🎉",
+        "You're in luck — Unit 1006 is free! 🎉",
+        "Perfect timing — Unit 1006 is available! 🎉",
+      ];
+      const pick = arr => arr[Math.floor(Math.random() * arr.length)];
       // Detect if guest also asked about activities alongside booking
       const wantsActivityToo = detectTripShockCategory(lastUser) !== null ||
         /activit|thing to do|fun|tour|dolphin|parasail|snorkel|kayak|boat|fishing|water.sport|jet.?ski|pontoon|crab.?island|sunset|pirate/i.test(lastUser);
@@ -2850,7 +2873,7 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
 
       if (availabilityStatus.includes("707:AVAILABLE") && availabilityStatus.includes("1006:BOOKED")) {
         const link = buildLink("707", dates.arrival, dates.departure, adults, children);
-        bookingReply = `Unit 707 is available for your dates! 🎉 Unit 1006 is already booked for that period, so grab Unit 707 before it goes too!
+        bookingReply = `${pick(only707Openers)} Unit 1006 is already booked for that period, so grab Unit 707 before it goes too!
 
 🔗 **Book Unit 707:** ${link}
 
@@ -2858,7 +2881,7 @@ Your 10% direct booking discount is already applied! 🎉 Let me know if you hav
 
       } else if (availabilityStatus.includes("707:BOOKED") && availabilityStatus.includes("1006:AVAILABLE")) {
         const link = buildLink("1006", dates.arrival, dates.departure, adults, children);
-        bookingReply = `Unit 1006 is available for your dates! 🎉 Unit 707 is already booked for that period, so grab Unit 1006 before it goes too!
+        bookingReply = `${pick(only1006Openers)} Unit 707 is already booked for that period, so grab Unit 1006 before it goes too!
 
 🔗 **Book Unit 1006:** ${link}
 
@@ -2867,7 +2890,7 @@ Your 10% direct booking discount is already applied! 🎉 Let me know if you hav
       } else if (availabilityStatus.includes("707:AVAILABLE") && availabilityStatus.includes("1006:AVAILABLE")) {
         const link707 = buildLink("707", dates.arrival, dates.departure, adults, children);
         const link1006 = buildLink("1006", dates.arrival, dates.departure, adults, children);
-        bookingReply = `Both units are available for your dates! 🎉
+        bookingReply = `${pick(bothAvailOpeners)}
 
 🔗 **Unit 707** (7th floor, Classic Coastal): ${link707}
 🔗 **Unit 1006** (10th floor, Fresh Coastal): ${link1006}

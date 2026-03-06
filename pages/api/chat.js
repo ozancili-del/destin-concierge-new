@@ -1206,7 +1206,7 @@ export default async function handler(req, res) {
       );
     }
     const isCompetitorMention = detectCompetitorMention(lastUser);
-    const wantsAvailability = detectAvailabilityIntent(lastUser) || !!popupPriorDates;
+    const wantsAvailability = detectAvailabilityIntent(lastUser);
     // Pets detector — when mentioned, skip booking intercept and let GPT apply no-pets policy
     const mentionsPets = /\d+\s*pets?|\bwith.*pets?\b|\bdogs?\b|\bcats?\b|\bpuppies\b|\bkittens?\b|\bbirds?\b|\bparrots?\b|\brabbits?\b|\bhamsters?\b|\bferrets?\b|\bfish\b|\bsnakes?\b|\bturtles?\b|\banimals?\b|bring.*(?:my|our|the)\s+\w+.*(?:pet|dog|cat|bird|animal)|pet.*friendly|emotional support animal|\besa\b|\bservice animal\b/i.test(allUserText);
 
@@ -1239,7 +1239,7 @@ export default async function handler(req, res) {
 
 
     // Final dates: adjusted > explicit > holiday > null (confirmation may override below after lastBotMsg)
-    let dates = adjustedDates || rawDates || (holidayDates ? { arrival: holidayDates.arrival, departure: holidayDates.departure } : null) || popupPriorDates || null;
+    let dates = adjustedDates || rawDates || (holidayDates ? { arrival: holidayDates.arrival, departure: holidayDates.departure } : null);
 
     // ── CHECKOUT REPLY: bot asked for checkout, guest replied with a single date ──
     // e.g. bot: "when would you like to check out?" → guest: "12th of march" or "the 12th"

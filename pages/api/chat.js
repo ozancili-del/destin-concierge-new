@@ -758,6 +758,40 @@ function buildLink(unit, arrival, departure, adults, children) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Brevo — capture website lead (name + email) from popup flow
+// ─────────────────────────────────────────────────────────────────────────────
+
+async function addBrevoContact(email, firstName) {
+  try {
+    const apiKey = process.env.BREVO_API_KEY;
+    if (!apiKey) { console.warn("BREVO_API_KEY not set"); return false; }
+    const res = await fetch("https://api.brevo.com/v3/contacts", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "api-key": apiKey,
+      },
+      body: JSON.stringify({
+        email,
+        attributes: { FIRSTNAME: firstName || "" },
+        listIds: [5],
+        updateEnabled: true,
+      }),
+    });
+    if (res.status === 201 || res.status === 204) {
+      console.log(`Brevo contact added: ${email}`);
+      return true;
+    }
+    const body = await res.text();
+    console.warn(`Brevo add contact failed: ${res.status} ${body}`);
+    return false;
+  } catch (err) {
+    console.error("Brevo error:", err.message);
+    return false;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Log conversation to Google Sheets
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -1100,6 +1134,22 @@ export default async function handler(req, res) {
 
     const allUserText = messages.filter((m) => m.role === "user").map((m) => m.content).join(" ");
     const allConvoText = [...messages].reverse().map((m) => m.content).join(" ");
+
+    // ── POPUP EMAIL CAPTURE ──────────────────────────────────────────────────
+    // If this is a popup session, scan last user message for a valid email
+    // and fire Brevo in background if found and not already captured this session
+    if (isPopupSource) {
+      const emailMatch = lastUser.match(/\b[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}\b/);
+      if (emailMatch) {
+        const capturedEmail = emailMatch[0];
+        // Extract first name from conversation history — look for name given after "secret door" opener
+        const nameMatch = allUserText.replace(capturedEmail, "").match(/\b([A-Z][a-z]{1,20})\b/);
+        const capturedName = nameMatch ? nameMatch[1] : "";
+        // Fire and forget — don't block response
+        addBrevoContact(capturedEmail, capturedName).catch(e => console.error("Brevo silent fail:", e));
+        console.log(`[POPUP] Email captured: ${capturedEmail} name: ${capturedName}`);
+      }
+    }
     // True if booking links were already sent earlier in this conversation
     const bookingLinksSentRaw = messages.some(m => m.role === "assistant" && m.content && m.content.includes("pelican-beach-resort-unit-"));
     // Date adjustments always need fresh links with new dates — treat as if links not yet sent
@@ -2269,6 +2319,7 @@ WEATHER DATA UNAVAILABLE: Real-time weather could not be fetched. Do NOT guess o
     // ── BUILD SYSTEM PROMPT ─────────────────────────────────────────────────
     // AI Concierge page opening message
     const isConciergePage = pageSource === "ai-concierge";
+    const isPopupSource = pageSource === "popup";
 
     const existingGuestContext = guestBooking ? `
 🏠 EXISTING GUEST — CONCIERGE MODE:
@@ -2287,6 +2338,44 @@ ROUTING RULES FOR THIS GUEST:
 
     const conciergePageContext = isConciergePage ? `
 🌊 CONCIERGE PAGE OPENING: Guest landed on the dedicated AI Concierge page. If this is their first message, open with something that shows off your capabilities — something like: "Hey there! 👋 I'm Destiny Blue — I can check live availability for both units, build you a booking link in seconds, recommend dolphin tours and activities with direct booking links, or connect you straight to Ozan. What can I help you with? 😊" — keep it warm, specific, and show them what you can DO.
+` : "";
+
+    const popupContext = isPopupSource ? `
+🎯 POPUP GUEST FLOW — follow this sequence exactly, do not skip steps:
+
+This guest clicked the popup banner to unlock an extra discount. They came here on purpose. Be playful and warm — like they found a secret.
+
+STEP 1 — First message (or if no name yet in history):
+Open with: "Ah, you found the secret door! 🌊 Who do I have the pleasure of welcoming to Destin today?"
+Wait for their name. Do not ask for anything else yet.
+
+STEP 2 — Name received:
+Address them by name immediately. Then say something like:
+"[Name]! Love that 😊 So here's the thing — you're already getting 10% off automatically. But I can unlock an extra 2% on top of that for you. Want it?"
+Wait for yes/sure/ok before asking for email.
+
+STEP 3 — They say yes:
+Say: "Perfect! Drop your email and it's yours. Fair warning — I might occasionally send you a last-minute deal or winter special. Nothing spammy, just the good stuff 🌊"
+Wait for email.
+
+STEP 4 — Email received:
+Validate it has @ and a domain. If obviously fake (no dot after @, gibberish domain) say warmly: "Hmm that one doesn't look quite right — want to try again? 😊"
+If valid: capture it (system will save to Brevo automatically), then say:
+"You're all set [Name]! 🎉 Use code **BLUE** at checkout for your extra 2% on top of your automatic 10%. Now — got dates in mind? I can check live availability right now 😊"
+
+STEP 5 — They say no to email:
+Say: "No worries at all! Your 10% is still applied automatically 😊 Now what can I help you with — got dates in mind?"
+Do NOT give the BLUE code if they declined email.
+
+STEP 6 — After code is given OR they declined:
+Flow naturally into normal concierge conversation — dates, availability, booking links etc.
+
+CRITICAL RULES FOR POPUP FLOW:
+- NEVER reveal the BLUE code before email is captured
+- NEVER skip asking for name first
+- NEVER be pushy — if they want to skip straight to booking, let them
+- Keep the playful "secret door" energy throughout
+- Once email is captured, treat them like a VIP for the rest of the conversation
 ` : "";
 
     const SYSTEM_PROMPT = `You are Destiny Blue, a warm and caring AI concierge for Destin Condo Getaways.
@@ -2331,7 +2420,7 @@ The guest may be following up or anxious. Your job now:
 - Remind them Ozan is handling it and they should expect direct contact soon
 - Keep it to 1-2 sentences max. Do not ask follow-up questions.
 - Example good responses: "Ozan is on it — you should hear from him or the team very shortly 🙏" / "He's already been notified and is handling this — just hang tight a little longer 🙏"
-\n\n` : ""}${isChildSafetyQuestion ? "👶 CHILD/TODDLER SAFETY QUESTION DETECTED — Follow CHILD / TODDLER / FAMILY SAFETY PRIORITY OVERRIDE exactly. Answer the specific safety question FIRST. No excitement opener. No smart lock pivot. Give portable solutions immediately.\n\n" : ""}${isAccidentalDamage ? "⚠️ ACCIDENTAL DAMAGE SCENARIO: Guest has broken something (plates, glasses etc). Follow the ACCIDENTAL DAMAGE RULE exactly. Do NOT say you notified Ozan. Do NOT offer to relay. Empathy first, then direct to Ozan at (972) 357-4262.\n\n" : ""}${alertWasFired ? "🚨 ALERT SENT THIS SESSION: An emergency Discord alert was automatically sent to Ozan during this conversation. If guest asks if you contacted Ozan or sent a message — say YES, an urgent alert was already sent to him. Do not say you will send it — it is already done.\n\n" : ""}${bookingLinksContext ? bookingLinksContext + "\n\n" : ""}${petsContext ? petsContext + "\n\n" : ""}${holidayContext ? holidayContext + "\n\n" : ""}${dateAdjustContext ? dateAdjustContext + "\n\n" : ""}${competitorContext ? competitorContext + "\n\n" : ""}${conciergePageContext}${discountContext ? discountContext + "\n\n" : ""}${externalDisturbanceContext ? externalDisturbanceContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
+\n\n` : ""}${isChildSafetyQuestion ? "👶 CHILD/TODDLER SAFETY QUESTION DETECTED — Follow CHILD / TODDLER / FAMILY SAFETY PRIORITY OVERRIDE exactly. Answer the specific safety question FIRST. No excitement opener. No smart lock pivot. Give portable solutions immediately.\n\n" : ""}${isAccidentalDamage ? "⚠️ ACCIDENTAL DAMAGE SCENARIO: Guest has broken something (plates, glasses etc). Follow the ACCIDENTAL DAMAGE RULE exactly. Do NOT say you notified Ozan. Do NOT offer to relay. Empathy first, then direct to Ozan at (972) 357-4262.\n\n" : ""}${alertWasFired ? "🚨 ALERT SENT THIS SESSION: An emergency Discord alert was automatically sent to Ozan during this conversation. If guest asks if you contacted Ozan or sent a message — say YES, an urgent alert was already sent to him. Do not say you will send it — it is already done.\n\n" : ""}${bookingLinksContext ? bookingLinksContext + "\n\n" : ""}${petsContext ? petsContext + "\n\n" : ""}${holidayContext ? holidayContext + "\n\n" : ""}${dateAdjustContext ? dateAdjustContext + "\n\n" : ""}${competitorContext ? competitorContext + "\n\n" : ""}${conciergePageContext}${popupContext}${discountContext ? discountContext + "\n\n" : ""}${externalDisturbanceContext ? externalDisturbanceContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PROPERTIES

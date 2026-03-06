@@ -3019,7 +3019,7 @@ Your 10% direct booking discount is already applied! 🎉 For Unit 707 questions
 
       if (bookingReply) {
         // Popup guest: append 5% email offer if email not yet captured
-        if (isPopupSource || sawBanner) {
+        if (isPopupSource || sawBanner || pageSource === "ai-concierge") {
           const emailAlreadyGiven = messages.some(m =>
             m.role === "user" && /\b[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}\b/.test(m.content)
           );

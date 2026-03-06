@@ -1159,7 +1159,10 @@ ${!popupNameCaptured ? "Ask for their name ONLY. Nothing else." : "You have thei
 Stay in the popup flow sequence. The guest can ask about availability after the email is captured.
 ` : "";
 
-    // ── POPUP EMAIL CAPTURE ──────────────────────────────────────────────────
+    const popupEmailJustCaptured = isPopupSource && !popupEmailCaptured &&
+      /\b[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}\b/.test(lastUser);
+    // When email just captured, check if dates were already mentioned — if so, force availability run
+    const popupPriorDates = popupEmailJustCaptured ? (extractDates(allUserText.replace(lastUser,"")) || null) : null;
     // If this is a popup session, scan last user message for a valid email
     // and fire Brevo in background if found and not already captured this session
     if (isPopupSource || sawBanner) {
@@ -1223,7 +1226,7 @@ Stay in the popup flow sequence. The guest can ask about availability after the 
       );
     }
     const isCompetitorMention = detectCompetitorMention(lastUser);
-    const wantsAvailability = detectAvailabilityIntent(lastUser);
+    const wantsAvailability = detectAvailabilityIntent(lastUser) || !!popupPriorDates;
     // Pets detector — when mentioned, skip booking intercept and let GPT apply no-pets policy
     const mentionsPets = /\d+\s*pets?|\bwith.*pets?\b|\bdogs?\b|\bcats?\b|\bpuppies\b|\bkittens?\b|\bbirds?\b|\bparrots?\b|\brabbits?\b|\bhamsters?\b|\bferrets?\b|\bfish\b|\bsnakes?\b|\bturtles?\b|\banimals?\b|bring.*(?:my|our|the)\s+\w+.*(?:pet|dog|cat|bird|animal)|pet.*friendly|emotional support animal|\besa\b|\bservice animal\b/i.test(allUserText);
 
@@ -1256,7 +1259,7 @@ Stay in the popup flow sequence. The guest can ask about availability after the 
 
 
     // Final dates: adjusted > explicit > holiday > null (confirmation may override below after lastBotMsg)
-    let dates = adjustedDates || rawDates || (holidayDates ? { arrival: holidayDates.arrival, departure: holidayDates.departure } : null);
+    let dates = adjustedDates || rawDates || (holidayDates ? { arrival: holidayDates.arrival, departure: holidayDates.departure } : null) || popupPriorDates || null;
 
     // ── CHECKOUT REPLY: bot asked for checkout, guest replied with a single date ──
     // e.g. bot: "when would you like to check out?" → guest: "12th of march" or "the 12th"
@@ -2394,6 +2397,7 @@ STEP 4 — Email received:
 Validate it has @ and a domain. If obviously fake (no dot after @, gibberish domain) say warmly: "Hmm that one doesn't look quite right — want to try again? 😊"
 If valid: capture it (system will save to Brevo automatically), then say:
 "You're all set [Name]! 🎉 Use code **BLUE** at checkout for your extra 5% on top of your automatic 10%. Now — got dates in mind? I can check live availability right now 😊"
+IMPORTANT: If the guest already mentioned dates earlier in this conversation, do NOT ask "got dates in mind?" — instead say "Now, let me pull up availability for [those dates] right now! 😊" and immediately trigger availability for those dates.
 
 STEP 5 — They say no to email:
 Say: "No worries at all! Your 10% is still applied automatically 😊 Now what can I help you with — got dates in mind?"

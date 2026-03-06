@@ -1071,7 +1071,7 @@ export default async function handler(req, res) {
   try {
     // pageSource: frontend bubble should send pageSource: "ai-concierge" when on /ai-concierge page
     // In concierge.js fetch body add: pageSource: window.location.pathname.includes("ai-concierge") ? "ai-concierge" : null
-    const { messages = [], sessionId = null, alertSent: priorAlertSent = false, pendingRelay: priorPendingRelay = false, ozanAcked: priorOzanAcked = false, ozanAckType: priorOzanAckType = null, pageSource = null, guestBid = null, guestBooking = null } = req.body || {};
+    const { messages = [], sessionId = null, alertSent: priorAlertSent = false, pendingRelay: priorPendingRelay = false, ozanAcked: priorOzanAcked = false, ozanAckType: priorOzanAckType = null, pageSource = null, guestBid = null, guestBooking = null, sawBanner = null } = req.body || {};
     const lastUser = [...messages].reverse().find((m) => m.role === "user")?.content || "";
 
     // ── POPUP TRIGGER: Guest clicked "Unlock it" button ───────────────────────
@@ -2327,6 +2327,14 @@ WEATHER DATA UNAVAILABLE: Real-time weather could not be fetched. Do NOT guess o
     // ── BUILD SYSTEM PROMPT ─────────────────────────────────────────────────
     // AI Concierge page opening message
     const isConciergePage = pageSource === "ai-concierge";
+    const sawBannerContext = sawBanner ? `
+🎯 BANNER GUEST — this guest saw the 5% discount banner on the site. If they ask about a discount, extra savings, or mention "5%" or "extra discount" at any point:
+- Confirm yes, there is an extra 5% available
+- Ask for their name first, then their email to unlock it
+- Once email is given → reveal code BLUE
+- NEVER reveal BLUE code before email is captured
+- If they decline email → acknowledge warmly, move on, do NOT give the code
+` : "";
 
     const existingGuestContext = guestBooking ? `
 🏠 EXISTING GUEST — CONCIERGE MODE:
@@ -2358,7 +2366,7 @@ Wait for their name. Do not ask for anything else yet.
 
 STEP 2 — Name received:
 Address them by name immediately. Then say something like:
-"[Name]! Love that 😊 So here's the thing — you're already getting 10% off automatically. But I can unlock an extra 2% on top of that for you. Want it?"
+"[Name]! Love that 😊 So here's the thing — you're already getting 10% off automatically. But I can unlock an extra 5% on top of that for you. Want it?"
 Wait for yes/sure/ok before asking for email.
 
 STEP 3 — They say yes:
@@ -2368,7 +2376,7 @@ Wait for email.
 STEP 4 — Email received:
 Validate it has @ and a domain. If obviously fake (no dot after @, gibberish domain) say warmly: "Hmm that one doesn't look quite right — want to try again? 😊"
 If valid: capture it (system will save to Brevo automatically), then say:
-"You're all set [Name]! 🎉 Use code **BLUE** at checkout for your extra 2% on top of your automatic 10%. Now — got dates in mind? I can check live availability right now 😊"
+"You're all set [Name]! 🎉 Use code **BLUE** at checkout for your extra 5% on top of your automatic 10%. Now — got dates in mind? I can check live availability right now 😊"
 
 STEP 5 — They say no to email:
 Say: "No worries at all! Your 10% is still applied automatically 😊 Now what can I help you with — got dates in mind?"
@@ -2427,7 +2435,7 @@ The guest may be following up or anxious. Your job now:
 - Remind them Ozan is handling it and they should expect direct contact soon
 - Keep it to 1-2 sentences max. Do not ask follow-up questions.
 - Example good responses: "Ozan is on it — you should hear from him or the team very shortly 🙏" / "He's already been notified and is handling this — just hang tight a little longer 🙏"
-\n\n` : ""}${isChildSafetyQuestion ? "👶 CHILD/TODDLER SAFETY QUESTION DETECTED — Follow CHILD / TODDLER / FAMILY SAFETY PRIORITY OVERRIDE exactly. Answer the specific safety question FIRST. No excitement opener. No smart lock pivot. Give portable solutions immediately.\n\n" : ""}${isAccidentalDamage ? "⚠️ ACCIDENTAL DAMAGE SCENARIO: Guest has broken something (plates, glasses etc). Follow the ACCIDENTAL DAMAGE RULE exactly. Do NOT say you notified Ozan. Do NOT offer to relay. Empathy first, then direct to Ozan at (972) 357-4262.\n\n" : ""}${alertWasFired ? "🚨 ALERT SENT THIS SESSION: An emergency Discord alert was automatically sent to Ozan during this conversation. If guest asks if you contacted Ozan or sent a message — say YES, an urgent alert was already sent to him. Do not say you will send it — it is already done.\n\n" : ""}${bookingLinksContext ? bookingLinksContext + "\n\n" : ""}${petsContext ? petsContext + "\n\n" : ""}${holidayContext ? holidayContext + "\n\n" : ""}${dateAdjustContext ? dateAdjustContext + "\n\n" : ""}${competitorContext ? competitorContext + "\n\n" : ""}${conciergePageContext}${popupContext}${discountContext ? discountContext + "\n\n" : ""}${externalDisturbanceContext ? externalDisturbanceContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
+\n\n` : ""}${isChildSafetyQuestion ? "👶 CHILD/TODDLER SAFETY QUESTION DETECTED — Follow CHILD / TODDLER / FAMILY SAFETY PRIORITY OVERRIDE exactly. Answer the specific safety question FIRST. No excitement opener. No smart lock pivot. Give portable solutions immediately.\n\n" : ""}${isAccidentalDamage ? "⚠️ ACCIDENTAL DAMAGE SCENARIO: Guest has broken something (plates, glasses etc). Follow the ACCIDENTAL DAMAGE RULE exactly. Do NOT say you notified Ozan. Do NOT offer to relay. Empathy first, then direct to Ozan at (972) 357-4262.\n\n" : ""}${alertWasFired ? "🚨 ALERT SENT THIS SESSION: An emergency Discord alert was automatically sent to Ozan during this conversation. If guest asks if you contacted Ozan or sent a message — say YES, an urgent alert was already sent to him. Do not say you will send it — it is already done.\n\n" : ""}${bookingLinksContext ? bookingLinksContext + "\n\n" : ""}${petsContext ? petsContext + "\n\n" : ""}${holidayContext ? holidayContext + "\n\n" : ""}${dateAdjustContext ? dateAdjustContext + "\n\n" : ""}${competitorContext ? competitorContext + "\n\n" : ""}${conciergePageContext}${sawBannerContext}${popupContext}${discountContext ? discountContext + "\n\n" : ""}${externalDisturbanceContext ? externalDisturbanceContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PROPERTIES

@@ -1143,26 +1143,6 @@ export default async function handler(req, res) {
     const allConvoText = [...messages].reverse().map((m) => m.content).join(" ");
     const isPopupSource = pageSource === "popup";
 
-    // ── POPUP SEQUENCE TRACKER ───────────────────────────────────────────────
-    // For popup guests: check if email has already been captured in this conversation.
-    // If not, inject a hard override so GPT never skips ahead to booking links.
-    const popupEmailCaptured = isPopupSource && messages.some(m =>
-      m.role === "user" && /\b[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}\b/.test(m.content)
-    );
-    const popupNameCaptured = isPopupSource && messages.some(m =>
-      m.role === "assistant" && /love that|great name|nice to meet|welcome.*destin|pleasure.*welcoming/i.test(m.content)
-    );
-    const popupSequenceOverride = isPopupSource && !popupEmailCaptured ? `
-🚨 POPUP SEQUENCE LOCK — EMAIL NOT YET CAPTURED:
-Do NOT provide booking links. Do NOT run availability. Do NOT skip ahead.
-${!popupNameCaptured ? "Ask for their name ONLY. Nothing else." : "You have their name. Ask for their email ONLY. Nothing else."}
-Stay in the popup flow sequence. The guest can ask about availability after the email is captured.
-` : "";
-
-    const popupEmailJustCaptured = isPopupSource && !popupEmailCaptured &&
-      /\b[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}\b/.test(lastUser);
-    // When email just captured, check if dates were already mentioned — if so, force availability run
-    const popupPriorDates = popupEmailJustCaptured ? (extractDates(allUserText.replace(lastUser,"")) || null) : null;
     // If this is a popup session, scan last user message for a valid email
     // and fire Brevo in background if found and not already captured this session
     if (isPopupSource || sawBanner) {
@@ -2376,42 +2356,18 @@ ROUTING RULES FOR THIS GUEST:
 ` : "";
 
     const popupContext = isPopupSource ? `
-🎯 POPUP GUEST FLOW — follow this sequence exactly, do not skip steps:
+🎯 POPUP GUEST — go with the flow:
 
-This guest clicked the popup banner to unlock an extra discount. They came here on purpose. Be playful and warm — like they found a secret.
+This guest clicked the banner to unlock an extra discount. They may ask about availability, dates, anything — just help them normally like any other guest.
 
-STEP 1 — First message (or if no name yet in history):
-Open with: "Ah, you found the secret door! 🌊 Who do I have the pleasure of welcoming to Destin today?"
-Wait for their name. Do not ask for anything else yet.
+THE ONLY RULE: At a natural moment — after you've helped them (sent booking links, answered their question, any natural pause) — offer the 5% email unlock casually:
+"By the way — I can unlock an extra 5% on top of your automatic 10% for you. Just drop your email and it's yours! 😊"
 
-STEP 2 — Name received:
-Address them by name immediately. Then say something like:
-"[Name]! Love that 😊 So here's the thing — you're already getting 10% off automatically. But I can unlock an extra 5% on top of that for you. Want it?"
-Wait for yes/sure/ok before asking for email.
-
-STEP 3 — They say yes:
-Say: "Perfect! Drop your email and it's yours. Fair warning — I might occasionally send you a last-minute deal or winter special. Nothing spammy, just the good stuff 🌊"
-Wait for email.
-
-STEP 4 — Email received:
-Validate it has @ and a domain. If obviously fake (no dot after @, gibberish domain) say warmly: "Hmm that one doesn't look quite right — want to try again? 😊"
-If valid: capture it (system will save to Brevo automatically), then say:
-"You're all set [Name]! 🎉 Use code **BLUE** at checkout for your extra 5% on top of your automatic 10%. Now — got dates in mind? I can check live availability right now 😊"
-IMPORTANT: If the guest already mentioned dates earlier in this conversation, do NOT ask "got dates in mind?" — instead say "Now, let me pull up availability for [those dates] right now! 😊" and immediately trigger availability for those dates.
-
-STEP 5 — They say no to email:
-Say: "No worries at all! Your 10% is still applied automatically 😊 Now what can I help you with — got dates in mind?"
-Do NOT give the BLUE code if they declined email.
-
-STEP 6 — After code is given OR they declined:
-Flow naturally into normal concierge conversation — dates, availability, booking links etc.
-
-CRITICAL RULES FOR POPUP FLOW:
-- NEVER reveal the BLUE code before email is captured
-- NEVER skip asking for name first
-- NEVER be pushy — if they want to skip straight to booking, let them
-- Keep the playful "secret door" energy throughout
-- Once email is captured, treat them like a VIP for the rest of the conversation
+EMAIL GATE:
+- If they give their email → validate it (must have @ and a real domain). If valid, reveal: "You're all set! 🎉 Use code **BLUE** at checkout for your extra 5% on top of your automatic 10%."
+- If they give a fake/bad email → say warmly: "Hmm that one doesn't look quite right — want to try again? 😊"
+- If they decline or ignore → no pressure, move on, do NOT give the BLUE code
+- NEVER reveal BLUE code before a valid email is given — this is the only hard rule
 ` : "";
 
     const SYSTEM_PROMPT = `You are Destiny Blue, a warm and caring AI concierge for Destin Condo Getaways.
@@ -2456,7 +2412,7 @@ The guest may be following up or anxious. Your job now:
 - Remind them Ozan is handling it and they should expect direct contact soon
 - Keep it to 1-2 sentences max. Do not ask follow-up questions.
 - Example good responses: "Ozan is on it — you should hear from him or the team very shortly 🙏" / "He's already been notified and is handling this — just hang tight a little longer 🙏"
-\n\n` : ""}${isChildSafetyQuestion ? "👶 CHILD/TODDLER SAFETY QUESTION DETECTED — Follow CHILD / TODDLER / FAMILY SAFETY PRIORITY OVERRIDE exactly. Answer the specific safety question FIRST. No excitement opener. No smart lock pivot. Give portable solutions immediately.\n\n" : ""}${isAccidentalDamage ? "⚠️ ACCIDENTAL DAMAGE SCENARIO: Guest has broken something (plates, glasses etc). Follow the ACCIDENTAL DAMAGE RULE exactly. Do NOT say you notified Ozan. Do NOT offer to relay. Empathy first, then direct to Ozan at (972) 357-4262.\n\n" : ""}${alertWasFired ? "🚨 ALERT SENT THIS SESSION: An emergency Discord alert was automatically sent to Ozan during this conversation. If guest asks if you contacted Ozan or sent a message — say YES, an urgent alert was already sent to him. Do not say you will send it — it is already done.\n\n" : ""}${bookingLinksContext ? bookingLinksContext + "\n\n" : ""}${petsContext ? petsContext + "\n\n" : ""}${holidayContext ? holidayContext + "\n\n" : ""}${dateAdjustContext ? dateAdjustContext + "\n\n" : ""}${competitorContext ? competitorContext + "\n\n" : ""}${conciergePageContext}${sawBannerContext}${popupSequenceOverride}${popupContext}${discountContext ? discountContext + "\n\n" : ""}${externalDisturbanceContext ? externalDisturbanceContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
+\n\n` : ""}${isChildSafetyQuestion ? "👶 CHILD/TODDLER SAFETY QUESTION DETECTED — Follow CHILD / TODDLER / FAMILY SAFETY PRIORITY OVERRIDE exactly. Answer the specific safety question FIRST. No excitement opener. No smart lock pivot. Give portable solutions immediately.\n\n" : ""}${isAccidentalDamage ? "⚠️ ACCIDENTAL DAMAGE SCENARIO: Guest has broken something (plates, glasses etc). Follow the ACCIDENTAL DAMAGE RULE exactly. Do NOT say you notified Ozan. Do NOT offer to relay. Empathy first, then direct to Ozan at (972) 357-4262.\n\n" : ""}${alertWasFired ? "🚨 ALERT SENT THIS SESSION: An emergency Discord alert was automatically sent to Ozan during this conversation. If guest asks if you contacted Ozan or sent a message — say YES, an urgent alert was already sent to him. Do not say you will send it — it is already done.\n\n" : ""}${bookingLinksContext ? bookingLinksContext + "\n\n" : ""}${petsContext ? petsContext + "\n\n" : ""}${holidayContext ? holidayContext + "\n\n" : ""}${dateAdjustContext ? dateAdjustContext + "\n\n" : ""}${competitorContext ? competitorContext + "\n\n" : ""}${conciergePageContext}${sawBannerContext}${popupContext}${discountContext ? discountContext + "\n\n" : ""}${externalDisturbanceContext ? externalDisturbanceContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PROPERTIES
@@ -2930,14 +2886,14 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
     // ────────────────────────────────────────────────────────────────────────
 
     // ── NEEDS_CHECKOUT INTERCEPT — hardcoded, GPT cannot hallucinate links here ──
-    if (!isPopupSource && availabilityStatus === "NEEDS_CHECKOUT" && singleCheckinDate) {
+    if (availabilityStatus === "NEEDS_CHECKOUT" && singleCheckinDate) {
       const checkoutReply = `Got it — and when would you like to check out? Once I have that I'll pull up live availability right away 😊`;
       await logToSheets(sessionId, lastUser, checkoutReply, "", "NEEDS_CHECKOUT", "");
       return res.status(200).json({ reply: checkoutReply, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
     }
 
     // ── NEEDS_GUEST_COUNT INTERCEPT — hardcoded, GPT cannot hallucinate links here ──
-    if (!isPopupSource && !guestBooking && availabilityStatus === "NEEDS_GUEST_COUNT" && dates) {
+    if (!guestBooking && availabilityStatus === "NEEDS_GUEST_COUNT" && dates) {
       const guestCountReply = `Perfect — I've got your dates! Just need one more thing: how many adults and children will be staying? I'll create your booking link right away 😊`;
       await logToSheets(sessionId, lastUser, guestCountReply, `${dates.arrival} to ${dates.departure}`, "NEEDS_GUEST_COUNT", "");
       return res.status(200).json({ reply: guestCountReply, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
@@ -2952,7 +2908,7 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
         && !availabilityStatus.includes("HOA_UNCERTAIN")
         && !availabilityStatus.includes("HOA_VIOLATION")
         && !availabilityStatus.includes("OCCUPANCY_EXCEEDED")
-        && dates && hasGuestCount && !mentionsPets && !bookingLinksSent && !isPopupSource && (wantsAvailability || isGuestCountReply || isCheckoutReply || isNightsReply)) {
+        && dates && hasGuestCount && !mentionsPets && !bookingLinksSent && (wantsAvailability || isGuestCountReply || isCheckoutReply || isNightsReply)) {
 
       let bookingReply = null;
 

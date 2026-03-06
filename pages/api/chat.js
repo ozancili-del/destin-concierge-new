@@ -1141,6 +1141,7 @@ export default async function handler(req, res) {
 
     const allUserText = messages.filter((m) => m.role === "user").map((m) => m.content).join(" ");
     const allConvoText = [...messages].reverse().map((m) => m.content).join(" ");
+    const isPopupSource = pageSource === "popup";
 
     // ── POPUP EMAIL CAPTURE ──────────────────────────────────────────────────
     // If this is a popup session, scan last user message for a valid email
@@ -2326,7 +2327,6 @@ WEATHER DATA UNAVAILABLE: Real-time weather could not be fetched. Do NOT guess o
     // ── BUILD SYSTEM PROMPT ─────────────────────────────────────────────────
     // AI Concierge page opening message
     const isConciergePage = pageSource === "ai-concierge";
-    const isPopupSource = pageSource === "popup";
 
     const existingGuestContext = guestBooking ? `
 🏠 EXISTING GUEST — CONCIERGE MODE:

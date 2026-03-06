@@ -1144,6 +1144,19 @@ export default async function handler(req, res) {
     const allConvoText = [...messages].reverse().map((m) => m.content).join(" ");
     const isPopupSource = pageSource === "popup";
 
+    // Extract guest first name for popup sessions — look for first user message after greeting
+    // that looks like a name (single capitalized word, not a date/number/question)
+    let popupGuestName = "";
+    if (isPopupSource && messages.length > 0) {
+      const firstUserMsg = messages.find(m => m.role === "user");
+      if (firstUserMsg) {
+        const nameCandidate = firstUserMsg.content.trim().split(/[\s,.!?]+/)[0];
+        if (/^[A-Z][a-z]{1,20}$/.test(nameCandidate)) {
+          popupGuestName = nameCandidate;
+        }
+      }
+    }
+
     // If this is a popup session, scan last user message for a valid email
     // and fire Brevo in background if found and not already captured this session
     if (isPopupSource || sawBanner) {
@@ -2358,14 +2371,14 @@ ROUTING RULES FOR THIS GUEST:
 
     const popupContext = isPopupSource ? `
 🎯 POPUP GUEST — go with the flow:
-
+${popupGuestName ? `Guest's name is ${popupGuestName} — use it naturally throughout the conversation, especially when revealing the BLUE code.\n` : ""}
 This guest clicked the banner to unlock an extra discount. They may ask about availability, dates, anything — just help them normally like any other guest.
 
 THE ONLY RULE: At a natural moment — after you've helped them (sent booking links, answered their question, any natural pause) — offer the 5% email unlock casually:
 "By the way — I can unlock an extra 5% on top of your automatic 10% for you. Just drop your email and it's yours! 😊"
 
 EMAIL GATE:
-- If they give their email → validate it (must have @ and a real domain). If valid, reveal: "You're all set! 🎉 Use code **BLUE** at checkout for your extra 5% on top of your automatic 10%."
+- If they give their email → validate it (must have @ and a real domain). If valid, reveal: "You're all set, [Name]! 🎉 Use code **BLUE** at checkout for your extra 5% on top of your automatic 10%."
 - If they give a fake/bad email → say warmly: "Hmm that one doesn't look quite right — want to try again? 😊"
 - If they decline or ignore → no pressure, move on, do NOT give the BLUE code
 - NEVER reveal BLUE code before a valid email is given — this is the only hard rule
@@ -2689,6 +2702,7 @@ TONE VARIETY — NEVER repeat the same ending:
 - "Great news" opener: use when genuinely good news (unit is available, discount applies) — but NEVER use it robotically for every availability response. Vary naturally: "You're in luck!", "Perfect timing —", "Good news —", "Here you go —", etc.
 NEVER end with "If you have any other questions, just let me know!" — this is banned.
 NEVER end with "feel free to let me know" — this is banned.
+NEVER use ANY variation of "let me know" or "feel free" as a closing — banned entirely. End with something specific and warm instead.
 
 RESPONSE LENGTH: 2-3 sentences unless more detail genuinely needed.
 

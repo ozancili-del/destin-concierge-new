@@ -1224,7 +1224,7 @@ export default async function handler(req, res) {
     // Only look back in history for dates on genuine follow-ups
     const rawDates = extractDates(lastUser) || (
       messages.length > 0 && !extractSingleDate(lastUser)
-        ? extractDates(allUserText)
+        ? extractDates(allUserText) || extractDates(allConvoText)
         : null
     );
 
@@ -2895,7 +2895,7 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
 
     // ── NEEDS_GUEST_COUNT INTERCEPT — hardcoded, GPT cannot hallucinate links here ──
     if (!guestBooking && availabilityStatus === "NEEDS_GUEST_COUNT" && dates) {
-      const guestCountReply = `Perfect — I've got your dates! Just need one more thing: how many adults and children will be staying? I'll create your booking link right away 😊`;
+      const guestCountReply = `Perfect — I've got your dates (${dates.arrival} to ${dates.departure})! Just need one more thing: how many adults and children will be staying? I'll create your booking link right away 😊`;
       await logToSheets(sessionId, lastUser, guestCountReply, `${dates.arrival} to ${dates.departure}`, "NEEDS_GUEST_COUNT", "");
       return res.status(200).json({ reply: guestCountReply, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
     }

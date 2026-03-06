@@ -157,7 +157,7 @@ export default function Concierge() {
       const r = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: [...log, userMsg], sessionId: sessionIdRef.current, alertSent, pendingRelay, ozanAcked, ozanAckType, pageSource: typeof window !== "undefined" && window.location.pathname.includes("ai-concierge") ? "ai-concierge" : null, guestBooking: guestBookingRef.current || null })
+        body: JSON.stringify({ messages: [...log, userMsg], sessionId: sessionIdRef.current, alertSent, pendingRelay, ozanAcked, ozanAckType, pageSource: typeof window !== "undefined" && window.location.pathname.includes("ai-concierge") ? "ai-concierge" : (typeof sessionStorage !== "undefined" && sessionStorage.getItem('db_source')) || null, guestBooking: guestBookingRef.current || null })
       });
       const data = await r.json();
       if (data.alertSent) setAlertSent(true);

@@ -3004,6 +3004,15 @@ Your 10% direct booking discount is already applied! 🎉 For Unit 707 questions
       }
 
       if (bookingReply) {
+        // Popup guest: append 5% email offer if email not yet captured
+        if (isPopupSource) {
+          const emailAlreadyGiven = messages.some(m =>
+            m.role === "user" && /\b[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}\b/.test(m.content)
+          );
+          if (!emailAlreadyGiven) {
+            bookingReply += `\n\nBy the way — I can unlock an extra 5% on top of your automatic 10% for you. Just drop your email and it's yours! 😊`;
+          }
+        }
         await logToSheets(sessionId, lastUser, bookingReply,
           dates ? `${dates.arrival} to ${dates.departure}` : "",
           availabilityStatus, "");

@@ -1073,6 +1073,7 @@ export default async function handler(req, res) {
     // In concierge.js fetch body add: pageSource: window.location.pathname.includes("ai-concierge") ? "ai-concierge" : null
     const { messages = [], sessionId = null, alertSent: priorAlertSent = false, pendingRelay: priorPendingRelay = false, ozanAcked: priorOzanAcked = false, ozanAckType: priorOzanAckType = null, pageSource = null, guestBid = null, guestBooking = null, sawBanner = null } = req.body || {};
     const lastUser = [...messages].reverse().find((m) => m.role === "user")?.content || "";
+    console.log(`[REQUEST] pageSource=${pageSource} | lastUser="${lastUser.slice(0,40)}" | sawBanner=${sawBanner}`);
 
     // ── POPUP TRIGGER: Guest clicked "Unlock it" button ───────────────────────
     if (lastUser === "__popup_open__" && pageSource === "popup") {

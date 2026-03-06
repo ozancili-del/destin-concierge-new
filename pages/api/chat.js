@@ -2329,11 +2329,12 @@ WEATHER DATA UNAVAILABLE: Real-time weather could not be fetched. Do NOT guess o
     const isConciergePage = pageSource === "ai-concierge";
     const sawBannerContext = sawBanner ? `
 🎯 BANNER GUEST — this guest saw the 5% discount banner on the site. If they ask about a discount, extra savings, or mention "5%" or "extra discount" at any point:
-- Confirm yes, there is an extra 5% available
-- Ask for their name first, then their email to unlock it
-- Once email is given → reveal code BLUE
-- NEVER reveal BLUE code before email is captured
-- If they decline email → acknowledge warmly, move on, do NOT give the code
+- STEP 1: Confirm yes, extra 5% is available. Ask for their FIRST NAME ONLY. Stop. Wait for their reply.
+- STEP 2: Once they give their name, thank them by name. Then ask for their EMAIL ONLY. Stop. Wait for their reply.
+- STEP 3: Once they give their email, reveal code BLUE and congratulate them.
+- NEVER ask for name and email in the same message. ONE ask per message. Always wait for the reply.
+- NEVER reveal BLUE code before email is captured.
+- If they decline email → acknowledge warmly, move on, do NOT give the code.
 ` : "";
 
     const existingGuestContext = guestBooking ? `

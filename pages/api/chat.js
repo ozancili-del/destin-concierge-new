@@ -1074,8 +1074,15 @@ export default async function handler(req, res) {
     const { messages = [], sessionId = null, alertSent: priorAlertSent = false, pendingRelay: priorPendingRelay = false, ozanAcked: priorOzanAcked = false, ozanAckType: priorOzanAckType = null, pageSource = null, guestBid = null, guestBooking = null } = req.body || {};
     const lastUser = [...messages].reverse().find((m) => m.role === "user")?.content || "";
 
-
-    // ── MAGIC LINK: Guest arrived via personalized email link ──────────────────
+    // ── POPUP TRIGGER: Guest clicked "Unlock it" button ───────────────────────
+    if (lastUser === "__popup_open__" && pageSource === "popup") {
+      const greeting = "Ah, you found the secret door! 🌊 Who do I have the pleasure of welcoming to Destin today?";
+      await logToSheets(sessionId, "__popup_open__", greeting, "", "", "");
+      return res.status(200).json({
+        reply: greeting, alertSent: false, pendingRelay: false,
+        ozanAcked: false, ozanAckType: null, detectedIntent: "INFO",
+      });
+    }
     if (guestBid && messages.length === 0) {
       const booking = await fetchGuestBooking(guestBid);
       if (booking && !booking.isCheckedOut) {

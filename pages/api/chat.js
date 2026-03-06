@@ -1076,7 +1076,7 @@ export default async function handler(req, res) {
     console.log(`[REQUEST] pageSource=${pageSource} | lastUser="${lastUser.slice(0,40)}" | sawBanner=${sawBanner}`);
 
     // ── POPUP TRIGGER: Guest clicked "Unlock it" button ───────────────────────
-    if (lastUser === "__popup_open__" && pageSource === "popup") {
+    if (pageSource === "popup" && messages.length === 0) {
       const greeting = "Ah, you found the secret door! 🌊 Who do I have the pleasure of welcoming to Destin today?";
       await logToSheets(sessionId, "__popup_open__", greeting, "", "", "");
       return res.status(200).json({

@@ -1146,7 +1146,7 @@ export default async function handler(req, res) {
     // ── POPUP EMAIL CAPTURE ──────────────────────────────────────────────────
     // If this is a popup session, scan last user message for a valid email
     // and fire Brevo in background if found and not already captured this session
-    if (isPopupSource) {
+    if (isPopupSource || sawBanner) {
       const emailMatch = lastUser.match(/\b[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}\b/);
       if (emailMatch) {
         const capturedEmail = emailMatch[0];
@@ -1155,7 +1155,7 @@ export default async function handler(req, res) {
         const capturedName = nameMatch ? nameMatch[1] : "";
         // Fire and forget — don't block response
         addBrevoContact(capturedEmail, capturedName).catch(e => console.error("Brevo silent fail:", e));
-        console.log(`[POPUP] Email captured: ${capturedEmail} name: ${capturedName}`);
+        console.log(`[${isPopupSource ? "POPUP" : "BANNER"}] Email captured: ${capturedEmail} name: ${capturedName}`);
       }
     }
     // True if booking links were already sent earlier in this conversation

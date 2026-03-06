@@ -1159,7 +1159,7 @@ export default async function handler(req, res) {
 
     // If this is a popup session, scan last user message for a valid email
     // and fire Brevo in background if found and not already captured this session
-    if (isPopupSource || sawBanner) {
+    if (isPopupSource || sawBanner || pageSource === "ai-concierge") {
       const emailMatch = lastUser.match(/\b[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}\b/);
       if (emailMatch) {
         const capturedEmail = emailMatch[0];
@@ -2350,6 +2350,16 @@ WEATHER DATA UNAVAILABLE: Real-time weather could not be fetched. Do NOT guess o
 - If they decline email → acknowledge warmly, move on, do NOT give the code.
 ` : "";
 
+    const conciergeEmailContext = pageSource === "ai-concierge" ? `
+🎯 CONCIERGE PAGE GUEST — 5% EMAIL UNLOCK:
+After sending booking links, you may offer an extra 5% discount in exchange for their email.
+If the guest provides an email address at any point:
+- Validate it (must have @ and real domain)
+- If valid: reveal code BLUE — "You're all set! 🎉 Use code BLUE at checkout for your extra 5% on top of your automatic 10%."
+- If fake/invalid: say warmly "Hmm that doesn't look quite right — want to try again? 😊"
+- NEVER reveal BLUE before a valid email is given.
+` : "";
+
     const existingGuestContext = guestBooking ? `
 🏠 EXISTING GUEST — CONCIERGE MODE:
 This is ${guestBooking.guestFirstName || "a guest"} who has an active booking with us.
@@ -2426,7 +2436,7 @@ The guest may be following up or anxious. Your job now:
 - Remind them Ozan is handling it and they should expect direct contact soon
 - Keep it to 1-2 sentences max. Do not ask follow-up questions.
 - Example good responses: "Ozan is on it — you should hear from him or the team very shortly 🙏" / "He's already been notified and is handling this — just hang tight a little longer 🙏"
-\n\n` : ""}${isChildSafetyQuestion ? "👶 CHILD/TODDLER SAFETY QUESTION DETECTED — Follow CHILD / TODDLER / FAMILY SAFETY PRIORITY OVERRIDE exactly. Answer the specific safety question FIRST. No excitement opener. No smart lock pivot. Give portable solutions immediately.\n\n" : ""}${isAccidentalDamage ? "⚠️ ACCIDENTAL DAMAGE SCENARIO: Guest has broken something (plates, glasses etc). Follow the ACCIDENTAL DAMAGE RULE exactly. Do NOT say you notified Ozan. Do NOT offer to relay. Empathy first, then direct to Ozan at (972) 357-4262.\n\n" : ""}${alertWasFired ? "🚨 ALERT SENT THIS SESSION: An emergency Discord alert was automatically sent to Ozan during this conversation. If guest asks if you contacted Ozan or sent a message — say YES, an urgent alert was already sent to him. Do not say you will send it — it is already done.\n\n" : ""}${bookingLinksContext ? bookingLinksContext + "\n\n" : ""}${petsContext ? petsContext + "\n\n" : ""}${holidayContext ? holidayContext + "\n\n" : ""}${dateAdjustContext ? dateAdjustContext + "\n\n" : ""}${competitorContext ? competitorContext + "\n\n" : ""}${conciergePageContext}${sawBannerContext}${popupContext}${discountContext ? discountContext + "\n\n" : ""}${externalDisturbanceContext ? externalDisturbanceContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
+\n\n` : ""}${isChildSafetyQuestion ? "👶 CHILD/TODDLER SAFETY QUESTION DETECTED — Follow CHILD / TODDLER / FAMILY SAFETY PRIORITY OVERRIDE exactly. Answer the specific safety question FIRST. No excitement opener. No smart lock pivot. Give portable solutions immediately.\n\n" : ""}${isAccidentalDamage ? "⚠️ ACCIDENTAL DAMAGE SCENARIO: Guest has broken something (plates, glasses etc). Follow the ACCIDENTAL DAMAGE RULE exactly. Do NOT say you notified Ozan. Do NOT offer to relay. Empathy first, then direct to Ozan at (972) 357-4262.\n\n" : ""}${alertWasFired ? "🚨 ALERT SENT THIS SESSION: An emergency Discord alert was automatically sent to Ozan during this conversation. If guest asks if you contacted Ozan or sent a message — say YES, an urgent alert was already sent to him. Do not say you will send it — it is already done.\n\n" : ""}${bookingLinksContext ? bookingLinksContext + "\n\n" : ""}${petsContext ? petsContext + "\n\n" : ""}${holidayContext ? holidayContext + "\n\n" : ""}${dateAdjustContext ? dateAdjustContext + "\n\n" : ""}${competitorContext ? competitorContext + "\n\n" : ""}${conciergePageContext}${sawBannerContext}${conciergeEmailContext}${popupContext}${discountContext ? discountContext + "\n\n" : ""}${externalDisturbanceContext ? externalDisturbanceContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PROPERTIES

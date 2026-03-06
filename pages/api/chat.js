@@ -1143,6 +1143,22 @@ export default async function handler(req, res) {
     const allConvoText = [...messages].reverse().map((m) => m.content).join(" ");
     const isPopupSource = pageSource === "popup";
 
+    // ── POPUP SEQUENCE TRACKER ───────────────────────────────────────────────
+    // For popup guests: check if email has already been captured in this conversation.
+    // If not, inject a hard override so GPT never skips ahead to booking links.
+    const popupEmailCaptured = isPopupSource && messages.some(m =>
+      m.role === "user" && /\b[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}\b/.test(m.content)
+    );
+    const popupNameCaptured = isPopupSource && messages.some(m =>
+      m.role === "assistant" && /love that|great name|nice to meet|welcome.*destin|pleasure.*welcoming/i.test(m.content)
+    );
+    const popupSequenceOverride = isPopupSource && !popupEmailCaptured ? `
+🚨 POPUP SEQUENCE LOCK — EMAIL NOT YET CAPTURED:
+Do NOT provide booking links. Do NOT run availability. Do NOT skip ahead.
+${!popupNameCaptured ? "Ask for their name ONLY. Nothing else." : "You have their name. Ask for their email ONLY. Nothing else."}
+Stay in the popup flow sequence. The guest can ask about availability after the email is captured.
+` : "";
+
     // ── POPUP EMAIL CAPTURE ──────────────────────────────────────────────────
     // If this is a popup session, scan last user message for a valid email
     // and fire Brevo in background if found and not already captured this session
@@ -2436,7 +2452,7 @@ The guest may be following up or anxious. Your job now:
 - Remind them Ozan is handling it and they should expect direct contact soon
 - Keep it to 1-2 sentences max. Do not ask follow-up questions.
 - Example good responses: "Ozan is on it — you should hear from him or the team very shortly 🙏" / "He's already been notified and is handling this — just hang tight a little longer 🙏"
-\n\n` : ""}${isChildSafetyQuestion ? "👶 CHILD/TODDLER SAFETY QUESTION DETECTED — Follow CHILD / TODDLER / FAMILY SAFETY PRIORITY OVERRIDE exactly. Answer the specific safety question FIRST. No excitement opener. No smart lock pivot. Give portable solutions immediately.\n\n" : ""}${isAccidentalDamage ? "⚠️ ACCIDENTAL DAMAGE SCENARIO: Guest has broken something (plates, glasses etc). Follow the ACCIDENTAL DAMAGE RULE exactly. Do NOT say you notified Ozan. Do NOT offer to relay. Empathy first, then direct to Ozan at (972) 357-4262.\n\n" : ""}${alertWasFired ? "🚨 ALERT SENT THIS SESSION: An emergency Discord alert was automatically sent to Ozan during this conversation. If guest asks if you contacted Ozan or sent a message — say YES, an urgent alert was already sent to him. Do not say you will send it — it is already done.\n\n" : ""}${bookingLinksContext ? bookingLinksContext + "\n\n" : ""}${petsContext ? petsContext + "\n\n" : ""}${holidayContext ? holidayContext + "\n\n" : ""}${dateAdjustContext ? dateAdjustContext + "\n\n" : ""}${competitorContext ? competitorContext + "\n\n" : ""}${conciergePageContext}${sawBannerContext}${popupContext}${discountContext ? discountContext + "\n\n" : ""}${externalDisturbanceContext ? externalDisturbanceContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
+\n\n` : ""}${isChildSafetyQuestion ? "👶 CHILD/TODDLER SAFETY QUESTION DETECTED — Follow CHILD / TODDLER / FAMILY SAFETY PRIORITY OVERRIDE exactly. Answer the specific safety question FIRST. No excitement opener. No smart lock pivot. Give portable solutions immediately.\n\n" : ""}${isAccidentalDamage ? "⚠️ ACCIDENTAL DAMAGE SCENARIO: Guest has broken something (plates, glasses etc). Follow the ACCIDENTAL DAMAGE RULE exactly. Do NOT say you notified Ozan. Do NOT offer to relay. Empathy first, then direct to Ozan at (972) 357-4262.\n\n" : ""}${alertWasFired ? "🚨 ALERT SENT THIS SESSION: An emergency Discord alert was automatically sent to Ozan during this conversation. If guest asks if you contacted Ozan or sent a message — say YES, an urgent alert was already sent to him. Do not say you will send it — it is already done.\n\n" : ""}${bookingLinksContext ? bookingLinksContext + "\n\n" : ""}${petsContext ? petsContext + "\n\n" : ""}${holidayContext ? holidayContext + "\n\n" : ""}${dateAdjustContext ? dateAdjustContext + "\n\n" : ""}${competitorContext ? competitorContext + "\n\n" : ""}${conciergePageContext}${sawBannerContext}${popupSequenceOverride}${popupContext}${discountContext ? discountContext + "\n\n" : ""}${externalDisturbanceContext ? externalDisturbanceContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PROPERTIES
@@ -2910,14 +2926,14 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
     // ────────────────────────────────────────────────────────────────────────
 
     // ── NEEDS_CHECKOUT INTERCEPT — hardcoded, GPT cannot hallucinate links here ──
-    if (availabilityStatus === "NEEDS_CHECKOUT" && singleCheckinDate) {
+    if (!isPopupSource && availabilityStatus === "NEEDS_CHECKOUT" && singleCheckinDate) {
       const checkoutReply = `Got it — and when would you like to check out? Once I have that I'll pull up live availability right away 😊`;
       await logToSheets(sessionId, lastUser, checkoutReply, "", "NEEDS_CHECKOUT", "");
       return res.status(200).json({ reply: checkoutReply, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
     }
 
     // ── NEEDS_GUEST_COUNT INTERCEPT — hardcoded, GPT cannot hallucinate links here ──
-    if (!guestBooking && availabilityStatus === "NEEDS_GUEST_COUNT" && dates) {
+    if (!isPopupSource && !guestBooking && availabilityStatus === "NEEDS_GUEST_COUNT" && dates) {
       const guestCountReply = `Perfect — I've got your dates! Just need one more thing: how many adults and children will be staying? I'll create your booking link right away 😊`;
       await logToSheets(sessionId, lastUser, guestCountReply, `${dates.arrival} to ${dates.departure}`, "NEEDS_GUEST_COUNT", "");
       return res.status(200).json({ reply: guestCountReply, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
@@ -2932,7 +2948,7 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
         && !availabilityStatus.includes("HOA_UNCERTAIN")
         && !availabilityStatus.includes("HOA_VIOLATION")
         && !availabilityStatus.includes("OCCUPANCY_EXCEEDED")
-        && dates && hasGuestCount && !mentionsPets && !bookingLinksSent && (wantsAvailability || isGuestCountReply || isCheckoutReply || isNightsReply)) {
+        && dates && hasGuestCount && !mentionsPets && !bookingLinksSent && !isPopupSource && (wantsAvailability || isGuestCountReply || isCheckoutReply || isNightsReply)) {
 
       let bookingReply = null;
 
@@ -3124,8 +3140,8 @@ Your 10% direct booking discount is already applied! 🎉 For Unit 707 questions
       if (realUrlPattern.test(url)) return url;
       // Keep known safe non-booking URLs
       if (/destincondogetaways\.com\/(blog|availability|reviews|virtual-tour|aboutus|ai-concierge|destin-live|pelican-beach-resort-unit-707-orp|pelican-beach-resort-unit-1006-orp)/.test(url)) return url;
-      // Strip anything else that looks like a booking attempt
-      if (/\?or_arrival=|\?unit=|\/booking\?|\/instant\/|\/book\?/.test(url)) {
+      // Strip details.aspx hallucinations and anything else that looks like a booking attempt
+      if (/details\.aspx|propertyID=|\?or_arrival=|\?unit=|\/booking\?|\/instant\/|\/book\?/.test(url)) {
         console.log(`Bug4 filter stripped hallucinated URL: ${url}`);
         return "";
       }

@@ -1,0 +1,130 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Pelican Beach Resort — Interactive Amenity Map</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#060f1e;font-family:Arial,sans-serif;}
+.pbr-wrap{max-width:900px;margin:0 auto;border-radius:14px;overflow:hidden;box-shadow:0 8px 36px rgba(0,0,0,0.3);border:1px solid #1a2a40;}
+.pbr-head{background:#0d1f3c;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.pbr-head h3{font-family:Georgia,serif;font-size:18px;color:#fff;font-weight:normal;margin:0 0 3px;}
+.pbr-head p{font-size:10px;color:rgba(255,255,255,0.38);margin:0;letter-spacing:1.8px;text-transform:uppercase;}
+.pbr-badge{background:rgba(0,150,199,0.14);border:1px solid rgba(0,150,199,0.32);border-radius:20px;padding:5px 14px;font-size:11px;color:#0096c7;font-weight:700;white-space:nowrap;flex-shrink:0;}
+#pbr-map{width:100%;height:500px;}
+.leaflet-control-attribution{background:rgba(5,14,28,0.72)!important;color:rgba(255,255,255,0.28)!important;font-size:9px!important;}
+.leaflet-control-attribution a{color:rgba(255,255,255,0.38)!important;}
+.leaflet-control-zoom a{background:rgba(13,31,60,0.9)!important;color:#0096c7!important;border-color:rgba(255,255,255,0.09)!important;}
+.leaflet-control-zoom a:hover{background:rgba(0,150,199,0.28)!important;}
+.pbr-pin{width:36px;height:36px;border-radius:50%;background:rgba(0,150,199,0.2);border:2.5px solid rgba(0,150,199,0.82);display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;backdrop-filter:blur(5px);transition:background .18s,transform .18s,box-shadow .18s;animation:pbrPulse 2.8s ease-in-out infinite;-webkit-tap-highlight-color:transparent;}
+.pbr-pin:hover,.pbr-pin.on{background:rgba(0,150,199,0.58);border-color:#00d4ff;transform:scale(1.3);animation:none;box-shadow:0 0 22px rgba(0,150,199,0.8);}
+@keyframes pbrPulse{0%,100%{box-shadow:0 0 0 0 rgba(0,150,199,0.48);}50%{box-shadow:0 0 0 9px rgba(0,150,199,0);}}
+.pbr-panel{background:#0b1a30;max-height:0;overflow:hidden;transition:max-height .38s cubic-bezier(.4,0,.2,1);}
+.pbr-panel.open{max-height:270px;}
+.pbr-panel-inner{padding:18px 24px 22px;}
+.pbr-panel-row{display:flex;gap:18px;align-items:flex-start;}
+.pbr-photo{width:132px;min-width:132px;height:90px;border-radius:9px;object-fit:cover;border:1px solid rgba(255,255,255,0.07);background:#071020;display:block;flex-shrink:0;}
+.pbr-nophoto{width:132px;min-width:132px;height:90px;border-radius:9px;flex-shrink:0;background:rgba(0,150,199,0.07);border:1px solid rgba(0,150,199,0.14);display:flex;align-items:center;justify-content:center;font-size:30px;}
+.pbr-text{flex:1;min-width:0;}
+.pbr-text h4{font-family:Georgia,serif;font-size:15px;color:#fff;margin:0 0 6px;font-weight:normal;line-height:1.3;}
+.pbr-text p{font-size:12.5px;color:rgba(255,255,255,0.52);line-height:1.7;margin:0;}
+.pbr-tag{display:inline-block;margin-top:8px;font-size:10px;color:#0096c7;background:rgba(0,150,199,0.09);border:1px solid rgba(0,150,199,0.2);padding:2px 9px;border-radius:6px;font-weight:700;}
+.pbr-foot{background:#060f1e;padding:11px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.pbr-foot p{font-size:9px;color:rgba(255,255,255,0.18);letter-spacing:.5px;margin:0;}
+.pbr-foot a{font-size:11px;color:#0096c7;text-decoration:none;font-weight:700;}
+@media(max-width:600px){
+  #pbr-map{height:54vw;min-height:230px;}
+  .pbr-panel-row{flex-direction:column;gap:12px;}
+  .pbr-photo,.pbr-nophoto{width:100%;min-width:unset;height:160px;}
+  .pbr-panel.open{max-height:420px;}
+}
+</style>
+</head>
+<body>
+<div class="pbr-wrap">
+  <div class="pbr-head">
+    <div><h3>Explore Pelican Beach Resort</h3><p>Tap any amenity pin to learn more</p></div>
+    <div class="pbr-badge">🌊 21 Amenities</div>
+  </div>
+  <div id="pbr-map"></div>
+  <div class="pbr-panel" id="pbrPanel">
+    <div class="pbr-panel-inner">
+      <div class="pbr-panel-row">
+        <div id="pbrPhotoWrap"></div>
+        <div class="pbr-text">
+          <h4 id="pbrTitle">Pelican Beach Resort</h4>
+          <p id="pbrDesc">Tap any glowing pin on the map above to explore resort amenities.</p>
+          <span class="pbr-tag" id="pbrTag">1002 US-98 · Destin FL 32541</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pbr-foot">
+    <p>PELICAN BEACH RESORT · 1002 US-98 · DESTIN FL 32541</p>
+    <a href="https://www.destincondogetaways.com/availability">Check Availability →</a>
+  </div>
+</div>
+
+<script>
+var pins=[
+  {lat:30.387336,lon:-86.474777,e:'🚪',t:'Building Entrance',d:'Main resort entrance off US-98. Gated access with security. Follow signs to check-in and the elevator lobby.',tag:'Off US-98',p:null},
+  {lat:30.386347,lon:-86.474351,e:'🎾',t:'Tennis & Pickleball',d:'Two lighted courts for resort guests. Rackets available at the front desk. Open 8 AM – 9 PM daily.',tag:'Lighted · 8AM–9PM',p:'https://uc.orez.io/i/b628b8b3f7314a918532526347fe489c-Large'},
+  {lat:30.386977,lon:-86.474448,e:'🅿️',t:'Open Parking (North)',d:'Surface lot north of the resort. Free for guests. First-come first-served.',tag:'Free · Surface lot',p:null},
+  {lat:30.385466,lon:-86.474187,e:'⚡',t:'EV Chargers',d:'J1772 electric vehicle charging stations in the covered parking garage. Available to resort guests.',tag:'Covered garage · Level 1',p:'https://uc.orez.io/i/09a8dc7ead3c467d9a3e1439620b2f82-Large'},
+  {lat:30.385848,lon:-86.474351,e:'🚗',t:'Roof Parking',d:'Rooftop level of the parking structure. Open-air with elevator access down to the lobby.',tag:'Free with stay',p:null},
+  {lat:30.385390,lon:-86.474381,e:'🏗️',t:'Covered Parking',d:'Covered multilevel garage included with your stay. Accessible parking on ground level.',tag:'Covered · Included',p:null},
+  {lat:30.385806,lon:-86.475157,e:'🅿️',t:'Open Parking (West)',d:'Surface parking on the west side. Convenient for the west building entrance.',tag:'Free · Surface lot',p:null},
+  {lat:30.385248,lon:-86.474936,e:'🅿️',t:'Open Parking (Mid)',d:'Additional surface parking near the pool deck entrance. Great for loading and unloading.',tag:'Free · Surface lot',p:null},
+  {lat:30.385008,lon:-86.474569,e:'🚘',t:'Temporary Parking',d:'Short-term drop-off and loading zone near the main entrance. Not for overnight parking.',tag:'Drop-off only',p:null},
+  {lat:30.384609,lon:-86.474205,e:'🐬',t:'Dolphin Pool',d:"The resort's signature Dolphin Pool — relaxed, family-friendly atmosphere on the main pool deck.",tag:'Outdoor · Heated',p:'https://uc.orez.io/i/5cd8d28c33e14711a68e723ec300ca2a-Large'},
+  {lat:30.384285,lon:-86.474674,e:'🌊',t:'Gulf Pool',d:'Outdoor heated pool facing the Gulf of Mexico with lounge chairs and towel service. Open 7 AM – 10 PM.',tag:'Gulf-facing · 7AM–10PM',p:'https://uc.orez.io/i/7da337c1e9334be9a992ff9f666cd8b7-Large'},
+  {lat:30.384383,lon:-86.474212,e:'♨️',t:'Hot Tub (Upper)',d:'Outdoor hot tub on the upper pool deck. A crowd favorite after a long beach day.',tag:'Open daily',p:'https://uc.orez.io/i/8f59759bd89a4eddbcc4c854df147c2f-Large'},
+  {lat:30.384304,lon:-86.474418,e:'♨️',t:'Hot Tub (Beach)',d:'Second hot tub closer to the beach — best seat in the house for Gulf sunsets.',tag:'Open daily',p:'https://uc.orez.io/i/e1e624f8d4c14ed2a8f3d05e169252e0-Large'},
+  {lat:30.384903,lon:-86.474152,e:'🔥',t:'Gas Grills',d:'Outdoor gas grills on the pool deck, free for all guests. Perfect for a casual beachside cookout.',tag:'Free · Pool deck',p:'https://uc.orez.io/i/d0cc9292aed443c3882ad4775ea20175-Large'},
+  {lat:30.385083,lon:-86.474255,e:'🧒',t:'Kids Pool',d:'Shallow pool designed for young children. Calm and protected, easy to supervise from the main deck.',tag:'Family area',p:null},
+  {lat:30.384303,lon:-86.474240,e:'🍹',t:'Tiki Bar',d:'Beachside tiki bar with tropical cocktails, cold beer, and snacks. Best sunset spot at the resort.',tag:'Seasonal · Beachside',p:'https://uc.orez.io/i/01bb59ef924942f3a583e52c46be47b9-Large'},
+  {lat:30.385109,lon:-86.474248,e:'🏊',t:'Indoor Pool',d:'Heated indoor pool open year-round. Perfect for cooler days, early morning swims, or rough Gulf days.',tag:'Heated · Year-round',p:'https://uc.orez.io/i/bec7b8357cf640a6bc58819a5b4bc28d-Large'},
+  {lat:30.384671,lon:-86.474597,e:'🏨',t:'Entrance & Reception',d:'Main check-in lobby. Units 707 and 1006 accessed via elevators here. Front desk staffed 24/7.',tag:'Check-in · 24/7',p:'https://uc.orez.io/i/79fb2b20887c4f44b58c710a59420a30-Large'},
+  {lat:30.385153,lon:-86.474166,e:'☕',t:'Café & Market',d:'Seasonal café and convenience market in the lobby. Coffee, snacks, and beach essentials.',tag:'Seasonal · Lobby',p:'https://uc.orez.io/i/339526d4d54b42c397445f2bf373e91c-Large'},
+  {lat:30.384800,lon:-86.474192,e:'💪',t:'Gym & Sauna',d:'Full fitness center with cardio and weights. Dry sauna on-site for post-beach recovery. Open daily.',tag:'Open daily',p:'https://uc.orez.io/i/1915a52744cc4788ab087e6f3ea008d5-Large'},
+  {lat:30.384780,lon:-86.474150,e:'🧖',t:'Steam Room',d:'Private steam room next to the gym and sauna. Perfect way to unwind after a day on the beach.',tag:'Open daily',p:'https://uc.orez.io/i/5242838a8fe9492d951984f24f2a2b47-Large'}
+];
+
+var map=L.map('pbr-map',{center:[30.3853,-86.4744],zoom:18,zoomControl:true,scrollWheelZoom:true,maxZoom:21,tap:true});
+L.tileLayer('https://mt{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{
+  subdomains:['0','1','2','3'],attribution:'© Google Maps',maxZoom:21,maxNativeZoom:21
+}).addTo(map);
+
+var active=null;
+pins.forEach(function(pin,i){
+  var el=document.createElement('div');
+  el.className='pbr-pin';
+  el.innerHTML=pin.e;
+  el.style.animationDelay=(i*0.11)+'s';
+  var m=L.marker([pin.lat,pin.lon],{
+    icon:L.divIcon({html:el,className:'',iconSize:[36,36],iconAnchor:[18,18]})
+  }).addTo(map);
+  m.on('click',function(){
+    document.getElementById('pbrTitle').textContent=pin.t;
+    document.getElementById('pbrDesc').textContent=pin.d;
+    document.getElementById('pbrTag').textContent=pin.tag;
+    var wrap=document.getElementById('pbrPhotoWrap');
+    wrap.innerHTML=pin.p
+      ?'<img class="pbr-photo" src="'+pin.p+'" alt="'+pin.t+'" onerror="this.parentNode.innerHTML=\'<div class=pbr-nophoto>'+pin.e+'<\\/div>\'">'
+      :'<div class="pbr-nophoto">'+pin.e+'</div>';
+    document.getElementById('pbrPanel').classList.add('open');
+    if(active)active.classList.remove('on');
+    var pe=m.getElement()&&m.getElement().querySelector('.pbr-pin');
+    if(pe){pe.classList.add('on');active=pe;}
+    if(window.innerWidth<=600)setTimeout(function(){
+      document.getElementById('pbrPanel').scrollIntoView({behavior:'smooth',block:'nearest'});
+    },130);
+  });
+});
+</script>
+</body>
+</html>

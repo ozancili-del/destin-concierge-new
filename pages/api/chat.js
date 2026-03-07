@@ -1455,7 +1455,7 @@ The guest is now in follow-up conversation mode. Answer their questions naturall
     // e.g. "5th march. 2 ppl" → extractDates returns null, but extractSingleDate finds "2026-03-05"
     // Guard: only fire when message has no range indicator (to/until/through or digit-dash-digit)
     const hasRangeIndicator = /\d\s*[-–]\s*\d|\b(to|until|through|thru)\b/i.test(lastUser);
-    const singleCheckinDate = (!dates && !hasRangeIndicator && !guestBooking) ? extractSingleDate(lastUser) : null;
+    const singleCheckinDate = (!dates && !hasRangeIndicator && !guestBooking && wantsAvailability) ? extractSingleDate(lastUser) : null;
 
     // ── EXISTING GUEST EXTENSION DETECTION ───────────────────────────────────
     const isExtensionRequest = guestBooking && !dates && /stay.*(one|1|two|2|three|3|an?)?\s*(more|extra|another|longer|additional)\s*night|extend.*stay|one more night|stay longer|check.?out.*later|late check.?out|leave.*later/i.test(lastUser);

@@ -103,7 +103,7 @@ const TILE_SIZE=256;
 
 function resize(){canvas.width=canvas.parentElement.offsetWidth;canvas.height=canvas.parentElement.offsetHeight;draw();}
 function latLngToTile(lat,lng,z){const n=Math.pow(2,z),x=(lng+180)/360*n,lr=lat*Math.PI/180,y=(1-Math.log(Math.tan(lr)+1/Math.cos(lr))/Math.PI)/2*n;return{x,y};}
-function getCenter(){return{lat:30.392,lng:-86.452};}
+function getCenter(){return{lat:30.3845948,lng:-86.4745738};}
 function worldToScreen(lat,lng){const c=getCenter(),ct=latLngToTile(c.lat,c.lng,zoom),pt=latLngToTile(lat,lng,zoom),cx=canvas.width/2+offsetX,cy=canvas.height/2+offsetY;return{x:cx+(pt.x-ct.x)*TILE_SIZE*scale,y:cy+(pt.y-ct.y)*TILE_SIZE*scale};}
 
 const tileCache={};

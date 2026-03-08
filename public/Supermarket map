@@ -1,0 +1,171 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grocery Stores Near Pelican Beach Resort, Destin FL</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: Arial, sans-serif; background: #f0f7fb; }
+  #map { width: 100%; height: 500px; }
+  .popup-title { font-weight: bold; font-size: 13px; color: #0d1b2a; margin-bottom: 3px; }
+  .popup-detail { font-size: 11px; color: #555; line-height: 1.6; }
+  .popup-distance { font-size: 11px; font-weight: bold; color: #0096c7; margin-top: 4px; }
+  .popup-note { font-size: 10px; color: #e67e22; font-weight: bold; margin-top: 3px; }
+  .leaflet-popup-content { min-width: 190px; }
+  .legend {
+    background: white; padding: 10px 14px; border-radius: 8px;
+    font-size: 11px; line-height: 1.9; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  .legend-row { display: flex; align-items: center; gap: 7px; }
+  .dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+const map = L.map('map', { zoomControl: true, scrollWheelZoom: false }).setView([30.3895, -86.463], 13);
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+  maxZoom: 19
+}).addTo(map);
+
+function makeIcon(color, size) {
+  return L.divIcon({
+    html: `<div style="background:${color};width:${size}px;height:${size}px;border-radius:50%;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.4);"></div>`,
+    className: '', iconAnchor: [size/2, size/2]
+  });
+}
+
+// Pelican Beach
+L.marker([30.38453, -86.47458], { icon: makeIcon('#023E8A', 20) })
+  .addTo(map)
+  .bindPopup(`<div class="popup-title">📍 Pelican Beach Resort</div><div class="popup-detail">1002 US-98, Destin FL<br>Your home base</div>`);
+
+const stores = [
+  {
+    lat: 30.3895, lng: -86.4494,
+    name: "Publix (Destin Commons)",
+    addr: "4425 Commons Dr E",
+    hours: "7am–10pm daily",
+    note: "Best deli + Pub-Subs. BOGO deals.",
+    distance: "~1.5 mi east · 5 min drive",
+    warn: null,
+    color: '#0096C7'
+  },
+  {
+    lat: 30.3903, lng: -86.4202,
+    name: "The Fresh Market",
+    addr: "4495 Commons Dr W",
+    hours: "7am–9pm daily",
+    note: "Premium meats, specialty items, great wine selection.",
+    distance: "~2.8 mi east · 8 min drive",
+    warn: null,
+    color: '#0096C7'
+  },
+  {
+    lat: 30.3904, lng: -86.4301,
+    name: "Walmart Supercenter",
+    addr: "US-98 E, Destin",
+    hours: "Open 24 hours",
+    note: "Beach gear, groceries, everything under one roof.",
+    distance: "~2.5 mi east · 7 min drive",
+    warn: null,
+    color: '#0096C7'
+  },
+  {
+    lat: 30.3887, lng: -86.4368,
+    name: "Target",
+    addr: "Destin Commons",
+    hours: "8am–10pm daily",
+    note: "Groceries + vacation essentials. Good snack run.",
+    distance: "~2.2 mi east · 6 min drive",
+    warn: null,
+    color: '#0096C7'
+  },
+  {
+    lat: 30.3907, lng: -86.4870,
+    name: "Whole Foods Market",
+    addr: "4402 Legendary Dr",
+    hours: "7am–10pm daily",
+    note: "Organic, prepared foods, wine bar. Closest upscale option.",
+    distance: "~0.8 mi west · 3 min drive",
+    warn: null,
+    color: '#0096C7'
+  },
+  {
+    lat: 30.3915, lng: -86.4910,
+    name: "Publix (Miramar Beach)",
+    addr: "US-98 W",
+    hours: "7am–10pm daily",
+    note: "Closest full-service grocery to the resort.",
+    distance: "~1.0 mi west · 3 min drive",
+    warn: null,
+    color: '#0096C7'
+  },
+  {
+    lat: 30.3901, lng: -86.4778,
+    name: "Destin Euro Market",
+    addr: "743 Harbor Blvd Ste 6",
+    hours: "10am–7pm Mon–Sat",
+    note: "Eastern European specialties, imported cheeses, unique finds. Local gem.",
+    distance: "~0.5 mi · walkable",
+    warn: null,
+    color: '#2ecc71'
+  },
+  {
+    lat: 30.3920, lng: -86.4847,
+    name: "Destin Ice Seafood Market & Deli",
+    addr: "US-98 W area",
+    hours: "Call ahead",
+    note: "Fresh local seafood, deli. Best stop for Gulf catch to cook in your unit.",
+    distance: "~0.9 mi west · 3 min drive",
+    warn: null,
+    color: '#2ecc71'
+  },
+  {
+    lat: 30.3913, lng: -86.4815,
+    name: "Winn-Dixie",
+    addr: "981 US-98 E",
+    hours: "7am–10pm",
+    note: "Solid selection, hot bar, good deli. Closest standard grocery east of resort.",
+    distance: "~0.4 mi east · 2 min drive",
+    warn: "⚠️ Converting to Aldi — Apr/May 2026"
+  ,
+    color: '#e67e22'
+  }
+];
+
+stores.forEach(s => {
+  const icon = makeIcon(s.color, 14);
+  const warnHtml = s.warn ? `<div class="popup-note">${s.warn}</div>` : '';
+  L.marker([s.lat, s.lng], { icon })
+    .addTo(map)
+    .bindPopup(`
+      <div class="popup-title">${s.name}</div>
+      <div class="popup-detail">${s.addr}<br>${s.hours}<br>${s.note}</div>
+      <div class="popup-distance">📍 ${s.distance}</div>
+      ${warnHtml}
+    `);
+});
+
+// Legend
+const legend = L.control({ position: 'bottomleft' });
+legend.onAdd = function() {
+  const div = L.DomUtil.create('div', 'legend');
+  div.innerHTML = `
+    <div class="legend-row"><div class="dot" style="background:#023E8A;"></div> Pelican Beach Resort</div>
+    <div class="legend-row"><div class="dot" style="background:#0096C7;"></div> Supermarket / Chain</div>
+    <div class="legend-row"><div class="dot" style="background:#2ecc71;"></div> Specialty / Local</div>
+    <div class="legend-row"><div class="dot" style="background:#e67e22;"></div> Changing Soon</div>
+  `;
+  return div;
+};
+legend.addTo(map);
+</script>
+</body>
+</html>

@@ -2,170 +2,127 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Grocery Stores Near Pelican Beach Resort, Destin FL</title>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Grocery Stores Near Pelican Beach Resort — Destin FL</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: Arial, sans-serif; background: #f0f7fb; }
-  #map { width: 100%; height: 500px; }
-  .popup-title { font-weight: bold; font-size: 13px; color: #0d1b2a; margin-bottom: 3px; }
-  .popup-detail { font-size: 11px; color: #555; line-height: 1.6; }
-  .popup-distance { font-size: 11px; font-weight: bold; color: #0096c7; margin-top: 4px; }
-  .popup-note { font-size: 10px; color: #e67e22; font-weight: bold; margin-top: 3px; }
-  .leaflet-popup-content { min-width: 190px; }
-  .legend {
-    background: white; padding: 10px 14px; border-radius: 8px;
-    font-size: 11px; line-height: 1.9; box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-  }
-  .legend-row { display: flex; align-items: center; gap: 7px; }
-  .dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#060f1e;font-family:Arial,sans-serif;}
+.pbr-wrap{max-width:900px;margin:0 auto;border-radius:14px;overflow:hidden;box-shadow:0 8px 36px rgba(0,0,0,0.3);border:1px solid #1a2a40;}
+.pbr-head{background:#0d1f3c;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.pbr-head h3{font-family:Georgia,serif;font-size:18px;color:#fff;font-weight:normal;margin:0 0 3px;}
+.pbr-head p{font-size:10px;color:rgba(255,255,255,0.38);margin:0;letter-spacing:1.8px;text-transform:uppercase;}
+.pbr-badge{background:rgba(0,150,199,0.14);border:1px solid rgba(0,150,199,0.32);border-radius:20px;padding:5px 14px;font-size:11px;color:#0096c7;font-weight:700;white-space:nowrap;flex-shrink:0;}
+#pbr-map{width:100%;height:500px;}
+.leaflet-control-attribution{background:rgba(5,14,28,0.72)!important;color:rgba(255,255,255,0.28)!important;font-size:9px!important;}
+.leaflet-control-attribution a{color:rgba(255,255,255,0.38)!important;}
+.leaflet-control-zoom a{background:rgba(13,31,60,0.9)!important;color:#0096c7!important;border-color:rgba(255,255,255,0.09)!important;}
+.leaflet-control-zoom a:hover{background:rgba(0,150,199,0.28)!important;}
+.pbr-pin{width:36px;height:36px;border-radius:50%;background:rgba(0,150,199,0.2);border:2.5px solid rgba(0,150,199,0.82);display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;backdrop-filter:blur(5px);transition:background .18s,transform .18s,box-shadow .18s;animation:pbrPulse 2.8s ease-in-out infinite;-webkit-tap-highlight-color:transparent;}
+.pbr-pin:hover,.pbr-pin.on{background:rgba(0,150,199,0.58);border-color:#00d4ff;transform:scale(1.3);animation:none;box-shadow:0 0 22px rgba(0,150,199,0.8);}
+.pbr-pin-home{background:rgba(2,62,138,0.4);border-color:rgba(2,62,138,0.9);}
+.pbr-pin-home:hover,.pbr-pin-home.on{background:rgba(2,62,138,0.8);border-color:#4a9eff;}
+.pbr-pin-warn{background:rgba(230,126,34,0.2);border-color:rgba(230,126,34,0.82);}
+.pbr-pin-warn:hover,.pbr-pin-warn.on{background:rgba(230,126,34,0.58);border-color:#ffaa44;}
+.pbr-pin-local{background:rgba(46,204,113,0.2);border-color:rgba(46,204,113,0.82);}
+.pbr-pin-local:hover,.pbr-pin-local.on{background:rgba(46,204,113,0.58);border-color:#2ecc71;}
+@keyframes pbrPulse{0%,100%{box-shadow:0 0 0 0 rgba(0,150,199,0.48);}50%{box-shadow:0 0 0 9px rgba(0,150,199,0);}}
+.pbr-panel{background:#0b1a30;max-height:0;overflow:hidden;transition:max-height .38s cubic-bezier(.4,0,.2,1);}
+.pbr-panel.open{max-height:270px;}
+.pbr-panel-inner{padding:18px 24px 22px;}
+.pbr-panel-row{display:flex;gap:18px;align-items:flex-start;}
+.pbr-photo{width:132px;min-width:132px;height:90px;border-radius:9px;object-fit:cover;border:1px solid rgba(255,255,255,0.07);background:#071020;display:block;flex-shrink:0;}
+.pbr-nophoto{width:132px;min-width:132px;height:90px;border-radius:9px;flex-shrink:0;background:rgba(0,150,199,0.07);border:1px solid rgba(0,150,199,0.14);display:flex;align-items:center;justify-content:center;font-size:30px;}
+.pbr-text{flex:1;min-width:0;}
+.pbr-text h4{font-family:Georgia,serif;font-size:15px;color:#fff;margin:0 0 6px;font-weight:normal;line-height:1.3;}
+.pbr-text p{font-size:12.5px;color:rgba(255,255,255,0.52);line-height:1.7;margin:0;}
+.pbr-tag{display:inline-block;margin-top:8px;font-size:10px;color:#0096c7;background:rgba(0,150,199,0.09);border:1px solid rgba(0,150,199,0.2);padding:2px 9px;border-radius:6px;font-weight:700;}
+.pbr-tag-warn{color:#e67e22;background:rgba(230,126,34,0.09);border-color:rgba(230,126,34,0.3);}
+.pbr-foot{background:#060f1e;padding:11px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.pbr-foot p{font-size:9px;color:rgba(255,255,255,0.18);letter-spacing:.5px;margin:0;}
+.pbr-foot a{font-size:11px;color:#0096c7;text-decoration:none;font-weight:700;}
+@media(max-width:600px){
+  #pbr-map{height:54vw;min-height:230px;}
+  .pbr-panel-row{flex-direction:column;gap:12px;}
+  .pbr-photo,.pbr-nophoto{width:100%;min-width:unset;height:160px;}
+  .pbr-panel.open{max-height:420px;}
+}
 </style>
 </head>
 <body>
-<div id="map"></div>
+<div class="pbr-wrap">
+  <div class="pbr-head">
+    <div><h3>Grocery Stores Near Pelican Beach Resort</h3><p>Tap any pin for address, hours &amp; what it's best for</p></div>
+    <div class="pbr-badge">🛒 9 Stores</div>
+  </div>
+  <div id="pbr-map"></div>
+  <div class="pbr-panel" id="pbrPanel">
+    <div class="pbr-panel-inner">
+      <div class="pbr-panel-row">
+        <div id="pbrPhotoWrap"></div>
+        <div class="pbr-text">
+          <h4 id="pbrTitle">Grocery Stores Near Pelican Beach</h4>
+          <p id="pbrDesc">Tap any glowing pin on the map to see store details, hours, and what it's best for.</p>
+          <span class="pbr-tag" id="pbrTag">Pelican Beach Resort · 1002 US-98 · Destin FL</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pbr-foot">
+    <p>DESTIN CONDO GETAWAYS · PELICAN BEACH RESORT · 1002 US-98 · DESTIN FL 32541</p>
+    <a href="https://www.destincondogetaways.com/availability">Check Availability →</a>
+  </div>
+</div>
+
 <script>
-const map = L.map('map', { zoomControl: true, scrollWheelZoom: false }).setView([30.3895, -86.463], 13);
-
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-  attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
-  maxZoom: 19
-}).addTo(map);
-
-function makeIcon(color, size) {
-  return L.divIcon({
-    html: `<div style="background:${color};width:${size}px;height:${size}px;border-radius:50%;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.4);"></div>`,
-    className: '', iconAnchor: [size/2, size/2]
-  });
-}
-
-// Pelican Beach
-L.marker([30.38453, -86.47458], { icon: makeIcon('#023E8A', 20) })
-  .addTo(map)
-  .bindPopup(`<div class="popup-title">📍 Pelican Beach Resort</div><div class="popup-detail">1002 US-98, Destin FL<br>Your home base</div>`);
-
-const stores = [
-  {
-    lat: 30.3895, lng: -86.4494,
-    name: "Publix (Destin Commons)",
-    addr: "4425 Commons Dr E",
-    hours: "7am–10pm daily",
-    note: "Best deli + Pub-Subs. BOGO deals.",
-    distance: "~1.5 mi east · 5 min drive",
-    warn: null,
-    color: '#0096C7'
-  },
-  {
-    lat: 30.3903, lng: -86.4202,
-    name: "The Fresh Market",
-    addr: "4495 Commons Dr W",
-    hours: "7am–9pm daily",
-    note: "Premium meats, specialty items, great wine selection.",
-    distance: "~2.8 mi east · 8 min drive",
-    warn: null,
-    color: '#0096C7'
-  },
-  {
-    lat: 30.3904, lng: -86.4301,
-    name: "Walmart Supercenter",
-    addr: "US-98 E, Destin",
-    hours: "Open 24 hours",
-    note: "Beach gear, groceries, everything under one roof.",
-    distance: "~2.5 mi east · 7 min drive",
-    warn: null,
-    color: '#0096C7'
-  },
-  {
-    lat: 30.3887, lng: -86.4368,
-    name: "Target",
-    addr: "Destin Commons",
-    hours: "8am–10pm daily",
-    note: "Groceries + vacation essentials. Good snack run.",
-    distance: "~2.2 mi east · 6 min drive",
-    warn: null,
-    color: '#0096C7'
-  },
-  {
-    lat: 30.3907, lng: -86.4870,
-    name: "Whole Foods Market",
-    addr: "4402 Legendary Dr",
-    hours: "7am–10pm daily",
-    note: "Organic, prepared foods, wine bar. Closest upscale option.",
-    distance: "~0.8 mi west · 3 min drive",
-    warn: null,
-    color: '#0096C7'
-  },
-  {
-    lat: 30.3915, lng: -86.4910,
-    name: "Publix (Miramar Beach)",
-    addr: "US-98 W",
-    hours: "7am–10pm daily",
-    note: "Closest full-service grocery to the resort.",
-    distance: "~1.0 mi west · 3 min drive",
-    warn: null,
-    color: '#0096C7'
-  },
-  {
-    lat: 30.3901, lng: -86.4778,
-    name: "Destin Euro Market",
-    addr: "743 Harbor Blvd Ste 6",
-    hours: "10am–7pm Mon–Sat",
-    note: "Eastern European specialties, imported cheeses, unique finds. Local gem.",
-    distance: "~0.5 mi · walkable",
-    warn: null,
-    color: '#2ecc71'
-  },
-  {
-    lat: 30.3920, lng: -86.4847,
-    name: "Destin Ice Seafood Market & Deli",
-    addr: "US-98 W area",
-    hours: "Call ahead",
-    note: "Fresh local seafood, deli. Best stop for Gulf catch to cook in your unit.",
-    distance: "~0.9 mi west · 3 min drive",
-    warn: null,
-    color: '#2ecc71'
-  },
-  {
-    lat: 30.3913, lng: -86.4815,
-    name: "Winn-Dixie",
-    addr: "981 US-98 E",
-    hours: "7am–10pm",
-    note: "Solid selection, hot bar, good deli. Closest standard grocery east of resort.",
-    distance: "~0.4 mi east · 2 min drive",
-    warn: "⚠️ Converting to Aldi — Apr/May 2026"
-  ,
-    color: '#e67e22'
-  }
+var pins=[
+  {lat:30.38453,lon:-86.47458,e:'📍',cls:'pbr-pin-home',t:'Pelican Beach Resort',d:'Your home base. Direct Gulf access — step off the elevator and you\'re on the beach. Units 707 and 1006 available for direct booking.',tag:'1002 US-98 · Destin FL 32541',warn:false,p:null},
+  {lat:30.3913,lon:-86.4815,e:'🛒',cls:'pbr-pin-warn',t:'Winn-Dixie',d:'Closest standard supermarket to the resort. Solid selection, good deli counter, hot bar, beer and wine section. Beach accessories stocked too.',tag:'981 US-98 E · 0.4 mi · 7am–10pm',warn:true,warnText:'⚠️ Converting to Aldi — Apr/May 2026. Verify before your trip.',p:null},
+  {lat:30.3901,lon:-86.4778,e:'🇪🇺',cls:'pbr-pin-local',t:'Destin Euro Market',d:'A local gem most tourists never find. Eastern European imports — Bulgarian and Polish cheeses, smoked meats, specialty chocolates, sausages, imported breads. Walkable from the resort.',tag:'743 Harbor Blvd Ste 6 · ~0.5 mi · 10am–7pm Mon–Sat',warn:false,p:null},
+  {lat:30.3920,lon:-86.4847,e:'🦐',cls:'pbr-pin-local',t:'Destin Ice Seafood Market & Deli',d:'Fresh local Gulf catch, properly handled. Best stop if you want to cook fresh grouper or shrimp in your condo kitchen. A proper Destin experience.',tag:'US-98 W · ~0.9 mi · Call ahead for hours',warn:false,p:null},
+  {lat:30.3907,lon:-86.4870,e:'🌿',cls:'',t:'Whole Foods Market',d:'Closest large grocery to the resort. Organic produce, excellent prepared foods counter, great wine and cheese. Prime members get discounts. Good arrival-day choice.',tag:'4402 Legendary Dr · ~0.8 mi west · 7am–10pm',warn:false,p:null},
+  {lat:30.3915,lon:-86.4910,e:'🛍️',cls:'',t:'Publix — Miramar Beach',d:'Closest full-service Publix. Famous deli and Pub-Subs. Rotating BOGO deals worth checking. Friendly staff, well-stocked. Best for a full weekly shop on arrival day.',tag:'US-98 W · ~1.0 mi west · 7am–10pm',warn:false,p:null},
+  {lat:30.3895,lon:-86.4494,e:'🛍️',cls:'',t:'Publix — Destin Commons',d:'Second Publix location, slightly larger. Right at Destin Commons near Target and The Fresh Market. Same great deli and BOGO deals.',tag:'4425 Commons Dr E · ~1.5 mi east · 7am–10pm',warn:false,p:null},
+  {lat:30.3904,lon:-86.4301,e:'🏬',cls:'',t:'Walmart Supercenter',d:'Open 24 hours. Full grocery section plus beach gear, sunscreen, floaties, chairs, coolers — everything for the week at the best prices. Great for a big arrival-day haul.',tag:'US-98 E · ~2.5 mi east · Open 24hrs',warn:false,p:null},
+  {lat:30.3887,lon:-86.4368,e:'🎯',cls:'',t:'Target',d:'Good grocery section for snacks and essentials. Pair with Publix next door for a complete stock-up. Destin Commons is a pleasant open-air stop.',tag:'Destin Commons · ~2.2 mi east · 8am–10pm',warn:false,p:null},
+  {lat:30.3903,lon:-86.4202,e:'🥩',cls:'',t:'The Fresh Market',d:'Premium butcher counter, artisan cheeses, specialty wines, prepared foods. Best source for a proper dinner at the condo — quality across the board on meats and produce.',tag:'4495 Commons Dr W · ~2.8 mi east · 7am–9pm',warn:false,p:null}
 ];
 
-stores.forEach(s => {
-  const icon = makeIcon(s.color, 14);
-  const warnHtml = s.warn ? `<div class="popup-note">${s.warn}</div>` : '';
-  L.marker([s.lat, s.lng], { icon })
-    .addTo(map)
-    .bindPopup(`
-      <div class="popup-title">${s.name}</div>
-      <div class="popup-detail">${s.addr}<br>${s.hours}<br>${s.note}</div>
-      <div class="popup-distance">📍 ${s.distance}</div>
-      ${warnHtml}
-    `);
-});
+var map=L.map('pbr-map',{center:[30.388,-86.468],zoom:14,zoomControl:true,scrollWheelZoom:true,maxZoom:21,tap:true});
+L.tileLayer('https://mt{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',{
+  subdomains:['0','1','2','3'],attribution:'© Google Maps',maxZoom:21,maxNativeZoom:21
+}).addTo(map);
 
-// Legend
-const legend = L.control({ position: 'bottomleft' });
-legend.onAdd = function() {
-  const div = L.DomUtil.create('div', 'legend');
-  div.innerHTML = `
-    <div class="legend-row"><div class="dot" style="background:#023E8A;"></div> Pelican Beach Resort</div>
-    <div class="legend-row"><div class="dot" style="background:#0096C7;"></div> Supermarket / Chain</div>
-    <div class="legend-row"><div class="dot" style="background:#2ecc71;"></div> Specialty / Local</div>
-    <div class="legend-row"><div class="dot" style="background:#e67e22;"></div> Changing Soon</div>
-  `;
-  return div;
-};
-legend.addTo(map);
+var active=null;
+pins.forEach(function(pin,i){
+  var el=document.createElement('div');
+  el.className='pbr-pin'+(pin.cls?' '+pin.cls:'');
+  el.innerHTML=pin.e;
+  el.style.animationDelay=(i*0.11)+'s';
+  var m=L.marker([pin.lat,pin.lon],{
+    icon:L.divIcon({html:el,className:'',iconSize:[36,36],iconAnchor:[18,18]})
+  }).addTo(map);
+  m.on('click',function(){
+    document.getElementById('pbrTitle').textContent=pin.t;
+    document.getElementById('pbrDesc').textContent=pin.d+(pin.warn?' '+pin.warnText:'');
+    var tagEl=document.getElementById('pbrTag');
+    tagEl.textContent=pin.tag;
+    tagEl.className='pbr-tag'+(pin.warn?' pbr-tag-warn':'');
+    var wrap=document.getElementById('pbrPhotoWrap');
+    wrap.innerHTML=pin.p
+      ?'<img class="pbr-photo" src="'+pin.p+'" alt="'+pin.t+'" onerror="this.parentNode.innerHTML=\'<div class=pbr-nophoto>'+pin.e+'<\\/div>\'">'
+      :'<div class="pbr-nophoto">'+pin.e+'</div>';
+    document.getElementById('pbrPanel').classList.add('open');
+    if(active)active.classList.remove('on');
+    var pe=m.getElement()&&m.getElement().querySelector('.pbr-pin');
+    if(pe){pe.classList.add('on');active=pe;}
+    if(window.innerWidth<=600)setTimeout(function(){
+      document.getElementById('pbrPanel').scrollIntoView({behavior:'smooth',block:'nearest'});
+    },130);
+  });
+});
 </script>
 </body>
 </html>

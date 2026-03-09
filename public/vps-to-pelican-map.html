@@ -17,9 +17,35 @@
   #info-bar .label{font-size:10px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.45);margin-bottom:6px;}
   #info-bar .value{font-size:15px;font-weight:bold;color:#00d4ff;}
   #info-bar .sub-val{font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;}
-  #replay-btn{position:absolute;bottom:20px;right:10px;background:rgba(0,150,199,0.85);border:none;border-radius:8px;color:white;font-size:13px;font-weight:bold;padding:10px 18px;cursor:pointer;z-index:10;letter-spacing:0.5px;}
+
+  /* Replay button moved to TOP-RIGHT */
+  #replay-btn{position:absolute;top:10px;right:10px;background:rgba(0,150,199,0.85);border:none;border-radius:8px;color:white;font-size:13px;font-weight:bold;padding:10px 18px;cursor:pointer;z-index:10;letter-spacing:0.5px;}
   #replay-btn:hover{background:rgba(0,180,230,0.95);}
-  #status{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(13,27,42,0.92);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:8px 20px;font-size:12px;color:rgba(255,255,255,0.75);z-index:10;white-space:nowrap;transition:opacity 0.5s;}
+
+  /* Status bar at bottom-center, won't overlap replay btn anymore */
+  #status{
+    position:absolute;
+    bottom:20px;
+    left:50%;
+    transform:translateX(-50%);
+    background:rgba(13,27,42,0.92);
+    border:1px solid rgba(255,255,255,0.1);
+    border-radius:20px;
+    padding:8px 20px;
+    font-size:12px;
+    color:rgba(255,255,255,0.75);
+    z-index:10;
+    white-space:nowrap;
+    transition:opacity 0.4s, transform 0.4s;
+    max-width:90vw;
+    text-align:center;
+  }
+  #status.pop {
+    color:#fff;
+    background:rgba(0,150,199,0.7);
+    border-color:rgba(0,212,255,0.5);
+    transform:translateX(-50%) scale(1.07);
+  }
 </style>
 </head>
 <body>
@@ -46,8 +72,6 @@ const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 const TILE_SIZE = 256;
 
-// Route waypoints: VPS → along US-98 → Pelican Beach
-// Real approximate coords following US-98
 const ROUTE = [
   {lat:30.496376, lng:-86.548271},
   {lat:30.496860, lng:-86.546376},
@@ -96,7 +120,17 @@ const ROUTE = [
   {lat:30.384708, lng:-86.474688},
 ];
 
-// Interpolate route into many small steps
+// Waypoint triggers: {lat, lng, radius (degrees), text, triggered}
+const WAYPOINTS = [
+  {lat:30.395407, lng:-86.582607, radius:0.003, text:'👀 Watch right — dunes started!', triggered:false},
+  {lat:30.391185, lng:-86.523141, radius:0.003, text:'🏖️ Welcome to Destin! 🦀 Crab Island on your left', triggered:false},
+  {lat:30.394666, lng:-86.507640, radius:0.003, text:'Almost there 😊', triggered:false},
+];
+
+function resetWaypoints() {
+  WAYPOINTS.forEach(w => w.triggered = false);
+}
+
 function interpolateRoute(points, steps) {
   const result = [];
   for (let i = 0; i < points.length - 1; i++) {
@@ -119,7 +153,6 @@ let routeProgress = 0;
 let animating = false;
 let animFrame = null;
 
-// Map state — we'll smoothly pan to follow the car
 let centerLat = 30.392;
 let centerLng = -86.478;
 let zoom = 12;
@@ -176,14 +209,12 @@ function drawTiles() {
       else { ctx.fillStyle = '#0d1f35'; ctx.fillRect(sx, sy, tw, tw); }
     }
   }
-  // Dark overlay
   ctx.fillStyle = 'rgba(5,15,30,0.32)';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
 function drawRoute(progress) {
   if (routePoints.length < 2) return;
-  // Draw full planned route (faint)
   ctx.beginPath();
   ctx.setLineDash([6, 4]);
   ctx.strokeStyle = 'rgba(0,180,216,0.3)';
@@ -197,7 +228,6 @@ function drawRoute(progress) {
   ctx.stroke();
   ctx.setLineDash([]);
 
-  // Draw traveled route (bright)
   if (progress > 0) {
     ctx.beginPath();
     ctx.strokeStyle = '#00d4ff';
@@ -216,7 +246,6 @@ function drawRoute(progress) {
 }
 
 function drawPins(progress) {
-  // VPS Airport pin
   const vps = worldToScreen(ROUTE[0].lat, ROUTE[0].lng);
   ctx.beginPath();
   ctx.arc(vps.x, vps.y, 8, 0, Math.PI * 2);
@@ -231,7 +260,6 @@ function drawPins(progress) {
   ctx.textBaseline = 'middle';
   ctx.fillText('✈', vps.x, vps.y);
 
-  // VPS label
   ctx.font = 'bold 11px Arial';
   const vpsLabel = 'Destin Airport (VPS)';
   const vpsW = ctx.measureText(vpsLabel).width;
@@ -245,7 +273,6 @@ function drawPins(progress) {
   ctx.textBaseline = 'middle';
   ctx.fillText(vpsLabel, vps.x, vps.y - 20);
 
-  // Pelican Beach pin (destination)
   const dest = worldToScreen(ROUTE[ROUTE.length-1].lat, ROUTE[ROUTE.length-1].lng);
   const arrived = progress >= routePoints.length - 2;
   const pulse = arrived ? (Math.sin(Date.now() / 300) * 3 + 10) : 9;
@@ -266,7 +293,6 @@ function drawPins(progress) {
   ctx.lineWidth = 2.5;
   ctx.stroke();
 
-  // Pelican label
   ctx.font = 'bold 11px Arial';
   const pbLabel = 'Pelican Beach Resort';
   const pbW = ctx.measureText(pbLabel).width;
@@ -286,10 +312,7 @@ function drawCar(progress) {
   const idx = Math.min(Math.floor(progress), routePoints.length - 1);
   const pos = routePoints[idx];
   const {x, y} = worldToScreen(pos.lat, pos.lng);
-
-  // Face right once past the US-98 eastbound turn (around lat 30.402)
   const facingRight = pos.lat >= 30.403;
-
   ctx.save();
   ctx.font = '22px serif';
   ctx.textAlign = 'center';
@@ -327,21 +350,58 @@ const totalDist = (() => {
 
 function updateInfoBar(progress) {
   const traveled = getTotalDistanceSoFar(progress);
-  const remaining = totalDist - traveled;
   const pct = progress / (routePoints.length - 1);
   const etaMin = Math.max(0, Math.round((1 - pct) * 15));
   document.getElementById('dist-val').textContent = traveled.toFixed(1) + ' mi';
   document.getElementById('eta-val').textContent = pct >= 1 ? '🏖️ You\'ve arrived!' : `~${etaMin} min remaining`;
 }
 
+// Pop animation for status bar
+let popTimeout = null;
+function setStatus(text, pop) {
+  const el = document.getElementById('status');
+  el.textContent = text;
+  if (pop) {
+    el.classList.add('pop');
+    if (popTimeout) clearTimeout(popTimeout);
+    popTimeout = setTimeout(() => el.classList.remove('pop'), 1800);
+  } else {
+    el.classList.remove('pop');
+  }
+}
+
+function checkWaypoints(pos) {
+  for (const w of WAYPOINTS) {
+    if (w.triggered) continue;
+    const dlat = pos.lat - w.lat;
+    const dlng = pos.lng - w.lng;
+    const dist = Math.sqrt(dlat*dlat + dlng*dlng);
+    if (dist < w.radius) {
+      w.triggered = true;
+      setStatus(w.text, true);
+      return true;
+    }
+  }
+  return false;
+}
+
 function updateStatus(progress) {
   const pct = progress / (routePoints.length - 1);
+  const idx = Math.min(Math.floor(progress), routePoints.length - 1);
+  const pos = routePoints[idx];
+
+  // Check coordinate-based waypoints first
+  const hitWaypoint = checkWaypoints(pos);
+  if (hitWaypoint) return;
+
+  // Fallback to percentage-based messages (only if no waypoint active)
   const el = document.getElementById('status');
-  if (pct < 0.1) el.textContent = '🚗 Leaving Destin Airport (VPS)...';
-  else if (pct < 0.4) el.textContent = '🛣️ Heading east on US-98...';
-  else if (pct < 0.8) el.textContent = '🌊 Almost there — Pelican Beach ahead!';
-  else if (pct < 1.0) el.textContent = '🏖️ Turning into Pelican Beach Resort...';
-  else el.textContent = '✅ Arrived at Pelican Beach Resort!';
+  if (el.classList.contains('pop')) return; // don't overwrite a fresh waypoint
+
+  if (pct < 0.1) setStatus('🚗 Leaving Destin Airport (VPS)...', false);
+  else if (pct < 0.38) setStatus('🛣️ Heading east on US-98...', false);
+  else if (pct >= 1) setStatus('✅ Arrived at Pelican Beach Resort!', true);
+  else if (pct > 0.92) setStatus('🏖️ Turning into Pelican Beach Resort...', false);
 }
 
 function draw() {
@@ -361,7 +421,6 @@ function resize() {
   draw();
 }
 
-// Smooth camera follow
 let camLat = 30.496376, camLng = -86.548271;
 function panToward(targetLat, targetLng, ease) {
   camLat += (targetLat - camLat) * ease;
@@ -372,13 +431,12 @@ function panToward(targetLat, targetLng, ease) {
 
 function animate() {
   if (!animating) return;
-  routeProgress += 0.6; // speed
+  routeProgress += 0.6;
   if (routeProgress >= routePoints.length - 1) {
     routeProgress = routePoints.length - 1;
     animating = false;
   }
 
-  // Pan camera to follow car
   const idx = Math.min(Math.floor(routeProgress), routePoints.length - 1);
   const carPos = routePoints[idx];
   panToward(carPos.lat, carPos.lng, 0.04);
@@ -388,13 +446,11 @@ function animate() {
   draw();
 
   if (animating) animFrame = requestAnimationFrame(animate);
-  else {
-    // arrived — pulse animation
-    pulseArrived();
-  }
+  else pulseArrived();
 }
 
 function pulseArrived() {
+  setStatus('✅ Arrived at Pelican Beach Resort!', true);
   let frames = 0;
   function pulse() {
     draw();
@@ -412,17 +468,17 @@ function startAnimation() {
   centerLat = camLat;
   centerLng = camLng;
   animating = true;
+  resetWaypoints();
+  if (popTimeout) clearTimeout(popTimeout);
+  document.getElementById('status').classList.remove('pop');
   updateInfoBar(0);
-  updateStatus(0);
-  // Small delay so tiles can load first
+  setStatus('🚗 Leaving Destin Airport (VPS)...', false);
   setTimeout(() => { animFrame = requestAnimationFrame(animate); }, 800);
 }
 
 document.getElementById('replay-btn').addEventListener('click', startAnimation);
 window.addEventListener('resize', resize);
 resize();
-
-// Auto-start
 setTimeout(startAnimation, 500);
 </script>
 </body>

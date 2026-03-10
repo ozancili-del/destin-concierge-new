@@ -1,0 +1,247 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Best Places to Watch Destin Fireworks</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: Arial, sans-serif; background: #0a1628; }
+#map { width: 100%; height: 500px; }
+
+#legend {
+  background: #0a1628;
+  padding: 14px 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+.leg-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.15);
+  transition: all 0.2s;
+  user-select: none;
+}
+.leg-item:hover { background: rgba(255,255,255,0.1); transform: translateY(-1px); }
+.leg-item.active { border-color: rgba(255,255,255,0.5); background: rgba(255,255,255,0.08); }
+.leg-dot { width: 13px; height: 13px; border-radius: 3px; flex-shrink: 0; }
+.leg-label { font-size: 11px; color: rgba(255,255,255,0.8); font-weight: bold; white-space: nowrap; }
+
+.fw-popup { min-width: 220px; }
+.fw-popup-title { font-size: 14px; font-weight: bold; color: #0d1b2a; margin-bottom: 5px; }
+.fw-popup-how { font-size: 12px; color: #444; line-height: 1.6; margin-bottom: 6px; }
+.fw-popup-tip { font-size: 11px; font-weight: bold; margin-bottom: 8px; }
+.fw-popup-dir {
+  display: block; background: #0096c7; color: white;
+  text-align: center; padding: 7px; border-radius: 4px;
+  text-decoration: none; font-size: 11px; font-weight: bold;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.5); opacity: 0.7; }
+}
+.barge-icon { font-size: 22px; animation: pulse 1.5s infinite; display: block; filter: drop-shadow(0 0 6px #ffd93d); }
+</style>
+</head>
+<body>
+
+<div id="map"></div>
+<div id="legend"></div>
+
+<script>
+const map = L.map('map', { center: [30.392, -86.510], zoom: 15 });
+
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+  attribution: '© Esri'
+}).addTo(map);
+
+const zones = [
+  {
+    id: 0,
+    name: '1 · HarborWalk Village',
+    color: '#8b5cf6',
+    coords: [
+      [30.39445653670661, -86.51323993070707],
+      [30.39398831996332, -86.51265767617836],
+      [30.39354364085925, -86.51101404459573],
+      [30.39375813370406, -86.51098675063095],
+      [30.39414538357565, -86.51161449642748],
+      [30.39446960931572, -86.51289120724485],
+      [30.39519049682092, -86.51304614641512],
+      [30.39503722800789, -86.51383432588999],
+    ],
+    how: 'Park at HarborWalk Village ($20) or City of Destin lot across the street ($15). Walk to the waterfront — bars, restaurants and docks all have great views. Upper levels of Margaritaville and Harry T\'s are top vantage points.',
+    tip: '🅿️ $20 HarborWalk · $15 City lot · 🚨 Never park at McGuire\'s!',
+    dir: 'https://www.google.com/maps/dir/?api=1&destination=HarborWalk+Village+Destin+FL'
+  },
+  {
+    id: 1,
+    name: '2 · Norriego Point',
+    color: '#ec4899',
+    coords: [
+      [30.39294068544863, -86.51437222774598],
+      [30.39245502216223, -86.51355940938637],
+      [30.39169910636837, -86.51213814643893],
+      [30.39065333019863, -86.5106760435726],
+      [30.39007363131963, -86.50960898949887],
+      [30.3903166359059,  -86.50847858101858],
+      [30.39098230888813, -86.50864180745469],
+      [30.39277621312403, -86.51198830481609],
+      [30.39362221648747, -86.51367750016603],
+      [30.3935908680264,  -86.5144585261218],
+    ],
+    how: 'Drive to the end of Gulf Shore Drive on Holiday Isle. Free dedicated parking lot with restrooms on site. Use the boardwalk and walkovers to reach the East Pass (harbor) side — closest land spot to the barge.',
+    tip: '💲 FREE parking · Restrooms on site · Closest to barge · Bring blanket & chair',
+    dir: 'https://www.google.com/maps/dir/?api=1&destination=Norriego+Point+Destin+FL'
+  },
+  {
+    id: 2,
+    name: '3 · Destin East Jetty',
+    color: '#3b82f6',
+    coords: [
+      [30.38384674474606, -86.50615497569488],
+      [30.38222503920204, -86.50641375089337],
+      [30.38232803187251, -86.50458331961612],
+      [30.38321535456889, -86.50444966144623],
+      [30.38436449276356, -86.50509652600876],
+      [30.38601707439128, -86.50466876132484],
+      [30.38644376595727, -86.50622125670721],
+    ],
+    how: 'Access from the east side of the pass — a quieter, less crowded spot with a great angle toward the barge. Limited street parking so arrive early.',
+    tip: '💲 Free · Less crowded · Great for families · Limited street parking',
+    dir: 'https://www.google.com/maps/dir/?api=1&destination=East+Jetty+Destin+FL'
+  },
+  {
+    id: 3,
+    name: '4 · Destin West Jetty',
+    color: '#f97316',
+    coords: [
+      [30.39050139440054, -86.51682007805577],
+      [30.38938000672924, -86.51889989593796],
+      [30.38884520819767, -86.51917985745494],
+      [30.3880516089262,  -86.52001975966891],
+      [30.38710282487161, -86.51897981571443],
+      [30.38672337405776, -86.51684000662402],
+      [30.38729268244302, -86.5164800501751],
+      [30.38799999128122, -86.51650005537266],
+      [30.38891429956695, -86.51674004976147],
+    ],
+    how: 'Gulf-side beach on the west side of the East Pass. Lay your blanket on the sand and watch from the beach. Best for July 4th West Jetties show — arrive very early on holiday weekends.',
+    tip: '🇺🇸 Great for July 4th · Gulf beach · Free · Arrive 2+ hrs early on big nights',
+    dir: 'https://www.google.com/maps/dir/?api=1&destination=West+Jetty+Beach+Destin+FL'
+  },
+  {
+    id: 4,
+    name: '5 · Destin Bridge',
+    color: '#ef4444',
+    coords: [
+      [30.39533732590311, -86.51305082052916],
+      [30.39552379447657, -86.51309377892588],
+      [30.39515036077656, -86.51464312394006],
+      [30.39492154066769, -86.51456062208634],
+    ],
+    how: 'Walk from HarborWalk Village parking across the Destin Marler Bridge pedestrian walkway — about 10 minutes to center. Safe walkway with divider wall. Bring a folding chair!',
+    tip: '💲 Free · Rarely crowded · Elevated view · Bridge traffic can be noisy',
+    dir: 'https://www.google.com/maps/dir/?api=1&destination=Destin+Bridge+Destin+FL'
+  }
+];
+
+const polygons = {};
+
+zones.forEach(zone => {
+  const poly = L.polygon(zone.coords, {
+    color: zone.color,
+    fillColor: zone.color,
+    fillOpacity: 0.35,
+    weight: 2.5,
+    opacity: 0.95
+  }).addTo(map);
+
+  poly.bindPopup(`
+    <div class="fw-popup">
+      <div class="fw-popup-title">${zone.name}</div>
+      <div class="fw-popup-how">${zone.how}</div>
+      <div class="fw-popup-tip" style="color:${zone.color}">${zone.tip}</div>
+      <a href="${zone.dir}" target="_blank" class="fw-popup-dir">📍 Get Directions →</a>
+    </div>
+  `, { maxWidth: 260 });
+
+  poly.on('mouseover', function() { this.setStyle({ fillOpacity: 0.6 }); });
+  poly.on('mouseout', function() { this.setStyle({ fillOpacity: 0.35 }); });
+
+  polygons[zone.id] = { poly, zone };
+});
+
+// Fireworks barge
+const bargeCoords = [
+  [30.39084223886332, -86.51419339090516],
+  [30.39151816643452, -86.51404607640285],
+  [30.39216361720321, -86.51445848438865],
+  [30.39266677618955, -86.51552489531032],
+  [30.39186380921142, -86.51629673383128],
+  [30.39098458098773, -86.51561330621843],
+];
+
+L.polygon(bargeCoords, {
+  color: '#ffd93d', fillColor: '#ffd93d',
+  fillOpacity: 0.2, weight: 2, dashArray: '6,4'
+}).addTo(map);
+
+const bargeCenter = [30.39176, -86.51513];
+L.marker(bargeCenter, {
+  icon: L.divIcon({
+    className: '',
+    html: '<span class="barge-icon">🎆</span>',
+    iconSize: [30, 30], iconAnchor: [15, 15], popupAnchor: [0, -18]
+  })
+}).addTo(map).bindPopup(`
+  <div class="fw-popup">
+    <div class="fw-popup-title">🎆 Fireworks Launch Barge</div>
+    <div class="fw-popup-how">The barge is positioned in the East Pass between HarborWalk Village and Norriego Point. Position shifts slightly each week based on wind and water conditions.</div>
+    <div class="fw-popup-tip" style="color:#f97316;">⚠️ Not a viewing spot — watch from zones 1–5!</div>
+  </div>
+`, { maxWidth: 240 });
+
+// Build clickable legend dynamically
+const legend = document.getElementById('legend');
+
+zones.forEach(zone => {
+  const item = document.createElement('div');
+  item.className = 'leg-item';
+  item.innerHTML = `<div class="leg-dot" style="background:${zone.color};"></div><span class="leg-label">${zone.name}</span>`;
+  item.addEventListener('click', () => {
+    const { poly } = polygons[zone.id];
+    map.fitBounds(poly.getBounds(), { padding: [60, 60], maxZoom: 17 });
+    poly.openPopup(poly.getBounds().getCenter());
+    poly.setStyle({ fillOpacity: 0.7 });
+    setTimeout(() => poly.setStyle({ fillOpacity: 0.35 }), 1500);
+    document.querySelectorAll('.leg-item').forEach(i => i.classList.remove('active'));
+    item.classList.add('active');
+  });
+  legend.appendChild(item);
+});
+
+// Barge legend
+const bargeItem = document.createElement('div');
+bargeItem.className = 'leg-item';
+bargeItem.innerHTML = `<div class="leg-dot" style="background:#ffd93d;border:1px solid #999;"></div><span class="leg-label">🎆 Fireworks Barge</span>`;
+bargeItem.addEventListener('click', () => {
+  map.flyTo(bargeCenter, 16, { duration: 1 });
+  document.querySelectorAll('.leg-item').forEach(i => i.classList.remove('active'));
+  bargeItem.classList.add('active');
+});
+legend.appendChild(bargeItem);
+</script>
+</body>
+</html>

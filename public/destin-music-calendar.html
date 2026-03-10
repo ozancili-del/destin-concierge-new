@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -576,6 +577,7 @@
       tab.classList.add('active');
       document.getElementById('month-' + tab.dataset.month).classList.add('active');
       updateCount();
+      sendHeight(); // send updated height after tab switch
     });
   });
 
@@ -587,7 +589,6 @@
     chip.addEventListener('click', () => {
       const type = chip.dataset.type;
       if (type === 'all') {
-        // toggle all
         const allOn = activeFilters.has('all');
         if (allOn) {
           activeFilters.clear();
@@ -625,6 +626,7 @@
       }
     });
     updateCount();
+    sendHeight(); // send updated height after filter change
   }
 
   function updateCount() {
@@ -634,13 +636,20 @@
     document.getElementById('countLine').textContent = visible + ' show' + (visible !== 1 ? 's' : '') + ' this month';
   }
 
-  updateCount();
-<script>
+  // ── HEIGHT REPORTING (safe version — no MutationObserver) ──
   function sendHeight() {
-    window.parent.postMessage({ frameHeight: document.body.scrollHeight }, '*');
+    var h = document.documentElement.scrollHeight || document.body.scrollHeight;
+    window.parent.postMessage({ frameHeight: h }, '*');
   }
-  window.addEventListener('load', sendHeight);
-  new MutationObserver(sendHeight).observe(document.body, { childList: true, subtree: true });
+
+  // Send on load, and once more after fonts/images settle
+  window.addEventListener('load', function() {
+    sendHeight();
+    setTimeout(sendHeight, 400);
+    setTimeout(sendHeight, 1000);
+  });
+
+  updateCount();
 </script>
 </body>
 </html>

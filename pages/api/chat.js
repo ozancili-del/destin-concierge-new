@@ -31,6 +31,7 @@ const BLOG_URLS = {
   supermarkets: "https://www.destincondogetaways.com/blog/destinsupermarkets",
   history:      "https://www.destincondogetaways.com/blog/destindiversehistory",
   explore:      "https://www.destincondogetaways.com/blog/destinexplore",
+  fireworks:    "https://www.destincondogetaways.com/blog/destin-fireworks-2026",
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -95,7 +96,8 @@ function detectBlogTopic(text) {
   if (t.match(/restaurant|eat|food|dinner|lunch|breakfast|dining|seafood|oyster|where to eat/)) return "restaurants";
   if (t.match(/beach|sand|swim|ocean|gulf|shore/)) return "beaches";
   if (t.match(/activit|thing to do|fun|tour|dolphin|parasail|snorkel|kayak|boat|fishing|water sport|rainy|indoor fun/)) return "activities";
-  if (t.match(/event|festival|concert|firework|show|calendar/)) return "events";
+  if (t.match(/event|festival|concert|show|calendar/)) return "events";
+  if (t.match(/firework|4th of july|july 4|independence day/)) return "fireworks";
   if (t.match(/airport|fly|flight|drive|get there|closest airport|transportation/)) return "airport";
   if (t.match(/romantic.*thing|romantic.*place|romantic.*spot|romantic.*idea|romantic.*activity|romantic.*do|romance.*destin|date night.*destin|honeymoon.*do|anniversary.*thing|anniversary.*do|anniversary.*plan|where.*romantic|what.*romantic|most romantic|things.*couple/)) return "romance";
   if (t.match(/rent a car|car rental|enterprise|hertz|avis/)) return "car";
@@ -2518,6 +2520,18 @@ RESORT FACILITIES
 - 2 on-site EV chargers (J1772, paid)
 - Tesla Supercharger station directly across the street next to Winn-Dixie
 - Free parking up to 2 cars — parking pass at front desk
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+INTERACTIVE TOOLS ON OUR BLOGS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Four of our blog guides have interactive tools built in — whenever you share one of these blogs, mention the tool so the guest knows it's more than just an article:
+- RESTAURANTS blog: has an interactive map — guests can filter by cuisine, tap for one-click directions to any restaurant
+- AIRPORT blog: has an animated map showing the actual drive route from VPS airport to Pelican Beach Resort — great for first-timers
+- FIREWORKS blog: has an interactive map of all fireworks viewing spots across Destin, a live countdown to the next show, and season filters
+- EVENTS blog: has an interactive calendar so guests can browse what's happening during their stay by month
+
+Example phrasing: "The restaurant guide has an interactive map where you can filter by type of food and get directions with one tap — really convenient."
+Keep it natural and brief — just one sentence letting them know the tool is there.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 RESORT MAP

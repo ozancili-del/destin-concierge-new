@@ -15,19 +15,42 @@
   #header .title { font-size: 13px; font-weight: bold; color: #e0f0ff; letter-spacing: 0.5px; }
   #header .sub { font-size: 11px; color: rgba(255,255,255,0.45); margin-top: 1px; }
   .dot-home { width: 10px; height: 10px; border-radius: 50%; background: #00d4ff; flex-shrink: 0; box-shadow: 0 0 6px #00d4ff; }
+
+  /* HOW TO USE BAR */
+  #howto { background: rgba(0,180,216,0.08); border-bottom: 1px solid rgba(0,180,216,0.15); padding: 7px 16px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; flex-wrap: wrap; }
+  #howto span { font-size: 11px; color: rgba(255,255,255,0.55); line-height: 1.5; }
+  #howto .tip { color: rgba(0,210,255,0.8); font-weight: bold; }
+
+  /* FILTER BAR */
+  #filters { background: rgba(13,27,42,0.95); border-bottom: 1px solid rgba(255,255,255,0.06); padding: 8px 12px; display: flex; gap: 6px; flex-shrink: 0; overflow-x: auto; scrollbar-width: none; }
+  #filters::-webkit-scrollbar { display: none; }
+  .filter-btn { padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; cursor: pointer; border: 1px solid rgba(255,255,255,0.15); background: transparent; color: rgba(255,255,255,0.55); white-space: nowrap; transition: all 0.15s; letter-spacing: 0.5px; }
+  .filter-btn:hover { background: rgba(255,255,255,0.08); color: white; }
+  .filter-btn.active { color: #0a1628; border-color: transparent; }
+  .filter-btn[data-cat="all"].active { background: #00d4ff; }
+  .filter-btn[data-cat="seafood"].active { background: #ff6b6b; }
+  .filter-btn[data-cat="sushi"].active { background: #ffd93d; color: #0a1628; }
+  .filter-btn[data-cat="italian"].active { background: #a78bfa; }
+  .filter-btn[data-cat="american"].active { background: #6bde8f; }
+  .filter-btn[data-cat="brunch"].active { background: #f97316; }
+
   #panel { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(180deg, rgba(10,22,40,0.0) 0%, rgba(10,22,40,0.97) 18%); padding: 40px 16px 16px; z-index: 10; pointer-events: none; }
   #panel-card { background: rgba(13,27,42,0.96); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 16px 18px; pointer-events: all; display: none; backdrop-filter: blur(8px); position: relative; }
   #panel-card.visible { display: block; }
   #panel-name { font-size: 16px; font-weight: bold; color: #fff; margin-bottom: 4px; }
   #panel-type { font-size: 11px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
   #panel-desc { font-size: 13px; color: rgba(255,255,255,0.65); line-height: 1.6; margin-bottom: 12px; }
+  #panel-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
   #panel-link { display: inline-block; font-size: 12px; font-weight: bold; color: #00b4d8; text-decoration: none; border: 1px solid rgba(0,180,216,0.35); border-radius: 6px; padding: 6px 14px; }
+  #panel-directions { display: inline-block; font-size: 12px; font-weight: bold; color: #6bde8f; text-decoration: none; border: 1px solid rgba(107,222,143,0.35); border-radius: 6px; padding: 6px 14px; }
+  #panel-directions:hover { background: rgba(107,222,143,0.1); }
+  #panel-link:hover { background: rgba(0,180,216,0.1); }
   #panel-close { position: absolute; top: 12px; right: 14px; font-size: 18px; color: rgba(255,255,255,0.4); cursor: pointer; }
   #legend { position: absolute; top: 10px; right: 10px; background: rgba(13,27,42,0.88); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px 13px; font-size: 11px; z-index: 10; }
   .legend-row { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; color: rgba(255,255,255,0.7); }
   .legend-row:last-child { margin-bottom: 0; }
   .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-  #zoom { position: absolute; bottom: 180px; right: 10px; display: flex; flex-direction: column; gap: 2px; z-index: 10; }
+  #zoom { position: absolute; bottom: 200px; right: 10px; display: flex; flex-direction: column; gap: 2px; z-index: 10; }
   .zoom-btn { width: 32px; height: 32px; background: rgba(13,27,42,0.88); border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color: white; font-size: 18px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; user-select: none; }
   .zoom-btn:hover { background: rgba(0,150,199,0.3); }
 </style>
@@ -36,10 +59,26 @@
 <div id="header">
   <div class="dot-home"></div>
   <div>
-    <div class="title">Best Restaurants Near Pelican Beach Resort-Zoom in and out to see more :) </div>
-    <div class="sub">Tap any pin to explore &mdash; Destin, FL</div>
+    <div class="title">Best Restaurants Near Pelican Beach Resort — Zoom in/out to explore</div>
+    <div class="sub">Tap any pin to see details, ratings & directions — Destin, FL</div>
   </div>
 </div>
+
+<!-- HOW TO USE -->
+<div id="howto">
+  <span>📍 <span class="tip">Tap a pin</span> → see rating, description, website & one-tap directions &nbsp;|&nbsp; 🍽️ <span class="tip">Filter by cuisine</span> below → tap <span class="tip">All</span> to reset &nbsp;|&nbsp; 🔍 <span class="tip">Drag</span> to pan, use <span class="tip">+/−</span> or pinch to zoom</span>
+</div>
+
+<!-- FILTER BAR -->
+<div id="filters">
+  <button class="filter-btn active" data-cat="all">🍴 All</button>
+  <button class="filter-btn" data-cat="seafood">🦞 Seafood</button>
+  <button class="filter-btn" data-cat="sushi">🍣 Sushi / Asian</button>
+  <button class="filter-btn" data-cat="italian">🍕 Italian</button>
+  <button class="filter-btn" data-cat="american">🍺 American / Pub</button>
+  <button class="filter-btn" data-cat="brunch">🍳 Brunch / Upscale</button>
+</div>
+
 <div id="map">
   <canvas id="canvas"></canvas>
   <div id="legend">
@@ -60,46 +99,69 @@
       <div id="panel-name"></div>
       <div id="panel-type"></div>
       <div id="panel-desc"></div>
-      <a id="panel-link" href="#" target="_blank" rel="noopener">Visit Website &rarr;</a>
+      <div id="panel-buttons">
+        <a id="panel-link" href="#" target="_blank" rel="noopener">🌐 Visit Website</a>
+        <a id="panel-directions" href="#" target="_blank" rel="noopener">📍 Get Directions</a>
+      </div>
     </div>
   </div>
 </div>
 <script>
 const R=[
-  {name:"Pelican Beach Resort",type:"HOME BASE",typeColor:"#00d4ff",lat:30.3845948,lng:-86.4745738,desc:"Your home base — Unit 707 & Unit 1006. Step off the elevator onto the Gulf. All restaurants are within 15 minutes.",url:"https://www.destincondogetaways.com",pinColor:"#00d4ff",pinGlow:true,isHome:true},
+  {name:"Pelican Beach Resort",type:"HOME BASE",typeColor:"#00d4ff",lat:30.3845948,lng:-86.4745738,desc:"Your home base — Unit 707 & Unit 1006. Step off the elevator onto the Gulf. All restaurants are within 15 minutes.",url:"https://www.destincondogetaways.com",pinColor:"#00d4ff",pinGlow:true,isHome:true,cat:"home"},
   // SEAFOOD
-  {name:"Dewey Destin's Seafood Restaurant",type:"SEAFOOD · 4.5★ (4.4K)",typeColor:"#ff6b6b",lat:30.3974616,lng:-86.5150988,desc:"A Destin institution — locals go here. Fresh catch daily, waterfront on the bayou. Order the grouper. No frills, just great fish at fair prices.",url:"https://www.destinseafood.com/",pinColor:"#ff6b6b"},
-  {name:"Dewey Destin's Harborside",type:"SEAFOOD · 4.4★ (4.1K)",typeColor:"#ff6b6b",lat:30.3925,lng:-86.5005,desc:"The harbor location of the Dewey's brand — different vibe from the bayou original. Waterfront harbor views, same great seafood. Great for watching the boats.",url:"https://www.destinseafood.com/",pinColor:"#ff6b6b"},
-  {name:"Brotula's Seafood House & Steamer",type:"SEAFOOD · 4.4★ (5K)",typeColor:"#ff6b6b",lat:30.3935056,lng:-86.5068515,desc:"Harbor location with excellent steamed seafood buckets. Crab legs and shrimp are consistently great. A favorite for families.",url:"https://www.brotulas.com/",pinColor:"#ff6b6b"},
-  {name:"The Edge Seafood & SkyBar",type:"SEAFOOD · 4.7★ (5.3K)",typeColor:"#ff6b6b",lat:30.3930,lng:-86.5005,desc:"Destin Harbor rooftop with panoramic views. Fresh Gulf seafood, great cocktails, one of the best sunset spots in town. The SkyBar is worth the trip alone.",url:"https://edgeseafood.com/",pinColor:"#ff6b6b"},
-  {name:"AJ's Seafood & Oyster Bar",type:"SEAFOOD · 4.0★ (8K)",typeColor:"#ff6b6b",lat:30.3920,lng:-86.4978,desc:"A Destin Harbor landmark — one of the most visited spots on the harbor. Casual, lively, great for oysters and cold drinks. Always busy for a reason.",url:"https://ajsdestin.com/",pinColor:"#ff6b6b"},
-  {name:"The Back Porch Seafood & Oyster House",type:"SEAFOOD · 4.5★ (12K)",typeColor:"#ff6b6b",lat:30.3876505,lng:-86.4374719,desc:"Iconic beachfront deck — fresh oysters, grouper sandwiches, cold drinks with sand under your feet. A Destin classic since 1974. 12K reviews say it all.",url:"https://www.theback-porch.com/",pinColor:"#ff6b6b"},
-  {name:"Louisiana Lagniappe",type:"SEAFOOD / CREOLE · 4.7★ (3K)",typeColor:"#ff6b6b",lat:30.3908,lng:-86.4620,desc:"Upscale Gulf-front dining with a Creole twist. One of Destin's most romantic spots. Crab claws and Gulf shrimp are exceptional. Reservations recommended.",url:"https://www.thelouisianalagniappe.com/",pinColor:"#ff6b6b"},
-  {name:"Crab Trap Destin",type:"SEAFOOD · 4.3★ (8.8K)",typeColor:"#ff6b6b",lat:30.3868,lng:-86.4250,desc:"Beachfront on Scenic Hwy 98 with nearly 9K reviews. Casual atmosphere, solid Gulf seafood, good for families. One of the most visited spots on the Emerald Coast.",url:"https://www.crabtrapflorida.com/",pinColor:"#ff6b6b"},
-  {name:"Pompano Joe's",type:"SEAFOOD · 4.4★ (8.4K)",typeColor:"#ff6b6b",lat:30.3880,lng:-86.3695,desc:"Beachfront in Miramar Beach with a huge outdoor deck. Great happy hour, solid seafood, laid-back Gulf-view atmosphere. Popular for lunch and sunset drinks.",url:"https://www.pompano-joes.com/",pinColor:"#ff6b6b"},
-  {name:"LuLu's Destin",type:"SEAFOOD · 4.2★ (6.7K)",typeColor:"#ff6b6b",lat:30.3912,lng:-86.3960,desc:"Jimmy Buffett's sister owns it — quintessential Florida beach restaurant at Legendary Marina. Great for families, live music, and a laid-back vibe. A must-stop.",url:"https://lulusfunfoodmusic.com/",pinColor:"#ff6b6b"},
+  {name:"Dewey Destin's Seafood Restaurant",type:"SEAFOOD · 4.5★ (4.4K)",typeColor:"#ff6b6b",lat:30.3974616,lng:-86.5150988,desc:"A Destin institution — locals go here. Fresh catch daily, waterfront on the bayou. Order the grouper. No frills, just great fish at fair prices.",url:"https://www.destinseafood.com/",pinColor:"#ff6b6b",cat:"seafood"},
+  {name:"Dewey Destin's Harborside",type:"SEAFOOD · 4.4★ (4.1K)",typeColor:"#ff6b6b",lat:30.3925,lng:-86.5005,desc:"The harbor location of the Dewey's brand — different vibe from the bayou original. Waterfront harbor views, same great seafood. Great for watching the boats.",url:"https://www.destinseafood.com/",pinColor:"#ff6b6b",cat:"seafood"},
+  {name:"Brotula's Seafood House & Steamer",type:"SEAFOOD · 4.4★ (5K)",typeColor:"#ff6b6b",lat:30.3935056,lng:-86.5068515,desc:"Harbor location with excellent steamed seafood buckets. Crab legs and shrimp are consistently great. A favorite for families.",url:"https://www.brotulas.com/",pinColor:"#ff6b6b",cat:"seafood"},
+  {name:"The Edge Seafood & SkyBar",type:"SEAFOOD · 4.7★ (5.3K)",typeColor:"#ff6b6b",lat:30.3930,lng:-86.5005,desc:"Destin Harbor rooftop with panoramic views. Fresh Gulf seafood, great cocktails, one of the best sunset spots in town. The SkyBar is worth the trip alone.",url:"https://edgeseafood.com/",pinColor:"#ff6b6b",cat:"seafood"},
+  {name:"AJ's Seafood & Oyster Bar",type:"SEAFOOD · 4.0★ (8K)",typeColor:"#ff6b6b",lat:30.3920,lng:-86.4978,desc:"A Destin Harbor landmark — one of the most visited spots on the harbor. Casual, lively, great for oysters and cold drinks. Always busy for a reason.",url:"https://ajsdestin.com/",pinColor:"#ff6b6b",cat:"seafood"},
+  {name:"The Back Porch Seafood & Oyster House",type:"SEAFOOD · 4.5★ (12K)",typeColor:"#ff6b6b",lat:30.3876505,lng:-86.4374719,desc:"Iconic beachfront deck — fresh oysters, grouper sandwiches, cold drinks with sand under your feet. A Destin classic since 1974. 12K reviews say it all.",url:"https://www.theback-porch.com/",pinColor:"#ff6b6b",cat:"seafood"},
+  {name:"Louisiana Lagniappe",type:"SEAFOOD / CREOLE · 4.7★ (3K)",typeColor:"#ff6b6b",lat:30.3908,lng:-86.4620,desc:"Upscale Gulf-front dining with a Creole twist. One of Destin's most romantic spots. Crab claws and Gulf shrimp are exceptional. Reservations recommended.",url:"https://www.thelouisianalagniappe.com/",pinColor:"#ff6b6b",cat:"seafood"},
+  {name:"Crab Trap Destin",type:"SEAFOOD · 4.3★ (8.8K)",typeColor:"#ff6b6b",lat:30.3868,lng:-86.4250,desc:"Beachfront on Scenic Hwy 98 with nearly 9K reviews. Casual atmosphere, solid Gulf seafood, good for families. One of the most visited spots on the Emerald Coast.",url:"https://www.crabtrapflorida.com/",pinColor:"#ff6b6b",cat:"seafood"},
+  {name:"Pompano Joe's",type:"SEAFOOD · 4.4★ (8.4K)",typeColor:"#ff6b6b",lat:30.3880,lng:-86.3695,desc:"Beachfront in Miramar Beach with a huge outdoor deck. Great happy hour, solid seafood, laid-back Gulf-view atmosphere. Popular for lunch and sunset drinks.",url:"https://www.pompano-joes.com/",pinColor:"#ff6b6b",cat:"seafood"},
+  {name:"LuLu's Destin",type:"SEAFOOD · 4.2★ (6.7K)",typeColor:"#ff6b6b",lat:30.3912,lng:-86.3960,desc:"Jimmy Buffett's sister owns it — quintessential Florida beach restaurant at Legendary Marina. Great for families, live music, and a laid-back vibe. A must-stop.",url:"https://lulusfunfoodmusic.com/",pinColor:"#ff6b6b",cat:"seafood"},
   // SUSHI / ASIAN
-  {name:"Osaka Japanese Hibachi & Sushi Bar",type:"SUSHI / ASIAN · 4.2★ (2.8K)",typeColor:"#ffd93d",lat:30.3846184,lng:-86.3874705,desc:"Best hibachi in Destin — great for groups and families. The teppanyaki experience is a fun change of pace from seafood.",url:"https://www.theosakasteakhouse.com/",pinColor:"#ffd93d"},
-  {name:"Jackacuda's Seafood & Sushi",type:"SUSHI / ASIAN · 4.5★ (2.6K)",typeColor:"#ffd93d",lat:30.3869924,lng:-86.4083436,desc:"Solid sushi plus fresh local seafood. Lively bar scene, creative rolls, and reliable Gulf fish options.",url:"https://www.jackacudas.com/",pinColor:"#ffd93d"},
-  {name:"Sushimoto",type:"SUSHI / ASIAN · 4.5★ (589)",typeColor:"#ffd93d",lat:30.3843038,lng:-86.3765422,desc:"Destin's go-to for quality sushi. Fresh, consistent, worth the drive east. Tiny place — first come first served, no reservations.",url:"https://www.destinsushi.com/",pinColor:"#ffd93d"},
+  {name:"Osaka Japanese Hibachi & Sushi Bar",type:"SUSHI / ASIAN · 4.2★ (2.8K)",typeColor:"#ffd93d",lat:30.3846184,lng:-86.3874705,desc:"Best hibachi in Destin — great for groups and families. The teppanyaki experience is a fun change of pace from seafood.",url:"https://www.theosakasteakhouse.com/",pinColor:"#ffd93d",cat:"sushi"},
+  {name:"Jackacuda's Seafood & Sushi",type:"SUSHI / ASIAN · 4.5★ (2.6K)",typeColor:"#ffd93d",lat:30.3869924,lng:-86.4083436,desc:"Solid sushi plus fresh local seafood. Lively bar scene, creative rolls, and reliable Gulf fish options.",url:"https://www.jackacudas.com/",pinColor:"#ffd93d",cat:"sushi"},
+  {name:"Sushimoto",type:"SUSHI / ASIAN · 4.5★ (589)",typeColor:"#ffd93d",lat:30.3843038,lng:-86.3765422,desc:"Destin's go-to for quality sushi. Fresh, consistent, worth the drive east. Tiny place — first come first served, no reservations.",url:"https://www.destinsushi.com/",pinColor:"#ffd93d",cat:"sushi"},
   // ITALIAN
-  {name:"Mimmo's Ristorante Italiano",type:"ITALIAN · 4.5★ (3k)",typeColor:"#a78bfa",lat:30.3891472,lng:-86.4788222,desc:"Closest Italian to Pelican Beach. Authentic Sicilian-style — housemade pasta, wood-fired dishes, warm atmosphere.",url:"https://mimmos.com/",pinColor:"#a78bfa"},
-  {name:"Nonna's Ristorante",type:"ITALIAN · 4.7★ (32)",typeColor:"#a78bfa",lat:30.3920,lng:-86.5045,desc:"Authentic Italian on the Destin Harbor. Housemade pasta, wood-fired dishes, excellent wine list. A perfect break from seafood done right.",url:"https://nonnasristorante.com/",pinColor:"#a78bfa"},
-  {name:"Pazzo Italiano",type:"ITALIAN · 4.6★ (2.2K) · OWNER'S PICK",typeColor:"#a78bfa",lat:30.3888,lng:-86.4147,desc:"Ozan's personal favorite. Naples-imported wood-fired oven, housemade pasta, family recipes perfected over 20+ years. The complimentary garlic bread alone is worth the trip. Reservations recommended for 5+.",url:"https://www.pazzodestin.com/",pinColor:"#a78bfa"},
+  {name:"Mimmo's Ristorante Italiano",type:"ITALIAN · 4.5★ (3K)",typeColor:"#a78bfa",lat:30.3891472,lng:-86.4788222,desc:"Closest Italian to Pelican Beach. Authentic Sicilian-style — housemade pasta, wood-fired dishes, warm atmosphere.",url:"https://mimmos.com/",pinColor:"#a78bfa",cat:"italian"},
+  {name:"Nonna's Ristorante",type:"ITALIAN · 4.7★ (32)",typeColor:"#a78bfa",lat:30.3920,lng:-86.5045,desc:"Authentic Italian on the Destin Harbor. Housemade pasta, wood-fired dishes, excellent wine list. A perfect break from seafood done right.",url:"https://nonnasristorante.com/",pinColor:"#a78bfa",cat:"italian"},
+  {name:"Pazzo Italiano",type:"ITALIAN · 4.6★ (2.2K) · OWNER'S PICK",typeColor:"#a78bfa",lat:30.3888,lng:-86.4147,desc:"Ozan's personal favorite. Naples-imported wood-fired oven, housemade pasta, family recipes perfected over 20+ years. The complimentary garlic bread alone is worth the trip. Reservations recommended for 5+.",url:"https://www.pazzodestin.com/",pinColor:"#a78bfa",cat:"italian"},
   // AMERICAN / PUB
-  {name:"McGuire's Irish Pub",type:"AMERICAN / PUB · 4.7★ (23K)",typeColor:"#6bde8f",lat:30.4172613,lng:-86.6062291,desc:"A legendary Destin institution with 23K reviews. Steaks, burgers, craft beer, and dollar bills stapled to the ceiling. Worth the drive for the experience alone.",url:"https://www.mcguiresirishpub.com/",pinColor:"#6bde8f"},
-  {name:"Fudpucker's Beachside Bar & Grill",type:"AMERICAN / FAMILY · 4.7★ (33K)",typeColor:"#6bde8f",lat:30.3908,lng:-86.3980,desc:"Destin's most reviewed restaurant — 33K strong. Massive beachside complex, great for families. Alligator shows, arcade, full bar. Gator bites are a must.",url:"https://www.fudpucker.com/",pinColor:"#6bde8f"},
-  {name:"The Harbor Tavern",type:"AMERICAN / PUB · 4.7★ (887)",typeColor:"#6bde8f",lat:30.3928,lng:-86.5010,desc:"Casual harbor-side bar with a loyal following. Great for a cold beer watching the boats come in. Solid burgers, wings, genuine locals vibe.",url:"https://theharbortavern.com/",pinColor:"#6bde8f"},
+  {name:"McGuire's Irish Pub",type:"AMERICAN / PUB · 4.7★ (23K)",typeColor:"#6bde8f",lat:30.4172613,lng:-86.6062291,desc:"A legendary Destin institution with 23K reviews. Steaks, burgers, craft beer, and dollar bills stapled to the ceiling. Worth the drive for the experience alone.",url:"https://www.mcguiresirishpub.com/",pinColor:"#6bde8f",cat:"american"},
+  {name:"Fudpucker's Beachside Bar & Grill",type:"AMERICAN / FAMILY · 4.7★ (33K)",typeColor:"#6bde8f",lat:30.3908,lng:-86.3980,desc:"Destin's most reviewed restaurant — 33K strong. Massive beachside complex, great for families. Alligator shows, arcade, full bar. Gator bites are a must.",url:"https://www.fudpucker.com/",pinColor:"#6bde8f",cat:"american"},
+  {name:"The Harbor Tavern",type:"AMERICAN / PUB · 4.7★ (887)",typeColor:"#6bde8f",lat:30.3928,lng:-86.5010,desc:"Casual harbor-side bar with a loyal following. Great for a cold beer watching the boats come in. Solid burgers, wings, genuine locals vibe.",url:"https://theharbortavern.com/",pinColor:"#6bde8f",cat:"american"},
   // BRUNCH / UPSCALE
-  {name:"Beach Walk Café",type:"UPSCALE · 4.6★ (1.3K)",typeColor:"#f97316",lat:30.3959827,lng:-86.512016,desc:"Upscale beachfront dining at Henderson Park Inn. Beautiful setting, refined menu, great for a special dinner. Reservations strongly recommended.",url:"https://www.hendersonparkinn.com/dine/beachwalk-cafe/",pinColor:"#f97316"},
-  {name:"Ruby Slipper",type:"BRUNCH · 4.7★ (2.5)",typeColor:"#f97316",lat:30.3908,lng:-86.3870,desc:"New Orleans-style brunch — one of the best breakfast spots in the area. Eggs Benedict variations, bananas foster French toast. Expect a wait on weekends.",url:"https://rubybrunch.com/",pinColor:"#f97316"},
-  {name:"Crackings",type:"BREAKFAST · 4.7★ (2K)",typeColor:"#f97316",lat:30.3912,lng:-86.4680,desc:"Best breakfast in Destin — locals and guests both swear by it. Hearty portions, great coffee, friendly staff. Opens 7am, gets busy fast. Go early.",url:"https://www.crackingsfl.com/",pinColor:"#f97316"},
+  {name:"Beach Walk Café",type:"UPSCALE · 4.6★ (1.3K)",typeColor:"#f97316",lat:30.3959827,lng:-86.512016,desc:"Upscale beachfront dining at Henderson Park Inn. Beautiful setting, refined menu, great for a special dinner. Reservations strongly recommended.",url:"https://www.hendersonparkinn.com/dine/beachwalk-cafe/",pinColor:"#f97316",cat:"brunch"},
+  {name:"Ruby Slipper",type:"BRUNCH · 4.7★ (2.5K)",typeColor:"#f97316",lat:30.3908,lng:-86.3870,desc:"New Orleans-style brunch — one of the best breakfast spots in the area. Eggs Benedict variations, bananas foster French toast. Expect a wait on weekends.",url:"https://rubybrunch.com/",pinColor:"#f97316",cat:"brunch"},
+  {name:"Crackings",type:"BREAKFAST · 4.7★ (2K)",typeColor:"#f97316",lat:30.3912,lng:-86.4680,desc:"Best breakfast in Destin — locals and guests both swear by it. Hearty portions, great coffee, friendly staff. Opens 7am, gets busy fast. Go early.",url:"https://www.crackingsfl.com/",pinColor:"#f97316",cat:"brunch"},
 ];
+
+let activeFilter = 'all';
+
 const canvas=document.getElementById('canvas'),ctx=canvas.getContext('2d');
 let offsetX=0,offsetY=0,scale=1,zoom=14;
 let isDragging=false,dragStartX=0,dragStartY=0,dragStartOX=0,dragStartOY=0;
 let activePin=null,hoveredPin=null;
 const TILE_SIZE=256;
+
+// Filter buttons
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeFilter = btn.dataset.cat;
+    hidePanel();
+    draw();
+  });
+});
+
+function isVisible(r) {
+  if (activeFilter === 'all') return true;
+  if (r.isHome) return true;
+  return r.cat === activeFilter;
+}
 
 function resize(){canvas.width=canvas.parentElement.offsetWidth;canvas.height=canvas.parentElement.offsetHeight;draw();}
 function latLngToTile(lat,lng,z){const n=Math.pow(2,z),x=(lng+180)/360*n,lr=lat*Math.PI/180,y=(1-Math.log(Math.tan(lr)+1/Math.cos(lr))/Math.PI)/2*n;return{x,y};}
@@ -118,6 +180,7 @@ function draw(){
   for(let tx=x0;tx<=x1;tx++)for(let ty=y0;ty<=y1;ty++){const img=getTile(tx,ty,zoom),sx=cx+(tx-ct.x)*tw,sy=cy+(ty-ct.y)*tw;if(img)ctx.drawImage(img,sx,sy,tw,tw);else{ctx.fillStyle='#0d1f35';ctx.fillRect(sx,sy,tw,tw);}}
   ctx.fillStyle='rgba(5,15,30,0.38)';ctx.fillRect(0,0,canvas.width,canvas.height);
   R.forEach((r,i)=>{
+    if(!isVisible(r))return;
     const{x,y}=worldToScreen(r.lat,r.lng);
     if(x<-40||x>canvas.width+40||y<-40||y>canvas.height+40)return;
     const isA=activePin===i,isH=hoveredPin===i,pr=r.isHome?10:8,bump=(isA||isH)?2:0;
@@ -129,8 +192,39 @@ function draw(){
   });
 }
 
-function getPinAt(mx,my){for(let i=0;i<R.length;i++){const{x,y}=worldToScreen(R[i].lat,R[i].lng);if(Math.sqrt((mx-x)**2+(my-y)**2)<18)return i;}return null;}
-function showPanel(idx){const r=R[idx];activePin=idx;document.getElementById('panel-name').textContent=r.name;const t=document.getElementById('panel-type');t.textContent=r.type;t.style.color=r.typeColor;document.getElementById('panel-desc').textContent=r.desc;const l=document.getElementById('panel-link');l.href=r.url;l.style.color=r.typeColor;l.style.borderColor=r.typeColor+'55';document.getElementById('panel-card').classList.add('visible');draw();}
+function getPinAt(mx,my){
+  for(let i=0;i<R.length;i++){
+    if(!isVisible(R[i]))continue;
+    const{x,y}=worldToScreen(R[i].lat,R[i].lng);
+    if(Math.sqrt((mx-x)**2+(my-y)**2)<18)return i;
+  }
+  return null;
+}
+
+function showPanel(idx){
+  const r=R[idx];
+  activePin=idx;
+  document.getElementById('panel-name').textContent=r.name;
+  const t=document.getElementById('panel-type');
+  t.textContent=r.type;
+  t.style.color=r.typeColor;
+  document.getElementById('panel-desc').textContent=r.desc;
+  const l=document.getElementById('panel-link');
+  l.href=r.url;
+  l.style.color=r.typeColor;
+  l.style.borderColor=r.typeColor+'55';
+  // Directions button
+  const d=document.getElementById('panel-directions');
+  if(r.isHome){
+    d.style.display='none';
+  } else {
+    d.style.display='inline-block';
+    d.href=`https://www.google.com/maps/dir/?api=1&destination=${r.lat},${r.lng}`;
+  }
+  document.getElementById('panel-card').classList.add('visible');
+  draw();
+}
+
 function hidePanel(){activePin=null;document.getElementById('panel-card').classList.remove('visible');draw();}
 
 canvas.addEventListener('mousedown',e=>{const rect=canvas.getBoundingClientRect(),mx=e.clientX-rect.left,my=e.clientY-rect.top,pin=getPinAt(mx,my);if(pin!==null){showPanel(pin);return;}isDragging=true;dragStartX=e.clientX;dragStartY=e.clientY;dragStartOX=offsetX;dragStartOY=offsetY;});

@@ -32,6 +32,7 @@ const BLOG_URLS = {
   history:      "https://www.destincondogetaways.com/blog/destindiversehistory",
   explore:      "https://www.destincondogetaways.com/blog/destinexplore",
   fireworks:    "https://www.destincondogetaways.com/blog/destin-fireworks-2026",
+  besttime:     "https://www.destincondogetaways.com/blog/best-time-to-visit-destin-florida",
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -108,6 +109,7 @@ function detectBlogTopic(text) {
   if (t.match(/grocery|supermarket|walmart|publix|winn.dixie|target|food store/)) return "supermarkets";
   if (t.match(/history|culture|museum|heritage|historic/)) return "history";
   if (t.match(/explore|sightseeing|attractions|must see|hidden gem/)) return "explore";
+  if (t.match(/best time|best month|when to visit|when should i|when is best|least crowded|off season|shoulder season|water temper|water temp|cheapest time|cheapest month/)) return "besttime";
   // Photographer service requests must be caught BEFORE generic photo check
   if (t.match(/beach.?photo|photo.*beach|beach.*picture|picture.*beach|family.*photo|photo.*family|family.*picture|picture.*family|photographer|photography session|photo session|someone.*photo|someone.*picture|take.*photo|take.*picture/)) return "activities";
   if (t.match(/photo|picture|image|virtual tour|look like|show me|what does.*look|gallery|interior|inside the unit|see the unit/)) return "photos";
@@ -2529,6 +2531,7 @@ Four of our blog guides have interactive tools built in — whenever you share o
 - AIRPORT blog: has an animated map showing the actual drive route from VPS airport to Pelican Beach Resort — great for first-timers
 - FIREWORKS blog: has an interactive map of all fireworks viewing spots across Destin, a live countdown to the next show, and season filters
 - EVENTS blog: has an interactive calendar so guests can browse what's happening during their stay by month
+- BEST TIME TO VISIT blog: has an interactive quiz — guests answer 4 questions about their priorities (water warmth, crowds, budget, date flexibility) and get a personalized month recommendation. When anyone asks "when should I visit?", "what's the best month?", "when is it least crowded?", "is October good?", or anything about timing — always refer them here AND mention the quiz: "There's also an interactive quiz in that guide that gives you a personalized month recommendation based on your trip priorities — worth a try! 😊" Blog: https://www.destincondogetaways.com/blog/best-time-to-visit-destin-florida
 
 Example phrasing: "The restaurant guide has an interactive map where you can filter by type of food and get directions with one tap — really convenient."
 Keep it natural and brief — just one sentence letting them know the tool is there.

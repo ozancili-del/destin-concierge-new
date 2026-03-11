@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -25,20 +26,22 @@
     font-family: 'DM Sans', sans-serif;
     background: var(--sand);
     color: var(--text);
-    min-height: 100vh;
+    min-height: auto;
     overflow-x: hidden;
+    position: relative;
   }
 
   .ocean-bg {
     background: linear-gradient(180deg, #C8E8F2 0%, #8DCDE0 30%, #2A7FA5 60%, #1A5470 100%);
-    position: fixed;
+    position: absolute;
     inset: 0;
     z-index: 0;
     opacity: 0.12;
+    pointer-events: none;
   }
 
   .wave {
-    position: fixed;
+    position: absolute;
     bottom: 0;
     left: 0;
     width: 200%;
@@ -601,12 +604,16 @@ function restart() {
 render();
 
 // postMessage resize for iframe embed
+let resizeTimer;
 function sendHeight() {
-  const h = document.body.scrollHeight;
-  window.parent.postMessage({ type: 'resize', height: h }, '*');
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(function() {
+    const h = document.documentElement.scrollHeight;
+    window.parent.postMessage({ type: 'resize', height: h }, '*');
+  }, 50);
 }
 window.addEventListener('load', sendHeight);
-new ResizeObserver(sendHeight).observe(document.body);
+new ResizeObserver(sendHeight).observe(document.documentElement);
 </script>
 </body>
 </html>

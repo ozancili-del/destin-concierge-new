@@ -25,7 +25,7 @@ const BLOG_URLS = {
   romance:      "https://www.destincondogetaways.com/blog/destinromance",
   car:          "https://www.destincondogetaways.com/blog/destincar",
   spa:          "https://www.destincondogetaways.com/blog/destinspa",
-  nightlife:    "https://www.destincondogetaways.com/blog/destinnights",
+  nightlife:    "https://www.destincondogetaways.com/blog/destin-live-music-2026",
   essentials:   "https://www.destincondogetaways.com/blog/destinessentials",
   kids:         "https://www.destincondogetaways.com/blog/destinkids",
   supermarkets: "https://www.destincondogetaways.com/blog/destinsupermarkets",
@@ -103,7 +103,7 @@ function detectBlogTopic(text) {
   if (t.match(/romantic.*thing|romantic.*place|romantic.*spot|romantic.*idea|romantic.*activity|romantic.*do|romance.*destin|date night.*destin|honeymoon.*do|anniversary.*thing|anniversary.*do|anniversary.*plan|where.*romantic|what.*romantic|most romantic|things.*couple/)) return "romance";
   if (t.match(/rent a car|car rental|enterprise|hertz|avis/)) return "car";
   if (t.match(/spa|massage|facial|relax|wellness/)) return "spa";
-  if (t.match(/nightlife|night out|club|live music|drinks/)) return "nightlife";
+  if (t.match(/nightlife|night out|club|live music|drinks|band|bands|who.?s playing|playing at|music this|music near|shows? this|good show|any show|any music|harborwalk.*music|music.*harbor|baytowne.*music|music.*baytowne|concert this|concert near/)) return "nightlife";
   if (t.match(/essentials|packing|what to bring|checklist/)) return "essentials";
   if (t.match(/kids|children|family|toddler|playground|child.friendly/)) return "kids";
   if (t.match(/grocery|supermarket|walmart|publix|winn.dixie|target|food store/)) return "supermarkets";

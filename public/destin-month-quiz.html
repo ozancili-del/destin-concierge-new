@@ -1,0 +1,612 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Find Your Perfect Month in Destin</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sand: #F5EDD9;
+    --gulf: #2A7FA5;
+    --gulf-deep: #1A5470;
+    --gulf-light: #5BBAD5;
+    --coral: #E8714A;
+    --text: #1C2B35;
+    --muted: #6B8090;
+    --white: #FFFFFF;
+    --card-bg: rgba(255,255,255,0.92);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--sand);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .ocean-bg {
+    background: linear-gradient(180deg, #C8E8F2 0%, #8DCDE0 30%, #2A7FA5 60%, #1A5470 100%);
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    opacity: 0.12;
+  }
+
+  .wave {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 200%;
+    height: 120px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 120'%3E%3Cpath fill='%232A7FA5' fill-opacity='0.08' d='M0,60 C240,100 480,20 720,60 C960,100 1200,20 1440,60 L1440,120 L0,120 Z'/%3E%3C/svg%3E") repeat-x;
+    animation: wave 8s linear infinite;
+    z-index: 0;
+  }
+  .wave2 {
+    animation: wave 12s linear infinite reverse;
+    opacity: 0.5;
+  }
+
+  @keyframes wave {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 32px 20px 60px;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 32px;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .header .eyebrow {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gulf);
+    margin-bottom: 10px;
+  }
+
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(24px, 5vw, 34px);
+    font-weight: 700;
+    color: var(--gulf-deep);
+    line-height: 1.2;
+    margin-bottom: 10px;
+  }
+
+  .header p {
+    font-size: 15px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .progress-bar {
+    background: rgba(42,127,165,0.15);
+    border-radius: 99px;
+    height: 4px;
+    margin-bottom: 28px;
+    overflow: hidden;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gulf-light), var(--gulf));
+    border-radius: 99px;
+    transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  .step-label {
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 20px;
+    animation: fadeUp 0.6s 0.15s ease both;
+  }
+
+  .card {
+    background: var(--card-bg);
+    border-radius: 20px;
+    padding: 32px 28px;
+    box-shadow: 0 8px 40px rgba(26,84,112,0.12), 0 2px 8px rgba(26,84,112,0.06);
+    backdrop-filter: blur(8px);
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .question {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(17px, 3.5vw, 21px);
+    font-weight: 700;
+    color: var(--gulf-deep);
+    margin-bottom: 8px;
+    line-height: 1.35;
+  }
+
+  .question-sub {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .option {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    border: 1.5px solid rgba(42,127,165,0.18);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: white;
+    text-align: left;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.4;
+  }
+
+  .option:hover {
+    border-color: var(--gulf-light);
+    background: rgba(91,186,213,0.06);
+    transform: translateX(3px);
+  }
+
+  .option.selected {
+    border-color: var(--gulf);
+    background: rgba(42,127,165,0.07);
+    color: var(--gulf-deep);
+    font-weight: 500;
+  }
+
+  .option-icon {
+    font-size: 22px;
+    flex-shrink: 0;
+    width: 32px;
+    text-align: center;
+  }
+
+  .option-text strong {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 1px;
+  }
+
+  .option-text span {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 24px;
+    gap: 12px;
+  }
+
+  .btn {
+    padding: 12px 28px;
+    border-radius: 99px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--gulf), var(--gulf-deep));
+    color: white;
+    box-shadow: 0 4px 16px rgba(42,127,165,0.35);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(42,127,165,0.45);
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1.5px solid rgba(42,127,165,0.2);
+  }
+
+  .btn-ghost:hover {
+    border-color: var(--gulf-light);
+    color: var(--gulf);
+  }
+
+  /* Result */
+  .result-card {
+    background: var(--card-bg);
+    border-radius: 20px;
+    padding: 36px 28px;
+    box-shadow: 0 8px 40px rgba(26,84,112,0.14);
+    animation: fadeUp 0.6s ease both;
+    text-align: center;
+  }
+
+  .result-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--gulf-light), var(--gulf));
+    color: white;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 5px 16px;
+    border-radius: 99px;
+    margin-bottom: 16px;
+  }
+
+  .result-month {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(30px, 7vw, 44px);
+    font-weight: 700;
+    color: var(--gulf-deep);
+    margin-bottom: 4px;
+    line-height: 1.1;
+  }
+
+  .result-temp {
+    font-size: 14px;
+    color: var(--gulf);
+    font-weight: 500;
+    margin-bottom: 20px;
+  }
+
+  .result-divider {
+    width: 48px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--gulf-light), var(--gulf));
+    border-radius: 99px;
+    margin: 0 auto 20px;
+  }
+
+  .result-desc {
+    font-size: 15px;
+    color: var(--text);
+    line-height: 1.7;
+    margin-bottom: 24px;
+    text-align: left;
+  }
+
+  .result-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 28px;
+  }
+
+  .tag {
+    background: rgba(42,127,165,0.1);
+    color: var(--gulf-deep);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 5px 12px;
+    border-radius: 99px;
+  }
+
+  .cta-block {
+    background: linear-gradient(135deg, var(--gulf-deep), var(--gulf));
+    border-radius: 14px;
+    padding: 22px 20px;
+    margin-bottom: 16px;
+  }
+
+  .cta-block p {
+    color: rgba(255,255,255,0.85);
+    font-size: 13px;
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+
+  .cta-block a {
+    display: inline-block;
+    background: white;
+    color: var(--gulf-deep);
+    font-weight: 600;
+    font-size: 14px;
+    padding: 11px 24px;
+    border-radius: 99px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  }
+
+  .cta-block a:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  }
+
+  .restart-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    text-decoration: underline;
+    margin-top: 8px;
+  }
+
+  .restart-btn:hover { color: var(--gulf); }
+
+  .hidden { display: none; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .fade-exit {
+    animation: fadeDown 0.25s ease forwards;
+  }
+
+  @keyframes fadeDown {
+    to { opacity: 0; transform: translateY(-10px); }
+  }
+</style>
+</head>
+<body>
+
+<div class="ocean-bg"></div>
+<div class="wave"></div>
+<div class="wave wave2"></div>
+
+<div class="container">
+
+  <div class="header">
+    <div class="eyebrow">Pelican Beach Resort · Destin FL</div>
+    <h1>Find Your Perfect Month in Destin</h1>
+    <p>4 quick questions. Your personalized recommendation.</p>
+  </div>
+
+  <div id="quiz-section">
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress" style="width: 0%"></div>
+    </div>
+    <div class="step-label" id="step-label">Question 1 of 4</div>
+
+    <div class="card" id="question-card">
+      <div class="question" id="q-text"></div>
+      <div class="question-sub" id="q-sub"></div>
+      <div class="options" id="options-list"></div>
+      <div class="nav-row">
+        <button class="btn btn-ghost" id="back-btn" onclick="goBack()">← Back</button>
+        <button class="btn btn-primary" id="next-btn" onclick="goNext()" disabled>Continue →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="result-card hidden" id="result-section">
+    <div class="result-badge">Your ideal Destin window</div>
+    <div class="result-month" id="res-month"></div>
+    <div class="result-temp" id="res-temp"></div>
+    <div class="result-divider"></div>
+    <div class="result-desc" id="res-desc"></div>
+    <div class="result-tags" id="res-tags"></div>
+    <div class="cta-block">
+      <p id="res-cta-text"></p>
+      <a href="https://www.destincondogetaways.com" target="_blank" id="res-cta-link">Check Availability & Book Direct →</a>
+    </div>
+    <button class="restart-btn" onclick="restart()">Start over</button>
+  </div>
+
+</div>
+
+<script>
+const questions = [
+  {
+    text: "What matters most to your trip?",
+    sub: "Pick the one thing you absolutely don't want to compromise on.",
+    options: [
+      { icon: "🏖️", label: "Warm water & beach swimming", sub: "Gulf temps are everything", value: "swim" },
+      { icon: "😌", label: "Quiet & low crowds", sub: "I want the beach mostly to myself", value: "quiet" },
+      { icon: "💰", label: "Best value for money", sub: "Stretch the budget as far as possible", value: "budget" },
+      { icon: "🎆", label: "Events, nightlife & energy", sub: "I want something happening", value: "events" }
+    ]
+  },
+  {
+    text: "Who's making the trip?",
+    sub: "This shapes everything from room setup to activity planning.",
+    options: [
+      { icon: "👨‍👩‍👧‍👦", label: "Family with young kids", sub: "School schedules may apply", value: "family" },
+      { icon: "💑", label: "Couple or adults only", sub: "Flexible and looking for the best experience", value: "couple" },
+      { icon: "🎓", label: "Group of friends", sub: "Energy and social scene matter", value: "group" },
+      { icon: "💻", label: "Remote worker / long stay", sub: "Looking at 2–4+ weeks", value: "longstay" }
+    ]
+  },
+  {
+    text: "How do you feel about sharing the beach?",
+    sub: "Be honest — this is a no-judgment zone.",
+    options: [
+      { icon: "🙅", label: "I want space to breathe", sub: "Crowds stress me out", value: "nocrowds" },
+      { icon: "🤷", label: "Some people are fine", sub: "I don't need empty but not packed", value: "moderate" },
+      { icon: "🎉", label: "The more the merrier", sub: "Love the summer beach energy", value: "lovecrowds" }
+    ]
+  },
+  {
+    text: "Are your dates flexible?",
+    sub: "The most powerful factor in finding the best timing.",
+    options: [
+      { icon: "📅", label: "Totally flexible", sub: "I can go any time of year", value: "flex" },
+      { icon: "☀️", label: "Summer only", sub: "June, July, or August", value: "summer" },
+      { icon: "🍂", label: "Spring or Fall preferred", sub: "March–May or September–November", value: "shoulder" },
+      { icon: "❄️", label: "Winter works for me", sub: "November through February", value: "winter" }
+    ]
+  }
+];
+
+const results = {
+  // Swimmer + any combo
+  swim_flex:     { month: "Late September", range: "Sep 20 – Oct 10", temp: "🌊 Water: 80–83°F · Air: mid-70s", desc: "The Gulf is still genuinely warm but the crowds have gone home. You get summer-quality swimming with off-season peace. This is the window locals wait for all year.", tags: ["Warm water", "Low crowds", "Great value", "Locals' favorite"], cta: "Late September books fast for a reason — it's the sweet spot. 10% off when you book direct." },
+  swim_summer:   { month: "July – August", range: "Peak summer", temp: "🌊 Water: 83–86°F · Air: 88–92°F", desc: "The Gulf is at its absolute warmest — 85°F water that feels like a bathtub. You'll share the beach, Highway 98 will test your patience, but the experience is genuinely unforgettable. Come for July 4th 2026 if you can — America's 250th is going to be special.", tags: ["Hottest water", "Full energy", "July 4th fireworks", "Peak season"], cta: "July and August book out early. Lock in your dates now with our 10% direct booking discount." },
+  swim_shoulder: { month: "May or October", range: "May 1–25 or Oct 1–25", temp: "🌊 Water: 73–78°F · Air: low-to-mid 70s", desc: "Both months offer genuinely swimmable water without peak summer chaos. May feels like summer arriving; October feels like summer staying late. Either one is a great call.", tags: ["Warm enough to swim", "Manageable crowds", "Good value", "Flexible vibe"], cta: "May and October are our most popular shoulder months. Book direct and save 10% — no code needed." },
+  swim_winter:   { month: "May (plan ahead)", range: "Or wait for next May", temp: "🌊 Water: 73°F by late May", desc: "Winter water in Destin (58–65°F) is too cold for comfortable swimming — that's just the honest truth. If swimming matters, May is the earliest you'll be happy. Or consider a November visit for the beach walks and peaceful atmosphere even if you're not in the water.", tags: ["Plan for warmer months", "Consider Nov for beach walks"], cta: "We can help you find the right window. Check availability or email us directly." },
+
+  // Quiet / budget seekers
+  quiet_flex:    { month: "October", range: "Oct 1 – Oct 31", temp: "🌊 Water: 73–78°F · Air: low 70s", desc: "October is the best month for space, period. The Destin Fishing Rodeo gives the harbor great local energy, but the beach and pools are as close to private as they ever get. Water is still very swimmable. It's our honest favorite.", tags: ["Near-empty beaches", "Swimmable water", "Lowest prices", "Local feel"], cta: "October is the month we'd pick for ourselves. Book direct — 10% off, no code." },
+  quiet_summer:  { month: "Late August", range: "Aug 18 – Aug 31", temp: "🌊 Water: 84–86°F · Air: 88°F", desc: "If you're locked into summer, late August is your best bet for quiet. School starts in most states around August 15–18, and the crowds thin noticeably. Water is at peak warmth. It's summer with a bit of breathing room.", tags: ["Warmest water", "Crowds thinning", "Still summer energy"], cta: "Late August availability moves fast. Grab your dates with 10% off direct." },
+  quiet_shoulder: { month: "September or October", range: "Sep 15 – Oct 31", temp: "🌊 Water: 73–83°F · Air: 70–80°F", desc: "September and October are the quietest months with swimmable water. Both are excellent. September is warmer water; October is emptier beaches. You can't go wrong.", tags: ["Very low crowds", "Warm water", "Great rates"], cta: "September and October fill up with returning guests. Book early — 10% off direct." },
+  quiet_winter:  { month: "January or February", range: "Jan 10 – Feb 28", temp: "🌡️ Air: low-to-mid 60s · Water: 58–63°F", desc: "You'll essentially have Pelican Beach to yourself. Water is too cool for swimming but the beach walks, sunsets, and absolute stillness are genuinely special. This is also when we're most open to 28+ day stays at rates that make serious sense.", tags: ["Empty beaches", "Lowest rates", "Long-stay friendly", "Snowbird season"], cta: "Planning a longer winter stay? Email us directly — we're happy to talk through options for 28+ day bookings." },
+
+  // Events / group
+  events_any:    { month: "July 4th Week 2026", range: "June 30 – July 6, 2026", temp: "🌊 Water: 83°F · Air: 88°F", desc: "America's 250th birthday. Destin's July 4th fireworks are already significant — in 2026 they're going to be on another level. We've built a full interactive fireworks guide with viewing zones, boat cruise options, and everything you need to plan the 4th properly.", tags: ["America's 250th", "Best fireworks", "Peak beach energy", "Events packed"], cta: "July 4th week is our fastest-selling window. Book now — 10% off direct, no waiting." },
+
+  // Long stay
+  longstay_any:  { month: "November – February", range: "28+ day stays welcome", temp: "🌡️ Mild 60s–70s · Off-season rates", desc: "These are the long-stay months. Quiet, affordable, and genuinely restorative. Remote workers, retirees, and snowbirds are our winter guests. The Gulf in winter is a different kind of beautiful — the beach is empty, the sunsets are long, and you actually have space to think.", tags: ["28+ day stays", "Lowest rates", "Remote work friendly", "Off-season calm"], cta: "Interested in a longer stay? Email us directly at ozan@destincondogetaways.com — we're happy to talk through availability and pricing." }
+};
+
+function getResult(answers) {
+  const [priority, who, crowds, dates] = answers;
+  if (who === 'longstay') return results.longstay_any;
+  if (priority === 'events' || who === 'group') return results.events_any;
+  if (priority === 'swim') {
+    if (dates === 'flex' || dates === 'shoulder') return dates === 'summer' ? results.swim_summer : (dates === 'winter' ? results.swim_winter : results.swim_flex);
+    if (dates === 'summer') return results.swim_summer;
+    if (dates === 'winter') return results.swim_winter;
+    return results.swim_flex;
+  }
+  if (priority === 'quiet' || crowds === 'nocrowds') {
+    if (dates === 'summer') return results.quiet_summer;
+    if (dates === 'winter') return results.quiet_winter;
+    if (dates === 'shoulder') return results.quiet_shoulder;
+    return results.quiet_flex;
+  }
+  if (priority === 'budget') {
+    if (dates === 'winter') return results.quiet_winter;
+    if (dates === 'summer') return results.quiet_summer;
+    return results.quiet_flex;
+  }
+  // fallback
+  if (dates === 'winter') return results.quiet_winter;
+  if (dates === 'summer') return results.swim_summer;
+  return results.quiet_flex;
+}
+
+let current = 0;
+let answers = [];
+
+function render() {
+  const q = questions[current];
+  const progress = ((current) / questions.length) * 100;
+  document.getElementById('progress').style.width = progress + '%';
+  document.getElementById('step-label').textContent = `Question ${current + 1} of ${questions.length}`;
+  document.getElementById('q-text').textContent = q.text;
+  document.getElementById('q-sub').textContent = q.sub;
+  document.getElementById('back-btn').style.visibility = current === 0 ? 'hidden' : 'visible';
+
+  const list = document.getElementById('options-list');
+  list.innerHTML = '';
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option' + (answers[current] === opt.value ? ' selected' : '');
+    btn.innerHTML = `<span class="option-icon">${opt.icon}</span><span class="option-text"><strong>${opt.label}</strong><span>${opt.sub}</span></span>`;
+    btn.onclick = () => selectOption(opt.value);
+    list.appendChild(btn);
+  });
+
+  document.getElementById('next-btn').disabled = answers[current] === undefined;
+  document.getElementById('next-btn').textContent = current === questions.length - 1 ? 'See My Month →' : 'Continue →';
+}
+
+function selectOption(value) {
+  answers[current] = value;
+  render();
+}
+
+function goNext() {
+  if (answers[current] === undefined) return;
+  if (current < questions.length - 1) {
+    current++;
+    animateCard();
+  } else {
+    showResult();
+  }
+}
+
+function goBack() {
+  if (current > 0) { current--; animateCard(); }
+}
+
+function animateCard() {
+  const card = document.getElementById('question-card');
+  card.classList.add('fade-exit');
+  setTimeout(() => { card.classList.remove('fade-exit'); render(); }, 250);
+}
+
+function showResult() {
+  const r = getResult(answers);
+  document.getElementById('quiz-section').classList.add('hidden');
+  const rs = document.getElementById('result-section');
+  rs.classList.remove('hidden');
+  document.getElementById('res-month').textContent = r.month;
+  document.getElementById('res-temp').textContent = r.temp;
+  document.getElementById('res-desc').textContent = r.desc;
+  document.getElementById('res-cta-text').textContent = r.cta;
+
+  const tagsEl = document.getElementById('res-tags');
+  tagsEl.innerHTML = r.tags.map(t => `<span class="tag">${t}</span>`).join('');
+
+  // Update CTA link for long stay
+  if (answers[1] === 'longstay') {
+    document.getElementById('res-cta-link').href = 'mailto:ozan@destincondogetaways.com';
+    document.getElementById('res-cta-link').textContent = 'Email Ozan Directly →';
+  }
+
+  document.getElementById('progress').style.width = '100%';
+  document.getElementById('step-label').textContent = 'Your result is ready';
+}
+
+function restart() {
+  current = 0;
+  answers = [];
+  document.getElementById('result-section').classList.add('hidden');
+  document.getElementById('quiz-section').classList.remove('hidden');
+  render();
+}
+
+render();
+
+// postMessage resize for iframe embed
+function sendHeight() {
+  const h = document.body.scrollHeight;
+  window.parent.postMessage({ type: 'resize', height: h }, '*');
+}
+window.addEventListener('load', sendHeight);
+new ResizeObserver(sendHeight).observe(document.body);
+</script>
+</body>
+</html>

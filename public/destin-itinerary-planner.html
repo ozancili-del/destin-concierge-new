@@ -1,6 +1,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -101,6 +102,8 @@
     print-color-adjust: exact;
   }
 
+  @keyframes spin { 0%,100% { content: '⏳'; } 50% { transform: rotate(180deg); } }
+
   @media (max-width: 560px) {
     .date-row, .guest-row, .preview-blocks { grid-template-columns: 1fr; }
     .form-card { padding: 20px; }
@@ -145,7 +148,7 @@
     <div class="form-section">
       <div class="section-label">Cuisine Preferences</div>
       <div class="chips" id="cuisineChips">
-        <span class="chip active" data-val="Seafood">🦞 Seafood</span>
+        <span class="chip" data-val="Seafood">🦞 Seafood</span>
         <span class="chip" data-val="Brunch">🥞 Brunch</span>
         <span class="chip" data-val="Italian">🍝 Italian</span>
         <span class="chip" data-val="Sushi">🍣 Sushi</span>
@@ -158,7 +161,7 @@
     <div class="form-section">
       <div class="section-label">Beach or Pool?</div>
       <div class="chips" id="beachPoolChips">
-        <span class="chip single active" data-val="Beach">🏖️ Beach</span>
+        <span class="chip single" data-val="Beach">🏖️ Beach</span>
         <span class="chip single" data-val="Pool">🏊 Pool</span>
         <span class="chip single" data-val="Both">✨ Both</span>
       </div>
@@ -168,7 +171,7 @@
       <div class="section-label">Trip Pace</div>
       <div class="chips" id="paceChips">
         <span class="chip single" data-val="Relaxed & Easy">😌 Relaxed & Easy</span>
-        <span class="chip single active" data-val="Mix of Both">⚡ Mix of Both</span>
+        <span class="chip single" data-val="Mix of Both">⚡ Mix of Both</span>
         <span class="chip single" data-val="Packed & Adventurous">🚀 Packed & Adventurous</span>
       </div>
     </div>
@@ -176,7 +179,7 @@
     <div class="form-section">
       <div class="section-label">Interests</div>
       <div class="chips" id="interestChips">
-        <span class="chip active" data-val="Water Sports">🏄 Water Sports</span>
+        <span class="chip" data-val="Water Sports">🏄 Water Sports</span>
         <span class="chip" data-val="Fishing">🎣 Fishing</span>
         <span class="chip" data-val="Shopping">🛍️ Shopping</span>
         <span class="chip" data-val="Nightlife">🎶 Nightlife</span>
@@ -190,12 +193,14 @@
   </div>
 
   <div class="loading-state" id="loadingState">
+    <div style="font-size:2.8rem;margin-bottom:16px;animation:spin 2s linear infinite;display:inline-block;">⏳</div>
     <div class="wave-container">
       <div class="wave-dot"></div><div class="wave-dot"></div><div class="wave-dot"></div>
       <div class="wave-dot"></div><div class="wave-dot"></div>
     </div>
     <h3>Destiny Blue is crafting your itinerary... 🌊</h3>
-    <p>Checking local events, restaurants & activities for your exact dates.<br>This takes about 20–30 seconds.</p>
+    <p id="loadingMsg">Fetching real-time Destin events and weather for your dates...</p>
+    <p style="margin-top:10px;font-size:0.8rem;color:#bbb;">This takes about 20–30 seconds — worth the wait!</p>
   </div>
 
   <div class="preview-card" id="previewCard">
@@ -244,18 +249,18 @@ document.querySelectorAll('#beachPoolChips .chip, #paceChips .chip').forEach(fun
 
 document.getElementById('btnCreate').addEventListener('click', createItinerary);
 
-  // When arrival date is picked, set departure min and default to +1 day, jump to same month
+  // When arrival date is picked, auto-set checkout to next day in same month
   document.getElementById('arrivalDate').addEventListener('change', function() {
     var val = this.value;
     if (!val) return;
     var dep = document.getElementById('departureDate');
     dep.min = val;
-    // If departure is empty or before arrival, set it to arrival + 1 day
-    if (!dep.value || dep.value <= val) {
-      var next = new Date(val + 'T12:00:00');
-      next.setDate(next.getDate() + 1);
-      dep.value = next.toISOString().split('T')[0];
-    }
+    // Always push departure to arrival+1 so calendar opens on correct month
+    var next = new Date(val + 'T12:00:00');
+    next.setDate(next.getDate() + 1);
+    dep.value = next.toISOString().split('T')[0];
+    // Focus departure so user can adjust — browser opens calendar on the pre-set month
+    setTimeout(function() { dep.focus(); }, 50);
   });
 document.getElementById('btnReset').addEventListener('click', resetForm);
 document.getElementById('btnDownload').addEventListener('click', function() {
@@ -300,6 +305,23 @@ async function createItinerary() {
   document.querySelector('.intro').style.display = 'none';
   document.getElementById('loadingState').classList.add('visible');
 
+  // Rotating comforting messages
+  var loadingMsgs = [
+    'Fetching real-time Destin events for your exact dates...',
+    'Checking the best restaurants and local spots...',
+    'Scanning water sports and activities availability...',
+    'Personalizing your itinerary based on your preferences...',
+    'Almost there — adding local tips and insider knowledge...',
+    'Cross-checking venues to avoid repeats across days...',
+    'Your Destin adventure is almost ready! 🌊'
+  ];
+  var msgIdx = 0;
+  var msgEl = document.getElementById('loadingMsg');
+  var msgTimer = setInterval(function() {
+    msgIdx = (msgIdx + 1) % loadingMsgs.length;
+    msgEl.textContent = loadingMsgs[msgIdx];
+  }, 4000);
+
   var systemPrompt = 'You are Destiny Blue, warm local-friend AI concierge for Destin Condo Getaways at Pelican Beach Resort. Return ONLY valid JSON, no markdown, no code fences. STRICT RULES: 1) REAL Destin venues only, never invent. 2) Bookable activities (water sports/fishing/boat tours/dolphin tours/snorkeling/parasailing/jet ski/pontoon/kayak/paddleboard/sunset cruise): tripshock:true, link_url:"https://tripshock.com/?aff=destindreamcondo". 3) Never suggest other accommodations. 4) Each day: exactly 4 blocks (MORNING, LUNCH, AFTERNOON, DINNER). 5) description: MAX 8 words. 6) tip: MAX 8 words. 7) Never repeat venues across days. 8) backup: rainy-day alternative MAX 8 words. 9) weather: MAX 12 words, conditions + temp + 1 tip. 10) lat/lng: real coordinates. 11) summary: open "Hi! I\'m Destiny Blue, your AI concierge at Pelican Beach Resort!" then 2 warm sentences. JSON: {"summary":"...","days":[{"day_number":1,"title":"...","weather":"...","blocks":[{"time":"MORNING","emoji":"☀️","place":"...","description":"...","tip":"...","backup":"...","link_url":"...","link_label":"...","tripshock":false,"lat":30.393,"lng":-86.496}]}]}';
 
 
@@ -315,9 +337,11 @@ async function createItinerary() {
     if (!res.ok) throw new Error(data.error || 'API error');
     var raw = data.choices[0].message.content.replace(/```json|```/g, '').trim();
     itineraryData = JSON.parse(raw);
+    clearInterval(msgTimer);
     document.getElementById('loadingState').classList.remove('visible');
     renderPreview(itineraryData, formSnapshot);
   } catch(err) {
+    clearInterval(msgTimer);
     document.getElementById('loadingState').classList.remove('visible');
     document.getElementById('formCard').style.display = 'block';
     document.querySelector('.intro').style.display = 'block';
@@ -398,7 +422,7 @@ async function sendItineraryEmail() {
     if (!res.ok) throw new Error('Send failed');
     statusEl.style.display = 'block';
     statusEl.style.color = '#0e7c7b';
-    statusEl.textContent = '✅ Itinerary sent! Check your inbox — if you don't see it, check Spam or search for ozan@destincondogetaways.com';
+    statusEl.textContent = "✅ Itinerary sent! Check your inbox — if you don't see it, check Spam or search for ozan@destincondogetaways.com";
     btn.textContent = 'Sent ✓';
     document.getElementById('emailInput').disabled = true;
     document.getElementById('btnDownload').disabled = true;

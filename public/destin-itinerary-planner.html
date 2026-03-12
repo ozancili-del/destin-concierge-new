@@ -398,7 +398,7 @@ async function sendItineraryEmail() {
     if (!res.ok) throw new Error('Send failed');
     statusEl.style.display = 'block';
     statusEl.style.color = '#0e7c7b';
-    statusEl.textContent = '✅ Itinerary sent! Check your inbox (and spam just in case).';
+    statusEl.textContent = '✅ Itinerary sent! Check your inbox — if you don't see it, check Spam or search for ozan@destincondogetaways.com';
     btn.textContent = 'Sent ✓';
     document.getElementById('emailInput').disabled = true;
     document.getElementById('btnDownload').disabled = true;

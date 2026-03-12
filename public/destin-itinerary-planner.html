@@ -388,28 +388,31 @@ async function downloadPDF() {
   }
 
   function drawSummary(y) {
-    doc.setFillColor.apply(doc, SAND); doc.setDrawColor.apply(doc, BORDER);
-    doc.roundedRect(10, y, W-20, 24, 2, 2, 'FD');
     var fields = [
       ['Travelers', formSnapshot.adults + ' Adult' + (formSnapshot.adults>1?'s':'') + (formSnapshot.kids>0?' · '+formSnapshot.kids+' Kid'+(formSnapshot.kids>1?'s':''):'')],
       ['Cuisine', formSnapshot.cuisine.join(' · ') || 'Open'],
-      ['Dates', formSnapshot.arrFmt + ' – ' + formSnapshot.depFmt],
+      ['Dates', formSnapshot.arrFmt + ' - ' + formSnapshot.depFmt],
       ['Vibe', formSnapshot.beachPool + ' · ' + formSnapshot.pace],
       ['Interests', formSnapshot.interests.join(' · ') || 'General'],
       ['Kids', formSnapshot.kids > 0 ? formSnapshot.kids + ' kid' + (formSnapshot.kids>1?'s':'') : 'No kids']
     ];
+    var rows = Math.ceil(fields.length / 2);
+    var cardH = 8 + rows * 8 + 4;
+    doc.setFillColor.apply(doc, SAND); doc.setDrawColor.apply(doc, BORDER);
+    doc.roundedRect(10, y, W-20, cardH, 2, 2, 'FD');
     fields.forEach(function(f, i) {
       var fx = i%2===0 ? 14 : W/2+4;
-      var fy2 = y + 7 + Math.floor(i/2) * 8;
+      var fy2 = y + 8 + Math.floor(i/2) * 8;
       doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor.apply(doc, NAVY);
-      doc.text('■ ' + f[0], fx, fy2);
+      doc.text(f[0] + ':', fx, fy2);
       doc.setFont('helvetica','normal'); doc.setTextColor(80,80,80);
-      doc.text(doc.splitTextToSize(f[1], 75)[0], fx + doc.getTextWidth('■ ' + f[0] + '  '), fy2);
+      var labelW = doc.getTextWidth(f[0] + ':  ');
+      doc.text(doc.splitTextToSize(f[1], 75)[0], fx + labelW, fy2);
     });
-    return y + 30;
+    return y + cardH + 6;
   }
 
-  function drawDay(day, y) {
+    function drawDay(day, y) {
     doc.setFillColor.apply(doc, NAVY); doc.rect(10, y, W-20, 8, 'F');
     doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(8.5);
     doc.text('DAY ' + day.day_number + '  ·  ' + day.title.toUpperCase(), 14, y+5.5);
@@ -420,8 +423,10 @@ async function downloadPDF() {
       var maxH = 36;
       pair.forEach(function(b) {
         if (!b) return;
-        var lines = doc.splitTextToSize(b.description||'', colW-8).length;
-        maxH = Math.max(maxH, 7+6+lines*4+10);
+        var descLines = doc.splitTextToSize(b.description||'', colW-8).length;
+        var tipLines = b.tip ? doc.splitTextToSize('>> ' + b.tip, colW-8).length : 0;
+        var h = 7 + 6 + descLines*4.5 + 5 + tipLines*4 + 6;
+        maxH = Math.max(maxH, h);
       });
       pair.forEach(function(b, idx) {
         if (!b) return;
@@ -429,7 +434,7 @@ async function downloadPDF() {
         doc.setFillColor.apply(doc, SAND); doc.setDrawColor.apply(doc, BORDER);
         doc.roundedRect(bx, y, colW, maxH, 2, 2, 'FD');
         doc.setFont('helvetica','bold'); doc.setFontSize(6.5); doc.setTextColor.apply(doc, ORANGE);
-        doc.text('■ ' + b.time, bx+4, y+6);
+        doc.text(b.time, bx+4, y+6);
         doc.setFont('helvetica','bold'); doc.setFontSize(8.5); doc.setTextColor.apply(doc, NAVY);
         doc.text(doc.splitTextToSize(b.place, colW-8)[0], bx+4, y+12);
         doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(60,60,60);
@@ -437,14 +442,14 @@ async function downloadPDF() {
         var linkY = y + maxH - 9;
         if (b.tripshock) {
           doc.setFont('helvetica','bold'); doc.setFontSize(6.5); doc.setTextColor.apply(doc, TEAL);
-          doc.textWithLink('■ Book via TripShock ■', bx+4, linkY, { url: 'https://tripshock.com/?aff=destindreamcondo' });
+          doc.textWithLink('>> Book via TripShock', bx+4, linkY, { url: 'https://tripshock.com/?aff=destindreamcondo' });
         } else if (b.link_url) {
           doc.setFont('helvetica','normal'); doc.setFontSize(6.5); doc.setTextColor.apply(doc, TEAL);
-          doc.textWithLink('■ ' + (b.link_label||b.link_url), bx+4, linkY, { url: b.link_url });
+          doc.textWithLink(b.link_label||b.link_url, bx+4, linkY, { url: b.link_url });
         }
         if (b.tip) {
           doc.setFont('helvetica','italic'); doc.setFontSize(6.5); doc.setTextColor.apply(doc, ORANGE);
-          doc.text(doc.splitTextToSize('✦ ' + b.tip, colW-8)[0], bx+4, linkY+4.5);
+          doc.text(doc.splitTextToSize('>> ' + b.tip, colW-8)[0], bx+4, linkY+4.5);
         }
       });
       y += maxH + 3;

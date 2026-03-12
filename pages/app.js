@@ -3,9 +3,12 @@ import { useState, useEffect } from 'react';
 
 export default function App() {
   const [active, setActive] = useState('home');
-  const [loaded, setLoaded] = useState({});
+  const [homeReady, setHomeReady] = useState(false);
+  const [blogReady, setBlogReady] = useState(false);
+  const [destinyReady, setDestinyReady] = useState(false);
+  const [plannerReady, setPlannerReady] = useState(false);
+  const [resortReady, setResortReady] = useState(false);
 
-  // Register service worker for PWA install prompt
   useEffect(() => {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js').catch(console.error);
@@ -13,20 +16,12 @@ export default function App() {
   }, []);
 
   const tabs = [
-    { id: 'home',    label: 'Home',      emoji: '🏠', url: 'https://www.destincondogetaways.com' },
-    { id: 'blog',    label: 'Blog',      emoji: '📖', url: 'https://www.destincondogetaways.com/blog' },
-    { id: 'destiny', label: 'Destiny',   emoji: '💬', url: 'https://www.destincondogetaways.com/ai-concierge-574036277' },
-    { id: 'planner', label: 'Plan Trip', emoji: '🗺️', url: 'https://www.destincondogetaways.com/destin-vacation-itinerary-planner-574049367' },
-    { id: 'resort',  label: 'Resort',    emoji: '🏖️', url: 'https://www.destincondogetaways.com/pelican-beach-resort-destin-574048693' },
+    { id: 'home',    label: 'Home',      emoji: '🏠' },
+    { id: 'blog',    label: 'Blog',      emoji: '📖' },
+    { id: 'destiny', label: 'Destiny',   emoji: '💬' },
+    { id: 'planner', label: 'Plan Trip', emoji: '🗺️' },
+    { id: 'resort',  label: 'Resort',    emoji: '🏖️' },
   ];
-
-  const loadingMessages = {
-    home:    'Loading Destin Condo Getaways...',
-    blog:    'Loading Destin Guide...',
-    destiny: 'Waking up Destiny Blue...',
-    planner: 'Loading Trip Planner...',
-    resort:  'Loading Pelican Beach Resort...',
-  };
 
   return (
     <>
@@ -45,16 +40,39 @@ export default function App() {
       <style>{`
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html, body { height: 100%; overflow: hidden; }
-        body {
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-          background: #0a3d62;
-        }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a3d62; }
 
         .app-shell {
           display: flex;
           flex-direction: column;
           height: 100dvh;
-          min-height: 100vh;
+          height: 100vh;
+        }
+
+        .top-bar {
+          background: #0a3d62;
+          padding: env(safe-area-inset-top, 12px) 20px 10px;
+          padding-top: max(env(safe-area-inset-top), 12px);
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          flex-shrink: 0;
+        }
+        .top-bar img {
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          object-fit: cover;
+        }
+        .top-bar-text h1 {
+          color: #fff;
+          font-size: 15px;
+          font-weight: 600;
+          line-height: 1.2;
+        }
+        .top-bar-text p {
+          color: rgba(255,255,255,0.55);
+          font-size: 11px;
         }
 
         .iframe-area {
@@ -66,7 +84,7 @@ export default function App() {
 
         .iframe-wrap {
           position: absolute;
-          top: 0; left: 0; right: 0; bottom: 0;
+          inset: 0;
           display: none;
         }
         .iframe-wrap.active {
@@ -81,7 +99,7 @@ export default function App() {
 
         .loading-screen {
           position: absolute;
-          top: 0; left: 0; right: 0; bottom: 0;
+          inset: 0;
           background: #f7f9fb;
           display: flex;
           flex-direction: column;
@@ -90,9 +108,10 @@ export default function App() {
           gap: 12px;
           z-index: 10;
         }
+        .loading-screen.hidden { display: none; }
         .spinner {
-          width: 40px;
-          height: 40px;
+          width: 36px;
+          height: 36px;
           border: 3px solid #dde8f0;
           border-top-color: #0a3d62;
           border-radius: 50%;
@@ -101,22 +120,18 @@ export default function App() {
         @keyframes spin { to { transform: rotate(360deg); } }
         .loading-screen p {
           color: #1a6a8a;
-          font-size: 14px;
+          font-size: 13px;
         }
 
         .bottom-nav {
-          background: #ffffff;
-          border-top: 1px solid #e0eaf2;
+          background: #fff;
+          border-top: 0.5px solid #e0eaf2;
           display: flex;
           justify-content: space-around;
-          align-items: center;
-          padding-top: 8px;
-          padding-bottom: 8px;
-          padding-bottom: max(8px, env(safe-area-inset-bottom));
+          padding: 8px 0;
+          padding-bottom: max(env(safe-area-inset-bottom), 8px);
           flex-shrink: 0;
-          z-index: 100;
         }
-
         .nav-btn {
           flex: 1;
           background: none;
@@ -124,84 +139,138 @@ export default function App() {
           display: flex;
           flex-direction: column;
           align-items: center;
-          justify-content: center;
           gap: 3px;
-          padding: 6px 0;
+          padding: 4px 0;
           cursor: pointer;
           -webkit-tap-highlight-color: transparent;
-          outline: none;
         }
-        .nav-icon {
-          font-size: 22px;
-          line-height: 1;
-          transition: transform 0.15s;
-          display: block;
-        }
-        .nav-label {
+        .nav-btn .nav-icon { font-size: 22px; line-height: 1; }
+        .nav-btn .nav-label {
           font-size: 10px;
-          color: #aaaaaa;
+          color: #aaa;
           font-weight: 500;
-          display: block;
         }
-        .nav-btn.active .nav-label {
-          color: #0a3d62;
-          font-weight: 700;
-        }
-        .nav-btn.active .nav-icon {
-          transform: scale(1.15);
-        }
-        .nav-dot {
+        .nav-btn.active .nav-label { color: #0a3d62; font-weight: 600; }
+        .nav-btn.active .nav-icon { transform: scale(1.1); }
+        .nav-btn .nav-dot {
           width: 4px;
           height: 4px;
           border-radius: 50%;
           background: #0a3d62;
           opacity: 0;
-          transition: opacity 0.15s;
-          display: block;
         }
-        .nav-btn.active .nav-dot {
-          opacity: 1;
-        }
+        .nav-btn.active .nav-dot { opacity: 1; }
       `}</style>
 
       <div className="app-shell">
-
-        <div className="iframe-area">
-          {tabs.map(tab => (
-            <div
-              key={tab.id}
-              className={'iframe-wrap' + (active === tab.id ? ' active' : '')}
-            >
-              {!loaded[tab.id] && (
-                <div className="loading-screen">
-                  <div className="spinner"></div>
-                  <p>{loadingMessages[tab.id]}</p>
-                </div>
-              )}
-              <iframe
-                src={tab.url}
-                title={tab.label}
-                onLoad={() => setLoaded(prev => ({ ...prev, [tab.id]: true }))}
-                loading="lazy"
-              />
-            </div>
-          ))}
+        {/* Top bar */}
+        <div className="top-bar">
+          <img src="/logo.png" alt="Destin Condo Getaways logo" />
+          <div className="top-bar-text">
+            <h1>Destin Condo Getaways</h1>
+            <p>Pelican Beach Resort · Units 707 & 1006</p>
+          </div>
         </div>
 
+        {/* iframe area */}
+        <div className="iframe-area">
+
+          {/* HOME */}
+          <div className={`iframe-wrap ${active === 'home' ? 'active' : ''}`}>
+            {!homeReady && (
+              <div className="loading-screen">
+                <div className="spinner" />
+                <p>Loading Destin Condo Getaways...</p>
+              </div>
+            )}
+            <iframe
+              src="https://www.destincondogetaways.com"
+              title="Home"
+              onLoad={() => setHomeReady(true)}
+              loading="lazy"
+            />
+          </div>
+
+          {/* BLOG */}
+          <div className={`iframe-wrap ${active === 'blog' ? 'active' : ''}`}>
+            {!blogReady && (
+              <div className="loading-screen">
+                <div className="spinner" />
+                <p>Loading Destin Guide...</p>
+              </div>
+            )}
+            <iframe
+              src="https://www.destincondogetaways.com/blog"
+              title="Destin Blog"
+              onLoad={() => setBlogReady(true)}
+              loading="lazy"
+            />
+          </div>
+
+          {/* DESTINY */}
+          <div className={`iframe-wrap ${active === 'destiny' ? 'active' : ''}`}>
+            {!destinyReady && (
+              <div className="loading-screen">
+                <div className="spinner" />
+                <p>Waking up Destiny Blue...</p>
+              </div>
+            )}
+            <iframe
+              src="https://www.destincondogetaways.com/ai-concierge-574036277"
+              title="Destiny Blue AI Concierge"
+              onLoad={() => setDestinyReady(true)}
+              loading="lazy"
+            />
+          </div>
+
+          {/* TRIP PLANNER */}
+          <div className={`iframe-wrap ${active === 'planner' ? 'active' : ''}`}>
+            {!plannerReady && (
+              <div className="loading-screen">
+                <div className="spinner" />
+                <p>Loading Trip Planner...</p>
+              </div>
+            )}
+            <iframe
+              src="https://www.destincondogetaways.com/destin-vacation-itinerary-planner-574049367"
+              title="Destin Trip Planner"
+              onLoad={() => setPlannerReady(true)}
+              loading="lazy"
+            />
+          </div>
+
+          {/* RESORT */}
+          <div className={`iframe-wrap ${active === 'resort' ? 'active' : ''}`}>
+            {!resortReady && (
+              <div className="loading-screen">
+                <div className="spinner" />
+                <p>Loading Pelican Beach Resort...</p>
+              </div>
+            )}
+            <iframe
+              src="https://www.destincondogetaways.com/pelican-beach-resort-destin-574048693"
+              title="Pelican Beach Resort"
+              onLoad={() => setResortReady(true)}
+              loading="lazy"
+            />
+          </div>
+
+        </div>
+
+        {/* Bottom nav */}
         <nav className="bottom-nav">
           {tabs.map(tab => (
             <button
               key={tab.id}
-              className={'nav-btn' + (active === tab.id ? ' active' : '')}
+              className={`nav-btn ${active === tab.id ? 'active' : ''}`}
               onClick={() => setActive(tab.id)}
             >
               <span className="nav-icon">{tab.emoji}</span>
               <span className="nav-label">{tab.label}</span>
-              <span className="nav-dot"></span>
+              <span className="nav-dot" />
             </button>
           ))}
         </nav>
-
       </div>
     </>
   );

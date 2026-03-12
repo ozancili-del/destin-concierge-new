@@ -263,7 +263,7 @@ async function createItinerary() {
   var userPrompt = 'Create a ' + numDays + '-day Destin itinerary. Dates: ' + arrFmt + ' to ' + depFmt + '. Group: ' + adults + ' adult' + (adults > 1 ? 's' : '') + (kids > 0 ? ', ' + kids + ' kid' + (kids > 1 ? 's' : '') : ', no kids') + '. Cuisine: ' + (cuisine.length ? cuisine.join(', ') : 'open') + '. Beach/pool: ' + beachPool + '. Pace: ' + pace + '. Interests: ' + (interests.length ? interests.join(', ') : 'general') + '. Use web search to find events during these exact dates and include them.';
 
   try {
-    var res = await fetch('/api/Itinerary', {
+    var res = await fetch('/api/itinerary', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ systemPrompt: systemPrompt, userPrompt: userPrompt })

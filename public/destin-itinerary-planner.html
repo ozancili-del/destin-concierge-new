@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -192,13 +193,15 @@
       <h3>Your Destin Itinerary</h3>
       <span id="previewDates"></span>
     </div>
+    <div id="personalSummary" style="display:none;padding:16px 28px;background:#eaf4f4;border-bottom:1px solid var(--border);font-size:0.9rem;color:#1a3a5c;line-height:1.6;font-style:italic;"></div>
     <div class="preview-summary" id="previewSummary"></div>
     <div class="preview-days" id="previewDays"></div>
     <div class="preview-footer">
       <p>Full itinerary ready · <strong id="totalDaysLabel"></strong></p>
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
         <button class="btn-reset" id="btnReset">← Start Over</button>
-        <button class="btn-download" id="btnDownload">⬇ Download Your Full Itinerary</button>
+        <a id="mapLink" href="#" target="_blank" style="display:none;padding:12px 20px;background:var(--teal);color:white;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:600;text-decoration:none;">🗺 View Itinerary Map</a>
+        <button class="btn-download" id="btnDownload">⬇ Download PDF</button>
       </div>
     </div>
   </div>
@@ -272,7 +275,7 @@ async function createItinerary() {
   document.getElementById('formCard').style.display = 'none';
   document.getElementById('loadingState').classList.add('visible');
 
-  var systemPrompt = 'You are Destiny Blue, AI concierge for Destin Condo Getaways. Generate a Destin Florida itinerary. Return ONLY valid JSON, no markdown, no code fences, no commentary. STRICT RULES: 1) Use real Destin venues. 2) Bookable activities (water sports/fishing/boat tours/dolphin tours/snorkeling/parasailing/jet ski/pontoon/kayak/paddleboard/sunset cruise): set tripshock:true, link_url:"https://tripshock.com/?aff=destindreamcondo". 3) Never suggest other accommodations. 4) Each day: exactly 4 blocks (MORNING, LUNCH, AFTERNOON, DINNER). 5) description: MAX 1 sentence. 6) tip: MAX 8 words. JSON: {"days":[{"day_number":1,"title":"Title","blocks":[{"time":"MORNING","emoji":"☀️","place":"Name","description":"One sentence.","tip":"Short tip.","link_url":"https://x.com","link_label":"x.com","tripshock":false}]}]}';
+  var systemPrompt = 'You are Destiny Blue, AI concierge for Destin Condo Getaways at Pelican Beach Resort, 1002 US-98, Destin FL. Generate a Destin Florida itinerary. Return ONLY valid JSON, no markdown, no code fences, no commentary. STRICT RULES: 1) Use REAL Destin venues only — never invent places. 2) Bookable activities (water sports/fishing/boat tours/dolphin tours/snorkeling/parasailing/jet ski/pontoon/kayak/paddleboard/sunset cruise): set tripshock:true, link_url:"https://tripshock.com/?aff=destindreamcondo". 3) Never suggest other accommodations. 4) Each day: exactly 4 blocks (MORNING, LUNCH, AFTERNOON, DINNER). 5) description: MAX 1 sentence, mention proximity to Pelican Beach Resort naturally where relevant. 6) tip: MAX 8 words. 7) ROTATION: Never repeat the same venue across days. Include at least 1 hidden gem per day that tourists rarely find. Vary between harbor, beach, bay, and inland options. 8) backup: one alternative venue/activity if weather is bad, MAX 8 words. 9) Each day include weather field: one sentence forecast for that date using web search. 10) lat and lng: approximate coordinates of the place. 11) First field in JSON must be summary: 2-3 sentence personal intro referencing their exact dates, interests, cuisine and pace — warm and specific, not generic. JSON format: {"summary":"Personal 2-3 sentence intro.","days":[{"day_number":1,"title":"Title","weather":"Weather forecast for this date.","blocks":[{"time":"MORNING","emoji":"☀️","place":"Name","description":"One sentence.","tip":"Short tip.","backup":"Rainy day alternative.","link_url":"https://x.com","link_label":"x.com","tripshock":false,"lat":30.393,"lng":-86.496}]}]}';
 
 
   var userPrompt = 'Create a ' + numDays + '-day Destin itinerary. Dates: ' + arrFmt + ' to ' + depFmt + '. Group: ' + adults + ' adult' + (adults > 1 ? 's' : '') + (kids > 0 ? ', ' + kids + ' kid' + (kids > 1 ? 's' : '') : ', no kids') + '. Cuisine: ' + (cuisine.length ? cuisine.join(', ') : 'open') + '. Beach/pool: ' + beachPool + '. Pace: ' + pace + '. Interests: ' + (interests.length ? interests.join(', ') : 'general') + '. Use web search to find events during these exact dates and include them.';
@@ -303,6 +306,26 @@ function renderPreview(data, snap) {
   document.getElementById('previewDates').textContent = arrDate.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + ' – ' + depDate.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
   document.getElementById('totalDaysLabel').textContent = data.days.length + ' days';
 
+  // Personal summary
+  if (data.summary) {
+    var summaryEl = document.getElementById('personalSummary');
+    if (summaryEl) { summaryEl.textContent = data.summary; summaryEl.style.display = 'block'; }
+  }
+
+  // Build Google Maps link from all lat/lng points
+  var points = [{lat:30.39347,lng:-86.49583,label:'Pelican Beach Resort'}];
+  data.days.forEach(function(day) {
+    day.blocks.forEach(function(b) {
+      if (b.lat && b.lng) points.push({lat:b.lat, lng:b.lng, label:b.place});
+    });
+  });
+  // Deduplicate
+  var seen = {}; var unique = points.filter(function(p) { var k=p.lat+','+p.lng; if(seen[k]) return false; seen[k]=true; return true; });
+  var mapsUrl = 'https://www.google.com/maps/dir/' + unique.map(function(p){ return p.lat+','+p.lng; }).join('/');
+  var mapLinkEl = document.getElementById('mapLink');
+  if (mapLinkEl) { mapLinkEl.href = mapsUrl; mapLinkEl.style.display = 'inline-block'; }
+  window._mapsUrl = mapsUrl;
+
   var summaryEl = document.getElementById('previewSummary');
   var pills = [
     '👤 ' + snap.adults + ' Adult' + (snap.adults > 1 ? 's' : '') + (snap.kids > 0 ? ' · ' + snap.kids + ' Kid' + (snap.kids > 1 ? 's' : '') : ''),
@@ -323,9 +346,11 @@ function renderPreview(data, snap) {
         '<div class="block-desc">' + b.description + '</div>' +
         (b.tripshock ? '<a class="block-link" href="https://tripshock.com/?aff=destindreamcondo" target="_blank">📌 Book via TripShock</a>' : b.link_url ? '<a class="block-link" href="' + b.link_url + '" target="_blank">🔗 ' + (b.link_label || b.link_url) + '</a>' : '') +
         (b.tip ? '<div class="block-tip">✦ ' + b.tip + '</div>' : '') +
+        (b.backup ? '<div style="font-size:0.72rem;color:#999;margin-top:3px;font-style:italic">☂ Backup: ' + b.backup + '</div>' : '') +
         '</div>';
     }).join('');
-    daysEl.innerHTML += '<div class="preview-day"><div class="preview-day-header">DAY ' + day.day_number + ' · ' + day.title.toUpperCase() + '</div><div class="preview-blocks">' + blocks + '</div></div>';
+    var weatherLine = day.weather ? '<div style="font-size:0.78rem;color:#8bb4d4;margin-bottom:10px;font-style:italic">🌤 ' + day.weather + '</div>' : '';
+    daysEl.innerHTML += '<div class="preview-day"><div class="preview-day-header">DAY ' + day.day_number + ' · ' + day.title.toUpperCase() + '</div>' + weatherLine + '<div class="preview-blocks">' + blocks + '</div></div>';
   });
   if (data.days.length > 2) {
     daysEl.innerHTML += '<p style="text-align:center;color:var(--text-light);font-size:0.85rem;padding:16px 0">+ ' + (data.days.length - 2) + ' more days in your full PDF itinerary</p>';
@@ -418,6 +443,11 @@ async function downloadPDF() {
     doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(8.5);
     doc.text('DAY ' + day.day_number + '  ·  ' + day.title.toUpperCase(), 14, y+5.5);
     y += 11;
+    if (day.weather) {
+      doc.setFont('helvetica','italic'); doc.setFontSize(7); doc.setTextColor(80,120,160);
+      doc.text('Forecast: ' + day.weather, 12, y);
+      y += 5;
+    }
     var colW = (W-22)/2;
     var pairs = [[day.blocks[0], day.blocks[1]], [day.blocks[2], day.blocks[3]]];
     pairs.forEach(function(pair) {
@@ -452,6 +482,10 @@ async function downloadPDF() {
           doc.setFont('helvetica','italic'); doc.setFontSize(6.5); doc.setTextColor.apply(doc, ORANGE);
           doc.text(doc.splitTextToSize('>> ' + b.tip, colW-8)[0], bx+4, linkY+4.5);
         }
+        if (b.backup) {
+          doc.setFont('helvetica','italic'); doc.setFontSize(6); doc.setTextColor(160,160,160);
+          doc.text(doc.splitTextToSize('Backup: ' + b.backup, colW-8)[0], bx+4, linkY+9);
+        }
       });
       y += maxH + 3;
     });
@@ -475,6 +509,49 @@ async function downloadPDF() {
     if (i > 0 && i % 2 === 0) newPage();
     y = drawDay(itineraryData.days[i], y);
   }
+
+  // ── MAP PAGE ──
+  doc.addPage();
+  drawHeader(); drawFooter();
+  var mapY = 36;
+  doc.setFillColor.apply(doc, NAVY); doc.rect(10, mapY, W-20, 8, 'F');
+  doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(9);
+  doc.text('YOUR ITINERARY MAP', 14, mapY+5.5);
+  mapY += 14;
+
+  // List all stops
+  var allPoints = [{label:'START: Pelican Beach Resort', lat:30.39347, lng:-86.49583}];
+  var stopNum = 1;
+  itineraryData.days.forEach(function(day) {
+    day.blocks.forEach(function(b) {
+      if (b.lat && b.lng) allPoints.push({label: 'Day ' + day.day_number + ' ' + b.time + ': ' + b.place, lat:b.lat, lng:b.lng});
+    });
+  });
+  // Deduplicate
+  var seenPDF = {}; var uniquePDF = allPoints.filter(function(p){ var k=p.lat+','+p.lng; if(seenPDF[k]) return false; seenPDF[k]=true; return true; });
+  var mapsUrlPDF = 'https://www.google.com/maps/dir/' + uniquePDF.map(function(p){ return p.lat+','+p.lng; }).join('/');
+
+  doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(60,60,60);
+  uniquePDF.forEach(function(p, i) {
+    if (mapY > H-40) return;
+    doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor.apply(doc, NAVY);
+    doc.text((i+1) + '.', 14, mapY);
+    doc.setFont('helvetica','normal'); doc.setTextColor(60,60,60);
+    doc.text(p.label, 22, mapY);
+    mapY += 6;
+  });
+
+  mapY += 6;
+  doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setTextColor.apply(doc, TEAL);
+  doc.textWithLink('>> Open Full Interactive Map in Google Maps', 14, mapY, { url: mapsUrlPDF });
+
+  // Weather disclaimer
+  mapY += 12;
+  doc.setDrawColor.apply(doc, BORDER); doc.line(10, mapY, W-10, mapY);
+  mapY += 6;
+  doc.setFont('helvetica','italic'); doc.setFontSize(7); doc.setTextColor(130,130,130);
+  doc.text('* Weather forecasts are based on available data at the time this itinerary was generated. Please check', 14, mapY);
+  doc.text('  current weather conditions before your trip as forecasts may change.', 14, mapY+4.5);
 
   // Destiny Blue line
   doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(100,100,100);

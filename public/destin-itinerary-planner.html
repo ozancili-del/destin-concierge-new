@@ -193,8 +193,8 @@
       <h3>Your Destin Itinerary</h3>
       <span id="previewDates"></span>
     </div>
-    <div id="personalSummary" style="display:none;padding:16px 28px;background:#eaf4f4;border-bottom:1px solid var(--border);font-size:0.92rem;color:#1a3a5c;line-height:1.7;font-style:italic;"></div>
-    <div class="preview-summary" id="previewSummary"></div>
+    <div id="personalSummary" style="display:none;padding:18px 28px 14px;background:#eaf4f4;border-bottom:1px solid var(--border);font-size:0.9rem;color:#1a3a5c;line-height:1.75;"></div>
+    <div class="preview-summary" id="previewSummary" style="padding:10px 28px 6px;"></div>
     <div class="preview-days" id="previewDays"></div>
     <div class="preview-footer">
       <p>Full itinerary ready · <strong id="totalDaysLabel"></strong></p>
@@ -274,7 +274,7 @@ async function createItinerary() {
   document.getElementById('formCard').style.display = 'none';
   document.getElementById('loadingState').classList.add('visible');
 
-  var systemPrompt = 'You are Destiny Blue, the AI concierge for Destin Condo Getaways at Pelican Beach Resort, 1002 US-98, Destin FL. Generate a Destin Florida itinerary. Return ONLY valid JSON, no markdown, no code fences. STRICT RULES: 1) REAL Destin venues only, never invent. 2) Bookable activities (water sports/fishing/boat tours/dolphin tours/snorkeling/parasailing/jet ski/pontoon/kayak/paddleboard/sunset cruise): tripshock:true, link_url:"https://tripshock.com/?aff=destindreamcondo". 3) Never suggest other accommodations. 4) Each day: exactly 4 blocks (MORNING, LUNCH, AFTERNOON, DINNER). 5) description: MAX 10 words. Mention resort proximity once per day only. 6) tip: MAX 8 words. 7) ROTATION: never repeat venues across days, include 1 hidden gem per day. 8) backup: rainy day alternative, MAX 8 words. 9) weather: MAX 8 words e.g. "Low 68F sunny light jacket tonight". Use web search. 10) lat/lng: place coordinates. 11) summary: Write AS Destiny Blue — warm excited local friend welcoming them. Do NOT repeat their form inputs. Instead describe what Destin feels like during their specific dates, what makes this trip special, one thing to look forward to. 2-3 sentences. JSON: {"summary":"Destiny Blue welcome.","days":[{"day_number":1,"title":"Title","weather":"Conversational forecast.","blocks":[{"time":"MORNING","emoji":"☀️","place":"Name","description":"One sentence.","tip":"Short tip.","backup":"Rainy alternative.","link_url":"https://x.com","link_label":"x.com","tripshock":false,"lat":30.393,"lng":-86.496}]}]}';
+  var systemPrompt = 'You are Destiny Blue, warm local-friend AI concierge for Destin Condo Getaways at Pelican Beach Resort. Return ONLY valid JSON, no markdown, no code fences. STRICT RULES: 1) REAL Destin venues only, never invent. 2) Bookable activities (water sports/fishing/boat tours/dolphin tours/snorkeling/parasailing/jet ski/pontoon/kayak/paddleboard/sunset cruise): tripshock:true, link_url:"https://tripshock.com/?aff=destindreamcondo". 3) Never suggest other accommodations. 4) Each day: exactly 4 blocks (MORNING, LUNCH, AFTERNOON, DINNER). 5) description: MAX 8 words. 6) tip: MAX 8 words. 7) Never repeat venues across days. 8) backup: rainy-day alternative, MAX 8 words. 9) weather: MAX 12 words — conditions, temp range, 1 practical tip e.g. "pack sunscreen" or "light jacket tonight". Use web search. 10) lat/lng: real coordinates of the place. 11) summary: You ARE Destiny Blue. Open with "Hi! I am Destiny Blue, your AI concierge at Pelican Beach Resort!" Then weave in naturally: stay length, group size, what Destin feels like this exact season, one specific event or highlight to look forward to. Warm, genuine, excited — like a local friend. 3 sentences max. JSON: {"summary":"...","days":[{"day_number":1,"title":"...","weather":"...","blocks":[{"time":"MORNING","emoji":"☀️","place":"...","description":"...","tip":"...","backup":"...","link_url":"...","link_label":"...","tripshock":false,"lat":30.393,"lng":-86.496}]}]}';
 
 
   var userPrompt = 'Create a ' + numDays + '-day Destin itinerary. Dates: ' + arrFmt + ' to ' + depFmt + '. Group: ' + adults + ' adult' + (adults > 1 ? 's' : '') + (kids > 0 ? ', ' + kids + ' kid' + (kids > 1 ? 's' : '') : ', no kids') + '. Cuisine: ' + (cuisine.length ? cuisine.join(', ') : 'open') + '. Beach/pool: ' + beachPool + '. Pace: ' + pace + '. Interests: ' + (interests.length ? interests.join(', ') : 'general') + '. Use web search to find events during these exact dates and include them.';
@@ -305,35 +305,38 @@ function renderPreview(data, snap) {
   document.getElementById('previewDates').textContent = arrDate.toLocaleDateString('en-US',{month:'short',day:'numeric'}) + ' – ' + depDate.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
   document.getElementById('totalDaysLabel').textContent = data.days.length + ' days';
 
+  // Destiny Blue message at top
   if (data.summary) {
-    var summaryEl = document.getElementById('personalSummary');
-    if (summaryEl) { summaryEl.innerHTML = '💬 ' + data.summary; summaryEl.style.display = 'block'; }
+    var sEl = document.getElementById('personalSummary');
+    sEl.innerHTML = data.summary;
+    sEl.style.display = 'block';
   }
 
+  // Compact single-line strip
   var summaryEl = document.getElementById('previewSummary');
-  var pills = [
-    '👤 ' + snap.adults + ' Adult' + (snap.adults > 1 ? 's' : '') + (snap.kids > 0 ? ' · ' + snap.kids + ' Kid' + (snap.kids > 1 ? 's' : '') : ''),
-    snap.cuisine.length ? '🍽 ' + snap.cuisine.slice(0,2).join(' · ') + (snap.cuisine.length > 2 ? ' +more' : '') : null,
-    '🏖 ' + snap.beachPool,
-    '⚡ ' + snap.pace,
-    snap.interests.length ? '🎯 ' + snap.interests.slice(0,2).join(' · ') + (snap.interests.length > 2 ? ' +more' : '') : null
-  ].filter(Boolean);
-  summaryEl.innerHTML = pills.map(function(p) { return '<div class="summary-pill">' + p + '</div>'; }).join('');
+  var groupStr = snap.adults + ' adult' + (snap.adults>1?'s':'') + (snap.kids>0?' + '+snap.kids+' kid'+(snap.kids>1?'s':''):'');
+  summaryEl.innerHTML = '<div style="font-size:0.78rem;color:#999;display:flex;flex-wrap:wrap;gap:10px;align-items:center;">' +
+    '<span>👤 ' + groupStr + '</span><span style="color:#ddd">|</span>' +
+    '<span>🏖 ' + snap.beachPool + '</span><span style="color:#ddd">|</span>' +
+    '<span>⚡ ' + snap.pace + '</span>' +
+    (snap.cuisine.length ? '<span style="color:#ddd">|</span><span>🍽 ' + snap.cuisine.slice(0,2).join(', ') + '</span>' : '') +
+    (snap.interests.length ? '<span style="color:#ddd">|</span><span>🎯 ' + snap.interests.slice(0,2).join(', ') + '</span>' : '') +
+    '</div>';
 
   var daysEl = document.getElementById('previewDays');
   daysEl.innerHTML = '';
   data.days.slice(0, 2).forEach(function(day) {
-    var weatherBadge = day.weather ? '<div style="display:inline-block;background:#e8f4f4;border:1px solid #b0d8d8;border-radius:20px;padding:4px 12px;font-size:0.78rem;color:#0e7c7b;font-weight:500;margin-bottom:12px;">🌤 ' + day.weather + '</div>' : '';
+    var weatherBadge = day.weather ? '<div style="display:inline-block;background:#e8f4f4;border:1px solid #b0d8d8;border-radius:20px;padding:5px 14px;font-size:0.78rem;color:#0e7c7b;font-weight:500;margin-bottom:10px;">🌤 ' + day.weather + '</div>' : '';
     var blocks = day.blocks.map(function(b) {
-      var directionsUrl = 'https://www.google.com/maps/dir/Pelican+Beach+Resort,+1002+US-98,+Destin,+FL/' + (b.lat && b.lng ? b.lat+','+b.lng : encodeURIComponent(b.place+', Destin FL'));
+      var dirUrl = 'https://www.google.com/maps/dir/Pelican+Beach+Resort,+1002+US-98,+Destin,+FL/' + (b.lat&&b.lng ? b.lat+','+b.lng : encodeURIComponent(b.place+', Destin FL'));
       return '<div class="preview-block">' +
-        '<div class="block-time">' + (b.emoji || '') + ' ' + b.time + '</div>' +
+        '<div class="block-time">' + (b.emoji||'') + ' ' + b.time + '</div>' +
         '<div class="block-place">' + b.place + '</div>' +
         '<div class="block-desc">' + b.description + '</div>' +
-        (b.tripshock ? '<a class="block-link" href="https://tripshock.com/?aff=destindreamcondo" target="_blank">📌 Book via TripShock</a>' : b.link_url ? '<a class="block-link" href="' + b.link_url + '" target="_blank">🔗 ' + (b.link_label || b.link_url) + '</a>' : '') +
-        '<a class="block-link" href="' + directionsUrl + '" target="_blank" style="display:block;color:#888;font-size:0.72rem;">📍 Directions from resort</a>' +
+        (b.tripshock ? '<a class="block-link" href="https://tripshock.com/?aff=destindreamcondo" target="_blank">📌 Book via TripShock</a>' : b.link_url ? '<a class="block-link" href="' + b.link_url + '" target="_blank">🔗 ' + (b.link_label||b.link_url) + '</a>' : '') +
+        '<br><a href="' + dirUrl + '" target="_blank" style="font-size:0.72rem;color:#bbb;text-decoration:none;">📍 Directions from resort</a>' +
         (b.tip ? '<div class="block-tip">✦ ' + b.tip + '</div>' : '') +
-        (b.backup ? '<div style="font-size:0.72rem;color:#aaa;margin-top:3px;font-style:italic;">☂ Backup: ' + b.backup + '</div>' : '') +
+        (b.backup ? '<div style="font-size:0.72rem;color:#bbb;margin-top:3px;font-style:italic;">☂ Backup: ' + b.backup + '</div>' : '') +
         '</div>';
     }).join('');
     daysEl.innerHTML += '<div class="preview-day"><div class="preview-day-header">DAY ' + day.day_number + ' · ' + day.title.toUpperCase() + '</div>' + weatherBadge + '<div class="preview-blocks">' + blocks + '</div></div>';
@@ -401,11 +404,11 @@ async function downloadPDF() {
 
   function drawSummary(y) {
     var fields = [
-      ['Travelers', formSnapshot.adults + ' Adult' + (formSnapshot.adults>1?'s':'') + (formSnapshot.kids>0?' + '+formSnapshot.kids+' Kid'+(formSnapshot.kids>1?'s':''):'')],
-      ['Cuisine', formSnapshot.cuisine.join(', ') || 'Open'],
+      ['Travelers', formSnapshot.adults + ' Adult' + (formSnapshot.adults>1?'s':'') + (formSnapshot.kids>0?' · '+formSnapshot.kids+' Kid'+(formSnapshot.kids>1?'s':''):'')],
+      ['Cuisine', formSnapshot.cuisine.join(' · ') || 'Open'],
       ['Dates', formSnapshot.arrFmt + ' - ' + formSnapshot.depFmt],
-      ['Vibe', formSnapshot.beachPool + ' / ' + formSnapshot.pace],
-      ['Interests', formSnapshot.interests.join(', ') || 'General'],
+      ['Vibe', formSnapshot.beachPool + ' · ' + formSnapshot.pace],
+      ['Interests', formSnapshot.interests.join(' · ') || 'General'],
       ['Kids', formSnapshot.kids > 0 ? formSnapshot.kids + ' kid' + (formSnapshot.kids>1?'s':'') : 'No kids']
     ];
     var rows = Math.ceil(fields.length / 2);
@@ -418,93 +421,68 @@ async function downloadPDF() {
       doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor.apply(doc, NAVY);
       doc.text(f[0] + ':', fx, fy2);
       doc.setFont('helvetica','normal'); doc.setTextColor(80,80,80);
-      doc.text(doc.splitTextToSize(f[1], 72)[0], fx + doc.getTextWidth(f[0] + ':  '), fy2);
+      var labelW = doc.getTextWidth(f[0] + ':  ');
+      doc.text(doc.splitTextToSize(f[1], 75)[0], fx + labelW, fy2);
     });
-    return y + cardH + 4;
+    return y + cardH + 6;
   }
 
-
     function drawDay(day, y) {
-    // Day header
     doc.setFillColor.apply(doc, NAVY); doc.rect(10, y, W-20, 8, 'F');
     doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(8.5);
     doc.text('DAY ' + day.day_number + '  ·  ' + day.title.toUpperCase(), 14, y+5.5);
     y += 10;
-
-    // Weather line
     if (day.weather) {
       doc.setFont('helvetica','italic'); doc.setFontSize(7.5); doc.setTextColor(14,124,123);
       doc.text('Forecast: ' + day.weather, 12, y);
       y += 6;
     }
-
     var colW = (W-22)/2;
     var pairs = [[day.blocks[0], day.blocks[1]], [day.blocks[2], day.blocks[3]]];
-
     pairs.forEach(function(pair) {
-      // Calculate dynamic block height
-      var maxH = 38;
+      var maxH = 36;
       pair.forEach(function(b) {
         if (!b) return;
-        var descH = doc.splitTextToSize(b.description||'', colW-8).length * 4;
-        var tipH = b.tip ? 5 : 0;
-        var backupH = b.backup ? 5 : 0;
-        var h = 22 + descH + tipH + backupH + 4;
+        var dL = doc.splitTextToSize(b.description||'', colW-8).length;
+        var h = 6 + 5 + 5.5 + dL*4 + 4.5 + 4.5 + (b.tip?4.5:0) + (b.backup?4:0) + 4;
         maxH = Math.max(maxH, h);
       });
-
-      pair.forEach(function(b, idx2) {
+      pair.forEach(function(b, ci) {
         if (!b) return;
-        var bx = idx2===0 ? 10 : 10+colW+2;
+        var bx = ci===0 ? 10 : 10+colW+2;
         doc.setFillColor.apply(doc, SAND); doc.setDrawColor.apply(doc, BORDER);
         doc.roundedRect(bx, y, colW, maxH, 2, 2, 'FD');
-
-        var by = y + 6;
-        // Time
+        var by = y+6;
         doc.setFont('helvetica','bold'); doc.setFontSize(6.5); doc.setTextColor.apply(doc, ORANGE);
-        doc.text(b.time, bx+4, by);
-        by += 5;
-        // Place
+        doc.text(b.time, bx+4, by); by+=5;
         doc.setFont('helvetica','bold'); doc.setFontSize(8.5); doc.setTextColor.apply(doc, NAVY);
-        doc.text(doc.splitTextToSize(b.place, colW-8)[0], bx+4, by);
-        by += 5.5;
-        // Description
+        doc.text(doc.splitTextToSize(b.place,colW-8)[0], bx+4, by); by+=5.5;
         doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(60,60,60);
-        var descLines = doc.splitTextToSize(b.description||'', colW-8).slice(0,3);
-        doc.text(descLines, bx+4, by);
-        by += descLines.length * 4 + 2;
-        // Link
+        var dLines = doc.splitTextToSize(b.description||'',colW-8).slice(0,3);
+        doc.text(dLines, bx+4, by); by+=dLines.length*4+2;
         if (b.tripshock) {
           doc.setFont('helvetica','bold'); doc.setFontSize(6.5); doc.setTextColor.apply(doc, TEAL);
-          doc.textWithLink('Book via TripShock', bx+4, by, { url: 'https://tripshock.com/?aff=destindreamcondo' });
+          doc.textWithLink('Book via TripShock', bx+4, by, {url:'https://tripshock.com/?aff=destindreamcondo'}); by+=4.5;
         } else if (b.link_url) {
           doc.setFont('helvetica','normal'); doc.setFontSize(6.5); doc.setTextColor.apply(doc, TEAL);
-          doc.textWithLink(b.link_label||b.link_url, bx+4, by, { url: b.link_url });
+          doc.textWithLink(b.link_label||b.link_url, bx+4, by, {url:b.link_url}); by+=4.5;
         }
-        by += 4.5;
-        // Directions
-        var lat = b.lat || '30.39347'; var lng = b.lng || '-86.49583';
-        var dirUrl = 'https://www.google.com/maps/dir/Pelican+Beach+Resort,+1002+US-98,+Destin,+FL/' + lat + ',' + lng;
-        doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor(140,140,140);
-        doc.textWithLink('Directions from Pelican Beach Resort', bx+4, by, { url: dirUrl });
-        by += 4.5;
-        // Tip
+        var lat=b.lat||30.39347; var lng=b.lng||-86.49583;
+        doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor(160,160,160);
+        doc.textWithLink('Directions from Pelican Beach Resort', bx+4, by, {url:'https://www.google.com/maps/dir/Pelican+Beach+Resort,+1002+US-98,+Destin,+FL/'+lat+','+lng}); by+=4.5;
         if (b.tip) {
           doc.setFont('helvetica','italic'); doc.setFontSize(6.5); doc.setTextColor.apply(doc, ORANGE);
-          doc.text(doc.splitTextToSize('>> ' + b.tip, colW-8)[0], bx+4, by);
-          by += 4.5;
+          doc.text(doc.splitTextToSize('>> '+b.tip,colW-8)[0], bx+4, by); by+=4.5;
         }
-        // Backup
         if (b.backup) {
-          doc.setFont('helvetica','italic'); doc.setFontSize(6); doc.setTextColor(170,170,170);
-          doc.text(doc.splitTextToSize('Backup: ' + b.backup, colW-8)[0], bx+4, by);
+          doc.setFont('helvetica','italic'); doc.setFontSize(6); doc.setTextColor(185,185,185);
+          doc.text(doc.splitTextToSize('Backup: '+b.backup,colW-8)[0], bx+4, by);
         }
       });
       y += maxH + 3;
     });
-    return y + 3;
+    return y + 4;
   }
-
 
   var pageNum = 0;
   var y = 0;
@@ -519,12 +497,12 @@ async function downloadPDF() {
   newPage();
   y = drawSummary(y);
 
-  // Personal summary from Destiny Blue
   if (itineraryData.summary) {
     doc.setFont('helvetica','italic'); doc.setFontSize(8); doc.setTextColor.apply(doc, TEAL);
     var sumLines = doc.splitTextToSize(itineraryData.summary, W-24);
+    if (y + sumLines.length*5 + 6 > H-25) newPage();
     doc.text(sumLines, 12, y);
-    y += sumLines.length * 5 + 4;
+    y += sumLines.length * 5 + 6;
   }
 
   for (var i = 0; i < itineraryData.days.length; i++) {
@@ -532,24 +510,21 @@ async function downloadPDF() {
     y = drawDay(itineraryData.days[i], y);
   }
 
-  // Weather disclaimer
-  var discY = H - 26;
-  doc.setFont('helvetica','italic'); doc.setFontSize(6.5); doc.setTextColor(160,160,160);
-  doc.text('* Weather forecasts are based on data at time of generation. Please verify before your trip.', 10, discY);
+  doc.setFont('helvetica','italic'); doc.setFontSize(6.5); doc.setTextColor(175,175,175);
+  doc.text('* Weather forecasts based on data at time of generation. Please verify before your trip.', 10, H-27);
 
   // Destiny Blue line
-  var dbY = H - 22;
   doc.setFont('helvetica','normal'); doc.setFontSize(7.5); doc.setTextColor(100,100,100);
-  doc.text('Questions about your stay? Chat with ', 10, dbY);
+  doc.text('Questions about your stay? Chat with ', 10, H-22);
   var w1 = doc.getTextWidth('Questions about your stay? Chat with ');
   doc.setFont('helvetica','bold'); doc.setTextColor.apply(doc, NAVY);
-  doc.text('Destiny Blue', 10+w1, dbY);
+  doc.text('Destiny Blue', 10+w1, H-22);
   var w2 = doc.getTextWidth('Destiny Blue');
   doc.setFont('helvetica','normal'); doc.setTextColor(100,100,100);
-  doc.text(', our AI concierge — ', 10+w1+w2, dbY);
+  doc.text(', our AI concierge — ', 10+w1+w2, H-22);
   var w3 = doc.getTextWidth(', our AI concierge — ');
   doc.setTextColor.apply(doc, TEAL);
-  doc.textWithLink('destincondogetaways.com', 10+w1+w2+w3, dbY, { url: 'https://www.destincondogetaways.com' });
+  doc.textWithLink('destincondogetaways.com', 10+w1+w2+w3, H-22, { url: 'https://www.destincondogetaways.com' });
 
   doc.save('destin-itinerary-' + formSnapshot.arrival + '-' + formSnapshot.departure + '.pdf');
 }

@@ -354,7 +354,8 @@ async function downloadPDF() {
         var canvas = document.createElement('canvas');
         canvas.width = img.width; canvas.height = img.height;
         canvas.getContext('2d').drawImage(img, 0, 0);
-        resolve(canvas.toDataURL('image/png'));
+        var fmt = url.match(/\.jpe?g$/i) ? 'image/jpeg' : 'image/png';
+        resolve(canvas.toDataURL(fmt));
       };
       img.onerror = function(e) { console.error('Failed to load image:', url, e); resolve(null); };
       img.src = window.location.origin + url;
@@ -372,7 +373,7 @@ async function downloadPDF() {
     doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(139,180,212);
     doc.text('Your Personal Destin Itinerary  ·  Crafted by Destiny Blue AI Concierge', 32, 17);
     doc.textWithLink('https://www.destincondogetaways.com', 32, 23, { url: 'https://www.destincondogetaways.com' });
-    if (qrData) { try { doc.addImage(qrData, 'PNG', W-26, 2, 22, 22); } catch(e){} }
+    if (qrData) { try { doc.addImage(qrData, 'JPEG', W-26, 2, 22, 22); } catch(e){} }
     doc.setFontSize(6); doc.text('Scan to book', W-15, 26, { align: 'center' });
   }
 
@@ -384,7 +385,7 @@ async function downloadPDF() {
     doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(139,180,212);
     doc.textWithLink('https://www.destincondogetaways.com', 10, fy+11, { url: 'https://www.destincondogetaways.com' });
     doc.text('  ozan@destincondogetaways.com  ·  (972) 357-4262', 65, fy+11);
-    if (qrData) { try { doc.addImage(qrData, 'PNG', W-18, fy+2, 13, 13); } catch(e){} }
+    if (qrData) { try { doc.addImage(qrData, 'JPEG', W-18, fy+2, 13, 13); } catch(e){} }
   }
 
   function drawSummary(y) {

@@ -449,7 +449,7 @@
       </div>
     </div>
 
-    <button class="btn-submit" id="btnCreate" onclick="createItinerary()">
+    <button class="btn-submit" id="btnCreate">
       🌊 Create My Itinerary
     </button>
 
@@ -480,8 +480,8 @@
     <div class="preview-footer">
       <p>Full itinerary ready · <strong id="totalDaysLabel"></strong></p>
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <button class="btn-reset" onclick="resetForm()">← Start Over</button>
-        <button class="btn-download" onclick="downloadPDF()">
+        <button class="btn-reset" id="btnReset">← Start Over</button>
+        <button class="btn-download" id="btnDownload">
           ⬇ Download Your Full Itinerary
         </button>
       </div>
@@ -500,6 +500,9 @@ const QR_SRC = 'data:image/jpeg;base64,' + QR_B64;
 
 // ─── CHIP LOGIC ───
 document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('btnCreate').addEventListener('click', createItinerary);
+  document.getElementById('btnReset').addEventListener('click', resetForm);
+  document.getElementById('btnDownload').addEventListener('click', downloadPDF);
   document.querySelectorAll('#cuisineChips .chip, #interestChips .chip').forEach(chip => {
     chip.addEventListener('click', () => chip.classList.toggle('active'));
   });

@@ -221,6 +221,20 @@ document.querySelectorAll('#beachPoolChips .chip, #paceChips .chip').forEach(fun
 });
 
 document.getElementById('btnCreate').addEventListener('click', createItinerary);
+
+  // When arrival date is picked, set departure min and default to +1 day, jump to same month
+  document.getElementById('arrivalDate').addEventListener('change', function() {
+    var val = this.value;
+    if (!val) return;
+    var dep = document.getElementById('departureDate');
+    dep.min = val;
+    // If departure is empty or before arrival, set it to arrival + 1 day
+    if (!dep.value || dep.value <= val) {
+      var next = new Date(val + 'T12:00:00');
+      next.setDate(next.getDate() + 1);
+      dep.value = next.toISOString().split('T')[0];
+    }
+  });
 document.getElementById('btnReset').addEventListener('click', resetForm);
 document.getElementById('btnDownload').addEventListener('click', downloadPDF);
 
@@ -258,7 +272,8 @@ async function createItinerary() {
   document.getElementById('formCard').style.display = 'none';
   document.getElementById('loadingState').classList.add('visible');
 
-  var systemPrompt = 'You are Destiny Blue, AI concierge for Destin Condo Getaways at Pelican Beach Resort, Destin FL. Generate a day-by-day Destin Florida itinerary. Return ONLY valid JSON — no markdown, no code fences. Rules: use REAL Destin venues by name. For bookable activities (water sports, fishing, boat tours, dolphin tours, snorkeling, parasailing, jet ski, pontoon, kayak, paddleboard, sunset cruise) set tripshock:true and link_url:"https://tripshock.com/?aff=destindreamcondo". NEVER suggest other accommodations. Tone: warm, local, insider. Each day has exactly 4 blocks: MORNING, LUNCH or BRUNCH, AFTERNOON, DINNER or EVENING. JSON format: {"days":[{"day_number":1,"title":"Day Title","blocks":[{"time":"MORNING","emoji":"☀️","place":"Place Name","description":"2-3 sentence description.","tip":"One insider tip.","link_url":"https://example.com","link_label":"example.com","tripshock":false}]}]}';
+  var systemPrompt = 'You are Destiny Blue, AI concierge for Destin Condo Getaways. Generate a Destin Florida itinerary. Return ONLY valid JSON, no markdown, no code fences, no commentary. STRICT RULES: 1) Use real Destin venues. 2) Bookable activities (water sports/fishing/boat tours/dolphin tours/snorkeling/parasailing/jet ski/pontoon/kayak/paddleboard/sunset cruise): set tripshock:true, link_url:"https://tripshock.com/?aff=destindreamcondo". 3) Never suggest other accommodations. 4) Each day: exactly 4 blocks (MORNING, LUNCH, AFTERNOON, DINNER). 5) description: MAX 1 sentence. 6) tip: MAX 8 words. JSON: {"days":[{"day_number":1,"title":"Title","blocks":[{"time":"MORNING","emoji":"☀️","place":"Name","description":"One sentence.","tip":"Short tip.","link_url":"https://x.com","link_label":"x.com","tripshock":false}]}]}';
+
 
   var userPrompt = 'Create a ' + numDays + '-day Destin itinerary. Dates: ' + arrFmt + ' to ' + depFmt + '. Group: ' + adults + ' adult' + (adults > 1 ? 's' : '') + (kids > 0 ? ', ' + kids + ' kid' + (kids > 1 ? 's' : '') : ', no kids') + '. Cuisine: ' + (cuisine.length ? cuisine.join(', ') : 'open') + '. Beach/pool: ' + beachPool + '. Pace: ' + pace + '. Interests: ' + (interests.length ? interests.join(', ') : 'general') + '. Use web search to find events during these exact dates and include them.';
 
@@ -347,7 +362,7 @@ async function downloadPDF() {
   }
 
   var logoData = await loadImg('/logo.png');
-  var qrData = await loadImg('/QR.jpg');
+  var qrData = await loadImg('/qr.jpeg');
 
   function drawHeader() {
     doc.setFillColor.apply(doc, NAVY); doc.rect(0, 0, W, 28, 'F');

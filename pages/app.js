@@ -128,9 +128,10 @@ export default function App() {
           border-top: 0.5px solid #e0eaf2;
           display: flex;
           justify-content: space-around;
-          padding: 10px 0 28px;
+          padding: 10px 0;
+          padding-bottom: max(env(safe-area-inset-bottom, 20px), 20px);
           flex-shrink: 0;
-          min-height: 75px;
+          min-height: 80px;
         }
         .nav-btn {
           flex: 1;

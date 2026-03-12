@@ -286,7 +286,7 @@ async function createItinerary() {
   document.querySelector('.intro').style.display = 'none';
   document.getElementById('loadingState').classList.add('visible');
 
-  var systemPrompt = 'You are Destiny Blue, warm local-friend AI concierge for Destin Condo Getaways at Pelican Beach Resort. Return ONLY valid JSON, no markdown, no code fences. STRICT RULES: 1) REAL Destin venues only, never invent. 2) Bookable activities (water sports/fishing/boat tours/dolphin tours/snorkeling/parasailing/jet ski/pontoon/kayak/paddleboard/sunset cruise): tripshock:true, link_url:"https://tripshock.com/?aff=destindreamcondo". 3) Never suggest other accommodations. 4) Each day: exactly 4 blocks (MORNING, LUNCH, AFTERNOON, DINNER). 5) description: MAX 8 words. 6) tip: MAX 8 words. 7) Never repeat venues across days. 8) backup: rainy-day alternative MAX 8 words. 9) weather: MAX 12 words, conditions + temp + 1 tip. 10) lat/lng: real coordinates. 11) summary: open "Hi! I\'m Destiny Blue, your AI concierge at Pelican Beach Resort!" then 2 warm sentences. JSON: {"summary":"...","days":[{"day_number":1,"title":"...","weather":"...","blocks":[{"time":"MORNING","emoji":"☀️","place":"...","description":"...","tip":"...","backup":"...","link_url":"...","link_label":"...","tripshock":false,"lat":30.393,"lng":-86.496}]}]}';
+  var systemPrompt = 'You are Destiny Blue, warm local-friend AI concierge for Destin Condo Getaways at Pelican Beach Resort. Return ONLY valid JSON, no markdown, no code fences. STRICT RULES: 1) REAL Destin venues only, never invent. 2) Bookable activities (water sports/fishing/boat tours/dolphin tours/snorkeling/parasailing/jet ski/pontoon/kayak/paddleboard/sunset cruise): tripshock:true, link_url:"https://tripshock.com/?aff=destindreamcondo". 3) Never suggest other accommodations. 4) Each day: exactly 4 blocks (MORNING, LUNCH, AFTERNOON, DINNER). 5) description: MAX 8 words. 6) tip: MAX 8 words. 7) Never repeat venues across days. 8) backup: rainy-day alternative, MAX 8 words, label it "Rainy day:". 9) weather: MAX 12 words, conditions + temp + 1 tip. 10) DO NOT include lat or lng fields. 11) summary: open "Hi! I\'m Destiny Blue, your AI concierge at Pelican Beach Resort!" then 2 warm sentences. 12) link_url: ONLY include if 100% certain of official URL. If unsure, use "https://www.google.com/search?q=PLACE+NAME+Destin+FL" (URL-encode the place name) and set link_label to "🔍 Find on Google". JSON: {"summary":"...","days":[{"day_number":1,"title":"...","weather":"...","blocks":[{"time":"MORNING","emoji":"☀️","place":"...","description":"...","tip":"...","backup":"...","link_url":"...","link_label":"...","tripshock":false}]}]}';
 
 
   var userPrompt = 'Create a ' + numDays + '-day Destin itinerary. Dates: ' + arrFmt + ' to ' + depFmt + '. Group: ' + adults + ' adult' + (adults > 1 ? 's' : '') + (kids > 0 ? ', ' + kids + ' kid' + (kids > 1 ? 's' : '') : ', no kids') + '. Cuisine: ' + (cuisine.length ? cuisine.join(', ') : 'open') + '. Beach/pool: ' + beachPool + '. Pace: ' + pace + '. Interests: ' + (interests.length ? interests.join(', ') : 'general') + '. Use web search to find events during these exact dates and include them.';
@@ -334,7 +334,7 @@ function renderPreview(data, snap) {
   data.days.slice(0, 2).forEach(function(day) {
     var weatherBadge = day.weather ? '<div style="display:inline-block;background:#e8f4f4;border:1px solid #b0d8d8;border-radius:20px;padding:5px 14px;font-size:0.78rem;color:#0e7c7b;font-weight:500;margin-bottom:10px;">🌤 ' + day.weather + '</div>' : '';
     var blocks = day.blocks.map(function(b) {
-      var dirUrl = 'https://www.google.com/maps/dir/Pelican+Beach+Resort,+1002+US-98,+Destin,+FL/' + (b.lat&&b.lng ? b.lat+','+b.lng : encodeURIComponent(b.place+', Destin FL'));
+      var dirUrl = 'https://www.google.com/maps/dir/Pelican+Beach+Resort,+1002+US-98,+Destin,+FL/' + encodeURIComponent(b.place+', Destin, FL');
       return '<div class="preview-block">' +
         '<div class="block-time">' + (b.emoji||'') + ' ' + b.time + '</div>' +
         '<div class="block-place">' + b.place + '</div>' +
@@ -342,7 +342,7 @@ function renderPreview(data, snap) {
         (b.tripshock ? '<a class="block-link" href="https://tripshock.com/?aff=destindreamcondo" target="_blank">📌 Book via TripShock</a>' : b.link_url ? '<a class="block-link" href="' + b.link_url + '" target="_blank">🔗 ' + (b.link_label||b.link_url) + '</a>' : '') +
         '<br><a href="' + dirUrl + '" target="_blank" style="font-size:0.72rem;color:#bbb;text-decoration:none;">📍 Directions from resort</a>' +
         (b.tip ? '<div class="block-tip">✦ ' + b.tip + '</div>' : '') +
-        (b.backup ? '<div style="font-size:0.72rem;color:#bbb;margin-top:3px;font-style:italic;">☂ ' + b.backup + '</div>' : '') +
+        (b.backup ? '<div style="font-size:0.72rem;color:#bbb;margin-top:3px;font-style:italic;">☂ Rainy day: ' + b.backup + '</div>' : '') +
         '</div>';
     }).join('');
     daysEl.innerHTML += '<div class="preview-day"><div class="preview-day-header">DAY ' + day.day_number + ' · ' + day.title.toUpperCase() + '</div>' + weatherBadge + '<div class="preview-blocks">' + blocks + '</div></div>';
@@ -369,7 +369,7 @@ function downloadPDF() {
   var daysHTML = data.days.map(function(day) {
     var weatherBadge = day.weather ? '<div style="-webkit-print-color-adjust:exact;print-color-adjust:exact;display:inline-block;background:#e8f4f4;border:1px solid #b0d8d8;border-radius:20px;padding:4px 12px;font-size:0.72rem;color:#0e7c7b;font-weight:500;margin-bottom:10px;">🌤 ' + day.weather + '</div>' : '';
     var blocksHTML = day.blocks.map(function(b) {
-      var dirUrl = 'https://www.google.com/maps/dir/Pelican+Beach+Resort,+1002+US-98,+Destin,+FL/' + (b.lat&&b.lng ? b.lat+','+b.lng : encodeURIComponent(b.place+', Destin FL'));
+      var dirUrl = 'https://www.google.com/maps/dir/Pelican+Beach+Resort,+1002+US-98,+Destin,+FL/' + encodeURIComponent(b.place+', Destin, FL');
       var linkHTML = b.tripshock
         ? '<a href="https://tripshock.com/?aff=destindreamcondo" style="display:inline-block;font-size:0.7rem;color:#0e7c7b;text-decoration:underline;font-weight:600;margin-bottom:3px;">📌 Book via TripShock</a><br>'
         : b.link_url ? '<a href="' + b.link_url + '" style="display:inline-block;font-size:0.7rem;color:#0e7c7b;text-decoration:underline;font-weight:600;margin-bottom:3px;">🔗 ' + (b.link_label||b.link_url) + '</a><br>' : '';
@@ -380,7 +380,7 @@ function downloadPDF() {
         linkHTML +
         '<a href="' + dirUrl + '" style="display:block;font-size:0.68rem;color:#aaa;text-decoration:underline;margin-bottom:4px;">📍 Directions from Pelican Beach Resort</a>' +
         (b.tip ? '<div style="font-size:0.7rem;color:#e8741a;font-style:italic;margin-top:3px;">✦ ' + b.tip + '</div>' : '') +
-        (b.backup ? '<div style="font-size:0.68rem;color:#bbb;font-style:italic;margin-top:2px;">☂ ' + b.backup + '</div>' : '') +
+        (b.backup ? '<div style="font-size:0.68rem;color:#bbb;font-style:italic;margin-top:2px;">☂ Rainy day: ' + b.backup + '</div>' : '') +
         '</div>';
     }).join('');
     return '<div style="margin-bottom:20px;page-break-inside:avoid;">' +

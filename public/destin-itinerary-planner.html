@@ -209,8 +209,17 @@
       <p>Full itinerary ready · <strong id="totalDaysLabel"></strong></p>
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
         <button class="btn-reset" id="btnReset">← Start Over</button>
-        <button class="btn-download" id="btnDownload">🖨 Save as PDF</button>
+        <button class="btn-download" id="btnDownload">📩 Looks great! Send it to me</button>
       </div>
+    </div>
+    <!-- Email capture -->
+    <div id="emailCapture" style="display:none;padding:16px 28px;background:#eaf4f4;border-top:1px solid #d8cfc4;">
+      <p style="font-size:0.85rem;color:#1a3a5c;margin-bottom:10px;font-weight:500;">✉️ Enter your email and we'll send you the full itinerary — all days, tips, and links.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <input type="email" id="emailInput" placeholder="your@email.com" style="flex:1;min-width:200px;padding:10px 14px;border:1.5px solid #d8cfc4;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.9rem;outline:none;">
+        <button id="btnSendEmail" style="padding:10px 20px;background:#e8741a;color:white;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:0.9rem;font-weight:600;cursor:pointer;">Send It →</button>
+      </div>
+      <div id="emailStatus" style="margin-top:8px;font-size:0.8rem;display:none;"></div>
     </div>
   </div>
 </div>
@@ -249,7 +258,12 @@ document.getElementById('btnCreate').addEventListener('click', createItinerary);
     }
   });
 document.getElementById('btnReset').addEventListener('click', resetForm);
-document.getElementById('btnDownload').addEventListener('click', downloadPDF);
+document.getElementById('btnDownload').addEventListener('click', function() {
+  var capture = document.getElementById('emailCapture');
+  capture.style.display = capture.style.display === 'none' ? 'block' : 'none';
+  if (capture.style.display === 'block') document.getElementById('emailInput').focus();
+});
+document.getElementById('btnSendEmail').addEventListener('click', sendItineraryEmail);
 
 function getChips(id) {
   return Array.from(document.querySelectorAll('#' + id + ' .chip.active')).map(function(c) { return c.dataset.val; });
@@ -286,7 +300,7 @@ async function createItinerary() {
   document.querySelector('.intro').style.display = 'none';
   document.getElementById('loadingState').classList.add('visible');
 
-  var systemPrompt = 'You are Destiny Blue, warm local-friend AI concierge for Destin Condo Getaways at Pelican Beach Resort. Return ONLY valid JSON, no markdown, no code fences. STRICT RULES: 1) REAL Destin venues only, never invent. 2) Bookable activities (water sports/fishing/boat tours/dolphin tours/snorkeling/parasailing/jet ski/pontoon/kayak/paddleboard/sunset cruise): tripshock:true, link_url:"https://tripshock.com/?aff=destindreamcondo". 3) Never suggest other accommodations. 4) Each day: exactly 4 blocks (MORNING, LUNCH, AFTERNOON, DINNER). 5) description: MAX 8 words. 6) tip: MAX 8 words. 7) Never repeat venues across days. 8) backup: rainy-day alternative, MAX 8 words, label it "Rainy day:". 9) weather: MAX 12 words, conditions + temp + 1 tip. 10) DO NOT include lat or lng fields. 11) summary: open "Hi! I\'m Destiny Blue, your AI concierge at Pelican Beach Resort!" then 2 warm sentences. 12) link_url: ONLY include if 100% certain of official URL. If unsure, use "https://www.google.com/search?q=PLACE+NAME+Destin+FL" (URL-encode the place name) and set link_label to "🔍 Find on Google". JSON: {"summary":"...","days":[{"day_number":1,"title":"...","weather":"...","blocks":[{"time":"MORNING","emoji":"☀️","place":"...","description":"...","tip":"...","backup":"...","link_url":"...","link_label":"...","tripshock":false}]}]}';
+  var systemPrompt = 'You are Destiny Blue, warm local-friend AI concierge for Destin Condo Getaways at Pelican Beach Resort. Return ONLY valid JSON, no markdown, no code fences. STRICT RULES: 1) REAL Destin venues only, never invent. 2) Bookable activities (water sports/fishing/boat tours/dolphin tours/snorkeling/parasailing/jet ski/pontoon/kayak/paddleboard/sunset cruise): tripshock:true, link_url:"https://tripshock.com/?aff=destindreamcondo". 3) Never suggest other accommodations. 4) Each day: exactly 4 blocks (MORNING, LUNCH, AFTERNOON, DINNER). 5) description: MAX 8 words. 6) tip: MAX 8 words. 7) Never repeat venues across days. 8) backup: rainy-day alternative MAX 8 words. 9) weather: MAX 12 words, conditions + temp + 1 tip. 10) lat/lng: real coordinates. 11) summary: open "Hi! I\'m Destiny Blue, your AI concierge at Pelican Beach Resort!" then 2 warm sentences. JSON: {"summary":"...","days":[{"day_number":1,"title":"...","weather":"...","blocks":[{"time":"MORNING","emoji":"☀️","place":"...","description":"...","tip":"...","backup":"...","link_url":"...","link_label":"...","tripshock":false,"lat":30.393,"lng":-86.496}]}]}';
 
 
   var userPrompt = 'Create a ' + numDays + '-day Destin itinerary. Dates: ' + arrFmt + ' to ' + depFmt + '. Group: ' + adults + ' adult' + (adults > 1 ? 's' : '') + (kids > 0 ? ', ' + kids + ' kid' + (kids > 1 ? 's' : '') : ', no kids') + '. Cuisine: ' + (cuisine.length ? cuisine.join(', ') : 'open') + '. Beach/pool: ' + beachPool + '. Pace: ' + pace + '. Interests: ' + (interests.length ? interests.join(', ') : 'general') + '. Use web search to find events during these exact dates and include them.';
@@ -331,10 +345,10 @@ function renderPreview(data, snap) {
 
   var daysEl = document.getElementById('previewDays');
   daysEl.innerHTML = '';
-  data.days.slice(0, 2).forEach(function(day) {
+  data.days.forEach(function(day) {
     var weatherBadge = day.weather ? '<div style="display:inline-block;background:#e8f4f4;border:1px solid #b0d8d8;border-radius:20px;padding:5px 14px;font-size:0.78rem;color:#0e7c7b;font-weight:500;margin-bottom:10px;">🌤 ' + day.weather + '</div>' : '';
     var blocks = day.blocks.map(function(b) {
-      var dirUrl = 'https://www.google.com/maps/dir/Pelican+Beach+Resort,+1002+US-98,+Destin,+FL/' + encodeURIComponent(b.place+', Destin, FL');
+      var dirUrl = 'https://www.google.com/maps/dir/Pelican+Beach+Resort,+1002+US-98,+Destin,+FL/' + (b.lat&&b.lng ? b.lat+','+b.lng : encodeURIComponent(b.place+', Destin FL'));
       return '<div class="preview-block">' +
         '<div class="block-time">' + (b.emoji||'') + ' ' + b.time + '</div>' +
         '<div class="block-place">' + b.place + '</div>' +
@@ -342,86 +356,60 @@ function renderPreview(data, snap) {
         (b.tripshock ? '<a class="block-link" href="https://tripshock.com/?aff=destindreamcondo" target="_blank">📌 Book via TripShock</a>' : b.link_url ? '<a class="block-link" href="' + b.link_url + '" target="_blank">🔗 ' + (b.link_label||b.link_url) + '</a>' : '') +
         '<br><a href="' + dirUrl + '" target="_blank" style="font-size:0.72rem;color:#bbb;text-decoration:none;">📍 Directions from resort</a>' +
         (b.tip ? '<div class="block-tip">✦ ' + b.tip + '</div>' : '') +
-        (b.backup ? '<div style="font-size:0.72rem;color:#bbb;margin-top:3px;font-style:italic;">☂ Rainy day: ' + b.backup + '</div>' : '') +
+        (b.backup ? '<div style="font-size:0.72rem;color:#bbb;margin-top:3px;font-style:italic;">☂ ' + b.backup + '</div>' : '') +
         '</div>';
     }).join('');
     daysEl.innerHTML += '<div class="preview-day"><div class="preview-day-header">DAY ' + day.day_number + ' · ' + day.title.toUpperCase() + '</div>' + weatherBadge + '<div class="preview-blocks">' + blocks + '</div></div>';
   });
-  if (data.days.length > 2) {
-    daysEl.innerHTML += '<p style="text-align:center;color:var(--text-light);font-size:0.85rem;padding:16px 0">+ ' + (data.days.length - 2) + ' more days in your full PDF itinerary</p>';
-  }
+
   document.getElementById('previewCard').classList.add('visible');
 }
 
 function resetForm() {
   document.getElementById('previewCard').classList.remove('visible');
+  document.getElementById('emailCapture').style.display = 'none';
+  document.getElementById('emailInput').value = '';
+  document.getElementById('emailStatus').style.display = 'none';
   document.getElementById('formCard').style.display = 'block';
   document.querySelector('.intro').style.display = 'block';
   itineraryData = null;
 }
 
-function downloadPDF() {
+async function sendItineraryEmail() {
   if (!itineraryData || !formSnapshot) return;
-  var snap = formSnapshot;
-  var data = itineraryData;
-  var groupStr = snap.adults + ' Adult' + (snap.adults>1?'s':'') + (snap.kids>0?' · '+snap.kids+' Kid'+(snap.kids>1?'s':''):'');
-
-  var daysHTML = data.days.map(function(day) {
-    var weatherBadge = day.weather ? '<div style="-webkit-print-color-adjust:exact;print-color-adjust:exact;display:inline-block;background:#e8f4f4;border:1px solid #b0d8d8;border-radius:20px;padding:4px 12px;font-size:0.72rem;color:#0e7c7b;font-weight:500;margin-bottom:10px;">🌤 ' + day.weather + '</div>' : '';
-    var blocksHTML = day.blocks.map(function(b) {
-      var dirUrl = 'https://www.google.com/maps/dir/Pelican+Beach+Resort,+1002+US-98,+Destin,+FL/' + encodeURIComponent(b.place+', Destin, FL');
-      var linkHTML = b.tripshock
-        ? '<a href="https://tripshock.com/?aff=destindreamcondo" style="display:inline-block;font-size:0.7rem;color:#0e7c7b;text-decoration:underline;font-weight:600;margin-bottom:3px;">📌 Book via TripShock</a><br>'
-        : b.link_url ? '<a href="' + b.link_url + '" style="display:inline-block;font-size:0.7rem;color:#0e7c7b;text-decoration:underline;font-weight:600;margin-bottom:3px;">🔗 ' + (b.link_label||b.link_url) + '</a><br>' : '';
-      return '<div style="-webkit-print-color-adjust:exact;print-color-adjust:exact;padding:10px 12px;border:1px solid #d8cfc4;border-radius:7px;background:#f7f3ed;page-break-inside:avoid;">' +
-        '<div style="font-size:0.65rem;font-weight:700;letter-spacing:0.1em;color:#e8741a;text-transform:uppercase;margin-bottom:3px;">' + (b.emoji||'') + ' ' + b.time + '</div>' +
-        '<div style="font-size:0.88rem;font-weight:700;color:#1a3a5c;margin-bottom:4px;">' + b.place + '</div>' +
-        '<div style="font-size:0.75rem;color:#555;line-height:1.5;margin-bottom:5px;">' + b.description + '</div>' +
-        linkHTML +
-        '<a href="' + dirUrl + '" style="display:block;font-size:0.68rem;color:#aaa;text-decoration:underline;margin-bottom:4px;">📍 Directions from Pelican Beach Resort</a>' +
-        (b.tip ? '<div style="font-size:0.7rem;color:#e8741a;font-style:italic;margin-top:3px;">✦ ' + b.tip + '</div>' : '') +
-        (b.backup ? '<div style="font-size:0.68rem;color:#bbb;font-style:italic;margin-top:2px;">☂ Rainy day: ' + b.backup + '</div>' : '') +
-        '</div>';
-    }).join('');
-    return '<div style="margin-bottom:20px;page-break-inside:avoid;">' +
-      '<div style="-webkit-print-color-adjust:exact;print-color-adjust:exact;background:#1a3a5c;color:white;padding:7px 14px;border-radius:6px;font-size:0.75rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:10px;">DAY ' + day.day_number + ' · ' + day.title.toUpperCase() + '</div>' +
-      weatherBadge +
-      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">' + blocksHTML + '</div>' +
-      '</div>';
-  }).join('');
-
-  var printEl = document.getElementById('printArea');
-  printEl.innerHTML =
-    '<div style="-webkit-print-color-adjust:exact;print-color-adjust:exact;background:#1a3a5c;padding:16px 28px;display:flex;align-items:center;justify-content:space-between;">' +
-      '<div style="display:flex;align-items:center;gap:14px;">' +
-        '<img src="/logo.png" style="width:44px;height:44px;border-radius:50%;">' +
-        '<div><div style="font-family:\'Playfair Display\',serif;color:white;font-size:1.1rem;font-weight:700;">Destin Condo Getaways</div>' +
-        '<div style="color:#8bb4d4;font-size:0.72rem;margin-top:2px;">Your Personal Destin Itinerary · Crafted by Destiny Blue AI Concierge</div></div>' +
-      '</div>' +
-      '<div style="text-align:center;"><img src="/QR.jpg" style="width:48px;height:48px;"><div style="color:#8bb4d4;font-size:0.6rem;margin-top:2px;">Scan to book</div></div>' +
-    '</div>' +
-    (data.summary ? '<div style="-webkit-print-color-adjust:exact;print-color-adjust:exact;padding:12px 28px;background:#eaf4f4;border-bottom:1px solid #d8cfc4;font-size:0.85rem;color:#1a3a5c;line-height:1.7;font-style:italic;">' + data.summary + '</div>' : '') +
-    '<div style="-webkit-print-color-adjust:exact;print-color-adjust:exact;padding:8px 28px;background:#f7f3ed;border-bottom:1px solid #d8cfc4;font-size:0.75rem;color:#888;display:flex;flex-wrap:wrap;gap:10px;align-items:center;">' +
-      '<span>👤 ' + groupStr + '</span><span>·</span>' +
-      '<span>📅 ' + snap.arrFmt + ' – ' + snap.depFmt + '</span><span>·</span>' +
-      '<span>🏖 ' + snap.beachPool + '</span><span>·</span>' +
-      '<span>⚡ ' + snap.pace + '</span>' +
-      (snap.cuisine.length ? '<span>·</span><span>🍽 ' + snap.cuisine.join(', ') + '</span>' : '') +
-      (snap.interests.length ? '<span>·</span><span>🎯 ' + snap.interests.join(', ') + '</span>' : '') +
-    '</div>' +
-    '<div style="padding:16px 28px;font-family:\'DM Sans\',sans-serif;">' + daysHTML + '</div>' +
-    '<div style="-webkit-print-color-adjust:exact;print-color-adjust:exact;background:#1a3a5c;padding:14px 28px;display:flex;justify-content:space-between;align-items:center;margin-top:8px;">' +
-      '<div style="color:white;font-size:0.78rem;font-weight:600;">Book your stay · Pelican Beach Resort, Destin FL</div>' +
-      '<div><a href="https://www.destincondogetaways.com" style="color:#8bb4d4;font-size:0.72rem;text-decoration:none;margin-left:16px;">destincondogetaways.com</a>' +
-      '<a href="/cdn-cgi/l/email-protection#2b44514a456b4f4e585f42454844454f444c4e5f4a5c4a525805484446" style="color:#8bb4d4;font-size:0.72rem;text-decoration:none;margin-left:16px;"><span class="__cf_email__" data-cfemail="b0dfcad1def0d4d5c3c4d9ded3dfded4dfd7d5c4d1c7d1c9c39ed3dfdd">[email&#160;protected]</span></a></div>' +
-    '</div>' +
-    '<div style="padding:6px 28px;font-size:0.62rem;color:#aaa;font-style:italic;">* Weather forecasts are estimates. Please verify before your trip.</div>';
-
-  window.print();
-  window.addEventListener('afterprint', function clearPrint() {
-    printEl.innerHTML = '';
-    window.removeEventListener('afterprint', clearPrint);
-  });
+  var email = document.getElementById('emailInput').value.trim();
+  var statusEl = document.getElementById('emailStatus');
+  if (!email || !email.includes('@')) {
+    statusEl.style.display = 'block';
+    statusEl.style.color = '#c0392b';
+    statusEl.textContent = 'Please enter a valid email address.';
+    return;
+  }
+  var btn = document.getElementById('btnSendEmail');
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+  statusEl.style.display = 'none';
+  try {
+    var res = await fetch('/api/send-itinerary', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, itinerary: itineraryData, formSnapshot: formSnapshot })
+    });
+    if (!res.ok) throw new Error('Send failed');
+    statusEl.style.display = 'block';
+    statusEl.style.color = '#0e7c7b';
+    statusEl.textContent = '✅ Itinerary sent! Check your inbox (and spam just in case).';
+    btn.textContent = 'Sent ✓';
+    document.getElementById('emailInput').disabled = true;
+    document.getElementById('btnDownload').disabled = true;
+    document.getElementById('btnDownload').textContent = '✅ Itinerary Sent';
+  } catch(err) {
+    statusEl.style.display = 'block';
+    statusEl.style.color = '#c0392b';
+    statusEl.textContent = 'Something went wrong. Please try again.';
+    btn.disabled = false;
+    btn.textContent = 'Send It →';
+  }
 }
 </script>
 </body>

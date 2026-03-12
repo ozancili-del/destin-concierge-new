@@ -480,8 +480,8 @@
     <div class="preview-footer">
       <p>Full itinerary ready · <strong id="totalDaysLabel"></strong></p>
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <button class="btn-reset" id="btnReset">← Start Over</button>
-        <button class="btn-download" id="btnDownload">
+        <button class="btn-reset">← Start Over</button>
+        <button class="btn-download">
           ⬇ Download Your Full Itinerary
         </button>
       </div>
@@ -503,6 +503,7 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('btnCreate').addEventListener('click', createItinerary);
   document.getElementById('btnReset').addEventListener('click', resetForm);
   document.getElementById('btnDownload').addEventListener('click', downloadPDF);
+  document.getElementById('logoImg').src = LOGO_SRC;
   document.querySelectorAll('#cuisineChips .chip, #interestChips .chip').forEach(chip => {
     chip.addEventListener('click', () => chip.classList.toggle('active'));
   });
@@ -512,7 +513,6 @@ document.addEventListener('DOMContentLoaded', function() {
       chip.classList.add('active');
     });
   });
-  document.getElementById('logoImg').src = LOGO_SRC;
 });
 
 function getChipValues(containerId) {

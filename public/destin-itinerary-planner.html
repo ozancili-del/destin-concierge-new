@@ -613,10 +613,21 @@ Return this exact JSON structure:
 Use web search to check for any events, festivals, or concerts happening in Destin during these exact dates and include them where relevant.`;
 
   try {
-    const response = await fetch('/api/Itinerary', {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ systemPrompt, userPrompt })
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + getApiKey()
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-search-preview',
+        web_search_options: {},
+        max_tokens: 4000,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ]
+      })
     });
 
     if (!response.ok) {
@@ -640,7 +651,15 @@ Use web search to check for any events, festivals, or concerts happening in Dest
   }
 }
 
-// API key handled server-side via /api/itinerary.js
+function getApiKey() {
+  // Same OpenAI API key used by chat.js on this Vercel project.
+  // Since this is a static HTML file (not Next.js), you have two options:
+  // OPTION A (simplest): Add a small script tag above this file that sets:
+  //   <script>window.OPENAI_API_KEY = 'sk-...'</script>
+  // OPTION B (recommended): Create /api/itinerary.js serverless function as a proxy
+  //   and change the fetch URL below to '/api/itinerary' — keeps key server-side.
+  return window.OPENAI_API_KEY || '';
+}
 
 function showError(msg) {
   const el = document.getElementById('errorMsg');
@@ -766,7 +785,7 @@ async function downloadPDF() {
     doc.setFontSize(7);
     doc.setTextColor(139, 180, 212);
     doc.textWithLink('https://www.destincondogetaways.com', 10, footerY + 11, { url: 'https://www.destincondogetaways.com' });
-    doc.text(' <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="dfb0a5beb19fbbbaacabb6b1bcb0b1bbb0b8baabbea8bea6acf1bcb0b2">[email&#160;protected]</a>  ·  (972) 357-4262', 65, footerY + 11);
+    doc.text(' ozan@destincondogetaways.com  ·  (972) 357-4262', 65, footerY + 11);
     try { doc.addImage(QR_SRC, 'JPEG', W - 18, footerY + 1, 14, 14); } catch(e) {}
   }
 
@@ -940,4 +959,10 @@ async function downloadPDF() {
   doc.setTextColor(...TEAL);
   doc.textWithLink('destincondogetaways.com', 10 + preW + dbW + pre2W, destinyY, { url: 'https://www.destincondogetaways.com' });
 
-  const fileN
+  const fileName = `destin-itinerary-${formSnapshot.arrival}-${formSnapshot.departure}.pdf`;
+  doc.save(fileName);
+}
+</script>
+
+</body>
+</html>

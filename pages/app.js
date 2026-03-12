@@ -1,9 +1,16 @@
 import Head from 'next/head';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function App() {
   const [active, setActive] = useState('home');
   const [loaded, setLoaded] = useState({});
+
+  // Register service worker for PWA install prompt
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(console.error);
+    }
+  }, []);
 
   const tabs = [
     { id: 'home',    label: 'Home',      emoji: '🏠', url: 'https://www.destincondogetaways.com' },
@@ -38,13 +45,16 @@ export default function App() {
       <style>{`
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html, body { height: 100%; overflow: hidden; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0a3d62; }
+        body {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+          background: #0a3d62;
+        }
 
         .app-shell {
           display: flex;
           flex-direction: column;
           height: 100dvh;
-          height: 100vh;
+          min-height: 100vh;
         }
 
         .iframe-area {
@@ -56,7 +66,7 @@ export default function App() {
 
         .iframe-wrap {
           position: absolute;
-          inset: 0;
+          top: 0; left: 0; right: 0; bottom: 0;
           display: none;
         }
         .iframe-wrap.active {
@@ -71,7 +81,7 @@ export default function App() {
 
         .loading-screen {
           position: absolute;
-          inset: 0;
+          top: 0; left: 0; right: 0; bottom: 0;
           background: #f7f9fb;
           display: flex;
           flex-direction: column;
@@ -80,10 +90,9 @@ export default function App() {
           gap: 12px;
           z-index: 10;
         }
-        .loading-screen.hidden { display: none; }
         .spinner {
-          width: 36px;
-          height: 36px;
+          width: 40px;
+          height: 40px;
           border: 3px solid #dde8f0;
           border-top-color: #0a3d62;
           border-radius: 50%;
@@ -92,18 +101,22 @@ export default function App() {
         @keyframes spin { to { transform: rotate(360deg); } }
         .loading-screen p {
           color: #1a6a8a;
-          font-size: 13px;
+          font-size: 14px;
         }
 
         .bottom-nav {
-          background: #fff;
-          border-top: 0.5px solid #e0eaf2;
+          background: #ffffff;
+          border-top: 1px solid #e0eaf2;
           display: flex;
           justify-content: space-around;
-          padding: 8px 0;
-          padding-bottom: max(env(safe-area-inset-bottom), 8px);
+          align-items: center;
+          padding-top: 8px;
+          padding-bottom: 8px;
+          padding-bottom: max(8px, env(safe-area-inset-bottom));
           flex-shrink: 0;
+          z-index: 100;
         }
+
         .nav-btn {
           flex: 1;
           background: none;
@@ -111,38 +124,57 @@ export default function App() {
           display: flex;
           flex-direction: column;
           align-items: center;
+          justify-content: center;
           gap: 3px;
-          padding: 4px 0;
+          padding: 6px 0;
           cursor: pointer;
           -webkit-tap-highlight-color: transparent;
+          outline: none;
         }
-        .nav-btn .nav-icon { font-size: 20px; line-height: 1; transition: transform 0.15s; }
-        .nav-btn .nav-label {
-          font-size: 9px;
-          color: #aaa;
+        .nav-icon {
+          font-size: 22px;
+          line-height: 1;
+          transition: transform 0.15s;
+          display: block;
+        }
+        .nav-label {
+          font-size: 10px;
+          color: #aaaaaa;
           font-weight: 500;
+          display: block;
         }
-        .nav-btn.active .nav-label { color: #0a3d62; font-weight: 600; }
-        .nav-btn.active .nav-icon { transform: scale(1.15); }
-        .nav-btn .nav-dot {
+        .nav-btn.active .nav-label {
+          color: #0a3d62;
+          font-weight: 700;
+        }
+        .nav-btn.active .nav-icon {
+          transform: scale(1.15);
+        }
+        .nav-dot {
           width: 4px;
           height: 4px;
           border-radius: 50%;
           background: #0a3d62;
           opacity: 0;
           transition: opacity 0.15s;
+          display: block;
         }
-        .nav-btn.active .nav-dot { opacity: 1; }
+        .nav-btn.active .nav-dot {
+          opacity: 1;
+        }
       `}</style>
 
       <div className="app-shell">
 
         <div className="iframe-area">
           {tabs.map(tab => (
-            <div key={tab.id} className={`iframe-wrap ${active === tab.id ? 'active' : ''}`}>
+            <div
+              key={tab.id}
+              className={'iframe-wrap' + (active === tab.id ? ' active' : '')}
+            >
               {!loaded[tab.id] && (
                 <div className="loading-screen">
-                  <div className="spinner" />
+                  <div className="spinner"></div>
                   <p>{loadingMessages[tab.id]}</p>
                 </div>
               )}
@@ -160,12 +192,12 @@ export default function App() {
           {tabs.map(tab => (
             <button
               key={tab.id}
-              className={`nav-btn ${active === tab.id ? 'active' : ''}`}
+              className={'nav-btn' + (active === tab.id ? ' active' : '')}
               onClick={() => setActive(tab.id)}
             >
               <span className="nav-icon">{tab.emoji}</span>
               <span className="nav-label">{tab.label}</span>
-              <span className="nav-dot" />
+              <span className="nav-dot"></span>
             </button>
           ))}
         </nav>

@@ -1,17 +1,25 @@
 import Head from 'next/head';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 export default function App() {
-  const [active, setActive] = useState('blog');
-  const [blogReady, setBlogReady] = useState(false);
-  const [destinyReady, setDestinyReady] = useState(false);
-  const [plannerReady, setPlannerReady] = useState(false);
+  const [active, setActive] = useState('home');
+  const [loaded, setLoaded] = useState({});
 
   const tabs = [
-    { id: 'blog',    label: 'Blog',      emoji: '📖' },
-    { id: 'destiny', label: 'Destiny',   emoji: '💬' },
-    { id: 'planner', label: 'Plan Trip', emoji: '🗺️' },
+    { id: 'home',    label: 'Home',      emoji: '🏠', url: 'https://www.destincondogetaways.com' },
+    { id: 'blog',    label: 'Blog',      emoji: '📖', url: 'https://www.destincondogetaways.com/blog' },
+    { id: 'destiny', label: 'Destiny',   emoji: '💬', url: 'https://www.destincondogetaways.com/ai-concierge-574036277' },
+    { id: 'planner', label: 'Plan Trip', emoji: '🗺️', url: 'https://www.destincondogetaways.com/destin-vacation-itinerary-planner-574049367' },
+    { id: 'resort',  label: 'Resort',    emoji: '🏖️', url: 'https://www.destincondogetaways.com/pelican-beach-resort-destin-574048693' },
   ];
+
+  const loadingMessages = {
+    home:    'Loading Destin Condo Getaways...',
+    blog:    'Loading Destin Guide...',
+    destiny: 'Waking up Destiny Blue...',
+    planner: 'Loading Trip Planner...',
+    resort:  'Loading Pelican Beach Resort...',
+  };
 
   return (
     <>
@@ -37,32 +45,6 @@ export default function App() {
           flex-direction: column;
           height: 100dvh;
           height: 100vh;
-        }
-
-        .top-bar {
-          background: #0a3d62;
-          padding: env(safe-area-inset-top, 12px) 20px 10px;
-          padding-top: max(env(safe-area-inset-top), 12px);
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          flex-shrink: 0;
-        }
-        .top-bar img {
-          width: 32px;
-          height: 32px;
-          border-radius: 50%;
-          object-fit: cover;
-        }
-        .top-bar-text h1 {
-          color: #fff;
-          font-size: 15px;
-          font-weight: 600;
-          line-height: 1.2;
-        }
-        .top-bar-text p {
-          color: rgba(255,255,255,0.55);
-          font-size: 11px;
         }
 
         .iframe-area {
@@ -134,88 +116,46 @@ export default function App() {
           cursor: pointer;
           -webkit-tap-highlight-color: transparent;
         }
-        .nav-btn .nav-icon { font-size: 22px; line-height: 1; }
+        .nav-btn .nav-icon { font-size: 20px; line-height: 1; transition: transform 0.15s; }
         .nav-btn .nav-label {
-          font-size: 10px;
+          font-size: 9px;
           color: #aaa;
           font-weight: 500;
         }
         .nav-btn.active .nav-label { color: #0a3d62; font-weight: 600; }
-        .nav-btn.active .nav-icon { transform: scale(1.1); }
+        .nav-btn.active .nav-icon { transform: scale(1.15); }
         .nav-btn .nav-dot {
           width: 4px;
           height: 4px;
           border-radius: 50%;
           background: #0a3d62;
           opacity: 0;
+          transition: opacity 0.15s;
         }
         .nav-btn.active .nav-dot { opacity: 1; }
       `}</style>
 
       <div className="app-shell">
-        {/* Top bar */}
-        <div className="top-bar">
-          <img src="/logo.png" alt="Destin Condo Getaways logo" />
-          <div className="top-bar-text">
-            <h1>Destin Condo Getaways</h1>
-            <p>Pelican Beach Resort · Units 707 & 1006</p>
-          </div>
-        </div>
 
-        {/* iframe area */}
         <div className="iframe-area">
-
-          {/* BLOG */}
-          <div className={`iframe-wrap ${active === 'blog' ? 'active' : ''}`}>
-            {!blogReady && (
-              <div className="loading-screen">
-                <div className="spinner" />
-                <p>Loading Destin Guide...</p>
-              </div>
-            )}
-            <iframe
-              src="https://www.destincondogetaways.com/blog"
-              title="Destin Blog"
-              onLoad={() => setBlogReady(true)}
-              loading="lazy"
-            />
-          </div>
-
-          {/* DESTINY */}
-          <div className={`iframe-wrap ${active === 'destiny' ? 'active' : ''}`}>
-            {!destinyReady && (
-              <div className="loading-screen">
-                <div className="spinner" />
-                <p>Waking up Destiny Blue...</p>
-              </div>
-            )}
-            <iframe
-              src="https://www.destincondogetaways.com/ai-concierge-574036277"
-              title="Destiny Blue AI Concierge"
-              onLoad={() => setDestinyReady(true)}
-              loading="lazy"
-            />
-          </div>
-
-          {/* TRIP PLANNER */}
-          <div className={`iframe-wrap ${active === 'planner' ? 'active' : ''}`}>
-            {!plannerReady && (
-              <div className="loading-screen">
-                <div className="spinner" />
-                <p>Loading Trip Planner...</p>
-              </div>
-            )}
-            <iframe
-              src="https://www.destincondogetaways.com/destin-vacation-itinerary-planner-574049367"
-              title="Destin Trip Planner"
-              onLoad={() => setPlannerReady(true)}
-              loading="lazy"
-            />
-          </div>
-
+          {tabs.map(tab => (
+            <div key={tab.id} className={`iframe-wrap ${active === tab.id ? 'active' : ''}`}>
+              {!loaded[tab.id] && (
+                <div className="loading-screen">
+                  <div className="spinner" />
+                  <p>{loadingMessages[tab.id]}</p>
+                </div>
+              )}
+              <iframe
+                src={tab.url}
+                title={tab.label}
+                onLoad={() => setLoaded(prev => ({ ...prev, [tab.id]: true }))}
+                loading="lazy"
+              />
+            </div>
+          ))}
         </div>
 
-        {/* Bottom nav */}
         <nav className="bottom-nav">
           {tabs.map(tab => (
             <button
@@ -229,6 +169,7 @@ export default function App() {
             </button>
           ))}
         </nav>
+
       </div>
     </>
   );

@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -280,6 +281,7 @@ async function createItinerary() {
   formSnapshot = { arrival: arrival, departure: departure, adults: adults, kids: kids, cuisine: cuisine, beachPool: beachPool, pace: pace, interests: interests, numDays: numDays, arrFmt: arrFmt, depFmt: depFmt };
 
   document.getElementById('formCard').style.display = 'none';
+  document.querySelector('.intro').style.display = 'none';
   document.getElementById('loadingState').classList.add('visible');
 
   var systemPrompt = 'You are Destiny Blue, warm local-friend AI concierge for Destin Condo Getaways at Pelican Beach Resort. Return ONLY valid JSON, no markdown, no code fences. STRICT RULES: 1) REAL Destin venues only, never invent. 2) Bookable activities (water sports/fishing/boat tours/dolphin tours/snorkeling/parasailing/jet ski/pontoon/kayak/paddleboard/sunset cruise): tripshock:true, link_url:"https://tripshock.com/?aff=destindreamcondo". 3) Never suggest other accommodations. 4) Each day: exactly 4 blocks (MORNING, LUNCH, AFTERNOON, DINNER). 5) description: MAX 8 words. 6) tip: MAX 8 words. 7) Never repeat venues across days. 8) backup: rainy-day alternative MAX 8 words. 9) weather: MAX 12 words, conditions + temp + 1 tip. 10) lat/lng: real coordinates. 11) summary: open "Hi! I\'m Destiny Blue, your AI concierge at Pelican Beach Resort!" then 2 warm sentences. JSON: {"summary":"...","days":[{"day_number":1,"title":"...","weather":"...","blocks":[{"time":"MORNING","emoji":"☀️","place":"...","description":"...","tip":"...","backup":"...","link_url":"...","link_label":"...","tripshock":false,"lat":30.393,"lng":-86.496}]}]}';
@@ -302,6 +304,7 @@ async function createItinerary() {
   } catch(err) {
     document.getElementById('loadingState').classList.remove('visible');
     document.getElementById('formCard').style.display = 'block';
+    document.querySelector('.intro').style.display = 'block';
     errEl.textContent = 'Something went wrong: ' + err.message;
     errEl.classList.add('visible');
   }
@@ -351,6 +354,7 @@ function renderPreview(data, snap) {
 function resetForm() {
   document.getElementById('previewCard').classList.remove('visible');
   document.getElementById('formCard').style.display = 'block';
+  document.querySelector('.intro').style.display = 'block';
   itineraryData = null;
 }
 
@@ -407,48 +411,12 @@ function downloadPDF() {
     '<div style="-webkit-print-color-adjust:exact;print-color-adjust:exact;background:#1a3a5c;padding:14px 28px;display:flex;justify-content:space-between;align-items:center;margin-top:8px;">' +
       '<div style="color:white;font-size:0.78rem;font-weight:600;">Book your stay · Pelican Beach Resort, Destin FL</div>' +
       '<div><a href="https://www.destincondogetaways.com" style="color:#8bb4d4;font-size:0.72rem;text-decoration:none;margin-left:16px;">destincondogetaways.com</a>' +
-      '<a href="mailto:ozan@destincondogetaways.com" style="color:#8bb4d4;font-size:0.72rem;text-decoration:none;margin-left:16px;">ozan@destincondogetaways.com</a></div>' +
+      '<a href="/cdn-cgi/l/email-protection#2b44514a456b4f4e585f42454844454f444c4e5f4a5c4a525805484446" style="color:#8bb4d4;font-size:0.72rem;text-decoration:none;margin-left:16px;"><span class="__cf_email__" data-cfemail="b0dfcad1def0d4d5c3c4d9ded3dfded4dfd7d5c4d1c7d1c9c39ed3dfdd">[email&#160;protected]</span></a></div>' +
     '</div>' +
     '<div style="padding:6px 28px;font-size:0.62rem;color:#aaa;font-style:italic;">* Weather forecasts are estimates. Please verify before your trip.</div>';
 
   window.print();
   printEl.innerHTML = '';
-}
-  var doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-  var W = 210, H = 297;
-  var NAVY = [26,58,92], TEAL = [14,124,123], ORANGE = [232,116,26], SAND = [247,243,237], BORDER = [216,207,196];
-
-  function loadImg(url) {
-    return new Promise(function(resolve) {
-      var img = new Image();
-      img.crossOrigin = 'anonymous';
-      img.onload = function() {
-        var canvas = document.createElement('canvas');
-        canvas.width = img.width; canvas.height = img.height;
-        canvas.getContext('2d').drawImage(img, 0, 0);
-        var fmt = url.match(/\.jpe?g$/i) ? 'image/jpeg' : 'image/png';
-        resolve(canvas.toDataURL(fmt));
-      };
-      img.onerror = function(e) { console.error('Failed to load image:', url, e); resolve(null); };
-      img.src = window.location.origin + url;
-    });
-  }
-
-  var logoData = await loadImg('/logo.png');
-  var qrData = await loadImg('/QR.jpg');
-
-  function drawHeader() {
-    doc.setFillColor.apply(doc, NAVY); doc.rect(0, 0, W, 28, 'F');
-    if (logoData) { try { doc.addImage(logoData, 'PNG', 6, 3, 22, 22); } catch(e){} }
-    doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(16);
-    doc.text('Destin Condo Getaways', 32, 11);
-    doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(139,180,212);
-    doc.text('Your Personal Destin Itinerary  ·  Crafted by Destiny Blue AI Concierge', 32, 17);
-    doc.textWithLink('https://www.destincondogetaways.com', 32, 23, { url: 'https://www.destincondogetaways.com' });
-    if (qrData) { try { doc.addImage(qrData, 'JPEG', W-26, 2, 22, 22); } catch(e){} }
-    doc.setFontSize(6); doc.text('Scan to book', W-15, 26, { align: 'center' });
-  }
-
 }
 </script>
 </body>

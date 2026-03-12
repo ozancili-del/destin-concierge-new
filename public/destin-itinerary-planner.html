@@ -103,7 +103,7 @@
     display: none;
     font-family: 'DM Sans', sans-serif;
     background: white;
-    width: 780px;
+    width: 794px;
     padding: 0;
     color: #2c2c2c;
   }
@@ -121,12 +121,12 @@
   #pdfRender .pdf-header-right img { width: 52px; height: 52px; }
   #pdfRender .pdf-header-right p { color: #8bb4d4; font-size: 0.6rem; text-align: center; margin-top: 2px; }
   #pdfRender .pdf-summary-msg {
-    padding: 14px 28px 10px;
+    padding: 10px 20px 8px;
     background: #eaf4f4;
     border-bottom: 1px solid #d8cfc4;
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     color: #1a3a5c;
-    line-height: 1.65;
+    line-height: 1.6;
     font-style: italic;
   }
   #pdfRender .pdf-strip {
@@ -139,8 +139,8 @@
     flex-wrap: wrap;
     gap: 10px;
   }
-  #pdfRender .pdf-days { padding: 20px 28px 10px; }
-  #pdfRender .pdf-day { margin-bottom: 20px; page-break-inside: avoid; }
+  #pdfRender .pdf-days { padding: 12px 20px 8px; }
+  #pdfRender .pdf-day { margin-bottom: 12px; }
   #pdfRender .pdf-day-header {
     background: #1a3a5c;
     color: white;
@@ -166,20 +166,19 @@
   #pdfRender .pdf-blocks {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    gap: 8px;
   }
   #pdfRender .pdf-block {
-    padding: 12px;
+    padding: 9px 10px;
     border: 1px solid #d8cfc4;
     border-radius: 7px;
     background: #f7f3ed;
-    page-break-inside: avoid;
   }
   #pdfRender .pdf-block-time { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; color: #e8741a; text-transform: uppercase; margin-bottom: 3px; }
   #pdfRender .pdf-block-place { font-size: 0.85rem; font-weight: 700; color: #1a3a5c; margin-bottom: 3px; }
   #pdfRender .pdf-block-desc { font-size: 0.75rem; color: #666; line-height: 1.45; margin-bottom: 5px; }
-  #pdfRender .pdf-block-link { display: inline-block; font-size: 0.7rem; color: #0e7c7b; text-decoration: none; font-weight: 600; margin-bottom: 2px; }
-  #pdfRender .pdf-block-dir { display: block; font-size: 0.65rem; color: #bbb; text-decoration: none; margin-bottom: 3px; }
+  #pdfRender .pdf-block-link { display: inline-block; font-size: 0.7rem; color: #0e7c7b !important; text-decoration: underline; font-weight: 600; margin-bottom: 2px; }
+  #pdfRender .pdf-block-dir { display: block; font-size: 0.65rem; color: #aaa !important; text-decoration: underline; margin-bottom: 3px; }
   #pdfRender .pdf-block-tip { font-size: 0.68rem; color: #e8741a; font-style: italic; margin-top: 3px; }
   #pdfRender .pdf-block-backup { font-size: 0.65rem; color: #bbb; font-style: italic; margin-top: 2px; }
   #pdfRender .pdf-footer {
@@ -514,12 +513,12 @@ async function downloadPDF() {
   pdfEl.style.display = 'block';
 
   var opt = {
-    margin: 0,
+    margin: [8, 0, 8, 0],
     filename: 'destin-itinerary-' + snap.arrival + '-' + snap.departure + '.pdf',
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true, logging: false },
-    jsPDF: { unit: 'px', format: [780, 1200], orientation: 'portrait', hotfixes: ['px_scaling'] },
-    pagebreak: { mode: ['avoid-all', 'css'], before: '.pdf-day' }
+    image: { type: 'jpeg', quality: 0.97 },
+    html2canvas: { scale: 2, useCORS: true, logging: false, windowWidth: 780 },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', putOnlyUsedFonts: true },
+    pagebreak: { mode: 'avoid-all' }
   };
 
   await html2pdf().set(opt).from(pdfEl).save();

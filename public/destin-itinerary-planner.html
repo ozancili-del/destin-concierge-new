@@ -354,10 +354,10 @@ async function downloadPDF() {
         var canvas = document.createElement('canvas');
         canvas.width = img.width; canvas.height = img.height;
         canvas.getContext('2d').drawImage(img, 0, 0);
-        resolve(canvas.toDataURL('image/jpeg'));
+        resolve(canvas.toDataURL('image/png'));
       };
-      img.onerror = function() { resolve(null); };
-      img.src = url;
+      img.onerror = function(e) { console.error('Failed to load image:', url, e); resolve(null); };
+      img.src = window.location.origin + url;
     });
   }
 
@@ -366,13 +366,13 @@ async function downloadPDF() {
 
   function drawHeader() {
     doc.setFillColor.apply(doc, NAVY); doc.rect(0, 0, W, 28, 'F');
-    if (logoData) { try { doc.addImage(logoData, 'JPEG', 6, 3, 22, 22); } catch(e){} }
+    if (logoData) { try { doc.addImage(logoData, 'PNG', 6, 3, 22, 22); } catch(e){} }
     doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(16);
     doc.text('Destin Condo Getaways', 32, 11);
     doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(139,180,212);
     doc.text('Your Personal Destin Itinerary  ·  Crafted by Destiny Blue AI Concierge', 32, 17);
     doc.textWithLink('https://www.destincondogetaways.com', 32, 23, { url: 'https://www.destincondogetaways.com' });
-    if (qrData) { try { doc.addImage(qrData, 'JPEG', W-26, 2, 22, 22); } catch(e){} }
+    if (qrData) { try { doc.addImage(qrData, 'PNG', W-26, 2, 22, 22); } catch(e){} }
     doc.setFontSize(6); doc.text('Scan to book', W-15, 26, { align: 'center' });
   }
 
@@ -384,7 +384,7 @@ async function downloadPDF() {
     doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(139,180,212);
     doc.textWithLink('https://www.destincondogetaways.com', 10, fy+11, { url: 'https://www.destincondogetaways.com' });
     doc.text('  ozan@destincondogetaways.com  ·  (972) 357-4262', 65, fy+11);
-    if (qrData) { try { doc.addImage(qrData, 'JPEG', W-18, fy+2, 13, 13); } catch(e){} }
+    if (qrData) { try { doc.addImage(qrData, 'PNG', W-18, fy+2, 13, 13); } catch(e){} }
   }
 
   function drawSummary(y) {

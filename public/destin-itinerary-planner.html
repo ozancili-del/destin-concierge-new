@@ -497,17 +497,19 @@ const QR_B64 = '/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAYGBgYHBgcICAcKCwoLCg8ODAwODxYQ
 const LOGO_SRC = 'data:image/jpeg;base64,' + LOGO_B64;
 const QR_SRC = 'data:image/jpeg;base64,' + QR_B64;
 
-document.getElementById('logoImg').src = LOGO_SRC;
 
 // ─── CHIP LOGIC ───
-document.querySelectorAll('#cuisineChips .chip, #interestChips .chip').forEach(chip => {
-  chip.addEventListener('click', () => chip.classList.toggle('active'));
-});
-document.querySelectorAll('#beachPoolChips .chip, #paceChips .chip').forEach(chip => {
-  chip.addEventListener('click', () => {
-    chip.closest('.chips').querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-    chip.classList.add('active');
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('#cuisineChips .chip, #interestChips .chip').forEach(chip => {
+    chip.addEventListener('click', () => chip.classList.toggle('active'));
   });
+  document.querySelectorAll('#beachPoolChips .chip, #paceChips .chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      chip.closest('.chips').querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+    });
+  });
+  document.getElementById('logoImg').src = LOGO_SRC;
 });
 
 function getChipValues(containerId) {
@@ -608,7 +610,7 @@ Return this exact JSON structure:
 Use web search to check for any events, festivals, or concerts happening in Destin during these exact dates and include them where relevant.`;
 
   try {
-    const response = await fetch('/api/itinerary', {
+    const response = await fetch('/api/Itinerary', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ systemPrompt, userPrompt })

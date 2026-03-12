@@ -100,7 +100,10 @@
 
   /* ── PDF hidden render div ── */
   #pdfRender {
-    display: none;
+    position: fixed;
+    left: -9999px;
+    top: 0;
+    visibility: hidden;
     font-family: 'DM Sans', sans-serif;
     background: white;
     width: 794px;
@@ -164,11 +167,13 @@
     margin-bottom: 10px;
   }
   #pdfRender .pdf-blocks {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    flex-wrap: wrap;
     gap: 8px;
   }
   #pdfRender .pdf-block {
+    flex: 0 0 calc(50% - 4px);
+    width: calc(50% - 4px);
     padding: 9px 10px;
     border: 1px solid #d8cfc4;
     border-radius: 7px;
@@ -510,19 +515,19 @@ async function downloadPDF() {
     '</div>' +
     '<div class="pdf-disclaimer">* Weather forecasts based on data at time of generation. Please verify before your trip.</div>';
 
-  pdfEl.style.display = 'block';
+  pdfEl.style.visibility = 'visible';
 
   var opt = {
     margin: [8, 0, 8, 0],
     filename: 'destin-itinerary-' + snap.arrival + '-' + snap.departure + '.pdf',
     image: { type: 'jpeg', quality: 0.97 },
-    html2canvas: { scale: 2, useCORS: true, logging: false, windowWidth: 780 },
+    html2canvas: { scale: 2, useCORS: true, logging: false, windowWidth: 794 },
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait', putOnlyUsedFonts: true },
     pagebreak: { mode: 'avoid-all' }
   };
 
   await html2pdf().set(opt).from(pdfEl).save();
-  pdfEl.style.display = 'none';
+  pdfEl.style.visibility = 'hidden';
   pdfEl.innerHTML = '';
 }
 </script>

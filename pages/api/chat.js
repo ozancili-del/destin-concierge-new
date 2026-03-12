@@ -292,6 +292,11 @@ function detectExcessGuests(text) {
   return /7 (people|guests|of us)|8 (people|guests|of us)|9 (people|guests|of us)|ten people|seven people|eight people|won't count|doesn't count|don't count|sleeping in car|sleep on floor|won't use|won't need/i.test(text);
 }
 
+// Detect requests for 2+ bedroom units — we only have 1BR
+function detectBedroomMismatch(text) {
+  return /\b2\s*(?:bed(?:room)?s?|bdr(?:m)?s?|br)\b|\btwo\s*bed(?:room)?s?\b|\b3\s*(?:bed(?:room)?s?|bdr(?:m)?s?|br)\b|\bthree\s*bed(?:room)?s?\b|\b4\s*(?:bed(?:room)?s?|bdr(?:m)?s?|br)\b|\bfour\s*bed(?:room)?s?\b/i.test(text);
+}
+
 // Detect locked out / door code emergency
 function detectLockedOut(text) {
   return /can't get in|cant get in|locked out|pin.*not work|pin.*wrong|wrong.*pin|code.*not work|code.*wrong|wrong.*code|won't open|wont open|door.*won't|door.*not open|can't enter|cant enter|stuck outside|standing outside|waiting outside|deleted.*email|lost.*code|forgot.*code.*can't|cant.*get.*in|can't find.*code|cant find.*code|can't find.*pin|cant find.*pin|can't find.*door|cant find.*door|where.*door code|where.*pin code|don't have.*code|dont have.*code|no.*door code|missing.*code|need.*door code|need.*pin|what.*door code|what.*pin/i.test(text);
@@ -1314,7 +1319,12 @@ export default async function handler(req, res) {
         .replace(/\bonly\s+me\b/gi,                           "1 adults")
         .replace(/\bsolo\s+trip\b/gi,                         "1 adults")
         .replace(/\btraveling\s+alone\b/gi,                   "1 adults")
-        .replace(/\bjust\s+myself\b/gi,                       "1 adults");
+        .replace(/\bjust\s+myself\b/gi,                       "1 adults")
+        // Gendered and group nouns — so "4 females", "4 girls", "4 guys", "4 friends" etc count as adults
+        .replace(/\b(\d+)\s*(females?|girls?|ladies|women|woman|gals?)\b/gi, "$1 adults")
+        .replace(/\b(\d+)\s*(males?|guys?|men|man|gentlemen|dudes?)\b/gi, "$1 adults")
+        .replace(/\b(\d+)\s*(friends?|folks|travelers?)\b/gi, "$1 adults")
+        .replace(/\b(two|three|four|five|six)\s*(females?|girls?|ladies|women|gals?|males?|guys?|men|friends?|folks)\b/gi, (_, n) => ({ two: "2", three: "3", four: "4", five: "5", six: "6" }[n.toLowerCase()] + " adults"));
     }
     const normalizedUserText = normalizeGuestCount(allUserText);
     // If bot asked for guest count and guest replied with a bare number (e.g. "2", "4"), treat it as adult count
@@ -2940,6 +2950,17 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
       const checkoutReply = `Got it — and when would you like to check out? Once I have that I'll pull up live availability right away 😊`;
       await logToSheets(sessionId, lastUser, checkoutReply, "", "NEEDS_CHECKOUT", "");
       return res.status(200).json({ reply: checkoutReply, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
+    }
+
+    // ── BEDROOM MISMATCH INTERCEPT — guest asked for 2BR/3BR, we only have 1BR ──
+    // Only fires when guest is actively trying to book (wantsAvailability) and not an existing guest.
+    // Guards: wantsAvailability ensures info-only questions ("do you have 2 bedrooms?") still go to GPT.
+    const hasBdrMismatch = wantsAvailability && !guestBooking &&
+      (detectBedroomMismatch(lastUser) || detectBedroomMismatch(allUserText.slice(-300)));
+    if (hasBdrMismatch) {
+      const bdrReply = `Just a heads up — both of our units are 1-bedroom, but they sleep up to 6 guests! Each has a king bed, hallway bunk beds, and a queen pull-out sofa, so there's plenty of sleeping space for groups. 😊 Would those dates still work for your group? If so, just let me know how many adults and children and I'll check live availability right away!`;
+      await logToSheets(sessionId, lastUser, bdrReply, dates ? `${dates.arrival} to ${dates.departure}` : "", "BDRM_MISMATCH", "");
+      return res.status(200).json({ reply: bdrReply, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
     }
 
     // ── NEEDS_GUEST_COUNT INTERCEPT — hardcoded, GPT cannot hallucinate links here ──

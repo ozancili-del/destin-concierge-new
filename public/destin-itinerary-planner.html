@@ -418,7 +418,10 @@ function downloadPDF() {
     '<div style="padding:6px 28px;font-size:0.62rem;color:#aaa;font-style:italic;">* Weather forecasts are estimates. Please verify before your trip.</div>';
 
   window.print();
-  printEl.innerHTML = '';
+  window.addEventListener('afterprint', function clearPrint() {
+    printEl.innerHTML = '';
+    window.removeEventListener('afterprint', clearPrint);
+  });
 }
 </script>
 </body>

@@ -19,7 +19,7 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         model: 'gpt-4o-search-preview',
         web_search_options: {},
-        max_tokens: 4000,
+        max_tokens: 8000,
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }

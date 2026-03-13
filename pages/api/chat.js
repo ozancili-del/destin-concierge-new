@@ -33,6 +33,7 @@ const BLOG_URLS = {
   explore:      "https://www.destincondogetaways.com/blog/destinexplore",
   fireworks:    "https://www.destincondogetaways.com/blog/destin-fireworks-2026",
   besttime:     "https://www.destincondogetaways.com/blog/best-time-to-visit-destin-florida",
+  itinerary:    "https://www.destincondogetaways.com/destin-vacation-itinerary-planner-574049367",
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -110,6 +111,7 @@ function detectBlogTopic(text) {
   if (t.match(/history|culture|museum|heritage|historic/)) return "history";
   if (t.match(/explore|sightseeing|attractions|must see|hidden gem/)) return "explore";
   if (t.match(/best time|best month|when to visit|when should i|when is best|least crowded|off season|shoulder season|water temper|water temp|cheapest time|cheapest month/)) return "besttime";
+  if (t.match(/itinerary|trip plan|plan my trip|day by day|what should we do each day|schedule.*destin|destin.*schedule|plan.*week|plan.*days|plan.*vacation|help.*plan|suggest.*plan|build.*plan/)) return "itinerary";
   // Photographer service requests must be caught BEFORE generic photo check
   if (t.match(/beach.?photo|photo.*beach|beach.*picture|picture.*beach|family.*photo|photo.*family|family.*picture|picture.*family|photographer|photography session|photo session|someone.*photo|someone.*picture|take.*photo|take.*picture/)) return "activities";
   if (t.match(/photo|picture|image|virtual tour|look like|show me|what does.*look|gallery|interior|inside the unit|see the unit/)) return "photos";
@@ -2344,6 +2346,8 @@ WEATHER DATA UNAVAILABLE: Real-time weather could not be fetched. Do NOT guess o
       const tsGeneral = `https://www.tripshock.com/?${TRIPSHOCK_AFF}`;
       // TripShock context always set — blog content is bonus, not required
       blogContext = `\n\nACTIVITIES REQUEST: Guest is asking about things to do, tours, or activities in Destin.\n${blogResult ? `LIVE BLOG CONTENT: ${blogResult.content}\nBlog link: ${blogResult.url}\n\n` : ""}TRIPSHOCK BOOKING:\n${tsCategory ? `- Specific activity detected (${tsCategory}): send this pre-filtered link: ${tsLink}` : `- No specific activity detected: send general link: ${tsGeneral}`}\n- ONE TripShock link only — never repeat it\n- Present naturally: "You can browse and book [activity] directly here: [link]"\n\nCRITICAL RULES:\n- NEVER use the word "affiliate"\n- Prices are identical to booking direct — never imply otherwise\n- NEVER connect to DESTINY discount code — completely separate\n- If availability context is also present: answer the activity question FIRST, then add availability as a P.S. — never lead with booking links when guest asked about activities\n- Keep it casual and helpful, not salesy`;
+    } else if (blogTopic === "itinerary") {
+      blogContext = `\n\nITINERARY REQUEST: Guest wants help planning their Destin trip day by day. Direct them warmly to the AI-powered Trip Planner — it builds a personalized itinerary based on their dates, group size, and interests.\n\nSay something like: \"Great news — I actually have an AI Trip Planner built just for Destin that can build you a full day-by-day itinerary! 🗓️ Just tell it your dates, group size, and what you're into — beaches, restaurants, activities — and it puts together a complete plan. Check it out here: https://www.destincondogetaways.com/destin-vacation-itinerary-planner-574049367\"\n\nCRITICAL RULES:\n- Always share the planner link as plain text URL, no markdown\n- Keep it warm and enthusiastic — this is a genuine useful tool\n- If they already have dates in the conversation, mention they can plug those right in\n- Do NOT try to build the itinerary yourself — send them to the planner`;
     } else if (blogTopic) {
       const blogResult = await fetchBlogContent(blogTopic);
       if (blogResult) {
@@ -2390,7 +2394,7 @@ ROUTING RULES FOR THIS GUEST:
 ` : "";
 
     const conciergePageContext = isConciergePage ? `
-🌊 CONCIERGE PAGE OPENING: Guest landed on the dedicated AI Concierge page. If this is their first message, open with something that shows off your capabilities — something like: "Hey there! 👋 I'm Destiny Blue — I can check live availability for both units, build you a booking link in seconds, recommend dolphin tours and activities with direct booking links, or connect you straight to Ozan. What can I help you with? 😊" — keep it warm, specific, and show them what you can DO.
+🌊 CONCIERGE PAGE OPENING: Guest landed on the dedicated AI Concierge page. If this is their first message, open with something that shows off your capabilities — something like: "Hey there! 👋 I'm Destiny Blue — I can check live availability for both units, build you a booking link in seconds, recommend dolphin tours and activities with direct booking links, help you plan your trip day by day with our AI Trip Planner, or connect you straight to Ozan. What can I help you with? 😊" — keep it warm, specific, and show them what you can DO.
 ` : "";
 
     const popupContext = isPopupSource ? `

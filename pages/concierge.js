@@ -81,6 +81,38 @@ export default function Concierge() {
       .finally(() => setBusy(false));
   }, [router.isReady, router.query.bid]);
 
+
+  // Effect 3: pageSource greeting — fire initial API call when coming from a blog page
+  useEffect(() => {
+    if (!router.isReady) return;
+    const ps = router.query.pageSource;
+    if (!ps || ps === "ai-concierge") return;
+
+    setLog([]);
+    setBusy(true);
+    let sid = sessionIdRef.current;
+    if (!sid) {
+      try { sid = localStorage.getItem("destiny_session_id") || generateSessionId(); }
+      catch(e) { sid = generateSessionId(); }
+      sessionIdRef.current = sid;
+    }
+
+    fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages: [], sessionId: sid, pageSource: ps }),
+    })
+      .then(r => r.json())
+      .then(data => {
+        if (data?.reply) setLog([{ role: "assistant", content: data.reply }]);
+        else setLog([{ role: "assistant", content: "Hey there! 👋 I'm Destiny Blue — how can I help? 😊" }]);
+      })
+      .catch(() => {
+        setLog([{ role: "assistant", content: "Hey there! 👋 I'm Destiny Blue — how can I help? 😊" }]);
+      })
+      .finally(() => setBusy(false));
+  }, [router.isReady, router.query.pageSource]);
+
   // Poll for Ozan activity when invited or active
   useEffect(() => {
     if (!ozanInvited && !ozanIsActive) return;

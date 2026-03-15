@@ -1095,6 +1095,25 @@ export default async function handler(req, res) {
         ozanAcked: false, ozanAckType: null, detectedIntent: "INFO",
       });
     }
+
+    // ── PAGE SOURCE GREETINGS — context-aware openers from blog pages ─────────
+    const PAGE_SOURCE_GREETINGS = {
+      fireworks:   "🎆 Fireworks fan? Same. Destin does them better than anywhere. Tell me your dates and I'll check what's available at Pelican Beach — 10 minutes from HarborWalk. Oh and between us — use code BLUE at checkout for an extra 5% off. Don't tell everyone 😉",
+      events:      "🎉 Planning your Destin trip around the events calendar — smart move. Tell me your dates and I'll check what's open at Pelican Beach. Between us — code BLUE gets you an extra 5% off at checkout 😊",
+      airport:     "✈️ Just landed or still planning? Pelican Beach is 25 minutes from VPS. Tell me your dates and I'll check availability right now. Code BLUE gets you an extra 5% off too 🙌",
+      "beach-cam": "🌊 Checking the beach before you commit — love that. The view you're seeing is exactly what you get from Unit 707 and 1006. Tell me your dates and I'll check availability. Code BLUE = extra 5% off 😊",
+      "best-time": "📅 Smart to research before booking. Tell me roughly when you're thinking and I'll check availability at Pelican Beach. Code BLUE gets you an extra 5% off 🌞",
+      restaurants: "🍽️ Great taste — Destin has an incredible food scene. While you're planning, tell me your dates and I'll check availability at Pelican Beach. Code BLUE = extra 5% off when you book direct 😊",
+      beaches:     "🏖️ Already in the right headspace. Pelican Beach sits right on the best stretch — elevator straight to the sand. Tell me your dates and I'll check availability. Code BLUE = extra 5% off 😊",
+    };
+    if (PAGE_SOURCE_GREETINGS[pageSource] && messages.length === 0) {
+      const greeting = PAGE_SOURCE_GREETINGS[pageSource];
+      await logToSheets(sessionId, `__${pageSource}_open__`, greeting, "", "", "");
+      return res.status(200).json({
+        reply: greeting, alertSent: false, pendingRelay: false,
+        ozanAcked: false, ozanAckType: null, detectedIntent: "INFO",
+      });
+    }
     if (guestBid && messages.length === 0) {
       const booking = await fetchGuestBooking(guestBid);
       if (booking && !booking.isCheckedOut) {
@@ -1170,7 +1189,7 @@ export default async function handler(req, res) {
 
     // If this is a popup session, scan last user message for a valid email
     // and fire Brevo in background if found and not already captured this session
-    if (isPopupSource || sawBanner || pageSource === "ai-concierge") {
+    if (isPopupSource || sawBanner || pageSource) {
       const emailMatch = lastUser.match(/\b[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}\b/);
       if (emailMatch) {
         const capturedEmail = emailMatch[0];
@@ -3087,7 +3106,7 @@ Your 10% direct booking discount is already applied! 🎉 For Unit 707 questions
 
       if (bookingReply) {
         // Popup guest: append 5% email offer if email not yet captured
-        if (isPopupSource || sawBanner || pageSource === "ai-concierge") {
+        if (isPopupSource || sawBanner || pageSource) {
           const emailAlreadyGiven = messages.some(m =>
             m.role === "user" && /\b[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}\b/.test(m.content)
           );

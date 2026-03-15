@@ -28,6 +28,7 @@ export default function Concierge() {
 
   const guestBidRef = useRef(null);
   const guestBookingRef = useRef(null); // stores booking data for context in follow-up messages
+  const pageSourceRef = useRef("ai-concierge"); // tracks which page opened the chat
 
   // Effect 1: session ID init (runs once on mount)
   useEffect(() => {
@@ -43,6 +44,7 @@ export default function Concierge() {
   // Effect 2: magic link — runs when router is ready and has query params
   useEffect(() => {
     if (!router.isReady) return;
+    if (router.query.pageSource) pageSourceRef.current = router.query.pageSource;
     const bid = router.query.bid;
     const fname = router.query.fname;
     if (!bid) return;
@@ -157,7 +159,7 @@ export default function Concierge() {
       const r = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: [...log, userMsg], sessionId: sessionIdRef.current, alertSent, pendingRelay, ozanAcked, ozanAckType, pageSource: "ai-concierge", sawBanner: typeof localStorage !== "undefined" ? (localStorage.getItem('db_saw_banner') || sessionStorage.getItem('db_saw_banner')) : null, guestBooking: guestBookingRef.current || null })
+        body: JSON.stringify({ messages: [...log, userMsg], sessionId: sessionIdRef.current, alertSent, pendingRelay, ozanAcked, ozanAckType, pageSource: pageSourceRef.current, sawBanner: typeof localStorage !== "undefined" ? (localStorage.getItem('db_saw_banner') || sessionStorage.getItem('db_saw_banner')) : null, guestBooking: guestBookingRef.current || null })
       });
       const data = await r.json();
       if (data.alertSent) setAlertSent(true);

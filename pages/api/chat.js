@@ -1250,7 +1250,13 @@ export default async function handler(req, res) {
       );
     }
     const isCompetitorMention = detectCompetitorMention(lastUser);
-    const wantsAvailability = detectAvailabilityIntent(lastUser);
+    // Blog topic + accommodation detection — suppress availability loop for info questions
+    const detectedBlogTopic = detectBlogTopic(lastUser);
+    const hasAccommodation = /already.*book|already.*stay|have.*accommodat|not.*look.*book|have.*place|staying.*elsewhere|booked.*already|have.*reservat|not.*need.*book|don't need.*book|dont need.*book/i.test(lastUser);
+    const isExplicitBooking = /\bbook|reserv|availab|price|cost|how much|per night|stay.*night|check.?in|check.?out\b/i.test(lastUser);
+    const wantsAvailability = hasAccommodation ? false : (detectedBlogTopic
+      ? (detectAvailabilityIntent(lastUser) && (hasGuestCount || isExplicitBooking))
+      : detectAvailabilityIntent(lastUser));
     // Pets detector — when mentioned, skip booking intercept and let GPT apply no-pets policy
     const mentionsPets = /\d+\s*pets?|\bwith.*pets?\b|\bdogs?\b|\bcats?\b|\bpuppies\b|\bkittens?\b|\bbirds?\b|\bparrots?\b|\brabbits?\b|\bhamsters?\b|\bferrets?\b|\bfish\b|\bsnakes?\b|\bturtles?\b|\banimals?\b|bring.*(?:my|our|the)\s+\w+.*(?:pet|dog|cat|bird|animal)|pet.*friendly|emotional support animal|\besa\b|\bservice animal\b/i.test(allUserText);
 
@@ -2190,7 +2196,7 @@ Unit 1006: ${link1006hoa}`;
       }
     }
 
-    if (dates && !isDiscountRequest && !hasGuestCount && !guestBooking) {
+    if (dates && !isDiscountRequest && !hasGuestCount && !guestBooking && !hasAccommodation && !(detectedBlogTopic && !isExplicitBooking)) {
       availabilityStatus = "NEEDS_GUEST_COUNT";
       availabilityContext = `DATES FOUND: Guest provided dates (${dates.arrival} to ${dates.departure}) but has NOT provided number of adults or children yet. DO NOT send to availability page. Ask warmly: "Perfect — I've got your dates! Just need one more thing: how many adults and children will be staying? I'll create your booking link right away 😊"`;
     } else if (dates && !isDiscountRequest && !availabilityStatus) {

@@ -2707,7 +2707,7 @@ Both units have Cox cable TV. When a guest can't get cable/Cox TV signal working
 - Only use these steps when guest specifically can't get Cox/cable signal — NOT for Netflix, streaming, smart TV questions
 - LDV Beach Chairs: 866-651-1869 | https://www.ldvbeach.com
 - Beach cam: https://www.destincondogetaways.com/destin-live-beach-cam-574002656
-AIRPORTS: Destin-Fort Walton Beach Airport (VPS) is approximately 30 min away — most guests fly here. Northwest Florida Beaches International Airport (ECP, Panama City) is about 45-50 min away and has more airline options. Both are good options depending on the guest's origin.
+AIRPORTS: Destin-Fort Walton Beach Airport (VPS) is approximately 30 min away — most guests fly here. Northwest Florida Beaches International Airport (ECP, Panama City) is about 45-50 min away and has more airline options. Both are good options depending on the guest's origin. Always include the airport guide link on the FIRST airport question: https://www.destincondogetaways.com/blog/destinairport
 - Activities booking (TripShock): https://www.tripshock.com/?aff=destindreamcondo
 - TripShock DOES cover: dolphin cruises, fishing charters, pontoon boat rentals, jet ski/waverunner rentals, Crab Island trips, parasailing, kayak/paddleboard, snorkeling, sunset cruises, pirate cruises, banana boat rides, fireworks cruises, tiki boats, beach photographers, boat tours
 - EXACT TripShock URL slugs (use ONLY these, never invent): dolphin-cruises-and-tours | fishing-charters | jet-ski-rentals-tours | boat-rentals | parasailing | crab-island-tours-and-activities | snorkeling-tours | sunset-cruises-tours | pirate-cruises | canoe-kayak-paddleboard-rentals | fireworks-cruises | tiki-boats | banana-boat-rides | beach-photographers | boat-tours

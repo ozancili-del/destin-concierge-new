@@ -211,7 +211,7 @@ function showPanel(idx){
     d.style.display='none';
   } else {
     d.style.display='inline-block';
-    d.href=`https://www.google.com/maps/dir/?api=1&destination=${r.lat},${r.lng}`;
+    d.href = `https://www.google.com/maps/search/?api=1&query=${r.lat},${r.lng}`;
   }
   document.getElementById('panel-card').classList.add('visible');
   draw();

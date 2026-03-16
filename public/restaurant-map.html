@@ -452,7 +452,7 @@ function applyFilter(cat, btn) {
   }
   markers.forEach(({ marker, data }) => {
     const visible = cat === "all" || data.cat === cat || data.isHome;
-    marker.setVisible(visible);
+    marker.setMap(visible ? map : null);
   });
   hidePanel();
 }

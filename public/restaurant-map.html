@@ -464,10 +464,16 @@ document.querySelectorAll(".filter-btn").forEach(btn => {
 document.getElementById("panel-close").addEventListener("click", hidePanel);
 </script>
 
-<!-- Replace YOUR_GOOGLE_MAPS_API_KEY with your actual key -->
-<script
-  src="https://maps.googleapis.com/maps/api/js?key=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx&callback=initMap"
-  async defer>
+<script>
+  fetch('/api/maps-key')
+    .then(r => r.json())
+    .then(data => {
+      const s = document.createElement('script');
+      s.src = `https://maps.googleapis.com/maps/api/js?key=${data.key}&callback=initMap&loading=async`;
+      s.async = true;
+      s.defer = true;
+      document.head.appendChild(s);
+    });
 </script>
 
 </body>

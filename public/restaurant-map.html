@@ -57,13 +57,13 @@
 </div>
 
 <div id="filters">
-  <button class="filter-btn active" data-cat="all">🍴 All</button>
-  <button class="filter-btn" data-cat="seafood">🦞 Seafood</button>
-  <button class="filter-btn" data-cat="sushi">🍣 Sushi / Asian</button>
-  <button class="filter-btn" data-cat="italian">🍕 Italian</button>
-  <button class="filter-btn" data-cat="american">🍺 American / Pub</button>
-  <button class="filter-btn" data-cat="brunch">🍳 Brunch / Upscale</button>
-  <button class="filter-btn" data-cat="other">🌿 Other</button>
+  <button class="filter-btn active" data-cat="all" onclick="applyFilter('all', this)">🍴 All</button>
+  <button class="filter-btn" data-cat="seafood" onclick="applyFilter('seafood', this)">🦞 Seafood</button>
+  <button class="filter-btn" data-cat="sushi" onclick="applyFilter('sushi', this)">🍣 Sushi / Asian</button>
+  <button class="filter-btn" data-cat="italian" onclick="applyFilter('italian', this)">🍕 Italian</button>
+  <button class="filter-btn" data-cat="american" onclick="applyFilter('american', this)">🍺 American / Pub</button>
+  <button class="filter-btn" data-cat="brunch" onclick="applyFilter('brunch', this)">🍳 Brunch / Upscale</button>
+  <button class="filter-btn" data-cat="other" onclick="applyFilter('other', this)">🌿 Other</button>
 </div>
 
 <div id="map-container">
@@ -410,15 +410,6 @@ function initMap() {
     marker.addListener("click", () => showPanel(r, marker));
     markers.push({ marker, data: r });
   });
-
-  // Filter buttons — attached here so markers array is guaranteed populated
-  document.querySelectorAll(".filter-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      applyFilter(btn.dataset.cat);
-    });
-  });
 }
 
 // ── Show bottom panel ─────────────────────────────────────────────────────────
@@ -453,8 +444,12 @@ function hidePanel() {
 }
 
 // ── Filter logic ──────────────────────────────────────────────────────────────
-function applyFilter(cat) {
+function applyFilter(cat, btn) {
   activeFilter = cat;
+  if (btn) {
+    document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+  }
   markers.forEach(({ marker, data }) => {
     const visible = cat === "all" || data.cat === cat || data.isHome;
     marker.setVisible(visible);

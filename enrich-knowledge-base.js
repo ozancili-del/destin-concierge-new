@@ -160,6 +160,7 @@ function buildRecord(details, category) {
     bestFor:       null,  // array  e.g. ["boat_watching", "oysters", "live_music"]
     honestOpinion: null,  // string e.g. "More about the vibe than the food quality"
     insiderTip:    null,  // string e.g. "Charter boats return 3-5pm — grab a deck table"
+    indoorFriendly: null, // boolean — true if works on cold/rainy day (activities only)
     parking:       category === "state_park"
                      ? "Florida State Parks: $4/vehicle (up to 8 people). $2 pedestrian/bicycle. Annual pass available ($60)."
                      : null, // string e.g. "Free lot on Harbor Blvd, fills by noon in summer"
@@ -242,6 +243,7 @@ async function main() {
   console.log("\n🎯 Activities...");
   const actRaw = [];
   for (const q of [
+    // Outdoor / water
     "water park Destin FL",
     "charter fishing Destin FL",
     "dolphin tour Destin FL",
@@ -250,6 +252,15 @@ async function main() {
     "mini golf Destin FL",
     "jet ski rental Destin FL",
     "kayak rental Destin FL",
+    // Indoor / rainy day
+    "indoor activities Destin FL",
+    "trampoline park Fort Walton Beach FL",
+    "escape room Destin FL",
+    "arcade Destin FL",
+    "bowling Destin FL",
+    "science museum Fort Walton Beach FL",
+    "aquarium Destin FL",
+    "indoor climbing gym Destin FL",
   ]) {
     actRaw.push(...(await textSearch(q)).slice(0, 4));
     await delay(300);

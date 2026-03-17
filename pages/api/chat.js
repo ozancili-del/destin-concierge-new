@@ -2198,7 +2198,7 @@ Unit 1006: ${link1006hoa}`;
 
     if (dates && !isDiscountRequest && !hasGuestCount && !guestBooking && !hasAccommodation && !(detectedBlogTopic && !isExplicitBooking)) {
       availabilityStatus = "NEEDS_GUEST_COUNT";
-      availabilityContext = `DATES FOUND: Guest provided dates (${dates.arrival} to ${dates.departure}) but has NOT provided number of adults or children yet. DO NOT send to availability page. Ask warmly: "Perfect — I've got your dates! Just need one more thing: how many adults and children will be staying? I'll create your booking link right away 😊"`;
+      availabilityContext = `DATES FOUND: Guest provided dates (${dates.arrival} to ${dates.departure}) but has NOT provided number of adults or children yet. DO NOT send to availability page. Ask warmly: "Perfect — I've got your dates! Just need one more thing: how many adults and children will be staying?  I'll check live availability right away 😊"`;
     } else if (dates && !isDiscountRequest && !availabilityStatus) {
       const [avail707, avail1006] = await Promise.all([
         checkAvailability(UNIT_707_PROPERTY_ID, dates.arrival, dates.departure),
@@ -3041,7 +3041,7 @@ DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt e
 
     // ── NEEDS_GUEST_COUNT INTERCEPT — hardcoded, GPT cannot hallucinate links here ──
     if (!guestBooking && availabilityStatus === "NEEDS_GUEST_COUNT" && dates) {
-      const guestCountReply = `Perfect — I've got your dates (${dates.arrival} to ${dates.departure})! Just need one more thing: how many adults and children will be staying? I'll create your booking link right away 😊`;
+      const guestCountReply = `Perfect — I've got your dates (${dates.arrival} to ${dates.departure})! Just need one more thing: how many adults and children will be staying? I'll check live availability right away 😊`;
       await logToSheets(sessionId, lastUser, guestCountReply, `${dates.arrival} to ${dates.departure}`, "NEEDS_GUEST_COUNT", "");
       return res.status(200).json({ reply: guestCountReply, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
     }

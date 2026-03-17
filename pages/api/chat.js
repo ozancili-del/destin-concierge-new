@@ -17,6 +17,7 @@ const UNIT_1006_PROPERTY_ID = "410894";
 // ─────────────────────────────────────────────────────────────────────────────
 const BLOG_URLS = {
   restaurants:  "https://www.destincondogetaways.com/blog/best-restaurants-destin",
+  restaurants2: "https://www.destincondogetaways.com/blog/best-restaurants-destin-local-guide",
   beaches:      "https://www.destincondogetaways.com/blog/best-beaches-destin",
   activities:   "https://www.destincondogetaways.com/blog/destinocen",
   weather:      "https://www.destincondogetaways.com/blog/destinweather",
@@ -95,7 +96,9 @@ function detectBlogTopic(text) {
   const t = text.toLowerCase();
   // Weather MUST come first — "weather" contains "eat" which would match restaurants
   if (t.match(/weather|forecast|temperature|rain|season|when to visit|best time|how hot|how cold|highs|lows|high and low/)) return "weather";
-  if (t.match(/restaurant|eat|food|dinner|lunch|breakfast|dining|seafood|oyster|where to eat/)) return "restaurants";
+  if (t.match(/seafood|oyster|fine dining|upscale.*restaurant|steakhouse/)) return "restaurants";
+  if (t.match(/sushi|italian|breakfast|brunch|hidden gem|asian.*food|mediterranean.*restaurant/)) return "restaurants2";
+  if (t.match(/restaurant|food|dinner|lunch|dining|where to eat/)) return "restaurants";
   if (t.match(/beach|sand|swim|ocean|gulf|shore/)) return "beaches";
   if (t.match(/activit|thing to do|fun|tour|dolphin|parasail|snorkel|kayak|boat|fishing|water sport|rainy|indoor fun/)) return "activities";
   if (t.match(/event|festival|concert|show|calendar/)) return "events";
@@ -2382,6 +2385,7 @@ WEATHER DATA UNAVAILABLE: Real-time weather could not be fetched. Do NOT guess o
           nightlife:   `\n\nINTERACTIVE TOOL: This blog page has a day-by-day concert and live music calendar with venues and locations. At the end of your answer mention it naturally: something like "...there's also a full day-by-day music calendar on that page so you can see exactly what's on during your dates." Plain text link only: ${blogResult.url}`,
           restaurants: `\n\nINTERACTIVE TOOL: This blog page has an interactive restaurant map — guests can filter by cuisine and see our recommendations with directions. At the end of your answer mention it naturally: something like "...and there's an interactive map on that page where you can filter by cuisine and get directions straight from there." Plain text link only: ${blogResult.url}`,
           airport:     `\n\nINTERACTIVE TOOL: This blog page has a fun animated route map showing the exact drive from VPS airport to Pelican Beach Resort. At the end of your answer mention it as a fun bonus: something like "...and there's a little animated map on that page that shows the exact drive from VPS — kind of fun to watch before you make the trip!" Plain text link only: ${blogResult.url}`,
+          restaurants2: `\n\nINTERACTIVE TOOL: This blog page has an interactive restaurant map — guests can filter by cuisine and get directions to any restaurant. At the end of your answer mention it naturally: something like "...and there's an interactive map on that page where you can filter by type of food and get directions straight from there." Plain text link only: ${blogResult.url}`,
         };
         const hint = interactiveHints[blogTopic] || "";
         blogContext = `\n\nLIVE BLOG CONTENT (use this to answer, include blog link at end of answer as plain text URL on its own line — NO markdown, NO parentheses, just the raw URL: ${blogResult.url}):\n${blogResult.content}${hint}`;
@@ -2574,7 +2578,10 @@ RESORT FACILITIES
 INTERACTIVE TOOLS ON OUR BLOGS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Four of our blog guides have interactive tools built in — whenever you share one of these blogs, mention the tool so the guest knows it's more than just an article:
-- RESTAURANTS blog: has an interactive map — guests can filter by cuisine, tap for one-click directions to any restaurant
+- RESTAURANTS — we have TWO restaurant blogs, each with an interactive map (filter by cuisine, one-tap directions):
+  • Seafood & fine dining: https://www.destincondogetaways.com/blog/best-restaurants-destin (13 seafood + 3 upscale restaurants)
+  • Italian, sushi, breakfast & hidden gems: https://www.destincondogetaways.com/blog/best-restaurants-destin-local-guide (sushi/Asian, Italian, American/pub, breakfast/brunch, hidden gems)
+  Route by cuisine: seafood/oysters/steakhouse/fine dining → Blog 1. Sushi/Italian/breakfast/brunch/hidden gems → Blog 2. Generic food question → Blog 1 as default, mention Blog 2 exists for other cuisines.
 - AIRPORT blog: has an animated map showing the actual drive route from VPS airport to Pelican Beach Resort — great for first-timers
 - FIREWORKS blog: has an interactive map of all fireworks viewing spots across Destin, a live countdown to the next show, and season filters
 - EVENTS blog: has an interactive calendar so guests can browse what's happening during their stay by month
@@ -2752,7 +2759,8 @@ NEARBY RESTAURANTS — lead with these, then link to blog:
 - The Edge Seafood & SkyBar: 10 min — rooftop harbor views, great cocktails
 - Dewey Destin's: 15 min — locals' favorite fresh catch, 9 Calhoun Ave
 - McGuire's Irish Pub: best steak in Destin, worth the drive, 33 US-98 E
-- Full restaurant guide with addresses: https://www.destincondogetaways.com/blog/best-restaurants-destin
+- Seafood & fine dining guide (interactive map): https://www.destincondogetaways.com/blog/best-restaurants-destin
+- Italian, sushi, breakfast & hidden gems guide (interactive map): https://www.destincondogetaways.com/blog/best-restaurants-destin-local-guide
 
 NEARBY BEACHES — lead with these, then link to blog:
 - Pelican Beach: your backyard — elevator straight to the sand, no road to cross
@@ -2929,7 +2937,9 @@ INFORMATIONAL QUESTIONS: Answer directly and warmly. Ask one engaging follow-up.
 BOOKING QUESTIONS WITH DATES: If guest provided dates but NOT guest count — ask for adults and children count first, then build link. Never redirect to availability page if dates are known. Always remind guest their 10% direct booking discount is already applied — no code needed.
 
 SPECIAL OCCASIONS (anniversary, birthday, honeymoon, proposal, engagement, graduation, retirement, bachelorette, celebration): When a guest mentions any of these — warmly acknowledge their occasion, say you'll make sure Ozan knows and that he's always happy to hear when guests are celebrating something special. Add softly: "no promises on specifics, but it never hurts to have him in the loop!" Then pivot to concrete recommendations: sunset cruises (TripShock link), romantic restaurants (Back Porch, Dewey Destin's Harborside), beach photographer if relevant. NEVER say Ozan WILL do something specific. NEVER suggest contacting Ozan directly for special arrangements. You handle the warmth — Ozan has been silently notified and will decide what to do on his own.
-DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt exactly.`;
+DISCOUNT/DEAL QUESTIONS: Follow the 🚨 instruction at the top of this prompt exactly.
+
+NO REPETITION RULE: Review all your previous responses in this conversation before replying. Do not recommend any venue, restaurant, activity, or attraction you have already mentioned in this conversation — even if the guest asks for "more." If your list is exhausted, say so honestly or suggest checking local event listings. Do not share the same blog link URL more than once per conversation unless the guest explicitly requests it again or raises a new subject that requires a different blog. TripShock links are exempt from this rule — each activity recommendation may include its own TripShock link even if a TripShock link was shared earlier in the conversation.`;
 
     // ── LOCKOUT STEP 3 INTERCEPT ─────────────────────────────────────────────
     // Fires exactly once: guest is locked out + confirmed can't reach Ozan + alert

@@ -11,9 +11,11 @@ body { font-family: system-ui, -apple-system, sans-serif; background: transparen
 
 .widget { background: linear-gradient(135deg, #0369a1 0%, #0284c7 100%); border-radius: 20px; padding: 18px; max-width: 480px; margin: 0 auto; }
 
-.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
 .header-title { font-size: 14px; font-weight: 600; color: #fff; }
-.badge { font-size: 10px; background: rgba(255,255,255,0.2); color: #fff; border-radius: 20px; padding: 3px 10px; letter-spacing: 1px; white-space: nowrap; }
+.header-right { text-align: right; }
+.badge { font-size: 10px; background: rgba(255,255,255,0.2); color: #fff; border-radius: 20px; padding: 3px 10px; letter-spacing: 1px; display: block; margin-bottom: 4px; }
+.date-badge { font-size: 10px; background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.75); border-radius: 20px; padding: 3px 10px; display: block; }
 
 .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 8px; }
 .card { background: rgba(255,255,255,0.15); border-radius: 14px; padding: 14px 10px; text-align: center; }
@@ -27,7 +29,7 @@ body { font-family: system-ui, -apple-system, sans-serif; background: transparen
 .row-val { font-size: 13px; font-weight: 700; color: #fff; }
 .row-icon { font-size: 18px; }
 
-.temp-bar-wrap { background: rgba(255,255,255,0.1); border-radius: 14px; padding: 14px 16px; }
+.temp-bar-wrap { background: rgba(255,255,255,0.1); border-radius: 14px; padding: 14px 16px; margin-bottom: 12px; }
 .temp-bar-title { font-size: 11px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
 .temp-bar-track { position: relative; height: 10px; border-radius: 99px; background: linear-gradient(90deg, #60a5fa, #34d399, #fbbf24, #f97316, #ef4444); margin-bottom: 8px; }
 .temp-bar-needle { position: absolute; top: 50%; transform: translate(-50%, -50%); width: 18px; height: 18px; background: #fff; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.35); border: 2px solid rgba(0,0,0,0.15); transition: left 1s ease; }
@@ -35,7 +37,33 @@ body { font-family: system-ui, -apple-system, sans-serif; background: transparen
 .temp-verdict { background: rgba(255,255,255,0.15); border-radius: 10px; padding: 10px 14px; font-size: 13px; color: #fff; line-height: 1.5; text-align: center; font-weight: 500; }
 .temp-verdict-emoji { font-size: 22px; display: block; margin-bottom: 4px; }
 
-.error-msg { font-size: 12px; color: rgba(255,255,255,0.5); text-align: center; padding: 8px; }
+/* ACTIVITY GUIDE */
+.activity-section { margin-top: 12px; }
+.activity-title { font-size: 11px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; padding-left: 2px; }
+.activity-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+.act-card { background: rgba(255,255,255,0.1); border-radius: 14px; padding: 12px 12px 10px; border: 1px solid rgba(255,255,255,0.08); transition: all 0.5s ease; }
+.act-card.active { background: rgba(34,197,94,0.2); border-color: rgba(34,197,94,0.4); }
+.act-card.soon { background: rgba(251,191,36,0.15); border-color: rgba(251,191,36,0.35); }
+.act-card.upcoming { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.06); }
+
+.act-status { display: inline-flex; align-items: center; gap: 4px; font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 2px 7px; border-radius: 20px; margin-bottom: 8px; }
+.act-status.active { background: rgba(34,197,94,0.3); color: #86efac; }
+.act-status.soon { background: rgba(251,191,36,0.3); color: #fde68a; }
+.act-status.upcoming { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); }
+
+.act-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.act-dot.active { background: #22c55e; box-shadow: 0 0 6px #22c55e; animation: pulse-dot 1.5s infinite; }
+.act-dot.soon { background: #fbbf24; }
+.act-dot.upcoming { background: rgba(255,255,255,0.3); }
+@keyframes pulse-dot { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+.act-icon { font-size: 20px; margin-bottom: 4px; display: block; }
+.act-name { font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 2px; }
+.act-time { font-size: 11px; color: rgba(255,255,255,0.65); margin-bottom: 6px; }
+.act-tip { font-size: 10px; color: rgba(255,255,255,0.45); line-height: 1.4; font-style: italic; }
+
+.noaa-note { margin-top: 10px; font-size: 9px; color: rgba(255,255,255,0.3); text-align: center; }
 .loading { opacity: 0.4; }
 </style>
 </head>
@@ -43,74 +71,45 @@ body { font-family: system-ui, -apple-system, sans-serif; background: transparen
 <div class="widget">
   <div class="header">
     <div class="header-title">🌊 Destin Live Beach Conditions</div>
-    <div class="badge" id="badge">LOADING...</div>
+    <div class="header-right">
+      <span class="badge" id="badge">LOADING...</span>
+      <span class="date-badge" id="date-badge">—</span>
+    </div>
   </div>
 
   <div class="grid-3">
-    <div class="card">
-      <div class="card-icon">🌊</div>
-      <div class="card-val loading" id="water-temp">--°F</div>
-      <div class="card-lbl">Water Temp</div>
-    </div>
-    <div class="card">
-      <div class="card-icon">🌡️</div>
-      <div class="card-val loading" id="air-temp">--°F</div>
-      <div class="card-lbl">Air Temp</div>
-    </div>
-    <div class="card">
-      <div class="card-icon">💧</div>
-      <div class="card-val loading" id="humidity">--%</div>
-      <div class="card-lbl">Humidity</div>
-    </div>
+    <div class="card"><div class="card-icon">🌊</div><div class="card-val loading" id="water-temp">--°F</div><div class="card-lbl">Water Temp</div></div>
+    <div class="card"><div class="card-icon">🌡️</div><div class="card-val loading" id="air-temp">--°F</div><div class="card-lbl">Air Temp</div></div>
+    <div class="card"><div class="card-icon">💧</div><div class="card-val loading" id="humidity">--%</div><div class="card-lbl">Humidity</div></div>
   </div>
 
   <div class="grid-2">
-    <div class="row-card">
-      <div>
-        <div class="row-lbl">Wind</div>
-        <div class="row-val loading" id="wind">-- mph</div>
-      </div>
-      <div class="row-icon">🌬️</div>
-    </div>
-    <div class="row-card">
-      <div>
-        <div class="row-lbl">Pressure</div>
-        <div class="row-val loading" id="pressure">-- inHg</div>
-      </div>
-      <div class="row-icon">📊</div>
-    </div>
-    <div class="row-card">
-      <div>
-        <div class="row-lbl">High Tide</div>
-        <div class="row-val loading" id="high-tide">--:--</div>
-      </div>
-      <div class="row-icon">🔼</div>
-    </div>
-    <div class="row-card">
-      <div>
-        <div class="row-lbl">Low Tide</div>
-        <div class="row-val loading" id="low-tide">--:--</div>
-      </div>
-      <div class="row-icon">🔽</div>
-    </div>
+    <div class="row-card"><div><div class="row-lbl">Wind</div><div class="row-val loading" id="wind">-- mph</div></div><div class="row-icon">🌬️</div></div>
+    <div class="row-card"><div><div class="row-lbl">Pressure</div><div class="row-val loading" id="pressure">-- inHg</div></div><div class="row-icon">📊</div></div>
+    <div class="row-card"><div><div class="row-lbl">High Tide</div><div class="row-val loading" id="high-tide">--:--</div></div><div class="row-icon">🔼</div></div>
+    <div class="row-card"><div><div class="row-lbl">Low Tide</div><div class="row-val loading" id="low-tide">--:--</div></div><div class="row-icon">🔽</div></div>
   </div>
 
   <div class="temp-bar-wrap">
     <div class="temp-bar-title">Gulf Water Temperature Gauge</div>
-    <div class="temp-bar-track">
-      <div class="temp-bar-needle" id="needle" style="left: 0%;"></div>
-    </div>
-    <div class="temp-bar-labels">
-      <span>50°F</span>
-      <span>60°F</span>
-      <span>70°F</span>
-      <span>80°F</span>
-      <span>90°F+</span>
-    </div>
+    <div class="temp-bar-track"><div class="temp-bar-needle" id="needle" style="left:0%"></div></div>
+    <div class="temp-bar-labels"><span>50°F</span><span>60°F</span><span>70°F</span><span>80°F</span><span>90°F+</span></div>
     <div class="temp-verdict" id="verdict">
       <span class="temp-verdict-emoji" id="verdict-emoji">🌊</span>
       <span id="verdict-text">Loading current conditions...</span>
     </div>
+  </div>
+
+  <!-- ACTIVITY GUIDE -->
+  <div class="activity-section">
+    <div class="activity-title">🎯 Live Activity Guide — What's Best Right Now</div>
+    <div class="activity-grid" id="activity-grid">
+      <div class="act-card upcoming"><div class="act-status upcoming"><div class="act-dot upcoming"></div>Loading</div><span class="act-icon">🏝️</span><div class="act-name">Crab Island</div><div class="act-time" id="act-time-crab">--</div><div class="act-tip">Incoming Gulf water is clearest around High Tide.</div></div>
+      <div class="act-card upcoming"><div class="act-status upcoming"><div class="act-dot upcoming"></div>Loading</div><span class="act-icon">🤿</span><div class="act-name">Snorkeling</div><div class="act-time" id="act-time-snorkel">--</div><div class="act-tip">Best at the Jetties during Slack Tide when currents are weakest.</div></div>
+      <div class="act-card upcoming"><div class="act-status upcoming"><div class="act-dot upcoming"></div>Loading</div><span class="act-icon">🎣</span><div class="act-name">Fishing</div><div class="act-time" id="act-time-fish">--</div><div class="act-tip">Fish bite best when water is actively moving between tides.</div></div>
+      <div class="act-card upcoming"><div class="act-status upcoming"><div class="act-dot upcoming"></div>Loading</div><span class="act-icon">🐚</span><div class="act-name">Shelling</div><div class="act-time" id="act-time-shell">--</div><div class="act-tip">The falling tide reveals new treasures on the sand.</div></div>
+    </div>
+    <div class="noaa-note">Tide times approx. — based on Pensacola NOAA station, ~25mi from Destin</div>
   </div>
 </div>
 
@@ -122,11 +121,20 @@ const APP = 'destincondogetaways';
 function noaaUrl(product) {
   return `${NOAA}?date=latest&station=${STATION}&product=${product}&units=english&time_zone=lst&application=${APP}&format=json`;
 }
-
-function tidesUrl() {
-  return `${NOAA}?date=today&station=${STATION}&product=predictions&datum=MLLW&time_zone=lst&interval=hilo&units=english&application=${APP}&format=json`;
+function tidesUrl(day = 'today') {
+  // NOAA only accepts date=today or begin_date+end_date for predictions
+  if (day === 'today') {
+    return `${NOAA}?date=today&station=${STATION}&product=predictions&datum=MLLW&time_zone=lst&interval=hilo&units=english&application=${APP}&format=json`;
+  }
+  // For tomorrow: use begin_date + end_date
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  const dateStr = `${yyyy}${mm}${dd}`;
+  return `${NOAA}?begin_date=${dateStr}&end_date=${dateStr}&station=${STATION}&product=predictions&datum=MLLW&time_zone=lst&interval=hilo&units=english&application=${APP}&format=json`;
 }
-
 function openMeteoUrl() {
   return 'https://api.open-meteo.com/v1/forecast?latitude=30.3763&longitude=-86.4958&current=relative_humidity_2m,wind_speed_10m,wind_direction_10m&wind_speed_unit=mph&timezone=America%2FChicago';
 }
@@ -135,13 +143,32 @@ function degToCompass(deg) {
   const dirs = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
   return dirs[Math.round(deg / 22.5) % 16];
 }
+function mbToInHg(mb) { return (mb * 0.02953).toFixed(2); }
 
-function mbToInHg(mb) {
-  return (mb * 0.02953).toFixed(2);
+// Parse NOAA time string "2026-03-18 11:43" as Destin local time (America/Chicago)
+// Reliable approach: find UTC offset by comparing a known UTC time to Chicago local time
+// Parse NOAA time string "2026-03-18 11:43" as Destin local time
+// Strategy: format a known UTC epoch using Chicago timezone to find the offset
+function parseNoaaTime(str) {
+  if (!str) return null;
+  const [datePart, timePart] = str.split(' ');
+  const [year, month, day] = datePart.split('-').map(Number);
+  const [hour, minute] = timePart.split(':').map(Number);
+  // Create a temp date at noon UTC on the same day to find Chicago offset
+  const tempUTC = new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
+  const chiNoon = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Chicago',
+    hour: 'numeric',
+    hour12: false
+  }).format(tempUTC);
+  // chiNoon is the Chicago hour when UTC is 12:00
+  // offset = 12 - chiNoon
+  const chiHour = parseInt(chiNoon);
+  const offsetHours = 12 - chiHour;
+  return new Date(Date.UTC(year, month - 1, day, hour + offsetHours, minute));
 }
 
 function formatTime(isoStr) {
-  // isoStr like "2026-03-18 11:43"
   const parts = isoStr.split(' ');
   if (!parts[1]) return isoStr;
   const [h, m] = parts[1].split(':');
@@ -151,17 +178,163 @@ function formatTime(isoStr) {
   return `${h12}:${m} ${ampm}`;
 }
 
+function fmtTimeFromMs(ms) {
+  const d = new Date(ms);
+  return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/Chicago' });
+}
+function dayPrefix(ms) {
+  const d = new Date(ms);
+  const opts = { timeZone: 'America/Chicago', year: 'numeric', month: 'numeric', day: 'numeric' };
+  const todayStr    = new Intl.DateTimeFormat('en-US', opts).format(new Date());
+  const targetStr   = new Intl.DateTimeFormat('en-US', opts).format(d);
+  if (todayStr === targetStr) return 'Today ';
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tomorrowStr = new Intl.DateTimeFormat('en-US', opts).format(tomorrow);
+  if (targetStr === tomorrowStr) return 'Tomorrow ';
+  return d.toLocaleDateString('en-US', { weekday: 'short', timeZone: 'America/Chicago' }) + ' ';
+}
+
 function getVerdict(temp) {
-  if (temp < 60) return { emoji: '🧥', text: 'Brisk! Best for a shoreline stroll or shell hunting at Pelican Beach.' };
-  if (temp < 66) return { emoji: '🌬️', text: 'Brisk! Best for a shoreline stroll or shell hunting at Pelican Beach.' };
+  if (temp < 66) return { emoji: '🧥', text: 'Brisk! Best for a shoreline stroll or shell hunting at Pelican Beach.' };
   if (temp < 75) return { emoji: '🏄', text: 'Refreshing! A quick dip feels great, or perfect for paddleboarding.' };
   if (temp < 83) return { emoji: '🌴', text: 'Paradise! The Gulf is perfect. Dive in and enjoy the emerald water!' };
   return { emoji: '☀️', text: 'Tropical! Like a bathtub. Stay hydrated and enjoy the sun.' };
 }
 
-function updateNeedle(temp) {
-  const pct = Math.min(98, Math.max(2, ((temp - 50) / 45) * 100));
-  document.getElementById('needle').style.left = pct + '%';
+function getStatus(windowStart, windowEnd) {
+  const now = Date.now();
+  const soonThreshold = 60 * 60 * 1000; // 60 min
+  if (now >= windowStart && now <= windowEnd) return 'active';
+  if (windowStart > now && windowStart - now <= soonThreshold) return 'soon';
+  return 'upcoming';
+}
+
+// Destin daylight window: 7 AM – 8 PM local time
+function isDaylight(ms) {
+  const hour = parseInt(new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Chicago', hour: 'numeric', hour12: false
+  }).format(new Date(ms)));
+  return hour >= 7 && hour < 20;
+}
+
+// A window is usable if it has meaningful overlap with daylight hours
+// windowStart or the peak of the window must be in daylight
+function windowInDaylight(windowStart, windowEnd) {
+  const mid = (windowStart + windowEnd) / 2;
+  return isDaylight(windowStart) || isDaylight(mid);
+}
+
+// Daylight hours: 7 AM – 8 PM Destin time
+// Returns true if the window has meaningful daylight overlap
+function isDaylightWindow(windowStart, windowEnd) {
+  const opts = { timeZone: 'America/Chicago', hour: 'numeric', hour12: false };
+  const startHour = parseInt(new Intl.DateTimeFormat('en-US', opts).format(new Date(windowStart)));
+  const endHour   = parseInt(new Intl.DateTimeFormat('en-US', opts).format(new Date(windowEnd)));
+  // Window must start before 20:00 (8 PM) and end after 07:00 (7 AM)
+  return startHour < 20 && endHour >= 7;
+}
+
+// Find next tide that produces a daylight window
+function findNextDaylightTide(tideArr, windowBeforeMs, windowAfterMs) {
+  for (const t of tideArr) {
+    const s = t.ms + windowBeforeMs;
+    const e = t.ms + windowAfterMs;
+    if (e > Date.now() && isDaylightWindow(s, e)) return t;
+  }
+  return null;
+}
+function findNextDaylightHighLow(tideArr, halfWindowMs) {
+  for (const t of tideArr) {
+    const s = t.ms - halfWindowMs;
+    const e = t.ms + halfWindowMs;
+    if (e > Date.now() && isDaylightWindow(s, e)) return t;
+  }
+  return null;
+}
+
+function statusLabel(s) {
+  if (s === 'active') return 'Active Now';
+  if (s === 'soon') return 'Starting Soon';
+  return 'Upcoming';
+}
+
+function applyCard(id, timeId, status, windowStart, windowEnd) {
+  const cards = document.querySelectorAll('.act-card');
+  const icons = ['🏝️','🤿','🎣','🐚'];
+  const idx = ['crab','snorkel','fish','shell'].indexOf(id);
+  if (idx === -1) return;
+  const card = cards[idx];
+  card.className = `act-card ${status}`;
+  const statusEl = card.querySelector('.act-status');
+  statusEl.className = `act-status ${status}`;
+  const dot = statusEl.querySelector('.act-dot');
+  dot.className = `act-dot ${status}`;
+  statusEl.childNodes[1] && (statusEl.childNodes[1].textContent = ' ' + statusLabel(status));
+  // Update just the text node after the dot
+  statusEl.innerHTML = `<div class="act-dot ${status}"></div>${statusLabel(status)}`;
+  if (windowStart && windowEnd) {
+    const startPrefix = dayPrefix(windowStart);
+    const endPrefix   = dayPrefix(windowEnd);
+    const endStr = endPrefix !== startPrefix
+      ? `${endPrefix}${fmtTimeFromMs(windowEnd)}`
+      : fmtTimeFromMs(windowEnd);
+    document.getElementById(timeId).textContent = `${startPrefix}${fmtTimeFromMs(windowStart)} – ${endStr}`;
+  } else {
+    document.getElementById(timeId).textContent = 'Check back tomorrow';
+  }
+}
+
+function updateActivities(tides) {
+  if (!tides || tides.length === 0) return;
+  const now = Date.now();
+  const MIN = 60 * 1000;
+  const HR  = 60 * MIN;
+
+  // Filter and sort ALL tides (today + tomorrow) by time
+  const highs = tides.filter(t => t.type === 'H').map(t => ({ ms: parseNoaaTime(t.t)?.getTime() })).filter(t => t.ms).sort((a,b) => a.ms - b.ms);
+  const lows  = tides.filter(t => t.type === 'L').map(t => ({ ms: parseNoaaTime(t.t)?.getTime() })).filter(t => t.ms).sort((a,b) => a.ms - b.ms);
+  const allTides = [...highs.map(t => ({...t, type:'H'})), ...lows.map(t => ({...t, type:'L'}))].sort((a,b) => a.ms - b.ms);
+
+  // CRAB ISLAND: first High Tide with a daylight window that hasn't ended
+  const crabHigh = findNextDaylightHighLow(highs, 90*MIN);
+  if (crabHigh) {
+    const s = crabHigh.ms - 90*MIN;
+    const e = crabHigh.ms + 90*MIN;
+    applyCard('crab', 'act-time-crab', getStatus(s, e), s, e);
+  } else {
+    applyCard('crab', 'act-time-crab', 'upcoming', null, null);
+  }
+
+  // SNORKELING: first slack tide (any) with a daylight window that hasn't ended
+  const snorkelTide = findNextDaylightHighLow(allTides, 90*MIN);
+  if (snorkelTide) {
+    const s = snorkelTide.ms - 90*MIN;
+    const e = snorkelTide.ms + 90*MIN;
+    applyCard('snorkel', 'act-time-snorkel', getStatus(s, e), s, e);
+  } else {
+    applyCard('snorkel', 'act-time-snorkel', 'upcoming', null, null);
+  }
+
+  // FISHING: first tide where 2-4hr window is in daylight and hasn't ended
+  const fishTide = findNextDaylightTide(allTides, 2*HR, 4*HR);
+  if (fishTide) {
+    const s = fishTide.ms + 2*HR;
+    const e = fishTide.ms + 4*HR;
+    applyCard('fish', 'act-time-fish', getStatus(s, e), s, e);
+  } else {
+    applyCard('fish', 'act-time-fish', 'upcoming', null, null);
+  }
+
+  // SHELLING: first Low Tide with a daylight window that hasn't ended
+  const shellLow = findNextDaylightHighLow(lows, 60*MIN);
+  if (shellLow) {
+    const s = shellLow.ms - 60*MIN;
+    const e = shellLow.ms + 60*MIN;
+    applyCard('shell', 'act-time-shell', getStatus(s, e), s, e);
+  } else {
+    applyCard('shell', 'act-time-shell', 'upcoming', null, null);
+  }
 }
 
 function setVal(id, val) {
@@ -171,56 +344,53 @@ function setVal(id, val) {
 
 function updateBadge() {
   const now = new Date();
-  const h = now.getHours();
-  const m = String(now.getMinutes()).padStart(2, '0');
-  const ampm = h >= 12 ? 'PM' : 'AM';
-  const h12 = h % 12 || 12;
-  document.getElementById('badge').textContent = `LIVE · ${h12}:${m} ${ampm}`;
+  const timeStr = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/Chicago' });
+  const dateStr = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', timeZone: 'America/Chicago' });
+  document.getElementById('badge').textContent = `LIVE · ${timeStr}`;
+  document.getElementById('date-badge').textContent = dateStr;
 }
+
+let cachedTides = [];
 
 async function fetchAll() {
   try {
-    const [waterRes, airRes, pressureRes, tidesRes, meteoRes] = await Promise.all([
+    const [waterRes, airRes, pressureRes, tidesRes, tomorrowRes, meteoRes] = await Promise.all([
       fetch(noaaUrl('water_temperature')).then(r => r.json()),
       fetch(noaaUrl('air_temperature')).then(r => r.json()),
       fetch(noaaUrl('air_pressure')).then(r => r.json()),
-      fetch(tidesUrl()).then(r => r.json()),
+      fetch(tidesUrl('today')).then(r => r.json()),
+      fetch(tidesUrl('tomorrow')).then(r => r.json()),
       fetch(openMeteoUrl()).then(r => r.json())
     ]);
 
-    // Water temp
     if (waterRes.data?.[0]?.v) {
       const wt = parseFloat(waterRes.data[0].v);
       setVal('water-temp', wt.toFixed(1) + '°F');
-      updateNeedle(wt);
+      const pct = Math.min(98, Math.max(2, ((wt - 50) / 45) * 100));
+      document.getElementById('needle').style.left = pct + '%';
       const v = getVerdict(wt);
       document.getElementById('verdict-emoji').textContent = v.emoji;
       document.getElementById('verdict-text').textContent = v.text;
     }
 
-    // Air temp
-    if (airRes.data?.[0]?.v) {
-      setVal('air-temp', parseFloat(airRes.data[0].v).toFixed(1) + '°F');
-    }
+    if (airRes.data?.[0]?.v) setVal('air-temp', parseFloat(airRes.data[0].v).toFixed(1) + '°F');
+    if (pressureRes.data?.[0]?.v) setVal('pressure', mbToInHg(parseFloat(pressureRes.data[0].v)) + ' inHg');
 
-    // Pressure — convert mb to inHg
-    if (pressureRes.data?.[0]?.v) {
-      setVal('pressure', mbToInHg(parseFloat(pressureRes.data[0].v)) + ' inHg');
-    }
-
-    // Tides
     if (tidesRes.predictions?.length) {
-      const highs = tidesRes.predictions.filter(p => p.type === 'H');
-      const lows = tidesRes.predictions.filter(p => p.type === 'L');
-      // Find next upcoming high and low
+      // Combine today + tomorrow for activity windows that extend past midnight
+      const tomorrowPreds = tomorrowRes.predictions || [];
+      const allPreds = [...tidesRes.predictions, ...tomorrowPreds];
+      cachedTides = allPreds;
       const now = new Date();
-      const nextHigh = highs.find(p => new Date(p.t) > now) || highs[0];
-      const nextLow = lows.find(p => new Date(p.t) > now) || lows[0];
+      const highs = tidesRes.predictions.filter(p => p.type === 'H');
+      const lows  = tidesRes.predictions.filter(p => p.type === 'L');
+      const nextHigh = highs.find(p => parseNoaaTime(p.t) > now) || highs[0];
+      const nextLow  = lows.find(p => parseNoaaTime(p.t)  > now) || lows[0];
       if (nextHigh) setVal('high-tide', formatTime(nextHigh.t) + ' · ' + parseFloat(nextHigh.v).toFixed(1) + 'ft');
-      if (nextLow) setVal('low-tide', formatTime(nextLow.t) + ' · ' + parseFloat(nextLow.v).toFixed(1) + 'ft');
+      if (nextLow)  setVal('low-tide',  formatTime(nextLow.t)  + ' · ' + parseFloat(nextLow.v).toFixed(1)  + 'ft');
+      updateActivities(allPreds);
     }
 
-    // Wind + humidity from Open-Meteo
     if (meteoRes.current) {
       const spd = meteoRes.current.wind_speed_10m;
       const dir = degToCompass(meteoRes.current.wind_direction_10m);
@@ -229,18 +399,60 @@ async function fetchAll() {
     }
 
     updateBadge();
-
   } catch (err) {
     console.error('Fetch error:', err);
     document.getElementById('badge').textContent = 'UPDATE ERROR';
   }
 }
 
-// Load on start
-fetchAll();
+// Refresh activity cards every minute (status changes without refetching NOAA)
+function refreshActivityStatus() {
+  if (cachedTides.length > 0) updateActivities(cachedTides);
+  updateBadge();
+}
 
-// Refresh every 6 minutes
-setInterval(fetchAll, 6 * 60 * 1000);
+fetchAll();
+setInterval(fetchAll, 6 * 60 * 1000);       // full data refresh every 6 min
+setInterval(refreshActivityStatus, 60 * 1000); // activity status check every 1 min
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Dataset",
+  "name": "Destin FL Live Beach Conditions — Water Temperature, Tides & Activity Guide",
+  "description": "Real-time Gulf water temperature, air temperature, wind, humidity, tide predictions and activity recommendations for Destin Florida beaches. Data sourced from NOAA Tides and Currents station 8729840 and Open-Meteo, updated every 6 minutes.",
+  "url": "https://www.destincondogetaways.com/blog/destinweather",
+  "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "isAccessibleForFree": true,
+  "creator": {
+    "@type": "Organization",
+    "name": "Destin Condo Getaways",
+    "url": "https://www.destincondogetaways.com"
+  },
+  "distribution": {
+    "@type": "DataDownload",
+    "encodingFormat": "application/json",
+    "contentUrl": "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?date=latest&station=8729840&product=water_temperature&units=english&time_zone=lst&format=json"
+  },
+  "temporalCoverage": "2026/..",
+  "spatialCoverage": {
+    "@type": "Place",
+    "name": "Destin, Florida",
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": 30.3763,
+      "longitude": -86.4958
+    }
+  },
+  "variableMeasured": [
+    { "@type": "PropertyValue", "name": "Gulf Water Temperature", "unitCode": "FAH" },
+    { "@type": "PropertyValue", "name": "Air Temperature", "unitCode": "FAH" },
+    { "@type": "PropertyValue", "name": "Wind Speed", "unitCode": "MPH" },
+    { "@type": "PropertyValue", "name": "Relative Humidity", "unitCode": "P1" },
+    { "@type": "PropertyValue", "name": "Barometric Pressure", "unitCode": "INH" },
+    { "@type": "PropertyValue", "name": "Tide Height", "unitCode": "FOT" }
+  ]
+}
 </script>
 </body>
 </html>

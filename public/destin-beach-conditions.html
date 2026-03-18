@@ -1,0 +1,246 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Destin Live Beach Conditions</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: system-ui, -apple-system, sans-serif; background: transparent; padding: 0; }
+
+.widget { background: linear-gradient(135deg, #0369a1 0%, #0284c7 100%); border-radius: 20px; padding: 18px; max-width: 480px; margin: 0 auto; }
+
+.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.header-title { font-size: 14px; font-weight: 600; color: #fff; }
+.badge { font-size: 10px; background: rgba(255,255,255,0.2); color: #fff; border-radius: 20px; padding: 3px 10px; letter-spacing: 1px; white-space: nowrap; }
+
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 8px; }
+.card { background: rgba(255,255,255,0.15); border-radius: 14px; padding: 14px 10px; text-align: center; }
+.card-icon { font-size: 22px; margin-bottom: 6px; }
+.card-val { font-size: 19px; font-weight: 800; color: #fff; line-height: 1; }
+.card-lbl { font-size: 10px; color: rgba(255,255,255,0.65); margin-top: 4px; text-transform: uppercase; letter-spacing: 1px; }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+.row-card { background: rgba(255,255,255,0.12); border-radius: 12px; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; }
+.row-lbl { font-size: 11px; color: rgba(255,255,255,0.6); }
+.row-val { font-size: 13px; font-weight: 700; color: #fff; }
+.row-icon { font-size: 18px; }
+
+.temp-bar-wrap { background: rgba(255,255,255,0.1); border-radius: 14px; padding: 14px 16px; }
+.temp-bar-title { font-size: 11px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+.temp-bar-track { position: relative; height: 10px; border-radius: 99px; background: linear-gradient(90deg, #60a5fa, #34d399, #fbbf24, #f97316, #ef4444); margin-bottom: 8px; }
+.temp-bar-needle { position: absolute; top: 50%; transform: translate(-50%, -50%); width: 18px; height: 18px; background: #fff; border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.35); border: 2px solid rgba(0,0,0,0.15); transition: left 1s ease; }
+.temp-bar-labels { display: flex; justify-content: space-between; font-size: 9px; color: rgba(255,255,255,0.45); margin-bottom: 12px; }
+.temp-verdict { background: rgba(255,255,255,0.15); border-radius: 10px; padding: 10px 14px; font-size: 13px; color: #fff; line-height: 1.5; text-align: center; font-weight: 500; }
+.temp-verdict-emoji { font-size: 22px; display: block; margin-bottom: 4px; }
+
+.error-msg { font-size: 12px; color: rgba(255,255,255,0.5); text-align: center; padding: 8px; }
+.loading { opacity: 0.4; }
+</style>
+</head>
+<body>
+<div class="widget">
+  <div class="header">
+    <div class="header-title">🌊 Destin Live Beach Conditions</div>
+    <div class="badge" id="badge">LOADING...</div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-icon">🌊</div>
+      <div class="card-val loading" id="water-temp">--°F</div>
+      <div class="card-lbl">Water Temp</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">🌡️</div>
+      <div class="card-val loading" id="air-temp">--°F</div>
+      <div class="card-lbl">Air Temp</div>
+    </div>
+    <div class="card">
+      <div class="card-icon">💧</div>
+      <div class="card-val loading" id="humidity">--%</div>
+      <div class="card-lbl">Humidity</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="row-card">
+      <div>
+        <div class="row-lbl">Wind</div>
+        <div class="row-val loading" id="wind">-- mph</div>
+      </div>
+      <div class="row-icon">🌬️</div>
+    </div>
+    <div class="row-card">
+      <div>
+        <div class="row-lbl">Pressure</div>
+        <div class="row-val loading" id="pressure">-- inHg</div>
+      </div>
+      <div class="row-icon">📊</div>
+    </div>
+    <div class="row-card">
+      <div>
+        <div class="row-lbl">High Tide</div>
+        <div class="row-val loading" id="high-tide">--:--</div>
+      </div>
+      <div class="row-icon">🔼</div>
+    </div>
+    <div class="row-card">
+      <div>
+        <div class="row-lbl">Low Tide</div>
+        <div class="row-val loading" id="low-tide">--:--</div>
+      </div>
+      <div class="row-icon">🔽</div>
+    </div>
+  </div>
+
+  <div class="temp-bar-wrap">
+    <div class="temp-bar-title">Gulf Water Temperature Gauge</div>
+    <div class="temp-bar-track">
+      <div class="temp-bar-needle" id="needle" style="left: 0%;"></div>
+    </div>
+    <div class="temp-bar-labels">
+      <span>50°F</span>
+      <span>60°F</span>
+      <span>70°F</span>
+      <span>80°F</span>
+      <span>90°F+</span>
+    </div>
+    <div class="temp-verdict" id="verdict">
+      <span class="temp-verdict-emoji" id="verdict-emoji">🌊</span>
+      <span id="verdict-text">Loading current conditions...</span>
+    </div>
+  </div>
+</div>
+
+<script>
+const NOAA = 'https://api.tidesandcurrents.noaa.gov/api/prod/datagetter';
+const STATION = '8729840';
+const APP = 'destincondogetaways';
+
+function noaaUrl(product) {
+  return `${NOAA}?date=latest&station=${STATION}&product=${product}&units=english&time_zone=lst&application=${APP}&format=json`;
+}
+
+function tidesUrl() {
+  return `${NOAA}?date=today&station=${STATION}&product=predictions&datum=MLLW&time_zone=lst&interval=hilo&units=english&application=${APP}&format=json`;
+}
+
+function openMeteoUrl() {
+  return 'https://api.open-meteo.com/v1/forecast?latitude=30.3763&longitude=-86.4958&current=relative_humidity_2m,wind_speed_10m,wind_direction_10m&wind_speed_unit=mph&timezone=America%2FChicago';
+}
+
+function degToCompass(deg) {
+  const dirs = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
+  return dirs[Math.round(deg / 22.5) % 16];
+}
+
+function mbToInHg(mb) {
+  return (mb * 0.02953).toFixed(2);
+}
+
+function formatTime(isoStr) {
+  // isoStr like "2026-03-18 11:43"
+  const parts = isoStr.split(' ');
+  if (!parts[1]) return isoStr;
+  const [h, m] = parts[1].split(':');
+  const hour = parseInt(h);
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+  const h12 = hour % 12 || 12;
+  return `${h12}:${m} ${ampm}`;
+}
+
+function getVerdict(temp) {
+  if (temp < 60) return { emoji: '🧥', text: 'Brisk! Best for a shoreline stroll or shell hunting at Pelican Beach.' };
+  if (temp < 66) return { emoji: '🌬️', text: 'Brisk! Best for a shoreline stroll or shell hunting at Pelican Beach.' };
+  if (temp < 75) return { emoji: '🏄', text: 'Refreshing! A quick dip feels great, or perfect for paddleboarding.' };
+  if (temp < 83) return { emoji: '🌴', text: 'Paradise! The Gulf is perfect. Dive in and enjoy the emerald water!' };
+  return { emoji: '☀️', text: 'Tropical! Like a bathtub. Stay hydrated and enjoy the sun.' };
+}
+
+function updateNeedle(temp) {
+  const pct = Math.min(98, Math.max(2, ((temp - 50) / 45) * 100));
+  document.getElementById('needle').style.left = pct + '%';
+}
+
+function setVal(id, val) {
+  const el = document.getElementById(id);
+  if (el) { el.textContent = val; el.classList.remove('loading'); }
+}
+
+function updateBadge() {
+  const now = new Date();
+  const h = now.getHours();
+  const m = String(now.getMinutes()).padStart(2, '0');
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const h12 = h % 12 || 12;
+  document.getElementById('badge').textContent = `LIVE · ${h12}:${m} ${ampm}`;
+}
+
+async function fetchAll() {
+  try {
+    const [waterRes, airRes, pressureRes, tidesRes, meteoRes] = await Promise.all([
+      fetch(noaaUrl('water_temperature')).then(r => r.json()),
+      fetch(noaaUrl('air_temperature')).then(r => r.json()),
+      fetch(noaaUrl('air_pressure')).then(r => r.json()),
+      fetch(tidesUrl()).then(r => r.json()),
+      fetch(openMeteoUrl()).then(r => r.json())
+    ]);
+
+    // Water temp
+    if (waterRes.data?.[0]?.v) {
+      const wt = parseFloat(waterRes.data[0].v);
+      setVal('water-temp', wt.toFixed(1) + '°F');
+      updateNeedle(wt);
+      const v = getVerdict(wt);
+      document.getElementById('verdict-emoji').textContent = v.emoji;
+      document.getElementById('verdict-text').textContent = v.text;
+    }
+
+    // Air temp
+    if (airRes.data?.[0]?.v) {
+      setVal('air-temp', parseFloat(airRes.data[0].v).toFixed(1) + '°F');
+    }
+
+    // Pressure — convert mb to inHg
+    if (pressureRes.data?.[0]?.v) {
+      setVal('pressure', mbToInHg(parseFloat(pressureRes.data[0].v)) + ' inHg');
+    }
+
+    // Tides
+    if (tidesRes.predictions?.length) {
+      const highs = tidesRes.predictions.filter(p => p.type === 'H');
+      const lows = tidesRes.predictions.filter(p => p.type === 'L');
+      // Find next upcoming high and low
+      const now = new Date();
+      const nextHigh = highs.find(p => new Date(p.t) > now) || highs[0];
+      const nextLow = lows.find(p => new Date(p.t) > now) || lows[0];
+      if (nextHigh) setVal('high-tide', formatTime(nextHigh.t) + ' · ' + parseFloat(nextHigh.v).toFixed(1) + 'ft');
+      if (nextLow) setVal('low-tide', formatTime(nextLow.t) + ' · ' + parseFloat(nextLow.v).toFixed(1) + 'ft');
+    }
+
+    // Wind + humidity from Open-Meteo
+    if (meteoRes.current) {
+      const spd = meteoRes.current.wind_speed_10m;
+      const dir = degToCompass(meteoRes.current.wind_direction_10m);
+      setVal('wind', spd.toFixed(1) + ' mph ' + dir);
+      setVal('humidity', meteoRes.current.relative_humidity_2m + '%');
+    }
+
+    updateBadge();
+
+  } catch (err) {
+    console.error('Fetch error:', err);
+    document.getElementById('badge').textContent = 'UPDATE ERROR';
+  }
+}
+
+// Load on start
+fetchAll();
+
+// Refresh every 6 minutes
+setInterval(fetchAll, 6 * 60 * 1000);
+</script>
+</body>
+</html>

@@ -17,20 +17,18 @@ export default function Concierge() {
   const [pendingRelay, setPendingRelay] = useState(false);
   const [ozanAcked, setOzanAcked] = useState(false);
   const [ozanAckType, setOzanAckType] = useState(null);
-  const [ozanInvited, setOzanInvited] = useState(false);  // @ozan typed, waiting
-  const [ozanIsActive, setOzanIsActive] = useState(false); // Ozan in chat
-  const lastSeenTsRef = useRef(0); // useRef avoids stale closure in setInterval
+  const [ozanInvited, setOzanInvited] = useState(false);
+  const [ozanIsActive, setOzanIsActive] = useState(false);
+  const lastSeenTsRef = useRef(0);
   const sessionIdRef = useRef(null);
   const chatEndRef = useRef(null);
   const scrollContainerRef = useRef(null);
   const pollIntervalRef = useRef(null);
-  const ozanTokenRef = useRef(null); // stores invite token for ozan-send calls
-
+  const ozanTokenRef = useRef(null);
   const guestBidRef = useRef(null);
-  const guestBookingRef = useRef(null); // stores booking data for context in follow-up messages
-  const pageSourceRef = useRef("ai-concierge"); // tracks which page opened the chat
+  const guestBookingRef = useRef(null);
+  const pageSourceRef = useRef("ai-concierge");
 
-  // Effect 1: session ID init (runs once on mount)
   useEffect(() => {
     try {
       let sid = localStorage.getItem("destiny_session_id");
@@ -41,26 +39,21 @@ export default function Concierge() {
     }
   }, []);
 
-  // Effect 2: magic link — runs when router is ready and has query params
   useEffect(() => {
     if (!router.isReady) return;
     if (router.query.pageSource) pageSourceRef.current = router.query.pageSource;
     const bid = router.query.bid;
     const fname = router.query.fname;
     if (!bid) return;
-
     guestBidRef.current = bid;
     setLog([]);
     setBusy(true);
-
-    // Ensure session ID exists before fetching
     let sid = sessionIdRef.current;
     if (!sid) {
       try { sid = localStorage.getItem("destiny_session_id") || generateSessionId(); }
       catch(e) { sid = generateSessionId(); }
       sessionIdRef.current = sid;
     }
-
     fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -81,13 +74,10 @@ export default function Concierge() {
       .finally(() => setBusy(false));
   }, [router.isReady, router.query.bid]);
 
-
-  // Effect 3: pageSource greeting — fire initial API call when coming from a blog page
   useEffect(() => {
     if (!router.isReady) return;
     const ps = router.query.pageSource;
     if (!ps || ps === "ai-concierge") return;
-
     setLog([]);
     setBusy(true);
     let sid = sessionIdRef.current;
@@ -96,7 +86,6 @@ export default function Concierge() {
       catch(e) { sid = generateSessionId(); }
       sessionIdRef.current = sid;
     }
-
     fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -113,33 +102,24 @@ export default function Concierge() {
       .finally(() => setBusy(false));
   }, [router.isReady, router.query.pageSource]);
 
-  // Poll for Ozan activity when invited or active
   useEffect(() => {
     if (!ozanInvited && !ozanIsActive) return;
     if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
-
     const poll = async () => {
       if (!sessionIdRef.current) return;
       try {
         const r = await fetch(`/api/ozan-poll?s=${sessionIdRef.current}&since=${lastSeenTsRef.current}&_t=${Date.now()}`);
         const data = await r.json();
-
-        // Ozan just joined (transition from PENDING to TRUE)
         if (data.ozanActive === "TRUE" && !ozanIsActive) {
           setOzanIsActive(true);
           setOzanInvited(false);
           setLog(l => [...l, { role: "system", content: "🟢 Ozan has joined the chat" }]);
         }
-        // Still pending — keep polling silently
-
-        // Ozan left
         if (data.ozanActive === "FALSE" && ozanIsActive) {
           setOzanIsActive(false);
           clearInterval(pollIntervalRef.current);
           setLog(l => [...l, { role: "system", content: "Ozan has left the chat — I'm back! 😊" }]);
         }
-
-        // New messages from Ozan
         if (data.messages?.length > 0) {
           const newMsgs = data.messages.filter(m => m.role === "ozan");
           if (newMsgs.length > 0) {
@@ -147,14 +127,12 @@ export default function Concierge() {
             lastSeenTsRef.current = Math.max(...newMsgs.map(m => m.ts));
           }
         }
-      } catch (e) { /* ignore */ }
+      } catch (e) { }
     };
-
     pollIntervalRef.current = setInterval(poll, 3000);
     return () => clearInterval(pollIntervalRef.current);
-  }, [ozanInvited, ozanIsActive]); // lastSeenTs is now a ref, no dep needed
+  }, [ozanInvited, ozanIsActive]);
 
-  // Scroll INSIDE the chat box, not the whole page
   useEffect(() => {
     if (scrollContainerRef.current) {
       scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
@@ -166,8 +144,6 @@ export default function Concierge() {
     if (!input.trim() || busy) return;
     const text = input.trim();
     setInput("");
-
-    // If Ozan is invited or active — route to Ozan, don't call Destiny Blue
     if (ozanIsActive || ozanInvited) {
       setLog(l => [...l, { role: "user", content: text }]);
       try {
@@ -176,14 +152,12 @@ export default function Concierge() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ sessionId: sessionIdRef.current, text, t: ozanTokenRef.current || "pending", role: "guest" }),
         });
-      } catch(e) { /* store best-effort */ }
+      } catch(e) { }
       if (!ozanIsActive) {
-        // Still waiting for Ozan to join — show holding message
         setLog(l => [...l, { role: "system", content: "⏳ Message held — Ozan will see it when he joins" }]);
       }
       return;
     }
-
     const userMsg = { role: "user", content: text };
     setLog(l => [...l, userMsg]);
     setBusy(true);
@@ -202,18 +176,15 @@ export default function Concierge() {
         setAlertSent(false);
         setOzanAcked(false);
       }
-      // @ozan invited — start polling
       if (data.ozanInvited) {
         setOzanInvited(true);
         if (data.ozanToken) ozanTokenRef.current = data.ozanToken;
       }
-      // Ozan active (TRUE or PENDING) — suppress bot reply, ensure polling runs
       if (data.ozanActive === "TRUE" || data.ozanActive === "PENDING" || data.ozanActive === true) {
         if (data.ozanActive === "TRUE") setOzanIsActive(true);
-        setOzanInvited(true); // start polling regardless
-        return; // no bot bubble
+        setOzanInvited(true);
+        return;
       }
-      // Sentinel or empty reply — suppress
       const reply = data?.reply;
       if (!reply || reply === "⏳") return;
       setLog(l => [...l, { role: "assistant", content: reply }]);
@@ -225,73 +196,209 @@ export default function Concierge() {
   }
 
   const linkify = (t) =>
-    t.replace(/(https?:\/\/[^\s]+)/g, (u) => `<a href="${u}" target="_blank" rel="noopener noreferrer">${u}</a>`)
+    t.replace(/(https?:\/\/[^\s]+)/g, (u) => `<a href="${u}" target="_blank" rel="noopener noreferrer" style="color:#2563eb;">${u}</a>`)
      .replace(/\n/g, "<br/>");
 
-  return (
-    <main style={{ maxWidth: 820, margin: "0 auto", padding: 12, fontFamily: "system-ui, sans-serif" }}>
-      <h1 style={{ fontSize: 22, margin: "8px 0" }}>Destiny Blue — Your AI Concierge</h1>
+  const styles = {
+    page: { maxWidth: 820, margin: "0 auto", padding: 12, fontFamily: "system-ui, sans-serif" },
+    heading: { fontSize: 22, margin: "8px 0 12px" },
+    chatBox: {
+      borderRadius: 20,
+      overflow: "hidden",
+      boxShadow: "0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08)",
+      border: "0.5px solid rgba(0,0,0,0.08)"
+    },
+    header: {
+      background: "linear-gradient(135deg, #1a3a6b 0%, #2563eb 100%)",
+      padding: "14px 18px",
+      display: "flex",
+      alignItems: "center",
+      gap: 10
+    },
+    headerAvatar: {
+      width: 40, height: 40, borderRadius: "50%",
+      background: "rgba(255,255,255,0.2)",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      fontSize: 20,
+      boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+      border: "2px solid rgba(255,255,255,0.3)",
+      flexShrink: 0
+    },
+    headerName: { color: "#fff", fontWeight: 500, fontSize: 15, margin: 0 },
+    headerSub: { color: "rgba(255,255,255,0.65)", fontSize: 11, margin: 0 },
+    messagesArea: {
+      height: 520, overflowY: "auto", padding: "16px 14px",
+      background: "#f0f4fa",
+      display: "flex", flexDirection: "column", gap: 10
+    },
+    systemMsg: { textAlign: "center", fontSize: 11, color: "#9ca3af", fontStyle: "italic" },
+    botIcon: {
+      width: 28, height: 28, borderRadius: "50%",
+      background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
+      boxShadow: "0 2px 8px rgba(37,99,235,0.4)",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      fontSize: 13, flexShrink: 0,
+      border: "1.5px solid rgba(255,255,255,0.7)"
+    },
+    botBubble: {
+      background: "linear-gradient(145deg, #ffffff, #f0f4ff)",
+      color: "#1e293b",
+      borderRadius: "18px 18px 18px 4px",
+      padding: "11px 15px",
+      fontSize: 14, lineHeight: 1.55,
+      maxWidth: "78%",
+      boxShadow: "0 4px 12px rgba(37,99,235,0.12), 0 1px 4px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.9)",
+      border: "0.5px solid rgba(37,99,235,0.15)",
+      wordBreak: "break-word"
+    },
+    userBubble: {
+      background: "linear-gradient(145deg, #2f74eb, #1a56d6)",
+      color: "#fff",
+      borderRadius: "18px 18px 4px 18px",
+      padding: "11px 15px",
+      fontSize: 14, lineHeight: 1.55,
+      maxWidth: "78%",
+      boxShadow: "0 4px 14px rgba(37,99,235,0.35), 0 1px 4px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.2)",
+      wordBreak: "break-word"
+    },
+    ozanIcon: {
+      width: 28, height: 28, borderRadius: "50%",
+      background: "linear-gradient(135deg, #0369a1, #0284c7)",
+      boxShadow: "0 2px 8px rgba(3,105,161,0.4)",
+      display: "flex", alignItems: "center", justifyContent: "center",
+      fontSize: 11, color: "white", fontWeight: 500, flexShrink: 0
+    },
+    ozanBubble: {
+      background: "linear-gradient(145deg, #e0f2fe, #bae6fd)",
+      color: "#0c4a6e",
+      borderRadius: "18px 18px 18px 4px",
+      padding: "11px 15px",
+      fontSize: 14, lineHeight: 1.55,
+      maxWidth: "78%",
+      boxShadow: "0 4px 12px rgba(3,105,161,0.15), inset 0 1px 0 rgba(255,255,255,0.8)",
+      border: "0.5px solid rgba(3,105,161,0.2)",
+      wordBreak: "break-word"
+    },
+    typingBubble: {
+      background: "linear-gradient(145deg, #ffffff, #f0f4ff)",
+      borderRadius: "18px 18px 18px 4px",
+      padding: "10px 14px",
+      boxShadow: "0 4px 12px rgba(37,99,235,0.1), inset 0 1px 0 rgba(255,255,255,0.9)",
+      border: "0.5px solid rgba(37,99,235,0.12)",
+      display: "flex", gap: 4, alignItems: "center"
+    },
+    inputArea: {
+      display: "flex", gap: 8,
+      borderTop: "0.5px solid rgba(0,0,0,0.08)",
+      padding: "10px 12px",
+      background: "#fff",
+      alignItems: "flex-end"
+    },
+    textarea: {
+      flex: 1, resize: "none", padding: "9px 14px",
+      borderRadius: 14,
+      border: "1px solid #e2e8f0",
+      fontSize: 14,
+      background: "#f8fafc",
+      boxShadow: "inset 0 1px 3px rgba(0,0,0,0.05)",
+      fontFamily: "system-ui, sans-serif",
+      outline: "none"
+    },
+    sendBtn: {
+      padding: "9px 16px", borderRadius: 12, border: 0,
+      background: "linear-gradient(145deg, #2f74eb, #1a56d6)",
+      color: "#fff", fontSize: 14, fontWeight: 500, cursor: "pointer",
+      boxShadow: "0 3px 10px rgba(37,99,235,0.35), inset 0 1px 0 rgba(255,255,255,0.2)"
+    }
+  };
 
-      <div style={{ border: "1px solid #e5e7eb", borderRadius: 16, overflow: "hidden" }}>
-        {/* scrollContainerRef on THIS div — scrolls internally, page stays still */}
-        <div
-          ref={scrollContainerRef}
-          style={{ height: 520, overflowY: "auto", padding: 12, background: "#fff" }}
-        >
+  return (
+    <main style={styles.page}>
+      <h1 style={styles.heading}>Destiny Blue — Your AI Concierge</h1>
+
+      <div style={styles.chatBox}>
+        {/* Header */}
+        <div style={styles.header}>
+          <div style={styles.headerAvatar}>🌊</div>
+          <div>
+            <p style={styles.headerName}>Destiny Blue</p>
+            <p style={styles.headerSub}>Your AI Concierge · Online</p>
+          </div>
+        </div>
+
+        {/* Messages */}
+        <div ref={scrollContainerRef} style={styles.messagesArea}>
           {log.map((m, i) => {
             if (m.role === "system") return (
-              <div key={i} style={{ textAlign: "center", fontSize: 11, color: "#9ca3af", margin: "6px 0", fontStyle: "italic" }}>
-                {m.content}
-              </div>
+              <div key={i} style={styles.systemMsg}>{m.content}</div>
             );
             const isUser = m.role === "user";
             const isOzan = m.role === "ozan";
             return (
-              <div key={i} style={{ display: "flex", justifyContent: isUser ? "flex-end" : "flex-start", marginBottom: 8 }}>
-                <div style={{ maxWidth: "82%" }}>
-                  {isOzan && <div style={{ fontSize: 10, color: "#6b7280", marginBottom: 2, fontWeight: "bold" }}>Ozan</div>}
-                  <div
-                    style={{
-                      padding: "8px 12px",
-                      borderRadius: 14,
-                      background: isUser ? "#111827" : isOzan ? "#0369a1" : "#f3f4f6",
-                      color: isUser || isOzan ? "#fff" : "#111827",
-                      wordBreak: "break-word"
-                    }}
-                  >
-                    {isUser ? m.content : <div dangerouslySetInnerHTML={{ __html: linkify(m.content) }} />}
+              <div key={i} style={{ display: "flex", justifyContent: isUser ? "flex-end" : "flex-start", alignItems: "flex-end", gap: 8 }}>
+                {!isUser && (
+                  <div style={isOzan ? styles.ozanIcon : styles.botIcon}>
+                    {isOzan ? "OZ" : "🌊"}
                   </div>
+                )}
+                <div style={isUser ? styles.userBubble : isOzan ? styles.ozanBubble : styles.botBubble}>
+                  {isOzan && <div style={{ fontSize: 10, color: "#0369a1", fontWeight: "bold", marginBottom: 3 }}>Ozan</div>}
+                  {isUser ? m.content : <div dangerouslySetInnerHTML={{ __html: linkify(m.content) }} />}
                 </div>
               </div>
             );
           })}
+
           {ozanInvited && !ozanIsActive && (
-        <div style={{ fontSize: 12, color: "#0369a1", fontWeight: "bold", padding: "4px 0" }}>
-          🟡 Connecting you with Ozan — type and he'll see your messages when he joins…
-        </div>
-      )}
-      {busy && !ozanInvited && <div style={{ fontSize: 12, color: "#6b7280" }}>Destiny Blue is typing…</div>}
-      {ozanIsActive && busy && <div style={{ fontSize: 12, color: "#6b7280" }}>Ozan is typing…</div>}
+            <div style={{ fontSize: 12, color: "#0369a1", fontWeight: "bold", padding: "4px 0" }}>
+              🟡 Connecting you with Ozan — type and he'll see your messages when he joins…
+            </div>
+          )}
+
+          {busy && !ozanInvited && (
+            <div style={{ display: "flex", alignItems: "flex-end", gap: 8 }}>
+              <div style={styles.botIcon}>🌊</div>
+              <div style={styles.typingBubble}>
+                {[0, 200, 400].map((delay, i) => (
+                  <div key={i} style={{
+                    width: 7, height: 7, borderRadius: "50%", background: "#94a3b8",
+                    animation: "db-bounce 1.2s infinite",
+                    animationDelay: `${delay}ms`
+                  }} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {ozanIsActive && busy && (
+            <div style={{ fontSize: 12, color: "#6b7280" }}>Ozan is typing…</div>
+          )}
+
           <div ref={chatEndRef} />
         </div>
 
-        <form onSubmit={send} style={{ display: "flex", gap: 8, borderTop: "1px solid #e5e7eb", padding: 8, background: "#fafafa" }}>
+        {/* Input */}
+        <form onSubmit={send} style={styles.inputArea}>
           <textarea
             rows={2}
             value={input}
             onChange={e => setInput(e.target.value)}
-            placeholder="e.g. 2025-10-10 to 2025-10-15, 2 adults 1 child"
-            style={{ flex: 1, resize: "none", padding: 8, borderRadius: 12, border: "1px solid #e5e7eb" }}
+            onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(e); } }}
+            placeholder="Ask about availability, local restaurants, activities, plan your Destin trip or anything about Destin 😊"
+            style={styles.textarea}
           />
-          <button
-            type="submit"
-            disabled={busy}
-            style={{ padding: "8px 14px", borderRadius: 12, border: 0, background: "#2563eb", color: "#fff", opacity: busy ? 0.6 : 1 }}
-          >
+          <button type="submit" disabled={busy} style={{ ...styles.sendBtn, opacity: busy ? 0.6 : 1 }}>
             Send
           </button>
         </form>
       </div>
+
+      <style>{`
+        @keyframes db-bounce {
+          0%, 60%, 100% { transform: translateY(0); }
+          30% { transform: translateY(-5px); }
+        }
+      `}</style>
     </main>
   );
 }

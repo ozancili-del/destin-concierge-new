@@ -88,6 +88,8 @@ body { font-family: system-ui, -apple-system, sans-serif; background: transparen
     <div class="row-card"><div><div class="row-lbl">Pressure</div><div class="row-val loading" id="pressure">-- inHg</div></div><div class="row-icon">📊</div></div>
     <div class="row-card"><div><div class="row-lbl">High Tide</div><div class="row-val loading" id="high-tide">--:--</div></div><div class="row-icon">🔼</div></div>
     <div class="row-card"><div><div class="row-lbl">Low Tide</div><div class="row-val loading" id="low-tide">--:--</div></div><div class="row-icon">🔽</div></div>
+    <div class="row-card" style="border: 1px solid rgba(255,200,50,0.3); background: rgba(255,200,50,0.1);"><div><div class="row-lbl" style="color: rgba(255,220,100,0.8);">Sunrise</div><div class="row-val loading" id="sunrise">--:--</div></div><div class="row-icon">🌅</div></div>
+    <div class="row-card" style="border: 1px solid rgba(255,140,50,0.3); background: rgba(255,140,50,0.1);"><div><div class="row-lbl" style="color: rgba(255,180,100,0.8);">Sunset</div><div class="row-val loading" id="sunset">--:--</div></div><div class="row-icon">🌇</div></div>
   </div>
 
   <div class="temp-bar-wrap">
@@ -136,7 +138,7 @@ function tidesUrl(day = 'today') {
   return `${NOAA}?begin_date=${dateStr}&end_date=${dateStr}&station=${STATION}&product=predictions&datum=MLLW&time_zone=lst&interval=hilo&units=english&application=${APP}&format=json`;
 }
 function openMeteoUrl() {
-  return 'https://api.open-meteo.com/v1/forecast?latitude=30.3763&longitude=-86.4958&current=relative_humidity_2m,wind_speed_10m,wind_direction_10m&wind_speed_unit=mph&timezone=America%2FChicago';
+  return 'https://api.open-meteo.com/v1/forecast?latitude=30.3763&longitude=-86.4958&current=relative_humidity_2m,wind_speed_10m,wind_direction_10m&wind_speed_unit=mph&daily=sunrise,sunset&timezone=America%2FChicago';
 }
 
 function degToCompass(deg) {
@@ -210,29 +212,20 @@ function getStatus(windowStart, windowEnd) {
   return 'upcoming';
 }
 
-// Destin daylight window: 7 AM – 8 PM local time
-function isDaylight(ms) {
-  const hour = parseInt(new Intl.DateTimeFormat('en-US', {
-    timeZone: 'America/Chicago', hour: 'numeric', hour12: false
-  }).format(new Date(ms)));
-  return hour >= 7 && hour < 20;
-}
+// Dynamic daylight: populated from Open-Meteo sunrise/sunset
+let sunriseMs = null;
+let sunsetMs  = null;
 
-// A window is usable if it has meaningful overlap with daylight hours
-// windowStart or the peak of the window must be in daylight
-function windowInDaylight(windowStart, windowEnd) {
-  const mid = (windowStart + windowEnd) / 2;
-  return isDaylight(windowStart) || isDaylight(mid);
-}
-
-// Daylight hours: 7 AM – 8 PM Destin time
-// Returns true if the window has meaningful daylight overlap
 function isDaylightWindow(windowStart, windowEnd) {
-  const opts = { timeZone: 'America/Chicago', hour: 'numeric', hour12: false };
-  const startHour = parseInt(new Intl.DateTimeFormat('en-US', opts).format(new Date(windowStart)));
-  const endHour   = parseInt(new Intl.DateTimeFormat('en-US', opts).format(new Date(windowEnd)));
-  // Window must start before 20:00 (8 PM) and end after 07:00 (7 AM)
-  return startHour < 20 && endHour >= 7;
+  // Fallback to 7 AM – 8 PM if sunrise/sunset not yet loaded
+  const rise = sunriseMs || (() => {
+    const d = new Date(); d.setHours(7,0,0,0); return d.getTime();
+  })();
+  const set = sunsetMs || (() => {
+    const d = new Date(); d.setHours(20,0,0,0); return d.getTime();
+  })();
+  // Window must start before sunset and end after sunrise
+  return windowStart < set && windowEnd > rise;
 }
 
 // Find next tide that produces a daylight window
@@ -296,8 +289,14 @@ function updateActivities(tides) {
   const lows  = tides.filter(t => t.type === 'L').map(t => ({ ms: parseNoaaTime(t.t)?.getTime() })).filter(t => t.ms).sort((a,b) => a.ms - b.ms);
   const allTides = [...highs.map(t => ({...t, type:'H'})), ...lows.map(t => ({...t, type:'L'}))].sort((a,b) => a.ms - b.ms);
 
-  // CRAB ISLAND: first High Tide with a daylight window that hasn't ended
-  const crabHigh = findNextDaylightHighLow(highs, 90*MIN);
+  // CRAB ISLAND: first High Tide with a daylight window that hasn't ended AND starts before 1 PM
+  // Nobody books a Crab Island charter that starts after 1 PM
+  const crabHigh = highs.find(t => {
+    const s = t.ms - 90*MIN;
+    const e = t.ms + 90*MIN;
+    const highHour = parseInt(new Intl.DateTimeFormat('en-US', { timeZone: 'America/Chicago', hour: 'numeric', hour12: false }).format(new Date(t.ms)));
+    return e > Date.now() && isDaylightWindow(s, e) && highHour < 13;
+  }) || null;
   if (crabHigh) {
     const s = crabHigh.ms - 90*MIN;
     const e = crabHigh.ms + 90*MIN;
@@ -316,8 +315,8 @@ function updateActivities(tides) {
     applyCard('snorkel', 'act-time-snorkel', 'upcoming', null, null);
   }
 
-  // FISHING: first tide where 2-4hr window is in daylight and hasn't ended
-  const fishTide = findNextDaylightTide(allTides, 2*HR, 4*HR);
+  // FISHING: no daylight filter — tidal fishing works day or night
+  const fishTide = allTides.find(t => (t.ms + 4*HR) > now);
   if (fishTide) {
     const s = fishTide.ms + 2*HR;
     const e = fishTide.ms + 4*HR;
@@ -396,6 +395,13 @@ async function fetchAll() {
       const dir = degToCompass(meteoRes.current.wind_direction_10m);
       setVal('wind', spd.toFixed(1) + ' mph ' + dir);
       setVal('humidity', meteoRes.current.relative_humidity_2m + '%');
+    }
+    if (meteoRes.daily?.sunrise?.[0]) {
+      sunriseMs = new Date(meteoRes.daily.sunrise[0]).getTime();
+      sunsetMs  = new Date(meteoRes.daily.sunset[0]).getTime();
+      const fmtSun = ms => new Date(ms).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/Chicago' });
+      setVal('sunrise', fmtSun(sunriseMs));
+      setVal('sunset',  fmtSun(sunsetMs));
     }
 
     updateBadge();

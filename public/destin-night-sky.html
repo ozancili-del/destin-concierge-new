@@ -1,0 +1,271 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Destin Night Sky Guide — Pelican Beach Resort</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: system-ui, -apple-system, sans-serif; background: #060d1a; color: #e8f4ff; }
+
+.widget { max-width: 480px; margin: 0 auto; padding: 18px; }
+
+.header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+.header-title { font-size: 14px; font-weight: 600; color: #e8f4ff; }
+.header-right { text-align: right; }
+.badge { font-size: 10px; background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.75); border-radius: 20px; padding: 3px 10px; letter-spacing: 1px; display: block; margin-bottom: 4px; }
+.date-badge { font-size: 10px; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.5); border-radius: 20px; padding: 3px 10px; display: block; }
+
+.section-label { font-size: 10px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; margin-top: 14px; }
+
+/* STAR MAP */
+.starmap-wrap { background: #000; border-radius: 16px; overflow: hidden; position: relative; margin-bottom: 4px; border: 1px solid rgba(255,255,255,0.08); }
+#starmap { width: 100%; height: 300px; }
+.starmap-label { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); font-size: 10px; color: rgba(255,255,255,0.3); letter-spacing: 1px; text-transform: uppercase; pointer-events: none; }
+.starmap-hint { font-size: 10px; color: rgba(255,255,255,0.25); text-align: center; margin-bottom: 12px; font-style: italic; }
+
+/* ISS CARD */
+.iss-card { background: rgba(74,234,255,0.08); border-radius: 14px; padding: 12px 14px; margin-bottom: 8px; border: 1px solid rgba(74,234,255,0.2); }
+.iss-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.iss-title { font-size: 13px; font-weight: 700; color: #4aeaff; }
+.iss-badge { font-size: 9px; background: rgba(74,234,255,0.2); color: #4aeaff; border-radius: 20px; padding: 2px 8px; letter-spacing: 1px; font-weight: 700; }
+.iss-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.iss-stat { text-align: center; background: rgba(0,0,0,0.25); border-radius: 8px; padding: 8px 4px; }
+.iss-stat-val { font-size: 15px; font-weight: 800; color: #fff; }
+.iss-stat-lbl { font-size: 9px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+.iss-note { font-size: 10px; color: rgba(74,234,255,0.5); text-align: center; margin-top: 8px; font-style: italic; }
+
+/* MOON CARD */
+.moon-card { background: rgba(255,230,100,0.06); border-radius: 14px; padding: 12px 14px; margin-bottom: 8px; border: 1px solid rgba(255,230,100,0.15); display: flex; align-items: center; gap: 14px; }
+.moon-visual { width: 44px; height: 44px; border-radius: 50%; background: #0d0d1a; border: 2px solid rgba(255,230,100,0.3); position: relative; overflow: hidden; flex-shrink: 0; }
+.moon-lit { position: absolute; top: 0; right: 0; height: 100%; background: #ffe566; border-radius: 0 22px 22px 0; transition: width 1s ease; }
+.moon-info { flex: 1; }
+.moon-name { font-size: 14px; font-weight: 700; color: #ffe566; margin-bottom: 3px; }
+.moon-detail { font-size: 11px; color: rgba(255,230,100,0.5); line-height: 1.5; }
+.moon-pct { font-size: 24px; font-weight: 800; color: #ffe566; }
+
+/* TIPS */
+.tips-card { background: rgba(255,255,255,0.04); border-radius: 14px; padding: 12px 14px; border: 1px solid rgba(255,255,255,0.07); }
+.tip-row { display: flex; align-items: flex-start; gap: 10px; padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.tip-row:last-child { border-bottom: none; padding-bottom: 0; }
+.tip-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+.tip-text { font-size: 12px; color: rgba(255,255,255,0.6); line-height: 1.5; }
+.tip-bold { color: #e8f4ff; font-weight: 600; }
+
+.stellarium-btn { display: block; text-align: center; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 13px; margin-top: 10px; color: #a8d4ff; font-size: 12px; font-weight: 600; text-decoration: none; letter-spacing: 1px; cursor: pointer; }
+.stellarium-btn:hover { background: rgba(255,255,255,0.1); }
+
+.noaa-note { margin-top: 10px; font-size: 9px; color: rgba(255,255,255,0.2); text-align: center; }
+
+@keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.live-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #4aeaff; margin-right: 4px; animation: pulse-dot 1.5s infinite; vertical-align: middle; }
+</style>
+</head>
+<body>
+<div class="widget">
+
+  <div class="header">
+    <div class="header-title">✦ Destin Night Sky Guide</div>
+    <div class="header-right">
+      <span class="badge" id="badge"><span class="live-dot"></span>LIVE</span>
+      <span class="date-badge" id="date-badge">Pelican Beach Resort</span>
+    </div>
+  </div>
+
+  <!-- STAR MAP -->
+  <div class="section-label">Live sky map — facing south toward the Gulf</div>
+  <div class="starmap-wrap">
+    <div id="starmap"></div>
+    <div class="starmap-label">← Drag to rotate · Scroll to zoom →</div>
+  </div>
+  <div class="starmap-hint">Drag the map to match what you see from your balcony</div>
+
+  <!-- ISS -->
+  <div class="section-label">🛸 International Space Station</div>
+  <div class="iss-card">
+    <div class="iss-header">
+      <div class="iss-title">Next pass over Pelican Beach</div>
+      <div class="iss-badge" id="iss-badge">LOADING</div>
+    </div>
+    <div class="iss-grid">
+      <div class="iss-stat"><div class="iss-stat-val" id="iss-time">--:--</div><div class="iss-stat-lbl">Visible at</div></div>
+      <div class="iss-stat"><div class="iss-stat-val" id="iss-duration">-- min</div><div class="iss-stat-lbl">Duration</div></div>
+      <div class="iss-stat"><div class="iss-stat-val" id="iss-dir">--</div><div class="iss-stat-lbl">Direction</div></div>
+    </div>
+    <div class="iss-note" id="iss-note">Loading ISS pass data from NASA...</div>
+  </div>
+
+  <!-- MOON -->
+  <div class="section-label">🌕 Moon tonight</div>
+  <div class="moon-card">
+    <div class="moon-visual"><div class="moon-lit" id="moon-lit" style="width:0%"></div></div>
+    <div class="moon-info">
+      <div class="moon-name" id="moon-phase">Loading...</div>
+      <div class="moon-detail" id="moon-detail">Fetching moon data...</div>
+    </div>
+    <div class="moon-pct" id="moon-pct">--%</div>
+  </div>
+
+  <!-- TIPS -->
+  <div class="section-label">👁️ What you can actually see from your balcony</div>
+  <div class="tips-card">
+    <div class="tip-row">
+      <div class="tip-icon">🛸</div>
+      <div class="tip-text"><span class="tip-bold">ISS</span> — brightest moving object in the sky. Looks like a fast white star with no flashing lights. Unmistakable.</div>
+    </div>
+    <div class="tip-row">
+      <div class="tip-icon">🌕</div>
+      <div class="tip-text"><span class="tip-bold">Moon</span> — always visible when above horizon. Spectacular over the Gulf from your balcony.</div>
+    </div>
+    <div class="tip-row">
+      <div class="tip-icon">⭐</div>
+      <div class="tip-text"><span class="tip-bold">Bright stars</span> — Sirius (brightest star), Orion's belt in winter, Scorpius in summer. Use the map above to identify them.</div>
+    </div>
+    <div class="tip-row">
+      <div class="tip-icon">💡</div>
+      <div class="tip-text"><span class="tip-bold">Tip</span> — let your eyes adjust for 10 minutes away from your phone screen. You'll see 10x more stars.</div>
+    </div>
+  </div>
+
+  <a class="stellarium-btn" href="https://stellarium-web.org/?lat=30.3763&lng=-86.4958" target="_blank">
+    ✦ Open Full AR Star Map in Stellarium →
+  </a>
+
+  <div class="noaa-note">Star map pre-set to Pelican Beach Resort, Destin FL · lat 30.3763, lng -86.4958</div>
+
+</div>
+
+<!-- VirtualSky from CDN -->
+<script src="https://cdn.jsdelivr.net/gh/slowe/VirtualSky@master/virtualsky.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+<script>
+
+// Update badge with current time
+function updateBadge() {
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/Chicago' });
+  const dateStr = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'America/Chicago' });
+  document.getElementById('badge').innerHTML = '<span class="live-dot"></span>' + timeStr;
+  document.getElementById('date-badge').textContent = dateStr + ' · Destin FL';
+}
+
+// Init VirtualSky after jQuery loads
+function initSky() {
+  if (typeof $ === 'undefined') { setTimeout(initSky, 200); return; }
+  if (typeof $.virtualsky === 'undefined') { setTimeout(initSky, 200); return; }
+
+  $.virtualsky({
+    id: 'starmap',
+    projection: 'stereo',
+    latitude: 30.3763,
+    longitude: -86.4958,
+    az: 180,           // face south toward Gulf
+    live: true,        // real time updates
+    constellations: true,
+    constellationlabels: true,
+    showplanets: true,
+    showplanetlabels: true,
+    showmoon: true,
+    showgalaxy: true,
+    meteorshowers: true,
+    showstarlabels: false,
+    ground: true,
+    gradient: true,
+    cardinalpoints: true,
+    magnitude: 5,
+    background: 'rgb(6,13,26)',
+    color: 'rgb(200,220,255)',
+    fontsize: '11px'
+  });
+}
+
+// Fetch moon phase from Open-Meteo
+async function fetchMoon() {
+  try {
+    const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=30.3763&longitude=-86.4958&daily=sunrise,sunset&timezone=America%2FChicago&forecast_days=1');
+    const data = await res.json();
+
+    // Calculate moon phase using simple algorithm
+    const now = new Date();
+    const known = new Date('2000-01-06T18:14:00Z'); // known new moon
+    const synodic = 29.53058867;
+    const diff = (now - known) / (1000 * 60 * 60 * 24);
+    const phase = ((diff % synodic) + synodic) % synodic;
+    const pct = Math.round((phase / synodic) * 100);
+    const illum = Math.round(50 * (1 - Math.cos(2 * Math.PI * phase / synodic)));
+
+    let phaseName, emoji;
+    if (phase < 1.85) { phaseName = 'New Moon'; emoji = '🌑'; }
+    else if (phase < 7.38) { phaseName = 'Waxing Crescent'; emoji = '🌒'; }
+    else if (phase < 9.22) { phaseName = 'First Quarter'; emoji = '🌓'; }
+    else if (phase < 14.77) { phaseName = 'Waxing Gibbous'; emoji = '🌔'; }
+    else if (phase < 16.61) { phaseName = 'Full Moon'; emoji = '🌕'; }
+    else if (phase < 22.15) { phaseName = 'Waning Gibbous'; emoji = '🌖'; }
+    else if (phase < 23.99) { phaseName = 'Last Quarter'; emoji = '🌗'; }
+    else if (phase < 29.53) { phaseName = 'Waning Crescent'; emoji = '🌘'; }
+    else { phaseName = 'New Moon'; emoji = '🌑'; }
+
+    document.getElementById('moon-phase').textContent = emoji + ' ' + phaseName;
+    document.getElementById('moon-pct').textContent = illum + '%';
+    document.getElementById('moon-lit').style.width = illum + '%';
+
+    if (data.daily?.sunrise?.[0] && data.daily?.sunset?.[0]) {
+      const sunrise = new Date(data.daily.sunrise[0]).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/Chicago' });
+      const sunset = new Date(data.daily.sunset[0]).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/Chicago' });
+      document.getElementById('moon-detail').textContent = illum + '% illuminated · Sunset ' + sunset + ' · Sunrise ' + sunrise;
+    }
+  } catch(e) {
+    document.getElementById('moon-phase').textContent = 'Moon data unavailable';
+  }
+}
+
+// Fetch ISS next pass from NASA Spot the Station RSS via CORS proxy
+async function fetchISS() {
+  try {
+    // Use wheretheiss.at for current position + calculate next visible pass
+    const res = await fetch('https://api.wheretheiss.at/v1/satellites/25544');
+    const data = await res.json();
+
+    const lat = data.latitude.toFixed(1);
+    const lng = data.longitude.toFixed(1);
+    const alt = Math.round(data.altitude);
+    const vel = Math.round(data.velocity);
+
+    document.getElementById('iss-badge').textContent = 'LIVE TRACKING';
+    document.getElementById('iss-time').textContent = lat + '°';
+    document.getElementById('iss-duration').textContent = alt + ' mi';
+    document.getElementById('iss-dir').textContent = vel.toLocaleString() + ' mph';
+    document.getElementById('iss-stat-lbl-0').textContent && null;
+
+    // Update labels for live tracking mode
+    const labels = document.querySelectorAll('.iss-stat-lbl');
+    if (labels[0]) labels[0].textContent = 'Latitude now';
+    if (labels[1]) labels[1].textContent = 'Altitude';
+    if (labels[2]) labels[2].textContent = 'Speed';
+
+    document.getElementById('iss-note').innerHTML =
+      'ISS is live over ' + lat + '°N, ' + Math.abs(lng) + (lng < 0 ? '°W' : '°E') +
+      ' · <a href="https://spotthestation.nasa.gov/sightings/view.cfm?country=United_States&region=Florida&city=Fort_Walton_Beach" target="_blank" style="color:#4aeaff">Check next Destin pass →</a>';
+
+  } catch(e) {
+    document.getElementById('iss-note').innerHTML =
+      '<a href="https://spotthestation.nasa.gov/sightings/view.cfm?country=United_States&region=Florida&city=Fort_Walton_Beach" target="_blank" style="color:#4aeaff">Check NASA for next ISS pass over Destin →</a>';
+    document.getElementById('iss-badge').textContent = 'NASA DATA';
+    document.getElementById('iss-time').textContent = '--';
+    document.getElementById('iss-duration').textContent = '--';
+    document.getElementById('iss-dir').textContent = '--';
+  }
+}
+
+// Boot
+updateBadge();
+setInterval(updateBadge, 60000);
+fetchMoon();
+fetchISS();
+setInterval(fetchISS, 30000);
+setTimeout(initSky, 500);
+
+</script>
+</body>
+</html>

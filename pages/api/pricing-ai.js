@@ -63,6 +63,23 @@ Problem accounts: ${r.problemAccounts||'None identified'}
 
 Tone: direct but constructive — coaching not punishing.`;
 
+
+  } else if (mode === 'approval') {
+    const a = approval;
+    userPrompt = `You are the Global Pricing Lead at Comply365 reviewing a pending discount approval.
+
+Deal: ${a.company} | ${a.ind} | ${a.seg} | ${a.reg}
+Rep: ${a.rep} | Discount requested: ${a.disc}% | ARR: ${a.arr} | Term: ${a.term} year(s)
+Modules: ${a.modules} | Approval gate: ${a.step} | Pending: ${a.age}
+Reason given by rep: ${a.reason || 'None provided'}
+Segment avg discount: ${a.avgDisc}% | Segment avg NRR: ${a.avgNRR}%
+
+Give a 3-part approval recommendation:
+1. VERDICT: Approve, Request Justification, or Reject — and why in one sentence. Be direct.
+2. RISK ASSESSMENT: Is this discount justified given the segment benchmarks? What does the ${a.disc}% vs ${a.avgDisc}% avg tell you? What's the ARR and margin impact?
+3. QUESTIONS FOR THE REP: 2-3 specific questions the Pricing Lead should ask ${a.rep} before making a final decision. Make them pointed and commercial.
+
+Tone: internal Pricing Lead review — direct, data-driven, no fluff.`;
   } else {
     // Target new logo
     userPrompt = `Price a new logo deal at Comply365.

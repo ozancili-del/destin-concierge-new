@@ -1,57 +1,76 @@
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { mode, target, comparables, customer, peers, deal } = req.body;
+  const { mode, target, comparables, customer, peers, deal, leakage, rep } = req.body;
 
-  const systemPrompt = `You are the Global Pricing Lead at Comply365, an enterprise SaaS platform for aviation, defense, rail, and space compliance. You are a value-based pricing expert who helps Sales win on outcomes, not price. You are direct, specific, and commercial. You name accounts. You never hedge. Every recommendation is actionable.`;
+  const systemPrompt = `You are the Global Pricing Lead at Comply365, an enterprise SaaS platform for aviation, defense, rail, and space compliance. You combine deal desk rigour with CFO-level commercial instincts. You are direct, specific, and actionable. You name accounts. You never hedge.`;
 
   let userPrompt = '';
 
   if (mode === 'customer') {
     const c = customer;
-    userPrompt = `Analyse this existing Comply365 customer from a pricing and commercial health perspective.
-
-Customer: ${c.name} | Industry: ${c.ind} | Segment: ${c.seg} | Region: ${c.reg}
+    userPrompt = `Analyse this existing Comply365 customer.
+Customer: ${c.name} | ${c.ind} | ${c.seg} | ${c.reg}
 ARR: ${c.arr} | NRR: ${c.nrr}% | Discount: ${c.disc}% | Health: ${c.health}/100 | LTV/CAC: ${c.ltv}x
-MINT attached: ${c.mintAttached?'Yes':'No'} | Beams attached: ${c.beamsAttached?'Yes':'No'} | Churn risk: ${c.churnRisk?'YES':'No'}
-ARR trend: ${c.arrTrend} | NRR trend: ${c.nrrTrend} | Discount trend: ${c.discTrend}
+MINT: ${c.mintAttached?'Yes':'No'} | Beams: ${c.beamsAttached?'Yes':'No'} | Churn risk: ${c.churnRisk?'YES':'No'}
+Trends: ARR ${c.arrTrend}, NRR ${c.nrrTrend}, Discount ${c.discTrend}
 Segment averages: NRR ${c.segAvgNRR}%, Discount ${c.segAvgDisc}%, Health ${c.segAvgHealth}
 Peers: ${peers}
 
-Give a structured 4-part analysis:
-1. BENCHMARK: Compare to named peers and segment averages with specific numbers.
-2. PRICING HEALTH: Is current discount justified? Are we leaving money on the table or is there churn risk?
-3. EXPANSION OPPORTUNITY: Missing modules (MINT, Beams, tier upgrade)? Specific upsell argument for their industry.
-4. RENEWAL RECOMMENDATION: Concrete action — uplift X%, hold, restructure, or at-risk flag. Give a specific number.
-
-Be direct. Name accounts. Use percentages and dollar figures.`;
+4-part analysis:
+1. BENCHMARK: Compare to named peers with specific numbers.
+2. PRICING HEALTH: Is discount justified? Leaving money on the table or churn risk?
+3. EXPANSION OPPORTUNITY: Missing modules upsell argument specific to their industry.
+4. RENEWAL RECOMMENDATION: Concrete action with specific uplift % or intervention.`;
 
   } else if (mode === 'deal') {
     const d = deal;
     userPrompt = `Build a value-based deal narrative for this Comply365 opportunity.
-
-Account: ${d.name} | Industry: ${d.ind} | Segment: ${d.seg}
+Account: ${d.name} | ${d.ind} | ${d.seg} | Deal type: ${d.dealMode}
 Users: ${d.users} | Avg salary: $${d.salary}/yr | Compliance hrs saved/user/yr: ${d.hrs} | Incidents/yr: ${d.incidents}
-Modules in deal: ${d.activeMods} | Missing modules: ${d.missing||'None'}
-Contract term: ${d.term} year(s) | Competitor: ${d.comp} | Requested discount: ${d.disc}% | Reason: ${d.reason}
+Modules: ${d.activeMods} | Missing: ${d.missing||'None'}
+Term: ${d.term}yr | Situation: ${d.comp} | Discount: ${d.disc}% | Reason: ${d.reason}
+${d.dealMode!=='new'?`Current ARR: ${d.existingARR} | Current NRR: ${d.existingNRR} | Churn risk: ${d.churnRisk}`:''}
 
-Give a 4-part deal narrative:
-1. VALUE STORY: Quantify the ROI in plain language — efficiency savings + risk reduction. Give a dollar figure the rep can say in the room.
-2. PRICE ANCHOR: How to position the price relative to the value delivered. What % of value are we capturing — and why that's fair.
-3. DISCOUNT POSITION: Is the requested discount justified? If yes, how to frame it as a commitment/partnership concession not a price cut. If no, suggest an alternative lever.
-4. PITCH ANGLE: The one sentence the rep should lead with in the meeting. Make it specific to this industry and account profile.
+4-part deal narrative:
+1. VALUE STORY: ROI in plain language with a dollar figure the rep can say in the room.
+2. PRICE ANCHOR: How to position price relative to value. What % of value are we capturing.
+3. DISCOUNT POSITION: Is the discount justified? How to frame it as commitment not price cut. If not justified, suggest alternative lever.
+4. PITCH ANGLE: One sentence the rep leads with. Specific to this industry and account.`;
 
-Be direct, specific, and commercial. Write like a deal desk expert coaching a rep before a call.`;
+  } else if (mode === 'leakage') {
+    const l = leakage;
+    userPrompt = `Analyse this pricing leakage driver at Comply365.
+Driver: ${l.driver} | Category: ${l.category} | ARR at risk: ${l.arv} | ${l.pct}% of total leakage
+Contributing accounts: ${l.accounts}
+
+3-part analysis:
+1. ROOT CAUSE: Why is this leakage happening? What behaviour or process failure is driving it? Be specific.
+2. ACCOUNT PATTERN: What do the contributing accounts have in common? Name them.
+3. FIX RECOMMENDATION: Exactly what the Pricing Lead should do to close this leak — governance change, rep coaching, pricing model fix, or approval threshold adjustment. Give a specific action with expected ARR recovery.`;
+
+  } else if (mode === 'rep') {
+    const r = rep;
+    userPrompt = `Write a pricing coaching note for this Comply365 sales rep.
+Rep: ${r.name} | Region: ${r.reg} | Deals: ${r.deals}
+NRR: ${r.nrr}% | Avg discount: ${r.disc}% | Win rate: ${r.win}% | Quota attainment: ${r.quota}%
+Problem accounts: ${r.problemAccounts||'None identified'}
+
+3-part coaching note (write as Pricing Lead to Sales Director):
+1. ASSESSMENT: What does the data say about this rep's pricing discipline? Be direct and specific.
+2. PATTERN: What behaviour is driving the discount level or NRR performance? Name specific accounts where relevant.
+3. ACTION: Exactly what you want this rep to do differently on their next deal. One concrete, specific recommendation.
+
+Tone: direct but constructive — coaching not punishing.`;
 
   } else {
-    // Target new logo mode
+    // Target new logo
     userPrompt = `Price a new logo deal at Comply365.
-
 Target: ${target.name} | ${target.ind} | ${target.seg} | ${target.reg} | ${target.emp.toLocaleString()} employees | Revenue ${target.rev}
 Pain: ${target.pain} | Fit score: ${target.fit}%
-Comparable portfolio customers: ${comparables}
+Comparable customers: ${comparables}
 
-Give a 5-sentence pricing approach:
+5-sentence pricing approach:
 1. Recommended entry tier and price anchor
 2. Discount strategy and walk-away floor
 3. Value metrics to lead with

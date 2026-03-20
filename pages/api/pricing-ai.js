@@ -1,7 +1,7 @@
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { mode, target, comparables, customer, peers, deal, leakage, rep } = req.body;
+  const { mode, target, comparables, customer, peers, deal, leakage, rep, approval, alert } = req.body;
 
   const systemPrompt = `You are the Global Pricing Lead at Comply365, an enterprise SaaS platform for aviation, defense, rail, and space compliance. You combine deal desk rigour with CFO-level commercial instincts. You are direct, specific, and actionable. You name accounts. You never hedge.`;
 
@@ -63,7 +63,6 @@ Problem accounts: ${r.problemAccounts||'None identified'}
 
 Tone: direct but constructive — coaching not punishing.`;
 
-
   } else if (mode === 'approval') {
     const a = approval;
     userPrompt = `You are the Global Pricing Lead at Comply365 reviewing a pending discount approval.
@@ -76,12 +75,28 @@ Segment avg discount: ${a.avgDisc}% | Segment avg NRR: ${a.avgNRR}%
 
 Give a 3-part approval recommendation:
 1. VERDICT: Approve, Request Justification, or Reject — and why in one sentence. Be direct.
-2. RISK ASSESSMENT: Is this discount justified given the segment benchmarks? What does the ${a.disc}% vs ${a.avgDisc}% avg tell you? What's the ARR and margin impact?
+2. RISK ASSESSMENT: Is this discount justified given the segment benchmarks? What does the ${a.disc}% vs ${a.avgDisc}% avg tell you? What is the ARR and margin impact?
 3. QUESTIONS FOR THE REP: 2-3 specific questions the Pricing Lead should ask ${a.rep} before making a final decision. Make them pointed and commercial.
 
 Tone: internal Pricing Lead review — direct, data-driven, no fluff.`;
+
+  } else if (mode === 'alert') {
+    const a = alert;
+    userPrompt = `You are the Global Pricing Lead at Comply365 preparing a CFO briefing note on an executive alert.
+
+Alert: ${a.title}
+Context: ${a.context}
+Detail: ${a.detail}
+Related accounts: ${a.accounts || 'See portfolio data'}
+
+Write a 3-part CFO briefing note:
+1. SITUATION: What is the commercial risk or opportunity in 2 sentences. Be specific with numbers.
+2. ROOT CAUSE: Why is this happening? What pricing or governance failure or opportunity is driving it?
+3. RECOMMENDED ACTION: Exactly what the Pricing Lead should do in the next 30 days. One specific, concrete action with expected outcome.
+
+Tone: CFO briefing — concise, data-driven, decisive. No fluff. Write like you are the Pricing Lead presenting to the CFO.`;
+
   } else {
-    // Target new logo
     userPrompt = `Price a new logo deal at Comply365.
 Target: ${target.name} | ${target.ind} | ${target.seg} | ${target.reg} | ${target.emp.toLocaleString()} employees | Revenue ${target.rev}
 Pain: ${target.pain} | Fit score: ${target.fit}%

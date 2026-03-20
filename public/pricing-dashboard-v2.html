@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,122 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Comply365 · Pricing Intelligence Platform</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Figtree:wght@300;400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js">
-// ── APPROVAL OVERLAY ──────────────────────────────────────────────────────
-
-
-const APPROVAL_STEPS = {
-  'Pricing Lead': {step:3, pct:'21–25%', color:'var(--amber)', desc:'Value justification memo + NPV impact model required. SLA 1 business day.'},
-  'CFO Review':   {step:4, pct:'26–30%', color:'var(--red)',   desc:'Competitor intelligence + LTV model required. SLA 2 business days.'},
-  'CEO Exception':{step:5, pct:'>30%',   color:'#c0293a',      desc:'Strategic exception only. Formal business case. Board notification for deals >$500K ARR.'},
-};
-
-let currentApproval = null;
-
-function openApprovalOverlay(idx) {
-  const d = PENDING_DEALS[idx];
-  currentApproval = d;
-
-  document.getElementById('appr-ov-title').textContent = d.co;
-  document.getElementById('appr-ov-meta').textContent = `${d.rep} · ${d.ind} · ${d.seg} · ${d.reg} · Pending ${d.age}`;
-
-  // KPI strip
-  const stepInfo = APPROVAL_STEPS[d.step] || APPROVAL_STEPS['Pricing Lead'];
-  document.getElementById('appr-ov-kpis').innerHTML = `
-    <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--border)">
-      <div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">Discount</div>
-      <div style="font-size:22px;font-weight:700;color:${d.disc>=28?'var(--red)':'var(--amber)'}">${d.disc}%</div>
-    </div>
-    <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--border)">
-      <div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">ARR</div>
-      <div style="font-size:22px;font-weight:700;color:var(--text)">${d.arr}</div>
-    </div>
-    <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--border)">
-      <div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">Term</div>
-      <div style="font-size:22px;font-weight:700;color:var(--text)">${d.term}yr</div>
-    </div>
-    <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--border)">
-      <div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">Approval step</div>
-      <div style="font-size:14px;font-weight:700;color:${stepInfo.color};margin-top:4px">${d.step}</div>
-    </div>`;
-
-  // Approval ladder
-  const segPeers = COMPANIES.filter(c => c.ind === d.ind && c.seg === d.seg);
-  const avgDisc = segPeers.length ? Math.round(segPeers.reduce((s,c)=>s+c.disc,0)/segPeers.length*10)/10 : 'N/A';
-  const avgNRR  = segPeers.length ? Math.round(segPeers.reduce((s,c)=>s+c.nrr,0)/segPeers.length) : 'N/A';
-  const aboveAvg = typeof avgDisc === 'number' ? d.disc - avgDisc : 0;
-
-  document.getElementById('appr-ov-ladder').innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
-      <div>
-        <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px">Current gate</div>
-        <div style="font-size:14px;font-weight:600;color:${stepInfo.color}">${d.step} · ${stepInfo.pct}</div>
-        <div style="font-size:11px;color:var(--text2);margin-top:4px">${stepInfo.desc}</div>
-      </div>
-      <div style="text-align:right">
-        <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px">vs segment avg</div>
-        <div style="font-size:20px;font-weight:700;color:var(--red)">+${aboveAvg.toFixed(1)}pp</div>
-        <div style="font-size:10.5px;color:var(--text3)">${d.ind} ${d.seg} avg: ${avgDisc}%</div>
-      </div>
-    </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <div style="font-size:11px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;color:var(--text2)">Modules: <strong style="color:var(--text)">${d.modules}</strong></div>
-      <div style="font-size:11px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;color:var(--text2)">Rep: <strong style="color:var(--text)">${d.rep}</strong></div>
-      <div style="font-size:11px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;color:var(--text2)">Reason given: <strong style="color:${d.reason==='none'?'var(--red)':'var(--text)'}\">${d.reason||'⚠ None provided'}</strong></div>
-    </div>`;
-
-  // Reset AI
-  document.getElementById('appr-ai-out').innerHTML = '<span class="ai-placeholder">Click Generate for approval recommendation and rep questions.</span>';
-  document.getElementById('appr-ai-btn').disabled = false;
-  document.getElementById('appr-ai-btn').textContent = 'Generate ↗';
-
-  document.getElementById('approval-overlay').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-
-function closeApprovalOverlay() {
-  document.getElementById('approval-overlay').classList.remove('open');
-  document.body.style.overflow = '';
-}
-document.getElementById('approval-overlay').addEventListener('click', function(e) {
-  if (e.target === this) closeApprovalOverlay();
-});
-
-async function runApprovalAI() {
-  const d = currentApproval; if (!d) return;
-  const btn = document.getElementById('appr-ai-btn');
-  const out = document.getElementById('appr-ai-out');
-  btn.disabled = true; btn.textContent = 'Generating…';
-  out.innerHTML = '<span class="ai-placeholder">⚡ Analysing deal…</span>';
-
-  const segPeers = COMPANIES.filter(c => c.ind === d.ind && c.seg === d.seg);
-  const avgDisc = segPeers.length ? Math.round(segPeers.reduce((s,c)=>s+c.disc,0)/segPeers.length*10)/10 : 18;
-  const avgNRR  = segPeers.length ? Math.round(segPeers.reduce((s,c)=>s+c.nrr,0)/segPeers.length) : 110;
-
-  try {
-    const res = await fetch('/api/pricing-ai', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({
-        mode: 'approval',
-        approval: {
-          company: d.co, rep: d.rep, disc: d.disc, arr: d.arr,
-          ind: d.ind, seg: d.seg, reg: d.reg, step: d.step,
-          modules: d.modules, term: d.term, reason: d.reason,
-          age: d.age, avgDisc, avgNRR
-        }
-      })
-    });
-    const data = await res.json();
-    if (data.error) throw new Error(data.error);
-    out.innerHTML = `<div class="ai-glow-badge">GPT-4o</div><span class="ai-response-text">${data.result.replace(/\n/g,'<br>')}</span>`;
-  } catch(e) {
-    out.innerHTML = `<span style="color:var(--red)">Error: ${e.message}</span>`;
-  }
-  btn.disabled = false; btn.textContent = 'Re-generate ↗';
-}
-
-</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
 
 :root{--bg:#0d0f14;--bg2:#13161e;--bg3:#1a1e28;--bg4:#20253200;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);--text:#e8eaf0;--text2:#8b90a0;--text3:#4a4f62;--accent:#4f8ef7;--accent2:#7c5cfc;--green:#2ecc8f;--red:#e85d6a;--amber:#f5a623;--teal:#2dd4bf;--fd:′DM Serif Display′,serif;--fb:′Figtree′,sans-serif;--fm:′DM Mono′,monospace}
@@ -282,7 +168,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
 .sec.active{animation:fadeUp .25s ease forwards}
 
 /* ── CUSTOMER MODAL ─────────────────────────────────────────────────────── */
-.cust-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.cust-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:1000;display:none;visibility:hidden;pointer-events:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
 .cust-overlay.open{display:flex}
 .cust-modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:1100px;max-height:90vh;overflow-y:auto;position:relative;animation:fadeUp .2s ease}
 .cust-modal-header{padding:20px 24px 0;display:flex;justify-content:space-between;align-items:flex-start;position:sticky;top:0;background:var(--bg2);z-index:10;border-bottom:1px solid var(--border);padding-bottom:16px}
@@ -318,7 +204,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
 
 
 /* LEAKAGE + REP OVERLAYS */
-.ov2-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.ov2-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:1000;display:none;visibility:hidden;pointer-events:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
 .ov2-overlay.open{display:flex}
 .ov2-modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:860px;max-height:88vh;overflow-y:auto;position:relative;animation:fadeUp .2s ease}
 .ov2-header{padding:20px 24px 16px;display:flex;justify-content:space-between;align-items:flex-start;position:sticky;top:0;background:var(--bg2);z-index:10;border-bottom:1px solid var(--border)}
@@ -334,8 +220,8 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
 
 
 /* OVERLAYS */
-.cust-overlay,.ov2-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
-.cust-overlay.open,.ov2-overlay.open{display:flex}
+.cust-overlay,.ov2-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:1000;display:none;visibility:hidden;pointer-events:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.cust-overlay.open,.ov2-overlay.open{display:flex;visibility:visible;pointer-events:auto}
 .cust-modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:1100px;max-height:90vh;overflow-y:auto;position:relative;animation:fadeUp .2s ease}
 .ov2-modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:860px;max-height:88vh;overflow-y:auto;position:relative;animation:fadeUp .2s ease}
 .cust-modal-header,.ov2-header{padding:20px 24px 16px;display:flex;justify-content:space-between;align-items:flex-start;position:sticky;top:0;background:var(--bg2);z-index:10;border-bottom:1px solid var(--border)}
@@ -1972,7 +1858,7 @@ function closeModal(){
   Object.values(modalCharts).forEach(ch=>ch&&ch.destroy());
   modalCharts={};
 }
-document.getElementById('cust-overlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
+(function(){const el=document.getElementById('cust-overlay');if(el)el.addEventListener('click',function(e){if(e.target===this)closeModal();});})();
 
 async function runModalAI(){
   const c=modalCustomer;if(!c)return;
@@ -2039,7 +1925,7 @@ function closeLeakOverlay(){
   document.body.style.overflow='';
   if(leakChart){leakChart.destroy();leakChart=null;}
 }
-document.getElementById('leak-overlay').addEventListener('click',function(e){if(e.target===this)closeLeakOverlay();});
+(function(){const el=document.getElementById('leak-overlay');if(el)el.addEventListener('click',function(e){if(e.target===this)closeLeakOverlay();});})();
 
 async function runLeakAI(){
   const d=currentLeakDriver;if(!d)return;
@@ -2093,7 +1979,7 @@ function closeRepOverlay(){
   document.getElementById('rep-overlay').classList.remove('open');
   document.body.style.overflow='';
 }
-document.getElementById('rep-overlay').addEventListener('click',function(e){if(e.target===this)closeRepOverlay();});
+(function(){const el=document.getElementById('rep-overlay');if(el)el.addEventListener('click',function(e){if(e.target===this)closeRepOverlay();});})();
 
 async function runRepAI(){
   const r=currentRepData;if(!r)return;
@@ -2207,6 +2093,120 @@ document.getElementById('period-sel').addEventListener('change',function(){updat
 calcDeal();
 renderTable();
 
+
+// ── APPROVAL OVERLAY ──────────────────────────────────────────────────────
+
+
+const APPROVAL_STEPS = {
+  'Pricing Lead': {step:3, pct:'21–25%', color:'var(--amber)', desc:'Value justification memo + NPV impact model required. SLA 1 business day.'},
+  'CFO Review':   {step:4, pct:'26–30%', color:'var(--red)',   desc:'Competitor intelligence + LTV model required. SLA 2 business days.'},
+  'CEO Exception':{step:5, pct:'>30%',   color:'#c0293a',      desc:'Strategic exception only. Formal business case. Board notification for deals >$500K ARR.'},
+};
+
+let currentApproval = null;
+
+function openApprovalOverlay(idx) {
+  const d = PENDING_DEALS[idx];
+  currentApproval = d;
+
+  document.getElementById('appr-ov-title').textContent = d.co;
+  document.getElementById('appr-ov-meta').textContent = `${d.rep} · ${d.ind} · ${d.seg} · ${d.reg} · Pending ${d.age}`;
+
+  // KPI strip
+  const stepInfo = APPROVAL_STEPS[d.step] || APPROVAL_STEPS['Pricing Lead'];
+  document.getElementById('appr-ov-kpis').innerHTML = `
+    <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--border)">
+      <div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">Discount</div>
+      <div style="font-size:22px;font-weight:700;color:${d.disc>=28?'var(--red)':'var(--amber)'}">${d.disc}%</div>
+    </div>
+    <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--border)">
+      <div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">ARR</div>
+      <div style="font-size:22px;font-weight:700;color:var(--text)">${d.arr}</div>
+    </div>
+    <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--border)">
+      <div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">Term</div>
+      <div style="font-size:22px;font-weight:700;color:var(--text)">${d.term}yr</div>
+    </div>
+    <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--border)">
+      <div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">Approval step</div>
+      <div style="font-size:14px;font-weight:700;color:${stepInfo.color};margin-top:4px">${d.step}</div>
+    </div>`;
+
+  // Approval ladder
+  const segPeers = COMPANIES.filter(c => c.ind === d.ind && c.seg === d.seg);
+  const avgDisc = segPeers.length ? Math.round(segPeers.reduce((s,c)=>s+c.disc,0)/segPeers.length*10)/10 : 'N/A';
+  const avgNRR  = segPeers.length ? Math.round(segPeers.reduce((s,c)=>s+c.nrr,0)/segPeers.length) : 'N/A';
+  const aboveAvg = typeof avgDisc === 'number' ? d.disc - avgDisc : 0;
+
+  document.getElementById('appr-ov-ladder').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+      <div>
+        <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px">Current gate</div>
+        <div style="font-size:14px;font-weight:600;color:${stepInfo.color}">${d.step} · ${stepInfo.pct}</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:4px">${stepInfo.desc}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px">vs segment avg</div>
+        <div style="font-size:20px;font-weight:700;color:var(--red)">+${aboveAvg.toFixed(1)}pp</div>
+        <div style="font-size:10.5px;color:var(--text3)">${d.ind} ${d.seg} avg: ${avgDisc}%</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <div style="font-size:11px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;color:var(--text2)">Modules: <strong style="color:var(--text)">${d.modules}</strong></div>
+      <div style="font-size:11px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;color:var(--text2)">Rep: <strong style="color:var(--text)">${d.rep}</strong></div>
+      <div style="font-size:11px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;color:var(--text2)">Reason given: <strong style="color:${d.reason==='none'?'var(--red)':'var(--text)'}\">${d.reason||'⚠ None provided'}</strong></div>
+    </div>`;
+
+  // Reset AI
+  document.getElementById('appr-ai-out').innerHTML = '<span class="ai-placeholder">Click Generate for approval recommendation and rep questions.</span>';
+  document.getElementById('appr-ai-btn').disabled = false;
+  document.getElementById('appr-ai-btn').textContent = 'Generate ↗';
+
+  document.getElementById('approval-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeApprovalOverlay() {
+  document.getElementById('approval-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.getElementById('approval-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeApprovalOverlay();
+});
+
+async function runApprovalAI() {
+  const d = currentApproval; if (!d) return;
+  const btn = document.getElementById('appr-ai-btn');
+  const out = document.getElementById('appr-ai-out');
+  btn.disabled = true; btn.textContent = 'Generating…';
+  out.innerHTML = '<span class="ai-placeholder">⚡ Analysing deal…</span>';
+
+  const segPeers = COMPANIES.filter(c => c.ind === d.ind && c.seg === d.seg);
+  const avgDisc = segPeers.length ? Math.round(segPeers.reduce((s,c)=>s+c.disc,0)/segPeers.length*10)/10 : 18;
+  const avgNRR  = segPeers.length ? Math.round(segPeers.reduce((s,c)=>s+c.nrr,0)/segPeers.length) : 110;
+
+  try {
+    const res = await fetch('/api/pricing-ai', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        mode: 'approval',
+        approval: {
+          company: d.co, rep: d.rep, disc: d.disc, arr: d.arr,
+          ind: d.ind, seg: d.seg, reg: d.reg, step: d.step,
+          modules: d.modules, term: d.term, reason: d.reason,
+          age: d.age, avgDisc, avgNRR
+        }
+      })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    out.innerHTML = `<div class="ai-glow-badge">GPT-4o</div><span class="ai-response-text">${data.result.replace(/\n/g,'<br>')}</span>`;
+  } catch(e) {
+    out.innerHTML = `<span style="color:var(--red)">Error: ${e.message}</span>`;
+  }
+  btn.disabled = false; btn.textContent = 'Re-generate ↗';
+}
 </script>
 
 <!-- ══ APPROVAL OVERLAY ══════════════════════════════════════════════════ -->

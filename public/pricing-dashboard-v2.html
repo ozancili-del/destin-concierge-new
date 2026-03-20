@@ -6,7 +6,122 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Comply365 · Pricing Intelligence Platform</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Figtree:wght@300;400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js">
+// ── APPROVAL OVERLAY ──────────────────────────────────────────────────────
+
+
+const APPROVAL_STEPS = {
+  'Pricing Lead': {step:3, pct:'21–25%', color:'var(--amber)', desc:'Value justification memo + NPV impact model required. SLA 1 business day.'},
+  'CFO Review':   {step:4, pct:'26–30%', color:'var(--red)',   desc:'Competitor intelligence + LTV model required. SLA 2 business days.'},
+  'CEO Exception':{step:5, pct:'>30%',   color:'#c0293a',      desc:'Strategic exception only. Formal business case. Board notification for deals >$500K ARR.'},
+};
+
+let currentApproval = null;
+
+function openApprovalOverlay(idx) {
+  const d = PENDING_DEALS[idx];
+  currentApproval = d;
+
+  document.getElementById('appr-ov-title').textContent = d.co;
+  document.getElementById('appr-ov-meta').textContent = `${d.rep} · ${d.ind} · ${d.seg} · ${d.reg} · Pending ${d.age}`;
+
+  // KPI strip
+  const stepInfo = APPROVAL_STEPS[d.step] || APPROVAL_STEPS['Pricing Lead'];
+  document.getElementById('appr-ov-kpis').innerHTML = `
+    <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--border)">
+      <div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">Discount</div>
+      <div style="font-size:22px;font-weight:700;color:${d.disc>=28?'var(--red)':'var(--amber)'}">${d.disc}%</div>
+    </div>
+    <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--border)">
+      <div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">ARR</div>
+      <div style="font-size:22px;font-weight:700;color:var(--text)">${d.arr}</div>
+    </div>
+    <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--border)">
+      <div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">Term</div>
+      <div style="font-size:22px;font-weight:700;color:var(--text)">${d.term}yr</div>
+    </div>
+    <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--border)">
+      <div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">Approval step</div>
+      <div style="font-size:14px;font-weight:700;color:${stepInfo.color};margin-top:4px">${d.step}</div>
+    </div>`;
+
+  // Approval ladder
+  const segPeers = COMPANIES.filter(c => c.ind === d.ind && c.seg === d.seg);
+  const avgDisc = segPeers.length ? Math.round(segPeers.reduce((s,c)=>s+c.disc,0)/segPeers.length*10)/10 : 'N/A';
+  const avgNRR  = segPeers.length ? Math.round(segPeers.reduce((s,c)=>s+c.nrr,0)/segPeers.length) : 'N/A';
+  const aboveAvg = typeof avgDisc === 'number' ? d.disc - avgDisc : 0;
+
+  document.getElementById('appr-ov-ladder').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+      <div>
+        <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px">Current gate</div>
+        <div style="font-size:14px;font-weight:600;color:${stepInfo.color}">${d.step} · ${stepInfo.pct}</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:4px">${stepInfo.desc}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px">vs segment avg</div>
+        <div style="font-size:20px;font-weight:700;color:var(--red)">+${aboveAvg.toFixed(1)}pp</div>
+        <div style="font-size:10.5px;color:var(--text3)">${d.ind} ${d.seg} avg: ${avgDisc}%</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <div style="font-size:11px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;color:var(--text2)">Modules: <strong style="color:var(--text)">${d.modules}</strong></div>
+      <div style="font-size:11px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;color:var(--text2)">Rep: <strong style="color:var(--text)">${d.rep}</strong></div>
+      <div style="font-size:11px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;color:var(--text2)">Reason given: <strong style="color:${d.reason==='none'?'var(--red)':'var(--text)'}\">${d.reason||'⚠ None provided'}</strong></div>
+    </div>`;
+
+  // Reset AI
+  document.getElementById('appr-ai-out').innerHTML = '<span class="ai-placeholder">Click Generate for approval recommendation and rep questions.</span>';
+  document.getElementById('appr-ai-btn').disabled = false;
+  document.getElementById('appr-ai-btn').textContent = 'Generate ↗';
+
+  document.getElementById('approval-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeApprovalOverlay() {
+  document.getElementById('approval-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.getElementById('approval-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeApprovalOverlay();
+});
+
+async function runApprovalAI() {
+  const d = currentApproval; if (!d) return;
+  const btn = document.getElementById('appr-ai-btn');
+  const out = document.getElementById('appr-ai-out');
+  btn.disabled = true; btn.textContent = 'Generating…';
+  out.innerHTML = '<span class="ai-placeholder">⚡ Analysing deal…</span>';
+
+  const segPeers = COMPANIES.filter(c => c.ind === d.ind && c.seg === d.seg);
+  const avgDisc = segPeers.length ? Math.round(segPeers.reduce((s,c)=>s+c.disc,0)/segPeers.length*10)/10 : 18;
+  const avgNRR  = segPeers.length ? Math.round(segPeers.reduce((s,c)=>s+c.nrr,0)/segPeers.length) : 110;
+
+  try {
+    const res = await fetch('/api/pricing-ai', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        mode: 'approval',
+        approval: {
+          company: d.co, rep: d.rep, disc: d.disc, arr: d.arr,
+          ind: d.ind, seg: d.seg, reg: d.reg, step: d.step,
+          modules: d.modules, term: d.term, reason: d.reason,
+          age: d.age, avgDisc, avgNRR
+        }
+      })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    out.innerHTML = `<div class="ai-glow-badge">GPT-4o</div><span class="ai-response-text">${data.result.replace(/\n/g,'<br>')}</span>`;
+  } catch(e) {
+    out.innerHTML = `<span style="color:var(--red)">Error: ${e.message}</span>`;
+  }
+  btn.disabled = false; btn.textContent = 'Re-generate ↗';
+}
+
+</script>
 <style>
 
 :root{--bg:#0d0f14;--bg2:#13161e;--bg3:#1a1e28;--bg4:#20253200;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);--text:#e8eaf0;--text2:#8b90a0;--text3:#4a4f62;--accent:#4f8ef7;--accent2:#7c5cfc;--green:#2ecc8f;--red:#e85d6a;--amber:#f5a623;--teal:#2dd4bf;--fd:′DM Serif Display′,serif;--fb:′Figtree′,sans-serif;--fm:′DM Mono′,monospace}
@@ -985,6 +1100,14 @@ const LEAKAGE_DRIVERS=[
   {driver:'Other / unclassified',arv:'$60K',pct:3,cat:'Other'},
 ];
 
+const PENDING_DEALS = [
+  {co:'Lufthansa Systems', disc:31, arr:'$420K', arrVal:420000, rep:'Sarah O.', step:'CEO Exception', age:'3d', ind:'Aviation', seg:'Enterprise', reg:'EMEA', modules:'OCM + Safety + MINT', term:2, reason:'Strategic account'},
+  {co:'NATO SafetyHub',    disc:28, arr:'$680K', arrVal:680000, rep:'Luca B.',  step:'CFO Review',   age:'1d', ind:'Defense',  seg:'Strategic',  reg:'EMEA', modules:'Full Platform', term:3, reason:'Multi-year commitment'},
+  {co:'Delta Ops Tech',   disc:27, arr:'$310K', arrVal:310000, rep:'James R.', step:'CFO Review',   age:'2d', ind:'Aviation', seg:'Enterprise', reg:'North America', modules:'OCM + Safety', term:2, reason:'Competitive displacement'},
+  {co:'SingaporeAir Tech',disc:24, arr:'$180K', arrVal:180000, rep:'Chen W.',  step:'Pricing Lead', age:'4h', ind:'Aviation', seg:'Mid-Market',  reg:'APAC', modules:'OCM + Safety + Quality', term:1, reason:'Budget constraint'},
+  {co:'Amtrak Compliance',disc:22, arr:'$240K', arrVal:240000, rep:'Amy K.',   step:'Pricing Lead', age:'6h', ind:'Rail',     seg:'Enterprise', reg:'North America', modules:'OCM + MINT', term:2, reason:'Expansion deal'},
+];
+
 // ── HELPERS ────────────────────────────────────────────────────────────────
 const HC={Aviation:'#4f8ef7',Defense:'#f5a623',Rail:'#2dd4bf',Space:'#7c5cfc'};
 const SC={'SMB':'b-smb','Mid-Market':'b-mid','Enterprise':'b-ent','Strategic':'b-str'};
@@ -1245,18 +1368,15 @@ function filterTable(q){renderTable(q);}
 // ── PENDING APPROVALS ─────────────────────────────────────────────────────
 (()=>{
   const el=document.getElementById('pending-list');if(!el)return;
-  const pending=[
-    {co:'Lufthansa Systems',disc:31,arr:'$420K',rep:'Sarah O.',step:'CEO Exception',age:'3d'},
-    {co:'NATO SafetyHub',disc:28,arr:'$680K',rep:'Luca B.',step:'CFO Review',age:'1d'},
-    {co:'Delta Ops Tech',disc:27,arr:'$310K',rep:'James R.',step:'CFO Review',age:'2d'},
-    {co:'SingaporeAir Tech',disc:24,arr:'$180K',rep:'Chen W.',step:'Pricing Lead',age:'4h'},
-    {co:'Amtrak Compliance',disc:22,arr:'$240K',rep:'Amy K.',step:'Pricing Lead',age:'6h'},
-  ];
-  el.innerHTML=pending.map(p=>`
-    <div style="display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid var(--border)">
-      <div style="flex:1"><div style="font-size:12px;font-weight:500;color:var(--text)">${p.co}</div><div style="font-size:10px;color:var(--text3)">${p.rep} · ${p.arr} ARR · ${p.age} ago</div></div>
+  el.innerHTML=PENDING_DEALS.map((p,i)=>`
+    <div onclick="openApprovalOverlay(${i})" style="display:flex;align-items:center;gap:9px;padding:8px 6px;border-bottom:1px solid var(--border);cursor:pointer;border-radius:6px;transition:background .12s" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background='transparent'">
+      <div style="flex:1">
+        <div style="font-size:12px;font-weight:500;color:var(--text)">${p.co}</div>
+        <div style="font-size:10px;color:var(--text3)">${p.rep} · ${p.arr} ARR · ${p.age} ago</div>
+      </div>
       <div style="font-family:'DM Mono',monospace;font-size:12px;color:${p.disc>=28?'var(--red)':'var(--amber)'}">${p.disc}%</div>
       <div style="font-size:9.5px;background:rgba(245,166,35,.1);color:var(--amber);padding:2px 7px;border-radius:4px;font-family:'DM Mono',monospace">${p.step}</div>
+      <div style="font-size:10px;color:var(--text3)">↗</div>
     </div>`).join('');
 })();
 
@@ -2088,5 +2208,47 @@ calcDeal();
 renderTable();
 
 </script>
+
+<!-- ══ APPROVAL OVERLAY ══════════════════════════════════════════════════ -->
+<div class="ov2-overlay" id="approval-overlay">
+  <div class="ov2-modal" style="max-width:700px">
+    <div class="ov2-header">
+      <div>
+        <div style="font-family:'DM Serif Display',serif;font-size:18px;color:var(--text)" id="appr-ov-title">Pending Approval</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:3px" id="appr-ov-meta"></div>
+      </div>
+      <button class="ov2-close" onclick="closeApprovalOverlay()">✕</button>
+    </div>
+    <div class="ov2-body">
+      <!-- Deal snapshot -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px" id="appr-ov-kpis"></div>
+
+      <!-- Approval ladder position -->
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:14px;margin-bottom:14px" id="appr-ov-ladder"></div>
+
+      <!-- AI recommendation -->
+      <div class="ov2-ai-panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <div class="ai-section-title">AI Approval Recommendation</div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="ai-powered-badge">Powered by GPT-4o</span>
+            <button onclick="runApprovalAI()" id="appr-ai-btn" style="padding:5px 12px;background:rgba(79,142,247,.12);border:1px solid rgba(79,142,247,.3);border-radius:6px;color:var(--accent);font-size:11.5px;cursor:pointer;font-family:'Figtree',sans-serif">Generate ↗</button>
+          </div>
+        </div>
+        <div id="appr-ai-out" class="ai-glow-box">
+          <span class="ai-placeholder">Click Generate for approval recommendation and rep questions.</span>
+        </div>
+      </div>
+
+      <!-- Action buttons -->
+      <div style="display:flex;gap:10px;margin-top:14px">
+        <div style="flex:1;padding:10px;background:rgba(46,204,143,.08);border:1px solid rgba(46,204,143,.25);border-radius:8px;text-align:center;cursor:pointer;font-size:13px;font-weight:500;color:var(--green);transition:all .15s" onmouseover="this.style.background='rgba(46,204,143,.15)'" onmouseout="this.style.background='rgba(46,204,143,.08)'">✓ Approve</div>
+        <div style="flex:1;padding:10px;background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.25);border-radius:8px;text-align:center;cursor:pointer;font-size:13px;font-weight:500;color:var(--amber);transition:all .15s" onmouseover="this.style.background='rgba(245,166,35,.15)'" onmouseout="this.style.background='rgba(245,166,35,.08)'">↩ Request Justification</div>
+        <div style="flex:1;padding:10px;background:rgba(232,93,106,.08);border:1px solid rgba(232,93,106,.25);border-radius:8px;text-align:center;cursor:pointer;font-size:13px;font-weight:500;color:var(--red);transition:all .15s" onmouseover="this.style.background='rgba(232,93,106,.15)'" onmouseout="this.style.background='rgba(232,93,106,.08)'">✕ Reject</div>
+      </div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

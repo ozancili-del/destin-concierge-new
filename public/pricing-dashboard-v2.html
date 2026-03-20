@@ -822,8 +822,6 @@ mkChart('c-rep-scatter','scatter',{
   datasets:REPS.map(r=>({label:r.name,data:[{x:r.disc,y:r.win}],backgroundColor:r.color,pointRadius:8,pointHoverRadius:10}))
 },{plugins:{legend:{display:true,labels:{color:'#8b90a0',font:{size:10},boxWidth:8,padding:8}},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.parsed.x}% disc · ${c.parsed.y}% win`}}},scales:{x:{title:{display:true,text:'Avg discount %',color:'#4a4f62',font:{size:10}},ticks:{...TX,callback:v=>v+'%'},grid:GS},y:{title:{display:true,text:'Win rate %',color:'#4a4f62',font:{size:10}},ticks:{...TX,callback:v=>v+'%'},grid:GS}}});
 
-// renderTable defined in modal JS block below
-function filterTable(q){renderTable(q)}
 
 
 // ── PRICE BOOK ────────────────────────────────────────────────────────────
@@ -1234,7 +1232,6 @@ function renderTable(q=''){
 
 // init deal modeler
 calcDeal();
-renderTable();
 
 // ── PERIOD SELECTOR ───────────────────────────────────────────────────────
 const PERIOD_DATA = {
@@ -1376,6 +1373,12 @@ document.querySelectorAll('.fp').forEach(el => {
     }
   });
 });
+
+// wire search input
+function filterTable(q){ renderTable(q); }
+
+// init — fires last, after openModal and renderTable are both defined
+renderTable();
 
 </script>
 

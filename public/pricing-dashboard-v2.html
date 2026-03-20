@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Figtree:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
+
 :root{--bg:#0d0f14;--bg2:#13161e;--bg3:#1a1e28;--bg4:#20253200;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);--text:#e8eaf0;--text2:#8b90a0;--text3:#4a4f62;--accent:#4f8ef7;--accent2:#7c5cfc;--green:#2ecc8f;--red:#e85d6a;--amber:#f5a623;--teal:#2dd4bf;--fd:′DM Serif Display′,serif;--fb:′Figtree′,sans-serif;--fm:′DM Mono′,monospace}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-serif;font-size:14px;min-height:100vh;overflow-x:hidden}
@@ -216,12 +216,154 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
 .rep-row{cursor:pointer;transition:background .12s;border-radius:6px}
 .rep-row:hover{background:var(--bg3)}
 
+
+
+/* OVERLAYS */
+.cust-overlay,.ov2-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.cust-overlay.open,.ov2-overlay.open{display:flex}
+.cust-modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:1100px;max-height:90vh;overflow-y:auto;position:relative;animation:fadeUp .2s ease}
+.ov2-modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:860px;max-height:88vh;overflow-y:auto;position:relative;animation:fadeUp .2s ease}
+.cust-modal-header,.ov2-header{padding:20px 24px 16px;display:flex;justify-content:space-between;align-items:flex-start;position:sticky;top:0;background:var(--bg2);z-index:10;border-bottom:1px solid var(--border)}
+.cust-modal-close,.ov2-close{width:28px;height:28px;border-radius:6px;background:var(--bg3);border:1px solid var(--border);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .15s}
+.cust-modal-close:hover,.ov2-close:hover{background:rgba(232,93,106,.15);border-color:var(--red);color:var(--red)}
+.cust-modal-body{padding:20px 24px 24px;display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.cust-modal-full{grid-column:1/-1}
+.ov2-body{padding:20px 24px 24px}
+.ov2-ai-panel{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px;margin-top:14px}
+.cust-section-lbl{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px}
+.cust-stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+.cust-stat{background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--border)}
+.cust-stat-val{font-size:18px;font-weight:600;color:var(--text);line-height:1;margin-bottom:2px}
+.cust-stat-lbl{font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px}
+.cust-stat-vs{font-size:10px;margin-top:3px}
+.vs-good{color:var(--green)}.vs-bad{color:var(--red)}.vs-flat{color:var(--text3)}
+.cust-chart-wrap{background:var(--bg3);border-radius:10px;padding:14px;border:1px solid var(--border)}
+.cust-chart-title{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px}
+.ai-panel{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:16px}
+.ai-panel-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.ai-generate-btn{padding:6px 14px;background:rgba(79,142,247,.12);border:1px solid rgba(79,142,247,.3);border-radius:6px;color:var(--accent);font-size:12px;cursor:pointer;font-family:'Figtree',sans-serif;transition:all .2s}
+.ai-generate-btn:hover{background:rgba(79,142,247,.2)}
+.ai-result{font-size:12px;color:var(--text2);line-height:1.75;min-height:120px}
+.peer-tag{display:inline-block;font-size:10px;padding:2px 8px;border-radius:4px;font-family:'DM Mono',monospace;margin:2px 2px 2px 0}
+.tag-above{background:rgba(46,204,143,.1);color:var(--green)}
+.tag-below{background:rgba(232,93,106,.1);color:var(--red)}
+.tag-peer{background:rgba(79,142,247,.1);color:var(--accent)}
+/* DEAL MODELER */
+.dm-mode-btn{padding:6px 16px;border-radius:6px;border:1px solid var(--border);color:var(--text2);font-size:12px;cursor:pointer;transition:all .15s;user-select:none}
+.dm-mode-btn:hover{border-color:var(--accent);color:var(--accent)}
+.dm-mode-btn.active{background:rgba(79,142,247,.12);border-color:var(--accent);color:var(--accent);font-weight:500}
+
 </style>
 </head>
 <body>
-<div class="app">
 
-<!-- ══ SIDEBAR ══════════════════════════════════════════════════════ -->
+<!-- ══ CUSTOMER MODAL ═══════════════════════════════════════════════════ -->
+<div class="cust-overlay" id="cust-overlay">
+  <div class="cust-modal" id="cust-modal">
+    <div class="cust-modal-header">
+      <div>
+        <div style="font-family:'DM Serif Display',serif;font-size:20px;color:var(--text)" id="cm-name">—</div>
+        <div style="font-size:11.5px;color:var(--text3);margin-top:3px" id="cm-meta">—</div>
+      </div>
+      <button class="cust-modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="cust-modal-body">
+      <div class="cust-modal-full">
+        <div class="cust-section-lbl">Current Performance</div>
+        <div class="cust-stat-grid" id="cm-stats"></div>
+      </div>
+      <div>
+        <div class="cust-chart-wrap" style="margin-bottom:12px"><div class="cust-chart-title">ARR ($K) — 6 Quarters</div><div style="position:relative;height:110px"><canvas id="cm-arr-chart"></canvas></div></div>
+        <div class="cust-chart-wrap" style="margin-bottom:12px"><div class="cust-chart-title">NRR (%) — 6 Quarters</div><div style="position:relative;height:110px"><canvas id="cm-nrr-chart"></canvas></div></div>
+        <div class="cust-chart-wrap"><div class="cust-chart-title">Discount (%) — 6 Quarters</div><div style="position:relative;height:110px"><canvas id="cm-disc-chart"></canvas></div></div>
+      </div>
+      <div>
+        <div class="cust-chart-wrap" style="margin-bottom:12px"><div class="cust-chart-title">Health Score — 6 Quarters</div><div style="position:relative;height:110px"><canvas id="cm-health-chart"></canvas></div></div>
+        <div class="cust-chart-wrap" style="margin-bottom:12px">
+          <div class="cust-section-lbl" style="margin-bottom:8px">Segment Peers</div>
+          <div id="cm-peers" style="font-size:12px"></div>
+        </div>
+        <div class="ai-panel">
+          <div class="ai-panel-header">
+            <div class="cust-section-lbl" style="margin-bottom:0">AI Deal Desk Analysis</div>
+            <button class="ai-generate-btn" id="ai-modal-btn" onclick="runModalAI()">Generate ↗</button>
+          </div>
+          <div class="ai-result" id="cm-ai-out"><span style="color:var(--text3);font-family:'DM Mono',monospace;font-size:11px">← Select an account to begin</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ LEAKAGE OVERLAY ═══════════════════════════════════════════════════ -->
+<div class="ov2-overlay" id="leak-overlay">
+  <div class="ov2-modal">
+    <div class="ov2-header">
+      <div>
+        <div style="font-family:'DM Serif Display',serif;font-size:18px;color:var(--text)" id="leak-ov-title">Leakage Driver</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:3px" id="leak-ov-meta"></div>
+      </div>
+      <button class="ov2-close" onclick="closeLeakOverlay()">✕</button>
+    </div>
+    <div class="ov2-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+        <div>
+          <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px">Contributing Accounts</div>
+          <div id="leak-ov-accounts"></div>
+        </div>
+        <div>
+          <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px">Leakage Breakdown</div>
+          <div style="position:relative;height:200px"><canvas id="leak-ov-chart"></canvas></div>
+        </div>
+      </div>
+      <div class="ov2-ai-panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px">AI Root Cause & Fix</div>
+          <button onclick="runLeakAI()" id="leak-ai-btn" style="padding:5px 12px;background:rgba(79,142,247,.12);border:1px solid rgba(79,142,247,.3);border-radius:6px;color:var(--accent);font-size:11.5px;cursor:pointer;font-family:'Figtree',sans-serif">Generate ↗</button>
+        </div>
+        <div id="leak-ai-out" style="font-size:12px;color:var(--text2);line-height:1.75;min-height:80px"><span style="color:var(--text3);font-family:'DM Mono',monospace;font-size:11px">Click Generate for root cause analysis and fix.</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ REP OVERLAY ════════════════════════════════════════════════════════ -->
+<div class="ov2-overlay" id="rep-overlay">
+  <div class="ov2-modal">
+    <div class="ov2-header">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div id="rep-ov-avatar" class="avatar" style="width:38px;height:38px;font-size:14px"></div>
+        <div>
+          <div style="font-family:'DM Serif Display',serif;font-size:18px;color:var(--text)" id="rep-ov-name"></div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px" id="rep-ov-meta"></div>
+        </div>
+      </div>
+      <button class="ov2-close" onclick="closeRepOverlay()">✕</button>
+    </div>
+    <div class="ov2-body">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px" id="rep-ov-kpis"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+        <div>
+          <div style="font-size:10px;color:var(--green);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px">✓ Strong Accounts</div>
+          <div id="rep-ov-good"></div>
+        </div>
+        <div>
+          <div style="font-size:10px;color:var(--red);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px">⚠ Needs Attention</div>
+          <div id="rep-ov-bad"></div>
+        </div>
+      </div>
+      <div class="ov2-ai-panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px">AI Coaching Note</div>
+          <button onclick="runRepAI()" id="rep-ai-btn" style="padding:5px 12px;background:rgba(79,142,247,.12);border:1px solid rgba(79,142,247,.3);border-radius:6px;color:var(--accent);font-size:11.5px;cursor:pointer;font-family:'Figtree',sans-serif">Generate ↗</button>
+        </div>
+        <div id="rep-ai-out" style="font-size:12px;color:var(--text2);line-height:1.75;min-height:80px"><span style="color:var(--text3);font-family:'DM Mono',monospace;font-size:11px">Click Generate for pricing coaching note.</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="app">
 <aside class="sidebar">
   <div class="logo">
     <div class="logo-mark">Comply365</div>
@@ -275,7 +417,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
 
 </aside>
 
-<!-- ══ MAIN ═══════════════════════════════════════════════════════════ -->
+
 <div class="main">
   <header class="topbar">
     <div class="page-title" id="page-title">Executive Summary</div>
@@ -295,9 +437,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
       </select>
     </div>
   </header>
-
   <div class="content">
-
   <!-- ══ EXECUTIVE SUMMARY ══════════════════════════════════════════ -->
   <section class="sec active" id="sec-exec">
     <div class="section-header">
@@ -347,6 +487,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
     </div>
   </section>
 
+  
   <!-- ══ HEALTH SCORECARD ══════════════════════════════════════════ -->
   <section class="sec" id="sec-scorecard">
     <div class="section-header"><div class="section-title">Health Scorecard</div><div class="section-sub">Pricing performance across all dimensions · 100 active accounts</div></div>
@@ -370,6 +511,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
     <div class="card"><div class="ch" style="margin-bottom:10px"><div class="ct">Top Leakage Drivers</div></div><div class="cb" style="padding-top:0" id="leakage-drivers"></div></div>
   </section>
 
+  
   <!-- ══ PORTFOLIO ════════════════════════════════════════════════ -->
   <section class="sec" id="sec-portfolio">
     <div class="section-header"><div class="section-title">Customer Portfolio</div><div class="section-sub">100 accounts · aviation, defense, rail & space · MINT and Beams acquisition cohorts included</div></div>
@@ -395,6 +537,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
     </div>
   </section>
 
+  
   <!-- ══ TARGETS ══════════════════════════════════════════════════ -->
   <section class="sec" id="sec-targets">
     <div class="section-header"><div class="section-title">Target Accounts</div><div class="section-sub">20 prospects benchmarked against portfolio · GPT-4o pricing approach recommendations</div></div>
@@ -413,6 +556,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
     </div>
   </section>
 
+  
   <!-- ══ PRICE BOOK ════════════════════════════════════════════════ -->
   <section class="sec" id="sec-pricebook">
     <div class="section-header"><div class="section-title">Price Book</div><div class="section-sub">Authoritative list prices, floor prices, and discount ceilings · Q1 2026</div></div>
@@ -437,6 +581,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
     </div>
   </section>
 
+  
   <!-- ══ PRICING CONTROLS ═════════════════════════════════════════ -->
   <section class="sec" id="sec-controls">
     <div class="section-header"><div class="section-title">Pricing Controls</div><div class="section-sub">Governance health, exception tracking, and guardrail performance</div></div>
@@ -467,6 +612,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
     </div>
   </section>
 
+  
   <!-- ══ DISCOUNT WORKFLOW ════════════════════════════════════════ -->
   <section class="sec" id="sec-approval">
     <div class="section-header"><div class="section-title">Discount Approval Workflow</div><div class="section-sub">Governance thresholds, pending queue, and SLA performance</div></div>
@@ -494,6 +640,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
     </div>
   </section>
 
+  
   <!-- ══ DEAL MODELER ══════════════════════════════════════════════ -->
   <section class="sec" id="sec-dealmodel">
     <div class="section-header">
@@ -635,6 +782,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
     </div>
   </section>
 
+  
   <!-- ══ PACKAGING ════════════════════════════════════════════════ -->
   <section class="sec" id="sec-packaging">
     <div class="section-header"><div class="section-title">Packaging & Pricing Tiers</div><div class="section-sub">Current architecture · MINT & Beams post-acquisition integration</div></div>
@@ -656,6 +804,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
     </div>
   </section>
 
+  
   <!-- ══ REPS ══════════════════════════════════════════════════════ -->
   <section class="sec" id="sec-reps">
     <div class="section-header"><div class="section-title">Rep Performance</div><div class="section-sub">Pricing discipline and commercial effectiveness by rep</div></div>
@@ -671,86 +820,13 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
     </div>
   </section>
 
-  </div><!-- /content -->
-</div><!-- /main -->
-</div><!-- /app -->
-
-<!-- ══ LEAKAGE OVERLAY ════════════════════════════════════════════════════ -->
-<div class="ov2-overlay" id="leak-overlay">
-  <div class="ov2-modal">
-    <div class="ov2-header">
-      <div>
-        <div style="font-family:'DM Serif Display',serif;font-size:18px;color:var(--text)" id="leak-ov-title">Leakage Driver</div>
-        <div style="font-size:11px;color:var(--text3);margin-top:3px" id="leak-ov-meta"></div>
-      </div>
-      <button class="ov2-close" onclick="closeLeakOverlay()">✕</button>
-    </div>
-    <div class="ov2-body">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
-        <div>
-          <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px">Contributing Accounts</div>
-          <div id="leak-ov-accounts"></div>
-        </div>
-        <div>
-          <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px">Leakage Breakdown</div>
-          <div style="position:relative;height:200px"><canvas id="leak-ov-chart"></canvas></div>
-        </div>
-      </div>
-      <div class="ov2-ai-panel">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-          <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px">AI Root Cause & Fix</div>
-          <button onclick="runLeakAI()" id="leak-ai-btn" style="padding:5px 12px;background:rgba(79,142,247,.12);border:1px solid rgba(79,142,247,.3);border-radius:6px;color:var(--accent);font-size:11.5px;cursor:pointer;font-family:'Figtree',sans-serif">Generate ↗</button>
-        </div>
-        <div id="leak-ai-out" style="font-size:12px;color:var(--text2);line-height:1.75;min-height:80px">
-          <span style="color:var(--text3);font-family:'DM Mono',monospace;font-size:11px">Click Generate for root cause analysis and recommended fix.</span>
-        </div>
-      </div>
-    </div>
+  
   </div>
 </div>
-
-<!-- ══ REP OVERLAY ════════════════════════════════════════════════════════ -->
-<div class="ov2-overlay" id="rep-overlay">
-  <div class="ov2-modal">
-    <div class="ov2-header">
-      <div style="display:flex;align-items:center;gap:12px">
-        <div id="rep-ov-avatar" class="avatar" style="width:38px;height:38px;font-size:14px"></div>
-        <div>
-          <div style="font-family:'DM Serif Display',serif;font-size:18px;color:var(--text)" id="rep-ov-name"></div>
-          <div style="font-size:11px;color:var(--text3);margin-top:2px" id="rep-ov-meta"></div>
-        </div>
-      </div>
-      <button class="ov2-close" onclick="closeRepOverlay()">✕</button>
-    </div>
-    <div class="ov2-body">
-      <!-- Rep KPIs -->
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px" id="rep-ov-kpis"></div>
-      <!-- Accounts split -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
-        <div>
-          <div style="font-size:10px;color:var(--green);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px">✓ Strong Accounts</div>
-          <div id="rep-ov-good"></div>
-        </div>
-        <div>
-          <div style="font-size:10px;color:var(--red);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px">⚠ Needs Attention</div>
-          <div id="rep-ov-bad"></div>
-        </div>
-      </div>
-      <div class="ov2-ai-panel">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-          <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px">AI Coaching Note</div>
-          <button onclick="runRepAI()" id="rep-ai-btn" style="padding:5px 12px;background:rgba(79,142,247,.12);border:1px solid rgba(79,142,247,.3);border-radius:6px;color:var(--accent);font-size:11.5px;cursor:pointer;font-family:'Figtree',sans-serif">Generate ↗</button>
-        </div>
-        <div id="rep-ai-out" style="font-size:12px;color:var(--text2);line-height:1.75;min-height:80px">
-          <span style="color:var(--text3);font-family:'DM Mono',monospace;font-size:11px">Click Generate for pricing coaching note for this rep.</span>
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
-
 <script>
-// ── DATA ENGINE ────────────────────────────────────────────────────────────
+
+// ── DATA ENGINE ───────────────────────────────────────────────────────────
 function rng(seed){let s=seed;return()=>{s=(s*9301+49297)%233280;return s/233280}}
 const R=rng(42);
 
@@ -841,6 +917,8 @@ function fmt(n){return n>=1e6?'$'+(n/1e6).toFixed(1)+'M':'$'+(n/1000).toFixed(0)
 function hc(s){return s>=75?'#2ecc8f':s>=55?'#f5a623':'#e85d6a'}
 function pctBar(pct,color){return`<div style="flex:1;height:4px;background:var(--border);border-radius:2px"><div style="height:4px;width:${pct}%;background:${color};border-radius:2px"></div></div>`}
 
+
+
 // ── NAVIGATION ────────────────────────────────────────────────────────────
 const TITLES={exec:'Executive Summary',scorecard:'Health Scorecard',portfolio:'Customer Portfolio',targets:'Target Accounts',pricebook:'Price Book',controls:'Pricing Controls',approval:'Discount Approval Workflow',dealmodel:'Deal Modeler',packaging:'Packaging & Tiers',reps:'Rep Performance'};
 document.querySelectorAll('.ni').forEach(el=>{
@@ -851,18 +929,16 @@ document.querySelectorAll('.ni').forEach(el=>{
     document.getElementById('sec-'+sec).classList.add('active');
     el.classList.add('active');
     document.getElementById('page-title').textContent=TITLES[sec]||sec;
-    if(sec==='dealmodel')calcDeal();
-    if(sec==='portfolio')renderTable();
+    if(sec==='dealmodel') calcDeal();
+    if(sec==='portfolio') renderTable();
   });
 });
-
 
 document.querySelectorAll('.fp').forEach(el=>{
   el.addEventListener('click',()=>{
     document.querySelectorAll('.fp').forEach(f=>f.classList.remove('active'));
     el.classList.add('active');
     currentSeg=el.dataset.seg;
-    // navigate to portfolio if not already there
     const activeSec=document.querySelector('.sec.active');
     if(activeSec&&activeSec.id!=='sec-portfolio'){
       document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
@@ -1032,6 +1108,29 @@ mkChart('c-rep-scatter','scatter',{
 
 
 
+// ── PORTFOLIO TABLE ───────────────────────────────────────────────────────
+function renderTable(q=''){
+  const b=document.getElementById('ptbody');if(!b)return;
+  let cos=COMPANIES.filter(c=>{
+    if(currentSeg!=='all'){const sm=currentSeg==='mid'?'Mid-Market':currentSeg==='strat'?'Strategic':currentSeg==='ent'?'Enterprise':'SMB';if(c.seg!==sm)return false;}
+    if(q&&!c.name.toLowerCase().includes(q.toLowerCase()))return false;
+    return true;
+  });
+  b.innerHTML=cos.slice(0,50).map(c=>`<tr onclick="openModal(${c.id})" style="cursor:pointer">
+    <td style="color:var(--text);font-weight:500">${c.name}${c.mintEl?' <span style="font-size:9px;background:rgba(45,212,191,.1);color:#2dd4bf;padding:1px 5px;border-radius:3px">MINT</span>':''}${c.churnRisk?' <span style="font-size:9px;background:rgba(232,93,106,.1);color:#e85d6a;padding:1px 5px;border-radius:3px">At Risk</span>':''}</td>
+    <td><span style="width:7px;height:7px;border-radius:50%;background:${HC[c.ind]};display:inline-block;margin-right:4px"></span>${c.ind}</td>
+    <td><span class="badge ${SC[c.seg]}">${c.seg}</span></td>
+    <td style="font-family:'DM Mono',monospace">${fmt(c.arr)}</td>
+    <td style="font-family:'DM Mono',monospace;color:${c.nrr>=110?'var(--green)':c.nrr>=100?'var(--text)':'var(--red)'}">${c.nrr}%</td>
+    <td style="font-family:'DM Mono',monospace;color:var(--text2)">${fmt(c.listPrice)}</td>
+    <td style="font-family:'DM Mono',monospace;color:${c.arr/c.listPrice>0.82?'var(--green)':c.arr/c.listPrice>0.72?'var(--amber)':'var(--red)'}">${Math.round(c.arr/c.listPrice*100)}%</td>
+    <td style="font-family:'DM Mono',monospace;color:${c.disc>22?'var(--red)':c.disc>15?'var(--amber)':'var(--text)'}">${c.disc}%</td>
+    <td style="font-family:'DM Mono',monospace;color:var(--text2)">${c.ltv}x</td>
+    <td><div style="display:flex;align-items:center;gap:6px"><span style="font-family:'DM Mono',monospace;font-size:11px;color:${hc(c.health)};width:22px">${c.health}</span>${pctBar(c.health,hc(c.health))}</div></td>
+  </tr>`).join('');
+}
+function filterTable(q){renderTable(q);}
+
 // ── PRICE BOOK ────────────────────────────────────────────────────────────
 (()=>{
   const el=document.getElementById('pricebook-rows');if(!el)return;
@@ -1050,21 +1149,21 @@ mkChart('c-rep-scatter','scatter',{
   const el1=document.getElementById('leakage-drivers');
   const el2=document.getElementById('leakage-detail');
   const rows=LEAKAGE_DRIVERS.map((d,i)=>`
-    <div class="leak-row" onclick="openLeakOverlay(${i})" title="Click to explore">
+    <div class="leak-row" onclick="openLeakOverlay(${i})" title="Click to explore" style="display:flex;align-items:center;gap:10px;padding:8px 6px;border-bottom:1px solid var(--border);cursor:pointer;border-radius:6px;transition:background .12s" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background='transparent'">
       <div style="width:18px;font-size:10px;color:var(--text3);font-family:'DM Mono',monospace">${i+1}</div>
       <div style="flex:1"><div style="font-size:12.5px;color:var(--text);font-weight:500">${d.driver}</div><div style="font-size:10.5px;color:var(--text3);margin-top:1px">${d.cat}</div></div>
       <div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--red);min-width:60px;text-align:right">${d.arv}</div>
       <div style="min-width:120px">${pctBar(d.pct*3,i<3?'var(--red)':'var(--amber)')}</div>
       <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);min-width:30px;text-align:right">${d.pct}%</div>
-      <div style="font-size:9px;color:var(--text3);margin-left:6px">↗</div>
+      <div style="font-size:9px;color:var(--text3)">↗</div>
     </div>`).join('');
   if(el1)el1.innerHTML=rows;
   if(el2)el2.innerHTML=LEAKAGE_DRIVERS.slice(0,6).map((d,i)=>`
-    <div style="background:var(--bg3);border-radius:8px;padding:12px 14px;cursor:pointer;transition:border .15s;border:1px solid var(--border)" onclick="openLeakOverlay(${i})" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+    <div onclick="openLeakOverlay(${i})" style="background:var(--bg3);border-radius:8px;padding:12px 14px;cursor:pointer;border:1px solid var(--border);transition:border-color .15s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
       <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;margin-bottom:5px">${d.cat}</div>
       <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px">${d.driver}</div>
       <div style="font-size:18px;font-weight:600;color:var(--red);font-family:'DM Mono',monospace">${d.arv}</div>
-      <div style="font-size:10.5px;color:var(--text3);margin-top:2px">${d.pct}% of total leakage · click to explore ↗</div>
+      <div style="font-size:10.5px;color:var(--text3);margin-top:2px">${d.pct}% of total · click to explore ↗</div>
     </div>`).join('');
 })();
 
@@ -1108,20 +1207,35 @@ function selectTarget(i){
 }
 
 async function runAI(){
-  if(!selectedTarget){alert('Select a target account first.');return}
+  if(!selectedTarget){alert('Select a target account first.');return;}
   const el=document.getElementById('ai-out');
   el.innerHTML='<span style="color:var(--accent);font-family:\'DM Mono\',monospace;font-size:11px">Generating…</span>';
   const comps=COMPANIES.filter(c=>c.ind===selectedTarget.ind&&c.seg===selectedTarget.seg).slice(0,3);
-  const comparables=comps.map(c=>`ARR ${fmt(c.arr)}, NRR ${c.nrr}%, avg discount ${c.disc}%`).join('; ')||'No direct comparables in portfolio';
+  const comparables=comps.map(c=>`ARR ${fmt(c.arr)}, NRR ${c.nrr}%, avg discount ${c.disc}%`).join('; ')||'No direct comparables';
   try{
     const res=await fetch('/api/pricing-ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({target:selectedTarget,comparables})});
     const data=await res.json();
     if(data.error)throw new Error(data.error);
-    el.innerHTML=`<span class="ai-badge">GPT-4o</span><span style="color:var(--text2)">${data.result}</span>`;
-  }catch(e){el.innerHTML=`<span style="color:var(--red)">Error: ${e.message}</span>`}
+    el.innerHTML=`<span class="ai-badge">GPT-4o</span><span style="color:var(--text2)">${data.choices[0].message.content}</span>`;
+  }catch(e){el.innerHTML=`<span style="color:var(--red)">Error: ${e.message}</span>`;}
 }
 
-
+// ── REP LIST ──────────────────────────────────────────────────────────────
+(()=>{
+  const el=document.getElementById('rep-list');if(!el)return;
+  const sorted=[...REPS].sort((a,b)=>b.nrr-a.nrr);
+  el.innerHTML=sorted.map(r=>`
+    <div onclick="openRepOverlay('${r.name}')" style="display:flex;align-items:center;gap:10px;padding:9px 6px;border-bottom:1px solid var(--border);cursor:pointer;border-radius:6px;transition:background .12s" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background='transparent'">
+      <div class="avatar" style="background:${r.color}22;color:${r.color}">${r.initials}</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:500;color:var(--text)">${r.name}</div><div style="font-size:10.5px;color:var(--text3)">${r.reg}</div></div>
+      <div style="display:flex;gap:16px;text-align:right;align-items:center">
+        <div><div style="font-size:13px;font-weight:500;color:${r.nrr>=115?'var(--green)':'var(--text)'}">${r.nrr}%</div><div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace">NRR</div></div>
+        <div><div style="font-size:13px;font-weight:500;color:${r.disc>22?'var(--red)':'var(--text)'}">${r.disc}%</div><div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace">disc</div></div>
+        <div><div style="font-size:13px;font-weight:500;color:${r.quota>=100?'var(--green)':'var(--amber)'}">${r.quota}%</div><div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace">quota</div></div>
+        <div style="font-size:10px;color:var(--text3)">↗</div>
+      </div>
+    </div>`).join('');
+})();
 
 // ── DEAL MODELER (VALUE-BASED) ────────────────────────────────────────────
 const MODULE_PRICES={ocm:52000,safety:28000,quality:18000,mint:34000,beams:22000};
@@ -1593,30 +1707,216 @@ async function runDealAI(){
 }
 
 
-// ── REP LIST ──────────────────────────────────────────────────────────────
-(()=>{
-  const el=document.getElementById('rep-list');if(!el)return;
-  const sorted=[...REPS].sort((a,b)=>b.nrr-a.nrr);
-  el.innerHTML=sorted.map(r=>`
-    <div class="rep-row" onclick="openRepOverlay('${r.name}')" style="display:flex;align-items:center;gap:10px;padding:9px 6px;border-bottom:1px solid var(--border)">
-      <div class="avatar" style="background:${r.color}22;color:${r.color}">${r.initials}</div>
-      <div style="flex:1">
-        <div style="font-size:13px;font-weight:500;color:var(--text)">${r.name}</div>
-        <div style="font-size:10.5px;color:var(--text3)">${r.reg}</div>
-      </div>
-      <div style="display:flex;gap:16px;text-align:right;align-items:center">
-        <div><div style="font-size:13px;font-weight:500;color:${r.nrr>=115?'var(--green)':'var(--text)'}">${r.nrr}%</div><div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace">NRR</div></div>
-        <div><div style="font-size:13px;font-weight:500;color:${r.disc>22?'var(--red)':'var(--text)'}">${r.disc}%</div><div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace">disc</div></div>
-        <div><div style="font-size:13px;font-weight:500;color:${r.quota>=100?'var(--green)':'var(--amber)'}">${r.quota}%</div><div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace">quota</div></div>
-        <div style="font-size:10px;color:var(--text3)">↗</div>
-      </div>
-    </div>`).join('');
-})();
 
-// init deal modeler
-calcDeal();
 
-// ── PERIOD SELECTOR ───────────────────────────────────────────────────────
+// ── CUSTOMER MODAL ────────────────────────────────────────────────────────
+const LAST6=['Q2 24','Q3 24','Q4 24','Q1 25','Q2 25','Q3 25'];
+
+function custHistory(c){
+  const r=rng(c.id*137+7);
+  return{
+    arrHist:LAST6.map((_,i)=>Math.round(c.arr*(0.88+i*0.025+(r()-0.5)*0.06)/1000)),
+    nrrHist:LAST6.map(()=>Math.round(c.nrr+(r()-0.5)*12)),
+    discHist:LAST6.map(()=>Math.round((c.disc+(r()-0.5)*6)*10)/10),
+    healthHist:LAST6.map(()=>Math.round(c.health+(r()-0.5)*14))
+  };
+}
+
+function segAvg(seg,field){
+  const peers=COMPANIES.filter(c=>c.seg===seg);
+  return Math.round(peers.reduce((s,c)=>s+c[field],0)/peers.length*10)/10;
+}
+
+let modalCharts={};
+let modalCustomer=null;
+
+function openModal(id){
+  const c=COMPANIES.find(x=>x.id===id);if(!c)return;
+  modalCustomer=c;
+  document.getElementById('cm-name').textContent=c.name;
+  document.getElementById('cm-meta').textContent=`${c.ind} · ${c.seg} · ${c.reg} · Health ${c.health}/100`;
+  const avgNRR=segAvg(c.seg,'nrr'),avgDisc=segAvg(c.seg,'disc'),avgArr=segAvg(c.seg,'arr'),avgHealth=segAvg(c.seg,'health');
+  const vsSign=(val,avg,hi=true)=>{const d=Math.round((val-avg)*10)/10;const good=hi?d>=0:d<=0;const cls=d===0?'vs-flat':good?'vs-good':'vs-bad';return`<span class="${cls}">${d>0?'+':''}${d} vs seg avg</span>`;};
+  document.getElementById('cm-stats').innerHTML=`
+    <div class="cust-stat"><div class="cust-stat-val">$${(c.arr/1000).toFixed(0)}K</div><div class="cust-stat-lbl">Current ARR</div><div class="cust-stat-vs">${vsSign(c.arr,avgArr)}</div></div>
+    <div class="cust-stat"><div class="cust-stat-val" style="color:${c.nrr>=110?'var(--green)':c.nrr>=100?'var(--text)':'var(--red)'}">${c.nrr}%</div><div class="cust-stat-lbl">NRR</div><div class="cust-stat-vs">${vsSign(c.nrr,avgNRR)}</div></div>
+    <div class="cust-stat"><div class="cust-stat-val" style="color:${c.disc>22?'var(--red)':c.disc>15?'var(--amber)':'var(--text)'}">${c.disc}%</div><div class="cust-stat-lbl">Discount</div><div class="cust-stat-vs">${vsSign(c.disc,avgDisc,false)}</div></div>
+    <div class="cust-stat"><div class="cust-stat-val" style="color:${c.health>=75?'var(--green)':c.health>=55?'var(--amber)':'var(--red)'}">${c.health}</div><div class="cust-stat-lbl">Health</div><div class="cust-stat-vs">${vsSign(c.health,avgHealth)}</div></div>`;
+  const peers=COMPANIES.filter(x=>x.seg===c.seg&&x.ind===c.ind&&x.id!==c.id).sort((a,b)=>b.arr-a.arr).slice(0,5);
+  document.getElementById('cm-peers').innerHTML=peers.map(p=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border)">
+      <div style="font-size:11.5px;color:var(--text);font-weight:500">${p.name}</div>
+      <div style="display:flex;gap:4px">
+        <span class="peer-tag ${p.nrr>c.nrr?'tag-above':p.nrr<c.nrr?'tag-below':'tag-peer'}">NRR ${p.nrr}%</span>
+        <span class="peer-tag ${p.disc<c.disc?'tag-above':p.disc>c.disc?'tag-below':'tag-peer'}">${p.disc}% disc</span>
+      </div>
+    </div>`).join('')||'<div style="color:var(--text3);font-size:11px">No direct peers</div>';
+  document.getElementById('cm-ai-out').innerHTML='<span style="color:var(--text3);font-family:\'DM Mono\',monospace;font-size:11px">Click Generate to analyse this account.</span>';
+  document.getElementById('ai-modal-btn').disabled=false;
+  document.getElementById('ai-modal-btn').textContent='Generate ↗';
+  Object.values(modalCharts).forEach(ch=>ch&&ch.destroy());
+  modalCharts={};
+  const h=custHistory(c);
+  const TX={color:'#4a4f62',font:{size:9}};
+  const GS2={color:'rgba(255,255,255,0.04)'};
+  const mkL=(id,data,color)=>{const el=document.getElementById(id);if(!el)return;return new Chart(el,{type:'line',data:{labels:LAST6,datasets:[{data,borderColor:color,backgroundColor:color+'18',fill:true,tension:.4,pointRadius:3,pointBackgroundColor:color}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:TX,grid:{display:false}},y:{ticks:TX,grid:GS2}}}});};
+  const mkB=(id,data,color)=>{const el=document.getElementById(id);if(!el)return;return new Chart(el,{type:'bar',data:{labels:LAST6,datasets:[{data,backgroundColor:color+'99',borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:TX,grid:{display:false}},y:{ticks:TX,grid:GS2}}}});};
+  setTimeout(()=>{
+    modalCharts.arr=mkL('cm-arr-chart',h.arrHist,'#4f8ef7');
+    modalCharts.nrr=mkL('cm-nrr-chart',h.nrrHist,'#2ecc8f');
+    modalCharts.disc=mkB('cm-disc-chart',h.discHist,'#f5a623');
+    modalCharts.health=mkL('cm-health-chart',h.healthHist,'#7c5cfc');
+  },50);
+  document.getElementById('cust-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function closeModal(){
+  document.getElementById('cust-overlay').classList.remove('open');
+  document.body.style.overflow='';
+  Object.values(modalCharts).forEach(ch=>ch&&ch.destroy());
+  modalCharts={};
+}
+document.getElementById('cust-overlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
+
+async function runModalAI(){
+  const c=modalCustomer;if(!c)return;
+  const btn=document.getElementById('ai-modal-btn');
+  const out=document.getElementById('cm-ai-out');
+  btn.disabled=true;btn.textContent='Generating…';
+  out.innerHTML='<span style="color:var(--accent);font-family:\'DM Mono\',monospace;font-size:11px">Analysing…</span>';
+  const avgNRR=segAvg(c.seg,'nrr'),avgDisc=segAvg(c.seg,'disc'),avgHealth=segAvg(c.seg,'health');
+  const peers=COMPANIES.filter(x=>x.seg===c.seg&&x.ind===c.ind&&x.id!==c.id).sort((a,b)=>b.arr-a.arr).slice(0,4);
+  const h=custHistory(c);
+  try{
+    const res=await fetch('/api/pricing-ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'customer',customer:{name:c.name,ind:c.ind,seg:c.seg,reg:c.reg,arr:`$${(c.arr/1000).toFixed(0)}K`,nrr:c.nrr,disc:c.disc,health:c.health,ltv:c.ltv,mintAttached:c.mintEl,beamsAttached:c.beamsEl,churnRisk:c.churnRisk,arrTrend:h.arrHist[5]>h.arrHist[0]?'growing':'declining',nrrTrend:h.nrrHist[5]>h.nrrHist[0]?'improving':'declining',discTrend:h.discHist[5]>h.discHist[0]?'increasing':'holding',segAvgNRR:avgNRR,segAvgDisc:avgDisc,segAvgHealth:avgHealth},peers:peers.map(p=>`${p.name} (ARR $${(p.arr/1000).toFixed(0)}K, NRR ${p.nrr}%, disc ${p.disc}%)`).join('; ')})});
+    const data=await res.json();
+    if(data.error)throw new Error(data.error);
+    out.innerHTML=`<span class="ai-badge">GPT-4o</span><br><br><span style="color:var(--text2)">${data.result.replace(/\n/g,'<br>')}</span>`;
+  }catch(e){out.innerHTML=`<span style="color:var(--red)">Error: ${e.message}</span>`;}
+  btn.disabled=false;btn.textContent='Re-generate ↗';
+}
+
+// ── LEAKAGE OVERLAY ───────────────────────────────────────────────────────
+const LEAK_FILTERS={
+  'Large enterprise discounting':  c=>(c.seg==='Enterprise'||c.seg==='Strategic')&&c.disc>22,
+  'LATAM competitive pressure':    c=>c.reg==='LATAM'&&c.disc>18,
+  'Multi-year deal concessions':   c=>c.disc>15&&c.arr>200000,
+  'Rep over-authorisation (Mark T.)': c=>c.disc>22&&c.reg==='LATAM',
+  'Renewal uplift waived':         c=>c.nrr<105&&c.disc>10,
+  'Beams module underpriced':      c=>!c.beamsEl&&(c.seg==='Enterprise'||c.seg==='Strategic'),
+  'SMB price-match requests':      c=>c.seg==='SMB'&&c.disc>14,
+  'Other / unclassified':          c=>c.health<55,
+};
+let leakChart=null;
+let currentLeakDriver=null;
+let currentRepData=null;
+
+function openLeakOverlay(idx){
+  const d=LEAKAGE_DRIVERS[idx];
+  currentLeakDriver=d;
+  document.getElementById('leak-ov-title').textContent=d.driver;
+  document.getElementById('leak-ov-meta').textContent=`${d.cat} · ${d.arv} ARR leakage · ${d.pct}% of total`;
+  const filter=LEAK_FILTERS[d.driver]||(()=>true);
+  const accounts=COMPANIES.filter(filter).sort((a,b)=>b.arr-a.arr).slice(0,6);
+  document.getElementById('leak-ov-accounts').innerHTML=accounts.map(c=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border)">
+      <div><div style="font-size:12px;font-weight:500;color:var(--text)">${c.name}</div><div style="font-size:10.5px;color:var(--text3)">${c.seg} · ${c.reg}</div></div>
+      <div style="display:flex;gap:10px;text-align:right">
+        <div><div style="font-size:12px;font-family:'DM Mono',monospace;color:${c.disc>22?'var(--red)':'var(--amber)'}">${c.disc}%</div><div style="font-size:9px;color:var(--text3)">disc</div></div>
+        <div><div style="font-size:12px;font-family:'DM Mono',monospace;color:${c.nrr>=110?'var(--green)':c.nrr>=100?'var(--text)':'var(--red)'}">${c.nrr}%</div><div style="font-size:9px;color:var(--text3)">NRR</div></div>
+        <div><div style="font-size:12px;font-family:'DM Mono',monospace;color:var(--text2)">${fmt(c.arr)}</div><div style="font-size:9px;color:var(--text3)">ARR</div></div>
+      </div>
+    </div>`).join('')||'<div style="font-size:11px;color:var(--text3);padding:8px 0">No matching accounts</div>';
+  if(leakChart){leakChart.destroy();leakChart=null;}
+  const cnv=document.getElementById('leak-ov-chart');
+  if(cnv&&accounts.length){
+    leakChart=new Chart(cnv,{type:'bar',data:{labels:accounts.map(c=>c.name.length>14?c.name.slice(0,14)+'…':c.name),datasets:[{label:'Discount %',data:accounts.map(c=>c.disc),backgroundColor:'rgba(232,93,106,0.6)',borderRadius:3,yAxisID:'y1'},{label:'ARR $K',data:accounts.map(c=>Math.round(c.arr/1000)),backgroundColor:'rgba(79,142,247,0.4)',borderRadius:3,yAxisID:'y2'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{color:'#8b90a0',font:{size:10},boxWidth:8,padding:8}}},scales:{x:{ticks:{color:'#4a4f62',font:{size:9}},grid:{display:false}},y1:{position:'left',ticks:{color:'#4a4f62',font:{size:9},callback:v=>v+'%'},grid:{color:'rgba(255,255,255,0.04)'}},y2:{position:'right',ticks:{color:'#4a4f62',font:{size:9},callback:v=>'$'+v+'K'},grid:{display:false}}}}});
+  }
+  document.getElementById('leak-ai-out').innerHTML='<span style="color:var(--text3);font-family:\'DM Mono\',monospace;font-size:11px">Click Generate for root cause analysis and fix.</span>';
+  document.getElementById('leak-ai-btn').disabled=false;
+  document.getElementById('leak-ai-btn').textContent='Generate ↗';
+  document.getElementById('leak-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeLeakOverlay(){
+  document.getElementById('leak-overlay').classList.remove('open');
+  document.body.style.overflow='';
+  if(leakChart){leakChart.destroy();leakChart=null;}
+}
+document.getElementById('leak-overlay').addEventListener('click',function(e){if(e.target===this)closeLeakOverlay();});
+
+async function runLeakAI(){
+  const d=currentLeakDriver;if(!d)return;
+  const btn=document.getElementById('leak-ai-btn');
+  const out=document.getElementById('leak-ai-out');
+  btn.disabled=true;btn.textContent='Generating…';
+  out.innerHTML='<span style="color:var(--accent);font-family:\'DM Mono\',monospace;font-size:11px">Analysing leakage driver…</span>';
+  const filter=LEAK_FILTERS[d.driver]||(()=>true);
+  const accounts=COMPANIES.filter(filter).sort((a,b)=>b.arr-a.arr).slice(0,5);
+  try{
+    const res=await fetch('/api/pricing-ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'leakage',leakage:{driver:d.driver,category:d.cat,arv:d.arv,pct:d.pct,accounts:accounts.map(c=>`${c.name} (${c.seg}, disc ${c.disc}%, NRR ${c.nrr}%, ARR ${fmt(c.arr)})`).join('; ')}})});
+    const data=await res.json();
+    if(data.error)throw new Error(data.error);
+    out.innerHTML=`<span class="ai-badge">GPT-4o</span><br><br><span style="color:var(--text2)">${data.result.replace(/\n/g,'<br>')}</span>`;
+  }catch(e){out.innerHTML=`<span style="color:var(--red)">Error: ${e.message}</span>`;}
+  btn.disabled=false;btn.textContent='Re-generate ↗';
+}
+
+// ── REP OVERLAY ───────────────────────────────────────────────────────────
+function openRepOverlay(repName){
+  const r=REPS.find(x=>x.name===repName);if(!r)return;
+  currentRepData=r;
+  const av=document.getElementById('rep-ov-avatar');
+  av.textContent=r.initials;av.style.background=r.color+'22';av.style.color=r.color;
+  document.getElementById('rep-ov-name').textContent=r.name;
+  document.getElementById('rep-ov-meta').textContent=`${r.reg} · ${r.deals} deals this period`;
+  document.getElementById('rep-ov-kpis').innerHTML=`
+    <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--border)"><div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">NRR</div><div style="font-size:20px;font-weight:600;color:${r.nrr>=115?'var(--green)':'var(--text)'}">${r.nrr}%</div></div>
+    <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--border)"><div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">Avg Discount</div><div style="font-size:20px;font-weight:600;color:${r.disc>22?'var(--red)':r.disc>15?'var(--amber)':'var(--green)'}">${r.disc}%</div></div>
+    <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--border)"><div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">Win Rate</div><div style="font-size:20px;font-weight:600;color:${r.win>=65?'var(--green)':'var(--amber)'}">${r.win}%</div></div>
+    <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--border)"><div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">Quota</div><div style="font-size:20px;font-weight:600;color:${r.quota>=100?'var(--green)':'var(--red)'}">${r.quota}%</div></div>`;
+  const repAccounts=COMPANIES.filter(c=>c.reg===r.reg).sort((a,b)=>b.arr-a.arr).slice(0,12);
+  const good=repAccounts.filter(c=>c.nrr>=110&&c.disc<=15&&c.health>=70).slice(0,5);
+  const bad=repAccounts.filter(c=>c.disc>22||c.nrr<100||c.health<55||c.churnRisk).slice(0,5);
+  const acctRow=c=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)">
+    <div><div style="font-size:11.5px;font-weight:500;color:var(--text)">${c.name}${c.churnRisk?' <span style="font-size:9px;color:var(--red)">AT RISK</span>':''}</div><div style="font-size:10px;color:var(--text3)">${c.seg} · ${fmt(c.arr)}</div></div>
+    <div style="display:flex;gap:8px">
+      <span style="font-size:11px;font-family:'DM Mono',monospace;color:${c.disc>22?'var(--red)':c.disc>15?'var(--amber)':'var(--green)'}">${c.disc}%</span>
+      <span style="font-size:11px;font-family:'DM Mono',monospace;color:${c.nrr>=110?'var(--green)':c.nrr>=100?'var(--text)':'var(--red)'}">${c.nrr}%</span>
+    </div>
+  </div>`;
+  document.getElementById('rep-ov-good').innerHTML=good.length?good.map(acctRow).join(''):'<div style="font-size:11px;color:var(--text3);padding:8px 0">No strong accounts identified</div>';
+  document.getElementById('rep-ov-bad').innerHTML=bad.length?bad.map(acctRow).join(''):'<div style="font-size:11px;color:var(--green);padding:8px 0">✓ No problem accounts flagged</div>';
+  document.getElementById('rep-ai-out').innerHTML='<span style="color:var(--text3);font-family:\'DM Mono\',monospace;font-size:11px">Click Generate for pricing coaching note.</span>';
+  document.getElementById('rep-ai-btn').disabled=false;
+  document.getElementById('rep-ai-btn').textContent='Generate ↗';
+  document.getElementById('rep-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeRepOverlay(){
+  document.getElementById('rep-overlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+document.getElementById('rep-overlay').addEventListener('click',function(e){if(e.target===this)closeRepOverlay();});
+
+async function runRepAI(){
+  const r=currentRepData;if(!r)return;
+  const btn=document.getElementById('rep-ai-btn');
+  const out=document.getElementById('rep-ai-out');
+  btn.disabled=true;btn.textContent='Generating…';
+  out.innerHTML='<span style="color:var(--accent);font-family:\'DM Mono\',monospace;font-size:11px">Building coaching note…</span>';
+  const repAccounts=COMPANIES.filter(c=>c.reg===r.reg).sort((a,b)=>b.arr-a.arr).slice(0,10);
+  const bad=repAccounts.filter(c=>c.disc>22||c.nrr<100||c.churnRisk).slice(0,4);
+  try{
+    const res=await fetch('/api/pricing-ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'rep',rep:{name:r.name,reg:r.reg,nrr:r.nrr,disc:r.disc,win:r.win,quota:r.quota,deals:r.deals,problemAccounts:bad.map(c=>`${c.name} (disc ${c.disc}%, NRR ${c.nrr}%${c.churnRisk?', AT RISK':''})`).join('; ')}})});
+    const data=await res.json();
+    if(data.error)throw new Error(data.error);
+    out.innerHTML=`<span class="ai-badge">GPT-4o</span><br><br><span style="color:var(--text2)">${data.result.replace(/\n/g,'<br>')}</span>`;
+  }catch(e){out.innerHTML=`<span style="color:var(--red)">Error: ${e.message}</span>`;}
+  btn.disabled=false;btn.textContent='Re-generate ↗';
+}
+
 const PERIOD_DATA = {
   'Q1-2026': {
     arr:'$48.2M', nrr:'112%', realization:'78%', leakage:'$2.4M',
@@ -1685,346 +1985,33 @@ const PERIOD_DATA = {
   }
 };
 
-function updatePeriod(period) {
-  const d = PERIOD_DATA[period] || PERIOD_DATA['Q1-2026'];
 
-  // Update exec KPI grid
-  const kpis = document.querySelectorAll('.exec-kpi');
-  if (kpis[0]) { kpis[0].querySelector('.exec-kpi-num').textContent = d.arr; kpis[0].querySelector('.exec-kpi-d').textContent = d.arrTrend; }
-  if (kpis[1]) { kpis[1].querySelector('.exec-kpi-num').textContent = d.nrr; kpis[1].querySelector('.exec-kpi-d').textContent = d.nrrTrend; }
-  if (kpis[2]) { kpis[2].querySelector('.exec-kpi-num').textContent = d.realization; kpis[2].querySelector('.exec-kpi-d').textContent = d.realTrend; }
-  if (kpis[3]) { kpis[3].querySelector('.exec-kpi-num').textContent = d.leakage; kpis[3].querySelector('.exec-kpi-d').textContent = d.leakTrend; }
 
-  // Update health score gauge number display
-  const gaugeNum = document.querySelector('#sec-exec .exec-kpi-num');
-  const bigScore = document.querySelector('#sec-exec [style*="46px"]');
-  if (bigScore) bigScore.textContent = d.healthScore;
-
-  // Update scorecard metric cards
-  const scCards = document.querySelectorAll('#sec-scorecard .mv');
-  if (scCards[0]) scCards[0].textContent = d.realization;
-  if (scCards[1]) scCards[1].textContent = d.avgDisc;
-  if (scCards[2]) scCards[2].textContent = d.leakage;
-  if (scCards[3]) scCards[3].textContent = d.nrr;
-  if (scCards[4]) scCards[4].textContent = d.grossMargin;
-  if (scCards[5]) scCards[5].textContent = d.ltvcac;
-
-  // Update portfolio metric cards
-  const pfCards = document.querySelectorAll('#sec-portfolio .mv');
-  if (pfCards[0]) pfCards[0].textContent = d.arr;
-  if (pfCards[1]) pfCards[1].textContent = d.nrr;
-  if (pfCards[3]) pfCards[3].textContent = d.churn; // gross churn slot
-
-  // Update sub-score bars in exec (margin ctrl, disc discipline, value capture, deal vel)
-  const subScores = document.querySelectorAll('#sec-exec [style*="font-size:16px"]');
-  const subBars   = document.querySelectorAll('#sec-exec [style*="height:3px"][style*="border-radius:2px"]:not([style*="background:var"])');
-  const vals = [d.marginCtrl, d.discDisc, d.valueCapture, d.dealVel];
-  const colors = ['var(--green)','var(--amber)','var(--accent)','var(--red)'];
-  subScores.forEach((el, i) => { if (vals[i] !== undefined) el.textContent = vals[i]; });
-
-  // Update alerts
-  const alertBox = document.querySelector('#sec-exec .card:last-child .cb');
-  if (alertBox) {
-    alertBox.innerHTML = d.alerts.map(a => `
-      <div class="alert ${a.type}">
-        <div style="color:${a.type==='red'?'var(--red)':a.type==='am'?'var(--amber)':'var(--green)'};font-size:13px;margin-top:1px">${a.icon}</div>
-        <div class="alert-txt"><strong>${a.title}</strong> — ${a.body}</div>
-      </div>`).join('');
-  }
-
-  // Update section sub-title with period
-  const execSub = document.querySelector('#sec-exec .section-sub');
-  if (execSub) execSub.textContent = `Pricing performance at a glance · Global portfolio · ${period.replace('-',' ')}`;
+function updatePeriod(period){
+  const d=PERIOD_DATA[period]||PERIOD_DATA['Q1-2026'];
+  const kpis=document.querySelectorAll('.exec-kpi');
+  if(kpis[0]){kpis[0].querySelector('.exec-kpi-num').textContent=d.arr;kpis[0].querySelector('.exec-kpi-d').textContent=d.arrTrend;}
+  if(kpis[1]){kpis[1].querySelector('.exec-kpi-num').textContent=d.nrr;kpis[1].querySelector('.exec-kpi-d').textContent=d.nrrTrend;}
+  if(kpis[2]){kpis[2].querySelector('.exec-kpi-num').textContent=d.realization;kpis[2].querySelector('.exec-kpi-d').textContent=d.realTrend;}
+  if(kpis[3]){kpis[3].querySelector('.exec-kpi-num').textContent=d.leakage;kpis[3].querySelector('.exec-kpi-d').textContent=d.leakTrend;}
+  const scCards=document.querySelectorAll('#sec-scorecard .mv');
+  if(scCards[0])scCards[0].textContent=d.realization;
+  if(scCards[1])scCards[1].textContent=d.avgDisc;
+  if(scCards[2])scCards[2].textContent=d.leakage;
+  if(scCards[3])scCards[3].textContent=d.nrr;
+  if(scCards[4])scCards[4].textContent=d.grossMargin;
+  if(scCards[5])scCards[5].textContent=d.ltvcac;
+  const execSub=document.querySelector('#sec-exec .section-sub');
+  if(execSub)execSub.textContent=`Pricing performance at a glance · Global portfolio · ${period.replace('-',' ')}`;
+  const alertBox=document.querySelector('#sec-exec .card:last-child .cb');
+  if(alertBox&&d.alerts)alertBox.innerHTML=d.alerts.map(a=>`<div class="alert ${a.type}"><div style="color:${a.type==='red'?'var(--red)':a.type==='am'?'var(--amber)':'var(--green)'};font-size:13px;margin-top:1px">${a.icon}</div><div class="alert-txt"><strong>${a.title}</strong> — ${a.body}</div></div>`).join('');
 }
+document.getElementById('period-sel').addEventListener('change',function(){updatePeriod(this.value);});
 
-// Wire period selector
-document.getElementById('period-sel').addEventListener('change', function() {
-  updatePeriod(this.value);
-});
-
-;
-
-// wire search input
-function filterTable(q){ renderTable(q); }
-
-// init — fires last, after openModal and renderTable are both defined
+// ── INIT ──────────────────────────────────────────────────────────────────
+calcDeal();
 renderTable();
 
-
-// ── LEAKAGE OVERLAY ───────────────────────────────────────────────────────
-const LEAK_FILTERS={
-  'Large enterprise discounting':  c=>( c.seg==='Enterprise'||c.seg==='Strategic')&&c.disc>22,
-  'LATAM competitive pressure':    c=>c.reg==='LATAM'&&c.disc>18,
-  'Multi-year deal concessions':   c=>c.disc>15&&c.arr>200000,
-  'Rep over-authorisation (Mark T.)': c=>c.disc>22&&c.reg==='LATAM',
-  'Renewal uplift waived':         c=>c.nrr<105&&c.disc>10,
-  'Beams module underpriced':      c=>!c.beamsEl&&(c.seg==='Enterprise'||c.seg==='Strategic'),
-  'SMB price-match requests':      c=>c.seg==='SMB'&&c.disc>14,
-  'Other / unclassified':          c=>c.health<55,
-};
-
-let leakChart=null;
-let currentLeakDriver=null;
-let currentRepData=null;
-
-function openLeakOverlay(idx){
-  const d=LEAKAGE_DRIVERS[idx];
-  currentLeakDriver=d;
-
-  document.getElementById('leak-ov-title').textContent=d.driver;
-  document.getElementById('leak-ov-meta').textContent=`${d.cat} · ${d.arv} ARR leakage · ${d.pct}% of total`;
-
-  // Filter accounts
-  const filter=LEAK_FILTERS[d.driver]||(()=>true);
-  const accounts=COMPANIES.filter(filter).sort((a,b)=>b.arr-a.arr).slice(0,6);
-
-  // Accounts list
-  document.getElementById('leak-ov-accounts').innerHTML=accounts.map(c=>`
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border)">
-      <div>
-        <div style="font-size:12px;font-weight:500;color:var(--text)">${c.name}</div>
-        <div style="font-size:10.5px;color:var(--text3)">${c.seg} · ${c.reg}</div>
-      </div>
-      <div style="display:flex;gap:10px;text-align:right">
-        <div>
-          <div style="font-size:12px;font-family:'DM Mono',monospace;color:${c.disc>22?'var(--red)':'var(--amber)'}">${c.disc}%</div>
-          <div style="font-size:9px;color:var(--text3)">disc</div>
-        </div>
-        <div>
-          <div style="font-size:12px;font-family:'DM Mono',monospace;color:${c.nrr>=110?'var(--green)':c.nrr>=100?'var(--text)':'var(--red)'}">${c.nrr}%</div>
-          <div style="font-size:9px;color:var(--text3)">NRR</div>
-        </div>
-        <div>
-          <div style="font-size:12px;font-family:'DM Mono',monospace;color:var(--text2)">${fmt(c.arr)}</div>
-          <div style="font-size:9px;color:var(--text3)">ARR</div>
-        </div>
-      </div>
-    </div>`).join('')||'<div style="font-size:11px;color:var(--text3);padding:8px 0">No matching accounts found</div>';
-
-  // Chart
-  if(leakChart){leakChart.destroy();leakChart=null;}
-  const cnv=document.getElementById('leak-ov-chart');
-  if(cnv&&accounts.length){
-    leakChart=new Chart(cnv,{
-      type:'bar',
-      data:{
-        labels:accounts.map(c=>c.name.length>14?c.name.slice(0,14)+'…':c.name),
-        datasets:[
-          {label:'Discount %',data:accounts.map(c=>c.disc),backgroundColor:'rgba(232,93,106,0.6)',borderRadius:3,yAxisID:'y1'},
-          {label:'ARR $K',data:accounts.map(c=>Math.round(c.arr/1000)),backgroundColor:'rgba(79,142,247,0.4)',borderRadius:3,yAxisID:'y2'},
-        ]
-      },
-      options:{
-        responsive:true,maintainAspectRatio:false,
-        plugins:{legend:{display:true,labels:{color:'#8b90a0',font:{size:10},boxWidth:8,padding:8}}},
-        scales:{
-          x:{ticks:{color:'#4a4f62',font:{size:9}},grid:{display:false}},
-          y1:{position:'left',ticks:{color:'#4a4f62',font:{size:9},callback:v=>v+'%'},grid:{color:'rgba(255,255,255,0.04)'}},
-          y2:{position:'right',ticks:{color:'#4a4f62',font:{size:9},callback:v=>'$'+v+'K'},grid:{display:false}}
-        }
-      }
-    });
-  }
-
-  // Reset AI
-  document.getElementById('leak-ai-out').innerHTML='<span style="color:var(--text3);font-family:\'DM Mono\',monospace;font-size:11px">Click Generate for root cause analysis and recommended fix.</span>';
-  document.getElementById('leak-ai-btn').disabled=false;
-  document.getElementById('leak-ai-btn').textContent='Generate ↗';
-
-  document.getElementById('leak-overlay').classList.add('open');
-  document.body.style.overflow='hidden';
-}
-
-function closeLeakOverlay(){
-  document.getElementById('leak-overlay').classList.remove('open');
-  document.body.style.overflow='';
-  if(leakChart){leakChart.destroy();leakChart=null;}
-}
-document.getElementById('leak-overlay').addEventListener('click',function(e){if(e.target===this)closeLeakOverlay();});
-
-async function runLeakAI(){
-  const d=currentLeakDriver; if(!d) return;
-  const btn=document.getElementById('leak-ai-btn');
-  const out=document.getElementById('leak-ai-out');
-  btn.disabled=true; btn.textContent='Generating…';
-  out.innerHTML='<span style="color:var(--accent);font-family:\'DM Mono\',monospace;font-size:11px">Analysing leakage driver…</span>';
-
-  const filter=LEAK_FILTERS[d.driver]||(()=>true);
-  const accounts=COMPANIES.filter(filter).sort((a,b)=>b.arr-a.arr).slice(0,5);
-  const acctStr=accounts.map(c=>`${c.name} (${c.seg}, disc ${c.disc}%, NRR ${c.nrr}%, ARR ${fmt(c.arr)})`).join('; ');
-
-  try{
-    const res=await fetch('/api/pricing-ai',{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        mode:'leakage',
-        leakage:{driver:d.driver,category:d.cat,arv:d.arv,pct:d.pct,accounts:acctStr}
-      })
-    });
-    const data=await res.json();
-    if(data.error)throw new Error(data.error);
-    out.innerHTML=`<span class="ai-badge">GPT-4o</span><br><br><span style="color:var(--text2)">${data.result.replace(/\n/g,'<br>')}</span>`;
-  }catch(e){
-    out.innerHTML=`<span style="color:var(--red)">Error: ${e.message}</span>`;
-  }
-  btn.disabled=false; btn.textContent='Re-generate ↗';
-}
-
-// ── REP OVERLAY ───────────────────────────────────────────────────────────
-function openRepOverlay(repName){
-  const r=REPS.find(x=>x.name===repName); if(!r) return;
-  currentRepData=r;
-
-  // Header
-  const av=document.getElementById('rep-ov-avatar');
-  av.textContent=r.initials;
-  av.style.background=r.color+'22';
-  av.style.color=r.color;
-  document.getElementById('rep-ov-name').textContent=r.name;
-  document.getElementById('rep-ov-meta').textContent=`${r.reg} · ${r.deals} deals this period`;
-
-  // KPIs
-  document.getElementById('rep-ov-kpis').innerHTML=`
-    <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--border)">
-      <div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">NRR</div>
-      <div style="font-size:20px;font-weight:600;color:${r.nrr>=115?'var(--green)':'var(--text)'}">${r.nrr}%</div>
-    </div>
-    <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--border)">
-      <div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">Avg Discount</div>
-      <div style="font-size:20px;font-weight:600;color:${r.disc>22?'var(--red)':r.disc>15?'var(--amber)':'var(--green)'}">${r.disc}%</div>
-    </div>
-    <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--border)">
-      <div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">Win Rate</div>
-      <div style="font-size:20px;font-weight:600;color:${r.win>=65?'var(--green)':'var(--amber)'}">${r.win}%</div>
-    </div>
-    <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--border)">
-      <div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">Quota Attain.</div>
-      <div style="font-size:20px;font-weight:600;color:${r.quota>=100?'var(--green)':'var(--red)'}">${r.quota}%</div>
-    </div>`;
-
-  // Split accounts by rep region (proxy for rep's book)
-  const repAccounts=COMPANIES.filter(c=>c.reg===r.reg).sort((a,b)=>b.arr-a.arr).slice(0,12);
-  const good=repAccounts.filter(c=>c.nrr>=110&&c.disc<=15&&c.health>=70);
-  const bad=repAccounts.filter(c=>c.disc>22||c.nrr<100||c.health<55||c.churnRisk);
-
-  const acctRow=(c,highlight)=>`
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)">
-      <div>
-        <div style="font-size:11.5px;font-weight:500;color:var(--text)">${c.name}${c.churnRisk?' <span style="font-size:9px;color:var(--red)">AT RISK</span>':''}</div>
-        <div style="font-size:10px;color:var(--text3)">${c.seg} · ${fmt(c.arr)}</div>
-      </div>
-      <div style="display:flex;gap:8px">
-        <span style="font-size:11px;font-family:'DM Mono',monospace;color:${c.disc>22?'var(--red)':c.disc>15?'var(--amber)':'var(--green)'}">${c.disc}%</span>
-        <span style="font-size:11px;font-family:'DM Mono',monospace;color:${c.nrr>=110?'var(--green)':c.nrr>=100?'var(--text)':'var(--red)'}">${c.nrr}%</span>
-      </div>
-    </div>`;
-
-  document.getElementById('rep-ov-good').innerHTML=good.length
-    ? good.slice(0,5).map(c=>acctRow(c,true)).join('')
-    : '<div style="font-size:11px;color:var(--text3);padding:8px 0">No strong accounts identified</div>';
-
-  document.getElementById('rep-ov-bad').innerHTML=bad.length
-    ? bad.slice(0,5).map(c=>acctRow(c,false)).join('')
-    : '<div style="font-size:11px;color:var(--green);padding:8px 0">✓ No problem accounts flagged</div>';
-
-  // Reset AI
-  document.getElementById('rep-ai-out').innerHTML='<span style="color:var(--text3);font-family:\'DM Mono\',monospace;font-size:11px">Click Generate for pricing coaching note for this rep.</span>';
-  document.getElementById('rep-ai-btn').disabled=false;
-  document.getElementById('rep-ai-btn').textContent='Generate ↗';
-
-  document.getElementById('rep-overlay').classList.add('open');
-  document.body.style.overflow='hidden';
-}
-
-function closeRepOverlay(){
-  document.getElementById('rep-overlay').classList.remove('open');
-  document.body.style.overflow='';
-}
-document.getElementById('rep-overlay').addEventListener('click',function(e){if(e.target===this)closeRepOverlay();});
-
-async function runRepAI(){
-  const r=currentRepData; if(!r) return;
-  const btn=document.getElementById('rep-ai-btn');
-  const out=document.getElementById('rep-ai-out');
-  btn.disabled=true; btn.textContent='Generating…';
-  out.innerHTML='<span style="color:var(--accent);font-family:\'DM Mono\',monospace;font-size:11px">Building coaching note…</span>';
-
-  const repAccounts=COMPANIES.filter(c=>c.reg===r.reg).sort((a,b)=>b.arr-a.arr).slice(0,10);
-  const bad=repAccounts.filter(c=>c.disc>22||c.nrr<100||c.churnRisk).slice(0,4);
-  const badStr=bad.map(c=>`${c.name} (disc ${c.disc}%, NRR ${c.nrr}%${c.churnRisk?', AT RISK':''})`).join('; ');
-
-  try{
-    const res=await fetch('/api/pricing-ai',{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        mode:'rep',
-        rep:{name:r.name,reg:r.reg,nrr:r.nrr,disc:r.disc,win:r.win,quota:r.quota,deals:r.deals,problemAccounts:badStr}
-      })
-    });
-    const data=await res.json();
-    if(data.error)throw new Error(data.error);
-    out.innerHTML=`<span class="ai-badge">GPT-4o</span><br><br><span style="color:var(--text2)">${data.result.replace(/\n/g,'<br>')}</span>`;
-  }catch(e){
-    out.innerHTML=`<span style="color:var(--red)">Error: ${e.message}</span>`;
-  }
-  btn.disabled=false; btn.textContent='Re-generate ↗';
-}
-
 </script>
-
-<!-- ══ CUSTOMER DETAIL MODAL ══════════════════════════════════════════════ -->
-<div class="cust-overlay" id="cust-overlay">
-  <div class="cust-modal" id="cust-modal">
-    <div class="cust-modal-header">
-      <div>
-        <div style="font-family:'DM Serif Display',serif;font-size:20px;color:var(--text)" id="cm-name">—</div>
-        <div style="font-size:11.5px;color:var(--text3);margin-top:3px" id="cm-meta">—</div>
-      </div>
-      <button class="cust-modal-close" onclick="closeModal()">✕</button>
-    </div>
-    <div class="cust-modal-body">
-      <!-- KPI strip -->
-      <div class="cust-modal-full">
-        <div class="cust-section-lbl">Current Performance</div>
-        <div class="cust-stat-grid" id="cm-stats"></div>
-      </div>
-      <!-- Quarterly charts: left col -->
-      <div>
-        <div class="cust-chart-wrap" style="margin-bottom:12px">
-          <div class="cust-chart-title">ARR ($K) — 6 Quarters</div>
-          <div style="position:relative;height:110px"><canvas id="cm-arr-chart"></canvas></div>
-        </div>
-        <div class="cust-chart-wrap" style="margin-bottom:12px">
-          <div class="cust-chart-title">NRR (%) — 6 Quarters</div>
-          <div style="position:relative;height:110px"><canvas id="cm-nrr-chart"></canvas></div>
-        </div>
-        <div class="cust-chart-wrap">
-          <div class="cust-chart-title">Discount (%) — 6 Quarters</div>
-          <div style="position:relative;height:110px"><canvas id="cm-disc-chart"></canvas></div>
-        </div>
-      </div>
-      <!-- Right col: health + peers + AI -->
-      <div>
-        <div class="cust-chart-wrap" style="margin-bottom:12px">
-          <div class="cust-chart-title">Health Score — 6 Quarters</div>
-          <div style="position:relative;height:110px"><canvas id="cm-health-chart"></canvas></div>
-        </div>
-        <div class="cust-chart-wrap" style="margin-bottom:12px">
-          <div class="cust-section-lbl" style="margin-bottom:8px">Segment Peers</div>
-          <div id="cm-peers" style="font-size:12px"></div>
-        </div>
-        <div class="ai-panel">
-          <div class="ai-panel-header">
-            <div class="cust-section-lbl" style="margin-bottom:0">AI Deal Desk Analysis</div>
-            <button class="ai-generate-btn" id="ai-modal-btn" onclick="runModalAI()">Generate ↗</button>
-          </div>
-          <div class="ai-result" id="cm-ai-out"><span style="color:var(--text3);font-family:'DM Mono',monospace;font-size:11px">Click Generate to analyse this account against portfolio peers.</span></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-
 </body>
 </html>

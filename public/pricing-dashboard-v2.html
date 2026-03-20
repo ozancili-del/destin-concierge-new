@@ -253,6 +253,81 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
 .dm-mode-btn:hover{border-color:var(--accent);color:var(--accent)}
 .dm-mode-btn.active{background:rgba(79,142,247,.12);border-color:var(--accent);color:var(--accent);font-weight:500}
 
+
+/* ── AI GLOW ─────────────────────────────────────────────────────────── */
+@keyframes aiPulse {
+  0%,100% { box-shadow: 0 0 8px rgba(0,255,136,.35), 0 0 20px rgba(0,255,136,.12); }
+  50%      { box-shadow: 0 0 14px rgba(0,255,136,.55), 0 0 32px rgba(0,255,136,.22); }
+}
+.ai-glow-box {
+  background: rgba(0,255,136,.04) !important;
+  border: 1px solid rgba(0,255,136,.5) !important;
+  border-radius: 9px;
+  animation: aiPulse 3s ease-in-out infinite;
+  padding: 14px;
+  min-height: 80px;
+}
+.ai-glow-box .ai-response-text {
+  color: #ffffff !important;
+  font-size: 12px;
+  line-height: 1.75;
+}
+.ai-glow-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 9.5px;
+  font-family: 'DM Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  color: #00ff88;
+  background: rgba(0,255,136,.1);
+  border: 1px solid rgba(0,255,136,.3);
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+.ai-glow-badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: #00ff88;
+  border-radius: 50%;
+  box-shadow: 0 0 6px #00ff88;
+  animation: aiPulse 1.5s ease-in-out infinite;
+}
+.ai-placeholder {
+  color: rgba(255,255,255,.25) !important;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+}
+
+
+/* ── AI SECTION HEADERS ──────────────────────────────────────────────── */
+.ai-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.ai-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: .3px;
+}
+.ai-powered-badge {
+  font-size: 9.5px;
+  font-family: 'DM Mono', monospace;
+  color: rgba(0,255,136,.7);
+  background: rgba(0,255,136,.06);
+  border: 1px solid rgba(0,255,136,.2);
+  padding: 2px 8px;
+  border-radius: 4px;
+  letter-spacing: .5px;
+  white-space: nowrap;
+}
+
 </style>
 </head>
 <body>
@@ -285,10 +360,10 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
         </div>
         <div class="ai-panel">
           <div class="ai-panel-header">
-            <div class="cust-section-lbl" style="margin-bottom:0">AI Deal Desk Analysis</div>
-            <button class="ai-generate-btn" id="ai-modal-btn" onclick="runModalAI()">Generate ↗</button>
+            <div class="ai-section-title">AI Deal Desk Analysis</div>
+            <div style="display:flex;align-items:center;gap:8px"><span class="ai-powered-badge">Powered by GPT-4o</span><button class="ai-generate-btn" id="ai-modal-btn" onclick="runModalAI()">Generate ↗</button></div>
           </div>
-          <div class="ai-result" id="cm-ai-out"><span style="color:var(--text3);font-family:'DM Mono',monospace;font-size:11px">← Select an account to begin</span></div>
+          <div class="ai-result" id="cm-ai-out"><span class="ai-placeholder">← Select an account to begin</span></div>
         </div>
       </div>
     </div>
@@ -318,10 +393,10 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
       </div>
       <div class="ov2-ai-panel">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-          <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px">AI Root Cause & Fix</div>
-          <button onclick="runLeakAI()" id="leak-ai-btn" style="padding:5px 12px;background:rgba(79,142,247,.12);border:1px solid rgba(79,142,247,.3);border-radius:6px;color:var(--accent);font-size:11.5px;cursor:pointer;font-family:'Figtree',sans-serif">Generate ↗</button>
+          <div class="ai-section-title">AI Root Cause & Fix</div>
+          <button onclick="runLeakAI()" id="leak-ai-btn" style="padding:5px 12px;background:rgba(79,142,247,.12);border:1px solid rgba(79,142,247,.3);border-radius:6px;color:var(--accent);font-size:11.5px;cursor:pointer;font-family:'Figtree',sans-serif">Generate ↗</button></div>
         </div>
-        <div id="leak-ai-out" style="font-size:12px;color:var(--text2);line-height:1.75;min-height:80px"><span style="color:var(--text3);font-family:'DM Mono',monospace;font-size:11px">Click Generate for root cause analysis and fix.</span></div>
+        <div id="leak-ai-out" class="ai-glow-box"><span class="ai-placeholder">Click Generate for root cause analysis and fix.</span></div>
       </div>
     </div>
   </div>
@@ -354,10 +429,10 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
       </div>
       <div class="ov2-ai-panel">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-          <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px">AI Coaching Note</div>
-          <button onclick="runRepAI()" id="rep-ai-btn" style="padding:5px 12px;background:rgba(79,142,247,.12);border:1px solid rgba(79,142,247,.3);border-radius:6px;color:var(--accent);font-size:11.5px;cursor:pointer;font-family:'Figtree',sans-serif">Generate ↗</button>
+          <div class="ai-section-title">AI Coaching Note</div>
+          <div style="display:flex;align-items:center;gap:8px"><span class="ai-powered-badge">Powered by GPT-4o</span><button onclick="runRepAI()" id="rep-ai-btn" style="padding:5px 12px;background:rgba(79,142,247,.12);border:1px solid rgba(79,142,247,.3);border-radius:6px;color:var(--accent);font-size:11.5px;cursor:pointer;font-family:'Figtree',sans-serif">Generate ↗</button></div>
         </div>
-        <div id="rep-ai-out" style="font-size:12px;color:var(--text2);line-height:1.75;min-height:80px"><span style="color:var(--text3);font-family:'DM Mono',monospace;font-size:11px">Click Generate for pricing coaching note.</span></div>
+        <div id="rep-ai-out" class="ai-glow-box"><span class="ai-placeholder">Click Generate for pricing coaching note.</span></div>
       </div>
     </div>
   </div>
@@ -545,10 +620,10 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
       <div id="tgt-list"></div>
       <div>
         <div class="card" style="position:sticky;top:60px">
-          <div class="ch"><div class="ct">AI Pricing Recommendation</div></div>
+          <div class="ch"><div class="ai-section-title">AI Pricing Recommendation</div></div>
           <div class="cb">
             <div style="font-size:12px;color:var(--text2);margin-bottom:10px">Select a target account then click Generate.</div>
-            <div id="ai-out" style="font-size:12px;color:var(--text2);line-height:1.7;min-height:180px;background:var(--bg3);border-radius:8px;padding:13px"><span style="color:var(--text3);font-family:'DM Mono',monospace;font-size:11px">← Select an account to begin</span></div>
+            <div id="ai-out" class="ai-glow-box"><span class="ai-placeholder">← Select an account to begin</span></div>
             <button onclick="runAI()" style="margin-top:10px;width:100%;padding:8px;background:rgba(79,142,247,.12);border:1px solid rgba(79,142,247,.3);border-radius:8px;color:var(--accent);font-size:13px;cursor:pointer;font-family:'Figtree',sans-serif;transition:all .2s">Generate Pricing Approach ↗</button>
           </div>
         </div>
@@ -770,12 +845,12 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
       </div>
       <div class="card">
         <div class="ch" style="margin-bottom:12px">
-          <div class="ct">AI Deal Narrative</div>
-          <button onclick="runDealAI()" id="deal-ai-btn" style="padding:5px 12px;background:rgba(79,142,247,.12);border:1px solid rgba(79,142,247,.3);border-radius:6px;color:var(--accent);font-size:11.5px;cursor:pointer;font-family:'Figtree',sans-serif">Generate ↗</button>
+          <div class="ai-section-title">AI Deal Narrative</div>
+          <div style="display:flex;align-items:center;gap:8px"><span class="ai-powered-badge">Powered by GPT-4o</span><button onclick="runDealAI()" id="deal-ai-btn" style="padding:5px 12px;background:rgba(79,142,247,.12);border:1px solid rgba(79,142,247,.3);border-radius:6px;color:var(--accent);font-size:11.5px;cursor:pointer;font-family:'Figtree',sans-serif">Generate ↗</button></div>
         </div>
         <div class="cb" style="padding-top:0">
-          <div id="deal-ai-out" style="font-size:11.5px;color:var(--text2);line-height:1.75;min-height:180px;background:var(--bg3);border-radius:8px;padding:13px">
-            <span style="color:var(--text3);font-family:'DM Mono',monospace;font-size:11px">Select an account and fill parameters, then click Generate.</span>
+          <div id="deal-ai-out" class="ai-glow-box">
+            <span class="ai-placeholder">Select an account and fill parameters, then click Generate.</span>
           </div>
         </div>
       </div>
@@ -1209,14 +1284,14 @@ function selectTarget(i){
 async function runAI(){
   if(!selectedTarget){alert('Select a target account first.');return;}
   const el=document.getElementById('ai-out');
-  el.innerHTML='<span style="color:var(--accent);font-family:\'DM Mono\',monospace;font-size:11px">Generating…</span>';
+  el.innerHTML='<span class="ai-placeholder">⚡ Generating…</span>';
   const comps=COMPANIES.filter(c=>c.ind===selectedTarget.ind&&c.seg===selectedTarget.seg).slice(0,3);
   const comparables=comps.map(c=>`ARR ${fmt(c.arr)}, NRR ${c.nrr}%, avg discount ${c.disc}%`).join('; ')||'No direct comparables';
   try{
     const res=await fetch('/api/pricing-ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({target:selectedTarget,comparables})});
     const data=await res.json();
     if(data.error)throw new Error(data.error);
-    el.innerHTML=`<span class="ai-badge">GPT-4o</span><span style="color:var(--text2)">${data.choices[0].message.content}</span>`;
+    el.innerHTML=`<div class="ai-glow-badge">GPT-4o</div><span class="ai-response-text">${data.choices[0].message.content}</span>`;
   }catch(e){el.innerHTML=`<span style="color:var(--red)">Error: ${e.message}</span>`;}
 }
 
@@ -1669,7 +1744,7 @@ async function runDealAI(){
   const btn=document.getElementById('deal-ai-btn');
   const out=document.getElementById('deal-ai-out');
   btn.disabled=true;btn.textContent='Generating…';
-  out.innerHTML='<span style="color:var(--accent);font-family:\'DM Mono\',monospace;font-size:11px">Building deal narrative…</span>';
+  out.innerHTML='<span class="ai-placeholder">⚡ Building deal narrative…</span>';
 
   const c=selectedDealAccount;
   const payload={
@@ -1699,7 +1774,7 @@ async function runDealAI(){
     const res=await fetch('/api/pricing-ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
     const data=await res.json();
     if(data.error)throw new Error(data.error);
-    out.innerHTML=`<span class="ai-badge">GPT-4o</span><br><br><span style="color:var(--text2)">${data.result.replace(/\n/g,'<br>')}</span>`;
+    out.innerHTML=`<div class="ai-glow-badge">GPT-4o</div><span class="ai-response-text">${data.result.replace(/\n/g,'<br>')}</span>`;
   }catch(e){
     out.innerHTML=`<span style="color:var(--red)">Error: ${e.message}</span>`;
   }
@@ -1784,7 +1859,7 @@ async function runModalAI(){
   const btn=document.getElementById('ai-modal-btn');
   const out=document.getElementById('cm-ai-out');
   btn.disabled=true;btn.textContent='Generating…';
-  out.innerHTML='<span style="color:var(--accent);font-family:\'DM Mono\',monospace;font-size:11px">Analysing…</span>';
+  out.innerHTML='<span class="ai-placeholder">⚡ Analysing…</span>';
   const avgNRR=segAvg(c.seg,'nrr'),avgDisc=segAvg(c.seg,'disc'),avgHealth=segAvg(c.seg,'health');
   const peers=COMPANIES.filter(x=>x.seg===c.seg&&x.ind===c.ind&&x.id!==c.id).sort((a,b)=>b.arr-a.arr).slice(0,4);
   const h=custHistory(c);
@@ -1792,7 +1867,7 @@ async function runModalAI(){
     const res=await fetch('/api/pricing-ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'customer',customer:{name:c.name,ind:c.ind,seg:c.seg,reg:c.reg,arr:`$${(c.arr/1000).toFixed(0)}K`,nrr:c.nrr,disc:c.disc,health:c.health,ltv:c.ltv,mintAttached:c.mintEl,beamsAttached:c.beamsEl,churnRisk:c.churnRisk,arrTrend:h.arrHist[5]>h.arrHist[0]?'growing':'declining',nrrTrend:h.nrrHist[5]>h.nrrHist[0]?'improving':'declining',discTrend:h.discHist[5]>h.discHist[0]?'increasing':'holding',segAvgNRR:avgNRR,segAvgDisc:avgDisc,segAvgHealth:avgHealth},peers:peers.map(p=>`${p.name} (ARR $${(p.arr/1000).toFixed(0)}K, NRR ${p.nrr}%, disc ${p.disc}%)`).join('; ')})});
     const data=await res.json();
     if(data.error)throw new Error(data.error);
-    out.innerHTML=`<span class="ai-badge">GPT-4o</span><br><br><span style="color:var(--text2)">${data.result.replace(/\n/g,'<br>')}</span>`;
+    out.innerHTML=`<div class="ai-glow-badge">GPT-4o</div><span class="ai-response-text">${data.result.replace(/\n/g,'<br>')}</span>`;
   }catch(e){out.innerHTML=`<span style="color:var(--red)">Error: ${e.message}</span>`;}
   btn.disabled=false;btn.textContent='Re-generate ↗';
 }
@@ -1851,14 +1926,14 @@ async function runLeakAI(){
   const btn=document.getElementById('leak-ai-btn');
   const out=document.getElementById('leak-ai-out');
   btn.disabled=true;btn.textContent='Generating…';
-  out.innerHTML='<span style="color:var(--accent);font-family:\'DM Mono\',monospace;font-size:11px">Analysing leakage driver…</span>';
+  out.innerHTML='<span class="ai-placeholder">⚡ Analysing leakage driver…</span>';
   const filter=LEAK_FILTERS[d.driver]||(()=>true);
   const accounts=COMPANIES.filter(filter).sort((a,b)=>b.arr-a.arr).slice(0,5);
   try{
     const res=await fetch('/api/pricing-ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'leakage',leakage:{driver:d.driver,category:d.cat,arv:d.arv,pct:d.pct,accounts:accounts.map(c=>`${c.name} (${c.seg}, disc ${c.disc}%, NRR ${c.nrr}%, ARR ${fmt(c.arr)})`).join('; ')}})});
     const data=await res.json();
     if(data.error)throw new Error(data.error);
-    out.innerHTML=`<span class="ai-badge">GPT-4o</span><br><br><span style="color:var(--text2)">${data.result.replace(/\n/g,'<br>')}</span>`;
+    out.innerHTML=`<div class="ai-glow-badge">GPT-4o</div><span class="ai-response-text">${data.result.replace(/\n/g,'<br>')}</span>`;
   }catch(e){out.innerHTML=`<span style="color:var(--red)">Error: ${e.message}</span>`;}
   btn.disabled=false;btn.textContent='Re-generate ↗';
 }
@@ -1905,14 +1980,14 @@ async function runRepAI(){
   const btn=document.getElementById('rep-ai-btn');
   const out=document.getElementById('rep-ai-out');
   btn.disabled=true;btn.textContent='Generating…';
-  out.innerHTML='<span style="color:var(--accent);font-family:\'DM Mono\',monospace;font-size:11px">Building coaching note…</span>';
+  out.innerHTML='<span class="ai-placeholder">⚡ Building coaching note…</span>';
   const repAccounts=COMPANIES.filter(c=>c.reg===r.reg).sort((a,b)=>b.arr-a.arr).slice(0,10);
   const bad=repAccounts.filter(c=>c.disc>22||c.nrr<100||c.churnRisk).slice(0,4);
   try{
     const res=await fetch('/api/pricing-ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'rep',rep:{name:r.name,reg:r.reg,nrr:r.nrr,disc:r.disc,win:r.win,quota:r.quota,deals:r.deals,problemAccounts:bad.map(c=>`${c.name} (disc ${c.disc}%, NRR ${c.nrr}%${c.churnRisk?', AT RISK':''})`).join('; ')}})});
     const data=await res.json();
     if(data.error)throw new Error(data.error);
-    out.innerHTML=`<span class="ai-badge">GPT-4o</span><br><br><span style="color:var(--text2)">${data.result.replace(/\n/g,'<br>')}</span>`;
+    out.innerHTML=`<div class="ai-glow-badge">GPT-4o</div><span class="ai-response-text">${data.result.replace(/\n/g,'<br>')}</span>`;
   }catch(e){out.innerHTML=`<span style="color:var(--red)">Error: ${e.message}</span>`;}
   btn.disabled=false;btn.textContent='Re-generate ↗';
 }

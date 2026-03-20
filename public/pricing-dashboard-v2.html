@@ -555,10 +555,10 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
     <div class="card">
       <div class="ch" style="margin-bottom:10px"><div class="ct">Executive Alerts</div></div>
       <div class="cb" style="padding-top:0">
-        <div class="alert"><div style="color:var(--red);font-size:13px;margin-top:1px">⚠</div><div class="alert-txt"><strong>7 deals pending CFO approval</strong> — EMEA enterprise accounts averaging 31% discount. Combined ARR exposure $1.2M. Recommendation: enforce value-based justification memo before proceeding.</div></div>
-        <div class="alert am"><div style="color:var(--amber);font-size:13px;margin-top:1px">⚠</div><div class="alert-txt"><strong>Beams AI module underpriced</strong> — CoAnalyst/CoAuthor showing 2.3× higher retention vs base tier but only 8% price premium. Repricing to 22–28% premium could recover $640K ARR annually.</div></div>
-        <div class="alert am"><div style="color:var(--amber);font-size:13px;margin-top:1px">⚠</div><div class="alert-txt"><strong>3 renewals below NRR floor</strong> — SkyWest Airlines, Rail Corp AU, NovaStar Defense showing contraction. Average uplift realization 61% vs 90% contracted. Deal desk review recommended.</div></div>
-        <div class="alert gr"><div style="color:var(--green);font-size:13px;margin-top:1px">✓</div><div class="alert-txt"><strong>MINT integration upsell: $680K opportunity</strong> — 14 existing customers eligible for Training Management module upgrade. Pipeline ready to engage Q2 2026.</div></div>
+        <div class="alert" onclick="openAlertOverlay(0)" style="cursor:pointer;transition:opacity .15s" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div style="color:var(--red);font-size:13px;margin-top:1px">⚠</div><div class="alert-txt"><strong>7 deals pending CFO approval</strong> — EMEA enterprise accounts averaging 31% discount. Combined ARR exposure $1.2M. Recommendation: enforce value-based justification memo before proceeding.</div><div style="font-size:9px;color:var(--text3);margin-left:auto;padding-left:8px">↗</div></div>
+        <div class="alert am" onclick="openAlertOverlay(1)" style="cursor:pointer;transition:opacity .15s" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div style="color:var(--amber);font-size:13px;margin-top:1px">⚠</div><div class="alert-txt"><strong>Beams AI module underpriced</strong> — CoAnalyst/CoAuthor showing 2.3× higher retention vs base tier but only 8% price premium. Repricing to 22–28% premium could recover $640K ARR annually.</div><div style="font-size:9px;color:var(--text3);margin-left:auto;padding-left:8px">↗</div></div>
+        <div class="alert am" onclick="openAlertOverlay(2)" style="cursor:pointer;transition:opacity .15s" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div style="color:var(--amber);font-size:13px;margin-top:1px">⚠</div><div class="alert-txt"><strong>3 renewals below NRR floor</strong> — SkyWest Airlines, Rail Corp AU, NovaStar Defense showing contraction. Average uplift realization 61% vs 90% contracted. Deal desk review recommended.</div><div style="font-size:9px;color:var(--text3);margin-left:auto;padding-left:8px">↗</div></div>
+        <div class="alert gr" onclick="openAlertOverlay(3)" style="cursor:pointer;transition:opacity .15s" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div style="color:var(--green);font-size:13px;margin-top:1px">✓</div><div class="alert-txt"><strong>MINT integration upsell: $680K opportunity</strong> — 14 existing customers eligible for Training Management module upgrade. Pipeline ready to engage Q2 2026.</div><div style="font-size:9px;color:var(--text3);margin-left:auto;padding-left:8px">↗</div></div>
       </div>
     </div>
   </section>
@@ -2207,6 +2207,113 @@ async function runApprovalAI() {
   }
   btn.disabled = false; btn.textContent = 'Re-generate ↗';
 }
+
+// ── EXEC ALERTS OVERLAY ───────────────────────────────────────────────────
+const EXEC_ALERTS = [
+  {
+    type:'red', icon:'⚠', 
+    title:'7 deals pending CFO approval',
+    meta:'EMEA Enterprise · $1.2M ARR exposure · Avg 31% discount',
+    detail:'EMEA enterprise accounts averaging 31% discount with 7 deals stuck in the CFO approval queue. Combined ARR exposure $1.2M. Pattern suggests reps are bypassing value justification step and going straight to maximum discount. Recommendation: enforce value-based justification memo before any CFO escalation proceeds.',
+    filter: c => (c.seg==='Enterprise'||c.seg==='Strategic') && c.reg==='EMEA' && c.disc>25,
+    aiContext: '7 EMEA enterprise deals pending CFO approval, avg 31% discount, $1.2M ARR exposure, no value justification memos filed'
+  },
+  {
+    type:'am', icon:'⚠',
+    title:'Beams AI module underpriced',
+    meta:'Pricing gap · $640K annual ARR recovery opportunity',
+    detail:'CoAnalyst and CoAuthor features are driving 2.3× higher retention vs base tier accounts but are priced at only 8% premium. Market benchmarks suggest 22–28% premium is defensible given the measurable ROI. Repricing could recover $640K ARR annually across the current customer base.',
+    filter: c => c.beamsEl && c.nrr >= 110,
+    aiContext: 'Beams AI module underpriced at 8% premium vs recommended 22-28%, 2.3x retention lift vs base tier, $640K annual recovery opportunity'
+  },
+  {
+    type:'am', icon:'⚠',
+    title:'3 renewals below NRR floor',
+    meta:'SkyWest Airlines · Rail Corp AU · NovaStar Defense · 61% uplift realization',
+    detail:'SkyWest Airlines, Rail Corp AU, and NovaStar Defense are all showing ARR contraction at renewal. Average uplift realization is 61% vs 90% contracted. Root cause appears to be renewal teams waiving uplift under churn pressure without deal desk review. Immediate intervention required before Q2 renewal cycle.',
+    filter: c => c.nrr < 100 && c.churnRisk,
+    aiContext: '3 named accounts (SkyWest Airlines, Rail Corp AU, NovaStar Defense) below NRR floor, 61% uplift realization vs 90% contracted, churn risk flagged'
+  },
+  {
+    type:'gr', icon:'✓',
+    title:'MINT integration upsell: $680K opportunity',
+    meta:'14 eligible accounts · Q2 2026 pipeline ready',
+    detail:'14 existing customers are eligible for MINT Training Management module upgrade based on their current OCM usage patterns and employee count. Pipeline is ready to engage in Q2 2026. Average expansion ARR per account is $34K at standard attach rate. This represents the single largest near-term expansion opportunity in the portfolio.',
+    filter: c => !c.mintEl && (c.seg==='Enterprise'||c.seg==='Strategic'),
+    aiContext: '14 accounts eligible for MINT upsell, $680K total opportunity, $34K avg per account, Q2 2026 pipeline ready'
+  }
+];
+
+let currentAlert = null;
+
+function openAlertOverlay(idx) {
+  const a = EXEC_ALERTS[idx];
+  currentAlert = a;
+
+  const iconColor = a.type==='red'?'var(--red)':a.type==='am'?'var(--amber)':'var(--green)';
+  document.getElementById('alert-ov-icon').textContent = a.icon;
+  document.getElementById('alert-ov-icon').style.color = iconColor;
+  document.getElementById('alert-ov-title').textContent = a.title;
+  document.getElementById('alert-ov-meta').textContent = a.meta;
+  document.getElementById('alert-ov-detail').textContent = a.detail;
+
+  // Pull relevant accounts
+  const accounts = COMPANIES.filter(a.filter).sort((x,y)=>y.arr-x.arr).slice(0,6);
+  const acctHtml = accounts.length ? `
+    <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px">Related Accounts</div>
+    ${accounts.map(c=>`
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border)">
+        <div>
+          <div style="font-size:12px;font-weight:500;color:var(--text)">${c.name} ${c.churnRisk?'<span style="font-size:9px;color:var(--red)">AT RISK</span>':''}</div>
+          <div style="font-size:10.5px;color:var(--text3)">${c.seg} · ${c.reg}</div>
+        </div>
+        <div style="display:flex;gap:10px;text-align:right">
+          <div><div style="font-size:12px;font-family:'DM Mono',monospace;color:${c.disc>22?'var(--red)':c.disc>15?'var(--amber)':'var(--green)'}">${c.disc}%</div><div style="font-size:9px;color:var(--text3)">disc</div></div>
+          <div><div style="font-size:12px;font-family:'DM Mono',monospace;color:${c.nrr>=110?'var(--green)':c.nrr>=100?'var(--text)':'var(--red)'}">${c.nrr}%</div><div style="font-size:9px;color:var(--text3)">NRR</div></div>
+          <div><div style="font-size:12px;font-family:'DM Mono',monospace;color:var(--text2)">${fmt(c.arr)}</div><div style="font-size:9px;color:var(--text3)">ARR</div></div>
+        </div>
+      </div>`).join('')}` : '<div style="font-size:11px;color:var(--text3)">No direct account matches</div>';
+  
+  document.getElementById('alert-ov-accounts').innerHTML = acctHtml;
+  document.getElementById('alert-ai-out').innerHTML = '<span class="ai-placeholder">Click Generate for CFO briefing note and recommended action.</span>';
+  document.getElementById('alert-ai-btn').disabled = false;
+  document.getElementById('alert-ai-btn').textContent = 'Generate ↗';
+  const _alOv=document.getElementById('alert-overlay');if(_alOv)_alOv.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeAlertOverlay() {
+  document.getElementById('alert-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+async function runAlertAI() {
+  const a = currentAlert; if (!a) return;
+  const btn = document.getElementById('alert-ai-btn');
+  const out = document.getElementById('alert-ai-out');
+  btn.disabled = true; btn.textContent = 'Generating…';
+  out.innerHTML = '<span class="ai-placeholder">⚡ Preparing CFO briefing…</span>';
+
+  const accounts = COMPANIES.filter(a.filter).sort((x,y)=>y.arr-x.arr).slice(0,5);
+  const acctStr = accounts.map(c=>`${c.name} (${c.seg}, disc ${c.disc}%, NRR ${c.nrr}%, ARR ${fmt(c.arr)})`).join('; ');
+
+  try {
+    const res = await fetch('/api/pricing-ai', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        mode: 'alert',
+        alert: { title: a.title, context: a.aiContext, detail: a.detail, accounts: acctStr }
+      })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    out.innerHTML = `<div class="ai-glow-badge">GPT-4o</div><span class="ai-response-text">${data.result.replace(/\n/g,'<br>')}</span>`;
+  } catch(e) {
+    out.innerHTML = `<span style="color:var(--red)">Error: ${e.message}</span>`;
+  }
+  btn.disabled = false; btn.textContent = 'Re-generate ↗';
+}
 </script>
 
 <!-- ══ APPROVAL OVERLAY ══════════════════════════════════════════════════ -->
@@ -2250,5 +2357,35 @@ async function runApprovalAI() {
   </div>
 </div>
 
+
+<!-- ══ ALERT OVERLAY ════════════════════════════════════════════════════ -->
+<div class="ov2-overlay" id="alert-overlay">
+  <div class="ov2-modal" style="max-width:740px">
+    <div class="ov2-header">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div id="alert-ov-icon" style="font-size:22px"></div>
+        <div>
+          <div style="font-family:'DM Serif Display',serif;font-size:18px;color:var(--text)" id="alert-ov-title"></div>
+          <div style="font-size:11px;color:var(--text3);margin-top:3px" id="alert-ov-meta"></div>
+        </div>
+      </div>
+      <button class="ov2-close" onclick="closeAlertOverlay()">✕</button>
+    </div>
+    <div class="ov2-body">
+      <div style="background:var(--bg3);border-radius:9px;padding:14px;margin-bottom:14px;font-size:12.5px;color:var(--text2);line-height:1.7" id="alert-ov-detail"></div>
+      <div id="alert-ov-accounts" style="margin-bottom:14px"></div>
+      <div class="ov2-ai-panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <div class="ai-section-title">AI CFO Briefing</div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="ai-powered-badge">Powered by GPT-4o</span>
+            <button onclick="runAlertAI()" id="alert-ai-btn" style="padding:5px 12px;background:rgba(79,142,247,.12);border:1px solid rgba(79,142,247,.3);border-radius:6px;color:var(--accent);font-size:11.5px;cursor:pointer;font-family:'Figtree',sans-serif">Generate ↗</button>
+          </div>
+        </div>
+        <div id="alert-ai-out" class="ai-glow-box"><span class="ai-placeholder">Click Generate for CFO briefing note and recommended action.</span></div>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>

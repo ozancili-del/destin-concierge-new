@@ -165,6 +165,36 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
 @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .sec.active{animation:fadeUp .25s ease forwards}
+
+/* ── CUSTOMER MODAL ─────────────────────────────────────────────────────── */
+.cust-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.cust-overlay.open{display:flex}
+.cust-modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:1100px;max-height:90vh;overflow-y:auto;position:relative;animation:fadeUp .2s ease}
+.cust-modal-header{padding:20px 24px 0;display:flex;justify-content:space-between;align-items:flex-start;position:sticky;top:0;background:var(--bg2);z-index:10;border-bottom:1px solid var(--border);padding-bottom:16px}
+.cust-modal-close{width:28px;height:28px;border-radius:6px;background:var(--bg3);border:1px solid var(--border);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .15s;flex-shrink:0}
+.cust-modal-close:hover{background:rgba(232,93,106,.15);border-color:var(--red);color:var(--red)}
+.cust-modal-body{padding:20px 24px 24px;display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.cust-modal-full{grid-column:1/-1}
+.cust-section-lbl{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px}
+.cust-stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+.cust-stat{background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--border)}
+.cust-stat-val{font-size:18px;font-weight:600;color:var(--text);line-height:1;margin-bottom:2px}
+.cust-stat-lbl{font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px}
+.cust-stat-vs{font-size:10px;margin-top:3px}
+.vs-good{color:var(--green)}.vs-bad{color:var(--red)}.vs-flat{color:var(--text3)}
+.cust-chart-wrap{background:var(--bg3);border-radius:10px;padding:14px;border:1px solid var(--border)}
+.cust-chart-title{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px}
+.ai-panel{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:16px}
+.ai-panel-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.ai-generate-btn{padding:6px 14px;background:rgba(79,142,247,.12);border:1px solid rgba(79,142,247,.3);border-radius:6px;color:var(--accent);font-size:12px;cursor:pointer;font-family:'Figtree',sans-serif;transition:all .2s}
+.ai-generate-btn:hover{background:rgba(79,142,247,.2)}
+.ai-generate-btn:disabled{opacity:.5;cursor:not-allowed}
+.ai-result{font-size:12px;color:var(--text2);line-height:1.75;min-height:120px}
+.peer-tag{display:inline-block;font-size:10px;padding:2px 8px;border-radius:4px;font-family:'DM Mono',monospace;margin:2px 2px 2px 0}
+.tag-above{background:rgba(46,204,143,.1);color:var(--green)}
+.tag-below{background:rgba(232,93,106,.1);color:var(--red)}
+.tag-peer{background:rgba(79,142,247,.1);color:var(--accent)}
+
 </style>
 </head>
 <body>
@@ -792,29 +822,9 @@ mkChart('c-rep-scatter','scatter',{
   datasets:REPS.map(r=>({label:r.name,data:[{x:r.disc,y:r.win}],backgroundColor:r.color,pointRadius:8,pointHoverRadius:10}))
 },{plugins:{legend:{display:true,labels:{color:'#8b90a0',font:{size:10},boxWidth:8,padding:8}},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.parsed.x}% disc · ${c.parsed.y}% win`}}},scales:{x:{title:{display:true,text:'Avg discount %',color:'#4a4f62',font:{size:10}},ticks:{...TX,callback:v=>v+'%'},grid:GS},y:{title:{display:true,text:'Win rate %',color:'#4a4f62',font:{size:10}},ticks:{...TX,callback:v=>v+'%'},grid:GS}}});
 
-// ── PORTFOLIO TABLE ────────────────────────────────────────────────────────
-function renderTable(q=''){
-  const b=document.getElementById('ptbody');if(!b)return;
-  let cos=COMPANIES.filter(c=>{
-    if(currentSeg!=='all'){const sm=currentSeg==='mid'?'Mid-Market':currentSeg==='strat'?'Strategic':currentSeg==='ent'?'Enterprise':'SMB';if(c.seg!==sm)return false}
-    if(q&&!c.name.toLowerCase().includes(q.toLowerCase()))return false;
-    return true;
-  });
-  b.innerHTML=cos.slice(0,50).map(c=>`<tr>
-    <td style="color:var(--text);font-weight:500">${c.name}${c.mintEl?' <span style="font-size:9px;background:rgba(45,212,191,.1);color:#2dd4bf;padding:1px 5px;border-radius:3px">MINT</span>':''}${c.churnRisk?' <span style="font-size:9px;background:rgba(232,93,106,.1);color:#e85d6a;padding:1px 5px;border-radius:3px">At Risk</span>':''}</td>
-    <td><span style="width:7px;height:7px;border-radius:50%;background:${HC[c.ind]};display:inline-block;margin-right:4px"></span>${c.ind}</td>
-    <td><span class="badge ${SC[c.seg]}">${c.seg}</span></td>
-    <td style="font-family:'DM Mono',monospace">${fmt(c.arr)}</td>
-    <td style="font-family:'DM Mono',monospace;color:${c.nrr>=110?'var(--green)':c.nrr>=100?'var(--text)':'var(--red)'}">${c.nrr}%</td>
-    <td style="font-family:'DM Mono',monospace;color:var(--text2)">${fmt(c.listPrice)}</td>
-    <td style="font-family:'DM Mono',monospace;color:${c.arr/c.listPrice>0.82?'var(--green)':c.arr/c.listPrice>0.72?'var(--amber)':'var(--red)'}">${Math.round(c.arr/c.listPrice*100)}%</td>
-    <td style="font-family:'DM Mono',monospace;color:${c.disc>22?'var(--red)':c.disc>15?'var(--amber)':'var(--text)'}">${c.disc}%</td>
-    <td style="font-family:'DM Mono',monospace;color:var(--text2)">${c.ltv}×</td>
-    <td><div style="display:flex;align-items:center;gap:6px"><span style="font-family:'DM Mono',monospace;font-size:11px;color:${hc(c.health)};width:22px">${c.health}</span>${pctBar(c.health,hc(c.health))}</div></td>
-  </tr>`).join('');
-}
+// renderTable defined in modal JS block below
 function filterTable(q){renderTable(q)}
-renderTable();
+
 
 // ── PRICE BOOK ────────────────────────────────────────────────────────────
 (()=>{
@@ -990,8 +1000,241 @@ function calcDeal(){
     </div>`).join('');
 })();
 
+
+// ── CUSTOMER MODAL ────────────────────────────────────────────────────────
+const QTRS = ['Q2 24','Q3 24','Q4 24','Q1 25','Q2 25','Q3 25','Q4 25','Q1 26'];
+const LAST6 = QTRS.slice(-6);
+
+// Generate deterministic quarterly history per customer using their seed
+function custHistory(c) {
+  const r = rng(c.id * 137 + 7);
+  const arrBase = c.arr;
+  const arrHist = LAST6.map((_, i) => {
+    const drift = 0.88 + i * 0.025 + (r() - 0.5) * 0.06;
+    return Math.round(arrBase * drift / 1000); // in $K
+  });
+  const nrrBase = c.nrr;
+  const nrrHist = LAST6.map(() => Math.round(nrrBase + (r() - 0.5) * 12));
+  const discBase = c.disc;
+  const discHist = LAST6.map(() => Math.round((discBase + (r() - 0.5) * 6) * 10) / 10);
+  const healthBase = c.health;
+  const healthHist = LAST6.map(() => Math.round(healthBase + (r() - 0.5) * 14));
+  return { arrHist, nrrHist, discHist, healthHist };
+}
+
+// Segment averages
+function segAvg(seg, field) {
+  const peers = COMPANIES.filter(c => c.seg === seg);
+  return Math.round(peers.reduce((s, c) => s + c[field], 0) / peers.length * 10) / 10;
+}
+
+let modalCharts = {};
+let modalCustomer = null;
+
+function openModal(id) {
+  const c = COMPANIES.find(x => x.id === id);
+  if (!c) return;
+  modalCustomer = c;
+
+  // Header
+  document.getElementById('cm-name').textContent = c.name;
+  document.getElementById('cm-meta').textContent =
+    `${c.ind} · ${c.seg} · ${c.reg} · Health ${c.health}/100`;
+
+  // Avg comparisons
+  const avgNRR  = segAvg(c.seg, 'nrr');
+  const avgDisc = segAvg(c.seg, 'disc');
+  const avgArr  = segAvg(c.seg, 'arr');
+  const avgHealth = segAvg(c.seg, 'health');
+
+  const vsSign = (val, avg, higherBetter=true) => {
+    const diff = Math.round((val - avg) * 10) / 10;
+    const good = higherBetter ? diff >= 0 : diff <= 0;
+    const cls = diff === 0 ? 'vs-flat' : good ? 'vs-good' : 'vs-bad';
+    const sign = diff > 0 ? '+' : '';
+    return `<span class="${cls}">${sign}${diff} vs seg avg</span>`;
+  };
+
+  document.getElementById('cm-stats').innerHTML = `
+    <div class="cust-stat">
+      <div class="cust-stat-val">$${(c.arr/1000).toFixed(0)}K</div>
+      <div class="cust-stat-lbl">Current ARR</div>
+      <div class="cust-stat-vs">${vsSign(c.arr, avgArr)}</div>
+    </div>
+    <div class="cust-stat">
+      <div class="cust-stat-val" style="color:${c.nrr>=110?'var(--green)':c.nrr>=100?'var(--text)':'var(--red)'}">${c.nrr}%</div>
+      <div class="cust-stat-lbl">NRR</div>
+      <div class="cust-stat-vs">${vsSign(c.nrr, avgNRR)}</div>
+    </div>
+    <div class="cust-stat">
+      <div class="cust-stat-val" style="color:${c.disc>22?'var(--red)':c.disc>15?'var(--amber)':'var(--text)'}">${c.disc}%</div>
+      <div class="cust-stat-lbl">Discount</div>
+      <div class="cust-stat-vs">${vsSign(c.disc, avgDisc, false)}</div>
+    </div>
+    <div class="cust-stat">
+      <div class="cust-stat-val" style="color:${c.health>=75?'var(--green)':c.health>=55?'var(--amber)':'var(--red)'}">${c.health}</div>
+      <div class="cust-stat-lbl">Health Score</div>
+      <div class="cust-stat-vs">${vsSign(c.health, avgHealth)}</div>
+    </div>`;
+
+  // History
+  const h = custHistory(c);
+
+  // Peers list
+  const peers = COMPANIES
+    .filter(x => x.seg === c.seg && x.ind === c.ind && x.id !== c.id)
+    .sort((a, b) => b.arr - a.arr)
+    .slice(0, 5);
+
+  document.getElementById('cm-peers').innerHTML = peers.map(p => {
+    const nrrCls = p.nrr > c.nrr ? 'tag-above' : p.nrr < c.nrr ? 'tag-below' : 'tag-peer';
+    const discCls = p.disc < c.disc ? 'tag-above' : p.disc > c.disc ? 'tag-below' : 'tag-peer';
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border)">
+      <div style="font-size:11.5px;color:var(--text);font-weight:500">${p.name}</div>
+      <div style="display:flex;gap:4px">
+        <span class="peer-tag ${nrrCls}">NRR ${p.nrr}%</span>
+        <span class="peer-tag ${discCls}">${p.disc}% disc</span>
+      </div>
+    </div>`;
+  }).join('') || '<div style="color:var(--text3);font-size:11px">No direct peers in same industry+segment</div>';
+
+  // Reset AI
+  document.getElementById('cm-ai-out').innerHTML = '<span style="color:var(--text3);font-family:\'DM Mono\',monospace;font-size:11px">Click Generate to analyse this account against portfolio peers.</span>';
+  document.getElementById('ai-modal-btn').disabled = false;
+
+  // Destroy old charts
+  Object.values(modalCharts).forEach(ch => ch && ch.destroy());
+  modalCharts = {};
+
+  // Draw charts
+  const cmOpts = (color, isBar=false) => ({
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { ticks: { color: '#4a4f62', font: { size: 9 } }, grid: { display: false } },
+      y: { ticks: { color: '#4a4f62', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,0.04)' } }
+    }
+  });
+
+  const mkLine = (id, labels, data, color, fill=true) => {
+    const el = document.getElementById(id); if (!el) return;
+    return new Chart(el, { type: 'line', data: {
+      labels,
+      datasets: [{ data, borderColor: color, backgroundColor: fill ? color.replace(')',',0.08)').replace('rgb','rgba') : 'transparent',
+        fill, tension: 0.4, pointRadius: 3, pointBackgroundColor: color }]
+    }, options: cmOpts(color) });
+  };
+
+  const mkBar = (id, labels, data, color) => {
+    const el = document.getElementById(id); if (!el) return;
+    return new Chart(el, { type: 'bar', data: {
+      labels, datasets: [{ data, backgroundColor: color + '99', borderRadius: 3 }]
+    }, options: cmOpts(color, true) });
+  };
+
+  setTimeout(() => {
+    modalCharts.arr    = mkLine('cm-arr-chart',    LAST6, h.arrHist,    '#4f8ef7');
+    modalCharts.nrr    = mkLine('cm-nrr-chart',    LAST6, h.nrrHist,    '#2ecc8f');
+    modalCharts.disc   = mkBar ('cm-disc-chart',   LAST6, h.discHist,   '#f5a623');
+    modalCharts.health = mkLine('cm-health-chart', LAST6, h.healthHist, '#7c5cfc');
+  }, 50);
+
+  // Show overlay
+  document.getElementById('cust-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('cust-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+  Object.values(modalCharts).forEach(ch => ch && ch.destroy());
+  modalCharts = {};
+}
+
+// Close on backdrop click
+document.getElementById('cust-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+async function runModalAI() {
+  const c = modalCustomer; if (!c) return;
+  const btn = document.getElementById('ai-modal-btn');
+  const out = document.getElementById('cm-ai-out');
+  btn.disabled = true;
+  btn.textContent = 'Generating…';
+  out.innerHTML = '<span style="color:var(--accent);font-family:\'DM Mono\',monospace;font-size:11px">Analysing account against portfolio…</span>';
+
+  const avgNRR  = segAvg(c.seg, 'nrr');
+  const avgDisc = segAvg(c.seg, 'disc');
+  const avgHealth = segAvg(c.seg, 'health');
+
+  const peers = COMPANIES
+    .filter(x => x.seg === c.seg && x.ind === c.ind && x.id !== c.id)
+    .sort((a, b) => b.arr - a.arr)
+    .slice(0, 4);
+
+  const h = custHistory(c);
+  const arrTrend = h.arrHist[5] > h.arrHist[0] ? 'growing' : 'declining';
+  const nrrTrend = h.nrrHist[5] > h.nrrHist[0] ? 'improving' : 'declining';
+  const discTrend = h.discHist[5] > h.discHist[0] ? 'increasing' : 'holding steady';
+
+  const peerStr = peers.length
+    ? peers.map(p => `${p.name} (ARR $${(p.arr/1000).toFixed(0)}K, NRR ${p.nrr}%, disc ${p.disc}%)`).join('; ')
+    : 'No direct peers';
+
+  const payload = {
+    customer: {
+      name: c.name, ind: c.ind, seg: c.seg, reg: c.reg,
+      arr: `$${(c.arr/1000).toFixed(0)}K`, nrr: c.nrr,
+      disc: c.disc, health: c.health, ltv: c.ltv,
+      mintAttached: c.mintEl, beamsAttached: c.beamsEl,
+      churnRisk: c.churnRisk, arrTrend, nrrTrend, discTrend,
+      segAvgNRR: avgNRR, segAvgDisc: avgDisc, segAvgHealth: avgHealth
+    },
+    peers: peerStr
+  };
+
+  try {
+    const res = await fetch('/api/pricing-ai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: 'customer', customer: payload.customer, peers: payload.peers })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    out.innerHTML = `<span class="ai-badge">GPT-4o</span><br><br><span style="color:var(--text2)">${data.result.replace(/\n/g,'<br>')}</span>`;
+  } catch(e) {
+    out.innerHTML = `<span style="color:var(--red)">Error: ${e.message}</span>`;
+  }
+  btn.disabled = false;
+  btn.textContent = 'Re-generate ↗';
+}
+
+// Make table rows clickable
+function renderTable(q=''){
+  const b=document.getElementById('ptbody');if(!b)return;
+  let cos=COMPANIES.filter(c=>{
+    if(currentSeg!=='all'){const sm=currentSeg==='mid'?'Mid-Market':currentSeg==='strat'?'Strategic':currentSeg==='ent'?'Enterprise':'SMB';if(c.seg!==sm)return false}
+    if(q&&!c.name.toLowerCase().includes(q.toLowerCase()))return false;
+    return true;
+  });
+  b.innerHTML=cos.slice(0,50).map(c=>`<tr onclick="openModal(${c.id})" style="cursor:pointer">
+    <td style="color:var(--text);font-weight:500">${c.name}${c.mintEl?' <span style="font-size:9px;background:rgba(45,212,191,.1);color:#2dd4bf;padding:1px 5px;border-radius:3px">MINT</span>':''}${c.churnRisk?' <span style="font-size:9px;background:rgba(232,93,106,.1);color:#e85d6a;padding:1px 5px;border-radius:3px">At Risk</span>':''}</td>
+    <td><span style="width:7px;height:7px;border-radius:50%;background:${HC[c.ind]};display:inline-block;margin-right:4px"></span>${c.ind}</td>
+    <td><span class="badge ${SC[c.seg]}">${c.seg}</span></td>
+    <td style="font-family:'DM Mono',monospace">${fmt(c.arr)}</td>
+    <td style="font-family:'DM Mono',monospace;color:${c.nrr>=110?'var(--green)':c.nrr>=100?'var(--text)':'var(--red)'}">${c.nrr}%</td>
+    <td style="font-family:'DM Mono',monospace;color:var(--text2)">${fmt(c.listPrice)}</td>
+    <td style="font-family:'DM Mono',monospace;color:${c.arr/c.listPrice>0.82?'var(--green)':c.arr/c.listPrice>0.72?'var(--amber)':'var(--red)'}">${Math.round(c.arr/c.listPrice*100)}%</td>
+    <td style="font-family:'DM Mono',monospace;color:${c.disc>22?'var(--red)':c.disc>15?'var(--amber)':'var(--text)'}">${c.disc}%</td>
+    <td style="font-family:'DM Mono',monospace;color:var(--text2)">${c.ltv}×</td>
+    <td><div style="display:flex;align-items:center;gap:6px"><span style="font-family:'DM Mono',monospace;font-size:11px;color:${hc(c.health)};width:22px">${c.health}</span>${pctBar(c.health,hc(c.health))}</div></td>
+  </tr>`).join('');
+}
+
 // init deal modeler
 calcDeal();
+renderTable();
 
 // ── PERIOD SELECTOR ───────────────────────────────────────────────────────
 const PERIOD_DATA = {
@@ -1135,5 +1378,59 @@ document.querySelectorAll('.fp').forEach(el => {
 });
 
 </script>
+
+<!-- ══ CUSTOMER DETAIL MODAL ══════════════════════════════════════════════ -->
+<div class="cust-overlay" id="cust-overlay">
+  <div class="cust-modal" id="cust-modal">
+    <div class="cust-modal-header">
+      <div>
+        <div style="font-family:'DM Serif Display',serif;font-size:20px;color:var(--text)" id="cm-name">—</div>
+        <div style="font-size:11.5px;color:var(--text3);margin-top:3px" id="cm-meta">—</div>
+      </div>
+      <button class="cust-modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="cust-modal-body">
+      <!-- KPI strip -->
+      <div class="cust-modal-full">
+        <div class="cust-section-lbl">Current Performance</div>
+        <div class="cust-stat-grid" id="cm-stats"></div>
+      </div>
+      <!-- Quarterly charts: left col -->
+      <div>
+        <div class="cust-chart-wrap" style="margin-bottom:12px">
+          <div class="cust-chart-title">ARR ($K) — 6 Quarters</div>
+          <div style="position:relative;height:110px"><canvas id="cm-arr-chart"></canvas></div>
+        </div>
+        <div class="cust-chart-wrap" style="margin-bottom:12px">
+          <div class="cust-chart-title">NRR (%) — 6 Quarters</div>
+          <div style="position:relative;height:110px"><canvas id="cm-nrr-chart"></canvas></div>
+        </div>
+        <div class="cust-chart-wrap">
+          <div class="cust-chart-title">Discount (%) — 6 Quarters</div>
+          <div style="position:relative;height:110px"><canvas id="cm-disc-chart"></canvas></div>
+        </div>
+      </div>
+      <!-- Right col: health + peers + AI -->
+      <div>
+        <div class="cust-chart-wrap" style="margin-bottom:12px">
+          <div class="cust-chart-title">Health Score — 6 Quarters</div>
+          <div style="position:relative;height:110px"><canvas id="cm-health-chart"></canvas></div>
+        </div>
+        <div class="cust-chart-wrap" style="margin-bottom:12px">
+          <div class="cust-section-lbl" style="margin-bottom:8px">Segment Peers</div>
+          <div id="cm-peers" style="font-size:12px"></div>
+        </div>
+        <div class="ai-panel">
+          <div class="ai-panel-header">
+            <div class="cust-section-lbl" style="margin-bottom:0">AI Deal Desk Analysis</div>
+            <button class="ai-generate-btn" id="ai-modal-btn" onclick="runModalAI()">Generate ↗</button>
+          </div>
+          <div class="ai-result" id="cm-ai-out"><span style="color:var(--text3);font-family:'DM Mono',monospace;font-size:11px">Click Generate to analyse this account against portfolio peers.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

@@ -168,7 +168,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
 .sec.active{animation:fadeUp .25s ease forwards}
 
 /* ── CUSTOMER MODAL ─────────────────────────────────────────────────────── */
-.cust-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:1000;display:none;visibility:hidden;pointer-events:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.cust-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
 .cust-overlay.open{display:flex}
 .cust-modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:1100px;max-height:90vh;overflow-y:auto;position:relative;animation:fadeUp .2s ease}
 .cust-modal-header{padding:20px 24px 0;display:flex;justify-content:space-between;align-items:flex-start;position:sticky;top:0;background:var(--bg2);z-index:10;border-bottom:1px solid var(--border);padding-bottom:16px}
@@ -204,7 +204,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
 
 
 /* LEAKAGE + REP OVERLAYS */
-.ov2-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:1000;display:none;visibility:hidden;pointer-events:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.ov2-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
 .ov2-overlay.open{display:flex}
 .ov2-modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:860px;max-height:88vh;overflow-y:auto;position:relative;animation:fadeUp .2s ease}
 .ov2-header{padding:20px 24px 16px;display:flex;justify-content:space-between;align-items:flex-start;position:sticky;top:0;background:var(--bg2);z-index:10;border-bottom:1px solid var(--border)}
@@ -220,8 +220,8 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
 
 
 /* OVERLAYS */
-.cust-overlay,.ov2-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:1000;display:none;visibility:hidden;pointer-events:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
-.cust-overlay.open,.ov2-overlay.open{display:flex;visibility:visible;pointer-events:auto}
+.cust-overlay,.ov2-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.cust-overlay.open,.ov2-overlay.open{display:flex}
 .cust-modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:1100px;max-height:90vh;overflow-y:auto;position:relative;animation:fadeUp .2s ease}
 .ov2-modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:860px;max-height:88vh;overflow-y:auto;position:relative;animation:fadeUp .2s ease}
 .cust-modal-header,.ov2-header{padding:20px 24px 16px;display:flex;justify-content:space-between;align-items:flex-start;position:sticky;top:0;background:var(--bg2);z-index:10;border-bottom:1px solid var(--border)}
@@ -555,10 +555,10 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
     <div class="card">
       <div class="ch" style="margin-bottom:10px"><div class="ct">Executive Alerts</div></div>
       <div class="cb" style="padding-top:0">
-        <div class="alert" onclick="openAlertOverlay(0)" style="cursor:pointer;transition:opacity .15s" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div style="color:var(--red);font-size:13px;margin-top:1px">⚠</div><div class="alert-txt"><strong>7 deals pending CFO approval</strong> — EMEA enterprise accounts averaging 31% discount. Combined ARR exposure $1.2M. Recommendation: enforce value-based justification memo before proceeding.</div><div style="font-size:9px;color:var(--text3);margin-left:auto;padding-left:8px">↗</div></div>
-        <div class="alert am" onclick="openAlertOverlay(1)" style="cursor:pointer;transition:opacity .15s" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div style="color:var(--amber);font-size:13px;margin-top:1px">⚠</div><div class="alert-txt"><strong>Beams AI module underpriced</strong> — CoAnalyst/CoAuthor showing 2.3× higher retention vs base tier but only 8% price premium. Repricing to 22–28% premium could recover $640K ARR annually.</div><div style="font-size:9px;color:var(--text3);margin-left:auto;padding-left:8px">↗</div></div>
-        <div class="alert am" onclick="openAlertOverlay(2)" style="cursor:pointer;transition:opacity .15s" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div style="color:var(--amber);font-size:13px;margin-top:1px">⚠</div><div class="alert-txt"><strong>3 renewals below NRR floor</strong> — SkyWest Airlines, Rail Corp AU, NovaStar Defense showing contraction. Average uplift realization 61% vs 90% contracted. Deal desk review recommended.</div><div style="font-size:9px;color:var(--text3);margin-left:auto;padding-left:8px">↗</div></div>
-        <div class="alert gr" onclick="openAlertOverlay(3)" style="cursor:pointer;transition:opacity .15s" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div style="color:var(--green);font-size:13px;margin-top:1px">✓</div><div class="alert-txt"><strong>MINT integration upsell: $680K opportunity</strong> — 14 existing customers eligible for Training Management module upgrade. Pipeline ready to engage Q2 2026.</div><div style="font-size:9px;color:var(--text3);margin-left:auto;padding-left:8px">↗</div></div>
+        <div class="alert" onclick="openAlertOverlay(0)" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div style="color:var(--red);font-size:13px;margin-top:1px">⚠</div><div class="alert-txt"><strong>7 deals pending CFO approval</strong> — EMEA enterprise accounts averaging 31% discount. Combined ARR exposure $1.2M. Recommendation: enforce value-based justification memo before proceeding.</div><div style="font-size:9px;color:var(--text3);flex-shrink:0;padding-left:8px">↗</div></div>
+        <div class="alert am" onclick="openAlertOverlay(1)" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div style="color:var(--amber);font-size:13px;margin-top:1px">⚠</div><div class="alert-txt"><strong>Beams AI module underpriced</strong> — CoAnalyst/CoAuthor showing 2.3× higher retention vs base tier but only 8% price premium. Repricing to 22–28% premium could recover $640K ARR annually.</div><div style="font-size:9px;color:var(--text3);flex-shrink:0;padding-left:8px">↗</div></div>
+        <div class="alert am" onclick="openAlertOverlay(2)" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div style="color:var(--amber);font-size:13px;margin-top:1px">⚠</div><div class="alert-txt"><strong>3 renewals below NRR floor</strong> — SkyWest Airlines, Rail Corp AU, NovaStar Defense showing contraction. Average uplift realization 61% vs 90% contracted. Deal desk review recommended.</div><div style="font-size:9px;color:var(--text3);flex-shrink:0;padding-left:8px">↗</div></div>
+        <div class="alert gr" onclick="openAlertOverlay(3)" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div style="color:var(--green);font-size:13px;margin-top:1px">✓</div><div class="alert-txt"><strong>MINT integration upsell: $680K opportunity</strong> — 14 existing customers eligible for Training Management module upgrade. Pipeline ready to engage Q2 2026.</div><div style="font-size:9px;color:var(--text3);flex-shrink:0;padding-left:8px">↗</div></div>
       </div>
     </div>
   </section>
@@ -1858,7 +1858,7 @@ function closeModal(){
   Object.values(modalCharts).forEach(ch=>ch&&ch.destroy());
   modalCharts={};
 }
-(function(){const el=document.getElementById('cust-overlay');if(el)el.addEventListener('click',function(e){if(e.target===this)closeModal();});})();
+document.getElementById('cust-overlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
 
 async function runModalAI(){
   const c=modalCustomer;if(!c)return;
@@ -1925,7 +1925,7 @@ function closeLeakOverlay(){
   document.body.style.overflow='';
   if(leakChart){leakChart.destroy();leakChart=null;}
 }
-(function(){const el=document.getElementById('leak-overlay');if(el)el.addEventListener('click',function(e){if(e.target===this)closeLeakOverlay();});})();
+document.getElementById('leak-overlay').addEventListener('click',function(e){if(e.target===this)closeLeakOverlay();});
 
 async function runLeakAI(){
   const d=currentLeakDriver;if(!d)return;
@@ -1979,7 +1979,7 @@ function closeRepOverlay(){
   document.getElementById('rep-overlay').classList.remove('open');
   document.body.style.overflow='';
 }
-(function(){const el=document.getElementById('rep-overlay');if(el)el.addEventListener('click',function(e){if(e.target===this)closeRepOverlay();});})();
+document.getElementById('rep-overlay').addEventListener('click',function(e){if(e.target===this)closeRepOverlay();});
 
 async function runRepAI(){
   const r=currentRepData;if(!r)return;
@@ -2094,226 +2094,128 @@ calcDeal();
 renderTable();
 
 
+// ── EXEC ALERTS ───────────────────────────────────────────────────────────
+const EXEC_ALERTS=[
+  {type:'red',icon:'⚠',title:'7 deals pending CFO approval',meta:'EMEA Enterprise · $1.2M ARR exposure · Avg 31% discount',detail:'EMEA enterprise accounts averaging 31% discount with 7 deals stuck in CFO approval. Combined ARR exposure $1.2M. Pattern suggests reps bypassing value justification step. Recommendation: enforce value-based justification memo before any CFO escalation proceeds.',filter:c=>(c.seg==='Enterprise'||c.seg==='Strategic')&&c.reg==='EMEA'&&c.disc>25,aiContext:'7 EMEA enterprise deals pending CFO approval, avg 31% discount, $1.2M ARR exposure, no value justification memos filed'},
+  {type:'am',icon:'⚠',title:'Beams AI module underpriced',meta:'Pricing gap · $640K annual ARR recovery opportunity',detail:'CoAnalyst and CoAuthor driving 2.3× higher retention vs base tier but priced at only 8% premium. Market benchmarks suggest 22–28% premium is defensible. Repricing could recover $640K ARR annually.',filter:c=>c.beamsEl&&c.nrr>=110,aiContext:'Beams AI module underpriced at 8% premium vs recommended 22-28%, 2.3x retention lift, $640K annual recovery opportunity'},
+  {type:'am',icon:'⚠',title:'3 renewals below NRR floor',meta:'SkyWest Airlines · Rail Corp AU · NovaStar Defense · 61% uplift realization',detail:'SkyWest Airlines, Rail Corp AU, and NovaStar Defense showing ARR contraction at renewal. Average uplift realization 61% vs 90% contracted. Renewal teams waiving uplift under churn pressure without deal desk review.',filter:c=>c.nrr<100&&c.churnRisk,aiContext:'3 named accounts below NRR floor, 61% uplift realization vs 90% contracted, churn risk flagged'},
+  {type:'gr',icon:'✓',title:'MINT integration upsell: $680K opportunity',meta:'14 eligible accounts · Q2 2026 pipeline ready',detail:'14 existing customers eligible for MINT Training Management upgrade based on current OCM usage. Average expansion ARR $34K at standard attach rate. Single largest near-term expansion opportunity in the portfolio.',filter:c=>!c.mintEl&&(c.seg==='Enterprise'||c.seg==='Strategic'),aiContext:'14 accounts eligible for MINT upsell, $680K total opportunity, $34K avg per account, Q2 2026 pipeline ready'},
+];
+
+let currentAlert=null;
+
+function openAlertOverlay(idx){
+  const a=EXEC_ALERTS[idx];currentAlert=a;
+  const iconColor=a.type==='red'?'var(--red)':a.type==='am'?'var(--amber)':'var(--green)';
+  document.getElementById('alert-ov-icon').textContent=a.icon;
+  document.getElementById('alert-ov-icon').style.color=iconColor;
+  document.getElementById('alert-ov-title').textContent=a.title;
+  document.getElementById('alert-ov-meta').textContent=a.meta;
+  document.getElementById('alert-ov-detail').textContent=a.detail;
+  const accounts=COMPANIES.filter(a.filter).sort((x,y)=>y.arr-x.arr).slice(0,6);
+  document.getElementById('alert-ov-accounts').innerHTML=accounts.length?`
+    <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px">Related Accounts</div>
+    ${accounts.map(c=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border)">
+      <div><div style="font-size:12px;font-weight:500;color:var(--text)">${c.name}${c.churnRisk?' <span style="font-size:9px;color:var(--red)">AT RISK</span>':''}</div><div style="font-size:10.5px;color:var(--text3)">${c.seg} · ${c.reg}</div></div>
+      <div style="display:flex;gap:10px;text-align:right">
+        <div><div style="font-size:12px;font-family:'DM Mono',monospace;color:${c.disc>22?'var(--red)':c.disc>15?'var(--amber)':'var(--green)'}">${c.disc}%</div><div style="font-size:9px;color:var(--text3)">disc</div></div>
+        <div><div style="font-size:12px;font-family:'DM Mono',monospace;color:${c.nrr>=110?'var(--green)':c.nrr>=100?'var(--text)':'var(--red)'}">${c.nrr}%</div><div style="font-size:9px;color:var(--text3)">NRR</div></div>
+        <div><div style="font-size:12px;font-family:'DM Mono',monospace;color:var(--text2)">${fmt(c.arr)}</div><div style="font-size:9px;color:var(--text3)">ARR</div></div>
+      </div>
+    </div>`).join('')}`:'<div style="font-size:11px;color:var(--text3)">No direct matches</div>';
+  document.getElementById('alert-ai-out').innerHTML='<span class="ai-placeholder">Click Generate for CFO briefing note.</span>';
+  document.getElementById('alert-ai-btn').disabled=false;
+  document.getElementById('alert-ai-btn').textContent='Generate ↗';
+  const el=document.getElementById('alert-overlay');if(el)el.classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function closeAlertOverlay(){
+  const el=document.getElementById('alert-overlay');if(el)el.classList.remove('open');
+  document.body.style.overflow='';
+}
+
+async function runAlertAI(){
+  const a=currentAlert;if(!a)return;
+  const btn=document.getElementById('alert-ai-btn');
+  const out=document.getElementById('alert-ai-out');
+  btn.disabled=true;btn.textContent='Generating…';
+  out.innerHTML='<span class="ai-placeholder">⚡ Preparing CFO briefing…</span>';
+  const accounts=COMPANIES.filter(a.filter).sort((x,y)=>y.arr-x.arr).slice(0,5);
+  try{
+    const res=await fetch('/api/pricing-ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'alert',alert:{title:a.title,context:a.aiContext,detail:a.detail,accounts:accounts.map(c=>`${c.name} (${c.seg}, disc ${c.disc}%, NRR ${c.nrr}%, ARR ${fmt(c.arr)})`).join('; ')}})});
+    const data=await res.json();
+    if(data.error)throw new Error(data.error);
+    out.innerHTML=`<div class="ai-glow-badge">GPT-4o</div><span class="ai-response-text">${data.result.replace(/\n/g,'<br>')}</span>`;
+  }catch(e){out.innerHTML=`<span style="color:var(--red)">Error: ${e.message}</span>`;}
+  btn.disabled=false;btn.textContent='Re-generate ↗';
+}
+
+
 // ── APPROVAL OVERLAY ──────────────────────────────────────────────────────
 
-
-const APPROVAL_STEPS = {
-  'Pricing Lead': {step:3, pct:'21–25%', color:'var(--amber)', desc:'Value justification memo + NPV impact model required. SLA 1 business day.'},
-  'CFO Review':   {step:4, pct:'26–30%', color:'var(--red)',   desc:'Competitor intelligence + LTV model required. SLA 2 business days.'},
-  'CEO Exception':{step:5, pct:'>30%',   color:'#c0293a',      desc:'Strategic exception only. Formal business case. Board notification for deals >$500K ARR.'},
-};
-
-let currentApproval = null;
-
-function openApprovalOverlay(idx) {
-  const d = PENDING_DEALS[idx];
-  currentApproval = d;
-
-  document.getElementById('appr-ov-title').textContent = d.co;
-  document.getElementById('appr-ov-meta').textContent = `${d.rep} · ${d.ind} · ${d.seg} · ${d.reg} · Pending ${d.age}`;
-
-  // KPI strip
-  const stepInfo = APPROVAL_STEPS[d.step] || APPROVAL_STEPS['Pricing Lead'];
-  document.getElementById('appr-ov-kpis').innerHTML = `
-    <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--border)">
-      <div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">Discount</div>
-      <div style="font-size:22px;font-weight:700;color:${d.disc>=28?'var(--red)':'var(--amber)'}">${d.disc}%</div>
-    </div>
-    <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--border)">
-      <div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">ARR</div>
-      <div style="font-size:22px;font-weight:700;color:var(--text)">${d.arr}</div>
-    </div>
-    <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--border)">
-      <div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">Term</div>
-      <div style="font-size:22px;font-weight:700;color:var(--text)">${d.term}yr</div>
-    </div>
-    <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--border)">
-      <div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">Approval step</div>
-      <div style="font-size:14px;font-weight:700;color:${stepInfo.color};margin-top:4px">${d.step}</div>
-    </div>`;
-
-  // Approval ladder
-  const segPeers = COMPANIES.filter(c => c.ind === d.ind && c.seg === d.seg);
-  const avgDisc = segPeers.length ? Math.round(segPeers.reduce((s,c)=>s+c.disc,0)/segPeers.length*10)/10 : 'N/A';
-  const avgNRR  = segPeers.length ? Math.round(segPeers.reduce((s,c)=>s+c.nrr,0)/segPeers.length) : 'N/A';
-  const aboveAvg = typeof avgDisc === 'number' ? d.disc - avgDisc : 0;
-
-  document.getElementById('appr-ov-ladder').innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
-      <div>
-        <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px">Current gate</div>
-        <div style="font-size:14px;font-weight:600;color:${stepInfo.color}">${d.step} · ${stepInfo.pct}</div>
-        <div style="font-size:11px;color:var(--text2);margin-top:4px">${stepInfo.desc}</div>
-      </div>
-      <div style="text-align:right">
-        <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px">vs segment avg</div>
-        <div style="font-size:20px;font-weight:700;color:var(--red)">+${aboveAvg.toFixed(1)}pp</div>
-        <div style="font-size:10.5px;color:var(--text3)">${d.ind} ${d.seg} avg: ${avgDisc}%</div>
-      </div>
+function openApprovalOverlay(idx){
+  const d=PENDING_DEALS[idx];currentApproval=d;
+  document.getElementById('appr-ov-title').textContent=d.co;
+  document.getElementById('appr-ov-meta').textContent=`${d.rep} · ${d.ind} · ${d.seg} · ${d.reg} · Pending ${d.age}`;
+  const si=APPROVAL_STEPS[d.step]||APPROVAL_STEPS['Pricing Lead'];
+  const segPeers=COMPANIES.filter(c=>c.ind===d.ind&&c.seg===d.seg);
+  const avgDisc=segPeers.length?Math.round(segPeers.reduce((s,c)=>s+c.disc,0)/segPeers.length*10)/10:18;
+  const avgNRR=segPeers.length?Math.round(segPeers.reduce((s,c)=>s+c.nrr,0)/segPeers.length):110;
+  document.getElementById('appr-ov-kpis').innerHTML=`
+    <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--border)"><div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">Discount</div><div style="font-size:22px;font-weight:700;color:${d.disc>=28?'var(--red)':'var(--amber)'}">${d.disc}%</div></div>
+    <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--border)"><div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">ARR</div><div style="font-size:22px;font-weight:700;color:var(--text)">${d.arr}</div></div>
+    <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--border)"><div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">Term</div><div style="font-size:22px;font-weight:700;color:var(--text)">${d.term}yr</div></div>
+    <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--border)"><div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">Gate</div><div style="font-size:13px;font-weight:700;color:${si.color};margin-top:4px">${d.step}</div></div>`;
+  document.getElementById('appr-ov-ladder').innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+      <div><div style="font-size:13px;font-weight:600;color:${si.color}">${d.step} · ${si.pct}</div><div style="font-size:11px;color:var(--text2);margin-top:4px">${si.desc}</div></div>
+      <div style="text-align:right"><div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px">vs seg avg</div><div style="font-size:20px;font-weight:700;color:var(--red)">+${(d.disc-avgDisc).toFixed(1)}pp</div><div style="font-size:10px;color:var(--text3)">${d.ind} ${d.seg} avg: ${avgDisc}%</div></div>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       <div style="font-size:11px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;color:var(--text2)">Modules: <strong style="color:var(--text)">${d.modules}</strong></div>
       <div style="font-size:11px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;color:var(--text2)">Rep: <strong style="color:var(--text)">${d.rep}</strong></div>
-      <div style="font-size:11px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;color:var(--text2)">Reason given: <strong style="color:${d.reason==='none'?'var(--red)':'var(--text)'}\">${d.reason||'⚠ None provided'}</strong></div>
+      <div style="font-size:11px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:4px 10px;color:var(--text2)">Reason: <strong style="color:var(--text)">${d.reason}</strong></div>
     </div>`;
-
-  // Reset AI
-  document.getElementById('appr-ai-out').innerHTML = '<span class="ai-placeholder">Click Generate for approval recommendation and rep questions.</span>';
-  document.getElementById('appr-ai-btn').disabled = false;
-  document.getElementById('appr-ai-btn').textContent = 'Generate ↗';
-
-  document.getElementById('approval-overlay').classList.add('open');
-  document.body.style.overflow = 'hidden';
+  document.getElementById('appr-ai-out').innerHTML='<span class="ai-placeholder">Click Generate for approval recommendation.</span>';
+  document.getElementById('appr-ai-btn').disabled=false;document.getElementById('appr-ai-btn').textContent='Generate ↗';
+  const el=document.getElementById('approval-overlay');if(el)el.classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeApprovalOverlay(){
+  const el=document.getElementById('approval-overlay');if(el)el.classList.remove('open');
+  document.body.style.overflow='';
 }
 
-function closeApprovalOverlay() {
-  document.getElementById('approval-overlay').classList.remove('open');
-  document.body.style.overflow = '';
-}
-document.getElementById('approval-overlay').addEventListener('click', function(e) {
-  if (e.target === this) closeApprovalOverlay();
-});
-
-async function runApprovalAI() {
-  const d = currentApproval; if (!d) return;
-  const btn = document.getElementById('appr-ai-btn');
-  const out = document.getElementById('appr-ai-out');
-  btn.disabled = true; btn.textContent = 'Generating…';
-  out.innerHTML = '<span class="ai-placeholder">⚡ Analysing deal…</span>';
-
-  const segPeers = COMPANIES.filter(c => c.ind === d.ind && c.seg === d.seg);
-  const avgDisc = segPeers.length ? Math.round(segPeers.reduce((s,c)=>s+c.disc,0)/segPeers.length*10)/10 : 18;
-  const avgNRR  = segPeers.length ? Math.round(segPeers.reduce((s,c)=>s+c.nrr,0)/segPeers.length) : 110;
-
-  try {
-    const res = await fetch('/api/pricing-ai', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({
-        mode: 'approval',
-        approval: {
-          company: d.co, rep: d.rep, disc: d.disc, arr: d.arr,
-          ind: d.ind, seg: d.seg, reg: d.reg, step: d.step,
-          modules: d.modules, term: d.term, reason: d.reason,
-          age: d.age, avgDisc, avgNRR
-        }
-      })
-    });
-    const data = await res.json();
-    if (data.error) throw new Error(data.error);
-    out.innerHTML = `<div class="ai-glow-badge">GPT-4o</div><span class="ai-response-text">${data.result.replace(/\n/g,'<br>')}</span>`;
-  } catch(e) {
-    out.innerHTML = `<span style="color:var(--red)">Error: ${e.message}</span>`;
-  }
-  btn.disabled = false; btn.textContent = 'Re-generate ↗';
+async function runApprovalAI(){
+  const d=currentApproval;if(!d)return;
+  const btn=document.getElementById('appr-ai-btn');const out=document.getElementById('appr-ai-out');
+  btn.disabled=true;btn.textContent='Generating…';
+  out.innerHTML='<span class="ai-placeholder">⚡ Analysing deal…</span>';
+  const segPeers=COMPANIES.filter(c=>c.ind===d.ind&&c.seg===d.seg);
+  const avgDisc=segPeers.length?Math.round(segPeers.reduce((s,c)=>s+c.disc,0)/segPeers.length*10)/10:18;
+  const avgNRR=segPeers.length?Math.round(segPeers.reduce((s,c)=>s+c.nrr,0)/segPeers.length):110;
+  try{
+    const res=await fetch('/api/pricing-ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'approval',approval:{company:d.co,rep:d.rep,disc:d.disc,arr:d.arr,ind:d.ind,seg:d.seg,reg:d.reg,step:d.step,modules:d.modules,term:d.term,reason:d.reason,age:d.age,avgDisc,avgNRR}})});
+    const data=await res.json();
+    if(data.error)throw new Error(data.error);
+    out.innerHTML=`<div class="ai-glow-badge">GPT-4o</div><span class="ai-response-text">${data.result.replace(/\n/g,'<br>')}</span>`;
+  }catch(e){out.innerHTML=`<span style="color:var(--red)">Error: ${e.message}</span>`;}
+  btn.disabled=false;btn.textContent='Re-generate ↗';
 }
 
-// ── EXEC ALERTS OVERLAY ───────────────────────────────────────────────────
-const EXEC_ALERTS = [
-  {
-    type:'red', icon:'⚠', 
-    title:'7 deals pending CFO approval',
-    meta:'EMEA Enterprise · $1.2M ARR exposure · Avg 31% discount',
-    detail:'EMEA enterprise accounts averaging 31% discount with 7 deals stuck in the CFO approval queue. Combined ARR exposure $1.2M. Pattern suggests reps are bypassing value justification step and going straight to maximum discount. Recommendation: enforce value-based justification memo before any CFO escalation proceeds.',
-    filter: c => (c.seg==='Enterprise'||c.seg==='Strategic') && c.reg==='EMEA' && c.disc>25,
-    aiContext: '7 EMEA enterprise deals pending CFO approval, avg 31% discount, $1.2M ARR exposure, no value justification memos filed'
-  },
-  {
-    type:'am', icon:'⚠',
-    title:'Beams AI module underpriced',
-    meta:'Pricing gap · $640K annual ARR recovery opportunity',
-    detail:'CoAnalyst and CoAuthor features are driving 2.3× higher retention vs base tier accounts but are priced at only 8% premium. Market benchmarks suggest 22–28% premium is defensible given the measurable ROI. Repricing could recover $640K ARR annually across the current customer base.',
-    filter: c => c.beamsEl && c.nrr >= 110,
-    aiContext: 'Beams AI module underpriced at 8% premium vs recommended 22-28%, 2.3x retention lift vs base tier, $640K annual recovery opportunity'
-  },
-  {
-    type:'am', icon:'⚠',
-    title:'3 renewals below NRR floor',
-    meta:'SkyWest Airlines · Rail Corp AU · NovaStar Defense · 61% uplift realization',
-    detail:'SkyWest Airlines, Rail Corp AU, and NovaStar Defense are all showing ARR contraction at renewal. Average uplift realization is 61% vs 90% contracted. Root cause appears to be renewal teams waiving uplift under churn pressure without deal desk review. Immediate intervention required before Q2 renewal cycle.',
-    filter: c => c.nrr < 100 && c.churnRisk,
-    aiContext: '3 named accounts (SkyWest Airlines, Rail Corp AU, NovaStar Defense) below NRR floor, 61% uplift realization vs 90% contracted, churn risk flagged'
-  },
-  {
-    type:'gr', icon:'✓',
-    title:'MINT integration upsell: $680K opportunity',
-    meta:'14 eligible accounts · Q2 2026 pipeline ready',
-    detail:'14 existing customers are eligible for MINT Training Management module upgrade based on their current OCM usage patterns and employee count. Pipeline is ready to engage in Q2 2026. Average expansion ARR per account is $34K at standard attach rate. This represents the single largest near-term expansion opportunity in the portfolio.',
-    filter: c => !c.mintEl && (c.seg==='Enterprise'||c.seg==='Strategic'),
-    aiContext: '14 accounts eligible for MINT upsell, $680K total opportunity, $34K avg per account, Q2 2026 pipeline ready'
-  }
-];
+// make pending list clickable
+(()=>{
+  const el=document.getElementById('pending-list');if(!el)return;
+  el.innerHTML=PENDING_DEALS.map((p,i)=>`
+    <div onclick="openApprovalOverlay(${i})" style="display:flex;align-items:center;gap:9px;padding:8px 6px;border-bottom:1px solid var(--border);cursor:pointer;border-radius:6px;transition:background .12s" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background='transparent'">
+      <div style="flex:1"><div style="font-size:12px;font-weight:500;color:var(--text)">${p.co}</div><div style="font-size:10px;color:var(--text3)">${p.rep} · ${p.arr} ARR · ${p.age} ago</div></div>
+      <div style="font-family:'DM Mono',monospace;font-size:12px;color:${p.disc>=28?'var(--red)':'var(--amber)'}">${p.disc}%</div>
+      <div style="font-size:9.5px;background:rgba(245,166,35,.1);color:var(--amber);padding:2px 7px;border-radius:4px;font-family:'DM Mono',monospace">${p.step}</div>
+      <div style="font-size:10px;color:var(--text3)">↗</div>
+    </div>`).join('');
+})();
 
-let currentAlert = null;
-
-function openAlertOverlay(idx) {
-  const a = EXEC_ALERTS[idx];
-  currentAlert = a;
-
-  const iconColor = a.type==='red'?'var(--red)':a.type==='am'?'var(--amber)':'var(--green)';
-  document.getElementById('alert-ov-icon').textContent = a.icon;
-  document.getElementById('alert-ov-icon').style.color = iconColor;
-  document.getElementById('alert-ov-title').textContent = a.title;
-  document.getElementById('alert-ov-meta').textContent = a.meta;
-  document.getElementById('alert-ov-detail').textContent = a.detail;
-
-  // Pull relevant accounts
-  const accounts = COMPANIES.filter(a.filter).sort((x,y)=>y.arr-x.arr).slice(0,6);
-  const acctHtml = accounts.length ? `
-    <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px">Related Accounts</div>
-    ${accounts.map(c=>`
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border)">
-        <div>
-          <div style="font-size:12px;font-weight:500;color:var(--text)">${c.name} ${c.churnRisk?'<span style="font-size:9px;color:var(--red)">AT RISK</span>':''}</div>
-          <div style="font-size:10.5px;color:var(--text3)">${c.seg} · ${c.reg}</div>
-        </div>
-        <div style="display:flex;gap:10px;text-align:right">
-          <div><div style="font-size:12px;font-family:'DM Mono',monospace;color:${c.disc>22?'var(--red)':c.disc>15?'var(--amber)':'var(--green)'}">${c.disc}%</div><div style="font-size:9px;color:var(--text3)">disc</div></div>
-          <div><div style="font-size:12px;font-family:'DM Mono',monospace;color:${c.nrr>=110?'var(--green)':c.nrr>=100?'var(--text)':'var(--red)'}">${c.nrr}%</div><div style="font-size:9px;color:var(--text3)">NRR</div></div>
-          <div><div style="font-size:12px;font-family:'DM Mono',monospace;color:var(--text2)">${fmt(c.arr)}</div><div style="font-size:9px;color:var(--text3)">ARR</div></div>
-        </div>
-      </div>`).join('')}` : '<div style="font-size:11px;color:var(--text3)">No direct account matches</div>';
-  
-  document.getElementById('alert-ov-accounts').innerHTML = acctHtml;
-  document.getElementById('alert-ai-out').innerHTML = '<span class="ai-placeholder">Click Generate for CFO briefing note and recommended action.</span>';
-  document.getElementById('alert-ai-btn').disabled = false;
-  document.getElementById('alert-ai-btn').textContent = 'Generate ↗';
-  const _alOv=document.getElementById('alert-overlay');if(_alOv)_alOv.classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-
-function closeAlertOverlay() {
-  document.getElementById('alert-overlay').classList.remove('open');
-  document.body.style.overflow = '';
-}
-
-async function runAlertAI() {
-  const a = currentAlert; if (!a) return;
-  const btn = document.getElementById('alert-ai-btn');
-  const out = document.getElementById('alert-ai-out');
-  btn.disabled = true; btn.textContent = 'Generating…';
-  out.innerHTML = '<span class="ai-placeholder">⚡ Preparing CFO briefing…</span>';
-
-  const accounts = COMPANIES.filter(a.filter).sort((x,y)=>y.arr-x.arr).slice(0,5);
-  const acctStr = accounts.map(c=>`${c.name} (${c.seg}, disc ${c.disc}%, NRR ${c.nrr}%, ARR ${fmt(c.arr)})`).join('; ');
-
-  try {
-    const res = await fetch('/api/pricing-ai', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({
-        mode: 'alert',
-        alert: { title: a.title, context: a.aiContext, detail: a.detail, accounts: acctStr }
-      })
-    });
-    const data = await res.json();
-    if (data.error) throw new Error(data.error);
-    out.innerHTML = `<div class="ai-glow-badge">GPT-4o</div><span class="ai-response-text">${data.result.replace(/\n/g,'<br>')}</span>`;
-  } catch(e) {
-    out.innerHTML = `<span style="color:var(--red)">Error: ${e.message}</span>`;
-  }
-  btn.disabled = false; btn.textContent = 'Re-generate ↗';
-}
 </script>
 
 <!-- ══ APPROVAL OVERLAY ══════════════════════════════════════════════════ -->
@@ -2383,6 +2285,38 @@ async function runAlertAI() {
           </div>
         </div>
         <div id="alert-ai-out" class="ai-glow-box"><span class="ai-placeholder">Click Generate for CFO briefing note and recommended action.</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ APPROVAL OVERLAY ═════════════════════════════════════════════════ -->
+<div class="ov2-overlay" id="approval-overlay">
+  <div class="ov2-modal" style="max-width:700px">
+    <div class="ov2-header">
+      <div>
+        <div style="font-family:'DM Serif Display',serif;font-size:18px;color:var(--text)" id="appr-ov-title">Pending Approval</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:3px" id="appr-ov-meta"></div>
+      </div>
+      <button class="ov2-close" onclick="closeApprovalOverlay()">✕</button>
+    </div>
+    <div class="ov2-body">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px" id="appr-ov-kpis"></div>
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:14px;margin-bottom:14px" id="appr-ov-ladder"></div>
+      <div class="ov2-ai-panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <div class="ai-section-title">AI Approval Recommendation</div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="ai-powered-badge">Powered by GPT-4o</span>
+            <button onclick="runApprovalAI()" id="appr-ai-btn" style="padding:5px 12px;background:rgba(79,142,247,.12);border:1px solid rgba(79,142,247,.3);border-radius:6px;color:var(--accent);font-size:11.5px;cursor:pointer;font-family:'Figtree',sans-serif">Generate ↗</button>
+          </div>
+        </div>
+        <div id="appr-ai-out" class="ai-glow-box"><span class="ai-placeholder">Click Generate for approval recommendation.</span></div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:14px">
+        <div style="flex:1;padding:10px;background:rgba(46,204,143,.08);border:1px solid rgba(46,204,143,.25);border-radius:8px;text-align:center;cursor:pointer;font-size:13px;font-weight:500;color:var(--green)">✓ Approve</div>
+        <div style="flex:1;padding:10px;background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.25);border-radius:8px;text-align:center;cursor:pointer;font-size:13px;font-weight:500;color:var(--amber)">↩ Request Justification</div>
+        <div style="flex:1;padding:10px;background:rgba(232,93,106,.08);border:1px solid rgba(232,93,106,.25);border-radius:8px;text-align:center;cursor:pointer;font-size:13px;font-weight:500;color:var(--red)">✕ Reject</div>
       </div>
     </div>
   </div>

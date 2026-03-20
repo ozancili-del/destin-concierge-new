@@ -366,7 +366,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
     <div class="card">
       <div class="ch" style="margin-bottom:12px">
         <div class="ct">All Accounts</div>
-        <input id="search-inp" placeholder="Search accounts…" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 10px;color:var(--text2);font-size:12px;outline:none;font-family:'Figtree',sans-serif;width:200px" oninput="filterTable(this.value)">
+        <input id="search-inp" placeholder="Search accounts…" oninput="filterTable(this.value)" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 10px;color:var(--text2);font-size:12px;outline:none;font-family:'Figtree',sans-serif;width:200px" oninput="filterTable(this.value)">
       </div>
       <div class="cb" style="padding-top:0;overflow-x:auto">
         <table class="dt" id="ptable"><thead><tr><th>Company</th><th>Industry</th><th>Segment</th><th>ARR</th><th>NRR</th><th>List Price</th><th>Realized</th><th>Discount</th><th>LTV/CAC</th><th>Health</th></tr></thead><tbody id="ptbody"></tbody></table>
@@ -656,6 +656,7 @@ document.querySelectorAll('.ni').forEach(el=>{
     el.classList.add('active');
     document.getElementById('page-title').textContent=TITLES[sec]||sec;
     if(sec==='dealmodel')calcDeal();
+    if(sec==='portfolio')renderTable();
   });
 });
 document.querySelectorAll('.fp').forEach(el=>{

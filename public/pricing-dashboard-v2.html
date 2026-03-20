@@ -992,6 +992,148 @@ function calcDeal(){
 
 // init deal modeler
 calcDeal();
+
+// ── PERIOD SELECTOR ───────────────────────────────────────────────────────
+const PERIOD_DATA = {
+  'Q1-2026': {
+    arr:'$48.2M', nrr:'112%', realization:'78%', leakage:'$2.4M',
+    arrTrend:'+22% YoY', nrrTrend:'▲ 3pp QoQ', realTrend:'▲ 4pp vs FY24', leakTrend:'ARR at risk',
+    avgDisc:'18.3%', grossMargin:'71%', ltvcac:'4.2×', churn:'4.8%',
+    healthScore:74, marginCtrl:81, discDisc:67, valueCapture:78, dealVel:62,
+    alerts: [
+      {type:'red', icon:'⚠', title:'7 deals pending CFO approval', body:'EMEA enterprise accounts averaging 31% discount. Combined ARR exposure $1.2M. Recommendation: enforce value-based justification memo before proceeding.'},
+      {type:'am',  icon:'⚠', title:'Beams AI module underpriced', body:'CoAnalyst/CoAuthor showing 2.3× higher retention vs base tier but only 8% price premium. Repricing to 22–28% premium could recover $640K ARR annually.'},
+      {type:'am',  icon:'⚠', title:'3 renewals below NRR floor', body:'SkyWest Airlines, Rail Corp AU, NovaStar Defense showing contraction. Average uplift realization 61% vs 90% contracted. Deal desk review recommended.'},
+      {type:'gr',  icon:'✓', title:'MINT integration upsell: $680K opportunity', body:'14 existing customers eligible for Training Management module upgrade. Pipeline ready to engage Q2 2026.'},
+    ]
+  },
+  'Q4-2025': {
+    arr:'$44.6M', nrr:'109%', realization:'76%', leakage:'$2.1M',
+    arrTrend:'+19% YoY', nrrTrend:'▲ 1pp QoQ', realTrend:'▲ 2pp vs FY24', leakTrend:'ARR at risk',
+    avgDisc:'17.8%', grossMargin:'69%', ltvcac:'3.9×', churn:'5.2%',
+    healthScore:71, marginCtrl:78, discDisc:64, valueCapture:75, dealVel:60,
+    alerts: [
+      {type:'red', icon:'⚠', title:'5 deals pending CFO approval', body:'LATAM and APAC accounts driving exception spike. Average 29% discount. CFO queue SLA at risk — 2 deals aged 3+ days.'},
+      {type:'am',  icon:'⚠', title:'MINT module attach rate below plan', body:'Q4 MINT attach at 22% vs 35% target. Post-acquisition bundling confusion cited by 4 reps. Pricing playbook update needed.'},
+      {type:'gr',  icon:'✓', title:'Strategic tier expansion: $1.1M booked', body:'Three strategic renewals closed with 8% uplift. Multi-year attach improved to 54%. Defence sector leading.'},
+    ]
+  },
+  'Q3-2025': {
+    arr:'$41.2M', nrr:'107%', realization:'74%', leakage:'$1.9M',
+    arrTrend:'+16% YoY', nrrTrend:'Flat QoQ', realTrend:'▲ 1pp vs FY24', leakTrend:'ARR at risk',
+    avgDisc:'17.1%', grossMargin:'68%', ltvcac:'3.7×', churn:'5.6%',
+    healthScore:68, marginCtrl:74, discDisc:61, valueCapture:72, dealVel:58,
+    alerts: [
+      {type:'am', icon:'⚠', title:'Discount creep in APAC segment', body:'APAC avg discount reached 22.4% in Q3 — highest in portfolio. Competitive pressure from local vendors. Rep coaching underway.'},
+      {type:'am', icon:'⚠', title:'Beams acquisition integration delay', body:'Beams AI module not yet in CPQ. 6 deals priced manually. Floor price compliance gap identified.'},
+      {type:'gr', icon:'✓', title:'Aviation NRR hit 118% — portfolio best', body:'7 aviation enterprise accounts expanded in Q3. OCM + Safety bundle proving strong in EMEA. Template for other verticals.'},
+    ]
+  },
+  'Q2-2025': {
+    arr:'$38.8M', nrr:'105%', realization:'73%', leakage:'$1.7M',
+    arrTrend:'+13% YoY', nrrTrend:'▲ 2pp QoQ', realTrend:'Flat vs FY24', leakTrend:'ARR at risk',
+    avgDisc:'16.4%', grossMargin:'67%', ltvcac:'3.5×', churn:'5.9%',
+    healthScore:65, marginCtrl:71, discDisc:59, valueCapture:70, dealVel:55,
+    alerts: [
+      {type:'red', icon:'⚠', title:'NRR below 110% threshold', body:'Portfolio NRR at 105% — 5pp below board target. Renewal team capacity constraint identified. 3 at-risk accounts flagged for deal desk review.'},
+      {type:'am', icon:'⚠', title:'Price book compliance at 89%', body:'11 active deals outside price book. MINT post-acquisition pricing not yet standardized. 4 manual exceptions logged this quarter.'},
+    ]
+  },
+  'FY2025': {
+    arr:'$48.2M', nrr:'110%', realization:'76%', leakage:'$8.1M',
+    arrTrend:'+22% FY24→25', nrrTrend:'▲ 5pp vs FY24', realTrend:'▲ 3pp vs FY24', leakTrend:'Full year',
+    avgDisc:'17.4%', grossMargin:'69%', ltvcac:'3.9×', churn:'5.1%',
+    healthScore:71, marginCtrl:76, discDisc:63, valueCapture:74, dealVel:59,
+    alerts: [
+      {type:'gr', icon:'✓', title:'FY25: ARR grew 22% YoY to $48.2M', body:'Strong new logo momentum in Aviation and Defence. MINT and Beams acquisitions added $6.2M ARR. Direct sales motion outperforming channel.'},
+      {type:'am', icon:'⚠', title:'Discount leakage totalled $8.1M in FY25', body:'Full year discount leakage up 18% vs FY24. LATAM and large enterprise primary drivers. Governance program launched Q4.'},
+      {type:'gr', icon:'✓', title:'NRR improved to 110% — best in 3 years', body:'Expansion ARR of $6.1M driven by MINT upsell and tier upgrades. Churn declined to 4.8% in H2.'},
+    ]
+  },
+  'FY2024': {
+    arr:'$39.4M', nrr:'105%', realization:'73%', leakage:'$6.8M',
+    arrTrend:'+23% FY23→24', nrrTrend:'▲ 2pp vs FY23', realTrend:'▲ 1pp vs FY23', leakTrend:'Full year',
+    avgDisc:'16.1%', grossMargin:'66%', ltvcac:'3.4×', churn:'6.3%',
+    healthScore:62, marginCtrl:68, discDisc:57, valueCapture:68, dealVel:52,
+    alerts: [
+      {type:'am', icon:'⚠', title:'FY24: Discount discipline weakest in 3 years', body:'Average discount 16.1% — 6pp above list price. New logo pressure and competitive deals driving exception volume.'},
+      {type:'gr', icon:'✓', title:'Rail vertical breakout year', body:'Rail ARR grew 41% in FY24. Network Rail, Deutsche Bahn, and SNCF all expanded. Now 22% of total ARR.'},
+    ]
+  }
+};
+
+function updatePeriod(period) {
+  const d = PERIOD_DATA[period] || PERIOD_DATA['Q1-2026'];
+
+  // Update exec KPI grid
+  const kpis = document.querySelectorAll('.exec-kpi');
+  if (kpis[0]) { kpis[0].querySelector('.exec-kpi-num').textContent = d.arr; kpis[0].querySelector('.exec-kpi-d').textContent = d.arrTrend; }
+  if (kpis[1]) { kpis[1].querySelector('.exec-kpi-num').textContent = d.nrr; kpis[1].querySelector('.exec-kpi-d').textContent = d.nrrTrend; }
+  if (kpis[2]) { kpis[2].querySelector('.exec-kpi-num').textContent = d.realization; kpis[2].querySelector('.exec-kpi-d').textContent = d.realTrend; }
+  if (kpis[3]) { kpis[3].querySelector('.exec-kpi-num').textContent = d.leakage; kpis[3].querySelector('.exec-kpi-d').textContent = d.leakTrend; }
+
+  // Update health score gauge number display
+  const gaugeNum = document.querySelector('#sec-exec .exec-kpi-num');
+  const bigScore = document.querySelector('#sec-exec [style*="46px"]');
+  if (bigScore) bigScore.textContent = d.healthScore;
+
+  // Update scorecard metric cards
+  const scCards = document.querySelectorAll('#sec-scorecard .mv');
+  if (scCards[0]) scCards[0].textContent = d.realization;
+  if (scCards[1]) scCards[1].textContent = d.avgDisc;
+  if (scCards[2]) scCards[2].textContent = d.leakage;
+  if (scCards[3]) scCards[3].textContent = d.nrr;
+  if (scCards[4]) scCards[4].textContent = d.grossMargin;
+  if (scCards[5]) scCards[5].textContent = d.ltvcac;
+
+  // Update portfolio metric cards
+  const pfCards = document.querySelectorAll('#sec-portfolio .mv');
+  if (pfCards[0]) pfCards[0].textContent = d.arr;
+  if (pfCards[1]) pfCards[1].textContent = d.nrr;
+  if (pfCards[3]) pfCards[3].textContent = d.churn; // gross churn slot
+
+  // Update sub-score bars in exec (margin ctrl, disc discipline, value capture, deal vel)
+  const subScores = document.querySelectorAll('#sec-exec [style*="font-size:16px"]');
+  const subBars   = document.querySelectorAll('#sec-exec [style*="height:3px"][style*="border-radius:2px"]:not([style*="background:var"])');
+  const vals = [d.marginCtrl, d.discDisc, d.valueCapture, d.dealVel];
+  const colors = ['var(--green)','var(--amber)','var(--accent)','var(--red)'];
+  subScores.forEach((el, i) => { if (vals[i] !== undefined) el.textContent = vals[i]; });
+
+  // Update alerts
+  const alertBox = document.querySelector('#sec-exec .card:last-child .cb');
+  if (alertBox) {
+    alertBox.innerHTML = d.alerts.map(a => `
+      <div class="alert ${a.type}">
+        <div style="color:${a.type==='red'?'var(--red)':a.type==='am'?'var(--amber)':'var(--green)'};font-size:13px;margin-top:1px">${a.icon}</div>
+        <div class="alert-txt"><strong>${a.title}</strong> — ${a.body}</div>
+      </div>`).join('');
+  }
+
+  // Update section sub-title with period
+  const execSub = document.querySelector('#sec-exec .section-sub');
+  if (execSub) execSub.textContent = `Pricing performance at a glance · Global portfolio · ${period.replace('-',' ')}`;
+}
+
+// Wire period selector
+document.getElementById('period-sel').addEventListener('change', function() {
+  updatePeriod(this.value);
+});
+
+// Make segment pills also navigate to portfolio and filter
+document.querySelectorAll('.fp').forEach(el => {
+  el.addEventListener('click', () => {
+    // If we're not on portfolio, navigate there
+    const activeSec = document.querySelector('.sec.active');
+    if (activeSec && activeSec.id !== 'sec-portfolio') {
+      document.querySelectorAll('.sec').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.ni').forEach(n => n.classList.remove('active'));
+      document.getElementById('sec-portfolio').classList.add('active');
+      document.querySelector('[data-sec="portfolio"]').classList.add('active');
+      document.getElementById('page-title').textContent = 'Customer Portfolio';
+    }
+  });
+});
+
 </script>
 </body>
 </html>

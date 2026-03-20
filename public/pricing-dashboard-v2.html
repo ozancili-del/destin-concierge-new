@@ -201,6 +201,21 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
 .dm-mode-btn:hover{border-color:var(--accent);color:var(--accent)}
 .dm-mode-btn.active{background:rgba(79,142,247,.12);border-color:var(--accent);color:var(--accent);font-weight:500}
 
+
+/* LEAKAGE + REP OVERLAYS */
+.ov2-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.ov2-overlay.open{display:flex}
+.ov2-modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:860px;max-height:88vh;overflow-y:auto;position:relative;animation:fadeUp .2s ease}
+.ov2-header{padding:20px 24px 16px;display:flex;justify-content:space-between;align-items:flex-start;position:sticky;top:0;background:var(--bg2);z-index:10;border-bottom:1px solid var(--border)}
+.ov2-close{width:28px;height:28px;border-radius:6px;background:var(--bg3);border:1px solid var(--border);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .15s}
+.ov2-close:hover{background:rgba(232,93,106,.15);border-color:var(--red);color:var(--red)}
+.ov2-body{padding:20px 24px 24px}
+.ov2-ai-panel{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px;margin-top:14px}
+.leak-row{cursor:pointer;transition:background .12s;border-radius:6px;padding:6px 4px}
+.leak-row:hover{background:var(--bg3)}
+.rep-row{cursor:pointer;transition:background .12s;border-radius:6px}
+.rep-row:hover{background:var(--bg3)}
+
 </style>
 </head>
 <body>
@@ -960,21 +975,22 @@ mkChart('c-rep-scatter','scatter',{
 (()=>{
   const el1=document.getElementById('leakage-drivers');
   const el2=document.getElementById('leakage-detail');
-  const html=LEAKAGE_DRIVERS.map((d,i)=>`
-    <div class="leak-row">
+  const rows=LEAKAGE_DRIVERS.map((d,i)=>`
+    <div class="leak-row" onclick="openLeakOverlay(${i})" title="Click to explore">
       <div style="width:18px;font-size:10px;color:var(--text3);font-family:'DM Mono',monospace">${i+1}</div>
       <div style="flex:1"><div style="font-size:12.5px;color:var(--text);font-weight:500">${d.driver}</div><div style="font-size:10.5px;color:var(--text3);margin-top:1px">${d.cat}</div></div>
       <div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--red);min-width:60px;text-align:right">${d.arv}</div>
       <div style="min-width:120px">${pctBar(d.pct*3,i<3?'var(--red)':'var(--amber)')}</div>
       <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);min-width:30px;text-align:right">${d.pct}%</div>
+      <div style="font-size:9px;color:var(--text3);margin-left:6px">↗</div>
     </div>`).join('');
-  if(el1)el1.innerHTML=html;
-  if(el2)el2.innerHTML=LEAKAGE_DRIVERS.slice(0,6).map(d=>`
-    <div style="background:var(--bg3);border-radius:8px;padding:12px 14px">
+  if(el1)el1.innerHTML=rows;
+  if(el2)el2.innerHTML=LEAKAGE_DRIVERS.slice(0,6).map((d,i)=>`
+    <div style="background:var(--bg3);border-radius:8px;padding:12px 14px;cursor:pointer;transition:border .15s;border:1px solid var(--border)" onclick="openLeakOverlay(${i})" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
       <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;margin-bottom:5px">${d.cat}</div>
       <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px">${d.driver}</div>
       <div style="font-size:18px;font-weight:600;color:var(--red);font-family:'DM Mono',monospace">${d.arv}</div>
-      <div style="font-size:10.5px;color:var(--text3);margin-top:2px">${d.pct}% of total leakage</div>
+      <div style="font-size:10.5px;color:var(--text3);margin-top:2px">${d.pct}% of total leakage · click to explore ↗</div>
     </div>`).join('');
 })();
 
@@ -1508,248 +1524,20 @@ async function runDealAI(){
   const el=document.getElementById('rep-list');if(!el)return;
   const sorted=[...REPS].sort((a,b)=>b.nrr-a.nrr);
   el.innerHTML=sorted.map(r=>`
-    <div class="rep-row">
+    <div class="rep-row" onclick="openRepOverlay('${r.name}')" style="display:flex;align-items:center;gap:10px;padding:9px 6px;border-bottom:1px solid var(--border)">
       <div class="avatar" style="background:${r.color}22;color:${r.color}">${r.initials}</div>
-      <div style="flex:1"><div style="font-size:13px;font-weight:500;color:var(--text)">${r.name}</div><div style="font-size:10.5px;color:var(--text3)">${r.reg}</div></div>
-      <div style="display:flex;gap:16px;text-align:right">
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:500;color:var(--text)">${r.name}</div>
+        <div style="font-size:10.5px;color:var(--text3)">${r.reg}</div>
+      </div>
+      <div style="display:flex;gap:16px;text-align:right;align-items:center">
         <div><div style="font-size:13px;font-weight:500;color:${r.nrr>=115?'var(--green)':'var(--text)'}">${r.nrr}%</div><div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace">NRR</div></div>
         <div><div style="font-size:13px;font-weight:500;color:${r.disc>22?'var(--red)':'var(--text)'}">${r.disc}%</div><div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace">disc</div></div>
         <div><div style="font-size:13px;font-weight:500;color:${r.quota>=100?'var(--green)':'var(--amber)'}">${r.quota}%</div><div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace">quota</div></div>
+        <div style="font-size:10px;color:var(--text3)">↗</div>
       </div>
     </div>`).join('');
 })();
-
-
-// ── CUSTOMER MODAL ────────────────────────────────────────────────────────
-const QTRS = ['Q2 24','Q3 24','Q4 24','Q1 25','Q2 25','Q3 25','Q4 25','Q1 26'];
-const LAST6 = QTRS.slice(-6);
-
-// Generate deterministic quarterly history per customer using their seed
-function custHistory(c) {
-  const r = rng(c.id * 137 + 7);
-  const arrBase = c.arr;
-  const arrHist = LAST6.map((_, i) => {
-    const drift = 0.88 + i * 0.025 + (r() - 0.5) * 0.06;
-    return Math.round(arrBase * drift / 1000); // in $K
-  });
-  const nrrBase = c.nrr;
-  const nrrHist = LAST6.map(() => Math.round(nrrBase + (r() - 0.5) * 12));
-  const discBase = c.disc;
-  const discHist = LAST6.map(() => Math.round((discBase + (r() - 0.5) * 6) * 10) / 10);
-  const healthBase = c.health;
-  const healthHist = LAST6.map(() => Math.round(healthBase + (r() - 0.5) * 14));
-  return { arrHist, nrrHist, discHist, healthHist };
-}
-
-// Segment averages
-function segAvg(seg, field) {
-  const peers = COMPANIES.filter(c => c.seg === seg);
-  return Math.round(peers.reduce((s, c) => s + c[field], 0) / peers.length * 10) / 10;
-}
-
-let modalCharts = {};
-let modalCustomer = null;
-
-function openModal(id) {
-  const c = COMPANIES.find(x => x.id === id);
-  if (!c) return;
-  modalCustomer = c;
-
-  // Header
-  document.getElementById('cm-name').textContent = c.name;
-  document.getElementById('cm-meta').textContent =
-    `${c.ind} · ${c.seg} · ${c.reg} · Health ${c.health}/100`;
-
-  // Avg comparisons
-  const avgNRR  = segAvg(c.seg, 'nrr');
-  const avgDisc = segAvg(c.seg, 'disc');
-  const avgArr  = segAvg(c.seg, 'arr');
-  const avgHealth = segAvg(c.seg, 'health');
-
-  const vsSign = (val, avg, higherBetter=true) => {
-    const diff = Math.round((val - avg) * 10) / 10;
-    const good = higherBetter ? diff >= 0 : diff <= 0;
-    const cls = diff === 0 ? 'vs-flat' : good ? 'vs-good' : 'vs-bad';
-    const sign = diff > 0 ? '+' : '';
-    return `<span class="${cls}">${sign}${diff} vs seg avg</span>`;
-  };
-
-  document.getElementById('cm-stats').innerHTML = `
-    <div class="cust-stat">
-      <div class="cust-stat-val">$${(c.arr/1000).toFixed(0)}K</div>
-      <div class="cust-stat-lbl">Current ARR</div>
-      <div class="cust-stat-vs">${vsSign(c.arr, avgArr)}</div>
-    </div>
-    <div class="cust-stat">
-      <div class="cust-stat-val" style="color:${c.nrr>=110?'var(--green)':c.nrr>=100?'var(--text)':'var(--red)'}">${c.nrr}%</div>
-      <div class="cust-stat-lbl">NRR</div>
-      <div class="cust-stat-vs">${vsSign(c.nrr, avgNRR)}</div>
-    </div>
-    <div class="cust-stat">
-      <div class="cust-stat-val" style="color:${c.disc>22?'var(--red)':c.disc>15?'var(--amber)':'var(--text)'}">${c.disc}%</div>
-      <div class="cust-stat-lbl">Discount</div>
-      <div class="cust-stat-vs">${vsSign(c.disc, avgDisc, false)}</div>
-    </div>
-    <div class="cust-stat">
-      <div class="cust-stat-val" style="color:${c.health>=75?'var(--green)':c.health>=55?'var(--amber)':'var(--red)'}">${c.health}</div>
-      <div class="cust-stat-lbl">Health Score</div>
-      <div class="cust-stat-vs">${vsSign(c.health, avgHealth)}</div>
-    </div>`;
-
-  // History
-  const h = custHistory(c);
-
-  // Peers list
-  const peers = COMPANIES
-    .filter(x => x.seg === c.seg && x.ind === c.ind && x.id !== c.id)
-    .sort((a, b) => b.arr - a.arr)
-    .slice(0, 5);
-
-  document.getElementById('cm-peers').innerHTML = peers.map(p => {
-    const nrrCls = p.nrr > c.nrr ? 'tag-above' : p.nrr < c.nrr ? 'tag-below' : 'tag-peer';
-    const discCls = p.disc < c.disc ? 'tag-above' : p.disc > c.disc ? 'tag-below' : 'tag-peer';
-    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border)">
-      <div style="font-size:11.5px;color:var(--text);font-weight:500">${p.name}</div>
-      <div style="display:flex;gap:4px">
-        <span class="peer-tag ${nrrCls}">NRR ${p.nrr}%</span>
-        <span class="peer-tag ${discCls}">${p.disc}% disc</span>
-      </div>
-    </div>`;
-  }).join('') || '<div style="color:var(--text3);font-size:11px">No direct peers in same industry+segment</div>';
-
-  // Reset AI
-  document.getElementById('cm-ai-out').innerHTML = '<span style="color:var(--text3);font-family:\'DM Mono\',monospace;font-size:11px">Click Generate to analyse this account against portfolio peers.</span>';
-  document.getElementById('ai-modal-btn').disabled = false;
-
-  // Destroy old charts
-  Object.values(modalCharts).forEach(ch => ch && ch.destroy());
-  modalCharts = {};
-
-  // Draw charts
-  const cmOpts = (color, isBar=false) => ({
-    responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { display: false } },
-    scales: {
-      x: { ticks: { color: '#4a4f62', font: { size: 9 } }, grid: { display: false } },
-      y: { ticks: { color: '#4a4f62', font: { size: 9 } }, grid: { color: 'rgba(255,255,255,0.04)' } }
-    }
-  });
-
-  const mkLine = (id, labels, data, color, fill=true) => {
-    const el = document.getElementById(id); if (!el) return;
-    return new Chart(el, { type: 'line', data: {
-      labels,
-      datasets: [{ data, borderColor: color, backgroundColor: fill ? color.replace(')',',0.08)').replace('rgb','rgba') : 'transparent',
-        fill, tension: 0.4, pointRadius: 3, pointBackgroundColor: color }]
-    }, options: cmOpts(color) });
-  };
-
-  const mkBar = (id, labels, data, color) => {
-    const el = document.getElementById(id); if (!el) return;
-    return new Chart(el, { type: 'bar', data: {
-      labels, datasets: [{ data, backgroundColor: color + '99', borderRadius: 3 }]
-    }, options: cmOpts(color, true) });
-  };
-
-  setTimeout(() => {
-    modalCharts.arr    = mkLine('cm-arr-chart',    LAST6, h.arrHist,    '#4f8ef7');
-    modalCharts.nrr    = mkLine('cm-nrr-chart',    LAST6, h.nrrHist,    '#2ecc8f');
-    modalCharts.disc   = mkBar ('cm-disc-chart',   LAST6, h.discHist,   '#f5a623');
-    modalCharts.health = mkLine('cm-health-chart', LAST6, h.healthHist, '#7c5cfc');
-  }, 50);
-
-  // Show overlay
-  document.getElementById('cust-overlay').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-
-function closeModal() {
-  document.getElementById('cust-overlay').classList.remove('open');
-  document.body.style.overflow = '';
-  Object.values(modalCharts).forEach(ch => ch && ch.destroy());
-  modalCharts = {};
-}
-
-// Close on backdrop click
-document.getElementById('cust-overlay').addEventListener('click', function(e) {
-  if (e.target === this) closeModal();
-});
-
-async function runModalAI() {
-  const c = modalCustomer; if (!c) return;
-  const btn = document.getElementById('ai-modal-btn');
-  const out = document.getElementById('cm-ai-out');
-  btn.disabled = true;
-  btn.textContent = 'Generating…';
-  out.innerHTML = '<span style="color:var(--accent);font-family:\'DM Mono\',monospace;font-size:11px">Analysing account against portfolio…</span>';
-
-  const avgNRR  = segAvg(c.seg, 'nrr');
-  const avgDisc = segAvg(c.seg, 'disc');
-  const avgHealth = segAvg(c.seg, 'health');
-
-  const peers = COMPANIES
-    .filter(x => x.seg === c.seg && x.ind === c.ind && x.id !== c.id)
-    .sort((a, b) => b.arr - a.arr)
-    .slice(0, 4);
-
-  const h = custHistory(c);
-  const arrTrend = h.arrHist[5] > h.arrHist[0] ? 'growing' : 'declining';
-  const nrrTrend = h.nrrHist[5] > h.nrrHist[0] ? 'improving' : 'declining';
-  const discTrend = h.discHist[5] > h.discHist[0] ? 'increasing' : 'holding steady';
-
-  const peerStr = peers.length
-    ? peers.map(p => `${p.name} (ARR $${(p.arr/1000).toFixed(0)}K, NRR ${p.nrr}%, disc ${p.disc}%)`).join('; ')
-    : 'No direct peers';
-
-  const payload = {
-    customer: {
-      name: c.name, ind: c.ind, seg: c.seg, reg: c.reg,
-      arr: `$${(c.arr/1000).toFixed(0)}K`, nrr: c.nrr,
-      disc: c.disc, health: c.health, ltv: c.ltv,
-      mintAttached: c.mintEl, beamsAttached: c.beamsEl,
-      churnRisk: c.churnRisk, arrTrend, nrrTrend, discTrend,
-      segAvgNRR: avgNRR, segAvgDisc: avgDisc, segAvgHealth: avgHealth
-    },
-    peers: peerStr
-  };
-
-  try {
-    const res = await fetch('/api/pricing-ai', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ mode: 'customer', customer: payload.customer, peers: payload.peers })
-    });
-    const data = await res.json();
-    if (data.error) throw new Error(data.error);
-    out.innerHTML = `<span class="ai-badge">GPT-4o</span><br><br><span style="color:var(--text2)">${data.result.replace(/\n/g,'<br>')}</span>`;
-  } catch(e) {
-    out.innerHTML = `<span style="color:var(--red)">Error: ${e.message}</span>`;
-  }
-  btn.disabled = false;
-  btn.textContent = 'Re-generate ↗';
-}
-
-// Make table rows clickable
-function renderTable(q=''){
-  const b=document.getElementById('ptbody');if(!b)return;
-  let cos=COMPANIES.filter(c=>{
-    if(currentSeg!=='all'){const sm=currentSeg==='mid'?'Mid-Market':currentSeg==='strat'?'Strategic':currentSeg==='ent'?'Enterprise':'SMB';if(c.seg!==sm)return false}
-    if(q&&!c.name.toLowerCase().includes(q.toLowerCase()))return false;
-    return true;
-  });
-  b.innerHTML=cos.slice(0,50).map(c=>`<tr onclick="openModal(${c.id})" style="cursor:pointer">
-    <td style="color:var(--text);font-weight:500">${c.name}${c.mintEl?' <span style="font-size:9px;background:rgba(45,212,191,.1);color:#2dd4bf;padding:1px 5px;border-radius:3px">MINT</span>':''}${c.churnRisk?' <span style="font-size:9px;background:rgba(232,93,106,.1);color:#e85d6a;padding:1px 5px;border-radius:3px">At Risk</span>':''}</td>
-    <td><span style="width:7px;height:7px;border-radius:50%;background:${HC[c.ind]};display:inline-block;margin-right:4px"></span>${c.ind}</td>
-    <td><span class="badge ${SC[c.seg]}">${c.seg}</span></td>
-    <td style="font-family:'DM Mono',monospace">${fmt(c.arr)}</td>
-    <td style="font-family:'DM Mono',monospace;color:${c.nrr>=110?'var(--green)':c.nrr>=100?'var(--text)':'var(--red)'}">${c.nrr}%</td>
-    <td style="font-family:'DM Mono',monospace;color:var(--text2)">${fmt(c.listPrice)}</td>
-    <td style="font-family:'DM Mono',monospace;color:${c.arr/c.listPrice>0.82?'var(--green)':c.arr/c.listPrice>0.72?'var(--amber)':'var(--red)'}">${Math.round(c.arr/c.listPrice*100)}%</td>
-    <td style="font-family:'DM Mono',monospace;color:${c.disc>22?'var(--red)':c.disc>15?'var(--amber)':'var(--text)'}">${c.disc}%</td>
-    <td style="font-family:'DM Mono',monospace;color:var(--text2)">${c.ltv}×</td>
-    <td><div style="display:flex;align-items:center;gap:6px"><span style="font-family:'DM Mono',monospace;font-size:11px;color:${hc(c.health)};width:22px">${c.health}</span>${pctBar(c.health,hc(c.health))}</div></td>
-  </tr>`).join('');
-}
 
 // init deal modeler
 calcDeal();
@@ -1888,6 +1676,226 @@ function filterTable(q){ renderTable(q); }
 // init — fires last, after openModal and renderTable are both defined
 renderTable();
 
+
+// ── LEAKAGE OVERLAY ───────────────────────────────────────────────────────
+const LEAK_FILTERS={
+  'Large enterprise discounting':  c=>( c.seg==='Enterprise'||c.seg==='Strategic')&&c.disc>22,
+  'LATAM competitive pressure':    c=>c.reg==='LATAM'&&c.disc>18,
+  'Multi-year deal concessions':   c=>c.disc>15&&c.arr>200000,
+  'Rep over-authorisation (Mark T.)': c=>c.disc>22&&c.reg==='LATAM',
+  'Renewal uplift waived':         c=>c.nrr<105&&c.disc>10,
+  'Beams module underpriced':      c=>!c.beamsEl&&(c.seg==='Enterprise'||c.seg==='Strategic'),
+  'SMB price-match requests':      c=>c.seg==='SMB'&&c.disc>14,
+  'Other / unclassified':          c=>c.health<55,
+};
+
+let leakChart=null;
+let currentLeakDriver=null;
+let currentRepData=null;
+
+function openLeakOverlay(idx){
+  const d=LEAKAGE_DRIVERS[idx];
+  currentLeakDriver=d;
+
+  document.getElementById('leak-ov-title').textContent=d.driver;
+  document.getElementById('leak-ov-meta').textContent=`${d.cat} · ${d.arv} ARR leakage · ${d.pct}% of total`;
+
+  // Filter accounts
+  const filter=LEAK_FILTERS[d.driver]||(()=>true);
+  const accounts=COMPANIES.filter(filter).sort((a,b)=>b.arr-a.arr).slice(0,6);
+
+  // Accounts list
+  document.getElementById('leak-ov-accounts').innerHTML=accounts.map(c=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border)">
+      <div>
+        <div style="font-size:12px;font-weight:500;color:var(--text)">${c.name}</div>
+        <div style="font-size:10.5px;color:var(--text3)">${c.seg} · ${c.reg}</div>
+      </div>
+      <div style="display:flex;gap:10px;text-align:right">
+        <div>
+          <div style="font-size:12px;font-family:'DM Mono',monospace;color:${c.disc>22?'var(--red)':'var(--amber)'}">${c.disc}%</div>
+          <div style="font-size:9px;color:var(--text3)">disc</div>
+        </div>
+        <div>
+          <div style="font-size:12px;font-family:'DM Mono',monospace;color:${c.nrr>=110?'var(--green)':c.nrr>=100?'var(--text)':'var(--red)'}">${c.nrr}%</div>
+          <div style="font-size:9px;color:var(--text3)">NRR</div>
+        </div>
+        <div>
+          <div style="font-size:12px;font-family:'DM Mono',monospace;color:var(--text2)">${fmt(c.arr)}</div>
+          <div style="font-size:9px;color:var(--text3)">ARR</div>
+        </div>
+      </div>
+    </div>`).join('')||'<div style="font-size:11px;color:var(--text3);padding:8px 0">No matching accounts found</div>';
+
+  // Chart
+  if(leakChart){leakChart.destroy();leakChart=null;}
+  const cnv=document.getElementById('leak-ov-chart');
+  if(cnv&&accounts.length){
+    leakChart=new Chart(cnv,{
+      type:'bar',
+      data:{
+        labels:accounts.map(c=>c.name.length>14?c.name.slice(0,14)+'…':c.name),
+        datasets:[
+          {label:'Discount %',data:accounts.map(c=>c.disc),backgroundColor:'rgba(232,93,106,0.6)',borderRadius:3,yAxisID:'y1'},
+          {label:'ARR $K',data:accounts.map(c=>Math.round(c.arr/1000)),backgroundColor:'rgba(79,142,247,0.4)',borderRadius:3,yAxisID:'y2'},
+        ]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:true,labels:{color:'#8b90a0',font:{size:10},boxWidth:8,padding:8}}},
+        scales:{
+          x:{ticks:{color:'#4a4f62',font:{size:9}},grid:{display:false}},
+          y1:{position:'left',ticks:{color:'#4a4f62',font:{size:9},callback:v=>v+'%'},grid:{color:'rgba(255,255,255,0.04)'}},
+          y2:{position:'right',ticks:{color:'#4a4f62',font:{size:9},callback:v=>'$'+v+'K'},grid:{display:false}}
+        }
+      }
+    });
+  }
+
+  // Reset AI
+  document.getElementById('leak-ai-out').innerHTML='<span style="color:var(--text3);font-family:\'DM Mono\',monospace;font-size:11px">Click Generate for root cause analysis and recommended fix.</span>';
+  document.getElementById('leak-ai-btn').disabled=false;
+  document.getElementById('leak-ai-btn').textContent='Generate ↗';
+
+  document.getElementById('leak-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function closeLeakOverlay(){
+  document.getElementById('leak-overlay').classList.remove('open');
+  document.body.style.overflow='';
+  if(leakChart){leakChart.destroy();leakChart=null;}
+}
+document.getElementById('leak-overlay').addEventListener('click',function(e){if(e.target===this)closeLeakOverlay();});
+
+async function runLeakAI(){
+  const d=currentLeakDriver; if(!d) return;
+  const btn=document.getElementById('leak-ai-btn');
+  const out=document.getElementById('leak-ai-out');
+  btn.disabled=true; btn.textContent='Generating…';
+  out.innerHTML='<span style="color:var(--accent);font-family:\'DM Mono\',monospace;font-size:11px">Analysing leakage driver…</span>';
+
+  const filter=LEAK_FILTERS[d.driver]||(()=>true);
+  const accounts=COMPANIES.filter(filter).sort((a,b)=>b.arr-a.arr).slice(0,5);
+  const acctStr=accounts.map(c=>`${c.name} (${c.seg}, disc ${c.disc}%, NRR ${c.nrr}%, ARR ${fmt(c.arr)})`).join('; ');
+
+  try{
+    const res=await fetch('/api/pricing-ai',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        mode:'leakage',
+        leakage:{driver:d.driver,category:d.cat,arv:d.arv,pct:d.pct,accounts:acctStr}
+      })
+    });
+    const data=await res.json();
+    if(data.error)throw new Error(data.error);
+    out.innerHTML=`<span class="ai-badge">GPT-4o</span><br><br><span style="color:var(--text2)">${data.result.replace(/\n/g,'<br>')}</span>`;
+  }catch(e){
+    out.innerHTML=`<span style="color:var(--red)">Error: ${e.message}</span>`;
+  }
+  btn.disabled=false; btn.textContent='Re-generate ↗';
+}
+
+// ── REP OVERLAY ───────────────────────────────────────────────────────────
+function openRepOverlay(repName){
+  const r=REPS.find(x=>x.name===repName); if(!r) return;
+  currentRepData=r;
+
+  // Header
+  const av=document.getElementById('rep-ov-avatar');
+  av.textContent=r.initials;
+  av.style.background=r.color+'22';
+  av.style.color=r.color;
+  document.getElementById('rep-ov-name').textContent=r.name;
+  document.getElementById('rep-ov-meta').textContent=`${r.reg} · ${r.deals} deals this period`;
+
+  // KPIs
+  document.getElementById('rep-ov-kpis').innerHTML=`
+    <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--border)">
+      <div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">NRR</div>
+      <div style="font-size:20px;font-weight:600;color:${r.nrr>=115?'var(--green)':'var(--text)'}">${r.nrr}%</div>
+    </div>
+    <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--border)">
+      <div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">Avg Discount</div>
+      <div style="font-size:20px;font-weight:600;color:${r.disc>22?'var(--red)':r.disc>15?'var(--amber)':'var(--green)'}">${r.disc}%</div>
+    </div>
+    <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--border)">
+      <div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">Win Rate</div>
+      <div style="font-size:20px;font-weight:600;color:${r.win>=65?'var(--green)':'var(--amber)'}">${r.win}%</div>
+    </div>
+    <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--border)">
+      <div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">Quota Attain.</div>
+      <div style="font-size:20px;font-weight:600;color:${r.quota>=100?'var(--green)':'var(--red)'}">${r.quota}%</div>
+    </div>`;
+
+  // Split accounts by rep region (proxy for rep's book)
+  const repAccounts=COMPANIES.filter(c=>c.reg===r.reg).sort((a,b)=>b.arr-a.arr).slice(0,12);
+  const good=repAccounts.filter(c=>c.nrr>=110&&c.disc<=15&&c.health>=70);
+  const bad=repAccounts.filter(c=>c.disc>22||c.nrr<100||c.health<55||c.churnRisk);
+
+  const acctRow=(c,highlight)=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)">
+      <div>
+        <div style="font-size:11.5px;font-weight:500;color:var(--text)">${c.name}${c.churnRisk?' <span style="font-size:9px;color:var(--red)">AT RISK</span>':''}</div>
+        <div style="font-size:10px;color:var(--text3)">${c.seg} · ${fmt(c.arr)}</div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <span style="font-size:11px;font-family:'DM Mono',monospace;color:${c.disc>22?'var(--red)':c.disc>15?'var(--amber)':'var(--green)'}">${c.disc}%</span>
+        <span style="font-size:11px;font-family:'DM Mono',monospace;color:${c.nrr>=110?'var(--green)':c.nrr>=100?'var(--text)':'var(--red)'}">${c.nrr}%</span>
+      </div>
+    </div>`;
+
+  document.getElementById('rep-ov-good').innerHTML=good.length
+    ? good.slice(0,5).map(c=>acctRow(c,true)).join('')
+    : '<div style="font-size:11px;color:var(--text3);padding:8px 0">No strong accounts identified</div>';
+
+  document.getElementById('rep-ov-bad').innerHTML=bad.length
+    ? bad.slice(0,5).map(c=>acctRow(c,false)).join('')
+    : '<div style="font-size:11px;color:var(--green);padding:8px 0">✓ No problem accounts flagged</div>';
+
+  // Reset AI
+  document.getElementById('rep-ai-out').innerHTML='<span style="color:var(--text3);font-family:\'DM Mono\',monospace;font-size:11px">Click Generate for pricing coaching note for this rep.</span>';
+  document.getElementById('rep-ai-btn').disabled=false;
+  document.getElementById('rep-ai-btn').textContent='Generate ↗';
+
+  document.getElementById('rep-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function closeRepOverlay(){
+  document.getElementById('rep-overlay').classList.remove('open');
+  document.body.style.overflow='';
+}
+document.getElementById('rep-overlay').addEventListener('click',function(e){if(e.target===this)closeRepOverlay();});
+
+async function runRepAI(){
+  const r=currentRepData; if(!r) return;
+  const btn=document.getElementById('rep-ai-btn');
+  const out=document.getElementById('rep-ai-out');
+  btn.disabled=true; btn.textContent='Generating…';
+  out.innerHTML='<span style="color:var(--accent);font-family:\'DM Mono\',monospace;font-size:11px">Building coaching note…</span>';
+
+  const repAccounts=COMPANIES.filter(c=>c.reg===r.reg).sort((a,b)=>b.arr-a.arr).slice(0,10);
+  const bad=repAccounts.filter(c=>c.disc>22||c.nrr<100||c.churnRisk).slice(0,4);
+  const badStr=bad.map(c=>`${c.name} (disc ${c.disc}%, NRR ${c.nrr}%${c.churnRisk?', AT RISK':''})`).join('; ');
+
+  try{
+    const res=await fetch('/api/pricing-ai',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        mode:'rep',
+        rep:{name:r.name,reg:r.reg,nrr:r.nrr,disc:r.disc,win:r.win,quota:r.quota,deals:r.deals,problemAccounts:badStr}
+      })
+    });
+    const data=await res.json();
+    if(data.error)throw new Error(data.error);
+    out.innerHTML=`<span class="ai-badge">GPT-4o</span><br><br><span style="color:var(--text2)">${data.result.replace(/\n/g,'<br>')}</span>`;
+  }catch(e){
+    out.innerHTML=`<span style="color:var(--red)">Error: ${e.message}</span>`;
+  }
+  btn.disabled=false; btn.textContent='Re-generate ↗';
+}
+
 </script>
 
 <!-- ══ CUSTOMER DETAIL MODAL ══════════════════════════════════════════════ -->
@@ -1937,6 +1945,81 @@ renderTable();
             <button class="ai-generate-btn" id="ai-modal-btn" onclick="runModalAI()">Generate ↗</button>
           </div>
           <div class="ai-result" id="cm-ai-out"><span style="color:var(--text3);font-family:'DM Mono',monospace;font-size:11px">Click Generate to analyse this account against portfolio peers.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ LEAKAGE OVERLAY ════════════════════════════════════════════════════ -->
+<div class="ov2-overlay" id="leak-overlay">
+  <div class="ov2-modal">
+    <div class="ov2-header">
+      <div>
+        <div style="font-family:'DM Serif Display',serif;font-size:18px;color:var(--text)" id="leak-ov-title">Leakage Driver</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:3px" id="leak-ov-meta"></div>
+      </div>
+      <button class="ov2-close" onclick="closeLeakOverlay()">✕</button>
+    </div>
+    <div class="ov2-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+        <div>
+          <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px">Contributing Accounts</div>
+          <div id="leak-ov-accounts"></div>
+        </div>
+        <div>
+          <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px">Leakage Breakdown</div>
+          <div style="position:relative;height:200px"><canvas id="leak-ov-chart"></canvas></div>
+        </div>
+      </div>
+      <div class="ov2-ai-panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px">AI Root Cause & Fix</div>
+          <button onclick="runLeakAI()" id="leak-ai-btn" style="padding:5px 12px;background:rgba(79,142,247,.12);border:1px solid rgba(79,142,247,.3);border-radius:6px;color:var(--accent);font-size:11.5px;cursor:pointer;font-family:'Figtree',sans-serif">Generate ↗</button>
+        </div>
+        <div id="leak-ai-out" style="font-size:12px;color:var(--text2);line-height:1.75;min-height:80px">
+          <span style="color:var(--text3);font-family:'DM Mono',monospace;font-size:11px">Click Generate for root cause analysis and recommended fix.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ REP OVERLAY ════════════════════════════════════════════════════════ -->
+<div class="ov2-overlay" id="rep-overlay">
+  <div class="ov2-modal">
+    <div class="ov2-header">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div id="rep-ov-avatar" class="avatar" style="width:38px;height:38px;font-size:14px"></div>
+        <div>
+          <div style="font-family:'DM Serif Display',serif;font-size:18px;color:var(--text)" id="rep-ov-name"></div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px" id="rep-ov-meta"></div>
+        </div>
+      </div>
+      <button class="ov2-close" onclick="closeRepOverlay()">✕</button>
+    </div>
+    <div class="ov2-body">
+      <!-- Rep KPIs -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px" id="rep-ov-kpis"></div>
+      <!-- Accounts split -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+        <div>
+          <div style="font-size:10px;color:var(--green);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px">✓ Strong Accounts</div>
+          <div id="rep-ov-good"></div>
+        </div>
+        <div>
+          <div style="font-size:10px;color:var(--red);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px">⚠ Needs Attention</div>
+          <div id="rep-ov-bad"></div>
+        </div>
+      </div>
+      <div class="ov2-ai-panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px">AI Coaching Note</div>
+          <button onclick="runRepAI()" id="rep-ai-btn" style="padding:5px 12px;background:rgba(79,142,247,.12);border:1px solid rgba(79,142,247,.3);border-radius:6px;color:var(--accent);font-size:11.5px;cursor:pointer;font-family:'Figtree',sans-serif">Generate ↗</button>
+        </div>
+        <div id="rep-ai-out" style="font-size:12px;color:var(--text2);line-height:1.75;min-height:80px">
+          <span style="color:var(--text3);font-family:'DM Mono',monospace;font-size:11px">Click Generate for pricing coaching note for this rep.</span>
         </div>
       </div>
     </div>

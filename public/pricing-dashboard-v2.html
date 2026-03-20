@@ -195,6 +195,12 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
 .tag-below{background:rgba(232,93,106,.1);color:var(--red)}
 .tag-peer{background:rgba(79,142,247,.1);color:var(--accent)}
 
+
+/* DEAL MODELER EXTRAS */
+.dm-mode-btn{padding:6px 16px;border-radius:6px;border:1px solid var(--border);color:var(--text2);font-size:12px;cursor:pointer;transition:all .15s;user-select:none}
+.dm-mode-btn:hover{border-color:var(--accent);color:var(--accent)}
+.dm-mode-btn.active{background:rgba(79,142,247,.12);border-color:var(--accent);color:var(--accent);font-weight:500}
+
 </style>
 </head>
 <body>
@@ -482,17 +488,34 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
 
     <!-- ROW 1: Inputs -->
     <div class="g2" style="margin-bottom:14px">
-      <!-- LEFT: Deal + Value Inputs -->
+      <!-- LEFT: Deal Inputs -->
       <div class="card">
         <div class="ch" style="margin-bottom:14px"><div class="ct">Deal Parameters</div></div>
         <div class="cb" style="padding-top:0">
+
+          <!-- Account typeahead -->
+          <div style="margin-bottom:14px;position:relative">
+            <div class="dm-label">Account <span style="color:var(--text3);font-weight:400">— type to search existing accounts or enter new prospect</span></div>
+            <input class="dm-input" id="dm-name" placeholder="e.g. AeroSafe Systems or Air New Zealand…" autocomplete="off" oninput="onAccountInput(this.value)" onfocus="onAccountInput(this.value)">
+            <div id="dm-dropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--bg2);border:1px solid var(--border2);border-radius:8px;z-index:500;max-height:220px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.4);margin-top:3px"></div>
+          </div>
+
+          <!-- Mode selector — only shown for existing accounts -->
+          <div id="dm-mode-wrap" style="display:none;margin-bottom:14px">
+            <div class="dm-label">Deal type</div>
+            <div style="display:flex;gap:8px">
+              <div class="dm-mode-btn active" data-mode="renewal" onclick="setDealMode('renewal')">↻ Renewal</div>
+              <div class="dm-mode-btn" data-mode="expansion" onclick="setDealMode('expansion')">＋ Expansion</div>
+            </div>
+          </div>
+
+          <!-- Account type badge -->
+          <div id="dm-acct-badge" style="display:none;margin-bottom:12px"></div>
+
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
-            <div><div class="dm-label">Account name</div><input class="dm-input" id="dm-name" placeholder="e.g. Air New Zealand" oninput="calcDeal()"></div>
             <div><div class="dm-label">Industry</div><select class="dm-select" id="dm-ind" onchange="calcDeal()">
-              <option value="aviation">Aviation</option>
-              <option value="defense">Defense</option>
-              <option value="rail">Rail</option>
-              <option value="space">Space</option>
+              <option value="aviation">Aviation</option><option value="defense">Defense</option>
+              <option value="rail">Rail</option><option value="space">Space</option>
             </select></div>
             <div><div class="dm-label">Segment</div><select class="dm-select" id="dm-seg" onchange="calcDeal()">
               <option value="smb">SMB</option><option value="mid" selected>Mid-Market</option>
@@ -504,27 +527,34 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
             <div><div class="dm-label">Contract term</div><select class="dm-select" id="dm-term" onchange="calcDeal()">
               <option value="1">1 year</option><option value="2" selected>2 years</option><option value="3">3 years</option>
             </select></div>
-            <div><div class="dm-label">Competitor scenario</div><select class="dm-select" id="dm-comp" onchange="calcDeal()">
-              <option value="none">No displacement</option><option value="greenfield">Greenfield</option>
-              <option value="sabre">Displacing Sabre</option><option value="avolio">Displacing Avolio</option>
-              <option value="custom">Custom legacy system</option>
-            </select></div>
+          </div>
+
+          <!-- Competitor scenario — only for new prospects -->
+          <div id="dm-comp-wrap" style="margin-bottom:14px">
+            <div class="dm-label">Situation</div>
+            <select class="dm-select" id="dm-comp" onchange="calcDeal()">
+              <option value="greenfield">Greenfield — no existing solution</option>
+              <option value="sabre">Replacing Sabre AeroDocs</option>
+              <option value="avolio">Replacing Avolio platform</option>
+              <option value="custom">Replacing custom-built system</option>
+              <option value="none">Replacing other legacy system</option>
+            </select>
           </div>
 
           <!-- Value inputs -->
           <div style="background:rgba(79,142,247,.05);border:1px solid rgba(79,142,247,.15);border-radius:9px;padding:12px 14px;margin-bottom:14px">
-            <div style="font-size:10px;color:var(--accent);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px">Value Quantification Inputs</div>
+            <div style="font-size:10px;color:var(--accent);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px">Value Quantification</div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
               <div><div class="dm-label">Users / employees</div><input class="dm-input" id="dm-users" type="number" value="2000" min="100" oninput="calcDeal()"></div>
-              <div><div class="dm-label">Avg fully-loaded salary ($/yr)</div><input class="dm-input" id="dm-salary" type="number" value="75000" oninput="calcDeal()"></div>
-              <div><div class="dm-label">Compliance FTE hours saved/user/yr</div><input class="dm-input" id="dm-hrs" type="number" value="40" oninput="calcDeal()"></div>
-              <div><div class="dm-label">Compliance incidents/yr (est.)</div><input class="dm-input" id="dm-incidents" type="number" value="12" oninput="calcDeal()"></div>
+              <div><div class="dm-label">Avg salary ($/yr)</div><input class="dm-input" id="dm-salary" type="number" value="75000" oninput="calcDeal()"></div>
+              <div><div class="dm-label">Compliance hrs saved/user/yr</div><input class="dm-input" id="dm-hrs" type="number" value="40" oninput="calcDeal()"></div>
+              <div><div class="dm-label">Compliance incidents/yr</div><input class="dm-input" id="dm-incidents" type="number" value="12" oninput="calcDeal()"></div>
             </div>
           </div>
 
           <!-- Modules -->
           <div style="margin-bottom:14px">
-            <div class="dm-label" style="margin-bottom:8px">Modules included in deal</div>
+            <div class="dm-label" style="margin-bottom:8px" id="dm-mod-label">Modules in deal</div>
             <div class="module-toggle on" data-mod="ocm" onclick="toggleMod(this)"><div><div class="mod-name">OCM · Operational Content</div><div class="mod-price">Base · $52K/yr</div></div><div class="mod-check">✓</div></div>
             <div class="module-toggle on" data-mod="safety" onclick="toggleMod(this)"><div><div class="mod-name">Safety & Risk Management</div><div class="mod-price">+$28K/yr</div></div><div class="mod-check">✓</div></div>
             <div class="module-toggle" data-mod="quality" onclick="toggleMod(this)"><div><div class="mod-name">Quality & Audit Tools</div><div class="mod-price">+$18K/yr</div></div><div class="mod-check"></div></div>
@@ -532,12 +562,12 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
             <div class="module-toggle" data-mod="beams" onclick="toggleMod(this)"><div><div class="mod-name">Beams · AI Enhancements</div><div class="mod-price">+$22K/yr</div></div><div class="mod-check"></div></div>
           </div>
 
-          <!-- Discount — secondary, governance framing -->
+          <!-- Discount governance -->
           <div style="background:rgba(245,166,35,.05);border:1px solid rgba(245,166,35,.15);border-radius:9px;padding:12px 14px">
             <div style="font-size:10px;color:var(--amber);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px">Discount Governance</div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
               <div><div class="dm-label">Requested discount %</div><input class="dm-input" id="dm-disc" type="number" value="0" min="0" max="50" oninput="calcDeal()"></div>
-              <div><div class="dm-label">Discount justification</div><select class="dm-select" id="dm-disc-reason" onchange="calcDeal()">
+              <div><div class="dm-label">Justification</div><select class="dm-select" id="dm-disc-reason" onchange="calcDeal()">
                 <option value="none">Select reason…</option>
                 <option value="competitive">Competitive displacement</option>
                 <option value="strategic">Strategic account</option>
@@ -550,34 +580,30 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
         </div>
       </div>
 
-      <!-- RIGHT: Value output + deal output -->
+      <!-- RIGHT: Value + Smart Trade -->
       <div style="display:flex;flex-direction:column;gap:12px">
-
-        <!-- Value scorecard -->
         <div class="card">
           <div class="ch" style="margin-bottom:12px"><div class="ct">Value Quantification</div></div>
           <div class="cb" style="padding-top:0" id="value-scorecard"></div>
         </div>
-
-        <!-- Smart trade -->
-        <div class="card" id="smart-trade-card">
+        <div class="card">
           <div class="ch" style="margin-bottom:12px">
-            <div class="ct">Smart Trade Engine</div>
-            <div style="font-size:9.5px;color:var(--accent);font-family:'DM Mono',monospace">UPSELL vs DISCOUNT</div>
+            <div class="ct" id="smart-trade-title">Smart Trade Engine</div>
+            <div style="font-size:9.5px;color:var(--accent);font-family:'DM Mono',monospace" id="smart-trade-sub">UPSELL vs DISCOUNT</div>
           </div>
           <div class="cb" style="padding-top:0" id="smart-trade"></div>
         </div>
       </div>
     </div>
 
-    <!-- ROW 2: Deal output + chart + AI -->
+    <!-- ROW 2: Output + Chart + AI -->
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px">
       <div class="card">
         <div class="ch" style="margin-bottom:12px"><div class="ct">Deal Output</div></div>
         <div class="cb" style="padding-top:0"><div class="result-box" id="deal-result"></div></div>
       </div>
       <div class="card">
-        <div class="ch"><div class="ct">Value vs Price · ARR Justified</div></div>
+        <div class="ch"><div class="ct">Value vs Price</div></div>
         <div class="cb"><div style="position:relative;height:200px"><canvas id="c-deal-npv"></canvas></div></div>
       </div>
       <div class="card">
@@ -587,7 +613,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
         </div>
         <div class="cb" style="padding-top:0">
           <div id="deal-ai-out" style="font-size:11.5px;color:var(--text2);line-height:1.75;min-height:180px;background:var(--bg3);border-radius:8px;padding:13px">
-            <span style="color:var(--text3);font-family:'DM Mono',monospace;font-size:11px">Fill in deal parameters then click Generate for value narrative and pitch angle.</span>
+            <span style="color:var(--text3);font-family:'DM Mono',monospace;font-size:11px">Select an account and fill parameters, then click Generate.</span>
           </div>
         </div>
       </div>
@@ -1006,25 +1032,185 @@ async function runAI(){
 }
 
 
+
 // ── DEAL MODELER (VALUE-BASED) ────────────────────────────────────────────
 const MODULE_PRICES={ocm:52000,safety:28000,quality:18000,mint:34000,beams:22000};
 const MOD_NAMES={ocm:'OCM',safety:'Safety & Risk',quality:'Quality & Audit',mint:'MINT Training',beams:'Beams AI'};
-const COMP_MULT={none:1,greenfield:0.95,sabre:0.88,avolio:0.90,custom:0.85};
+const COMP_MULT={none:0.92,greenfield:1,sabre:0.88,avolio:0.90,custom:0.87};
 const SEG_MARGIN={smb:0.58,mid:0.65,ent:0.71,strat:0.75};
-
-// Industry benchmarks: [hrs_saved_per_user_yr, incident_cost, compliance_cost_pct, typical_roi_mult]
 const IND_BENCH={
   aviation:{hrsPerUser:42,incidentCost:85000,compCostPct:0.018,roiMult:14.2,label:'Aviation'},
   defense: {hrsPerUser:38,incidentCost:120000,compCostPct:0.022,roiMult:16.8,label:'Defense'},
   rail:    {hrsPerUser:35,incidentCost:65000,compCostPct:0.015,roiMult:11.4,label:'Rail'},
   space:   {hrsPerUser:44,incidentCost:200000,compCostPct:0.025,roiMult:19.2,label:'Space'},
 };
-
-// Multi-year = commitment framing, not discount
-const TERM_COMMIT={1:{label:'Annual',pct:0,frame:'Standard annual commitment'},2:{label:'2-Year',pct:0.05,frame:'2-year partnership — 5% loyalty rate'},3:{label:'3-Year',pct:0.10,frame:'3-year strategic partnership — 10% preferred rate'}};
+const TERM_COMMIT={1:{label:'Annual',pct:0,frame:'Standard annual commitment'},2:{label:'2-Year',pct:0.05,frame:'2-year partnership — 5% preferred rate'},3:{label:'3-Year',pct:0.10,frame:'3-year strategic partnership — 10% preferred rate'}};
 
 let dealNPVChart=null;
-let dealValueChart=null;
+let currentDealMode='new'; // 'new' | 'renewal' | 'expansion'
+let selectedDealAccount=null;
+
+// ── TYPEAHEAD ──────────────────────────────────────────────────────────────
+function onAccountInput(val){
+  const dd=document.getElementById('dm-dropdown');
+  const q=val.trim().toLowerCase();
+
+  if(q.length<1){dd.style.display='none';return;}
+
+  const matches=COMPANIES.filter(c=>c.name.toLowerCase().includes(q)).slice(0,8);
+
+  let items='';
+  matches.forEach(c=>{
+    const seg=c.seg;
+    const segCls=seg==='SMB'?'b-smb':seg==='Mid-Market'?'b-mid':seg==='Enterprise'?'b-ent':'b-str';
+    const dot=`<span style="width:7px;height:7px;border-radius:50%;background:${HC[c.ind]||'#4f8ef7'};display:inline-block;margin-right:5px"></span>`;
+    items+=`<div class="dd-item" onclick="selectDealAccount(${c.id})" style="padding:9px 13px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);transition:background .1s" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background='transparent'">
+      <div style="display:flex;align-items:center;gap:6px">
+        ${dot}<span style="font-size:12.5px;font-weight:500;color:var(--text)">${c.name}</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <span style="font-size:10px;color:var(--text3)">${c.ind}</span>
+        <span class="badge ${segCls}" style="font-size:9px">${seg}</span>
+        <span style="font-size:9.5px;background:rgba(46,204,143,.1);color:var(--green);padding:1px 6px;border-radius:3px;font-family:'DM Mono',monospace">Existing</span>
+      </div>
+    </div>`;
+  });
+
+  // Always show new prospect option
+  items+=`<div class="dd-item" onclick="selectNewProspect('${val.replace(/'/g,"\\'")}\')" style="padding:9px 13px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:background .1s" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background='transparent'">
+    <span style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace">NEW PROSPECT</span>
+    <span style="font-size:12.5px;color:var(--accent);font-weight:500">"${val}"</span>
+  </div>`;
+
+  dd.innerHTML=items;
+  dd.style.display='block';
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click',function(e){
+  if(!e.target.closest('#dm-name')&&!e.target.closest('#dm-dropdown')){
+    document.getElementById('dm-dropdown').style.display='none';
+  }
+});
+
+function selectDealAccount(id){
+  const c=COMPANIES.find(x=>x.id===id);
+  if(!c)return;
+  selectedDealAccount=c;
+  currentDealMode='renewal'; // default for existing
+
+  // Fill name
+  document.getElementById('dm-name').value=c.name;
+  document.getElementById('dm-dropdown').style.display='none';
+
+  // Fill fields from account data
+  document.getElementById('dm-ind').value=c.ind.toLowerCase();
+  document.getElementById('dm-seg').value=c.seg==='Mid-Market'?'mid':c.seg==='Enterprise'?'ent':c.seg==='Strategic'?'strat':'smb';
+  // Estimate users from ARR size
+  const estUsers=c.arr<100000?300:c.arr<300000?800:c.arr<700000?2000:c.arr<1500000?5000:10000;
+  document.getElementById('dm-users').value=estUsers;
+  // Pre-fill discount from their history
+  document.getElementById('dm-disc').value=Math.round(c.disc);
+
+  // Show mode selector (renewal/expansion only)
+  document.getElementById('dm-mode-wrap').style.display='block';
+  document.getElementById('dm-comp-wrap').style.display='none'; // no competitor for existing
+  setDealMode('renewal');
+
+  // Show account badge
+  const nrrColor=c.nrr>=110?'var(--green)':c.nrr>=100?'var(--amber)':'var(--red)';
+  const churnTag=c.churnRisk?'<span style="background:rgba(232,93,106,.15);color:var(--red);padding:2px 7px;border-radius:4px;font-size:10px;font-family:\'DM Mono\',monospace">AT RISK</span>':'';
+  document.getElementById('dm-acct-badge').style.display='block';
+  document.getElementById('dm-acct-badge').innerHTML=`
+    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 13px;display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+      <div><div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px">Current ARR</div><div style="font-size:15px;font-weight:600;color:var(--text);font-family:'DM Mono',monospace">${fmt(c.arr)}</div></div>
+      <div><div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px">NRR</div><div style="font-size:15px;font-weight:600;color:${nrrColor};font-family:'DM Mono',monospace">${c.nrr}%</div></div>
+      <div><div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px">Curr. Discount</div><div style="font-size:15px;font-weight:600;color:var(--text);font-family:'DM Mono',monospace">${c.disc}%</div></div>
+      <div><div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px">Health</div><div style="font-size:15px;font-weight:600;color:${hc(c.health)};font-family:'DM Mono',monospace">${c.health}</div></div>
+      <div style="display:flex;gap:6px;align-items:center">
+        ${c.mintEl?'<span style="background:rgba(45,212,191,.1);color:#2dd4bf;padding:2px 7px;border-radius:4px;font-size:10px;font-family:\'DM Mono\',monospace">MINT</span>':''}
+        ${c.beamsEl?'<span style="background:rgba(124,92,252,.1);color:var(--accent2);padding:2px 7px;border-radius:4px;font-size:10px;font-family:\'DM Mono\',monospace">BEAMS</span>':''}
+        ${churnTag}
+      </div>
+    </div>`;
+
+  // Pre-set modules based on what they have
+  document.querySelectorAll('.module-toggle').forEach(el=>{
+    const mod=el.dataset.mod;
+    const shouldBeOn=(mod==='ocm')||(mod==='safety')||
+      (mod==='mint'&&c.mintEl)||(mod==='beams'&&c.beamsEl);
+    if(shouldBeOn){el.classList.add('on');el.querySelector('.mod-check').textContent='✓';}
+    else{el.classList.remove('on');el.querySelector('.mod-check').textContent='';}
+  });
+
+  calcDeal();
+}
+
+function selectNewProspect(name){
+  selectedDealAccount=null;
+  currentDealMode='new';
+  document.getElementById('dm-name').value=name;
+  document.getElementById('dm-dropdown').style.display='none';
+  document.getElementById('dm-mode-wrap').style.display='none';
+  document.getElementById('dm-comp-wrap').style.display='block';
+  document.getElementById('dm-acct-badge').style.display='none';
+  document.getElementById('dm-mod-label').textContent='Modules in deal';
+  // Reset modules to defaults
+  document.querySelectorAll('.module-toggle').forEach(el=>{
+    const mod=el.dataset.mod;
+    const on=mod==='ocm'||mod==='safety';
+    if(on){el.classList.add('on');el.querySelector('.mod-check').textContent='✓';}
+    else{el.classList.remove('on');el.querySelector('.mod-check').textContent='';}
+  });
+  calcDeal();
+}
+
+function setDealMode(mode){
+  currentDealMode=mode;
+  document.querySelectorAll('.dm-mode-btn').forEach(b=>{
+    b.classList.toggle('active',b.dataset.mode===mode);
+  });
+
+  const c=selectedDealAccount;
+  if(!c)return;
+
+  if(mode==='expansion'){
+    document.getElementById('dm-mod-label').textContent='Add modules (expansion)';
+    document.getElementById('smart-trade-title').textContent='Expansion Opportunity';
+    document.getElementById('smart-trade-sub').textContent='NEW ARR FROM MISSING MODULES';
+    // Turn OFF existing modules, highlight missing ones
+    document.querySelectorAll('.module-toggle').forEach(el=>{
+      const mod=el.dataset.mod;
+      const alreadyHas=(mod==='ocm')||(mod==='safety')||
+        (mod==='mint'&&c.mintEl)||(mod==='beams'&&c.beamsEl);
+      if(alreadyHas){
+        el.classList.remove('on');el.querySelector('.mod-check').textContent='';
+        el.style.opacity='0.4';el.style.pointerEvents='none';
+        el.querySelector('.mod-price').textContent+=' ✓ already attached';
+      } else {
+        el.classList.add('on');el.querySelector('.mod-check').textContent='✓';
+        el.style.opacity='1';el.style.pointerEvents='auto';
+      }
+    });
+  } else {
+    document.getElementById('dm-mod-label').textContent='Modules being renewed';
+    document.getElementById('smart-trade-title').textContent='Renewal Strategy';
+    document.getElementById('smart-trade-sub').textContent='UPLIFT vs HOLD vs RESTRUCTURE';
+    // Restore modules to what they have
+    document.querySelectorAll('.module-toggle').forEach(el=>{
+      el.style.opacity='1';el.style.pointerEvents='auto';
+      const mod=el.dataset.mod;
+      // Remove the "already attached" suffix if present
+      const priceEl=el.querySelector('.mod-price');
+      priceEl.textContent=priceEl.textContent.replace(' ✓ already attached','');
+      const on=(mod==='ocm')||(mod==='safety')||
+        (mod==='mint'&&c.mintEl)||(mod==='beams'&&c.beamsEl);
+      if(on){el.classList.add('on');el.querySelector('.mod-check').textContent='✓';}
+      else{el.classList.remove('on');el.querySelector('.mod-check').textContent='';}
+    });
+  }
+  calcDeal();
+}
 
 function toggleMod(el){
   el.classList.toggle('on');
@@ -1036,8 +1222,7 @@ function toggleMod(el){
 function getActiveMods(){
   const mods=[];
   document.querySelectorAll('.module-toggle.on').forEach(el=>{
-    const m=el.dataset.mod;
-    if(MODULE_PRICES[m])mods.push(m);
+    const m=el.dataset.mod;if(MODULE_PRICES[m])mods.push(m);
   });
   return mods;
 }
@@ -1048,192 +1233,219 @@ function getMissingMods(){
 }
 
 function calcDeal(){
-  const seg     = document.getElementById('dm-seg').value;
-  const term    = parseInt(document.getElementById('dm-term').value);
-  const users   = parseInt(document.getElementById('dm-users').value)||1000;
-  const disc    = parseFloat(document.getElementById('dm-disc').value)||0;
-  const comp    = document.getElementById('dm-comp').value;
-  const name    = document.getElementById('dm-name').value||'Prospect';
-  const ind     = document.getElementById('dm-ind').value;
-  const salary  = parseInt(document.getElementById('dm-salary').value)||75000;
-  const hrs     = parseInt(document.getElementById('dm-hrs').value)||40;
-  const incidents = parseInt(document.getElementById('dm-incidents').value)||10;
-  const discReason = document.getElementById('dm-disc-reason').value;
+  const seg=document.getElementById('dm-seg').value;
+  const term=parseInt(document.getElementById('dm-term').value);
+  const users=parseInt(document.getElementById('dm-users').value)||1000;
+  const disc=parseFloat(document.getElementById('dm-disc').value)||0;
+  const comp=document.getElementById('dm-comp').value;
+  const name=document.getElementById('dm-name').value||'Prospect';
+  const ind=document.getElementById('dm-ind').value;
+  const salary=parseInt(document.getElementById('dm-salary').value)||75000;
+  const hrs=parseInt(document.getElementById('dm-hrs').value)||40;
+  const incidents=parseInt(document.getElementById('dm-incidents').value)||10;
+  const discReason=document.getElementById('dm-disc-reason').value;
+  const c=selectedDealAccount;
 
-  const bench = IND_BENCH[ind]||IND_BENCH.aviation;
-  const commit = TERM_COMMIT[term]||TERM_COMMIT[1];
+  const bench=IND_BENCH[ind]||IND_BENCH.aviation;
+  const commit=TERM_COMMIT[term]||TERM_COMMIT[1];
 
-  // ── BASE PRICE ──────────────────────────────────────────────────────────
+  // ── BASE PRICE ────────────────────────────────────────────────────────
   let base=0;
-  const activeMods = getActiveMods();
-  activeMods.forEach(m=>{ base+=MODULE_PRICES[m]; });
-  if(base===0) base=52000;
-
+  const activeMods=getActiveMods();
+  activeMods.forEach(m=>{base+=MODULE_PRICES[m];});
+  if(base===0)base=52000;
   const userScale=users<=500?0.8:users<=2000?1:users<=5000?1.35:1.7;
   base=Math.round(base*userScale);
-
-  const compMult=COMP_MULT[comp]||1;
+  const compMult=currentDealMode==='new'?(COMP_MULT[comp]||1):1;
   const listPrice=Math.round(base*compMult);
-  const commitAdj=Math.round(listPrice*(1-commit.pct)); // commitment rate, not "discount"
+  const commitAdj=Math.round(listPrice*(1-commit.pct));
   const discAmt=Math.round(commitAdj*disc/100);
   const annualARR=commitAdj-discAmt;
   const totalTCV=annualARR*term;
   const margin=SEG_MARGIN[seg]||0.65;
   const grossMargin=Math.round(annualARR*margin);
-  const npv=Math.round(totalTCV*0.88);
   const floor=Math.round(listPrice*0.75);
   const belowFloor=annualARR<floor;
 
-  // ── VALUE QUANTIFICATION ────────────────────────────────────────────────
-  const hourlyRate = salary/1750; // blended hourly
-  const efficiencyValue = Math.round(users * hrs * hourlyRate);
-  const riskValue = Math.round(incidents * bench.incidentCost * 0.35); // 35% incident reduction
-  const benchEfficiency = Math.round(users * bench.hrsPerUser * hourlyRate);
-  const totalValue = efficiencyValue + riskValue;
-  const valueCaptureRatio = Math.round(annualARR/totalValue*100);
-  const roiMultiple = Math.round(totalValue/annualARR*10)/10;
-  const benchROI = bench.roiMult;
-  const valueJustifiedPrice = Math.round(totalValue * 0.12); // 12% of value = good SaaS anchor
-  const priceVsValueJustified = Math.round((annualARR/valueJustifiedPrice-1)*100);
+  // ── VALUE CALC ────────────────────────────────────────────────────────
+  const hourlyRate=salary/1750;
+  const efficiencyValue=Math.round(users*hrs*hourlyRate);
+  const riskValue=Math.round(incidents*bench.incidentCost*0.35);
+  const totalValue=efficiencyValue+riskValue;
+  const valueCaptureRatio=Math.round(annualARR/totalValue*100);
+  const roiMultiple=Math.round(totalValue/annualARR*10)/10;
+  const valueJustifiedPrice=Math.round(totalValue*0.12);
+  const valueHealthColor=valueCaptureRatio<8?'var(--green)':valueCaptureRatio<15?'var(--accent)':valueCaptureRatio<25?'var(--amber)':'var(--red)';
+  const valueHealthLabel=valueCaptureRatio<8?'Strong — well below value ceiling':valueCaptureRatio<15?'Healthy — good value alignment':valueCaptureRatio<25?'Monitor — approaching value ceiling':'At risk — review pricing';
 
-  // ── APPROVAL STATUS ─────────────────────────────────────────────────────
-  const discStatus = disc<=10
-    ? {label:'Auto-approve',color:'var(--green)'}
-    : disc<=20 ? {label:'Sales Director',color:'var(--accent)'}
-    : disc<=25 ? {label:'Pricing Lead ← you',color:'var(--amber)'}
-    : disc<=30 ? {label:'CFO required',color:'var(--red)'}
-    : {label:'CEO + CFO exception',color:'#c0293a'};
+  // ── APPROVAL ──────────────────────────────────────────────────────────
+  const discStatus=disc<=10?{label:'Auto-approve',color:'var(--green)'}:disc<=20?{label:'Sales Director',color:'var(--accent)'}:disc<=25?{label:'Pricing Lead ← you',color:'var(--amber)'}:disc<=30?{label:'CFO required',color:'var(--red)'}:{label:'CEO + CFO exception',color:'#c0293a'};
 
-  const discJustified = discReason!=='none' || disc===0;
-  const valueHealthColor = valueCaptureRatio<8?'var(--green)':valueCaptureRatio<15?'var(--accent)':valueCaptureRatio<25?'var(--amber)':'var(--red)';
-  const valueHealthLabel = valueCaptureRatio<8?'Strong — well below value ceiling':valueCaptureRatio<15?'Healthy — good value alignment':valueCaptureRatio<25?'Monitor — approaching value ceiling':'At risk — price exceeds typical value anchor';
-
-  // ── VALUE SCORECARD ─────────────────────────────────────────────────────
-  const activeMods2 = getActiveMods();
+  // ── VALUE SCORECARD ───────────────────────────────────────────────────
   document.getElementById('value-scorecard').innerHTML=`
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
       <div style="background:var(--bg);border-radius:7px;padding:10px 12px;border:1px solid var(--border)">
         <div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">Efficiency Value</div>
         <div style="font-size:18px;font-weight:600;color:var(--green)">${fmt(efficiencyValue)}</div>
         <div style="font-size:10px;color:var(--text3);margin-top:2px">${users.toLocaleString()} users × ${hrs}h × $${Math.round(hourlyRate)}/hr</div>
-        <div style="font-size:10px;color:var(--text2);margin-top:3px;font-style:italic">${bench.label} benchmark: ${bench.hrsPerUser}h/user/yr</div>
+        <div style="font-size:10px;color:var(--text2);margin-top:2px;font-style:italic">${bench.label} benchmark: ${bench.hrsPerUser}h/user/yr</div>
       </div>
       <div style="background:var(--bg);border-radius:7px;padding:10px 12px;border:1px solid var(--border)">
         <div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">Risk Mitigation Value</div>
         <div style="font-size:18px;font-weight:600;color:var(--teal)">${fmt(riskValue)}</div>
-        <div style="font-size:10px;color:var(--text3);margin-top:2px">${incidents} incidents × $${Math.round(bench.incidentCost/1000)}K × 35% reduction</div>
-        <div style="font-size:10px;color:var(--text2);margin-top:3px;font-style:italic">Avg incident cost: $${Math.round(bench.incidentCost/1000)}K in ${bench.label}</div>
+        <div style="font-size:10px;color:var(--text3);margin-top:2px">${incidents} incidents × $${Math.round(bench.incidentCost/1000)}K × 35%</div>
+        <div style="font-size:10px;color:var(--text2);margin-top:2px;font-style:italic">Avg cost in ${bench.label}: $${Math.round(bench.incidentCost/1000)}K</div>
       </div>
     </div>
     <div style="background:var(--bg);border-radius:7px;padding:10px 12px;border:1px solid rgba(79,142,247,.2);margin-bottom:10px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-        <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px">Total Quantified Value</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+        <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px">Total Value Delivered</div>
         <div style="font-size:20px;font-weight:700;color:var(--text)">${fmt(totalValue)}/yr</div>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center">
-        <div style="font-size:11px;color:var(--text2)">At <strong style="color:var(--text)">${fmt(annualARR)} ARR</strong> — pricing at <strong style="color:${valueHealthColor}">${valueCaptureRatio}% of value</strong></div>
-        <div style="font-size:10px;background:rgba(79,142,247,.1);color:var(--accent);padding:2px 8px;border-radius:4px;font-family:'DM Mono',monospace">${roiMultiple}× ROI</div>
+        <div style="font-size:11px;color:var(--text2)">Pricing at <strong style="color:${valueHealthColor}">${valueCaptureRatio}% of value</strong></div>
+        <div style="font-size:10px;background:rgba(79,142,247,.1);color:var(--accent);padding:2px 8px;border-radius:4px;font-family:'DM Mono',monospace">${roiMultiple}× ROI for customer</div>
       </div>
-      <div style="margin-top:6px;font-size:10.5px;color:${valueHealthColor};font-style:italic">${valueHealthLabel}</div>
+      <div style="margin-top:5px;font-size:10.5px;color:${valueHealthColor}">${valueHealthLabel}</div>
     </div>
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-top:1px solid var(--border)">
+    <div style="display:flex;justify-content:space-between;padding:5px 0;border-top:1px solid var(--border)">
       <div style="font-size:11px;color:var(--text2)">Value-justified price anchor</div>
       <div style="font-size:13px;font-weight:600;font-family:'DM Mono',monospace;color:var(--accent)">${fmt(valueJustifiedPrice)}/yr</div>
     </div>
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-top:1px solid var(--border)">
+    <div style="display:flex;justify-content:space-between;padding:5px 0;border-top:1px solid var(--border)">
       <div style="font-size:11px;color:var(--text2)">${bench.label} portfolio avg ROI multiple</div>
-      <div style="font-size:13px;font-weight:600;font-family:'DM Mono',monospace;color:var(--green)">${benchROI}×</div>
+      <div style="font-size:13px;font-weight:600;font-family:'DM Mono',monospace;color:var(--green)">${bench.roiMult}×</div>
     </div>
-    ${commit.pct>0?`<div style="padding:6px 10px;background:rgba(46,204,143,.08);border-radius:6px;margin-top:8px;font-size:11px;color:var(--green)">
-      ✓ ${commit.frame} applied (${Math.round(commit.pct*100)}% preferred rate)
-    </div>`:''}`;
+    ${commit.pct>0?`<div style="padding:6px 10px;background:rgba(46,204,143,.08);border-radius:6px;margin-top:8px;font-size:11px;color:var(--green)">✓ ${commit.frame}</div>`:''}`;
 
-  // ── SMART TRADE ENGINE ──────────────────────────────────────────────────
-  const missing = getMissingMods();
-  const smartTradeEl = document.getElementById('smart-trade');
+  // ── SMART TRADE / RENEWAL / EXPANSION ────────────────────────────────
+  const stEl=document.getElementById('smart-trade');
+  const missing=getMissingMods();
 
-  if(missing.length > 0 && disc > 0) {
-    // Find best upsell candidate
-    const candidates = missing.map(m => {
-      const modPrice = Math.round(MODULE_PRICES[m] * userScale * 0.75); // preferred attach rate
-      const newARR = annualARR + modPrice;
-      const discCost = discAmt; // what the discount costs
-      const netLift = modPrice - discCost; // ARR gained vs discount given
-      return { mod: m, name: MOD_NAMES[m], modPrice, newARR, netLift, discCost };
-    }).sort((a,b) => b.netLift - a.netLift);
+  if(currentDealMode==='renewal'&&c){
+    // Renewal strategy
+    const currentARR=c.arr;
+    const uplift5=Math.round(currentARR*1.05);
+    const uplift8=Math.round(currentARR*1.08);
+    const uplift10=Math.round(currentARR*1.10);
+    const recUplift=c.nrr>=110?8:c.nrr>=100?5:c.churnRisk?0:5;
+    const renewARR=Math.round(currentARR*(1+recUplift/100));
+    const riskLabel=c.churnRisk?'<span style="color:var(--red);font-weight:500">⚠ Churn risk — consider hold or restructure before uplift</span>':'<span style="color:var(--green)">✓ Healthy account — uplift defensible</span>';
 
-    const best = candidates[0];
-    const discPath = annualARR;
-    const upsellPath = best.newARR - discAmt; // add module, keep some disc
-    const arrLift = upsellPath - discPath;
+    stEl.innerHTML=`
+      <div style="margin-bottom:10px">${riskLabel}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:10px">
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:9px 10px;text-align:center">
+          <div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Hold</div>
+          <div style="font-size:15px;font-weight:600;color:var(--text)">${fmt(currentARR)}</div>
+          <div style="font-size:9.5px;color:var(--text3);margin-top:2px">0% change</div>
+        </div>
+        <div style="background:rgba(79,142,247,.06);border:1px solid rgba(79,142,247,.2);border-radius:7px;padding:9px 10px;text-align:center">
+          <div style="font-size:9.5px;color:var(--accent);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Std Uplift</div>
+          <div style="font-size:15px;font-weight:600;color:var(--accent)">${fmt(uplift5)}</div>
+          <div style="font-size:9.5px;color:var(--text3);margin-top:2px">+5% · +${fmt(uplift5-currentARR)}</div>
+        </div>
+        <div style="background:rgba(46,204,143,.06);border:1px solid rgba(46,204,143,.2);border-radius:7px;padding:9px 10px;text-align:center">
+          <div style="font-size:9.5px;color:var(--green);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Recommended</div>
+          <div style="font-size:15px;font-weight:600;color:var(--green)">${fmt(renewARR)}</div>
+          <div style="font-size:9.5px;color:var(--text3);margin-top:2px">+${recUplift}% · +${fmt(renewARR-currentARR)}</div>
+        </div>
+      </div>
+      <div style="font-size:11px;padding:8px 12px;background:rgba(79,142,247,.07);border-radius:7px;color:var(--text2);line-height:1.55">
+        <strong style="color:var(--accent)">Renewal angle:</strong> NRR at ${c.nrr}% — ${c.nrr>=110?'strong expansion history justifies '+recUplift+'% uplift as the baseline':'account at target NRR, standard '+recUplift+'% uplift supported by value delivered'}.
+        ${missing.length>0?`<br><strong style="color:var(--accent)">Attach opportunity:</strong> ${missing.map(m=>MOD_NAMES[m]).join(', ')} not yet attached — renewal is the right moment to bundle.`:''}
+      </div>`;
 
-    smartTradeEl.innerHTML=`
+  } else if(currentDealMode==='expansion'&&c){
+    // Expansion — show missing module opportunity
+    const expMods=missing.filter(m=>MODULE_PRICES[m]);
+    const totalExpARR=expMods.reduce((s,m)=>s+Math.round(MODULE_PRICES[m]*userScale*0.8),0);
+
+    stEl.innerHTML=`
       <div style="font-size:11px;color:var(--text2);margin-bottom:10px">
-        Instead of ${disc}% straight discount, consider adding <strong style="color:var(--text)">${best.name}</strong> at a preferred attach rate:
+        Expansion opportunity from unattached modules at preferred attach rate (80% of list):
+      </div>
+      ${expMods.map(m=>`
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border)">
+          <div><div style="font-size:12.5px;font-weight:500;color:var(--text)">${MOD_NAMES[m]}</div>
+          <div style="font-size:10.5px;color:var(--text3)">Preferred attach: ${Math.round(20)}% off list</div></div>
+          <div style="font-size:14px;font-weight:600;color:var(--green);font-family:'DM Mono',monospace">+${fmt(Math.round(MODULE_PRICES[m]*userScale*0.8))}/yr</div>
+        </div>`).join('')}
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;margin-top:4px">
+        <div style="font-size:12px;font-weight:500;color:var(--text)">Total expansion ARR potential</div>
+        <div style="font-size:16px;font-weight:700;color:var(--green);font-family:'DM Mono',monospace">+${fmt(totalExpARR)}/yr</div>
+      </div>
+      <div style="font-size:11px;padding:8px 12px;background:rgba(46,204,143,.07);border-radius:7px;color:var(--text2);line-height:1.55;margin-top:6px">
+        <strong style="color:var(--green)">Expansion angle:</strong> Current ARR ${fmt(c.arr)} → potential ${fmt(c.arr+totalExpARR)} (+${Math.round(totalExpARR/c.arr*100)}%). Lead with ROI from existing modules before introducing new ones.
+      </div>`;
+
+  } else if(currentDealMode==='new'&&disc>0&&missing.length>0){
+    // New logo smart trade
+    const best=missing.map(m=>({
+      mod:m,name:MOD_NAMES[m],
+      modPrice:Math.round(MODULE_PRICES[m]*userScale*0.75)
+    })).sort((a,b)=>b.modPrice-a.modPrice)[0];
+    const discPath=annualARR;
+    const upsellARR=Math.round((commitAdj+Math.round(best.modPrice))*(1-disc/2/100));
+    const arrLift=upsellARR-discPath;
+
+    stEl.innerHTML=`
+      <div style="font-size:11px;color:var(--text2);margin-bottom:10px">
+        Instead of ${disc}% straight discount, consider adding <strong style="color:var(--text)">${best.name}</strong>:
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
         <div style="background:rgba(232,93,106,.06);border:1px solid rgba(232,93,106,.2);border-radius:8px;padding:10px 12px">
           <div style="font-size:9.5px;color:var(--red);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px">Discount Path</div>
-          <div style="font-size:17px;font-weight:700;color:var(--text);margin-bottom:2px">${fmt(discPath)}/yr</div>
-          <div style="font-size:10px;color:var(--text3)">${disc}% off · ARR lost: ${fmt(discAmt)}</div>
-          <div style="font-size:10px;color:var(--text3);margin-top:3px">Modules: ${activeMods2.map(m=>MOD_NAMES[m]).join(', ')||'OCM'}</div>
+          <div style="font-size:17px;font-weight:700;color:var(--text)">${fmt(discPath)}/yr</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:3px">${disc}% off · −${fmt(discAmt)} ARR lost</div>
           <div style="font-size:10px;color:var(--red);margin-top:5px">No expansion built in</div>
         </div>
         <div style="background:rgba(46,204,143,.06);border:1px solid rgba(46,204,143,.2);border-radius:8px;padding:10px 12px">
-          <div style="font-size:9.5px;color:var(--green);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px">Smart Trade Path</div>
-          <div style="font-size:17px;font-weight:700;color:var(--green);margin-bottom:2px">${fmt(upsellPath)}/yr</div>
-          <div style="font-size:10px;color:var(--text3)">Add ${best.name} @ preferred rate</div>
-          <div style="font-size:10px;color:var(--text3);margin-top:3px">+${fmt(Math.round(best.modPrice))} module, apply ${Math.round(disc/2)}% disc</div>
-          <div style="font-size:10px;color:var(--green);margin-top:5px">▲ ${fmt(arrLift)} more ARR · expansion path set</div>
+          <div style="font-size:9.5px;color:var(--green);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px">Smart Trade</div>
+          <div style="font-size:17px;font-weight:700;color:var(--green)">${fmt(upsellARR)}/yr</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:3px">Add ${best.name} @ preferred rate</div>
+          <div style="font-size:10px;color:var(--green);margin-top:5px">▲ ${fmt(arrLift)} more ARR</div>
         </div>
       </div>
       <div style="font-size:11px;padding:8px 12px;background:rgba(79,142,247,.07);border-radius:7px;color:var(--text2);line-height:1.55">
-        <strong style="color:var(--accent)">Pitch:</strong> "Rather than reducing the price, let's add ${best.name} at a preferred rate — you get more capability, we preserve value, and your team sees faster ROI."
+        <strong style="color:var(--accent)">Pitch:</strong> "Rather than a straight discount, let's add ${best.name} at a preferred rate — more value for you, stronger ROI story, and a natural expansion path."
       </div>`;
-  } else if(disc === 0) {
-    smartTradeEl.innerHTML=`<div style="font-size:11px;color:var(--green);padding:10px;background:rgba(46,204,143,.07);border-radius:7px">✓ No discount applied — full value-based pricing. If needed, multi-year commitment rate can be used as the concession lever instead of straight discount.</div>`;
   } else {
-    smartTradeEl.innerHTML=`<div style="font-size:11px;color:var(--text3);padding:10px">Add a discount % to see Smart Trade alternatives. All modules already included.</div>`;
+    stEl.innerHTML=`<div style="font-size:11px;color:var(--text3);padding:10px 0">${disc===0?'No discount applied — full value pricing. Add a discount % to see smart trade alternatives.':'All modules included — no upsell alternative available.'}</div>`;
   }
 
-  // ── DEAL OUTPUT ─────────────────────────────────────────────────────────
-  const mods2 = activeMods2.map(m=>MOD_NAMES[m]);
+  // ── DEAL OUTPUT ───────────────────────────────────────────────────────
+  const modeLabel=currentDealMode==='renewal'?'Renewal':currentDealMode==='expansion'?'Expansion':'New Logo';
+  const mods2=activeMods.map(m=>MOD_NAMES[m]);
   document.getElementById('deal-result').innerHTML=`
     <div class="res-row"><div class="res-lbl">Account</div><div class="res-val">${name}</div></div>
+    <div class="res-row"><div class="res-lbl">Deal type</div><div class="res-val" style="color:${currentDealMode==='new'?'var(--accent)':currentDealMode==='renewal'?'var(--amber)':'var(--green)'}">${modeLabel}</div></div>
     <div class="res-row"><div class="res-lbl">Modules</div><div class="res-val" style="font-size:10.5px">${mods2.join(', ')||'None'}</div></div>
     <div class="res-row"><div class="res-lbl">List price</div><div class="res-val">${fmt(listPrice)}</div></div>
-    <div class="res-row"><div class="res-lbl">${commit.label} commitment rate</div><div class="res-val" style="color:${commit.pct>0?'var(--green)':'var(--text2)'}">
-      ${commit.pct>0?`−${Math.round(commit.pct*100)}% → ${fmt(commitAdj)}`:'Standard'}
-    </div></div>
+    <div class="res-row"><div class="res-lbl">${commit.label} commitment</div><div class="res-val" style="color:${commit.pct>0?'var(--green)':'var(--text2)'}">
+      ${commit.pct>0?`−${Math.round(commit.pct*100)}% → ${fmt(commitAdj)}`:'Standard'}</div></div>
     <div class="res-row"><div class="res-lbl">Additional discount</div><div class="res-val" style="color:${disc>0?disc>20?'var(--red)':'var(--amber)':'var(--text3)'}">
-      ${disc>0?`${disc}% → −${fmt(discAmt)}${!discJustified?' ⚠ no reason':''}`:'-'}
-    </div></div>
+      ${disc>0?`${disc}% → −${fmt(discAmt)}`:'-'}</div></div>
     <div class="res-row"><div class="res-lbl">Annual ARR</div><div class="res-val" style="color:var(--text);font-size:16px">${fmt(annualARR)}</div></div>
     <div class="res-row"><div class="res-lbl">TCV (${term}yr)</div><div class="res-val">${fmt(totalTCV)}</div></div>
-    <div class="res-row"><div class="res-lbl">Gross margin</div><div class="res-val" style="color:${grossMargin/annualARR>0.65?'var(--green)':'var(--amber)'}">
-      ${Math.round(grossMargin/annualARR*100)}% · ${fmt(grossMargin)}
-    </div></div>
+    <div class="res-row"><div class="res-lbl">Gross margin est.</div><div class="res-val" style="color:${grossMargin/annualARR>0.65?'var(--green)':'var(--amber)'}">
+      ${Math.round(grossMargin/annualARR*100)}% · ${fmt(grossMargin)}</div></div>
     <div class="res-row"><div class="res-lbl">Price as % of value</div><div class="res-val" style="color:${valueHealthColor}">${valueCaptureRatio}%</div></div>
     <div class="res-row"><div class="res-lbl">Approval required</div><div class="res-val" style="color:${discStatus.color}">${discStatus.label}</div></div>
     <div class="res-row"><div class="res-lbl">Floor price</div><div class="res-val" style="color:${belowFloor?'var(--red)':'var(--text2)'}">
-      ${fmt(floor)} ${belowFloor?'⚠ BELOW FLOOR':''}
-    </div></div>`;
+      ${fmt(floor)} ${belowFloor?'⚠ BELOW FLOOR':''}</div></div>`;
 
-  // ── CHART: Value vs Price bars ──────────────────────────────────────────
+  // ── CHART ─────────────────────────────────────────────────────────────
   if(dealNPVChart){dealNPVChart.destroy();dealNPVChart=null;}
   const cnv=document.getElementById('c-deal-npv');
   if(cnv){
     dealNPVChart=new Chart(cnv,{
       type:'bar',
       data:{
-        labels:['Efficiency\nValue','Risk\nValue','Total\nValue','Value-justified\nPrice','Annual\nARR'],
+        labels:['Efficiency\nValue','Risk\nValue','Total\nValue','Value-Justified\nPrice','Annual\nARR'],
         datasets:[{
-          data:[efficiencyValue, riskValue, totalValue, valueJustifiedPrice, annualARR],
-          backgroundColor:[
-            'rgba(46,204,143,0.6)','rgba(45,212,191,0.6)',
-            'rgba(79,142,247,0.6)','rgba(124,92,252,0.5)',
-            annualARR>valueJustifiedPrice?'rgba(232,93,106,0.7)':'rgba(46,204,143,0.8)'
-          ],
+          data:[efficiencyValue,riskValue,totalValue,valueJustifiedPrice,annualARR],
+          backgroundColor:['rgba(46,204,143,0.6)','rgba(45,212,191,0.6)','rgba(79,142,247,0.6)','rgba(124,92,252,0.5)',annualARR>valueJustifiedPrice?'rgba(232,93,106,0.7)':'rgba(46,204,143,0.8)'],
           borderRadius:4
         }]
       },
@@ -1252,39 +1464,42 @@ function calcDeal(){
 async function runDealAI(){
   const btn=document.getElementById('deal-ai-btn');
   const out=document.getElementById('deal-ai-out');
-  btn.disabled=true; btn.textContent='Generating…';
-  out.innerHTML='<span style="color:var(--accent);font-family:\'DM Mono\',monospace;font-size:11px">Building value narrative…</span>';
+  btn.disabled=true;btn.textContent='Generating…';
+  out.innerHTML='<span style="color:var(--accent);font-family:\'DM Mono\',monospace;font-size:11px">Building deal narrative…</span>';
 
-  const name   = document.getElementById('dm-name').value||'Prospect';
-  const ind    = document.getElementById('dm-ind').value;
-  const seg    = document.getElementById('dm-seg').value;
-  const users  = document.getElementById('dm-users').value;
-  const salary = document.getElementById('dm-salary').value;
-  const hrs    = document.getElementById('dm-hrs').value;
-  const incidents = document.getElementById('dm-incidents').value;
-  const disc   = document.getElementById('dm-disc').value;
-  const term   = document.getElementById('dm-term').value;
-  const comp   = document.getElementById('dm-comp').value;
-  const reason = document.getElementById('dm-disc-reason').value;
-  const activeMods = getActiveMods().map(m=>MOD_NAMES[m]).join(', ');
-  const missing = getMissingMods().map(m=>MOD_NAMES[m]).join(', ');
+  const c=selectedDealAccount;
+  const payload={
+    mode:'deal',
+    deal:{
+      name:document.getElementById('dm-name').value||'Prospect',
+      ind:document.getElementById('dm-ind').value,
+      seg:document.getElementById('dm-seg').value,
+      users:document.getElementById('dm-users').value,
+      salary:document.getElementById('dm-salary').value,
+      hrs:document.getElementById('dm-hrs').value,
+      incidents:document.getElementById('dm-incidents').value,
+      disc:document.getElementById('dm-disc').value,
+      term:document.getElementById('dm-term').value,
+      comp:document.getElementById('dm-comp').value,
+      reason:document.getElementById('dm-disc-reason').value,
+      dealMode:currentDealMode,
+      activeMods:getActiveMods().map(m=>MOD_NAMES[m]).join(', '),
+      missing:getMissingMods().map(m=>MOD_NAMES[m]).join(', '),
+      existingARR:c?fmt(c.arr):'N/A',
+      existingNRR:c?c.nrr+'%':'N/A',
+      churnRisk:c?c.churnRisk:false
+    }
+  };
 
   try{
-    const res=await fetch('/api/pricing-ai',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        mode:'deal',
-        deal:{name,ind,seg,users,salary,hrs,incidents,disc,term,comp,reason,activeMods,missing}
-      })
-    });
+    const res=await fetch('/api/pricing-ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
     const data=await res.json();
     if(data.error)throw new Error(data.error);
     out.innerHTML=`<span class="ai-badge">GPT-4o</span><br><br><span style="color:var(--text2)">${data.result.replace(/\n/g,'<br>')}</span>`;
   }catch(e){
     out.innerHTML=`<span style="color:var(--red)">Error: ${e.message}</span>`;
   }
-  btn.disabled=false; btn.textContent='Re-generate ↗';
+  btn.disabled=false;btn.textContent='Re-generate ↗';
 }
 
 

@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -630,8 +631,6 @@ document.querySelectorAll('.ni').forEach(el=>{
     el.classList.add('active');
     document.getElementById('page-title').textContent=TITLES[sec]||sec;
     if(sec==='dealmodel')calcDeal();
-    if(!window.chartsReady){window.chartsReady=true;setTimeout(initAllCharts,50);}
-    else{setTimeout(()=>{window.dispatchEvent(new CustomEvent('sectionchange',{detail:sec}))},50);}
   });
 });
 document.querySelectorAll('.fp').forEach(el=>{
@@ -645,9 +644,7 @@ document.querySelectorAll('.fp').forEach(el=>{
 
 let currentSeg='all';
 let selectedTarget=null;
-const renderedSections={};
 
-function initAllCharts(){
 // ── CHARTS ─────────────────────────────────────────────────────────────────
 function mkChart(id,type,data,opts){
   const el=document.getElementById(id);if(!el)return null;
@@ -656,10 +653,6 @@ function mkChart(id,type,data,opts){
 const GS={color:'rgba(255,255,255,0.05)'};
 const TX={color:'#4a4f62',font:{size:10}};
 const TX2={color:'#4a4f62',font:{size:9},maxRotation:0,autoSkip:true,maxTicksLimit:7};
-
-function renderChartsForSection(sec){
-  if(renderedSections[sec])return;
-  renderedSections[sec]=true;
 
 // ARR impacted by pricing
 mkChart('c-arr-impact','bar',{
@@ -804,8 +797,6 @@ mkChart('c-rep-scatter','scatter',{
   datasets:REPS.map(r=>({label:r.name,data:[{x:r.disc,y:r.win}],backgroundColor:r.color,pointRadius:8,pointHoverRadius:10}))
 },{plugins:{legend:{display:true,labels:{color:'#8b90a0',font:{size:10},boxWidth:8,padding:8}},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.parsed.x}% disc · ${c.parsed.y}% win`}}},scales:{x:{title:{display:true,text:'Avg discount %',color:'#4a4f62',font:{size:10}},ticks:{...TX,callback:v=>v+'%'},grid:GS},y:{title:{display:true,text:'Win rate %',color:'#4a4f62',font:{size:10}},ticks:{...TX,callback:v=>v+'%'},grid:GS}}});
 
-} // end initAllCharts
-
 // ── PORTFOLIO TABLE ────────────────────────────────────────────────────────
 function renderTable(q=''){
   const b=document.getElementById('ptbody');if(!b)return;
@@ -829,7 +820,6 @@ function renderTable(q=''){
 }
 function filterTable(q){renderTable(q)}
 renderTable();
-setTimeout(initAllCharts, 100);
 
 // ── PRICE BOOK ────────────────────────────────────────────────────────────
 (()=>{
@@ -980,7 +970,7 @@ function calcDeal(){
     <div class="res-row"><div class="res-lbl">Gross margin est.</div><div class="res-val" style="color:${grossMargin/annualARR>0.65?'var(--green)':'var(--amber)'}">${Math.round(grossMargin/annualARR*100)}% · ${fmt(grossMargin)}</div></div>
     <div class="res-row"><div class="res-lbl">NPV (${term}yr)</div><div class="res-val">${fmt(npv)}</div></div>
     <div class="res-row"><div class="res-lbl">Approval required</div><div class="res-val" style="color:${discStatus.color}">${discStatus.label}</div></div>
-    <div class="res-row"><div class="res-lbl">Floor price</div><div class="res-val" style="color:${belowFloor?'var(--red)':'var(--text2)'">${fmt(floor)} ${belowFloor?'⚠ BELOW FLOOR':''}</div></div>
+    <div class="res-row"><div class="res-lbl">Floor price</div><div class="res-val" style="color:${belowFloor?'var(--red)':'var(--text2)'}">${fmt(floor)} ${belowFloor?'⚠ BELOW FLOOR':''}</div></div>
     <div class="res-row"><div class="res-lbl">Recommended discount</div><div class="res-val" style="color:var(--green)">${recDisc}% · ${fmt(Math.round(listPrice*(1-recDisc/100)))}/yr</div></div>`;
 
   // NPV chart

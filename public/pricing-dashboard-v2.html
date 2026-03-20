@@ -1,0 +1,1003 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comply365 · Pricing Intelligence Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Figtree:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root{--bg:#0d0f14;--bg2:#13161e;--bg3:#1a1e28;--bg4:#20253200;--border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);--text:#e8eaf0;--text2:#8b90a0;--text3:#4a4f62;--accent:#4f8ef7;--accent2:#7c5cfc;--green:#2ecc8f;--red:#e85d6a;--amber:#f5a623;--teal:#2dd4bf;--fd:′DM Serif Display′,serif;--fb:′Figtree′,sans-serif;--fm:′DM Mono′,monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-serif;font-size:14px;min-height:100vh;overflow-x:hidden}
+.app{display:flex;min-height:100vh}
+/* SIDEBAR */
+.sidebar{width:224px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:200;overflow-y:auto}
+.logo{padding:18px 18px 14px;border-bottom:1px solid var(--border)}
+.logo-mark{font-family:'DM Serif Display',serif;font-size:16px;color:var(--text);letter-spacing:-.3px}
+.logo-sub{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+.nav{padding:12px 8px;flex:1}
+.nav-sec{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;padding:0 10px;margin:14px 0 5px}
+.ni{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:7px;cursor:pointer;color:var(--text2);font-size:12.5px;transition:all .15s;margin-bottom:1px;user-select:none}
+.ni:hover{background:var(--bg3);color:var(--text)}
+.ni.active{background:rgba(79,142,247,.13);color:var(--accent);font-weight:500}
+.ni svg{flex-shrink:0;opacity:.65}
+.ni.active svg{opacity:1}
+.sb-footer{padding:14px;border-top:1px solid var(--border);margin-top:auto}
+.key-box{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px}
+.key-lbl{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}
+.key-inp{background:transparent;border:none;color:var(--accent);font-family:'DM Mono',monospace;font-size:11px;width:100%;outline:none}
+.key-inp::placeholder{color:var(--text3)}
+/* MAIN */
+.main{margin-left:224px;flex:1;min-height:100vh;display:flex;flex-direction:column}
+.topbar{height:52px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:100}
+.page-title{font-size:14px;font-weight:500;color:var(--text)}
+.tbr{display:flex;align-items:center;gap:8px}
+.fp{background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:11.5px;color:var(--text2);cursor:pointer;transition:all .15s;user-select:none}
+.fp:hover,.fp.active{border-color:var(--accent);color:var(--accent);background:rgba(79,142,247,.08)}
+.psel{background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:4px 8px;color:var(--text2);font-size:11.5px;cursor:pointer;outline:none;font-family:'Figtree',sans-serif}
+.psel option{background:var(--bg2)}
+.content{padding:24px;flex:1}
+/* SECTIONS */
+.sec{display:none}.sec.active{display:block}
+/* CARDS */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px}
+.ch{padding:16px 18px 0;display:flex;justify-content:space-between;align-items:flex-start}
+.ct{font-size:10.5px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.8px}
+.cb{padding:14px 18px 18px}
+/* METRIC CARDS */
+.mrow{display:grid;gap:10px;margin-bottom:16px}
+.mc{background:var(--bg2);border:1px solid var(--border);border-radius:11px;padding:16px 18px;position:relative;overflow:hidden;transition:border-color .2s}
+.mc:hover{border-color:var(--border2)}
+.mc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:11px 11px 0 0}
+.mc.c-green::before{background:var(--green)}.mc.c-red::before{background:var(--red)}.mc.c-amber::before{background:var(--amber)}.mc.c-blue::before{background:var(--accent)}.mc.c-purple::before{background:var(--accent2)}.mc.c-teal::before{background:var(--teal)}
+.ml{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px}
+.mv{font-size:24px;font-weight:600;color:var(--text);line-height:1;margin-bottom:6px}
+.md{font-size:11px}
+.du{color:var(--green)}.dd{color:var(--red)}.dn{color:var(--text2)}
+/* GRIDS */
+.g2{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:14px;margin-bottom:14px}
+.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:14px}
+.g2e{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:14px}
+.g4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:14px}
+/* TABLE */
+.dt{width:100%;border-collapse:collapse;font-size:12px}
+.dt th{padding:7px 10px;text-align:left;color:var(--text3);font-family:'DM Mono',monospace;font-size:9.5px;text-transform:uppercase;letter-spacing:.8px;border-bottom:1px solid var(--border);font-weight:400}
+.dt td{padding:9px 10px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:middle}
+.dt tr:last-child td{border-bottom:none}
+.dt tr:hover td{background:var(--bg3);color:var(--text)}
+.dt tr{cursor:pointer;transition:background .1s}
+/* BADGES */
+.badge{font-size:10px;padding:2px 7px;border-radius:4px;font-family:'DM Mono',monospace;font-weight:500}
+.b-smb{background:rgba(79,142,247,.12);color:var(--accent)}
+.b-mid{background:rgba(124,92,252,.12);color:var(--accent2)}
+.b-ent{background:rgba(245,166,35,.12);color:var(--amber)}
+.b-str{background:rgba(46,204,143,.12);color:var(--green)}
+.b-new{background:rgba(79,142,247,.1);color:var(--accent)}
+.b-exp{background:rgba(46,204,143,.1);color:var(--green)}
+.b-ren{background:rgba(245,166,35,.1);color:var(--amber)}
+.b-exc{background:rgba(232,93,106,.1);color:var(--red)}
+/* ALERTS */
+.alert{display:flex;align-items:flex-start;gap:10px;padding:11px 13px;background:var(--bg3);border-radius:8px;margin-bottom:7px;border-left:3px solid var(--red)}
+.alert.am{border-left-color:var(--amber)}.alert.gr{border-left-color:var(--green)}.alert.bl{border-left-color:var(--accent)}
+.alert-txt{font-size:11.5px;color:var(--text2);line-height:1.55}
+.alert-txt strong{color:var(--text);font-weight:500}
+/* WORKFLOW */
+.wstep{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.wstep:last-child{border-bottom:none}
+.wnum{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-family:'DM Mono',monospace;font-weight:500;flex-shrink:0}
+.wa{background:rgba(79,142,247,.15);color:var(--accent);border:1px solid rgba(79,142,247,.3)}
+.wd{background:rgba(46,204,143,.12);color:var(--green);border:1px solid rgba(46,204,143,.3)}
+.wp{background:var(--bg3);color:var(--text3);border:1px solid var(--border)}
+.stitle{font-size:12.5px;font-weight:500;color:var(--text);margin-bottom:2px}
+.sdesc{font-size:11px;color:var(--text2);line-height:1.5}
+.sthr{font-family:'DM Mono',monospace;color:var(--amber)}
+/* TIER CARDS */
+.tgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.tcard{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:16px 14px;transition:all .2s}
+.tcard.feat{border-color:var(--accent);background:rgba(79,142,247,.04)}
+.tname{font-size:10px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.tprice{font-size:22px;font-weight:600;color:var(--text);margin-bottom:3px}
+.tper{font-size:10.5px;color:var(--text3);margin-bottom:12px}
+.tfeat{font-size:11px;color:var(--text2);padding:4px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:5px}
+.tfeat:last-child{border-bottom:none}
+.fck{color:var(--green);font-size:11px}.fcx{color:var(--text3);font-size:11px}
+/* DEAL MODELER */
+.dm-label{font-size:11px;color:var(--text2);margin-bottom:5px}
+.dm-input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:8px 11px;color:var(--text);font-size:13px;outline:none;font-family:'Figtree',sans-serif;transition:border-color .2s}
+.dm-input:focus{border-color:var(--accent)}
+.dm-select{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:8px 11px;color:var(--text);font-size:13px;outline:none;font-family:'Figtree',sans-serif;cursor:pointer}
+.dm-select option{background:var(--bg2)}
+.module-toggle{display:flex;align-items:center;justify-content:space-between;padding:8px 11px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;margin-bottom:6px;cursor:pointer;transition:all .2s}
+.module-toggle.on{border-color:var(--accent);background:rgba(79,142,247,.07)}
+.module-toggle .mod-name{font-size:12.5px;color:var(--text);font-weight:500}
+.module-toggle .mod-price{font-size:11px;color:var(--text2);font-family:'DM Mono',monospace}
+.module-toggle .mod-check{width:16px;height:16px;border-radius:4px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;transition:all .2s}
+.module-toggle.on .mod-check{background:var(--accent);border-color:var(--accent);color:#fff}
+.result-box{background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:16px}
+.res-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)}
+.res-row:last-child{border-bottom:none}
+.res-lbl{font-size:11.5px;color:var(--text2)}
+.res-val{font-size:13px;font-weight:500;color:var(--text);font-family:'DM Mono',monospace}
+/* PRICE BOOK */
+.pb-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.pb-row:last-child{border-bottom:none}
+.pb-module{flex:1;font-size:13px;font-weight:500;color:var(--text)}
+.pb-desc{font-size:11px;color:var(--text3);margin-top:1px}
+.pb-price{font-family:'DM Mono',monospace;font-size:13px;color:var(--text);min-width:90px;text-align:right}
+.pb-floor{font-family:'DM Mono',monospace;font-size:11px;color:var(--red);min-width:80px;text-align:right}
+.pb-ceiling{font-family:'DM Mono',monospace;font-size:11px;color:var(--green);min-width:80px;text-align:right}
+/* EXEC SUMMARY */
+.exec-kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px}
+.exec-kpi{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.exec-kpi-num{font-family:'DM Serif Display',serif;font-size:32px;color:var(--text);line-height:1;margin-bottom:3px}
+.exec-kpi-lbl{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.8px}
+.exec-kpi-d{font-size:11px;margin-top:4px}
+.section-header{margin-bottom:18px}
+.section-title{font-family:'DM Serif Display',serif;font-size:22px;color:var(--text);margin-bottom:3px}
+.section-sub{font-size:12.5px;color:var(--text2)}
+/* SCORE BAR */
+.sbar-wrap{display:flex;align-items:center;gap:7px}
+.sbar{flex:1;height:4px;background:var(--border);border-radius:2px}
+.sbar-fill{height:4px;border-radius:2px}
+/* REP */
+.rep-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
+.rep-row:last-child{border-bottom:none}
+.avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0}
+/* LEAKAGE */
+.leak-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.leak-row:last-child{border-bottom:none}
+/* CONTROLS */
+.ctrl-metric{background:var(--bg3);border-radius:8px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
+.ctrl-lbl{font-size:12px;color:var(--text2)}
+.ctrl-val{font-size:14px;font-weight:600;font-family:'DM Mono',monospace}
+.ctrl-status{font-size:10px;padding:2px 8px;border-radius:4px;font-family:'DM Mono',monospace}
+.st-good{background:rgba(46,204,143,.12);color:var(--green)}.st-warn{background:rgba(245,166,35,.12);color:var(--amber)}.st-bad{background:rgba(232,93,106,.12);color:var(--red)}
+/* TARGET */
+.tgt-card{background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:13px 14px;margin-bottom:8px;cursor:pointer;transition:all .2s}
+.tgt-card:hover,.tgt-card.sel{border-color:var(--accent)}
+.ai-badge{font-size:9px;background:rgba(79,142,247,.15);color:var(--accent);padding:1px 6px;border-radius:3px;font-family:'DM Mono',monospace;margin-right:4px}
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.sec.active{animation:fadeUp .25s ease forwards}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ══ SIDEBAR ══════════════════════════════════════════════════════ -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">Comply365</div>
+    <div class="logo-sub">Pricing Intelligence</div>
+  </div>
+  <nav class="nav">
+    <div class="nav-sec">Executive</div>
+    <div class="ni active" data-sec="exec">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.4"/><rect x="8" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.4"/><rect x="1" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.4"/><rect x="8" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.4"/></svg>
+      Executive Summary
+    </div>
+    <div class="ni" data-sec="scorecard">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.4"/><path d="M7 4.5V7l1.5 1.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      Health Scorecard
+    </div>
+    <div class="nav-sec">Portfolio</div>
+    <div class="ni" data-sec="portfolio">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="2.5" width="12" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M4 6h6M4 8.5h4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      Customer Portfolio
+    </div>
+    <div class="ni" data-sec="targets">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.4"/><circle cx="7" cy="7" r="2" stroke="currentColor" stroke-width="1.4"/><path d="M7 1v1.5M7 11.5V13M1 7h1.5M11.5 7H13" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      Target Accounts
+    </div>
+    <div class="nav-sec">Pricing Tools</div>
+    <div class="ni" data-sec="pricebook">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="2" y="1" width="10" height="12" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M4.5 4.5h5M4.5 7h5M4.5 9.5h3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      Price Book
+    </div>
+    <div class="ni" data-sec="controls">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 4h10M4 7h6M6 10h2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      Pricing Controls
+    </div>
+    <div class="ni" data-sec="approval">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 7l3 3 6-6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Discount Workflow
+    </div>
+    <div class="ni" data-sec="dealmodel">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M4.5 9.5L6.5 7 8.5 8.5 10 5.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Deal Modeler
+    </div>
+    <div class="ni" data-sec="packaging">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1l6 3.5v5L7 13 1 9.5v-5L7 1z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+      Packaging & Tiers
+    </div>
+    <div class="ni" data-sec="reps">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="5.5" cy="4.5" r="2.5" stroke="currentColor" stroke-width="1.4"/><path d="M1.5 12c0-2.2 1.8-4 4-4s4 1.8 4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="11" cy="4.5" r="1.8" stroke="currentColor" stroke-width="1.2"/><path d="M12.5 11c0-1.5-1.1-2.8-2.5-3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      Rep Performance
+    </div>
+  </nav>
+  <div class="sb-footer">
+    <div class="key-box">
+      <div class="key-lbl">OpenAI Key (GPT-4o)</div>
+      <input class="key-inp" id="oai-key" type="password" placeholder="sk-... for AI insights">
+    </div>
+  </div>
+</aside>
+
+<!-- ══ MAIN ═══════════════════════════════════════════════════════════ -->
+<div class="main">
+  <header class="topbar">
+    <div class="page-title" id="page-title">Executive Summary</div>
+    <div class="tbr">
+      <div class="fp active" data-seg="all">All</div>
+      <div class="fp" data-seg="smb">SMB</div>
+      <div class="fp" data-seg="mid">Mid-Market</div>
+      <div class="fp" data-seg="ent">Enterprise</div>
+      <div class="fp" data-seg="strat">Strategic</div>
+      <select class="psel" id="period-sel">
+        <option value="Q1-2026">Q1 2026</option>
+        <option value="Q4-2025">Q4 2025</option>
+        <option value="Q3-2025">Q3 2025</option>
+        <option value="Q2-2025">Q2 2025</option>
+        <option value="FY2025">FY 2025</option>
+        <option value="FY2024">FY 2024</option>
+      </select>
+    </div>
+  </header>
+
+  <div class="content">
+
+  <!-- ══ EXECUTIVE SUMMARY ══════════════════════════════════════════ -->
+  <section class="sec active" id="sec-exec">
+    <div class="section-header">
+      <div class="section-title">Executive Summary</div>
+      <div class="section-sub">Pricing performance at a glance · Global portfolio · Q1 2026</div>
+    </div>
+    <div class="exec-kpi-grid">
+      <div class="exec-kpi"><div class="exec-kpi-num">$48.2M</div><div class="exec-kpi-lbl">Total ARR</div><div class="exec-kpi-d du">▲ 22% YoY</div></div>
+      <div class="exec-kpi"><div class="exec-kpi-num">112%</div><div class="exec-kpi-lbl">Portfolio NRR</div><div class="exec-kpi-d du">▲ 3pp QoQ</div></div>
+      <div class="exec-kpi"><div class="exec-kpi-num">78%</div><div class="exec-kpi-lbl">Price Realization</div><div class="exec-kpi-d du">▲ 4pp vs FY24</div></div>
+      <div class="exec-kpi"><div class="exec-kpi-num">$2.4M</div><div class="exec-kpi-lbl">Discount Leakage</div><div class="exec-kpi-d dd">ARR at risk</div></div>
+    </div>
+    <div class="g2" style="margin-bottom:14px">
+      <div class="card">
+        <div class="ch"><div class="ct">ARR Impacted by Pricing Decisions (Quarterly)</div></div>
+        <div class="cb"><div style="position:relative;height:190px"><canvas id="c-arr-impact"></canvas></div></div>
+      </div>
+      <div class="card">
+        <div class="ch"><div class="ct">Pricing Health Score</div></div>
+        <div class="cb" style="display:flex;flex-direction:column;align-items:center;padding-top:8px">
+          <canvas id="c-gauge" width="180" height="95"></canvas>
+          <div style="font-family:'DM Serif Display',serif;font-size:46px;color:var(--text);margin-top:-4px;line-height:1">74</div>
+          <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px">out of 100</div>
+          <div style="font-size:12px;padding:3px 12px;border-radius:20px;background:rgba(46,204,143,.12);color:var(--green);margin-top:6px;font-weight:500">B+ · Good</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;margin-top:14px">
+            <div style="background:var(--bg3);border-radius:7px;padding:10px 12px"><div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;margin-bottom:5px">Margin control</div><div style="font-size:16px;font-weight:600;color:var(--green)">81</div><div style="height:3px;background:var(--border);border-radius:2px;margin-top:5px"><div style="height:3px;background:var(--green);border-radius:2px;width:81%"></div></div></div>
+            <div style="background:var(--bg3);border-radius:7px;padding:10px 12px"><div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;margin-bottom:5px">Discount discipline</div><div style="font-size:16px;font-weight:600;color:var(--amber)">67</div><div style="height:3px;background:var(--border);border-radius:2px;margin-top:5px"><div style="height:3px;background:var(--amber);border-radius:2px;width:67%"></div></div></div>
+            <div style="background:var(--bg3);border-radius:7px;padding:10px 12px"><div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;margin-bottom:5px">Value capture</div><div style="font-size:16px;font-weight:600;color:var(--accent)">78</div><div style="height:3px;background:var(--border);border-radius:2px;margin-top:5px"><div style="height:3px;background:var(--accent);border-radius:2px;width:78%"></div></div></div>
+            <div style="background:var(--bg3);border-radius:7px;padding:10px 12px"><div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;margin-bottom:5px">Deal velocity</div><div style="font-size:16px;font-weight:600;color:var(--red)">62</div><div style="height:3px;background:var(--border);border-radius:2px;margin-top:5px"><div style="height:3px;background:var(--red);border-radius:2px;width:62%"></div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="g3">
+      <div class="card"><div class="ch"><div class="ct">Price Realization vs List</div></div><div class="cb"><div style="position:relative;height:160px"><canvas id="c-realization"></canvas></div></div></div>
+      <div class="card"><div class="ch"><div class="ct">Win Rate by Discount Band</div></div><div class="cb"><div style="position:relative;height:160px"><canvas id="c-winrate"></canvas></div></div></div>
+      <div class="card"><div class="ch"><div class="ct">Renewal Uplift Realization</div></div><div class="cb"><div style="position:relative;height:160px"><canvas id="c-uplift"></canvas></div></div></div>
+    </div>
+    <div class="card">
+      <div class="ch" style="margin-bottom:10px"><div class="ct">Executive Alerts</div></div>
+      <div class="cb" style="padding-top:0">
+        <div class="alert"><div style="color:var(--red);font-size:13px;margin-top:1px">⚠</div><div class="alert-txt"><strong>7 deals pending CFO approval</strong> — EMEA enterprise accounts averaging 31% discount. Combined ARR exposure $1.2M. Recommendation: enforce value-based justification memo before proceeding.</div></div>
+        <div class="alert am"><div style="color:var(--amber);font-size:13px;margin-top:1px">⚠</div><div class="alert-txt"><strong>Beams AI module underpriced</strong> — CoAnalyst/CoAuthor showing 2.3× higher retention vs base tier but only 8% price premium. Repricing to 22–28% premium could recover $640K ARR annually.</div></div>
+        <div class="alert am"><div style="color:var(--amber);font-size:13px;margin-top:1px">⚠</div><div class="alert-txt"><strong>3 renewals below NRR floor</strong> — SkyWest Airlines, Rail Corp AU, NovaStar Defense showing contraction. Average uplift realization 61% vs 90% contracted. Deal desk review recommended.</div></div>
+        <div class="alert gr"><div style="color:var(--green);font-size:13px;margin-top:1px">✓</div><div class="alert-txt"><strong>MINT integration upsell: $680K opportunity</strong> — 14 existing customers eligible for Training Management module upgrade. Pipeline ready to engage Q2 2026.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ HEALTH SCORECARD ══════════════════════════════════════════ -->
+  <section class="sec" id="sec-scorecard">
+    <div class="section-header"><div class="section-title">Health Scorecard</div><div class="section-sub">Pricing performance across all dimensions · 100 active accounts</div></div>
+    <div class="mrow" style="grid-template-columns:repeat(6,minmax(0,1fr))">
+      <div class="mc c-blue"><div class="ml">Price Realization</div><div class="mv">78%</div><div class="md du">▲ 4pp vs FY24</div></div>
+      <div class="mc c-red"><div class="ml">Avg Discount</div><div class="mv">18.3%</div><div class="md dd">2.1pp over target</div></div>
+      <div class="mc c-amber"><div class="ml">Leakage ARR</div><div class="mv">$2.4M</div><div class="md dd">5% of total ARR</div></div>
+      <div class="mc c-green"><div class="ml">Portfolio NRR</div><div class="mv">112%</div><div class="md du">▲ 3pp QoQ</div></div>
+      <div class="mc c-purple"><div class="ml">Gross Margin</div><div class="mv">71%</div><div class="md du">▲ 1.8pp QoQ</div></div>
+      <div class="mc c-teal"><div class="ml">Avg LTV/CAC</div><div class="mv">4.2×</div><div class="md du">▲ 0.3 QoQ</div></div>
+    </div>
+    <div class="g2">
+      <div class="card"><div class="ch"><div class="ct">Price Realization Trend (Quarterly, 5yr)</div></div><div class="cb"><div style="position:relative;height:200px"><canvas id="c-sc-trend"></canvas></div></div></div>
+      <div class="card"><div class="ch"><div class="ct">Margin by Deal Type</div></div><div class="cb"><div style="position:relative;height:200px"><canvas id="c-margin-deal"></canvas></div></div></div>
+    </div>
+    <div class="g3">
+      <div class="card"><div class="ch"><div class="ct">Avg Discount by Segment</div></div><div class="cb"><div style="position:relative;height:170px"><canvas id="c-disc-seg"></canvas></div></div></div>
+      <div class="card"><div class="ch"><div class="ct">Avg Discount by Region</div></div><div class="cb"><div style="position:relative;height:170px"><canvas id="c-disc-reg"></canvas></div></div></div>
+      <div class="card"><div class="ch"><div class="ct">Approval Exception Rate</div></div><div class="cb"><div style="position:relative;height:170px"><canvas id="c-exception"></canvas></div></div></div>
+    </div>
+    <div class="card"><div class="ch" style="margin-bottom:10px"><div class="ct">Top Leakage Drivers</div></div><div class="cb" style="padding-top:0" id="leakage-drivers"></div></div>
+  </section>
+
+  <!-- ══ PORTFOLIO ════════════════════════════════════════════════ -->
+  <section class="sec" id="sec-portfolio">
+    <div class="section-header"><div class="section-title">Customer Portfolio</div><div class="section-sub">100 accounts · aviation, defense, rail & space · MINT and Beams acquisition cohorts included</div></div>
+    <div class="mrow" style="grid-template-columns:repeat(5,minmax(0,1fr))">
+      <div class="mc c-blue"><div class="ml">Total ARR</div><div class="mv">$48.2M</div><div class="md du">▲ 22% YoY</div></div>
+      <div class="mc c-green"><div class="ml">Avg NRR</div><div class="mv">112%</div><div class="md du">▲ 3pp</div></div>
+      <div class="mc c-amber"><div class="ml">Gross Churn</div><div class="mv">4.8%</div><div class="md du">▼ 1.2pp YoY</div></div>
+      <div class="mc c-teal"><div class="ml">Expansion ARR</div><div class="mv">$6.1M</div><div class="md du">▲ 34% YoY</div></div>
+      <div class="mc c-red"><div class="ml">At-Risk ARR</div><div class="mv">$3.8M</div><div class="md dd">8 accounts</div></div>
+    </div>
+    <div class="g2e">
+      <div class="card"><div class="ch"><div class="ct">ARR by Industry (Bookings Impact)</div></div><div class="cb"><div style="position:relative;height:180px"><canvas id="c-ind"></canvas></div></div></div>
+      <div class="card"><div class="ch"><div class="ct">5-Year ARR Growth</div></div><div class="cb"><div style="position:relative;height:180px"><canvas id="c-arrg"></canvas></div></div></div>
+    </div>
+    <div class="card">
+      <div class="ch" style="margin-bottom:12px">
+        <div class="ct">All Accounts</div>
+        <input id="search-inp" placeholder="Search accounts…" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:5px 10px;color:var(--text2);font-size:12px;outline:none;font-family:'Figtree',sans-serif;width:200px" oninput="filterTable(this.value)">
+      </div>
+      <div class="cb" style="padding-top:0;overflow-x:auto">
+        <table class="dt" id="ptable"><thead><tr><th>Company</th><th>Industry</th><th>Segment</th><th>ARR</th><th>NRR</th><th>List Price</th><th>Realized</th><th>Discount</th><th>LTV/CAC</th><th>Health</th></tr></thead><tbody id="ptbody"></tbody></table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ TARGETS ══════════════════════════════════════════════════ -->
+  <section class="sec" id="sec-targets">
+    <div class="section-header"><div class="section-title">Target Accounts</div><div class="section-sub">20 prospects benchmarked against portfolio · GPT-4o pricing approach recommendations</div></div>
+    <div class="g2">
+      <div id="tgt-list"></div>
+      <div>
+        <div class="card" style="position:sticky;top:60px">
+          <div class="ch"><div class="ct">AI Pricing Recommendation</div></div>
+          <div class="cb">
+            <div style="font-size:12px;color:var(--text2);margin-bottom:10px">Select a target account then click Generate.</div>
+            <div id="ai-out" style="font-size:12px;color:var(--text2);line-height:1.7;min-height:180px;background:var(--bg3);border-radius:8px;padding:13px"><span style="color:var(--text3);font-family:'DM Mono',monospace;font-size:11px">← Select an account to begin</span></div>
+            <button onclick="runAI()" style="margin-top:10px;width:100%;padding:8px;background:rgba(79,142,247,.12);border:1px solid rgba(79,142,247,.3);border-radius:8px;color:var(--accent);font-size:13px;cursor:pointer;font-family:'Figtree',sans-serif;transition:all .2s">Generate Pricing Approach ↗</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ PRICE BOOK ════════════════════════════════════════════════ -->
+  <section class="sec" id="sec-pricebook">
+    <div class="section-header"><div class="section-title">Price Book</div><div class="section-sub">Authoritative list prices, floor prices, and discount ceilings · Q1 2026</div></div>
+    <div class="mrow" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:16px">
+      <div class="mc c-blue"><div class="ml">Modules in Price Book</div><div class="mv">8</div><div class="md dn">Post MINT + Beams</div></div>
+      <div class="mc c-amber"><div class="ml">Avg List vs Realized Gap</div><div class="mv">22%</div><div class="md dd">$10.6M unrealized</div></div>
+      <div class="mc c-green"><div class="ml">Price Book Coverage</div><div class="mv">94%</div><div class="md du">6 exceptions logged</div></div>
+      <div class="mc c-red"><div class="ml">Below Floor Deals</div><div class="mv">4</div><div class="md dd">Require CEO sign-off</div></div>
+    </div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="ch" style="margin-bottom:10px"><div class="ct">Module Price Book · List / Floor / Ceiling</div></div>
+      <div class="cb" style="padding-top:0">
+        <div style="display:grid;grid-template-columns:1fr 80px 90px 90px 90px;gap:0;font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;padding:6px 0 8px;border-bottom:1px solid var(--border)">
+          <div>Module</div><div style="text-align:right">List/yr</div><div style="text-align:right">Floor</div><div style="text-align:right">Max disc</div><div style="text-align:right">Tier req.</div>
+        </div>
+        <div id="pricebook-rows"></div>
+      </div>
+    </div>
+    <div class="g2e">
+      <div class="card"><div class="ch"><div class="ct">List vs Realized by Module</div></div><div class="cb"><div style="position:relative;height:200px"><canvas id="c-listreal"></canvas></div></div></div>
+      <div class="card"><div class="ch"><div class="ct">Floor Price Violations (Last 4 Qtrs)</div></div><div class="cb"><div style="position:relative;height:200px"><canvas id="c-violations"></canvas></div></div></div>
+    </div>
+  </section>
+
+  <!-- ══ PRICING CONTROLS ═════════════════════════════════════════ -->
+  <section class="sec" id="sec-controls">
+    <div class="section-header"><div class="section-title">Pricing Controls</div><div class="section-sub">Governance health, exception tracking, and guardrail performance</div></div>
+    <div class="g2e">
+      <div class="card">
+        <div class="ch" style="margin-bottom:12px"><div class="ct">Control Metrics</div></div>
+        <div class="cb" style="padding-top:0">
+          <div class="ctrl-metric"><div><div class="ctrl-lbl">Exception rate (>25% disc)</div></div><div style="display:flex;align-items:center;gap:8px"><div class="ctrl-val" style="color:var(--amber)">14.2%</div><div class="ctrl-status st-warn">Above 10% target</div></div></div>
+          <div class="ctrl-metric"><div><div class="ctrl-lbl">Deals below floor price</div></div><div style="display:flex;align-items:center;gap:8px"><div class="ctrl-val" style="color:var(--red)">4</div><div class="ctrl-status st-bad">Requires CEO</div></div></div>
+          <div class="ctrl-metric"><div><div class="ctrl-lbl">Price book compliance</div></div><div style="display:flex;align-items:center;gap:8px"><div class="ctrl-val" style="color:var(--green)">94%</div><div class="ctrl-status st-good">On target</div></div></div>
+          <div class="ctrl-metric"><div><div class="ctrl-lbl">Avg approval cycle (days)</div></div><div style="display:flex;align-items:center;gap:8px"><div class="ctrl-val" style="color:var(--amber)">1.8d</div><div class="ctrl-status st-warn">Target: 1d</div></div></div>
+          <div class="ctrl-metric"><div><div class="ctrl-lbl">Renewal uplift realization</div></div><div style="display:flex;align-items:center;gap:8px"><div class="ctrl-val" style="color:var(--amber)">71%</div><div class="ctrl-status st-warn">Target: 85%</div></div></div>
+          <div class="ctrl-metric"><div><div class="ctrl-lbl">Multi-yr contract attach</div></div><div style="display:flex;align-items:center;gap:8px"><div class="ctrl-val" style="color:var(--green)">58%</div><div class="ctrl-status st-good">▲ 6pp YoY</div></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ch"><div class="ct">Exception Rate by Quarter</div></div>
+        <div class="cb"><div style="position:relative;height:180px"><canvas id="c-exc-trend"></canvas></div></div>
+        <div class="ch" style="margin-top:4px"><div class="ct">Exception Rate by Region</div></div>
+        <div class="cb"><div style="position:relative;height:130px"><canvas id="c-exc-reg"></canvas></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ch" style="margin-bottom:10px"><div class="ct">Top Leakage Drivers</div></div>
+      <div class="cb" style="padding-top:0">
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px" id="leakage-detail"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ DISCOUNT WORKFLOW ════════════════════════════════════════ -->
+  <section class="sec" id="sec-approval">
+    <div class="section-header"><div class="section-title">Discount Approval Workflow</div><div class="section-sub">Governance thresholds, pending queue, and SLA performance</div></div>
+    <div class="g2">
+      <div class="card">
+        <div class="ch" style="margin-bottom:14px"><div class="ct">Approval Ladder</div></div>
+        <div class="cb" style="padding-top:0">
+          <div class="wstep"><div class="wnum wd">✓</div><div><div class="stitle">Auto-approve · <span class="sthr">0–10%</span></div><div class="sdesc">Rep applies directly in Salesforce CPQ. Logged for analytics. No review needed.</div></div></div>
+          <div class="wstep"><div class="wnum wd">✓</div><div><div class="stitle">Sales Director · <span class="sthr">11–20%</span></div><div class="sdesc">Regional SD review. SLA 4 hrs. Deal desk notified. Value rationale required.</div></div></div>
+          <div class="wstep"><div class="wnum wa">3</div><div><div class="stitle">Pricing Lead · <span class="sthr">21–25%</span></div><div class="sdesc">Value justification memo + NPV impact model. SLA 1 business day. You own this gate.</div></div></div>
+          <div class="wstep"><div class="wnum wp">4</div><div><div class="stitle">CFO sign-off · <span class="sthr">26–30%</span></div><div class="sdesc">Competitor intelligence + LTV model required. SLA 2 business days.</div></div></div>
+          <div class="wstep"><div class="wnum wp">5</div><div><div class="stitle">CEO + CFO exception · <span class="sthr">&gt;30%</span></div><div class="sdesc">Strategic exception only. Formal business case. Board notification for deals &gt;$500K ARR.</div></div></div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:12px">
+          <div class="ch" style="margin-bottom:10px"><div class="ct">Pending Approvals</div></div>
+          <div class="cb" style="padding-top:0" id="pending-list"></div>
+        </div>
+        <div class="card">
+          <div class="ch"><div class="ct">Approval Cycle Time (Days) by Band</div></div>
+          <div class="cb"><div style="position:relative;height:150px"><canvas id="c-cycle"></canvas></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ DEAL MODELER ══════════════════════════════════════════════ -->
+  <section class="sec" id="sec-dealmodel">
+    <div class="section-header"><div class="section-title">Enterprise Deal Modeler</div><div class="section-sub">Model complex deals — price, margin, NPV, and discount recommendation</div></div>
+    <div class="g2">
+      <div class="card">
+        <div class="ch" style="margin-bottom:14px"><div class="ct">Deal Inputs</div></div>
+        <div class="cb" style="padding-top:0">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+            <div><div class="dm-label">Account name</div><input class="dm-input" id="dm-name" placeholder="e.g. Air New Zealand" oninput="calcDeal()"></div>
+            <div><div class="dm-label">Segment</div><select class="dm-select" id="dm-seg" onchange="calcDeal()"><option value="smb">SMB</option><option value="mid" selected>Mid-Market</option><option value="ent">Enterprise</option><option value="strat">Strategic</option></select></div>
+            <div><div class="dm-label">Region</div><select class="dm-select" id="dm-reg" onchange="calcDeal()"><option>EMEA</option><option>North America</option><option>APAC</option><option>LATAM</option></select></div>
+            <div><div class="dm-label">Contract term</div><select class="dm-select" id="dm-term" onchange="calcDeal()"><option value="1">1 year</option><option value="2" selected>2 years</option><option value="3">3 years</option></select></div>
+            <div><div class="dm-label">User count</div><input class="dm-input" id="dm-users" type="number" value="2000" min="100" oninput="calcDeal()"></div>
+            <div><div class="dm-label">Competitor scenario</div><select class="dm-select" id="dm-comp" onchange="calcDeal()"><option value="none">No displacement</option><option value="greenfield">Greenfield</option><option value="sabre">Displacing Sabre</option><option value="avolio">Displacing Avolio</option><option value="custom">Custom legacy system</option></select></div>
+          </div>
+          <div style="margin-bottom:14px"><div class="dm-label" style="margin-bottom:8px">Modules</div>
+            <div class="module-toggle on" data-mod="ocm" onclick="toggleMod(this)"><div><div class="mod-name">OCM · Operational Content</div><div class="mod-price">Base · $52K/yr</div></div><div class="mod-check">✓</div></div>
+            <div class="module-toggle on" data-mod="safety" onclick="toggleMod(this)"><div><div class="mod-name">Safety & Risk Management</div><div class="mod-price">+$28K/yr</div></div><div class="mod-check">✓</div></div>
+            <div class="module-toggle" data-mod="mint" onclick="toggleMod(this)"><div><div class="mod-name">MINT · Training Suite</div><div class="mod-price">+$34K/yr</div></div><div class="mod-check"></div></div>
+            <div class="module-toggle" data-mod="beams" onclick="toggleMod(this)"><div><div class="mod-name">Beams · AI Enhancements</div><div class="mod-price">+$22K/yr</div></div><div class="mod-check"></div></div>
+            <div class="module-toggle" data-mod="quality" onclick="toggleMod(this)"><div><div class="mod-name">Quality & Audit Tools</div><div class="mod-price">+$18K/yr</div></div><div class="mod-check"></div></div>
+          </div>
+          <div><div class="dm-label">Requested discount %</div><input class="dm-input" id="dm-disc" type="number" value="15" min="0" max="50" oninput="calcDeal()"></div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:12px">
+          <div class="ch" style="margin-bottom:12px"><div class="ct">Deal Output</div></div>
+          <div class="cb" style="padding-top:0">
+            <div class="result-box" id="deal-result"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ch"><div class="ct">Deal NPV Over Term</div></div>
+          <div class="cb"><div style="position:relative;height:160px"><canvas id="c-deal-npv"></canvas></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ PACKAGING ════════════════════════════════════════════════ -->
+  <section class="sec" id="sec-packaging">
+    <div class="section-header"><div class="section-title">Packaging & Pricing Tiers</div><div class="section-sub">Current architecture · MINT & Beams post-acquisition integration</div></div>
+    <div class="card" style="margin-bottom:14px">
+      <div class="ch" style="margin-bottom:14px"><div class="ct">Product Tier Architecture</div></div>
+      <div class="cb" style="padding-top:0">
+        <div class="tgrid">
+          <div class="tcard"><div class="tname" style="color:var(--text3)">Essential</div><div class="tprice">$18K</div><div class="tper">per year · up to 500 users</div><div class="tfeat"><span class="fck">✓</span>Operational Content Mgmt</div><div class="tfeat"><span class="fck">✓</span>Document Distribution</div><div class="tfeat"><span class="fck">✓</span>Basic Compliance</div><div class="tfeat"><span class="fcx">—</span>Safety & Risk</div><div class="tfeat"><span class="fcx">—</span>AI Features</div><div class="tfeat"><span class="fcx">—</span>MINT Training</div><div class="tfeat"><span class="fcx">—</span>Beams AI</div></div>
+          <div class="tcard feat"><div class="tname" style="color:var(--accent)">Professional ★</div><div class="tprice">$52K</div><div class="tper">per year · up to 2,000 users</div><div class="tfeat"><span class="fck">✓</span>Full OCM Suite</div><div class="tfeat"><span class="fck">✓</span>Safety & Risk Module</div><div class="tfeat"><span class="fck">✓</span>Quality & Audit Tools</div><div class="tfeat"><span class="fck">✓</span>CoAuthor (AI content)</div><div class="tfeat"><span class="fcx">—</span>MINT Training</div><div class="tfeat"><span class="fcx">—</span>Beams AI</div><div class="tfeat"><span class="fcx">—</span>Dedicated CSM</div></div>
+          <div class="tcard"><div class="tname" style="color:var(--amber)">Enterprise</div><div class="tprice">$140K</div><div class="tper">per year · unlimited users</div><div class="tfeat"><span class="fck">✓</span>Full Platform</div><div class="tfeat"><span class="fck">✓</span>Safety, Quality & Risk</div><div class="tfeat"><span class="fck">✓</span>CoAnalyst + CoAuthor</div><div class="tfeat"><span class="fck">✓</span>MINT Training Suite</div><div class="tfeat"><span class="fck">✓</span>Semantic Search</div><div class="tfeat"><span class="fcx">—</span>Beams AI</div><div class="tfeat"><span class="fcx">—</span>Multi-region</div></div>
+          <div class="tcard"><div class="tname" style="color:var(--green)">Strategic</div><div class="tprice">Custom</div><div class="tper">negotiated · global enterprise</div><div class="tfeat"><span class="fck">✓</span>Full Platform + All Modules</div><div class="tfeat"><span class="fck">✓</span>Beams AI Enhancements</div><div class="tfeat"><span class="fck">✓</span>MINT Advanced Training</div><div class="tfeat"><span class="fck">✓</span>Dedicated CSM + TAM</div><div class="tfeat"><span class="fck">✓</span>SLA 99.9% + Custom APIs</div><div class="tfeat"><span class="fck">✓</span>Executive QBRs</div><div class="tfeat"><span class="fck">✓</span>Multi-region deploy</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="g3">
+      <div class="card"><div class="ch"><div class="ct">Revenue Mix by Tier</div></div><div class="cb"><div style="position:relative;height:190px"><canvas id="c-tiermix"></canvas></div></div></div>
+      <div class="card"><div class="ch"><div class="ct">NRR by Tier</div></div><div class="cb"><div style="position:relative;height:190px"><canvas id="c-tiernrr"></canvas></div></div></div>
+      <div class="card"><div class="ch"><div class="ct">Uplift Realization by Tier</div></div><div class="cb"><div style="position:relative;height:190px"><canvas id="c-tieruplift"></canvas></div></div></div>
+    </div>
+  </section>
+
+  <!-- ══ REPS ══════════════════════════════════════════════════════ -->
+  <section class="sec" id="sec-reps">
+    <div class="section-header"><div class="section-title">Rep Performance</div><div class="section-sub">Pricing discipline and commercial effectiveness by rep</div></div>
+    <div class="mrow" style="grid-template-columns:repeat(4,minmax(0,1fr))">
+      <div class="mc c-green"><div class="ml">Top NRR Rep</div><div class="mv" style="font-size:18px">Sarah O.</div><div class="md du">127% NRR · EMEA</div></div>
+      <div class="mc c-red"><div class="ml">Highest Avg Discount</div><div class="mv" style="font-size:18px">Mark T.</div><div class="md dd">28.4% avg · LATAM</div></div>
+      <div class="mc c-amber"><div class="ml">Lowest Win Rate</div><div class="mv" style="font-size:18px">Priya M.</div><div class="md dn">44% win · APAC</div></div>
+      <div class="mc c-blue"><div class="ml">Most Deals Won</div><div class="mv" style="font-size:18px">James R.</div><div class="md du">18 deals · NA</div></div>
+    </div>
+    <div class="g2e">
+      <div class="card"><div class="ch"><div class="ct">Discount vs Win Rate (per rep)</div></div><div class="cb"><div style="position:relative;height:220px"><canvas id="c-rep-scatter"></canvas></div></div></div>
+      <div class="card"><div class="ch" style="margin-bottom:10px"><div class="ct">Rep Leaderboard</div></div><div class="cb" style="padding-top:0" id="rep-list"></div></div>
+    </div>
+  </section>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /app -->
+
+<script>
+// ── DATA ENGINE ────────────────────────────────────────────────────────────
+function rng(seed){let s=seed;return()=>{s=(s*9301+49297)%233280;return s/233280}}
+const R=rng(42);
+
+const PRICE_BOOK=[
+  {module:'OCM · Operational Content Mgmt',desc:'Core platform — document authoring, distribution, compliance',list:52000,floor:38000,maxDisc:27,tier:'Essential+'},
+  {module:'Safety & Risk Management',desc:'Incident reporting, hazard analysis, CoAnalyst AI',list:28000,floor:21000,maxDisc:25,tier:'Professional+'},
+  {module:'Quality & Audit Tools',desc:'Audit scheduling, NCR tracking, corrective actions',list:18000,floor:13500,maxDisc:25,tier:'Professional+'},
+  {module:'MINT · Training Suite',desc:'Training management, certification tracking, eLearning (Acq. 2025)',list:34000,floor:25000,maxDisc:22,tier:'Enterprise+'},
+  {module:'Beams · AI Enhancements',desc:'CoAuthor, semantic search, predictive insights (Acq. 2025)',list:22000,floor:17000,maxDisc:20,tier:'Enterprise+'},
+  {module:'Advanced Analytics',desc:'Executive dashboards, custom reporting, BI connectors',list:14000,floor:10500,maxDisc:25,tier:'Professional+'},
+  {module:'API & Integration Pack',desc:'REST APIs, SSO, ERP/HRIS connectors',list:10000,floor:8000,maxDisc:20,tier:'Enterprise+'},
+  {module:'Multi-Region Deploy',desc:'Data residency, localization, dedicated infra',list:20000,floor:16000,maxDisc:15,tier:'Strategic'},
+];
+
+const COMPANIES=(()=>{
+  const names=['SkyWest Airlines','AeroSafe Systems','FlightPath Global','AirOps Pro','EagleWing Aviation','CloudNine Aviation','BlueSky Compliance','TurboAir Systems','Falcon Safety Co','JetStream Analytics','RaytheonAero','DefenseCore Ltd','TacticalOps Inc','ArmorTech Solutions','StrategicDefense Co','GuardianSystems','NovaStar Defense','CombatReady Tech','ShieldGroup plc','SentinelDefense','RailSafe Corp','TrackMaster Pro','IronRail Systems','NexusRail Ltd','VelocityRail','OmniTrack Solutions','RailGuard Europe','SwiftRail Inc','PlatformSafe Co','TransitCore','OrbitDefense','SpaceSafe Systems','LaunchPad Compliance','NovaSpace Corp','GalacticOps','StarPath Ltd','CosmicSafety Co','AstroGuard Inc','Infinity Space','PolarOrbit Systems','Qantas Engineering','Emirates Safety','Lufthansa Systems','Delta Ops Tech','United Compliance','SingaporeAir Tech','KLM Safety Group','BA Operations','RyanairOps','EasyJet Compliance','NATO SafetyHub','LockheedOps','Boeing Defense Svcs','AirbusSafety','NorthropCompliance','GeneralDynOps','RaytheonRisk','L3Harris Safety','BAE SystemsOps','Leonardo Defense','Deutsche Bahn Tech','Network Rail Sys','SNCF SafetyOps','Amtrak Compliance','Trenitalia Ops','HighSpeedRail Co','CrossRail Tech','TGV Safety Inc','Eurostar Ops','Thalys Systems','SpaceX Compliance','Blue Origin Ops','Virgin Galactic Sys','Arianespace Safety','Viasat Ops','Iridium Systems','Telesat SafetyOps','SES Compliance','Inmarsat Tech','OneWeb Safety','RAF Safety Systems','USAFCompliance','Bundeswehr Ops','Armée de l\'Air','JSDF Safety','Royal Navy Ops','USN Compliance','RAN Systems','Marina Militare','Bundesmarine','TigerAir Safety','IndiGo Compliance','AirAsia Ops','Cebu Pacific Tech','VietJet Safety','Wizz Air Systems','Pegasus Ops','SunExpress Tech','Corendon Safety','Air Arabia Ops'];
+  const INDS=['Aviation','Defense','Rail','Space'];
+  const SEGS=['SMB','Mid-Market','Enterprise','Strategic'];
+  const REGS=['EMEA','North America','APAC','LATAM'];
+  return names.map((name,i)=>{
+    const seg=i<30?'SMB':i<60?'Mid-Market':i<85?'Enterprise':'Strategic';
+    const ind=INDS[Math.floor(R()*4)];
+    const reg=REGS[Math.floor(R()*4)];
+    const baseList=seg==='SMB'?52000+R()*80000:seg==='Mid-Market'?130000+R()*200000:seg==='Enterprise'?400000+R()*600000:1200000+R()*2000000;
+    const disc=6+R()*26;
+    const arr=baseList*(1-disc/100);
+    const nrr=88+R()*38;
+    const ltv=2.2+R()*4;
+    const health=Math.round(48+R()*48);
+    const churnRisk=R()<0.1;
+    const mintEl=R()<0.4;
+    const beamsEl=R()<0.3;
+    const margin=55+R()*22;
+    const upliftReal=60+R()*35;
+    return{id:i,name,seg,ind,reg,listPrice:Math.round(baseList),arr:Math.round(arr),nrr:Math.round(nrr),disc:Math.round(disc*10)/10,ltv:Math.round(ltv*10)/10,health,churnRisk,mintEl,beamsEl,margin:Math.round(margin),upliftReal:Math.round(upliftReal)};
+  });
+})();
+
+const TARGETS=[
+  {name:'Air New Zealand',ind:'Aviation',seg:'Enterprise',reg:'APAC',emp:12000,rev:'$2.1B',pain:'Manual compliance docs, 3 disparate systems',fit:92},
+  {name:'Rolls-Royce Defense',ind:'Defense',seg:'Strategic',reg:'EMEA',emp:42000,rev:'$16.5B',pain:'Post-merger system consolidation needed',fit:89},
+  {name:'Amtrak Next-Gen',ind:'Rail',seg:'Enterprise',reg:'North America',emp:18000,rev:'$3.4B',pain:'FRA compliance modernization initiative',fit:87},
+  {name:'Planet Labs',ind:'Space',seg:'Mid-Market',reg:'North America',emp:900,rev:'$180M',pain:'Rapid growth, no formal safety ops system',fit:85},
+  {name:'Wizz Air East',ind:'Aviation',seg:'Mid-Market',reg:'EMEA',emp:6800,rev:'$620M',pain:'EASA compliance gaps flagged in audit',fit:83},
+  {name:'MBDA Missiles',ind:'Defense',seg:'Enterprise',reg:'EMEA',emp:13000,rev:'$4.2B',pain:'Fragmented training & certification tracking',fit:81},
+  {name:'MTR Corporation',ind:'Rail',seg:'Enterprise',reg:'APAC',emp:21000,rev:'$6.1B',pain:'Cross-border compliance complexity',fit:80},
+  {name:'AST SpaceMobile',ind:'Space',seg:'SMB',reg:'North America',emp:380,rev:'$45M',pain:'FCC & ITU compliance documentation',fit:78},
+  {name:'IndiGo Airlines',ind:'Aviation',seg:'Enterprise',reg:'APAC',emp:32000,rev:'$3.8B',pain:'DGCA compliance + rapid fleet expansion',fit:77},
+  {name:'Hanwha Defense',ind:'Defense',seg:'Enterprise',reg:'APAC',emp:9500,rev:'$2.9B',pain:'Export compliance & multilingual docs',fit:75},
+  {name:'SBB Swiss Rail',ind:'Rail',seg:'Enterprise',reg:'EMEA',emp:34000,rev:'$8.2B',pain:'Digital transformation mandate 2025',fit:74},
+  {name:'Axiom Space',ind:'Space',seg:'SMB',reg:'North America',emp:400,rev:'$62M',pain:'NASA certification workflows manual',fit:73},
+  {name:'Azul Brazilian Air',ind:'Aviation',seg:'Mid-Market',reg:'LATAM',emp:14000,rev:'$1.1B',pain:'ANAC regulatory filing backlog',fit:71},
+  {name:'Airbus Defence Space',ind:'Defense',seg:'Strategic',reg:'EMEA',emp:35000,rev:'$11.8B',pain:'Multi-domain compliance across 40 countries',fit:70},
+  {name:'Metrolinx GO Rail',ind:'Rail',seg:'Mid-Market',reg:'North America',emp:4200,rev:'$890M',pain:'Expanding service, compliance team understaffed',fit:69},
+  {name:'Exolaunch GmbH',ind:'Space',seg:'SMB',reg:'EMEA',emp:250,rev:'$38M',pain:'Multi-jurisdiction launch compliance',fit:68},
+  {name:'Copa Airlines',ind:'Aviation',seg:'Mid-Market',reg:'LATAM',emp:9800,rev:'$760M',pain:'Hub expansion compliance complexity',fit:66},
+  {name:'Patria Defense',ind:'Defense',seg:'Mid-Market',reg:'EMEA',emp:3100,rev:'$580M',pain:'NATO standards audit preparation',fit:65},
+  {name:'Stadler Rail',ind:'Rail',seg:'Mid-Market',reg:'EMEA',emp:13000,rev:'$2.4B',pain:'Cross-platform safety documentation',fit:63},
+  {name:'Satellogic',ind:'Space',seg:'SMB',reg:'LATAM',emp:290,rev:'$52M',pain:'Growing compliance needs, no system',fit:61},
+];
+
+const REPS=[
+  {name:'Sarah O.',initials:'SO',reg:'EMEA',color:'#4f8ef7',deals:14,win:71,disc:12.4,nrr:127,quota:118},
+  {name:'James R.',initials:'JR',reg:'North America',color:'#2ecc8f',deals:18,win:68,disc:15.1,nrr:119,quota:134},
+  {name:'Chen W.',initials:'CW',reg:'APAC',color:'#2dd4bf',deals:11,win:63,disc:17.8,nrr:108,quota:92},
+  {name:'Mark T.',initials:'MT',reg:'LATAM',color:'#e85d6a',deals:9,win:54,disc:28.4,nrr:98,quota:78},
+  {name:'Priya M.',initials:'PM',reg:'APAC',color:'#f5a623',deals:8,win:44,disc:21.2,nrr:104,quota:71},
+  {name:'Luca B.',initials:'LB',reg:'EMEA',color:'#7c5cfc',deals:15,win:67,disc:14.3,nrr:115,quota:112},
+  {name:'Amy K.',initials:'AK',reg:'North America',color:'#4f8ef7',deals:13,win:72,disc:11.8,nrr:122,quota:129},
+  {name:'Raj P.',initials:'RP',reg:'APAC',color:'#2ecc8f',deals:10,win:58,disc:19.6,nrr:106,quota:88},
+];
+
+const LEAKAGE_DRIVERS=[
+  {driver:'Large enterprise discounting',arv:'$680K',pct:28,cat:'Discount band'},
+  {driver:'LATAM competitive pressure',arv:'$420K',pct:17,cat:'Region'},
+  {driver:'Multi-year deal concessions',arv:'$380K',pct:16,cat:'Deal type'},
+  {driver:'Rep over-authorisation (Mark T.)',arv:'$290K',pct:12,cat:'Rep behaviour'},
+  {driver:'Renewal uplift waived',arv:'$260K',pct:11,cat:'Renewal'},
+  {driver:'Beams module underpriced',arv:'$200K',pct:8,cat:'Pricing gap'},
+  {driver:'SMB price-match requests',arv:'$110K',pct:5,cat:'Segment'},
+  {driver:'Other / unclassified',arv:'$60K',pct:3,cat:'Other'},
+];
+
+// ── HELPERS ────────────────────────────────────────────────────────────────
+const HC={Aviation:'#4f8ef7',Defense:'#f5a623',Rail:'#2dd4bf',Space:'#7c5cfc'};
+const SC={'SMB':'b-smb','Mid-Market':'b-mid','Enterprise':'b-ent','Strategic':'b-str'};
+function fmt(n){return n>=1e6?'$'+(n/1e6).toFixed(1)+'M':'$'+(n/1000).toFixed(0)+'K'}
+function hc(s){return s>=75?'#2ecc8f':s>=55?'#f5a623':'#e85d6a'}
+function pctBar(pct,color){return`<div style="flex:1;height:4px;background:var(--border);border-radius:2px"><div style="height:4px;width:${pct}%;background:${color};border-radius:2px"></div></div>`}
+
+// ── NAVIGATION ────────────────────────────────────────────────────────────
+const TITLES={exec:'Executive Summary',scorecard:'Health Scorecard',portfolio:'Customer Portfolio',targets:'Target Accounts',pricebook:'Price Book',controls:'Pricing Controls',approval:'Discount Approval Workflow',dealmodel:'Deal Modeler',packaging:'Packaging & Tiers',reps:'Rep Performance'};
+document.querySelectorAll('.ni').forEach(el=>{
+  el.addEventListener('click',()=>{
+    const sec=el.dataset.sec;
+    document.querySelectorAll('.sec').forEach(s=>s.classList.remove('active'));
+    document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+    document.getElementById('sec-'+sec).classList.add('active');
+    el.classList.add('active');
+    document.getElementById('page-title').textContent=TITLES[sec]||sec;
+    if(sec==='dealmodel')calcDeal();
+  });
+});
+document.querySelectorAll('.fp').forEach(el=>{
+  el.addEventListener('click',()=>{
+    document.querySelectorAll('.fp').forEach(f=>f.classList.remove('active'));
+    el.classList.add('active');
+    currentSeg=el.dataset.seg;
+    renderTable();
+  });
+});
+
+let currentSeg='all';
+let selectedTarget=null;
+
+// ── CHARTS ─────────────────────────────────────────────────────────────────
+function mkChart(id,type,data,opts){
+  const el=document.getElementById(id);if(!el)return null;
+  return new Chart(el,{type,data,options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},...opts}});
+}
+const GS={color:'rgba(255,255,255,0.05)'};
+const TX={color:'#4a4f62',font:{size:10}};
+const TX2={color:'#4a4f62',font:{size:9},maxRotation:0,autoSkip:true,maxTicksLimit:7};
+
+// ARR impacted by pricing
+mkChart('c-arr-impact','bar',{
+  labels:['Q1 21','Q2 21','Q3 21','Q4 21','Q1 22','Q2 22','Q3 22','Q4 22','Q1 23','Q2 23','Q3 23','Q4 23','Q1 24','Q2 24','Q3 24','Q4 24','Q1 25','Q2 25','Q3 25','Q4 25','Q1 26'],
+  datasets:[
+    {label:'Price uplift',data:[0.2,0.3,0.4,0.3,0.5,0.6,0.4,0.7,0.6,0.8,0.7,0.9,0.8,1.0,0.9,1.1,1.0,1.2,1.1,1.3,1.2],backgroundColor:'rgba(46,204,143,0.6)',borderRadius:3,stack:'a'},
+    {label:'Discount impact',data:[-0.3,-0.4,-0.3,-0.5,-0.4,-0.5,-0.6,-0.5,-0.6,-0.7,-0.6,-0.8,-0.7,-0.9,-0.8,-1.0,-0.9,-1.0,-1.1,-1.2,-1.0],backgroundColor:'rgba(232,93,106,0.6)',borderRadius:3,stack:'a'},
+  ]
+},{plugins:{legend:{display:true,labels:{color:'#8b90a0',font:{size:10},boxWidth:8,padding:8}}},scales:{x:{ticks:TX2,grid:{display:false},stacked:true},y:{ticks:{...TX,callback:v=>'$'+v+'M'},grid:GS,stacked:true}}});
+
+// Gauge
+(()=>{const c=document.getElementById('c-gauge');if(!c)return;const ctx=c.getContext('2d');const score=74;const cx=90,cy=88,r=68;ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,2*Math.PI);ctx.strokeStyle='rgba(255,255,255,0.06)';ctx.lineWidth=13;ctx.stroke();const gr=ctx.createLinearGradient(20,88,160,88);gr.addColorStop(0,'#e85d6a');gr.addColorStop(.5,'#f5a623');gr.addColorStop(1,'#2ecc8f');ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,Math.PI+score/100*Math.PI);ctx.strokeStyle=gr;ctx.lineWidth=13;ctx.lineCap='round';ctx.stroke();})();
+
+// Realization trend
+mkChart('c-realization','line',{
+  labels:['Q1 21','Q2 21','Q3 21','Q4 21','Q1 22','Q2 22','Q3 22','Q4 22','Q1 23','Q2 23','Q3 23','Q4 23','Q1 24','Q2 24','Q3 24','Q4 24','Q1 25','Q2 25','Q3 25','Q4 25','Q1 26'],
+  datasets:[
+    {data:[67,68,69,69,70,71,70,72,71,73,73,74,73,75,75,76,76,77,76,77,78],borderColor:'#4f8ef7',backgroundColor:'rgba(79,142,247,0.06)',fill:true,tension:.4,pointRadius:0},
+    {data:Array(21).fill(82),borderColor:'#2ecc8f',borderDash:[4,3],pointRadius:0,fill:false}
+  ]
+},{plugins:{legend:{display:false}},scales:{x:{ticks:TX2,grid:{display:false}},y:{min:60,max:90,ticks:{...TX,callback:v=>v+'%'},grid:GS}}});
+
+// Win rate
+mkChart('c-winrate','line',{
+  labels:['0–10%','11–15%','16–20%','21–25%','>25%'],
+  datasets:[{data:[61,65,67,62,48],borderColor:'#f5a623',backgroundColor:'rgba(245,166,35,0.08)',fill:true,tension:.4,pointRadius:4,pointBackgroundColor:'#f5a623'}]
+},{scales:{x:{ticks:TX,grid:{display:false}},y:{ticks:{...TX,callback:v=>v+'%'},grid:GS}}});
+
+// Renewal uplift realization
+mkChart('c-uplift','bar',{
+  labels:['SMB','Mid-Market','Enterprise','Strategic'],
+  datasets:[
+    {label:'Contracted',data:[100,100,100,100],backgroundColor:'rgba(255,255,255,0.05)',borderRadius:3},
+    {label:'Realized',data:[68,72,75,82],backgroundColor:['rgba(232,93,106,0.6)','rgba(245,166,35,0.6)','rgba(79,142,247,0.6)','rgba(46,204,143,0.6)'],borderRadius:3},
+  ]
+},{plugins:{legend:{display:true,labels:{color:'#8b90a0',font:{size:10},boxWidth:8,padding:8}}},scales:{x:{ticks:TX,grid:{display:false}},y:{min:0,max:110,ticks:{...TX,callback:v=>v+'%'},grid:GS}}});
+
+// Scorecard trend
+mkChart('c-sc-trend','line',{
+  labels:['Q1 21','Q2 21','Q3 21','Q4 21','Q1 22','Q2 22','Q3 22','Q4 22','Q1 23','Q2 23','Q3 23','Q4 23','Q1 24','Q2 24','Q3 24','Q4 24','Q1 25','Q2 25','Q3 25','Q4 25','Q1 26'],
+  datasets:[
+    {label:'Realized',data:[67,68,69,69,70,71,70,72,71,73,73,74,73,75,75,76,76,77,76,77,78],borderColor:'#4f8ef7',backgroundColor:'rgba(79,142,247,0.06)',fill:true,tension:.4,pointRadius:0},
+    {label:'Target',data:Array(21).fill(82),borderColor:'#2ecc8f',borderDash:[4,3],pointRadius:0}
+  ]
+},{plugins:{legend:{display:true,labels:{color:'#8b90a0',font:{size:10},boxWidth:8,padding:8}}},scales:{x:{ticks:TX2,grid:{display:false}},y:{min:60,max:90,ticks:{...TX,callback:v=>v+'%'},grid:GS}}});
+
+// Margin by deal type
+mkChart('c-margin-deal','bar',{
+  labels:['New Logo','Expansion','Renewal','Reactivation'],
+  datasets:[{data:[62,71,78,58],backgroundColor:['rgba(79,142,247,0.6)','rgba(46,204,143,0.6)','rgba(245,166,35,0.6)','rgba(124,92,252,0.6)'],borderRadius:4}]
+},{scales:{x:{ticks:TX,grid:{display:false}},y:{min:45,ticks:{...TX,callback:v=>v+'%'},grid:GS}}});
+
+// Discount by segment
+mkChart('c-disc-seg','bar',{
+  labels:['SMB','Mid-Market','Enterprise','Strategic'],
+  datasets:[{data:[14.2,17.8,21.4,11.3],backgroundColor:['rgba(79,142,247,.6)','rgba(124,92,252,.6)','rgba(245,166,35,.6)','rgba(46,204,143,.6)'],borderRadius:4}]
+},{scales:{x:{ticks:TX,grid:{display:false}},y:{ticks:{...TX,callback:v=>v+'%'},grid:GS}}});
+
+// Discount by region
+mkChart('c-disc-reg','bar',{
+  labels:['EMEA','NA','APAC','LATAM'],
+  datasets:[{data:[16.8,15.4,19.2,24.6],backgroundColor:['rgba(79,142,247,.6)','rgba(46,204,143,.6)','rgba(245,166,35,.6)','rgba(232,93,106,.6)'],borderRadius:4}]
+},{scales:{x:{ticks:TX,grid:{display:false}},y:{ticks:{...TX,callback:v=>v+'%'},grid:GS}}});
+
+// Exception rate
+mkChart('c-exception','bar',{
+  labels:['Q2 25','Q3 25','Q4 25','Q1 26'],
+  datasets:[{data:[11.8,13.2,12.6,14.2],backgroundColor:['rgba(245,166,35,.5)','rgba(245,166,35,.5)','rgba(245,166,35,.5)','rgba(232,93,106,.7)'],borderRadius:4}]
+},{scales:{x:{ticks:TX,grid:{display:false}},y:{ticks:{...TX,callback:v=>v+'%'},grid:GS}}});
+
+// Industry donut
+mkChart('c-ind','doughnut',{
+  labels:['Aviation','Defense','Rail','Space'],
+  datasets:[{data:[38,28,22,12],backgroundColor:['#4f8ef7','#f5a623','#2dd4bf','#7c5cfc'],borderWidth:0,hoverOffset:4}]
+},{cutout:'65%',plugins:{legend:{display:true,position:'right',labels:{color:'#8b90a0',font:{size:11},padding:10,boxWidth:10}}}});
+
+// ARR growth
+mkChart('c-arrg','bar',{
+  labels:['FY21','FY22','FY23','FY24','FY25'],
+  datasets:[{data:[21.4,26.8,32.1,39.4,48.2],backgroundColor:'rgba(79,142,247,0.5)',borderColor:'#4f8ef7',borderWidth:1,borderRadius:4}]
+},{scales:{x:{ticks:TX,grid:{display:false}},y:{ticks:{...TX,callback:v=>'$'+v+'M'},grid:GS}}});
+
+// List vs realized
+mkChart('c-listreal','bar',{
+  labels:['OCM','Safety','Quality','MINT','Beams','Analytics','API','Multi-Reg'],
+  datasets:[
+    {label:'List',data:[52,28,18,34,22,14,10,20],backgroundColor:'rgba(255,255,255,0.07)',borderRadius:3},
+    {label:'Realized avg',data:[41,22,14,28,18,11,8,17],backgroundColor:'rgba(79,142,247,0.6)',borderRadius:3},
+  ]
+},{plugins:{legend:{display:true,labels:{color:'#8b90a0',font:{size:10},boxWidth:8,padding:8}}},scales:{x:{ticks:{...TX,font:{size:9}},grid:{display:false}},y:{ticks:{...TX,callback:v=>'$'+v+'K'},grid:GS}}});
+
+// Floor violations
+mkChart('c-violations','bar',{
+  labels:['Q2 25','Q3 25','Q4 25','Q1 26'],
+  datasets:[{data:[2,1,3,4],backgroundColor:['rgba(245,166,35,.6)','rgba(245,166,35,.6)','rgba(232,93,106,.6)','rgba(232,93,106,.8)'],borderRadius:4}]
+},{scales:{x:{ticks:TX,grid:{display:false}},y:{ticks:{...TX,callback:v=>v+' deals'},grid:GS}}});
+
+// Exception trend
+mkChart('c-exc-trend','line',{
+  labels:['Q1 24','Q2 24','Q3 24','Q4 24','Q1 25','Q2 25','Q3 25','Q4 25','Q1 26'],
+  datasets:[
+    {data:[10.2,11.0,10.8,11.4,11.8,13.2,12.6,13.0,14.2],borderColor:'#f5a623',backgroundColor:'rgba(245,166,35,0.07)',fill:true,tension:.4,pointRadius:2},
+    {data:Array(9).fill(10),borderColor:'#2ecc8f',borderDash:[4,3],pointRadius:0}
+  ]
+},{plugins:{legend:{display:false}},scales:{x:{ticks:TX2,grid:{display:false}},y:{ticks:{...TX,callback:v=>v+'%'},grid:GS}}});
+
+// Exception by region
+mkChart('c-exc-reg','bar',{
+  labels:['EMEA','NA','APAC','LATAM'],
+  datasets:[{data:[11.2,9.8,15.6,22.4],backgroundColor:['rgba(79,142,247,.5)','rgba(46,204,143,.5)','rgba(245,166,35,.5)','rgba(232,93,106,.7)'],borderRadius:3}]
+},{scales:{x:{ticks:TX,grid:{display:false}},y:{ticks:{...TX,callback:v=>v+'%'},grid:GS}}});
+
+// Approval cycle
+mkChart('c-cycle','bar',{
+  labels:['0–10%','11–20%','21–25%','26–30%','>30%'],
+  datasets:[{data:[0,0.3,1.1,2.4,4.8],backgroundColor:['#2ecc8f','#4f8ef7','#f5a623','#e85d6a','#c0293a'],borderRadius:3}]
+},{scales:{x:{ticks:TX,grid:{display:false}},y:{ticks:{...TX,callback:v=>v+'d'},grid:GS}}});
+
+// Tier mix
+mkChart('c-tiermix','doughnut',{
+  labels:['Essential','Professional','Enterprise','Strategic'],
+  datasets:[{data:[18,34,31,17],backgroundColor:['#555a6a','#4f8ef7','#f5a623','#2ecc8f'],borderWidth:0}]
+},{cutout:'60%',plugins:{legend:{display:true,position:'right',labels:{color:'#8b90a0',font:{size:11},padding:8,boxWidth:10}}}});
+
+// Tier NRR
+mkChart('c-tiernrr','bar',{
+  labels:['Essential','Professional','Enterprise','Strategic'],
+  datasets:[{data:[101,109,118,128],backgroundColor:['rgba(85,90,106,.6)','rgba(79,142,247,.6)','rgba(245,166,35,.6)','rgba(46,204,143,.6)'],borderRadius:4}]
+},{scales:{x:{ticks:TX,grid:{display:false}},y:{min:95,ticks:{...TX,callback:v=>v+'%'},grid:GS}}});
+
+// Tier uplift
+mkChart('c-tieruplift','bar',{
+  labels:['Essential','Professional','Enterprise','Strategic'],
+  datasets:[
+    {label:'Contracted',data:[100,100,100,100],backgroundColor:'rgba(255,255,255,0.05)',borderRadius:3},
+    {label:'Realized',data:[63,71,76,88],backgroundColor:['rgba(232,93,106,.6)','rgba(245,166,35,.6)','rgba(79,142,247,.6)','rgba(46,204,143,.6)'],borderRadius:3},
+  ]
+},{plugins:{legend:{display:true,labels:{color:'#8b90a0',font:{size:10},boxWidth:8,padding:8}}},scales:{x:{ticks:TX,grid:{display:false}},y:{min:0,max:110,ticks:{...TX,callback:v=>v+'%'},grid:GS}}});
+
+// Rep scatter
+mkChart('c-rep-scatter','scatter',{
+  datasets:REPS.map(r=>({label:r.name,data:[{x:r.disc,y:r.win}],backgroundColor:r.color,pointRadius:8,pointHoverRadius:10}))
+},{plugins:{legend:{display:true,labels:{color:'#8b90a0',font:{size:10},boxWidth:8,padding:8}},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${c.parsed.x}% disc · ${c.parsed.y}% win`}}},scales:{x:{title:{display:true,text:'Avg discount %',color:'#4a4f62',font:{size:10}},ticks:{...TX,callback:v=>v+'%'},grid:GS},y:{title:{display:true,text:'Win rate %',color:'#4a4f62',font:{size:10}},ticks:{...TX,callback:v=>v+'%'},grid:GS}}});
+
+// ── PORTFOLIO TABLE ────────────────────────────────────────────────────────
+function renderTable(q=''){
+  const b=document.getElementById('ptbody');if(!b)return;
+  let cos=COMPANIES.filter(c=>{
+    if(currentSeg!=='all'){const sm=currentSeg==='mid'?'Mid-Market':currentSeg==='strat'?'Strategic':currentSeg==='ent'?'Enterprise':'SMB';if(c.seg!==sm)return false}
+    if(q&&!c.name.toLowerCase().includes(q.toLowerCase()))return false;
+    return true;
+  });
+  b.innerHTML=cos.slice(0,50).map(c=>`<tr>
+    <td style="color:var(--text);font-weight:500">${c.name}${c.mintEl?' <span style="font-size:9px;background:rgba(45,212,191,.1);color:#2dd4bf;padding:1px 5px;border-radius:3px">MINT</span>':''}${c.churnRisk?' <span style="font-size:9px;background:rgba(232,93,106,.1);color:#e85d6a;padding:1px 5px;border-radius:3px">At Risk</span>':''}</td>
+    <td><span style="width:7px;height:7px;border-radius:50%;background:${HC[c.ind]};display:inline-block;margin-right:4px"></span>${c.ind}</td>
+    <td><span class="badge ${SC[c.seg]}">${c.seg}</span></td>
+    <td style="font-family:'DM Mono',monospace">${fmt(c.arr)}</td>
+    <td style="font-family:'DM Mono',monospace;color:${c.nrr>=110?'var(--green)':c.nrr>=100?'var(--text)':'var(--red)'}">${c.nrr}%</td>
+    <td style="font-family:'DM Mono',monospace;color:var(--text2)">${fmt(c.listPrice)}</td>
+    <td style="font-family:'DM Mono',monospace;color:${c.arr/c.listPrice>0.82?'var(--green)':c.arr/c.listPrice>0.72?'var(--amber)':'var(--red)'}">${Math.round(c.arr/c.listPrice*100)}%</td>
+    <td style="font-family:'DM Mono',monospace;color:${c.disc>22?'var(--red)':c.disc>15?'var(--amber)':'var(--text)'}">${c.disc}%</td>
+    <td style="font-family:'DM Mono',monospace;color:var(--text2)">${c.ltv}×</td>
+    <td><div style="display:flex;align-items:center;gap:6px"><span style="font-family:'DM Mono',monospace;font-size:11px;color:${hc(c.health)};width:22px">${c.health}</span>${pctBar(c.health,hc(c.health))}</div></td>
+  </tr>`).join('');
+}
+function filterTable(q){renderTable(q)}
+renderTable();
+
+// ── PRICE BOOK ────────────────────────────────────────────────────────────
+(()=>{
+  const el=document.getElementById('pricebook-rows');if(!el)return;
+  el.innerHTML=PRICE_BOOK.map(p=>`
+    <div style="display:grid;grid-template-columns:1fr 80px 90px 90px 90px;padding:10px 0;border-bottom:1px solid var(--border);align-items:center">
+      <div><div style="font-size:12.5px;font-weight:500;color:var(--text)">${p.module}</div><div style="font-size:10.5px;color:var(--text3);margin-top:1px">${p.desc}</div></div>
+      <div style="text-align:right;font-family:'DM Mono',monospace;font-size:12px;color:var(--text)">${fmt(p.list)}</div>
+      <div style="text-align:right;font-family:'DM Mono',monospace;font-size:12px;color:var(--red)">${fmt(p.floor)}</div>
+      <div style="text-align:right;font-family:'DM Mono',monospace;font-size:12px;color:var(--amber)">${p.maxDisc}%</div>
+      <div style="text-align:right"><span class="badge b-${p.tier.includes('Essential')?'smb':p.tier.includes('Professional')?'mid':p.tier.includes('Enterprise')?'ent':'str'}">${p.tier}</span></div>
+    </div>`).join('');
+})();
+
+// ── LEAKAGE DRIVERS ───────────────────────────────────────────────────────
+(()=>{
+  const el1=document.getElementById('leakage-drivers');
+  const el2=document.getElementById('leakage-detail');
+  const html=LEAKAGE_DRIVERS.map((d,i)=>`
+    <div class="leak-row">
+      <div style="width:18px;font-size:10px;color:var(--text3);font-family:'DM Mono',monospace">${i+1}</div>
+      <div style="flex:1"><div style="font-size:12.5px;color:var(--text);font-weight:500">${d.driver}</div><div style="font-size:10.5px;color:var(--text3);margin-top:1px">${d.cat}</div></div>
+      <div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--red);min-width:60px;text-align:right">${d.arv}</div>
+      <div style="min-width:120px">${pctBar(d.pct*3,i<3?'var(--red)':'var(--amber)')}</div>
+      <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);min-width:30px;text-align:right">${d.pct}%</div>
+    </div>`).join('');
+  if(el1)el1.innerHTML=html;
+  if(el2)el2.innerHTML=LEAKAGE_DRIVERS.slice(0,6).map(d=>`
+    <div style="background:var(--bg3);border-radius:8px;padding:12px 14px">
+      <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;margin-bottom:5px">${d.cat}</div>
+      <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:4px">${d.driver}</div>
+      <div style="font-size:18px;font-weight:600;color:var(--red);font-family:'DM Mono',monospace">${d.arv}</div>
+      <div style="font-size:10.5px;color:var(--text3);margin-top:2px">${d.pct}% of total leakage</div>
+    </div>`).join('');
+})();
+
+// ── PENDING APPROVALS ─────────────────────────────────────────────────────
+(()=>{
+  const el=document.getElementById('pending-list');if(!el)return;
+  const pending=[
+    {co:'Lufthansa Systems',disc:31,arr:'$420K',rep:'Sarah O.',step:'CEO Exception',age:'3d'},
+    {co:'NATO SafetyHub',disc:28,arr:'$680K',rep:'Luca B.',step:'CFO Review',age:'1d'},
+    {co:'Delta Ops Tech',disc:27,arr:'$310K',rep:'James R.',step:'CFO Review',age:'2d'},
+    {co:'SingaporeAir Tech',disc:24,arr:'$180K',rep:'Chen W.',step:'Pricing Lead',age:'4h'},
+    {co:'Amtrak Compliance',disc:22,arr:'$240K',rep:'Amy K.',step:'Pricing Lead',age:'6h'},
+  ];
+  el.innerHTML=pending.map(p=>`
+    <div style="display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid var(--border)">
+      <div style="flex:1"><div style="font-size:12px;font-weight:500;color:var(--text)">${p.co}</div><div style="font-size:10px;color:var(--text3)">${p.rep} · ${p.arr} ARR · ${p.age} ago</div></div>
+      <div style="font-family:'DM Mono',monospace;font-size:12px;color:${p.disc>=28?'var(--red)':'var(--amber)'}">${p.disc}%</div>
+      <div style="font-size:9.5px;background:rgba(245,166,35,.1);color:var(--amber);padding:2px 7px;border-radius:4px;font-family:'DM Mono',monospace">${p.step}</div>
+    </div>`).join('');
+})();
+
+// ── TARGETS ───────────────────────────────────────────────────────────────
+(()=>{
+  const el=document.getElementById('tgt-list');if(!el)return;
+  el.innerHTML=TARGETS.map((t,i)=>`
+    <div class="tgt-card" id="tc-${i}" onclick="selectTarget(${i})">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px">
+        <div style="font-size:13px;font-weight:500;color:var(--text)">${t.name}</div>
+        <div style="font-size:12px;font-family:'DM Mono',monospace;color:${t.fit>=80?'var(--green)':t.fit>=70?'var(--amber)':'var(--text2)'}">${t.fit}% fit</div>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:4px"><span style="width:6px;height:6px;border-radius:50%;background:${HC[t.ind]};display:inline-block;margin-right:4px"></span>${t.ind} · ${t.seg} · ${t.reg} · ${t.emp.toLocaleString()} emp · Rev ${t.rev}</div>
+      <div style="font-size:11px;color:var(--text2)">Pain: ${t.pain}</div>
+    </div>`).join('');
+})();
+
+function selectTarget(i){
+  document.querySelectorAll('.tgt-card').forEach(c=>c.classList.remove('sel'));
+  document.getElementById('tc-'+i).classList.add('sel');
+  selectedTarget=TARGETS[i];
+  document.getElementById('ai-out').innerHTML=`<span style="color:var(--text3);font-family:'DM Mono',monospace;font-size:11px">Selected: ${selectedTarget.name}<br>Click Generate to get AI recommendation.</span>`;
+}
+
+async function runAI(){
+  const key=document.getElementById('oai-key').value.trim();
+  if(!key){alert('Enter your OpenAI API key in the sidebar.');return}
+  if(!selectedTarget){alert('Select a target account first.');return}
+  const el=document.getElementById('ai-out');
+  el.innerHTML='<span style="color:var(--accent);font-family:\'DM Mono\',monospace;font-size:11px">Generating…</span>';
+  const comps=COMPANIES.filter(c=>c.ind===selectedTarget.ind&&c.seg===selectedTarget.seg).slice(0,3);
+  const prompt=`You are the new Global Pricing Lead at Comply365 (enterprise SaaS for aviation, defense, rail, space compliance). Target: ${selectedTarget.name} | ${selectedTarget.ind} | ${selectedTarget.seg} | ${selectedTarget.reg} | ${selectedTarget.emp.toLocaleString()} employees | Revenue ${selectedTarget.rev} | Pain: ${selectedTarget.pain} | Fit score: ${selectedTarget.fit}%. Comparable portfolio customers (same industry/segment): ${comps.map(c=>`ARR ${fmt(c.arr)}, NRR ${c.nrr}%, avg discount ${c.disc}%`).join('; ')}. Give a 5-sentence pricing approach: (1) recommended entry tier and price anchor, (2) discount strategy and walk-away floor, (3) value metrics to lead with, (4) competitive positioning, (5) expansion path. Be specific and commercial.`;
+  try{
+    const res=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Authorization':'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify({model:'gpt-4o',messages:[{role:'user',content:prompt}],max_tokens:350})});
+    const data=await res.json();
+    if(data.error)throw new Error(data.error.message);
+    el.innerHTML=`<span class="ai-badge">GPT-4o</span><span style="color:var(--text2)">${data.choices[0].message.content}</span>`;
+  }catch(e){el.innerHTML=`<span style="color:var(--red)">Error: ${e.message}</span>`}
+}
+
+// ── DEAL MODELER ──────────────────────────────────────────────────────────
+const MODULE_PRICES={ocm:52000,safety:28000,quality:18000,mint:34000,beams:22000};
+const MOD_NAMES={ocm:'OCM',safety:'Safety & Risk',quality:'Quality & Audit',mint:'MINT Training',beams:'Beams AI'};
+const COMP_MULT={none:1,greenfield:0.95,sabre:0.88,avolio:0.90,custom:0.85};
+const TERM_DISC={1:0,2:0.05,3:0.10};
+const SEG_MARGIN={smb:0.58,mid:0.65,ent:0.71,strat:0.75};
+let dealNPVChart=null;
+
+function toggleMod(el){el.classList.toggle('on');const chk=el.querySelector('.mod-check');chk.textContent=el.classList.contains('on')?'✓':'';calcDeal()}
+
+function calcDeal(){
+  const seg=document.getElementById('dm-seg').value;
+  const term=parseInt(document.getElementById('dm-term').value);
+  const users=parseInt(document.getElementById('dm-users').value)||1000;
+  const disc=parseFloat(document.getElementById('dm-disc').value)||0;
+  const comp=document.getElementById('dm-comp').value;
+  const name=document.getElementById('dm-name').value||'Prospect';
+
+  let base=0;
+  document.querySelectorAll('.module-toggle.on').forEach(el=>{
+    const mod=el.dataset.mod;
+    if(MODULE_PRICES[mod])base+=MODULE_PRICES[mod];
+  });
+  if(base===0)base=52000;
+
+  // User scaling
+  const userScale=users<=500?0.8:users<=2000?1:users<=5000?1.35:1.7;
+  base=Math.round(base*userScale);
+
+  const termDisc=TERM_DISC[term]||0;
+  const compMult=COMP_MULT[comp]||1;
+  const listPrice=Math.round(base*compMult);
+  const multiYrAdj=Math.round(listPrice*(1-termDisc));
+  const discAmt=Math.round(multiYrAdj*disc/100);
+  const annualARR=multiYrAdj-discAmt;
+  const totalTCV=annualARR*term;
+  const margin=SEG_MARGIN[seg]||0.65;
+  const grossMargin=Math.round(annualARR*margin);
+  const npv=Math.round(totalTCV*0.88);// simple discount
+  const floorPct=75;// floor at 75% of list
+  const floor=Math.round(listPrice*floorPct/100);
+  const recDisc=comp==='greenfield'?10:comp==='sabre'?18:comp==='avolio'?15:comp==='custom'?20:12;
+  const discStatus=disc<=10?{label:'Auto-approve',color:'var(--green)'}:disc<=20?{label:'Sales Director',color:'var(--accent)'}:disc<=25?{label:'Pricing Lead ← you',color:'var(--amber)'}:disc<=30?{label:'CFO required',color:'var(--red)'}:{label:'CEO + CFO exception',color:'#c0293a'};
+  const belowFloor=annualARR<floor;
+
+  const mods=[];
+  document.querySelectorAll('.module-toggle.on').forEach(el=>{const m=el.dataset.mod;if(MOD_NAMES[m])mods.push(MOD_NAMES[m])});
+
+  document.getElementById('deal-result').innerHTML=`
+    <div class="res-row"><div class="res-lbl">Account</div><div class="res-val">${name}</div></div>
+    <div class="res-row"><div class="res-lbl">Modules selected</div><div class="res-val" style="font-size:11px">${mods.join(', ')||'None'}</div></div>
+    <div class="res-row"><div class="res-lbl">List price (annual)</div><div class="res-val">${fmt(listPrice)}</div></div>
+    <div class="res-row"><div class="res-lbl">Multi-year adjustment (${term}yr)</div><div class="res-val" style="color:${termDisc>0?'var(--green)':'var(--text)'}">−${Math.round(termDisc*100)}% → ${fmt(multiYrAdj)}</div></div>
+    <div class="res-row"><div class="res-lbl">Discount applied</div><div class="res-val" style="color:${disc>22?'var(--red)':'var(--amber)'}">${disc}% → −${fmt(discAmt)}</div></div>
+    <div class="res-row"><div class="res-lbl">Annual ARR</div><div class="res-val" style="color:var(--text);font-size:16px">${fmt(annualARR)}</div></div>
+    <div class="res-row"><div class="res-lbl">Total contract value</div><div class="res-val">${fmt(totalTCV)}</div></div>
+    <div class="res-row"><div class="res-lbl">Gross margin est.</div><div class="res-val" style="color:${grossMargin/annualARR>0.65?'var(--green)':'var(--amber)'}">${Math.round(grossMargin/annualARR*100)}% · ${fmt(grossMargin)}</div></div>
+    <div class="res-row"><div class="res-lbl">NPV (${term}yr)</div><div class="res-val">${fmt(npv)}</div></div>
+    <div class="res-row"><div class="res-lbl">Approval required</div><div class="res-val" style="color:${discStatus.color}">${discStatus.label}</div></div>
+    <div class="res-row"><div class="res-lbl">Floor price</div><div class="res-val" style="color:${belowFloor?'var(--red)':'var(--text2)'">${fmt(floor)} ${belowFloor?'⚠ BELOW FLOOR':''}</div></div>
+    <div class="res-row"><div class="res-lbl">Recommended discount</div><div class="res-val" style="color:var(--green)">${recDisc}% · ${fmt(Math.round(listPrice*(1-recDisc/100)))}/yr</div></div>`;
+
+  // NPV chart
+  const years=Array.from({length:term},(_,i)=>'Yr '+(i+1));
+  const cumNPV=years.map((_,i)=>Math.round(annualARR*(i+1)*0.88));
+  if(dealNPVChart){dealNPVChart.destroy()}
+  const cnv=document.getElementById('c-deal-npv');
+  if(cnv){dealNPVChart=new Chart(cnv,{type:'bar',data:{labels:years,datasets:[{data:cumNPV,backgroundColor:'rgba(79,142,247,0.6)',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:TX,grid:{display:false}},y:{ticks:{...TX,callback:v=>fmt(v)},grid:GS}}}})}
+}
+
+// ── REP LIST ──────────────────────────────────────────────────────────────
+(()=>{
+  const el=document.getElementById('rep-list');if(!el)return;
+  const sorted=[...REPS].sort((a,b)=>b.nrr-a.nrr);
+  el.innerHTML=sorted.map(r=>`
+    <div class="rep-row">
+      <div class="avatar" style="background:${r.color}22;color:${r.color}">${r.initials}</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:500;color:var(--text)">${r.name}</div><div style="font-size:10.5px;color:var(--text3)">${r.reg}</div></div>
+      <div style="display:flex;gap:16px;text-align:right">
+        <div><div style="font-size:13px;font-weight:500;color:${r.nrr>=115?'var(--green)':'var(--text)'}">${r.nrr}%</div><div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace">NRR</div></div>
+        <div><div style="font-size:13px;font-weight:500;color:${r.disc>22?'var(--red)':'var(--text)'}">${r.disc}%</div><div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace">disc</div></div>
+        <div><div style="font-size:13px;font-weight:500;color:${r.quota>=100?'var(--green)':'var(--amber)'}">${r.quota}%</div><div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace">quota</div></div>
+      </div>
+    </div>`).join('');
+})();
+
+// init deal modeler
+calcDeal();
+</script>
+</body>
+</html>

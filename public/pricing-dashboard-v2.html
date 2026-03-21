@@ -1,6 +1,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -980,6 +981,22 @@ const TARGETS=[
   {name:'Satellogic',ind:'Space',seg:'SMB',reg:'LATAM',emp:290,rev:'$52M',pain:'Growing compliance needs, no system',fit:61},
 ];
 
+
+// ── RAG DEMO: REAL COMPANY INTELLIGENCE ──────────────────────────────────
+// Simulates what a RAG pipeline would return for Air New Zealand
+// Data sourced from: FY2024 Annual Report, FY2025 Annual Report, FY2026 Interim Report
+const REAL_INTEL = {
+  'Air New Zealand': {
+    source: 'FY2024-2026 Annual Reports & Interim Results',
+    complianceCosts: 'Total operating expenditure NZ$5.8B (FY2025). Non-fuel operating cost inflation NZ$235M in FY2025, NZ$75M in H1 FY2026 alone. Primary drivers: mandated passenger levies, airport landing charges, air navigation fees rising materially above NZ CPI.',
+    strategicPriorities: 'New CEO Nikhil Ravishankar (FY2026) has declared 5 priorities: safe/punctual service, profit improvement via cost base review and reducing non-essential spend, fleet recovery, advocating for affordable aviation system, full strategy/operating-model review. Board explicitly flags regulatory compliance and technology as key enterprise risks.',
+    techInvestment: 'Over 50 AI proof-of-concept trials (FY2024). Kia Mau transformation delivered NZ$100M benefits. Homegrown Ops Collab tool deployed across domestic network. 3,000 employees enabled with AI tooling. New Chief Customer and Digital Officer role created (FY2026). Ambition: be the world\'s leading digital airline.',
+    regulatoryPressure: 'CORSIA carbon obligations increasing. Domestic aviation system charges rising materially ahead of CPI. CAA, IATA Operational Safety Audit, ACC Partnership Programme imposing ongoing obligations. Board risk appetite is "averse for inadequate safety, security, and health management systems." Climate disclosure requirements increasing.',
+    keyQuotes: 'CEO FY2026: "continued cost escalation across the aviation system and global supply chain." FY2025: "sustained inflationary cost pressure across key parts of the aviation supply chain, including airport and security charges and other regulated costs." Board: "rapidly changing and complex legal or regulatory obligations globally create significant operational and commercial complexity potentially resulting in non-compliance."',
+    pricingAnchor: 'NZ$5.8B cost base absorbing NZ$235M annual non-fuel inflation. CEO publicly committed to cost transformation. Safety described as "top priority" with zero tolerance. 50+ AI trials shows digital openness. Board already flags compliance complexity as top enterprise risk.'
+  }
+};
+
 const REPS=[
   {name:'Sarah O.',initials:'SO',reg:'EMEA',color:'#4f8ef7',deals:14,win:71,disc:12.4,nrr:127,quota:118},
   {name:'James R.',initials:'JR',reg:'North America',color:'#2ecc8f',deals:18,win:68,disc:15.1,nrr:119,quota:134},
@@ -1306,15 +1323,28 @@ function selectTarget(i){
 async function runAI(){
   if(!selectedTarget){alert('Select a target account first.');return;}
   const el=document.getElementById('ai-out');
+  const btn=document.getElementById('ai-btn');
+  if(btn)btn.disabled=true;
   el.innerHTML='<span class="ai-placeholder">⚡ Generating…</span>';
   const comps=COMPANIES.filter(c=>c.ind===selectedTarget.ind&&c.seg===selectedTarget.seg).slice(0,3);
   const comparables=comps.map(c=>`ARR ${fmt(c.arr)}, NRR ${c.nrr}%, avg discount ${c.disc}%`).join('; ')||'No direct comparables';
+
+  // RAG DEMO: inject real intelligence if available
+  const intel = REAL_INTEL[selectedTarget.name] || null;
+  const ragBadge = intel
+    ? `<div style="display:inline-flex;align-items:center;gap:5px;font-size:9.5px;font-family:'DM Mono',monospace;color:#00ff88;background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.25);padding:2px 8px;border-radius:4px;margin-bottom:8px">
+        <span style="width:5px;height:5px;background:#00ff88;border-radius:50%;box-shadow:0 0 5px #00ff88"></span>
+        RAG · ${intel.source}
+       </div>`
+    : '';
+
   try{
-    const res=await fetch('/api/pricing-ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({target:selectedTarget,comparables})});
+    const res=await fetch('/api/pricing-ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({target:selectedTarget,comparables,intel})});
     const data=await res.json();
     if(data.error)throw new Error(data.error);
-    el.innerHTML=`<div class="ai-glow-badge">GPT-4o</div><span class="ai-response-text">${data.result}</span>`;
+    el.innerHTML=`<div class="ai-glow-badge">GPT-4o</div>${ragBadge}<span class="ai-response-text">${data.result}</span>`;
   }catch(e){el.innerHTML=`<span style="color:var(--red)">Error: ${e.message}</span>`;}
+  if(btn)btn.disabled=false;
 }
 
 // ── REP LIST ──────────────────────────────────────────────────────────────

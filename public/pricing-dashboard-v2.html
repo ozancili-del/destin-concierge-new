@@ -4,6 +4,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -526,6 +527,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
         <option value="Q1-2026">Q1 2026</option>
         <option value="Q4-2025">Q4 2025</option>
         <option value="Q3-2025">Q3 2025</option>
+        <option value="Q1-2025">Q1 2025</option>
         <option value="Q2-2025">Q2 2025</option>
         <option value="FY2025">FY 2025</option>
         <option value="FY2024">FY 2024</option>
@@ -553,10 +555,10 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
       <div class="card">
         <div class="ch"><div class="ct">Pricing Health Score</div></div>
         <div class="cb" style="display:flex;flex-direction:column;align-items:center;padding-top:8px">
-          <canvas id="c-gauge" width="180" height="95"></canvas>
-          <div style="font-family:'DM Serif Display',serif;font-size:46px;color:var(--text);margin-top:-4px;line-height:1">74</div>
+          <canvas id="c-gauge" width="180" height="95" onclick="openKpiOverlay('health')" style="cursor:pointer" title="Click for Health Score analysis"></canvas>
+          <div style="font-family:'DM Serif Display',serif;font-size:46px;color:var(--text);margin-top:-4px;line-height:1;cursor:pointer" onclick="openKpiOverlay('health')" title="Click for Health Score analysis">74</div>
           <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px">out of 100</div>
-          <div style="font-size:12px;padding:3px 12px;border-radius:20px;background:rgba(46,204,143,.12);color:var(--green);margin-top:6px;font-weight:500">B+ · Good</div>
+          <div style="font-size:12px;padding:3px 12px;border-radius:20px;background:rgba(46,204,143,.12);color:var(--green);margin-top:6px;font-weight:500;cursor:pointer" onclick="openKpiOverlay('health')" title="Click for Health Score analysis">B+ · Good</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;margin-top:14px">
             <div style="background:var(--bg3);border-radius:7px;padding:10px 12px"><div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;margin-bottom:5px">Margin control</div><div class="sub-score-val" style="font-size:16px;font-weight:600;color:var(--green)">81</div><div style="height:3px;background:var(--border);border-radius:2px;margin-top:5px"><div style="height:3px;background:var(--green);border-radius:2px;width:81%"></div></div></div>
             <div style="background:var(--bg3);border-radius:7px;padding:10px 12px"><div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;margin-bottom:5px">Discount discipline</div><div class="sub-score-val" style="font-size:16px;font-weight:600;color:var(--amber)">67</div><div style="height:3px;background:var(--border);border-radius:2px;margin-top:5px"><div style="height:3px;background:var(--amber);border-radius:2px;width:67%"></div></div></div>
@@ -587,12 +589,12 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
   <section class="sec" id="sec-scorecard">
     <div class="section-header"><div class="section-title">Health Scorecard</div><div class="section-sub">Pricing performance across all dimensions · 100 active accounts</div></div>
     <div class="mrow" style="grid-template-columns:repeat(6,minmax(0,1fr))">
-      <div class="mc c-blue" onclick="openCtrlOverlay(2)" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div class="ml">Price Realization ↗</div><div class="mv">78%</div><div class="md du">▲ 4pp vs FY24</div></div>
-      <div class="mc c-red" onclick="openCtrlOverlay(0)" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div class="ml">Avg Discount ↗</div><div class="mv">18.3%</div><div class="md dd">2.1pp over target</div></div>
-      <div class="mc c-amber"><div class="ml">Leakage ARR</div><div class="mv">$2.4M</div><div class="md dd">5% of total ARR</div></div>
-      <div class="mc c-green"><div class="ml">Portfolio NRR</div><div class="mv">112%</div><div class="md du">▲ 3pp QoQ</div></div>
-      <div class="mc c-purple"><div class="ml">Gross Margin</div><div class="mv">71%</div><div class="md du">▲ 1.8pp QoQ</div></div>
-      <div class="mc c-teal"><div class="ml">Avg LTV/CAC</div><div class="mv">4.2×</div><div class="md du">▲ 0.3 QoQ</div></div>
+      <div class="mc c-blue" onclick="openKpiOverlay(2)" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div class="ml">Price Realization ↗</div><div class="mv" id="sc-realization">78%</div><div class="md du" id="sc-real-trend">▲ 4pp vs FY24</div></div>
+      <div class="mc c-red" onclick="openKpiOverlay(3)" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div class="ml">Leakage ARR ↗</div><div class="mv" id="sc-leakage">$2.4M</div><div class="md dd">5% of total ARR</div></div>
+      <div class="mc c-green" onclick="openKpiOverlay(1)" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div class="ml">Portfolio NRR ↗</div><div class="mv" id="sc-nrr">112%</div><div class="md du" id="sc-nrr-trend">▲ 3pp QoQ</div></div>
+      <div class="mc c-amber" onclick="openKpiOverlay(0)" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div class="ml">Avg Discount ↗</div><div class="mv" id="sc-disc">18.3%</div><div class="md dd">2.1pp over target</div></div>
+      <div class="mc c-purple" onclick="openKpiOverlay('grossmargin')" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div class="ml">Gross Margin ↗</div><div class="mv" id="sc-margin">71%</div><div class="md du">▲ 1.8pp QoQ</div></div>
+      <div class="mc c-teal" onclick="openKpiOverlay('ltvcac')" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div class="ml">Avg LTV/CAC ↗</div><div class="mv" id="sc-ltvcac">4.2×</div><div class="md du">▲ 0.3 QoQ</div></div>
     </div>
     <div class="g2">
       <div class="card"><div class="ch"><div class="ct">Price Realization Trend (Quarterly, 5yr)</div></div><div class="cb"><div style="position:relative;height:200px"><canvas id="c-sc-trend"></canvas></div></div></div>
@@ -2113,6 +2115,17 @@ const PERIOD_DATA = {
       {type:'gr', icon:'✓', title:'Aviation NRR hit 118% — portfolio best', body:'7 aviation enterprise accounts expanded in Q3. OCM + Safety bundle proving strong in EMEA. Template for other verticals.'},
     ]
   },
+  'Q1-2025': {
+    arr:'$36.1M', nrr:'103%', realization:'72%', leakage:'$1.5M',
+    arrTrend:'+11% YoY', nrrTrend:'Flat QoQ', realTrend:'Flat vs FY24', leakTrend:'ARR at risk',
+    avgDisc:'15.8%', grossMargin:'66%', ltvcac:'3.3x', churn:'6.1%',
+    healthScore:63, marginCtrl:69, discDisc:58, valueCapture:69, dealVel:54,
+    alerts: [
+      {type:'am', icon:'⚠', title:'New logo momentum slowing', body:'Q1 2025 new logo ARR $2.1M vs $2.8M target. Pipeline coverage at 2.1x vs 3x required. APAC pipeline weakest region.'},
+      {type:'am', icon:'⚠', title:'MINT integration pricing not finalized', body:'Post-acquisition MINT pricing still in 3 manual exception pilots. CPQ not updated. Risk of inconsistent quoting across reps.'},
+      {type:'gr', icon:'✓', title:'EMEA defence vertical +28% YoY', body:'NATO, BAE Systems, Leonardo all expanded in Q1. Defence now 28% of total ARR up from 22% in FY24.'},
+    ]
+  },
   'Q2-2025': {
     arr:'$38.8M', nrr:'105%', realization:'73%', leakage:'$1.7M',
     arrTrend:'+13% YoY', nrrTrend:'▲ 2pp QoQ', realTrend:'Flat vs FY24', leakTrend:'ARR at risk',
@@ -2124,8 +2137,8 @@ const PERIOD_DATA = {
     ]
   },
   'FY2025': {
-    arr:'$48.2M', nrr:'110%', realization:'76%', leakage:'$8.1M',
-    arrTrend:'+22% vs FY24 · Year-end', nrrTrend:'▲ 5pp vs FY24', realTrend:'▲ 3pp vs FY24', leakTrend:'Full year',
+    arr:'$44.6M', nrr:'110%', realization:'76%', leakage:'$8.1M',
+    arrTrend:'+13% vs FY24 · Year-end ARR', nrrTrend:'▲ 5pp vs FY24', realTrend:'▲ 3pp vs FY24', leakTrend:'Full year',
     avgDisc:'17.4%', grossMargin:'69%', ltvcac:'3.9×', churn:'5.1%',
     healthScore:71, marginCtrl:76, discDisc:63, valueCapture:74, dealVel:59,
     alerts: [
@@ -2166,6 +2179,13 @@ function updatePeriod(period){
   if(execSub)execSub.textContent=`Pricing performance at a glance · Global portfolio · ${period.replace('-',' ')}`;
   // Update gauge
   if(d.healthScore)animateGauge(d.healthScore);
+  // Update scorecard top cards
+  var scReal=document.getElementById('sc-realization');if(scReal)scReal.textContent=d.realization;
+  var scLeak=document.getElementById('sc-leakage');if(scLeak)scLeak.textContent=d.leakage;
+  var scNrr=document.getElementById('sc-nrr');if(scNrr)scNrr.textContent=d.nrr;
+  var scDisc=document.getElementById('sc-disc');if(scDisc)scDisc.textContent=d.avgDisc;
+  var scMargin=document.getElementById('sc-margin');if(scMargin)scMargin.textContent=d.grossMargin;
+  var scLtv=document.getElementById('sc-ltvcac');if(scLtv)scLtv.textContent=d.ltvcac;
   // Update sub-score cards
   const subCards=document.querySelectorAll('.sub-score-val');
   if(subCards.length>=4&&d.marginCtrl){
@@ -2484,7 +2504,46 @@ function openKpiOverlay(idx) {
   ];
 
   // Handle portfolio and pricebook generic overlays
-  if(idx === 'portfolio') {
+  if(idx === 'health') {
+    currentKpi = {
+      title: 'Pricing Health Score',
+      meta: (d.healthScore||74) + '/100 · ' + (d.healthScore>=75?'B+ Good':d.healthScore>=65?'B Adequate':'C Needs Work'),
+      kpis: [
+        {label:'Overall Score', val:(d.healthScore||74)+'/100', color:d.healthScore>=75?'var(--green)':d.healthScore>=65?'var(--amber)':'var(--red)'},
+        {label:'Margin Control', val:(d.marginCtrl||81), color:'var(--green)'},
+        {label:'Deal Velocity', val:(d.dealVel||62), color:'var(--amber)'},
+      ],
+      detail: 'The Pricing Health Score is a composite of 5 dimensions: price realization (25%), discount discipline (25%), value capture (20%), deal velocity (15%), and NRR contribution (15%). Current score of '+(d.healthScore||74)+'/100. Margin Control at '+(d.marginCtrl||81)+' is the strongest sub-score. Deal Velocity at '+(d.dealVel||62)+' is the weakest — approval cycle time of 1.8 days vs 1-day target is the primary drag.',
+      aiContext: 'Pricing health score: '+(d.healthScore||74)+'/100. Sub-scores — margin control: '+(d.marginCtrl||81)+', discount discipline: '+(d.discDisc||67)+', value capture: '+(d.valueCapture||78)+', deal velocity: '+(d.dealVel||62)+'. ARR: '+d.arr+', NRR: '+d.nrr,
+      metric: 'Pricing Health Score'
+    };
+  } else if(idx === 'grossmargin') {
+    currentKpi = {
+      title: 'Gross Margin',
+      meta: d.grossMargin + ' · Target: 72%',
+      kpis: [
+        {label:'Current', val:d.grossMargin, color:parseFloat(d.grossMargin)>=70?'var(--green)':'var(--amber)'},
+        {label:'Target', val:'72%', color:'var(--text2)'},
+        {label:'LTV/CAC', val:d.ltvcac, color:'var(--accent)'},
+      ],
+      detail: 'Gross margin measures revenue minus cost to deliver as a percentage. SaaS benchmark is 70%+. At '+d.grossMargin+', Comply365 is at target. SMB accounts run at 58% gross margin (high support cost), Enterprise at 71%, Strategic at 75%. The MINT and Beams acquisitions are diluting blended margin slightly as integration matures. Target is 72% by FY2026.',
+      aiContext: 'Gross margin: '+d.grossMargin+', target 72%. ARR: '+d.arr+', LTV/CAC: '+d.ltvcac+'. SMB margin 58%, Enterprise 71%, Strategic 75%.',
+      metric: 'Gross Margin'
+    };
+  } else if(idx === 'ltvcac') {
+    currentKpi = {
+      title: 'LTV / CAC Ratio',
+      meta: d.ltvcac + ' · Target: 4x+',
+      kpis: [
+        {label:'LTV/CAC', val:d.ltvcac, color:parseFloat(d.ltvcac)>=4?'var(--green)':'var(--amber)'},
+        {label:'Target', val:'4x', color:'var(--text2)'},
+        {label:'Churn', val:d.churn, color:parseFloat(d.churn)>5?'var(--amber)':'var(--green)'},
+      ],
+      detail: 'LTV/CAC measures lifetime customer value versus acquisition cost. The SaaS benchmark is 3-5x. At '+d.ltvcac+', Comply365 is in the healthy zone. Churn at '+d.churn+' is the primary driver of LTV — reducing churn by 1pp would add approximately $0.5M to lifetime value across the portfolio. CAC efficiency is improving as the direct sales motion matures.',
+      aiContext: 'LTV/CAC: '+d.ltvcac+', target 4x. Churn: '+d.churn+', NRR: '+d.nrr+', ARR: '+d.arr+'. SaaS benchmark 3-5x.',
+      metric: 'LTV/CAC Ratio'
+    };
+  } else if(idx === 'portfolio') {
     currentKpi = {
       title: 'Customer Portfolio Summary',
       meta: '100 accounts · Aviation, Defense, Rail & Space',

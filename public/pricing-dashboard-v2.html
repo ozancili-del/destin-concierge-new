@@ -3,6 +3,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -539,10 +540,10 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
       <div class="section-sub">Pricing performance at a glance · Global portfolio · Q1 2026</div>
     </div>
     <div class="exec-kpi-grid">
-      <div class="exec-kpi"><div class="exec-kpi-num">$48.2M</div><div class="exec-kpi-lbl">Total ARR</div><div class="exec-kpi-d du">▲ 22% YoY</div></div>
-      <div class="exec-kpi"><div class="exec-kpi-num">112%</div><div class="exec-kpi-lbl">Portfolio NRR</div><div class="exec-kpi-d du">▲ 3pp QoQ</div></div>
-      <div class="exec-kpi"><div class="exec-kpi-num">78%</div><div class="exec-kpi-lbl">Price Realization</div><div class="exec-kpi-d du">▲ 4pp vs FY24</div></div>
-      <div class="exec-kpi"><div class="exec-kpi-num">$2.4M</div><div class="exec-kpi-lbl">Discount Leakage</div><div class="exec-kpi-d dd">ARR at risk</div></div>
+      <div class="exec-kpi" id="kpi-arr" onclick="openKpiOverlay(0)" style="cursor:pointer" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor=''"><div class="exec-kpi-num">$48.2M</div><div class="exec-kpi-lbl">Total ARR</div><div class="exec-kpi-d du">▲ 22% YoY</div><div style="font-size:9px;color:var(--text3);margin-top:4px">↗ AI analysis</div></div>
+      <div class="exec-kpi" id="kpi-nrr" onclick="openKpiOverlay(1)" style="cursor:pointer" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor=''"><div class="exec-kpi-num">112%</div><div class="exec-kpi-lbl">Portfolio NRR</div><div class="exec-kpi-d du">▲ 3pp QoQ</div><div style="font-size:9px;color:var(--text3);margin-top:4px">↗ AI analysis</div></div>
+      <div class="exec-kpi" id="kpi-real" onclick="openKpiOverlay(2)" style="cursor:pointer" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor=''"><div class="exec-kpi-num">78%</div><div class="exec-kpi-lbl">Price Realization</div><div class="exec-kpi-d du">▲ 4pp vs FY24</div><div style="font-size:9px;color:var(--text3);margin-top:4px">↗ AI analysis</div></div>
+      <div class="exec-kpi" id="kpi-leak" onclick="openKpiOverlay(3)" style="cursor:pointer" onmouseover="this.style.borderColor='var(--red)'" onmouseout="this.style.borderColor=''"><div class="exec-kpi-num">$2.4M</div><div class="exec-kpi-lbl">Discount Leakage</div><div class="exec-kpi-d dd">ARR at risk</div><div style="font-size:9px;color:var(--text3);margin-top:4px">↗ AI analysis</div></div>
     </div>
     <div class="g2" style="margin-bottom:14px">
       <div class="card">
@@ -586,8 +587,8 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
   <section class="sec" id="sec-scorecard">
     <div class="section-header"><div class="section-title">Health Scorecard</div><div class="section-sub">Pricing performance across all dimensions · 100 active accounts</div></div>
     <div class="mrow" style="grid-template-columns:repeat(6,minmax(0,1fr))">
-      <div class="mc c-blue"><div class="ml">Price Realization</div><div class="mv">78%</div><div class="md du">▲ 4pp vs FY24</div></div>
-      <div class="mc c-red"><div class="ml">Avg Discount</div><div class="mv">18.3%</div><div class="md dd">2.1pp over target</div></div>
+      <div class="mc c-blue" onclick="openCtrlOverlay(2)" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div class="ml">Price Realization ↗</div><div class="mv">78%</div><div class="md du">▲ 4pp vs FY24</div></div>
+      <div class="mc c-red" onclick="openCtrlOverlay(0)" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div class="ml">Avg Discount ↗</div><div class="mv">18.3%</div><div class="md dd">2.1pp over target</div></div>
       <div class="mc c-amber"><div class="ml">Leakage ARR</div><div class="mv">$2.4M</div><div class="md dd">5% of total ARR</div></div>
       <div class="mc c-green"><div class="ml">Portfolio NRR</div><div class="mv">112%</div><div class="md du">▲ 3pp QoQ</div></div>
       <div class="mc c-purple"><div class="ml">Gross Margin</div><div class="mv">71%</div><div class="md du">▲ 1.8pp QoQ</div></div>
@@ -610,8 +611,8 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
   <section class="sec" id="sec-portfolio">
     <div class="section-header"><div class="section-title">Customer Portfolio</div><div class="section-sub">100 accounts · aviation, defense, rail & space · MINT and Beams acquisition cohorts included</div></div>
     <div class="mrow" style="grid-template-columns:repeat(5,minmax(0,1fr))">
-      <div class="mc c-blue"><div class="ml">Total ARR</div><div class="mv">$48.2M</div><div class="md du">▲ 22% YoY</div></div>
-      <div class="mc c-green"><div class="ml">Avg NRR</div><div class="mv">112%</div><div class="md du">▲ 3pp</div></div>
+      <div class="mc c-blue" onclick="openKpiOverlay('portfolio')" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div class="ml">Total ARR ↗</div><div class="mv">$48.2M</div><div class="md du">▲ 22% YoY</div></div>
+      <div class="mc c-green" onclick="openKpiOverlay('portfolio')" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div class="ml">Avg NRR ↗</div><div class="mv">112%</div><div class="md du">▲ 3pp</div></div>
       <div class="mc c-amber"><div class="ml">Gross Churn</div><div class="mv">4.8%</div><div class="md du">▼ 1.2pp YoY</div></div>
       <div class="mc c-teal"><div class="ml">Expansion ARR</div><div class="mv">$6.1M</div><div class="md du">▲ 34% YoY</div></div>
       <div class="mc c-red"><div class="ml">At-Risk ARR</div><div class="mv">$3.8M</div><div class="md dd">8 accounts</div></div>
@@ -655,8 +656,8 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
   <section class="sec" id="sec-pricebook">
     <div class="section-header"><div class="section-title">Price Book</div><div class="section-sub">Authoritative list prices, floor prices, and discount ceilings · Q1 2026</div></div>
     <div class="mrow" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:16px">
-      <div class="mc c-blue"><div class="ml">Modules in Price Book</div><div class="mv">8</div><div class="md dn">Post MINT + Beams</div></div>
-      <div class="mc c-amber"><div class="ml">Avg List vs Realized Gap</div><div class="mv">22%</div><div class="md dd">$10.6M unrealized</div></div>
+      <div class="mc c-blue" onclick="openKpiOverlay('pricebook')" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div class="ml">Modules in Price Book ↗</div><div class="mv">8</div><div class="md dn">Post MINT + Beams</div></div>
+      <div class="mc c-amber" onclick="openKpiOverlay('pricebook')" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div class="ml">Avg List vs Realized Gap ↗</div><div class="mv">22%</div><div class="md dd">$10.6M unrealized</div></div>
       <div class="mc c-green"><div class="ml">Price Book Coverage</div><div class="mv">94%</div><div class="md du">6 exceptions logged</div></div>
       <div class="mc c-red"><div class="ml">Below Floor Deals</div><div class="mv">4</div><div class="md dd">Require CEO sign-off</div></div>
     </div>
@@ -2124,7 +2125,7 @@ const PERIOD_DATA = {
   },
   'FY2025': {
     arr:'$48.2M', nrr:'110%', realization:'76%', leakage:'$8.1M',
-    arrTrend:'+22% FY24→25', nrrTrend:'▲ 5pp vs FY24', realTrend:'▲ 3pp vs FY24', leakTrend:'Full year',
+    arrTrend:'+22% vs FY24 · Year-end', nrrTrend:'▲ 5pp vs FY24', realTrend:'▲ 3pp vs FY24', leakTrend:'Full year',
     avgDisc:'17.4%', grossMargin:'69%', ltvcac:'3.9×', churn:'5.1%',
     healthScore:71, marginCtrl:76, discDisc:63, valueCapture:74, dealVel:59,
     alerts: [
@@ -2135,7 +2136,7 @@ const PERIOD_DATA = {
   },
   'FY2024': {
     arr:'$39.4M', nrr:'105%', realization:'73%', leakage:'$6.8M',
-    arrTrend:'+23% FY23→24', nrrTrend:'▲ 2pp vs FY23', realTrend:'▲ 1pp vs FY23', leakTrend:'Full year',
+    arrTrend:'+23% vs FY23 · Year-end', nrrTrend:'▲ 2pp vs FY23', realTrend:'▲ 1pp vs FY23', leakTrend:'Full year',
     avgDisc:'16.1%', grossMargin:'66%', ltvcac:'3.4×', churn:'6.3%',
     healthScore:62, marginCtrl:68, discDisc:57, valueCapture:68, dealVel:52,
     alerts: [
@@ -2424,6 +2425,148 @@ async function runCtrlAI(){
 }
 (function(){var _e=document.getElementById('ctrl-overlay');if(_e)_e.addEventListener('click',function(e){if(e.target===this)closeCtrlOverlay();});})();
 
+
+// ── KPI OVERLAY ──────────────────────────────────────────────────────────
+var currentKpi = null;
+var currentPeriodKey = 'Q1-2026';
+
+function openKpiOverlay(idx) {
+  var d = PERIOD_DATA[currentPeriodKey] || PERIOD_DATA['Q1-2026'];
+  var configs = [
+    {
+      title: 'Total ARR',
+      meta: d.arr + ' · ' + d.arrTrend,
+      kpis: [
+        {label:'Current ARR', val:d.arr, color:'var(--text)'},
+        {label:'YoY Growth', val:d.arrTrend.split('·')[0].trim(), color:'var(--green)'},
+        {label:'NRR', val:d.nrr, color:'var(--accent)'},
+      ],
+      detail: 'Annual Recurring Revenue represents the annualised value of all active subscriptions. ' + d.arr + ' ARR with ' + d.arrTrend + '. NRR at ' + d.nrr + ' means existing customers are growing their spend. Gross margin of ' + d.grossMargin + ' on this ARR base. LTV/CAC ratio of ' + d.ltvcac + ' indicates strong unit economics.',
+      aiContext: 'ARR: ' + d.arr + ', growth: ' + d.arrTrend + ', NRR: ' + d.nrr + ', gross margin: ' + d.grossMargin + ', LTV/CAC: ' + d.ltvcac + ', churn: ' + d.churn,
+      metric: 'ARR'
+    },
+    {
+      title: 'Portfolio NRR',
+      meta: d.nrr + ' · Net Revenue Retention',
+      kpis: [
+        {label:'NRR', val:d.nrr, color:parseInt(d.nrr)>=110?'var(--green)':'var(--amber)'},
+        {label:'Churn Rate', val:d.churn, color:parseFloat(d.churn)>5?'var(--amber)':'var(--green)'},
+        {label:'Avg Discount', val:d.avgDisc, color:'var(--text2)'},
+      ],
+      detail: 'Net Revenue Retention measures revenue retained and grown from existing customers. Above 100% means the customer base is expanding without new logos. At ' + d.nrr + ', Comply365 is ' + (parseInt(d.nrr)>=110 ? 'above' : 'approaching') + ' the 110% enterprise SaaS benchmark. Churn at ' + d.churn + ' with avg discount of ' + d.avgDisc + '.',
+      aiContext: 'NRR: ' + d.nrr + ', churn: ' + d.churn + ', avg discount: ' + d.avgDisc + ', ARR: ' + d.arr,
+      metric: 'NRR'
+    },
+    {
+      title: 'Price Realization',
+      meta: d.realization + ' · ' + d.realTrend,
+      kpis: [
+        {label:'Realization', val:d.realization, color:parseInt(d.realization)>=80?'var(--green)':'var(--amber)'},
+        {label:'Target', val:'82%', color:'var(--text2)'},
+        {label:'Leakage', val:d.leakage, color:'var(--red)'},
+      ],
+      detail: 'Price realization measures what percentage of list price is actually collected. At ' + d.realization + ', Comply365 is collecting ' + d.realization + ' of every dollar of list price — leaving ' + (100-parseInt(d.realization)) + '% on the table through discounts. Target is 82%. The ' + d.leakage + ' leakage represents the gap between list and realized ARR.',
+      aiContext: 'Price realization: ' + d.realization + ', target 82%, leakage: ' + d.leakage + ', avg discount: ' + d.avgDisc + ', trend: ' + d.realTrend,
+      metric: 'Price Realization'
+    },
+    {
+      title: 'Discount Leakage',
+      meta: d.leakage + ' ARR at risk · ' + d.leakTrend,
+      kpis: [
+        {label:'Leakage', val:d.leakage, color:'var(--red)'},
+        {label:'Avg Discount', val:d.avgDisc, color:'var(--amber)'},
+        {label:'Realization', val:d.realization, color:'var(--text2)'},
+      ],
+      detail: 'Discount leakage is the ARR lost through discounting beyond what is strategically justified. At ' + d.leakage + ', this represents the gap between what Comply365 could charge at list price and what it actually collects. Primary drivers are large enterprise discounting and LATAM competitive pressure. Not all leakage is bad — some is strategic — but the addressable portion needs governance.',
+      aiContext: 'Discount leakage: ' + d.leakage + ', avg discount: ' + d.avgDisc + ', price realization: ' + d.realization + ', ARR: ' + d.arr,
+      metric: 'Discount Leakage'
+    },
+  ];
+
+  // Handle portfolio and pricebook generic overlays
+  if(idx === 'portfolio') {
+    currentKpi = {
+      title: 'Customer Portfolio Summary',
+      meta: '100 accounts · Aviation, Defense, Rail & Space',
+      kpis: [
+        {label:'Total ARR', val:d.arr, color:'var(--text)'},
+        {label:'Avg NRR', val:d.nrr, color:'var(--green)'},
+        {label:'Avg Discount', val:d.avgDisc, color:'var(--amber)'},
+      ],
+      detail: 'The customer portfolio spans 100 accounts across Aviation, Defense, Rail and Space. Total ARR of ' + d.arr + ' with portfolio NRR of ' + d.nrr + '. Average discount of ' + d.avgDisc + ' against a 16% target. Churn rate of ' + d.churn + '. LTV/CAC ratio of ' + d.ltvcac + ' indicates strong unit economics across the base.',
+      aiContext: 'Portfolio: 100 accounts, ARR ' + d.arr + ', NRR ' + d.nrr + ', avg discount ' + d.avgDisc + ', churn ' + d.churn + ', LTV/CAC ' + d.ltvcac,
+      metric: 'Customer Portfolio'
+    };
+  } else if(idx === 'pricebook') {
+    currentKpi = {
+      title: 'Price Book Health',
+      meta: '8 modules · Q1 2026',
+      kpis: [
+        {label:'Modules', val:'8', color:'var(--text)'},
+        {label:'Compliance', val:'94%', color:'var(--green)'},
+        {label:'Below Floor', val:'4 deals', color:'var(--red)'},
+      ],
+      detail: 'The price book covers 8 modules post MINT and Beams acquisitions. Price book compliance at 94% — 6% of deals quoted off-book. 4 active deals below floor price requiring CEO + CFO sign-off. Average list vs realized gap of 22% representing $10.6M in unrealized ARR. Floor price discipline is the highest priority governance action.',
+      aiContext: 'Price book: 8 modules, 94% compliance, 4 deals below floor, 22% list vs realized gap, $10.6M unrealized ARR',
+      metric: 'Price Book'
+    };
+  } else {
+    currentKpi = configs[idx] || configs[0];
+  }
+
+  var m = currentKpi;
+  document.getElementById('kpi-ov-title').textContent = m.title;
+  document.getElementById('kpi-ov-meta').textContent = m.meta;
+  document.getElementById('kpi-ov-kpis').innerHTML = m.kpis.map(function(k){
+    return '<div style="background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--border)"><div style="font-size:9.5px;color:var(--text3);font-family:\'DM Mono\',monospace;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">'+k.label+'</div><div style="font-size:20px;font-weight:700;color:'+k.color+'">'+k.val+'</div></div>';
+  }).join('');
+  document.getElementById('kpi-ov-detail').textContent = m.detail;
+  document.getElementById('kpi-ai-out').innerHTML = '<span class="ai-placeholder">Click Generate for executive AI commentary.</span>';
+  document.getElementById('kpi-ai-btn').disabled = false;
+  document.getElementById('kpi-ai-btn').textContent = 'Generate';
+  var el = document.getElementById('kpi-overlay');
+  if(el){el.classList.add('open');document.body.style.overflow='hidden';}
+}
+
+function closeKpiOverlay() {
+  var el = document.getElementById('kpi-overlay');
+  if(el) el.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+async function runKpiAI() {
+  var m = currentKpi; if(!m) return;
+  var btn = document.getElementById('kpi-ai-btn');
+  var out = document.getElementById('kpi-ai-out');
+  btn.disabled = true; btn.textContent = 'Generating...';
+  out.innerHTML = '<span class="ai-placeholder">Preparing executive commentary...</span>';
+  try {
+    var res = await fetch('/api/pricing-ai', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({mode:'kpi', kpi:{title:m.title, context:m.aiContext, metric:m.metric}})
+    });
+    var data = await res.json();
+    if(data.error) throw new Error(data.error);
+    out.innerHTML = '<div class="ai-glow-badge">GPT-4o</div><span class="ai-response-text">' + data.result.replace(/\n/g,'<br>') + '</span>';
+  } catch(e) {
+    out.innerHTML = '<span style="color:var(--red)">Error: ' + e.message + '</span>';
+  }
+  btn.disabled = false; btn.textContent = 'Re-generate';
+}
+
+(function(){
+  var _e = document.getElementById('kpi-overlay');
+  if(_e) _e.addEventListener('click', function(e){if(e.target===this)closeKpiOverlay();});
+})();
+
+// Track current period for KPI overlay context
+var _origUpdatePeriod = updatePeriod;
+updatePeriod = function(period) {
+  currentPeriodKey = period;
+  _origUpdatePeriod(period);
+};
+
 </script>
 
 <!-- ══ APPROVAL OVERLAY ══════════════════════════════════════════════════ -->
@@ -2519,6 +2662,33 @@ async function runCtrlAI(){
           </div>
         </div>
         <div id="ctrl-ai-out" class="ai-glow-box"><span class="ai-placeholder">Click Generate for root cause analysis and recommended action.</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ KPI OVERLAY ═══════════════════════════════════════════════════════ -->
+<div class="ov2-overlay" id="kpi-overlay">
+  <div class="ov2-modal" style="max-width:680px">
+    <div class="ov2-header">
+      <div>
+        <div style="font-family:'DM Serif Display',serif;font-size:18px;color:var(--text)" id="kpi-ov-title"></div>
+        <div style="font-size:11px;color:var(--text3);margin-top:3px" id="kpi-ov-meta"></div>
+      </div>
+      <button class="ov2-close" onclick="closeKpiOverlay()">&#x2715;</button>
+    </div>
+    <div class="ov2-body">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px" id="kpi-ov-kpis"></div>
+      <div style="background:var(--bg3);border-radius:9px;padding:14px;margin-bottom:14px;font-size:12.5px;color:var(--text2);line-height:1.7" id="kpi-ov-detail"></div>
+      <div class="ov2-ai-panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <div class="ai-section-title">AI Executive Commentary</div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="ai-powered-badge">Powered by GPT-4o</span>
+            <button onclick="runKpiAI()" id="kpi-ai-btn" style="padding:5px 12px;background:rgba(79,142,247,.12);border:1px solid rgba(79,142,247,.3);border-radius:6px;color:var(--accent);font-size:11.5px;cursor:pointer;font-family:'Figtree',sans-serif">Generate &#x2197;</button>
+          </div>
+        </div>
+        <div id="kpi-ai-out" class="ai-glow-box"><span class="ai-placeholder">Click Generate for executive AI commentary on this metric.</span></div>
       </div>
     </div>
   </div>

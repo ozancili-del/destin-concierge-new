@@ -1,7 +1,7 @@
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { mode, target, comparables, customer, peers, deal, leakage, rep, approval, alert, intel } = req.body;
+  const { mode, target, comparables, customer, peers, deal, leakage, rep, approval, alert, intel, ctrl } = req.body;
 
   const systemPrompt = `You are the Global Pricing Lead at Comply365, an enterprise SaaS platform for aviation, defense, rail, and space compliance. You combine deal desk rigour with CFO-level commercial instincts. You are direct, specific, and actionable. You name accounts. You never hedge.`;
 
@@ -80,6 +80,22 @@ Give a 3-part approval recommendation:
 
 Tone: internal Pricing Lead review — direct, data-driven, no fluff.`;
 
+
+  } else if (mode === 'ctrl') {
+    const c = ctrl;
+    userPrompt = `You are the Global Pricing Lead at Comply365 analysing a pricing governance metric.
+
+Metric: ${c.title}
+Current value: ${c.value}
+Status: ${c.status}
+Context: ${c.context}
+
+Give a 3-part analysis:
+1. ROOT CAUSE: Why is this metric at its current level? What specific behaviour, process failure, or structural issue is driving it? Be direct and name specific patterns.
+2. COMMERCIAL IMPACT: What is the ARR or margin impact of this metric being off-target? Quantify where possible.
+3. RECOMMENDED ACTION: Exactly what the Pricing Lead should do in the next 30 days to move this metric toward target. One concrete, specific action with an expected outcome.
+
+Tone: internal Pricing Lead analysis — direct, commercial, no fluff.`;
   } else if (mode === 'alert') {
     const a = alert;
     userPrompt = `You are the Global Pricing Lead at Comply365 preparing a CFO briefing note on an executive alert.

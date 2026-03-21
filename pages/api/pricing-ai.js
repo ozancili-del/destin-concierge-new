@@ -1,7 +1,7 @@
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { mode, target, comparables, customer, peers, deal, leakage, rep, approval, alert, intel, ctrl } = req.body;
+  const { mode, target, comparables, customer, peers, deal, leakage, rep, approval, alert, intel, ctrl, kpi } = req.body;
 
   const systemPrompt = `You are the Global Pricing Lead at Comply365, an enterprise SaaS platform for aviation, defense, rail, and space compliance. You combine deal desk rigour with CFO-level commercial instincts. You are direct, specific, and actionable. You name accounts. You never hedge.`;
 
@@ -81,6 +81,20 @@ Give a 3-part approval recommendation:
 Tone: internal Pricing Lead review — direct, data-driven, no fluff.`;
 
 
+
+  } else if (mode === 'kpi') {
+    const k = kpi;
+    userPrompt = `You are the Global Pricing Lead at Comply365 presenting to the CFO.
+
+Metric: ${k.metric}
+Context: ${k.context}
+
+Write a 3-part executive commentary:
+1. PERFORMANCE: How is this metric performing? Is it good, concerning, or mixed? Be specific with numbers.
+2. DRIVERS: What is driving this result? Name the key factors — positive and negative.
+3. OUTLOOK & ACTION: What should the Pricing Lead do about this in the next quarter? One concrete recommendation with expected outcome.
+
+Tone: CFO briefing — concise, commercial, data-driven. No fluff. Max 200 words.`;
   } else if (mode === 'ctrl') {
     const c = ctrl;
     userPrompt = `You are the Global Pricing Lead at Comply365 analysing a pricing governance metric.

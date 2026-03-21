@@ -132,7 +132,7 @@ ${intelSection}
       },
       body: JSON.stringify({
         model: 'gpt-4o',
-        max_tokens: 500,
+        max_tokens: 800,
         temperature: 0.7,
         messages: [
           { role: 'system', content: systemPrompt },

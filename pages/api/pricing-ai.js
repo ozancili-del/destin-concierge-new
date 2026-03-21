@@ -1,7 +1,7 @@
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { mode, target, comparables, customer, peers, deal, leakage, rep, approval, alert } = req.body;
+  const { mode, target, comparables, customer, peers, deal, leakage, rep, approval, alert, intel } = req.body;
 
   const systemPrompt = `You are the Global Pricing Lead at Comply365, an enterprise SaaS platform for aviation, defense, rail, and space compliance. You combine deal desk rigour with CFO-level commercial instincts. You are direct, specific, and actionable. You name accounts. You never hedge.`;
 

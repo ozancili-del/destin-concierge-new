@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1873,7 +1874,7 @@ function closeModal(){
   Object.values(modalCharts).forEach(ch=>ch&&ch.destroy());
   modalCharts={};
 }
-document.getElementById('cust-overlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
+(function(){var _e=document.getElementById('cust-overlay');if(_e)_e.addEventListener('click',function(e){if(e.target===this)closeModal();});})();
 
 async function runModalAI(){
   const c=modalCustomer;if(!c)return;
@@ -1940,7 +1941,7 @@ function closeLeakOverlay(){
   document.body.style.overflow='';
   if(leakChart){leakChart.destroy();leakChart=null;}
 }
-document.getElementById('leak-overlay').addEventListener('click',function(e){if(e.target===this)closeLeakOverlay();});
+(function(){var _e=document.getElementById('leak-overlay');if(_e)_e.addEventListener('click',function(e){if(e.target===this)closeLeakOverlay();});})();
 
 async function runLeakAI(){
   const d=currentLeakDriver;if(!d)return;
@@ -1994,7 +1995,7 @@ function closeRepOverlay(){
   document.getElementById('rep-overlay').classList.remove('open');
   document.body.style.overflow='';
 }
-document.getElementById('rep-overlay').addEventListener('click',function(e){if(e.target===this)closeRepOverlay();});
+(function(){var _e=document.getElementById('rep-overlay');if(_e)_e.addEventListener('click',function(e){if(e.target===this)closeRepOverlay();});})();
 
 async function runRepAI(){
   const r=currentRepData;if(!r)return;
@@ -2102,7 +2103,7 @@ function updatePeriod(period){
   const alertBox=document.querySelector('#sec-exec .card:last-child .cb');
   if(alertBox&&d.alerts)alertBox.innerHTML=d.alerts.map(a=>`<div class="alert ${a.type}"><div style="color:${a.type==='red'?'var(--red)':a.type==='am'?'var(--amber)':'var(--green)'};font-size:13px;margin-top:1px">${a.icon}</div><div class="alert-txt"><strong>${a.title}</strong> — ${a.body}</div></div>`).join('');
 }
-document.getElementById('period-sel').addEventListener('change',function(){updatePeriod(this.value);});
+(function(){var _e=document.getElementById('period-sel');if(_e)_e.addEventListener('change',function(){updatePeriod(this.value);});})();
 
 // ── INIT ──────────────────────────────────────────────────────────────────
 calcDeal();
@@ -2185,9 +2186,8 @@ function closeApprovalOverlay() {
   document.getElementById('approval-overlay').classList.remove('open');
   document.body.style.overflow = '';
 }
-document.getElementById('approval-overlay').addEventListener('click', function(e) {
-  if (e.target === this) closeApprovalOverlay();
-});
+(function(){var _e=document.getElementById('approval-overlay');if(_e)_e.addEventListener('click',function(e){if(e.target===this)closeApprovalOverlay();});})();
+(function(){var _e=document.getElementById('alert-overlay');if(_e)_e.addEventListener('click',function(e){if(e.target===this)closeAlertOverlay();});})();
 
 async function runApprovalAI() {
   const d = currentApproval; if (!d) return;

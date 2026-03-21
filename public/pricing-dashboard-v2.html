@@ -902,10 +902,10 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
   <section class="sec" id="sec-reps">
     <div class="section-header"><div class="section-title">Rep Performance</div><div class="section-sub">Pricing discipline and commercial effectiveness by rep</div></div>
     <div class="mrow" style="grid-template-columns:repeat(4,minmax(0,1fr))">
-      <div class="mc c-green"><div class="ml">Top NRR Rep</div><div class="mv" style="font-size:18px">Sarah O.</div><div class="md du">127% NRR · EMEA</div></div>
-      <div class="mc c-red"><div class="ml">Highest Avg Discount</div><div class="mv" style="font-size:18px">Mark T.</div><div class="md dd">28.4% avg · LATAM</div></div>
-      <div class="mc c-amber"><div class="ml">Lowest Win Rate</div><div class="mv" style="font-size:18px">Priya M.</div><div class="md dn">44% win · APAC</div></div>
-      <div class="mc c-blue"><div class="ml">Most Deals Won</div><div class="mv" style="font-size:18px">James R.</div><div class="md du">18 deals · NA</div></div>
+      <div class="mc c-green" onclick="openRepOverlay('Sarah O.')" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div class="ml">Top NRR Rep</div><div class="mv" style="font-size:18px">Sarah O.</div><div class="md du">127% NRR · EMEA</div><div style="font-size:9px;color:var(--text3);margin-top:4px">↗ view profile</div></div>
+      <div class="mc c-red" onclick="openRepOverlay('Mark T.')" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div class="ml">Highest Avg Discount</div><div class="mv" style="font-size:18px">Mark T.</div><div class="md dd">28.4% avg · LATAM</div><div style="font-size:9px;color:var(--text3);margin-top:4px">↗ view profile</div></div>
+      <div class="mc" onclick="openRepOverlay('Priya M.')" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'" c-amber"><div class="ml">Lowest Win Rate</div><div class="mv" style="font-size:18px">Priya M.</div><div class="md dn">44% win · APAC</div><div style="font-size:9px;color:var(--text3);margin-top:4px">↗ view profile</div></div>
+      <div class="mc" onclick="openRepOverlay('James R.')" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'" c-blue"><div class="ml">Most Deals Won<div style="font-size:9px;color:var(--text3);margin-top:4px">↗ view profile</div></div><div class="mv" style="font-size:18px">James R.</div><div class="md du">18 deals · NA</div></div>
     </div>
     <div class="g2e">
       <div class="card"><div class="ch"><div class="ct">Discount vs Win Rate (per rep)</div></div><div class="cb"><div style="position:relative;height:220px"><canvas id="c-rep-scatter"></canvas></div></div></div>

@@ -97,17 +97,30 @@ Write a 3-part CFO briefing note:
 Tone: CFO briefing — concise, data-driven, decisive. No fluff. Write like you are the Pricing Lead presenting to the CFO.`;
 
   } else {
+    const intelSection = intel ? `
+
+REAL COMPANY INTELLIGENCE (sourced from annual reports — use these specific facts):
+- Compliance & Cost Exposure: ${intel.complianceCosts}
+- CEO/CFO Strategic Priorities: ${intel.strategicPriorities}
+- Technology Investment: ${intel.techInvestment}
+- Regulatory Pressure: ${intel.regulatoryPressure}
+- Key Executive Quotes: ${intel.keyQuotes}
+- Pricing Anchor: ${intel.pricingAnchor}
+
+Ground your entire response in these specific facts. Use real numbers. Quote their executives directly where relevant.` : '';
+
     userPrompt = `Price a new logo deal at Comply365.
 Target: ${target.name} | ${target.ind} | ${target.seg} | ${target.reg} | ${target.emp.toLocaleString()} employees | Revenue ${target.rev}
 Pain: ${target.pain} | Fit score: ${target.fit}%
 Comparable customers: ${comparables}
+${intelSection}
 
-5-sentence pricing approach:
-1. Recommended entry tier and price anchor
-2. Discount strategy and walk-away floor
-3. Value metrics to lead with
-4. Competitive positioning
-5. Expansion path post-close`;
+5-part pricing approach:
+1. VALUE ANCHOR: Lead with a specific dollar figure from their own cost base — what problem are we solving and what is it worth to them specifically?
+2. PRICE RECOMMENDATION: Recommended entry tier and ARR. Justify it as % of their quantified cost exposure.
+3. DISCOUNT STRATEGY: Walk-away floor and any commitment rate lever. Be specific.
+4. EXECUTIVE PITCH: One sentence using their own language (from earnings calls or CEO statements if available) that positions Comply365 as their solution.
+5. EXPANSION PATH: First 12 months and year 2 upsell opportunity.`;
   }
 
   try {

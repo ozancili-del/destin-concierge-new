@@ -557,10 +557,10 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
           <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px">out of 100</div>
           <div style="font-size:12px;padding:3px 12px;border-radius:20px;background:rgba(46,204,143,.12);color:var(--green);margin-top:6px;font-weight:500">B+ · Good</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;margin-top:14px">
-            <div style="background:var(--bg3);border-radius:7px;padding:10px 12px"><div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;margin-bottom:5px">Margin control</div><div style="font-size:16px;font-weight:600;color:var(--green)">81</div><div style="height:3px;background:var(--border);border-radius:2px;margin-top:5px"><div style="height:3px;background:var(--green);border-radius:2px;width:81%"></div></div></div>
-            <div style="background:var(--bg3);border-radius:7px;padding:10px 12px"><div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;margin-bottom:5px">Discount discipline</div><div style="font-size:16px;font-weight:600;color:var(--amber)">67</div><div style="height:3px;background:var(--border);border-radius:2px;margin-top:5px"><div style="height:3px;background:var(--amber);border-radius:2px;width:67%"></div></div></div>
-            <div style="background:var(--bg3);border-radius:7px;padding:10px 12px"><div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;margin-bottom:5px">Value capture</div><div style="font-size:16px;font-weight:600;color:var(--accent)">78</div><div style="height:3px;background:var(--border);border-radius:2px;margin-top:5px"><div style="height:3px;background:var(--accent);border-radius:2px;width:78%"></div></div></div>
-            <div style="background:var(--bg3);border-radius:7px;padding:10px 12px"><div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;margin-bottom:5px">Deal velocity</div><div style="font-size:16px;font-weight:600;color:var(--red)">62</div><div style="height:3px;background:var(--border);border-radius:2px;margin-top:5px"><div style="height:3px;background:var(--red);border-radius:2px;width:62%"></div></div></div>
+            <div style="background:var(--bg3);border-radius:7px;padding:10px 12px"><div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;margin-bottom:5px">Margin control</div><div class="sub-score-val" style="font-size:16px;font-weight:600;color:var(--green)">81</div><div style="height:3px;background:var(--border);border-radius:2px;margin-top:5px"><div style="height:3px;background:var(--green);border-radius:2px;width:81%"></div></div></div>
+            <div style="background:var(--bg3);border-radius:7px;padding:10px 12px"><div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;margin-bottom:5px">Discount discipline</div><div class="sub-score-val" style="font-size:16px;font-weight:600;color:var(--amber)">67</div><div style="height:3px;background:var(--border);border-radius:2px;margin-top:5px"><div style="height:3px;background:var(--amber);border-radius:2px;width:67%"></div></div></div>
+            <div style="background:var(--bg3);border-radius:7px;padding:10px 12px"><div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;margin-bottom:5px">Value capture</div><div class="sub-score-val" style="font-size:16px;font-weight:600;color:var(--accent)">78</div><div style="height:3px;background:var(--border);border-radius:2px;margin-top:5px"><div style="height:3px;background:var(--accent);border-radius:2px;width:78%"></div></div></div>
+            <div style="background:var(--bg3);border-radius:7px;padding:10px 12px"><div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;margin-bottom:5px">Deal velocity</div><div class="sub-score-val" style="font-size:16px;font-weight:600;color:var(--red)">62</div><div style="height:3px;background:var(--border);border-radius:2px;margin-top:5px"><div style="height:3px;background:var(--red);border-radius:2px;width:62%"></div></div></div>
           </div>
         </div>
       </div>
@@ -683,12 +683,12 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
       <div class="card">
         <div class="ch" style="margin-bottom:12px"><div class="ct">Control Metrics</div></div>
         <div class="cb" style="padding-top:0">
-          <div class="ctrl-metric" onclick="openCtrlOverlay(0)" style="cursor:pointer" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background=''"><div><div class="ctrl-lbl">Exception rate (&gt;25% disc) <span style="font-size:9px;color:var(--text3)">↗</span></div></div><div style="display:flex;align-items:center;gap:8px"><div class="ctrl-val" style="color:var(--amber)">14.2%</div><div class="ctrl-status st-warn">Above 10% target</div></div></div>
-          <div class="ctrl-metric" onclick="openCtrlOverlay(1)" style="cursor:pointer" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background=''"><div><div class="ctrl-lbl">Deals below floor price <span style="font-size:9px;color:var(--text3)">↗</span></div></div><div style="display:flex;align-items:center;gap:8px"><div class="ctrl-val" style="color:var(--red)">4</div><div class="ctrl-status st-bad">Requires CEO</div></div></div>
-          <div class="ctrl-metric" onclick="openCtrlOverlay(2)" style="cursor:pointer" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background=''"><div><div class="ctrl-lbl">Price book compliance <span style="font-size:9px;color:var(--text3)">↗</span></div></div><div style="display:flex;align-items:center;gap:8px"><div class="ctrl-val" style="color:var(--green)">94%</div><div class="ctrl-status st-good">On target</div></div></div>
-          <div class="ctrl-metric" onclick="openCtrlOverlay(3)" style="cursor:pointer" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background=''"><div><div class="ctrl-lbl">Avg approval cycle (days) <span style="font-size:9px;color:var(--text3)">↗</span></div></div><div style="display:flex;align-items:center;gap:8px"><div class="ctrl-val" style="color:var(--amber)">1.8d</div><div class="ctrl-status st-warn">Target: 1d</div></div></div>
-          <div class="ctrl-metric" onclick="openCtrlOverlay(4)" style="cursor:pointer" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background=''"><div><div class="ctrl-lbl">Renewal uplift realization <span style="font-size:9px;color:var(--text3)">↗</span></div></div><div style="display:flex;align-items:center;gap:8px"><div class="ctrl-val" style="color:var(--amber)">71%</div><div class="ctrl-status st-warn">Target: 85%</div></div></div>
-          <div class="ctrl-metric" onclick="openCtrlOverlay(5)" style="cursor:pointer" onmouseover="this.style.background='var(--bg3)'" onmouseout="this.style.background=''"><div><div class="ctrl-lbl">Multi-yr contract attach <span style="font-size:9px;color:var(--text3)">↗</span></div></div><div style="display:flex;align-items:center;gap:8px"><div class="ctrl-val" style="color:var(--green)">58%</div><div class="ctrl-status st-good">▲ 6pp YoY</div></div></div>
+          <div class="ctrl-metric" onclick="openCtrlOverlay(0)" style="cursor:pointer" onmouseover="this.style.background:'var(--bg3)'" onmouseout="this.style.background=''"><div><div class="ctrl-lbl">Exception rate (&gt;25% disc) <span style="font-size:9px;color:var(--text3)">↗</span></div></div><div style="display:flex;align-items:center;gap:8px"><div class="ctrl-val" style="color:var(--amber)">14.2%</div><div class="ctrl-status st-warn">Above 10% target</div></div></div>
+          <div class="ctrl-metric" onclick="openCtrlOverlay(1)" style="cursor:pointer" onmouseover="this.style.background:'var(--bg3)'" onmouseout="this.style.background=''"><div><div class="ctrl-lbl">Deals below floor price <span style="font-size:9px;color:var(--text3)">↗</span></div></div><div style="display:flex;align-items:center;gap:8px"><div class="ctrl-val" style="color:var(--red)">4</div><div class="ctrl-status st-bad">Requires CEO</div></div></div>
+          <div class="ctrl-metric" onclick="openCtrlOverlay(2)" style="cursor:pointer" onmouseover="this.style.background:'var(--bg3)'" onmouseout="this.style.background=''"><div><div class="ctrl-lbl">Price book compliance <span style="font-size:9px;color:var(--text3)">↗</span></div></div><div style="display:flex;align-items:center;gap:8px"><div class="ctrl-val" style="color:var(--green)">94%</div><div class="ctrl-status st-good">On target</div></div></div>
+          <div class="ctrl-metric" onclick="openCtrlOverlay(3)" style="cursor:pointer" onmouseover="this.style.background:'var(--bg3)'" onmouseout="this.style.background=''"><div><div class="ctrl-lbl">Avg approval cycle (days) <span style="font-size:9px;color:var(--text3)">↗</span></div></div><div style="display:flex;align-items:center;gap:8px"><div class="ctrl-val" style="color:var(--amber)">1.8d</div><div class="ctrl-status st-warn">Target: 1d</div></div></div>
+          <div class="ctrl-metric" onclick="openCtrlOverlay(4)" style="cursor:pointer" onmouseover="this.style.background:'var(--bg3)'" onmouseout="this.style.background=''"><div><div class="ctrl-lbl">Renewal uplift realization <span style="font-size:9px;color:var(--text3)">↗</span></div></div><div style="display:flex;align-items:center;gap:8px"><div class="ctrl-val" style="color:var(--amber)">71%</div><div class="ctrl-status st-warn">Target: 85%</div></div></div>
+          <div class="ctrl-metric" onclick="openCtrlOverlay(5)" style="cursor:pointer" onmouseover="this.style.background:'var(--bg3)'" onmouseout="this.style.background=''"><div><div class="ctrl-lbl">Multi-yr contract attach <span style="font-size:9px;color:var(--text3)">↗</span></div></div><div style="display:flex;align-items:center;gap:8px"><div class="ctrl-val" style="color:var(--green)">58%</div><div class="ctrl-status st-good">▲ 6pp YoY</div></div></div>
         </div>
       </div>
       <div class="card">
@@ -905,8 +905,8 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
     <div class="mrow" style="grid-template-columns:repeat(4,minmax(0,1fr))">
       <div class="mc c-green" onclick="openRepOverlay('Sarah O.')" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div class="ml">Top NRR Rep</div><div class="mv" style="font-size:18px">Sarah O.</div><div class="md du">127% NRR · EMEA</div><div style="font-size:9px;color:var(--text3);margin-top:4px">↗ view profile</div></div>
       <div class="mc c-red" onclick="openRepOverlay('Mark T.')" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div class="ml">Highest Avg Discount</div><div class="mv" style="font-size:18px">Mark T.</div><div class="md dd">28.4% avg · LATAM</div><div style="font-size:9px;color:var(--text3);margin-top:4px">↗ view profile</div></div>
-      <div class="mc" onclick="openRepOverlay('Priya M.')" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'" c-amber"><div class="ml">Lowest Win Rate</div><div class="mv" style="font-size:18px">Priya M.</div><div class="md dn">44% win · APAC</div><div style="font-size:9px;color:var(--text3);margin-top:4px">↗ view profile</div></div>
-      <div class="mc" onclick="openRepOverlay('James R.')" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'" c-blue"><div class="ml">Most Deals Won<div style="font-size:9px;color:var(--text3);margin-top:4px">↗ view profile</div></div><div class="mv" style="font-size:18px">James R.</div><div class="md du">18 deals · NA</div></div>
+      <div class="mc" onclick="openRepOverlay('Priya M.')" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'" onclick="openRepOverlay('Priya M.')" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'" c-amber"><div class="ml">Lowest Win Rate</div><div class="mv" style="font-size:18px">Priya M.</div><div class="md dn">44% win · APAC</div><div style="font-size:9px;color:var(--text3);margin-top:4px">↗ view profile</div></div>
+      <div class="mc" onclick="openRepOverlay('James R.')" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'" onclick="openRepOverlay('James R.')" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'" c-blue"><div class="ml">Most Deals Won<div style="font-size:9px;color:var(--text3);margin-top:4px">↗ view profile</div></div><div class="mv" style="font-size:18px">James R.</div><div class="md du">18 deals · NA</div></div>
     </div>
     <div class="g2e">
       <div class="card"><div class="ch"><div class="ct">Discount vs Win Rate (per rep)</div></div><div class="cb"><div style="position:relative;height:220px"><canvas id="c-rep-scatter"></canvas></div></div></div>
@@ -1091,7 +1091,39 @@ mkChart('c-arr-impact','bar',{
 },{plugins:{legend:{display:true,labels:{color:'#8b90a0',font:{size:10},boxWidth:8,padding:8}}},scales:{x:{ticks:TX2,grid:{display:false},stacked:true},y:{ticks:{...TX,callback:v=>'$'+v+'M'},grid:GS,stacked:true}}});
 
 // Gauge
-(()=>{const c=document.getElementById('c-gauge');if(!c)return;const ctx=c.getContext('2d');const score=74;const cx=90,cy=88,r=68;ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,2*Math.PI);ctx.strokeStyle='rgba(255,255,255,0.06)';ctx.lineWidth=13;ctx.stroke();const gr=ctx.createLinearGradient(20,88,160,88);gr.addColorStop(0,'#e85d6a');gr.addColorStop(.5,'#f5a623');gr.addColorStop(1,'#2ecc8f');ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,Math.PI+score/100*Math.PI);ctx.strokeStyle=gr;ctx.lineWidth=13;ctx.lineCap='round';ctx.stroke();})();
+function drawGauge(score){
+  const c=document.getElementById('c-gauge');if(!c)return;
+  const ctx=c.getContext('2d');
+  const cx=90,cy=88,r=68;
+  ctx.clearRect(0,0,180,95);
+  ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,2*Math.PI);
+  ctx.strokeStyle='rgba(255,255,255,0.06)';ctx.lineWidth=13;ctx.stroke();
+  const gr=ctx.createLinearGradient(20,88,160,88);
+  gr.addColorStop(0,'#e85d6a');gr.addColorStop(.5,'#f5a623');gr.addColorStop(1,'#2ecc8f');
+  ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,Math.PI+score/100*Math.PI);
+  ctx.strokeStyle=gr;ctx.lineWidth=13;ctx.lineCap='round';ctx.stroke();
+}
+function animateGauge(targetScore){
+  const el=document.getElementById('c-gauge');if(!el)return;
+  const numEl=el.parentElement?el.parentElement.querySelector('div[style*="46px"]'):null;
+  const labelEl=el.parentElement?el.parentElement.querySelector('div[style*="B+"], div[style*="border-radius:20px"]'):null;
+  let current=parseInt(numEl?numEl.textContent:74)||74;
+  const step=targetScore>current?1:-1;
+  const interval=setInterval(function(){
+    if(current===targetScore){clearInterval(interval);return;}
+    current+=step;
+    drawGauge(current);
+    if(numEl)numEl.textContent=current;
+    if(labelEl){
+      const grade=current>=85?'A · Excellent':current>=75?'B+ · Good':current>=65?'B · Adequate':'C · Needs Work';
+      const color=current>=85?'var(--green)':current>=75?'var(--green)':current>=65?'var(--amber)':'var(--red)';
+      labelEl.textContent=grade;
+      labelEl.style.color=color;
+      labelEl.style.background=current>=75?'rgba(46,204,143,.12)':current>=65?'rgba(245,166,35,.12)':'rgba(232,93,106,.12)';
+    }
+  },20);
+}
+drawGauge(74);
 
 // Realization trend
 mkChart('c-realization','line',{
@@ -2131,8 +2163,46 @@ function updatePeriod(period){
   if(scCards[5])scCards[5].textContent=d.ltvcac;
   const execSub=document.querySelector('#sec-exec .section-sub');
   if(execSub)execSub.textContent=`Pricing performance at a glance · Global portfolio · ${period.replace('-',' ')}`;
-  const alertBox=document.querySelector('#sec-exec .card:last-child .cb');
-  if(alertBox&&d.alerts)alertBox.innerHTML=d.alerts.map(a=>`<div class="alert ${a.type}"><div style="color:${a.type==='red'?'var(--red)':a.type==='am'?'var(--amber)':'var(--green)'};font-size:13px;margin-top:1px">${a.icon}</div><div class="alert-txt"><strong>${a.title}</strong> — ${a.body}</div></div>`).join('');
+  // Update gauge
+  if(d.healthScore)animateGauge(d.healthScore);
+  // Update sub-score cards
+  const subCards=document.querySelectorAll('.sub-score-val');
+  if(subCards.length>=4&&d.marginCtrl){
+    subCards[0].textContent=d.marginCtrl;
+    subCards[1].textContent=d.discDisc;
+    subCards[2].textContent=d.valueCapture;
+    subCards[3].textContent=d.dealVel;
+  }
+  // Sync EXEC_ALERTS with current period so overlay clicks show correct data
+  if(d.alerts&&d.alerts.length){
+    d.alerts.forEach(function(a,i){
+      if(EXEC_ALERTS[i]){
+        EXEC_ALERTS[i].title=a.title;
+        EXEC_ALERTS[i].meta=a.title;
+        EXEC_ALERTS[i].detail=a.body;
+        EXEC_ALERTS[i].type=a.type;
+        EXEC_ALERTS[i].icon=a.icon;
+        EXEC_ALERTS[i].aiContext=a.title+' — '+a.body;
+      }
+    });
+  }
+  const alertCards=document.querySelectorAll('#sec-exec .card');
+  let alertBox=null;
+  alertCards.forEach(function(card){
+    const ct=card.querySelector('.ct');
+    if(ct&&ct.textContent==='Executive Alerts'){alertBox=card.querySelector('.cb');}
+  });
+  if(alertBox&&d.alerts){
+    alertBox.innerHTML='';
+    d.alerts.forEach(function(a,i){
+      var div=document.createElement('div');
+      div.className='alert '+a.type;
+      div.style.cursor='pointer';
+      div.onclick=function(){openAlertOverlay(i);};
+      div.innerHTML='<div style="color:'+(a.type==='red'?'var(--red)':a.type==='am'?'var(--amber)':'var(--green)')+';font-size:13px;margin-top:1px">'+a.icon+'</div><div class="alert-txt"><strong>'+a.title+'</strong> — '+a.body+'</div>';
+      alertBox.appendChild(div);
+    });
+  }
 }
 (function(){var _e=document.getElementById('period-sel');if(_e)_e.addEventListener('change',function(){updatePeriod(this.value);});})();
 
@@ -2218,7 +2288,6 @@ function closeApprovalOverlay() {
   document.body.style.overflow = '';
 }
 (function(){var _e=document.getElementById('approval-overlay');if(_e)_e.addEventListener('click',function(e){if(e.target===this)closeApprovalOverlay();});})();
-(function(){var _e=document.getElementById('ctrl-overlay');if(_e)_e.addEventListener('click',function(e){if(e.target===this)closeCtrlOverlay();});})();
 (function(){var _e=document.getElementById('alert-overlay');if(_e)_e.addEventListener('click',function(e){if(e.target===this)closeAlertOverlay();});})();
 
 async function runApprovalAI() {
@@ -2309,133 +2378,51 @@ async function runAlertAI(){
 }
 
 
-// ── PRICING CONTROLS OVERLAY ──────────────────────────────────────────────
-const CTRL_METRICS = [
-  {
-    title: 'Exception Rate (>25% Discount)',
-    meta: 'Q1 2026 · 14.2% · Target: below 10%',
-    value: '14.2%', valueColor: 'var(--amber)',
-    status: 'Above target by 4.2pp',
-    kpis: [
-      {label:'Current', val:'14.2%', color:'var(--amber)'},
-      {label:'Target', val:'10%', color:'var(--text2)'},
-      {label:'Q1 2024', val:'10.2%', color:'var(--text2)'},
-    ],
-    detail: 'The exception rate measures what percentage of deals require above-standard approval (>25% discount). At 14.2%, Comply365 is 4.2pp above the 10% governance target and trending worse — up from 10.2% in Q1 2024. This means 1 in 7 deals is being pushed into CFO-level approval, creating bottlenecks, deal velocity issues, and margin pressure. The primary drivers are EMEA enterprise accounts and Mark T.\'s LATAM book where avg discount is 28.4%.',
-    aiContext: 'Exception rate at 14.2% vs 10% target, trending up from 10.2% in Q1 2024. Primary drivers: EMEA enterprise accounts averaging 31% discount, LATAM rep Mark T. averaging 28.4%. 1 in 7 deals hitting CFO approval gate.',
-  },
-  {
-    title: 'Deals Below Floor Price',
-    meta: 'Q1 2026 · 4 deals · Requires CEO + CFO sign-off',
-    value: '4', valueColor: 'var(--red)',
-    status: 'Trending up — 1 in Q2 25, 1 in Q3 25, 3 in Q4 25',
-    kpis: [
-      {label:'Current', val:'4 deals', color:'var(--red)'},
-      {label:'Q4 2025', val:'3 deals', color:'var(--amber)'},
-      {label:'Q3 2025', val:'1 deal', color:'var(--text2)'},
-    ],
-    detail: 'Floor price is the absolute minimum price for each module — below this the deal destroys margin and undermines market pricing. Currently 4 deals are below floor price, requiring CEO + CFO formal sign-off. The trend is worsening: 1 in Q2 2025, 1 in Q3, 3 in Q4, 4 now in Q1 2026. This suggests either rep coaching has failed, or the approval process has a gap where floor violations are not being caught early enough in the pipeline.',
-    aiContext: 'Deals below floor price: 4 in Q1 2026, up from 3 in Q4 2025, 1 in Q3 2025, 1 in Q2 2025. Worsening trend. Each requires CEO + CFO sign-off. Suggests approval process gap or rep coaching failure.',
-  },
-  {
-    title: 'Price Book Compliance',
-    meta: 'Q1 2026 · 94% · On target',
-    value: '94%', valueColor: 'var(--green)',
-    status: 'On target — green',
-    kpis: [
-      {label:'Current', val:'94%', color:'var(--green)'},
-      {label:'Target', val:'95%', color:'var(--text2)'},
-      {label:'Gap', val:'1pp', color:'var(--text2)'},
-    ],
-    detail: 'Price book compliance measures how often reps quote using the official price book rather than custom or off-book pricing. At 94%, Comply365 is 1pp below target but broadly healthy. The 6% non-compliance rate needs monitoring — these are deals where reps have quoted prices not in the official price book, which can create customer expectation problems at renewal and undermine pricing consistency across the portfolio.',
-    aiContext: 'Price book compliance at 94%, 1pp below 95% target. 6% of deals quoted off-book. Broadly healthy but needs monitoring to prevent renewal expectation mismatches.',
-  },
-  {
-    title: 'Avg Approval Cycle Time',
-    meta: 'Q1 2026 · 1.8 days · Target: 1 day',
-    value: '1.8d', valueColor: 'var(--amber)',
-    status: 'Above target by 0.8 days — slowing deal velocity',
-    kpis: [
-      {label:'Current', val:'1.8d', color:'var(--amber)'},
-      {label:'Target', val:'1d', color:'var(--text2)'},
-      {label:'SLA breach', val:'CFO gate', color:'var(--red)'},
-    ],
-    detail: 'The average time from discount approval request to decision is 1.8 days — 80% above the 1-day SLA target. This is slowing deal velocity, particularly for deals stuck at the CFO Review gate (26-30% discount band) which has a 2-day SLA that is frequently being missed. Slow approval cycles create customer frustration and give competitors time to re-engage. The primary bottleneck appears to be incomplete value justification memos being submitted, requiring back-and-forth with reps.',
-    aiContext: 'Approval cycle avg 1.8 days vs 1-day target. 80% above SLA. Primary bottleneck: CFO gate (26-30% band) with 2-day SLA being missed. Root cause: incomplete value justification memos causing back-and-forth.',
-  },
-  {
-    title: 'Renewal Uplift Realization',
-    meta: 'Q1 2026 · 71% · Target: 85%',
-    value: '71%', valueColor: 'var(--amber)',
-    status: 'Below target by 14pp — significant ARR leakage',
-    kpis: [
-      {label:'Current', val:'71%', color:'var(--amber)'},
-      {label:'Target', val:'85%', color:'var(--text2)'},
-      {label:'ARR impact', val:'~$380K', color:'var(--red)'},
-    ],
-    detail: 'Renewal uplift realization measures how much of the contracted annual price escalation (typically 5-8%) is actually collected at renewal. At 71%, renewal teams are waiving approximately 29% of contracted uplift — usually under churn pressure without deal desk review. This compounds year-over-year: a rep who waives 8% uplift on a $100K account saves the customer $8K this year but costs the company $8K in perpetuity. The ARR impact is approximately $380K annually across the portfolio.',
-    aiContext: 'Renewal uplift realization 71% vs 85% target, 14pp below. Renewal teams waiving ~29% of contracted uplift under churn pressure. Estimated $380K annual ARR leakage. Worsening trend.',
-  },
-  {
-    title: 'Multi-Year Contract Attach Rate',
-    meta: 'Q1 2026 · 58% · Up 6pp YoY',
-    value: '58%', valueColor: 'var(--green)',
-    status: 'Positive trend — up 6pp year on year',
-    kpis: [
-      {label:'Current', val:'58%', color:'var(--green)'},
-      {label:'Q1 2025', val:'52%', color:'var(--text2)'},
-      {label:'Target', val:'65%', color:'var(--text2)'},
-    ],
-    detail: 'Multi-year contract attach rate measures what percentage of deals are signed on 2-year or 3-year terms rather than annual. At 58%, up 6pp year-on-year, this is a positive trend — multi-year deals reduce churn risk, improve revenue predictability, and allow Comply365 to offer commitment rates (5% for 2-year, 10% for 3-year) as a lever instead of straight discounts. The target of 65% is achievable if reps consistently lead with the commitment rate conversation before discussing discounts.',
-    aiContext: 'Multi-year contract attach at 58%, up 6pp YoY from 52%. Target 65%. Positive trend. Multi-year deals enable commitment rate lever (5%/10%) vs straight discounts. Gap to target: 7pp.',
-  },
+// PRICING CONTROLS OVERLAY
+var CTRL_METRICS=[
+  {title:'Exception Rate (>25% Discount)',meta:'Q1 2026 - 14.2% - Target: below 10%',value:'14.2%',status:'Above target by 4.2pp',kpis:[{label:'Current',val:'14.2%',color:'var(--amber)'},{label:'Target',val:'10%',color:'var(--text2)'},{label:'Q1 2024',val:'10.2%',color:'var(--text2)'}],detail:'The exception rate measures what percentage of deals require above-standard approval. At 14.2%, Comply365 is 4.2pp above the 10% target and trending worse - up from 10.2% in Q1 2024. 1 in 7 deals hitting CFO approval. Primary drivers: EMEA enterprise accounts and Mark T LATAM book at 28.4% avg discount.',aiContext:'Exception rate 14.2% vs 10% target, up from 10.2% Q1 2024. 1 in 7 deals hitting CFO gate. EMEA enterprise 31%, LATAM 28.4%.'},
+  {title:'Deals Below Floor Price',meta:'Q1 2026 - 4 deals - Requires CEO + CFO sign-off',value:'4',status:'Trending up - 1 Q2 25, 1 Q3 25, 3 Q4 25',kpis:[{label:'Current',val:'4 deals',color:'var(--red)'},{label:'Q4 2025',val:'3 deals',color:'var(--amber)'},{label:'Q3 2025',val:'1 deal',color:'var(--text2)'}],detail:'Floor price is the absolute minimum for each module. 4 deals below floor price requiring CEO + CFO sign-off. Trend worsening: 1 Q2 2025, 1 Q3, 3 Q4, 4 Q1 2026. Approval process gap likely - floor violations not caught early enough in pipeline.',aiContext:'4 deals below floor Q1 2026, up from 3 Q4 2025. Worsening trend. CEO+CFO sign-off required each time.'},
+  {title:'Price Book Compliance',meta:'Q1 2026 - 94% - On target',value:'94%',status:'1pp below 95% target - broadly healthy',kpis:[{label:'Current',val:'94%',color:'var(--green)'},{label:'Target',val:'95%',color:'var(--text2)'},{label:'Gap',val:'1pp',color:'var(--text2)'}],detail:'Price book compliance measures how often reps quote using the official price book. At 94%, Comply365 is 1pp below target but broadly healthy. 6% non-compliance rate needs monitoring - creates renewal expectation mismatches.',aiContext:'Price book compliance 94%, 1pp below 95% target. 6% of deals off-book.'},
+  {title:'Avg Approval Cycle Time',meta:'Q1 2026 - 1.8 days - Target: 1 day',value:'1.8d',status:'80% above SLA - slowing deal velocity',kpis:[{label:'Current',val:'1.8d',color:'var(--amber)'},{label:'Target',val:'1d',color:'var(--text2)'},{label:'Status',val:'SLA miss',color:'var(--red)'}],detail:'Average time from approval request to decision is 1.8 days - 80% above the 1-day SLA. Slows deal velocity and gives competitors time to re-engage. Primary bottleneck: incomplete value justification memos causing back-and-forth before approval.',aiContext:'Approval cycle 1.8d vs 1d target. 80% above SLA. Root cause: incomplete value justification memos.'},
+  {title:'Renewal Uplift Realization',meta:'Q1 2026 - 71% - Target: 85%',value:'71%',status:'14pp below target - ~$380K ARR leakage',kpis:[{label:'Current',val:'71%',color:'var(--amber)'},{label:'Target',val:'85%',color:'var(--text2)'},{label:'ARR impact',val:'~$380K',color:'var(--red)'}],detail:'Renewal uplift realization measures how much contracted price escalation is collected at renewal. At 71%, teams waiving ~29% of contracted uplift under churn pressure without deal desk review. Costs ~$380K annually.',aiContext:'Renewal uplift 71% vs 85% target. 29% of contracted uplift waived. ~$380K annual ARR leakage.'},
+  {title:'Multi-Year Contract Attach',meta:'Q1 2026 - 58% - Up 6pp YoY',value:'58%',status:'Positive trend - 7pp below 65% target',kpis:[{label:'Current',val:'58%',color:'var(--green)'},{label:'Q1 2025',val:'52%',color:'var(--text2)'},{label:'Target',val:'65%',color:'var(--text2)'}],detail:'At 58%, up 6pp YoY, multi-year attach is trending well. Multi-year deals reduce churn risk and enable commitment rates as discount alternatives. Target 65% achievable if reps lead with commitment rate conversation.',aiContext:'Multi-year attach 58%, up 6pp YoY. Target 65%. 7pp gap. Opportunity: commitment rate lever.'},
 ];
+var currentCtrl=null;
 
-let currentCtrl = null;
-
-function openCtrlOverlay(idx) {
-  const m = CTRL_METRICS[idx]; currentCtrl = m;
-  document.getElementById('ctrl-ov-title').textContent = m.title;
-  document.getElementById('ctrl-ov-meta').textContent = m.meta;
-
-  document.getElementById('ctrl-ov-kpis').innerHTML = m.kpis.map(k => `
-    <div style="background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--border)">
-      <div style="font-size:9.5px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">${k.label}</div>
-      <div style="font-size:20px;font-weight:700;color:${k.color}">${k.val}</div>
-    </div>`).join('');
-
-  document.getElementById('ctrl-ov-detail').textContent = m.detail;
-  document.getElementById('ctrl-ai-out').innerHTML = '<span class="ai-placeholder">Click Generate for root cause analysis and recommended action.</span>';
-  document.getElementById('ctrl-ai-btn').disabled = false;
-  document.getElementById('ctrl-ai-btn').textContent = 'Generate ↗';
-  const el = document.getElementById('ctrl-overlay'); if(el) { el.classList.add('open'); document.body.style.overflow = 'hidden'; }
+function openCtrlOverlay(idx){
+  var m=CTRL_METRICS[idx];currentCtrl=m;
+  document.getElementById('ctrl-ov-title').textContent=m.title;
+  document.getElementById('ctrl-ov-meta').textContent=m.meta;
+  document.getElementById('ctrl-ov-kpis').innerHTML=m.kpis.map(function(k){
+    return '<div style="background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--border)"><div style="font-size:9.5px;color:var(--text3);font-family:\'DM Mono\',monospace;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">'+k.label+'</div><div style="font-size:20px;font-weight:700;color:'+k.color+'">'+k.val+'</div></div>';
+  }).join('');
+  document.getElementById('ctrl-ov-detail').textContent=m.detail;
+  document.getElementById('ctrl-ai-out').innerHTML='<span class="ai-placeholder">Click Generate for root cause analysis and recommended action.</span>';
+  document.getElementById('ctrl-ai-btn').disabled=false;
+  document.getElementById('ctrl-ai-btn').textContent='Generate';
+  var el=document.getElementById('ctrl-overlay');
+  if(el){el.classList.add('open');document.body.style.overflow='hidden';}
 }
-
-function closeCtrlOverlay() {
-  const el = document.getElementById('ctrl-overlay'); if(el) el.classList.remove('open');
-  document.body.style.overflow = '';
+function closeCtrlOverlay(){
+  var el=document.getElementById('ctrl-overlay');
+  if(el)el.classList.remove('open');
+  document.body.style.overflow='';
 }
-
-async function runCtrlAI() {
-  const m = currentCtrl; if(!m) return;
-  const btn = document.getElementById('ctrl-ai-btn');
-  const out = document.getElementById('ctrl-ai-out');
-  btn.disabled = true; btn.textContent = 'Generating…';
-  out.innerHTML = '<span class="ai-placeholder">⚡ Analysing metric…</span>';
-  try {
-    const res = await fetch('/api/pricing-ai', {
-      method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({
-        mode: 'ctrl',
-        ctrl: { title: m.title, value: m.value, status: m.status, context: m.aiContext }
-      })
-    });
-    const data = await res.json();
-    if(data.error) throw new Error(data.error);
-    out.innerHTML = `<div class="ai-glow-badge">GPT-4o</div><span class="ai-response-text">${data.result.replace(/\n/g,'<br>')}</span>`;
-  } catch(e) { out.innerHTML = `<span style="color:var(--red)">Error: ${e.message}</span>`; }
-  btn.disabled = false; btn.textContent = 'Re-generate ↗';
+async function runCtrlAI(){
+  var m=currentCtrl;if(!m)return;
+  var btn=document.getElementById('ctrl-ai-btn');
+  var out=document.getElementById('ctrl-ai-out');
+  btn.disabled=true;btn.textContent='Generating...';
+  out.innerHTML='<span class="ai-placeholder">Analysing metric...</span>';
+  try{
+    var res=await fetch('/api/pricing-ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({mode:'ctrl',ctrl:{title:m.title,value:m.value,status:m.status,context:m.aiContext}})});
+    var data=await res.json();
+    if(data.error)throw new Error(data.error);
+    out.innerHTML='<div class="ai-glow-badge">GPT-4o</div><span class="ai-response-text">'+data.result.replace(/\n/g,'<br>')+'</span>';
+  }catch(e){out.innerHTML='<span style="color:var(--red)">Error: '+e.message+'</span>';}
+  btn.disabled=false;btn.textContent='Re-generate';
 }
+(function(){var _e=document.getElementById('ctrl-overlay');if(_e)_e.addEventListener('click',function(e){if(e.target===this)closeCtrlOverlay();});})();
 
 </script>
 
@@ -2511,7 +2498,6 @@ async function runCtrlAI() {
   </div>
 </div>
 
-<!-- ══ CTRL METRIC OVERLAY ═══════════════════════════════════════════════ -->
 <div class="ov2-overlay" id="ctrl-overlay">
   <div class="ov2-modal" style="max-width:680px">
     <div class="ov2-header">
@@ -2519,7 +2505,7 @@ async function runCtrlAI() {
         <div style="font-family:'DM Serif Display',serif;font-size:18px;color:var(--text)" id="ctrl-ov-title"></div>
         <div style="font-size:11px;color:var(--text3);margin-top:3px" id="ctrl-ov-meta"></div>
       </div>
-      <button class="ov2-close" onclick="closeCtrlOverlay()">✕</button>
+      <button class="ov2-close" onclick="closeCtrlOverlay()">&#x2715;</button>
     </div>
     <div class="ov2-body">
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px" id="ctrl-ov-kpis"></div>
@@ -2529,7 +2515,7 @@ async function runCtrlAI() {
           <div class="ai-section-title">AI Pricing Control Analysis</div>
           <div style="display:flex;align-items:center;gap:8px">
             <span class="ai-powered-badge">Powered by GPT-4o</span>
-            <button onclick="runCtrlAI()" id="ctrl-ai-btn" style="padding:5px 12px;background:rgba(79,142,247,.12);border:1px solid rgba(79,142,247,.3);border-radius:6px;color:var(--accent);font-size:11.5px;cursor:pointer;font-family:'Figtree',sans-serif">Generate ↗</button>
+            <button onclick="runCtrlAI()" id="ctrl-ai-btn" style="padding:5px 12px;background:rgba(79,142,247,.12);border:1px solid rgba(79,142,247,.3);border-radius:6px;color:var(--accent);font-size:11.5px;cursor:pointer;font-family:'Figtree',sans-serif">Generate &#x2197;</button>
           </div>
         </div>
         <div id="ctrl-ai-out" class="ai-glow-box"><span class="ai-placeholder">Click Generate for root cause analysis and recommended action.</span></div>

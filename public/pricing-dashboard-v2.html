@@ -2723,6 +2723,22 @@ updatePeriod = function(period) {
   _origUpdatePeriod(period);
 };
 
+
+// ── ESC KEY CLOSES ANY OPEN OVERLAY ──────────────────────────────────────
+document.addEventListener('keydown', function(e) {
+  if(e.key !== 'Escape') return;
+  var closers = [
+    function(){var el=document.getElementById('cust-overlay');if(el&&el.classList.contains('open')){closeModal();return true;}},
+    function(){var el=document.getElementById('leak-overlay');if(el&&el.classList.contains('open')){closeLeakOverlay();return true;}},
+    function(){var el=document.getElementById('rep-overlay');if(el&&el.classList.contains('open')){closeRepOverlay();return true;}},
+    function(){var el=document.getElementById('approval-overlay');if(el&&el.classList.contains('open')){closeApprovalOverlay();return true;}},
+    function(){var el=document.getElementById('alert-overlay');if(el&&el.classList.contains('open')){closeAlertOverlay();return true;}},
+    function(){var el=document.getElementById('ctrl-overlay');if(el&&el.classList.contains('open')){closeCtrlOverlay();return true;}},
+    function(){var el=document.getElementById('kpi-overlay');if(el&&el.classList.contains('open')){closeKpiOverlay();return true;}},
+  ];
+  closers.some(function(fn){return fn();});
+});
+
 </script>
 
 <!-- ══ APPROVAL OVERLAY ══════════════════════════════════════════════════ -->

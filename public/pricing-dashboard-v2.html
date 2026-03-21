@@ -1,10 +1,3 @@
-
-
-
-
-
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -542,10 +535,10 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
       <div class="section-sub">Pricing performance at a glance · Global portfolio · Q1 2026</div>
     </div>
     <div class="exec-kpi-grid">
-      <div class="exec-kpi" id="kpi-arr" onclick="openKpiOverlay(0)" style="cursor:pointer" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor=''"><div class="exec-kpi-num">$48.2M</div><div class="exec-kpi-lbl">Total ARR</div><div class="exec-kpi-d du">▲ 22% YoY</div><div style="font-size:9px;color:var(--text3);margin-top:4px">↗ AI analysis</div></div>
-      <div class="exec-kpi" id="kpi-nrr" onclick="openKpiOverlay(1)" style="cursor:pointer" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor=''"><div class="exec-kpi-num">112%</div><div class="exec-kpi-lbl">Portfolio NRR</div><div class="exec-kpi-d du">▲ 3pp QoQ</div><div style="font-size:9px;color:var(--text3);margin-top:4px">↗ AI analysis</div></div>
-      <div class="exec-kpi" id="kpi-real" onclick="openKpiOverlay(2)" style="cursor:pointer" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor=''"><div class="exec-kpi-num">78%</div><div class="exec-kpi-lbl">Price Realization</div><div class="exec-kpi-d du">▲ 4pp vs FY24</div><div style="font-size:9px;color:var(--text3);margin-top:4px">↗ AI analysis</div></div>
-      <div class="exec-kpi" id="kpi-leak" onclick="openKpiOverlay(3)" style="cursor:pointer" onmouseover="this.style.borderColor='var(--red)'" onmouseout="this.style.borderColor=''"><div class="exec-kpi-num">$2.4M</div><div class="exec-kpi-lbl">Discount Leakage</div><div class="exec-kpi-d dd">ARR at risk</div><div style="font-size:9px;color:var(--text3);margin-top:4px">↗ AI analysis</div></div>
+      <div class="exec-kpi" id="kpi-arr" onclick="openKpiOverlay('arr')" style="cursor:pointer" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor=''"><div class="exec-kpi-num">$48.2M</div><div class="exec-kpi-lbl">Total ARR</div><div class="exec-kpi-d du">▲ 22% YoY</div><div style="font-size:9px;color:var(--text3);margin-top:4px">↗ AI analysis</div></div>
+      <div class="exec-kpi" id="kpi-nrr" onclick="openKpiOverlay('nrr')" style="cursor:pointer" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor=''"><div class="exec-kpi-num">112%</div><div class="exec-kpi-lbl">Portfolio NRR</div><div class="exec-kpi-d du">▲ 3pp QoQ</div><div style="font-size:9px;color:var(--text3);margin-top:4px">↗ AI analysis</div></div>
+      <div class="exec-kpi" id="kpi-real" onclick="openKpiOverlay('realization')" style="cursor:pointer" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor=''"><div class="exec-kpi-num">78%</div><div class="exec-kpi-lbl">Price Realization</div><div class="exec-kpi-d du">▲ 4pp vs FY24</div><div style="font-size:9px;color:var(--text3);margin-top:4px">↗ AI analysis</div></div>
+      <div class="exec-kpi" id="kpi-leak" onclick="openKpiOverlay('leakage')" style="cursor:pointer" onmouseover="this.style.borderColor='var(--red)'" onmouseout="this.style.borderColor=''"><div class="exec-kpi-num">$2.4M</div><div class="exec-kpi-lbl">Discount Leakage</div><div class="exec-kpi-d dd">ARR at risk</div><div style="font-size:9px;color:var(--text3);margin-top:4px">↗ AI analysis</div></div>
     </div>
     <div class="g2" style="margin-bottom:14px">
       <div class="card">
@@ -589,10 +582,10 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
   <section class="sec" id="sec-scorecard">
     <div class="section-header"><div class="section-title">Health Scorecard</div><div class="section-sub">Pricing performance across all dimensions · 100 active accounts</div></div>
     <div class="mrow" style="grid-template-columns:repeat(6,minmax(0,1fr))">
-      <div class="mc c-blue" onclick="openKpiOverlay(2)" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div class="ml">Price Realization ↗</div><div class="mv" id="sc-realization">78%</div><div class="md du" id="sc-real-trend">▲ 4pp vs FY24</div></div>
-      <div class="mc c-red" onclick="openKpiOverlay(3)" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div class="ml">Leakage ARR ↗</div><div class="mv" id="sc-leakage">$2.4M</div><div class="md dd">5% of total ARR</div></div>
-      <div class="mc c-green" onclick="openKpiOverlay(1)" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div class="ml">Portfolio NRR ↗</div><div class="mv" id="sc-nrr">112%</div><div class="md du" id="sc-nrr-trend">▲ 3pp QoQ</div></div>
-      <div class="mc c-amber" onclick="openKpiOverlay(0)" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div class="ml">Avg Discount ↗</div><div class="mv" id="sc-disc">18.3%</div><div class="md dd">2.1pp over target</div></div>
+      <div class="mc c-blue" onclick="openKpiOverlay('realization')" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div class="ml">Price Realization ↗</div><div class="mv" id="sc-realization">78%</div><div class="md du" id="sc-real-trend">▲ 4pp vs FY24</div></div>
+      <div class="mc c-red" onclick="openKpiOverlay('leakage')" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div class="ml">Leakage ARR ↗</div><div class="mv" id="sc-leakage">$2.4M</div><div class="md dd">5% of total ARR</div></div>
+      <div class="mc c-green" onclick="openKpiOverlay('nrr')" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div class="ml">Portfolio NRR ↗</div><div class="mv" id="sc-nrr">112%</div><div class="md du" id="sc-nrr-trend">▲ 3pp QoQ</div></div>
+      <div class="mc c-amber" onclick="openKpiOverlay('discount')" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div class="ml">Avg Discount ↗</div><div class="mv" id="sc-disc">18.3%</div><div class="md dd">2.1pp over target</div></div>
       <div class="mc c-purple" onclick="openKpiOverlay('grossmargin')" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div class="ml">Gross Margin ↗</div><div class="mv" id="sc-margin">71%</div><div class="md du">▲ 1.8pp QoQ</div></div>
       <div class="mc c-teal" onclick="openKpiOverlay('ltvcac')" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div class="ml">Avg LTV/CAC ↗</div><div class="mv" id="sc-ltvcac">4.2×</div><div class="md du">▲ 0.3 QoQ</div></div>
     </div>
@@ -2452,56 +2445,6 @@ var currentPeriodKey = 'Q1-2026';
 
 function openKpiOverlay(idx) {
   var d = PERIOD_DATA[currentPeriodKey] || PERIOD_DATA['Q1-2026'];
-  var configs = [
-    {
-      title: 'Total ARR',
-      meta: d.arr + ' · ' + d.arrTrend,
-      kpis: [
-        {label:'Current ARR', val:d.arr, color:'var(--text)'},
-        {label:'YoY Growth', val:d.arrTrend.split('·')[0].trim(), color:'var(--green)'},
-        {label:'NRR', val:d.nrr, color:'var(--accent)'},
-      ],
-      detail: 'Annual Recurring Revenue represents the annualised value of all active subscriptions. ' + d.arr + ' ARR with ' + d.arrTrend + '. NRR at ' + d.nrr + ' means existing customers are growing their spend. Gross margin of ' + d.grossMargin + ' on this ARR base. LTV/CAC ratio of ' + d.ltvcac + ' indicates strong unit economics.',
-      aiContext: 'ARR: ' + d.arr + ', growth: ' + d.arrTrend + ', NRR: ' + d.nrr + ', gross margin: ' + d.grossMargin + ', LTV/CAC: ' + d.ltvcac + ', churn: ' + d.churn,
-      metric: 'ARR'
-    },
-    {
-      title: 'Portfolio NRR',
-      meta: d.nrr + ' · Net Revenue Retention',
-      kpis: [
-        {label:'NRR', val:d.nrr, color:parseInt(d.nrr)>=110?'var(--green)':'var(--amber)'},
-        {label:'Churn Rate', val:d.churn, color:parseFloat(d.churn)>5?'var(--amber)':'var(--green)'},
-        {label:'Avg Discount', val:d.avgDisc, color:'var(--text2)'},
-      ],
-      detail: 'Net Revenue Retention measures revenue retained and grown from existing customers. Above 100% means the customer base is expanding without new logos. At ' + d.nrr + ', Comply365 is ' + (parseInt(d.nrr)>=110 ? 'above' : 'approaching') + ' the 110% enterprise SaaS benchmark. Churn at ' + d.churn + ' with avg discount of ' + d.avgDisc + '.',
-      aiContext: 'NRR: ' + d.nrr + ', churn: ' + d.churn + ', avg discount: ' + d.avgDisc + ', ARR: ' + d.arr,
-      metric: 'NRR'
-    },
-    {
-      title: 'Price Realization',
-      meta: d.realization + ' · ' + d.realTrend,
-      kpis: [
-        {label:'Realization', val:d.realization, color:parseInt(d.realization)>=80?'var(--green)':'var(--amber)'},
-        {label:'Target', val:'82%', color:'var(--text2)'},
-        {label:'Leakage', val:d.leakage, color:'var(--red)'},
-      ],
-      detail: 'Price realization measures what percentage of list price is actually collected. At ' + d.realization + ', Comply365 is collecting ' + d.realization + ' of every dollar of list price — leaving ' + (100-parseInt(d.realization)) + '% on the table through discounts. Target is 82%. The ' + d.leakage + ' leakage represents the gap between list and realized ARR.',
-      aiContext: 'Price realization: ' + d.realization + ', target 82%, leakage: ' + d.leakage + ', avg discount: ' + d.avgDisc + ', trend: ' + d.realTrend,
-      metric: 'Price Realization'
-    },
-    {
-      title: 'Discount Leakage',
-      meta: d.leakage + ' ARR at risk · ' + d.leakTrend,
-      kpis: [
-        {label:'Leakage', val:d.leakage, color:'var(--red)'},
-        {label:'Avg Discount', val:d.avgDisc, color:'var(--amber)'},
-        {label:'Realization', val:d.realization, color:'var(--text2)'},
-      ],
-      detail: 'Discount leakage is the ARR lost through discounting beyond what is strategically justified. At ' + d.leakage + ', this represents the gap between what Comply365 could charge at list price and what it actually collects. Primary drivers are large enterprise discounting and LATAM competitive pressure. Not all leakage is bad — some is strategic — but the addressable portion needs governance.',
-      aiContext: 'Discount leakage: ' + d.leakage + ', avg discount: ' + d.avgDisc + ', price realization: ' + d.realization + ', ARR: ' + d.arr,
-      metric: 'Discount Leakage'
-    },
-  ];
 
   // Handle portfolio and pricebook generic overlays
   if(idx === 'health') {
@@ -2569,8 +2512,80 @@ function openKpiOverlay(idx) {
       aiContext: 'Price book: 8 modules, 94% compliance, 4 deals below floor, 22% list vs realized gap, $10.6M unrealized ARR',
       metric: 'Price Book'
     };
+  } else if(idx === 'arr' || idx === 0) {
+    currentKpi = {
+      title: 'Total ARR',
+      meta: d.arr + ' · ' + d.arrTrend,
+      kpis: [
+        {label:'Current ARR', val:d.arr, color:'var(--text)'},
+        {label:'YoY Growth', val:d.arrTrend.split('·')[0].trim(), color:'var(--green)'},
+        {label:'NRR', val:d.nrr, color:'var(--accent)'},
+      ],
+      detail: 'Annual Recurring Revenue is the annualised value of all active subscriptions. At '+d.arr+' ARR with '+d.arrTrend+'. NRR at '+d.nrr+' means existing customers are growing spend. Gross margin of '+d.grossMargin+'. LTV/CAC of '+d.ltvcac+' indicates strong unit economics.',
+      aiContext: 'ARR: '+d.arr+', growth: '+d.arrTrend+', NRR: '+d.nrr+', gross margin: '+d.grossMargin+', LTV/CAC: '+d.ltvcac+', churn: '+d.churn,
+      metric: 'Total ARR'
+    };
+  } else if(idx === 'nrr' || idx === 1) {
+    currentKpi = {
+      title: 'Portfolio NRR',
+      meta: d.nrr + ' · Net Revenue Retention',
+      kpis: [
+        {label:'NRR', val:d.nrr, color:parseInt(d.nrr)>=110?'var(--green)':'var(--amber)'},
+        {label:'Churn Rate', val:d.churn, color:parseFloat(d.churn)>5?'var(--amber)':'var(--green)'},
+        {label:'Avg Discount', val:d.avgDisc, color:'var(--text2)'},
+      ],
+      detail: 'Net Revenue Retention measures revenue retained and grown from existing customers. Above 100% means the customer base is expanding without new logos. At '+d.nrr+', Comply365 is '+(parseInt(d.nrr)>=110?'above':'approaching')+' the 110% enterprise SaaS benchmark. Churn at '+d.churn+'.',
+      aiContext: 'NRR: '+d.nrr+', churn: '+d.churn+', avg discount: '+d.avgDisc+', ARR: '+d.arr,
+      metric: 'Portfolio NRR'
+    };
+  } else if(idx === 'realization' || idx === 2) {
+    currentKpi = {
+      title: 'Price Realization',
+      meta: d.realization + ' · ' + d.realTrend,
+      kpis: [
+        {label:'Realization', val:d.realization, color:parseInt(d.realization)>=80?'var(--green)':'var(--amber)'},
+        {label:'Target', val:'82%', color:'var(--text2)'},
+        {label:'Leakage', val:d.leakage, color:'var(--red)'},
+      ],
+      detail: 'Price realization measures what percentage of list price is actually collected. At '+d.realization+', Comply365 collects '+d.realization+' of every list price dollar. Target is 82%. The '+d.leakage+' leakage represents the gap between list and realized ARR.',
+      aiContext: 'Price realization: '+d.realization+', target 82%, leakage: '+d.leakage+', avg discount: '+d.avgDisc+', trend: '+d.realTrend,
+      metric: 'Price Realization'
+    };
+  } else if(idx === 'leakage' || idx === 3) {
+    currentKpi = {
+      title: 'Discount Leakage',
+      meta: d.leakage + ' ARR at risk · ' + d.leakTrend,
+      kpis: [
+        {label:'Leakage', val:d.leakage, color:'var(--red)'},
+        {label:'Avg Discount', val:d.avgDisc, color:'var(--amber)'},
+        {label:'Realization', val:d.realization, color:'var(--text2)'},
+      ],
+      detail: 'Discount leakage is ARR lost through discounting beyond what is strategically justified. At '+d.leakage+', this is the gap between list price ARR and what is actually collected. Primary drivers: large enterprise discounting and LATAM competitive pressure.',
+      aiContext: 'Discount leakage: '+d.leakage+', avg discount: '+d.avgDisc+', price realization: '+d.realization+', ARR: '+d.arr,
+      metric: 'Discount Leakage'
+    };
+  } else if(idx === 'discount') {
+    currentKpi = {
+      title: 'Average Discount',
+      meta: d.avgDisc + ' · Target: 16%',
+      kpis: [
+        {label:'Avg Discount', val:d.avgDisc, color:parseFloat(d.avgDisc)>18?'var(--red)':parseFloat(d.avgDisc)>16?'var(--amber)':'var(--green)'},
+        {label:'Target', val:'16%', color:'var(--text2)'},
+        {label:'Leakage', val:d.leakage, color:'var(--red)'},
+      ],
+      detail: 'Average discount across the portfolio is '+d.avgDisc+' vs a 16% target — '+parseFloat(d.avgDisc)-16+'pp above target. This compounds into '+d.leakage+' annual leakage. By segment, Strategic accounts run 11.3% (strong) while Enterprise runs 21.4% (above target). LATAM is the highest at 24.6%. The approval ladder at 21-25% (Pricing Lead gate) is the primary control lever.',
+      aiContext: 'Avg discount: '+d.avgDisc+', target 16%. Leakage: '+d.leakage+'. Enterprise 21.4%, LATAM 24.6%. Exception rate 14.2%.',
+      metric: 'Average Discount'
+    };
   } else {
-    currentKpi = configs[idx] || configs[0];
+    currentKpi = {
+      title: 'Total ARR',
+      meta: d.arr + ' · ' + d.arrTrend,
+      kpis: [{label:'ARR', val:d.arr, color:'var(--text)'},{label:'NRR', val:d.nrr, color:'var(--green)'},{label:'Growth', val:d.arrTrend.split('·')[0].trim(), color:'var(--accent)'}],
+      detail: 'ARR at '+d.arr+' with '+d.arrTrend+'.',
+      aiContext: 'ARR: '+d.arr+', NRR: '+d.nrr,
+      metric: 'Total ARR'
+    };
   }
 
   var m = currentKpi;

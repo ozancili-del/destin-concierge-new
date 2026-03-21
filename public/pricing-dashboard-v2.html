@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -606,11 +607,11 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
   <section class="sec" id="sec-portfolio">
     <div class="section-header"><div class="section-title">Customer Portfolio</div><div class="section-sub">100 accounts · aviation, defense, rail & space · MINT and Beams acquisition cohorts included</div></div>
     <div class="mrow" style="grid-template-columns:repeat(5,minmax(0,1fr))">
-      <div class="mc c-blue" onclick="openKpiOverlay('portfolio')" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div class="ml">Total ARR ↗</div><div class="mv">$48.2M</div><div class="md du">▲ 22% YoY</div></div>
-      <div class="mc c-green" onclick="openKpiOverlay('portfolio')" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div class="ml">Avg NRR ↗</div><div class="mv">112%</div><div class="md du">▲ 3pp</div></div>
-      <div class="mc c-amber"><div class="ml">Gross Churn</div><div class="mv">4.8%</div><div class="md du">▼ 1.2pp YoY</div></div>
-      <div class="mc c-teal"><div class="ml">Expansion ARR</div><div class="mv">$6.1M</div><div class="md du">▲ 34% YoY</div></div>
-      <div class="mc c-red"><div class="ml">At-Risk ARR</div><div class="mv">$3.8M</div><div class="md dd">8 accounts</div></div>
+      <div class="mc c-blue" onclick="openKpiOverlay('arr')" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div class="ml">Total ARR ↗</div><div class="mv">$48.2M</div><div class="md du">▲ 22% YoY</div></div>
+      <div class="mc c-green" onclick="openKpiOverlay('nrr')" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div class="ml">Avg NRR ↗</div><div class="mv">112%</div><div class="md du">▲ 3pp</div></div>
+      <div class="mc c-amber" onclick="openKpiOverlay('churn')" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div class="ml">Gross Churn ↗</div><div class="mv">4.8%</div><div class="md du">▼ 1.2pp YoY</div></div>
+      <div class="mc c-teal" onclick="openKpiOverlay('expansion')" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div class="ml">Expansion ARR ↗</div><div class="mv">$6.1M</div><div class="md du">▲ 34% YoY</div></div>
+      <div class="mc c-red" onclick="openKpiOverlay('atrisk')" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div class="ml">At-Risk ARR ↗</div><div class="mv">$3.8M</div><div class="md dd">8 accounts</div></div>
     </div>
     <div class="g2e">
       <div class="card"><div class="ch"><div class="ct">ARR by Industry (Bookings Impact)</div></div><div class="cb"><div style="position:relative;height:180px"><canvas id="c-ind"></canvas></div></div></div>
@@ -651,10 +652,10 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
   <section class="sec" id="sec-pricebook">
     <div class="section-header"><div class="section-title">Price Book</div><div class="section-sub">Authoritative list prices, floor prices, and discount ceilings · Q1 2026</div></div>
     <div class="mrow" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:16px">
-      <div class="mc c-blue" onclick="openKpiOverlay('pricebook')" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div class="ml">Modules in Price Book ↗</div><div class="mv">8</div><div class="md dn">Post MINT + Beams</div></div>
-      <div class="mc c-amber" onclick="openKpiOverlay('pricebook')" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div class="ml">Avg List vs Realized Gap ↗</div><div class="mv">22%</div><div class="md dd">$10.6M unrealized</div></div>
-      <div class="mc c-green"><div class="ml">Price Book Coverage</div><div class="mv">94%</div><div class="md du">6 exceptions logged</div></div>
-      <div class="mc c-red"><div class="ml">Below Floor Deals</div><div class="mv">4</div><div class="md dd">Require CEO sign-off</div></div>
+      <div class="mc c-blue" onclick="openKpiOverlay('pbmodules')" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div class="ml">Modules in Price Book ↗</div><div class="mv">8</div><div class="md dn">Post MINT + Beams</div></div>
+      <div class="mc c-amber" onclick="openKpiOverlay('pbgap')" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div class="ml">Avg List vs Realized Gap ↗</div><div class="mv">22%</div><div class="md dd">$10.6M unrealized</div></div>
+      <div class="mc c-green" onclick="openKpiOverlay('pbcoverage')" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div class="ml">Price Book Coverage ↗</div><div class="mv">94%</div><div class="md du">6 exceptions logged</div></div>
+      <div class="mc c-red" onclick="openKpiOverlay('pbfloor')" style="cursor:pointer" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'"><div class="ml">Below Floor Deals ↗</div><div class="mv">4</div><div class="md dd">Require CEO sign-off</div></div>
     </div>
     <div class="card" style="margin-bottom:14px">
       <div class="ch" style="margin-bottom:10px"><div class="ct">Module Price Book · List / Floor / Ceiling</div></div>
@@ -2576,6 +2577,87 @@ function openKpiOverlay(idx) {
       detail: 'Average discount across the portfolio is '+d.avgDisc+' vs a 16% target — '+parseFloat(d.avgDisc)-16+'pp above target. This compounds into '+d.leakage+' annual leakage. By segment, Strategic accounts run 11.3% (strong) while Enterprise runs 21.4% (above target). LATAM is the highest at 24.6%. The approval ladder at 21-25% (Pricing Lead gate) is the primary control lever.',
       aiContext: 'Avg discount: '+d.avgDisc+', target 16%. Leakage: '+d.leakage+'. Enterprise 21.4%, LATAM 24.6%. Exception rate 14.2%.',
       metric: 'Average Discount'
+    };
+  } else if(idx === 'churn') {
+    currentKpi = {
+      title: 'Gross Churn Rate',
+      meta: '4.8% · Down 1.2pp YoY',
+      kpis: [{label:'Gross Churn',val:'4.8%',color:'var(--amber)'},{label:'YoY Change',val:'-1.2pp',color:'var(--green)'},{label:'At-Risk',val:'8 accts',color:'var(--red)'}],
+      detail: 'Gross churn measures the percentage of ARR lost to cancellations each year. At 4.8%, down 1.2pp YoY, churn is trending in the right direction. The 8 at-risk accounts represent $3.8M ARR. Aviation accounts churn at 3.2% (strong) while SMB churn is 9.4% (high). Reducing churn by 1pp adds approximately $480K in retained ARR annually.',
+      aiContext: 'Gross churn: 4.8%, down 1.2pp YoY. 8 at-risk accounts, $3.8M ARR. Aviation 3.2%, SMB 9.4%. NRR: '+d.nrr,
+      metric: 'Gross Churn'
+    };
+  } else if(idx === 'expansion') {
+    currentKpi = {
+      title: 'Expansion ARR',
+      meta: '$6.1M · Up 34% YoY',
+      kpis: [{label:'Expansion ARR',val:'$6.1M',color:'var(--green)'},{label:'YoY Growth',val:'+34%',color:'var(--green)'},{label:'NRR Contribution',val:'+13pp',color:'var(--accent)'}],
+      detail: 'Expansion ARR is revenue added from existing customers through upsells, cross-sells, and tier upgrades. At $6.1M, up 34% YoY, expansion is the fastest growing revenue driver. Primary sources: MINT module attach ($2.8M), tier upgrades to Enterprise and Strategic ($1.9M), Beams AI upsell ($1.4M). This is the most capital-efficient growth channel.',
+      aiContext: 'Expansion ARR: $6.1M, +34% YoY. MINT attach $2.8M, tier upgrades $1.9M, Beams upsell $1.4M. NRR: '+d.nrr,
+      metric: 'Expansion ARR'
+    };
+  } else if(idx === 'atrisk') {
+    currentKpi = {
+      title: 'At-Risk ARR',
+      meta: '$3.8M · 8 accounts flagged',
+      kpis: [{label:'At-Risk ARR',val:'$3.8M',color:'var(--red)'},{label:'Accounts',val:'8',color:'var(--red)'},{label:'Avg Health',val:'48/100',color:'var(--red)'}],
+      detail: 'At-risk ARR represents accounts with health scores below 55 — flagged as likely to churn or contract at renewal. 8 accounts totalling $3.8M ARR. Average health score 48/100. Primary risk factors: NRR below 95%, engagement decline, and open support tickets. These accounts require immediate deal desk intervention before their next renewal.',
+      aiContext: '8 at-risk accounts, $3.8M ARR, avg health score 48/100. NRR below 95% on these accounts. Immediate deal desk review needed.',
+      metric: 'At-Risk ARR'
+    };
+  } else if(idx === 'pbmodules') {
+    currentKpi = {
+      title: 'Modules in Price Book',
+      meta: '8 modules · Post MINT + Beams',
+      kpis: [{label:'Modules',val:'8',color:'var(--text)'},{label:'Pre-acquisition',val:'6',color:'var(--text2)'},{label:'New modules',val:'2',color:'var(--green)'}],
+      detail: 'Comply365 now has 8 modules in the price book following MINT and Beams acquisitions. OCM, Safety, Quality, and Analytics were the original 4. MINT Training Management and Beams AI (CoAnalyst, CoAuthor) were added in FY2024-25. Each module has a defined list price, floor price, and maximum discount threshold. The price book is the single source of truth for all quoting.',
+      aiContext: '8 modules in price book: OCM $52K, Safety $28K, Quality $18K, MINT $34K, Beams $22K, Analytics $14K, API $10K, Multi-Region $20K. 2 new modules from acquisitions.',
+      metric: 'Price Book Modules'
+    };
+  } else if(idx === 'pbgap') {
+    currentKpi = {
+      title: 'List vs Realized Gap',
+      meta: '22% gap · $10.6M unrealized ARR',
+      kpis: [{label:'Gap',val:'22%',color:'var(--amber)'},{label:'Unrealized',val:'$10.6M',color:'var(--red)'},{label:'Realization',val:'78%',color:'var(--text2)'}],
+      detail: 'The list vs realized gap measures the difference between what Comply365 charges at list price and what it actually collects after discounts. A 22% gap represents $10.6M in unrealized ARR annually. The target is to close this to 18% (82% realization). The gap is widest in LATAM (32%) and narrowest in Strategic accounts (11%).',
+      aiContext: 'List vs realized gap: 22%, $10.6M unrealized. Target: 18%. LATAM gap 32%, Strategic 11%. Price realization 78%.',
+      metric: 'List vs Realized Gap'
+    };
+  } else if(idx === 'pbcoverage') {
+    currentKpi = {
+      title: 'Price Book Coverage',
+      meta: '94% · 6 exceptions logged',
+      kpis: [{label:'Coverage',val:'94%',color:'var(--green)'},{label:'Target',val:'95%',color:'var(--text2)'},{label:'Exceptions',val:'6',color:'var(--amber)'}],
+      detail: 'Price book coverage measures the percentage of active deals quoted using the official price book rather than manual or custom pricing. At 94%, Comply365 is 1pp below the 95% target. The 6 active exceptions are concentrated in 2 reps and 1 region (LATAM). Off-book pricing creates renewal expectation mismatches and undermines pricing consistency.',
+      aiContext: 'Price book coverage: 94%, 1pp below 95% target. 6 exceptions, concentrated in 2 reps and LATAM. Off-book pricing risks renewal mismatches.',
+      metric: 'Price Book Coverage'
+    };
+  } else if(idx === 'pbfloor') {
+    currentKpi = {
+      title: 'Below Floor Deals',
+      meta: '4 deals · Require CEO + CFO sign-off',
+      kpis: [{label:'Below Floor',val:'4 deals',color:'var(--red)'},{label:'Q4 2025',val:'3 deals',color:'var(--amber)'},{label:'Trend',val:'Worsening',color:'var(--red)'}],
+      detail: 'Floor price is the absolute minimum below which a deal requires CEO + CFO formal sign-off. 4 active deals are currently below floor price — up from 3 in Q4 2025 and 1 in Q3 2025. This worsening trend suggests either rep coaching failed or the approval process has a gap. Each floor violation undermines market pricing and sets a dangerous precedent for that account futureture renewals.',
+      aiContext: '4 deals below floor price, up from 3 in Q4 2025. Worsening trend. CEO+CFO required each time. Approval process gap likely.',
+      metric: 'Below Floor Deals'
+    };
+  } else if(idx === 'portfolio') {
+    currentKpi = {
+      title: 'Customer Portfolio Summary',
+      meta: '100 accounts · Aviation, Defense, Rail & Space',
+      kpis: [{label:'Total ARR',val:d.arr,color:'var(--text)'},{label:'Avg NRR',val:d.nrr,color:'var(--green)'},{label:'Avg Discount',val:d.avgDisc,color:'var(--amber)'}],
+      detail: 'The customer portfolio spans 100 accounts across Aviation, Defense, Rail and Space. Total ARR of '+d.arr+' with portfolio NRR of '+d.nrr+'. Average discount of '+d.avgDisc+' against a 16% target. Churn rate of '+d.churn+'. LTV/CAC ratio of '+d.ltvcac+' indicates strong unit economics across the base.',
+      aiContext: 'Portfolio: 100 accounts, ARR '+d.arr+', NRR '+d.nrr+', avg discount '+d.avgDisc+', churn '+d.churn+', LTV/CAC '+d.ltvcac,
+      metric: 'Customer Portfolio'
+    };
+  } else if(idx === 'pricebook') {
+    currentKpi = {
+      title: 'Price Book Health',
+      meta: '8 modules · Q1 2026',
+      kpis: [{label:'Modules',val:'8',color:'var(--text)'},{label:'Compliance',val:'94%',color:'var(--green)'},{label:'Below Floor',val:'4 deals',color:'var(--red)'}],
+      detail: 'The price book covers 8 modules post MINT and Beams acquisitions. Price book compliance at 94%. 4 active deals below floor price requiring CEO + CFO sign-off. Average list vs realized gap of 22% representing $10.6M in unrealized ARR.',
+      aiContext: 'Price book: 8 modules, 94% compliance, 4 deals below floor, 22% list vs realized gap, $10.6M unrealized ARR',
+      metric: 'Price Book'
     };
   } else {
     currentKpi = {

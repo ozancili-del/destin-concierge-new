@@ -278,7 +278,7 @@ function detectDiscountIntent(text) {
 
 // Detect availability / booking intent (tighter — only real booking signals)
 function detectAvailabilityIntent(text) {
-  return /avail|availability|open dates|book|booking|reserve|reservation|check.?in|check.?out|when can i|stay.*when|dates.*stay|price|pricing|cost|how much|rate|rates|per night|nightly|\d+\s*(adult|guest|person|people|of us)|just (the )?(two|2|one|1|three|3|four|4) of us|just (me|us)|just myself|only me|solo trip|traveling alone|me and my (wife|husband|partner)|just the \d+ of us|labor day|labour day|memorial day|fourth of july|4th of july|july 4|independence day|thanksgiving|christmas|new year|spring break|spring vacation/i.test(text);
+  return /avail|availability|open dates|book|booking|reserve|reservation|check.?in|check.?out|when can i|stay.*when|dates.*stay|price|pricing|cost|how much|rate|rates|per night|nightly|\d+\s*(adult|guest|person|people|of us)|just (the )?(two|2|one|1|three|3|four|4) of us|just (me|us)|just myself|only me|solo trip|traveling alone|me and my (wife|husband|partner)|just the \d+ of us|labor day|labour day|memorial day|fourth of july|4th of july|july 4|independence day|thanksgiving|christmas|new year|spring break|spring vacation|suggest.*days|suggest.*dates|best.*days|best.*dates|any.*days|pick.*dates|find.*dates|choose.*dates|you pick|you choose|you suggest|what.*available|what.*open/i.test(text);
 }
 
 // Detect unit comparison questions that need neutral handling

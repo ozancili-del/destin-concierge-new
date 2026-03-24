@@ -672,7 +672,7 @@ function extractDates(text) {
   };
   const mn = Object.keys(months).join("|");
 
-  const sameMonthRange = new RegExp("(" + mn + ")\\s+(\\d{1,2})\\s*[-\u2013]\\s*(\\d{1,2})", "i");
+  const sameMonthRange = new RegExp("(" + mn + ")\\s+(\\d{1,2})(?:st|nd|rd|th)?\\s*[-\u2013]\\s*(\\d{1,2})(?:st|nd|rd|th)?", "i");
   const sameMatch = text.match(sameMonthRange);
   if (sameMatch) {
     const month = months[sameMatch[1].toLowerCase()];
@@ -693,7 +693,7 @@ function extractDates(text) {
   }
 
   // "march 1-7" format (month THEN day range)
-  const mrMatch = t.match(/(january|february|march|april|may|june|july|august|september|october|november|december)\s+(\d{1,2})\s*[-–]\s*(\d{1,2})/i);
+  const mrMatch = t.match(/(january|february|march|april|may|june|july|august|september|october|november|december)\s+(\d{1,2})(?:st|nd|rd|th)?\s*[-–]\s*(\d{1,2})(?:st|nd|rd|th)?/i);
   if (mrMatch) {
     const month = months[mrMatch[1].toLowerCase()];
     return {
@@ -1331,7 +1331,8 @@ export default async function handler(req, res) {
         .replace(/\bfive\b(?=\s*(adult|kid|child|children|guest|person|people|infant|baby|toddler))/gi, "5")
         .replace(/\bsix\b(?=\s*(adult|kid|child|children|guest|person|people|infant|baby|toddler))/gi, "6")
         // Also handle "a kid", "a child" → "1 kid"
-        .replace(/\ba\s+(kid|child|children|infant|baby|toddler)\b/gi, "1 $1");
+        .replace(/\ba\s+(kid|child|children|infant|baby|toddler|teen|teenager|boy|girl)\b/gi, "1 $1")
+        .replace(/\b(\d+)\s+(?:young\s+|little\s+|small\s+)?(kids?|children|boys?|girls?|teens?|teenagers?|yr[\s-]?olds?|year[\s-]?olds?)\b/gi, "$1 children");
       return text
         .replace(/\bjust\s+the\s+two\s+of\s+us\b/gi,       "2 adults")
         .replace(/\bjust\s+the\s+2\s+of\s+us\b/gi,         "2 adults")
@@ -1387,7 +1388,7 @@ export default async function handler(req, res) {
     // Override dates with confirmation if guest said yes/ok to a proposed date shift
     if (confirmationDates) { if (!dates) dates = {}; dates.arrival = confirmationDates.arrival; dates.departure = confirmationDates.departure; }
     const adultsMatchOuter = normalizeGuestCount(normalizedLastUser).match(/(\d+)\s*adult/i) || normalizedUserText.match(/(\d+)\s*adult/i) || (bareNumberReply ? normalizedLastUser.match(/(\d+)/) : null) || (historicBareCount ? [null, historicBareCount] : null);
-    const childrenMatchOuter = lastUser.match(/(\d+)\s*(kid|child|children|infant|baby|toddler)/i) || allUserText.match(/(\d+)\s*(kid|child|children|infant|baby|toddler)/i);
+    const childrenMatchOuter = lastUser.match(/(\d+)\s*(?:young\s+|little\s+|small\s+)?(?:kid|child|children|infant|baby|toddler|teen|teens|teenager|teenagers|yr[\s-]?old|year[\s-]?old|boy|boys|girl|girls)/i) || allUserText.match(/(\d+)\s*(?:young\s+|little\s+|small\s+)?(?:kid|child|children|infant|baby|toddler|teen|teens|teenager|teenagers|yr[\s-]?old|year[\s-]?old|boy|boys|girl|girls)/i);
     // For existing guests, fall back to their booking's guest count if not specified in message
     // Bug 1 fix: when children are mentioned but no adult count stated, default to 1 (the "me")
     // not 2 — so "me and 4 kids" = 1 adult + 4 kids, correctly triggering HOA check
@@ -2005,10 +2006,37 @@ RULES — no exceptions:
         monthMsg = `${mentionedMonth} appears mostly booked, but there may still be a gap depending on your exact dates.`;
       }
 
+      // Build open window options — pick up to 3 spread across early/mid/late month
+      const openWindows = results.filter(r => r.a707 === true || r.a1006 === true);
+      const probeAdults   = adults   || "2";
+      const probeChildren = children || "0";
+
+      // Pick 3 spread windows: first open, middle open, last open
+      const spreadPicks = [];
+      if (openWindows.length > 0) spreadPicks.push(openWindows[0]);
+      if (openWindows.length > 2) spreadPicks.push(openWindows[Math.floor(openWindows.length / 2)]);
+      if (openWindows.length > 1) spreadPicks.push(openWindows[openWindows.length - 1]);
+      // Deduplicate
+      const uniquePicks = spreadPicks.filter((w, i, arr) => arr.findIndex(x => x.w.arrival === w.w.arrival) === i).slice(0, 3);
+
+      let windowOptionsText = "";
+      if (uniquePicks.length > 0) {
+        const fmtDate = iso => { const d = new Date(iso + "T12:00:00Z"); return d.toLocaleDateString("en-US", { month: "short", day: "numeric" }); };
+        const windowLines = uniquePicks.map(r => {
+          const from = fmtDate(r.w.arrival);
+          const to   = fmtDate(r.w.departure);
+          const units = [];
+          if (r.a707  === true) units.push(`Unit 707: ${buildLink("707",  r.w.arrival, r.w.departure, probeAdults, probeChildren)}`);
+          if (r.a1006 === true) units.push(`Unit 1006: ${buildLink("1006", r.w.arrival, r.w.departure, probeAdults, probeChildren)}`);
+          return `• ${from}–${to}: ${units.join(" | ")}`;
+        }).join("\n");
+        windowOptionsText = `\n\nACTUAL OPEN WINDOWS (real OwnerRez data — use these):\n${windowLines}\n\nHOW TO USE THESE:\n1. Present the date options conversationally — e.g. "I have a few open windows in ${mentionedMonth} — early, mid and late month. Which timeframe works best for you?"\n2. DO NOT dump all links immediately — wait for guest to pick a window or express a preference\n3. Once guest picks (e.g. "mid month") → THEN share the specific pre-built link(s) for that window\n4. If guest gives DIFFERENT exact dates → those will be handled by a fresh availability check automatically\n5. Links above assume ${probeAdults} adult(s) and ${probeChildren} child(ren) — if guest count differs, ask for count before sharing links\n6. NEVER modify or invent URLs — only use the exact links above`;
+      } else {
+        windowOptionsText = `\n\nNo open windows found in the spot-check — tell guest ${mentionedMonth} looks very tight and suggest they browse https://www.destincondogetaways.com/availability or try adjacent months.`;
+      }
+
       availabilityContext = `MONTH PROBE (10 windows checked): pct707=${pct707}% pct1006=${pct1006}% pctEither=${pctEither}%.
-Use this exact phrasing: "${monthMsg}"
-Then always ask: "Share your exact check-in and check-out dates plus number of adults and children — I'll check live availability and create a booking link for you! You can also browse open dates at https://www.destincondogetaways.com/availability"
-Do NOT say great news or over-promise. Be specific about which unit is open vs filling up.`
+Use this exact phrasing: "${monthMsg}"${windowOptionsText}`
     } else if (!dates && !isDiscountRequest && wantsAvailability && !extractSingleDate(lastUser)) {
       availabilityStatus = "NEEDS_DATES";
       availabilityContext = `NO DATES: Guest is asking about availability/booking but has not given dates. Warmly ask for check-in date, check-out date, number of adults and number of children. Do NOT send to generic page.`;

@@ -1332,7 +1332,10 @@ export default async function handler(req, res) {
         .replace(/\bsix\b(?=\s*(adult|kid|child|children|guest|person|people|infant|baby|toddler))/gi, "6")
         // Also handle "a kid", "a child" → "1 kid"
         .replace(/\ba\s+(kid|child|children|infant|baby|toddler|teen|teenager|boy|girl)\b/gi, "1 $1")
-        .replace(/\b(\d+)\s+(?:young\s+|little\s+|small\s+)?(kids?|children|boys?|girls?|teens?|teenagers?|yr[\s-]?olds?|year[\s-]?olds?)\b/gi, "$1 children");
+        .replace(/\b(\d+)\s+(?:young\s+|little\s+|small\s+)?(kids?|children|boys?|girls?|teens?|teenagers?|yr[\s-]?olds?|year[\s-]?olds?)\b/gi, "$1 children")
+        .replace(/\bfamily\s+of\s+(\d+)\b/gi, "$1 guests")
+        .replace(/\bgroup\s+of\s+(\d+)\b/gi, "$1 guests")
+        .replace(/\bparty\s+of\s+(\d+)\b/gi, "$1 guests");
       return text
         .replace(/\bjust\s+the\s+two\s+of\s+us\b/gi,       "2 adults")
         .replace(/\bjust\s+the\s+2\s+of\s+us\b/gi,         "2 adults")
@@ -2227,7 +2230,7 @@ Unit 1006: ${link1006hoa}`;
       }
     }
 
-    if (dates && !isDiscountRequest && !hasGuestCount && !guestBooking && !hasAccommodation && !(detectedBlogTopic && !isExplicitBooking)) {
+    if (dates && !isDiscountRequest && !hasGuestCount && !guestBooking && !hasAccommodation && !bookingLinksSent && !(detectedBlogTopic && !isExplicitBooking)) {
       availabilityStatus = "NEEDS_GUEST_COUNT";
       availabilityContext = `DATES FOUND: Guest provided dates (${dates.arrival} to ${dates.departure}) but has NOT provided number of adults or children yet. DO NOT send to availability page. Ask warmly: "Perfect — I've got your dates! Just need one more thing: how many adults and children will be staying?  I'll check live availability right away 😊"`;
     } else if (dates && !isDiscountRequest && !availabilityStatus) {

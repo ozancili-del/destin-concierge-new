@@ -3,7 +3,7 @@
 // Tests: hit /api/calendar?unit=707&arrival=2026-03-10&departure=2026-03-17
 // No impact on chat.js — delete this file to revert everything
 
-const OWNERREZ_USER = "destindreamcondo@gmail.com";
+const OWNERREZ_USER = "ozan@destincondogetaways.com";
 const UNIT_707_ID   = "293722";
 const UNIT_1006_ID  = "410894";
 

@@ -130,7 +130,7 @@ async function writeOzanAck(sessionId, ackType = "ozanack") {
   }
 }
 
-const OWNERREZ_USER = "destindreamcondo@gmail.com";
+const OWNERREZ_USER = "ozan@destincondogetaways.com";
 const UNIT_707_PROPERTY_ID = "293722";
 const UNIT_1006_PROPERTY_ID = "410894";
 

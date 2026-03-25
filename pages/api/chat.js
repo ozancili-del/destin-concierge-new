@@ -105,7 +105,7 @@ function detectBlogTopic(text) {
   if (t.match(/firework|4th of july|july 4|independence day/)) return "fireworks";
   if (t.match(/airport|fly|flight|drive|get there|closest airport|transportation/)) return "airport";
   if (t.match(/romantic.*thing|romantic.*place|romantic.*spot|romantic.*idea|romantic.*activity|romantic.*do|romance.*destin|date night.*destin|honeymoon.*do|anniversary.*thing|anniversary.*do|anniversary.*plan|where.*romantic|what.*romantic|most romantic|things.*couple/)) return "romance";
-  if (t.match(/rent a car|car rental|enterprise|hertz|avis/)) return "car";
+  if (t.match(/rent a car|car rental|enterprise|hertz|avis|need a car|getting around|do i need|discovercars|rental car/)) return "car";
   if (t.match(/spa|massage|facial|relax|wellness/)) return "spa";
   if (t.match(/nightlife|night out|club|live music|drinks|band|bands|who.?s playing|playing at|music this|music near|shows? this|good show|any show|any music|harborwalk.*music|music.*harbor|baytowne.*music|music.*baytowne|concert this|concert near/)) return "nightlife";
   if (t.match(/essentials|packing|what to bring|checklist/)) return "essentials";
@@ -2746,6 +2746,7 @@ Both units have Cox cable TV. When a guest can't get cable/Cox TV signal working
 - LDV Beach Chairs: 866-651-1869 | https://www.ldvbeach.com
 - Beach cam: https://www.destincondogetaways.com/destin-live-beach-cam-574002656
 AIRPORTS: Destin-Fort Walton Beach Airport (VPS) is approximately 30 min away — most guests fly here. Northwest Florida Beaches International Airport (ECP, Panama City) is about 45-50 min away and has more airline options. Both are good options depending on the guest's origin. Always include the airport guide link on the FIRST airport question: https://www.destincondogetaways.com/blog/destinairport
+- CAR RENTAL: Destin is not walkable — most guests need a car. Whenever a guest asks about transportation, getting around Destin, whether they need a car, or how to get from the airport, always recommend comparing rental rates and include BOTH links: car guide https://www.destincondogetaways.com/blog/destincar and DiscoverCars https://www.discovercars.com/?a_aid=ocili994989 — mention DiscoverCars shows all major agencies at VPS with transparent all-in pricing. After sending booking links, naturally add: "One more thing — you'll want to sort a rental car for your trip. I'd check DiscoverCars.com for the best rates at VPS airport: https://www.discovercars.com/?a_aid=ocili994989 — they compare all the major agencies side by side so you get the best deal." NEVER use the word "affiliate". Present it as a genuine helpful tip.
 - Activities booking (TripShock): https://www.tripshock.com/?aff=destindreamcondo
 - TripShock DOES cover: dolphin cruises, fishing charters, pontoon boat rentals, jet ski/waverunner rentals, Crab Island trips, parasailing, kayak/paddleboard, snorkeling, sunset cruises, pirate cruises, banana boat rides, fireworks cruises, tiki boats, beach photographers, boat tours
 - EXACT TripShock URL slugs (use ONLY these, never invent): dolphin-cruises-and-tours | fishing-charters | jet-ski-rentals-tours | boat-rentals | parasailing | crab-island-tours-and-activities | snorkeling-tours | sunset-cruises-tours | pirate-cruises | canoe-kayak-paddleboard-rentals | fireworks-cruises | tiki-boats | banana-boat-rides | beach-photographers | boat-tours

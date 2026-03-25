@@ -1257,8 +1257,9 @@ export default async function handler(req, res) {
     const detectedBlogTopic = detectBlogTopic(lastUser);
     const hasAccommodation = /already.*book|already.*stay|have.*accommodat|not.*look.*book|have.*place|staying.*elsewhere|booked.*already|have.*reservat|not.*need.*book|don't need.*book|dont need.*book/i.test(lastUser);
     const isExplicitBooking = /\bbook|reserv|availab|price|cost|how much|per night|stay.*night|check.?in|check.?out\b/i.test(lastUser);
+    const hasGuestCountEarly = /(\d+)\s*(adult|kid|child|children|guest|person|people|ppl|pax|infant|baby|toddler)/i.test(allUserText);
     const wantsAvailability = hasAccommodation ? false : (detectedBlogTopic
-      ? (detectAvailabilityIntent(lastUser) && (hasGuestCount || isExplicitBooking))
+      ? (detectAvailabilityIntent(lastUser) && (hasGuestCountEarly || isExplicitBooking))
       : detectAvailabilityIntent(lastUser));
     // Pets detector — when mentioned, skip booking intercept and let GPT apply no-pets policy
     const mentionsPets = /\d+\s*pets?|\bwith.*pets?\b|\bdogs?\b|\bcats?\b|\bpuppies\b|\bkittens?\b|\bbirds?\b|\bparrots?\b|\brabbits?\b|\bhamsters?\b|\bferrets?\b|\bfish\b|\bsnakes?\b|\bturtles?\b|\banimals?\b|bring.*(?:my|our|the)\s+\w+.*(?:pet|dog|cat|bird|animal)|pet.*friendly|emotional support animal|\besa\b|\bservice animal\b/i.test(allUserText);

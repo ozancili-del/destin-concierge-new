@@ -1469,7 +1469,7 @@ Examples:
       if (parseInt(adults, 10) <= originalAdults) {
         const isConfirmation = /^(yes|yeah|yep|sure|ok|okay|sounds good|perfect|great|confirmed|confirm|that works|go ahead|let's do it|lets do it)[\s!.]*$/i.test(lastUser.trim());
         console.log(`[MINI FALLBACK] adults=${adults} originalAdults=${originalAdults} isConfirmation=${isConfirmation} lastUser="${lastUser.trim()}"`);
-        if (!isConfirmation) {
+        if (!isConfirmation && !lastBotWasIntercept) {
           const fallbackAsk = `Got it! Just to confirm — how many adults total will there be in your group, including yourself? 😊`;
           await logToSheets(sessionId, lastUser, fallbackAsk, dates ? `${dates.arrival} to ${dates.departure}` : "", "HOA_UNCERTAIN", "");
           return res.status(200).json({ reply: fallbackAsk, alertSent: priorAlertSent || false, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal || false, ozanAckType: ozanAckType || null, detectedIntent: "INFO" });
@@ -3070,8 +3070,16 @@ NO REPETITION RULE: Review all your previous responses in this conversation befo
     }
     // ────────────────────────────────────────────────────────────────────────
 
+    // ── INTERCEPT REPEAT GUARD — if last bot message was a hardcoded intercept and guest didn't give expected answer, fall to GPT ──
+    const lastBotWasIntercept = lastBotMsg && (
+      /when would you like to check out/i.test(lastBotMsg.content) ||
+      /how many adults and children will be staying/i.test(lastBotMsg.content) ||
+      /how many adults total will there be/i.test(lastBotMsg.content) ||
+      /both of our units are 1-bedroom/i.test(lastBotMsg.content)
+    );
+
     // ── NEEDS_CHECKOUT INTERCEPT — hardcoded, GPT cannot hallucinate links here ──
-    if (availabilityStatus === "NEEDS_CHECKOUT" && singleCheckinDate) {
+    if (availabilityStatus === "NEEDS_CHECKOUT" && singleCheckinDate && !lastBotWasIntercept) {
       const checkoutReply = `Got it — and when would you like to check out? Once I have that I'll pull up live availability right away 😊`;
       await logToSheets(sessionId, lastUser, checkoutReply, "", "NEEDS_CHECKOUT", "");
       return res.status(200).json({ reply: checkoutReply, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
@@ -3082,14 +3090,14 @@ NO REPETITION RULE: Review all your previous responses in this conversation befo
     // Guards: wantsAvailability ensures info-only questions ("do you have 2 bedrooms?") still go to GPT.
     const hasBdrMismatch = wantsAvailability && !guestBooking &&
       (detectBedroomMismatch(lastUser) || detectBedroomMismatch(allUserText.slice(-300)));
-    if (hasBdrMismatch) {
+    if (hasBdrMismatch && !lastBotWasIntercept) {
       const bdrReply = `Just a heads up — both of our units are 1-bedroom, but they sleep up to 6 guests! Each has a king bed, hallway bunk beds, and a queen pull-out sofa, so there's plenty of sleeping space for groups. 😊 Would those dates still work for your group? If so, just let me know how many adults and children and I'll check live availability right away!`;
       await logToSheets(sessionId, lastUser, bdrReply, dates ? `${dates.arrival} to ${dates.departure}` : "", "BDRM_MISMATCH", "");
       return res.status(200).json({ reply: bdrReply, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
     }
 
     // ── NEEDS_GUEST_COUNT INTERCEPT — hardcoded, GPT cannot hallucinate links here ──
-    if (!guestBooking && availabilityStatus === "NEEDS_GUEST_COUNT" && dates) {
+    if (!guestBooking && availabilityStatus === "NEEDS_GUEST_COUNT" && dates && !lastBotWasIntercept) {
       const guestCountReply = `Perfect — I've got your dates (${dates.arrival} to ${dates.departure})! Just need one more thing: how many adults and children will be staying? I'll check live availability right away 😊`;
       await logToSheets(sessionId, lastUser, guestCountReply, `${dates.arrival} to ${dates.departure}`, "NEEDS_GUEST_COUNT", "");
       return res.status(200).json({ reply: guestCountReply, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });

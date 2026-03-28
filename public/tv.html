@@ -449,5 +449,60 @@ h1 span{color:var(--teal);}
 
 
 </div>
+
+<script>
+window.addEventListener('load', function() {
+  // Chrome blocks autoplay — trigger on first click
+  const trySpeak = function() {
+    document.removeEventListener('click', trySpeak);
+    document.removeEventListener('keydown', trySpeak);
+    startSpeech();
+  };
+  document.addEventListener('click', trySpeak);
+  document.addEventListener('keydown', trySpeak);
+
+  // Also try autoplay after short delay (works on Samsung/Fire Stick)
+  setTimeout(startSpeech, 1800);
+
+  function startSpeech() {
+    if (!window.speechSynthesis) return;
+    if (window._destinySpoke) return;
+    window._destinySpoke = true;
+    const msg = new SpeechSynthesisUtterance(
+      "Welcome, Sarah. I'm Destiny Blue, your personal concierge for Unit 1006 at Pelican Beach Resort. " +
+      "Ozan wanted me to make sure you feel right at home from the moment you walk in. " +
+      "The Gulf is looking beautiful today — water is 83 degrees, green flag is flying, perfect conditions. " +
+      "Tonight there are fireworks at HarborWalk at 9 PM — free and just 10 minutes away. " +
+      "Scan the QR code on screen anytime you need restaurant recommendations, activity bookings, or just a question about Destin. " +
+      "Enjoy every moment of your stay."
+    );
+    msg.rate = 0.88;
+    msg.pitch = 1.05;
+    msg.volume = 1;
+
+    // Try to find a warm female voice
+    function speak() {
+      const voices = window.speechSynthesis.getVoices();
+      // Explicitly female voices by name
+      const femaleNames = ['Samantha','Karen','Victoria','Ava','Joanna','Salli','Kendra','Kimberly','Ivy','Aria','Jenny','Zira','Susan','Allison','Ting-Ting','Fiona','Moira','Veena','Tessa','Catherine'];
+      // Explicitly male voices to exclude
+      const maleNames = ['Daniel','David','Fred','Alex','Tom','Oliver','Rishi','Luca','Jorge','Diego','Juan','Carlos','Aaron','Arthur','Gordon','James','Lee','Mark','Richard','Thomas','Wayne','Eric','Guy'];
+      let chosen = voices.find(v => femaleNames.some(n => v.name.includes(n)) && v.lang.startsWith('en'));
+      if (!chosen) chosen = voices.find(v => v.lang.startsWith('en') && !maleNames.some(n => v.name.includes(n)));
+      if (!chosen) chosen = voices.find(v => v.lang.startsWith('en'));
+      if (chosen) msg.voice = chosen;
+      msg.pitch = 1.1;
+      window.speechSynthesis.speak(msg);
+    }
+
+    if (window.speechSynthesis.getVoices().length > 0) {
+      speak();
+    } else {
+      window.speechSynthesis.onvoiceschanged = speak;
+    }
+  }
+});
+</script>
+
 </body>
 </html>

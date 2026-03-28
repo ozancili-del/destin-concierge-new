@@ -1,69 +1,85 @@
 /**
- * fix-supermarket-coords.js
- * Geocodes each supermarket address and outputs corrected lat/lng
- * 
- * Run: GOOGLE_WEATHER_API_KEY=your_key node fix-supermarket-coords.js
+ * fix-supermarket-coords-v2.js
+ * Uses Google Places API text search (not geocoding) to find accurate
+ * coordinates AND verified addresses for each store.
+ *
+ * Run: GOOGLE_WEATHER_API_KEY=your_key node fix-supermarket-coords-v2.js
  */
 
 const API_KEY = process.env.GOOGLE_WEATHER_API_KEY;
 
 if (!API_KEY) {
   console.error("❌ GOOGLE_WEATHER_API_KEY env var not found");
-  console.error("Run as: GOOGLE_WEATHER_API_KEY=your_key node fix-supermarket-coords.js");
+  console.error("Run as: GOOGLE_WEATHER_API_KEY=your_key node fix-supermarket-coords-v2.js");
   process.exit(1);
 }
 
 const stores = [
-  { name: "Winn-Dixie",                address: "981 US-98 E, Destin, FL 32541" },
-  { name: "Destin Euro Market",         address: "743 Harbor Blvd Ste 6, Destin, FL 32541" },
-  { name: "Destin Ice Seafood Market",  address: "1040 US-98 W, Destin, FL 32541" },
-  { name: "Whole Foods Market",         address: "4402 Legendary Dr, Destin, FL 32541" },
-  { name: "Publix Miramar Beach",       address: "771 Harbor Blvd Unit 100, Destin, FL 32541" },
-  { name: "Publix Destin Commons",      address: "4425 Commons Dr E, Destin, FL 32541" },
-  { name: "Walmart Supercenter",        address: "15017 Emerald Coast Pkwy, Destin, FL 32541" },
-  { name: "Target",                     address: "853 Harbor Blvd, Destin, FL 32541" },
-  { name: "The Fresh Market",           address: "4495 Commons Dr W, Destin, FL 32541" },
+  "Winn-Dixie Destin FL US-98",
+  "Destin Euro Market Destin FL",
+  "Destin Ice Seafood Market Destin FL",
+  "Whole Foods Market Destin FL",
+  "Publix Harbor Blvd Destin FL",
+  "Publix Commons Drive Destin FL",
+  "Walmart Supercenter Destin FL Emerald Coast Pkwy",
+  "Target Harbor Blvd Destin FL",
+  "The Fresh Market Destin FL",
 ];
 
 const delay = ms => new Promise(r => setTimeout(r, ms));
 
-async function geocode(address) {
-  const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${API_KEY}`;
+async function findPlace(query) {
+  const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&key=${API_KEY}`;
   const res = await fetch(url);
   const data = await res.json();
   if (data.status !== "OK" || !data.results[0]) {
-    throw new Error(`Geocode failed for "${address}": ${data.status}`);
+    throw new Error(`Place not found for "${query}": ${data.status}`);
   }
-  return data.results[0].geometry.location;
+  const place = data.results[0];
+  return {
+    name: place.name,
+    address: place.formatted_address,
+    lat: place.geometry.location.lat,
+    lon: place.geometry.location.lng,
+    placeId: place.place_id,
+    rating: place.rating || null,
+  };
 }
 
 async function main() {
-  console.log("🔍 Geocoding supermarket addresses...\n");
+  console.log("🔍 Finding supermarkets via Google Places text search...\n");
 
   const results = [];
 
-  for (const store of stores) {
+  for (const query of stores) {
     try {
-      const loc = await geocode(store.address);
-      results.push({ ...store, lat: loc.lat, lon: loc.lng });
-      console.log(`✅ ${store.name}`);
-      console.log(`   lat: ${loc.lat}, lon: ${loc.lng}`);
+      const place = await findPlace(query);
+      results.push({ query, ...place });
+      console.log(`✅ ${place.name}`);
+      console.log(`   Address: ${place.address}`);
+      console.log(`   lat: ${place.lat}, lon: ${place.lon}`);
+      console.log(`   Rating: ${place.rating || "N/A"}`);
+      console.log();
     } catch (err) {
-      console.error(`❌ ${store.name}: ${err.message}`);
+      console.error(`❌ ${query}: ${err.message}\n`);
     }
-    await delay(200);
+    await delay(300);
   }
 
-  console.log("\n\n📋 CORRECTED PINS ARRAY — paste into supermarket-map.html:\n");
-  console.log("// Replace the lat/lon values in your pins array:\n");
+  console.log("\n📋 CORRECTED PINS ARRAY — paste into supermarket-map.html:\n");
 
   results.forEach(r => {
-    console.log(`  // ${r.name}`);
+    console.log(`  // ${r.name} — ${r.address}`);
     console.log(`  lat: ${r.lat}, lon: ${r.lon},`);
     console.log();
   });
 
-  console.log("\n✅ Done! Copy the corrected coordinates above into your supermarket-map.html pins array.");
+  console.log("\n📋 KNOWLEDGE BASE UPDATE:\n");
+  results.forEach(r => {
+    console.log(`  { name: "${r.name}", address: "${r.address}", lat: ${r.lat}, lng: ${r.lon} }`);
+  });
+
+  console.log("\n✅ Done!");
 }
 
 main().catch(err => {

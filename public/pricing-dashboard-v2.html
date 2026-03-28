@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,7 +21,7 @@
   y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
   })(window, document, "clarity", "script", "vdueltd0r2");
 </script>
-<title>Comply365 · Pricing Intelligence Platform</title>
+<title>PriceIQ · Pricing Intelligence Platform</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Figtree:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
@@ -484,7 +485,7 @@ html,body{background:var(--bg);color:var(--text);font-family:'Figtree',sans-seri
 <div class="app">
 <aside class="sidebar">
   <div class="logo">
-    <div class="logo-mark">Comply365</div>
+    <div class="logo-mark">PriceIQ</div>
     <div class="logo-sub">Pricing Intelligence</div>
   </div>
   <nav class="nav">
@@ -2423,9 +2424,9 @@ async function runAlertAI(){
 
 // PRICING CONTROLS OVERLAY
 var CTRL_METRICS=[
-  {title:'Exception Rate (>25% Discount)',meta:'Q1 2026 - 14.2% - Target: below 10%',value:'14.2%',status:'Above target by 4.2pp',kpis:[{label:'Current',val:'14.2%',color:'var(--amber)'},{label:'Target',val:'10%',color:'var(--text2)'},{label:'Q1 2024',val:'10.2%',color:'var(--text2)'}],detail:'The exception rate measures what percentage of deals require above-standard approval. At 14.2%, Comply365 is 4.2pp above the 10% target and trending worse - up from 10.2% in Q1 2024. 1 in 7 deals hitting CFO approval. Primary drivers: EMEA enterprise accounts and Mark T LATAM book at 28.4% avg discount.',aiContext:'Exception rate 14.2% vs 10% target, up from 10.2% Q1 2024. 1 in 7 deals hitting CFO gate. EMEA enterprise 31%, LATAM 28.4%.'},
+  {title:'Exception Rate (>25% Discount)',meta:'Q1 2026 - 14.2% - Target: below 10%',value:'14.2%',status:'Above target by 4.2pp',kpis:[{label:'Current',val:'14.2%',color:'var(--amber)'},{label:'Target',val:'10%',color:'var(--text2)'},{label:'Q1 2024',val:'10.2%',color:'var(--text2)'}],detail:'The exception rate measures what percentage of deals require above-standard approval. At 14.2%, PriceIQ is 4.2pp above the 10% target and trending worse - up from 10.2% in Q1 2024. 1 in 7 deals hitting CFO approval. Primary drivers: EMEA enterprise accounts and Mark T LATAM book at 28.4% avg discount.',aiContext:'Exception rate 14.2% vs 10% target, up from 10.2% Q1 2024. 1 in 7 deals hitting CFO gate. EMEA enterprise 31%, LATAM 28.4%.'},
   {title:'Deals Below Floor Price',meta:'Q1 2026 - 4 deals - Requires CEO + CFO sign-off',value:'4',status:'Trending up - 1 Q2 25, 1 Q3 25, 3 Q4 25',kpis:[{label:'Current',val:'4 deals',color:'var(--red)'},{label:'Q4 2025',val:'3 deals',color:'var(--amber)'},{label:'Q3 2025',val:'1 deal',color:'var(--text2)'}],detail:'Floor price is the absolute minimum for each module. 4 deals below floor price requiring CEO + CFO sign-off. Trend worsening: 1 Q2 2025, 1 Q3, 3 Q4, 4 Q1 2026. Approval process gap likely - floor violations not caught early enough in pipeline.',aiContext:'4 deals below floor Q1 2026, up from 3 Q4 2025. Worsening trend. CEO+CFO sign-off required each time.'},
-  {title:'Price Book Compliance',meta:'Q1 2026 - 94% - On target',value:'94%',status:'1pp below 95% target - broadly healthy',kpis:[{label:'Current',val:'94%',color:'var(--green)'},{label:'Target',val:'95%',color:'var(--text2)'},{label:'Gap',val:'1pp',color:'var(--text2)'}],detail:'Price book compliance measures how often reps quote using the official price book. At 94%, Comply365 is 1pp below target but broadly healthy. 6% non-compliance rate needs monitoring - creates renewal expectation mismatches.',aiContext:'Price book compliance 94%, 1pp below 95% target. 6% of deals off-book.'},
+  {title:'Price Book Compliance',meta:'Q1 2026 - 94% - On target',value:'94%',status:'1pp below 95% target - broadly healthy',kpis:[{label:'Current',val:'94%',color:'var(--green)'},{label:'Target',val:'95%',color:'var(--text2)'},{label:'Gap',val:'1pp',color:'var(--text2)'}],detail:'Price book compliance measures how often reps quote using the official price book. At 94%, PriceIQ is 1pp below target but broadly healthy. 6% non-compliance rate needs monitoring - creates renewal expectation mismatches.',aiContext:'Price book compliance 94%, 1pp below 95% target. 6% of deals off-book.'},
   {title:'Avg Approval Cycle Time',meta:'Q1 2026 - 1.8 days - Target: 1 day',value:'1.8d',status:'80% above SLA - slowing deal velocity',kpis:[{label:'Current',val:'1.8d',color:'var(--amber)'},{label:'Target',val:'1d',color:'var(--text2)'},{label:'Status',val:'SLA miss',color:'var(--red)'}],detail:'Average time from approval request to decision is 1.8 days - 80% above the 1-day SLA. Slows deal velocity and gives competitors time to re-engage. Primary bottleneck: incomplete value justification memos causing back-and-forth before approval.',aiContext:'Approval cycle 1.8d vs 1d target. 80% above SLA. Root cause: incomplete value justification memos.'},
   {title:'Renewal Uplift Realization',meta:'Q1 2026 - 71% - Target: 85%',value:'71%',status:'14pp below target - ~$380K ARR leakage',kpis:[{label:'Current',val:'71%',color:'var(--amber)'},{label:'Target',val:'85%',color:'var(--text2)'},{label:'ARR impact',val:'~$380K',color:'var(--red)'}],detail:'Renewal uplift realization measures how much contracted price escalation is collected at renewal. At 71%, teams waiving ~29% of contracted uplift under churn pressure without deal desk review. Costs ~$380K annually.',aiContext:'Renewal uplift 71% vs 85% target. 29% of contracted uplift waived. ~$380K annual ARR leakage.'},
   {title:'Multi-Year Contract Attach',meta:'Q1 2026 - 58% - Up 6pp YoY',value:'58%',status:'Positive trend - 7pp below 65% target',kpis:[{label:'Current',val:'58%',color:'var(--green)'},{label:'Q1 2025',val:'52%',color:'var(--text2)'},{label:'Target',val:'65%',color:'var(--text2)'}],detail:'At 58%, up 6pp YoY, multi-year attach is trending well. Multi-year deals reduce churn risk and enable commitment rates as discount alternatives. Target 65% achievable if reps lead with commitment rate conversation.',aiContext:'Multi-year attach 58%, up 6pp YoY. Target 65%. 7pp gap. Opportunity: commitment rate lever.'},
@@ -2498,7 +2499,7 @@ function openKpiOverlay(idx) {
         {label:'Target', val:'72%', color:'var(--text2)'},
         {label:'LTV/CAC', val:d.ltvcac, color:'var(--accent)'},
       ],
-      detail: 'Gross margin measures revenue minus cost to deliver as a percentage. SaaS benchmark is 70%+. At '+d.grossMargin+', Comply365 is at target. SMB accounts run at 58% gross margin (high support cost), Enterprise at 71%, Strategic at 75%. The MINT and Beams acquisitions are diluting blended margin slightly as integration matures. Target is 72% by FY2026.',
+      detail: 'Gross margin measures revenue minus cost to deliver as a percentage. SaaS benchmark is 70%+. At '+d.grossMargin+', PriceIQ is at target. SMB accounts run at 58% gross margin (high support cost), Enterprise at 71%, Strategic at 75%. The MINT and Beams acquisitions are diluting blended margin slightly as integration matures. Target is 72% by FY2026.',
       aiContext: 'Gross margin: '+d.grossMargin+', target 72%. ARR: '+d.arr+', LTV/CAC: '+d.ltvcac+'. SMB margin 58%, Enterprise 71%, Strategic 75%.',
       metric: 'Gross Margin'
     };
@@ -2511,7 +2512,7 @@ function openKpiOverlay(idx) {
         {label:'Target', val:'4x', color:'var(--text2)'},
         {label:'Churn', val:d.churn, color:parseFloat(d.churn)>5?'var(--amber)':'var(--green)'},
       ],
-      detail: 'LTV/CAC measures lifetime customer value versus acquisition cost. The SaaS benchmark is 3-5x. At '+d.ltvcac+', Comply365 is in the healthy zone. Churn at '+d.churn+' is the primary driver of LTV — reducing churn by 1pp would add approximately $0.5M to lifetime value across the portfolio. CAC efficiency is improving as the direct sales motion matures.',
+      detail: 'LTV/CAC measures lifetime customer value versus acquisition cost. The SaaS benchmark is 3-5x. At '+d.ltvcac+', PriceIQ is in the healthy zone. Churn at '+d.churn+' is the primary driver of LTV — reducing churn by 1pp would add approximately $0.5M to lifetime value across the portfolio. CAC efficiency is improving as the direct sales motion matures.',
       aiContext: 'LTV/CAC: '+d.ltvcac+', target 4x. Churn: '+d.churn+', NRR: '+d.nrr+', ARR: '+d.arr+'. SaaS benchmark 3-5x.',
       metric: 'LTV/CAC Ratio'
     };
@@ -2563,7 +2564,7 @@ function openKpiOverlay(idx) {
         {label:'Churn Rate', val:d.churn, color:parseFloat(d.churn)>5?'var(--amber)':'var(--green)'},
         {label:'Avg Discount', val:d.avgDisc, color:'var(--text2)'},
       ],
-      detail: 'Net Revenue Retention measures revenue retained and grown from existing customers. Above 100% means the customer base is expanding without new logos. At '+d.nrr+', Comply365 is '+(parseInt(d.nrr)>=110?'above':'approaching')+' the 110% enterprise SaaS benchmark. Churn at '+d.churn+'.',
+      detail: 'Net Revenue Retention measures revenue retained and grown from existing customers. Above 100% means the customer base is expanding without new logos. At '+d.nrr+', PriceIQ is '+(parseInt(d.nrr)>=110?'above':'approaching')+' the 110% enterprise SaaS benchmark. Churn at '+d.churn+'.',
       aiContext: 'NRR: '+d.nrr+', churn: '+d.churn+', avg discount: '+d.avgDisc+', ARR: '+d.arr,
       metric: 'Portfolio NRR'
     };
@@ -2576,7 +2577,7 @@ function openKpiOverlay(idx) {
         {label:'Target', val:'82%', color:'var(--text2)'},
         {label:'Leakage', val:d.leakage, color:'var(--red)'},
       ],
-      detail: 'Price realization measures what percentage of list price is actually collected. At '+d.realization+', Comply365 collects '+d.realization+' of every list price dollar. Target is 82%. The '+d.leakage+' leakage represents the gap between list and realized ARR.',
+      detail: 'Price realization measures what percentage of list price is actually collected. At '+d.realization+', PriceIQ collects '+d.realization+' of every list price dollar. Target is 82%. The '+d.leakage+' leakage represents the gap between list and realized ARR.',
       aiContext: 'Price realization: '+d.realization+', target 82%, leakage: '+d.leakage+', avg discount: '+d.avgDisc+', trend: '+d.realTrend,
       metric: 'Price Realization'
     };
@@ -2638,7 +2639,7 @@ function openKpiOverlay(idx) {
       title: 'Modules in Price Book',
       meta: '8 modules · Post MINT + Beams',
       kpis: [{label:'Modules',val:'8',color:'var(--text)'},{label:'Pre-acquisition',val:'6',color:'var(--text2)'},{label:'New modules',val:'2',color:'var(--green)'}],
-      detail: 'Comply365 now has 8 modules in the price book following MINT and Beams acquisitions. OCM, Safety, Quality, and Analytics were the original 4. MINT Training Management and Beams AI (CoAnalyst, CoAuthor) were added in FY2024-25. Each module has a defined list price, floor price, and maximum discount threshold. The price book is the single source of truth for all quoting.',
+      detail: 'PriceIQ now has 8 modules in the price book following MINT and Beams acquisitions. OCM, Safety, Quality, and Analytics were the original 4. MINT Training Management and Beams AI (CoAnalyst, CoAuthor) were added in FY2024-25. Each module has a defined list price, floor price, and maximum discount threshold. The price book is the single source of truth for all quoting.',
       aiContext: '8 modules in price book: OCM $52K, Safety $28K, Quality $18K, MINT $34K, Beams $22K, Analytics $14K, API $10K, Multi-Region $20K. 2 new modules from acquisitions.',
       metric: 'Price Book Modules'
     };
@@ -2647,7 +2648,7 @@ function openKpiOverlay(idx) {
       title: 'List vs Realized Gap',
       meta: '22% gap · $10.6M unrealized ARR',
       kpis: [{label:'Gap',val:'22%',color:'var(--amber)'},{label:'Unrealized',val:'$10.6M',color:'var(--red)'},{label:'Realization',val:'78%',color:'var(--text2)'}],
-      detail: 'The list vs realized gap measures the difference between what Comply365 charges at list price and what it actually collects after discounts. A 22% gap represents $10.6M in unrealized ARR annually. The target is to close this to 18% (82% realization). The gap is widest in LATAM (32%) and narrowest in Strategic accounts (11%).',
+      detail: 'The list vs realized gap measures the difference between what PriceIQ charges at list price and what it actually collects after discounts. A 22% gap represents $10.6M in unrealized ARR annually. The target is to close this to 18% (82% realization). The gap is widest in LATAM (32%) and narrowest in Strategic accounts (11%).',
       aiContext: 'List vs realized gap: 22%, $10.6M unrealized. Target: 18%. LATAM gap 32%, Strategic 11%. Price realization 78%.',
       metric: 'List vs Realized Gap'
     };
@@ -2656,7 +2657,7 @@ function openKpiOverlay(idx) {
       title: 'Price Book Coverage',
       meta: '94% · 6 exceptions logged',
       kpis: [{label:'Coverage',val:'94%',color:'var(--green)'},{label:'Target',val:'95%',color:'var(--text2)'},{label:'Exceptions',val:'6',color:'var(--amber)'}],
-      detail: 'Price book coverage measures the percentage of active deals quoted using the official price book rather than manual or custom pricing. At 94%, Comply365 is 1pp below the 95% target. The 6 active exceptions are concentrated in 2 reps and 1 region (LATAM). Off-book pricing creates renewal expectation mismatches and undermines pricing consistency.',
+      detail: 'Price book coverage measures the percentage of active deals quoted using the official price book rather than manual or custom pricing. At 94%, PriceIQ is 1pp below the 95% target. The 6 active exceptions are concentrated in 2 reps and 1 region (LATAM). Off-book pricing creates renewal expectation mismatches and undermines pricing consistency.',
       aiContext: 'Price book coverage: 94%, 1pp below 95% target. 6 exceptions, concentrated in 2 reps and LATAM. Off-book pricing risks renewal mismatches.',
       metric: 'Price Book Coverage'
     };

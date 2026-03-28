@@ -1,0 +1,692 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Destiny Blue — TV Guest Dashboard</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;1,300&family=DM+Sans:wght@200;300;400&display=swap');
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+html,body{
+  width:1920px;
+  height:1080px;
+  overflow:hidden;
+  background:#060e1c;
+  font-family:'DM Sans',system-ui,sans-serif;
+}
+
+/* ── LAYOUT ── */
+.shell{
+  width:1920px;
+  height:1080px;
+  display:grid;
+  grid-template-rows:72px 1fr 48px;
+  position:relative;
+}
+
+/* ── TOP BAR ── */
+.topbar{
+  background:#081525;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 48px;
+}
+.topbar-logo{
+  font-family:'Cormorant Garamond',serif;
+  font-size:30px;
+  font-weight:300;
+  color:#fff;
+  letter-spacing:-0.5px;
+}
+.topbar-logo span{color:#48cae4;}
+.topbar-welcome{
+  font-size:15px;
+  font-weight:300;
+  color:rgba(255,255,255,0.5);
+  letter-spacing:0.5px;
+}
+.topbar-welcome strong{color:rgba(255,255,255,0.85);font-weight:400;}
+.topbar-right{
+  text-align:right;
+  font-size:13px;
+  font-weight:200;
+  color:rgba(255,255,255,0.3);
+  letter-spacing:2px;
+}
+.stay-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  background:rgba(72,202,228,0.1);
+  border:1px solid rgba(72,202,228,0.2);
+  border-radius:20px;
+  padding:4px 14px;
+  font-size:12px;
+  color:#48cae4;
+  font-weight:300;
+  letter-spacing:1px;
+  margin-top:4px;
+}
+.stay-dot{width:6px;height:6px;border-radius:50%;background:#48cae4;animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.3;}}
+
+/* ── BODY ── */
+.body{
+  display:grid;
+  grid-template-columns:520px 1fr 380px;
+  gap:1px;
+  background:rgba(255,255,255,0.03);
+}
+
+/* ── COLUMN BASE ── */
+.col{
+  background:#060e1c;
+  padding:28px 32px;
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+  overflow:hidden;
+}
+
+/* ── SECTION LABEL ── */
+.sec-label{
+  font-size:10px;
+  font-weight:300;
+  letter-spacing:4px;
+  text-transform:uppercase;
+  color:rgba(255,255,255,0.2);
+  margin-bottom:4px;
+}
+
+/* ── BEACH CONDITIONS COL ── */
+.beach-widget{
+  background:linear-gradient(135deg,#0369a1 0%,#0284c7 100%);
+  border-radius:16px;
+  padding:20px;
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+.beach-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.beach-title{
+  font-size:13px;
+  font-weight:400;
+  color:#fff;
+}
+.beach-badge{
+  font-size:10px;
+  background:rgba(255,255,255,0.2);
+  color:#fff;
+  border-radius:20px;
+  padding:3px 10px;
+  letter-spacing:1px;
+}
+.beach-main-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:8px;
+}
+.beach-card{
+  background:rgba(255,255,255,0.15);
+  border-radius:12px;
+  padding:12px 8px;
+  text-align:center;
+}
+.beach-card-icon{font-size:20px;margin-bottom:4px;}
+.beach-card-val{font-size:22px;font-weight:800;color:#fff;line-height:1;}
+.beach-card-lbl{font-size:9px;color:rgba(255,255,255,0.65);margin-top:3px;text-transform:uppercase;letter-spacing:1px;}
+.beach-row-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.beach-row{
+  background:rgba(255,255,255,0.12);
+  border-radius:10px;
+  padding:8px 12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.beach-row-lbl{font-size:10px;color:rgba(255,255,255,0.6);}
+.beach-row-val{font-size:12px;font-weight:700;color:#fff;}
+.flag-row{
+  background:rgba(34,197,94,0.15);
+  border:1px solid rgba(34,197,94,0.3);
+  border-radius:10px;
+  padding:8px 14px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.flag-dot{width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px #22c55e;}
+.flag-text{font-size:12px;font-weight:400;color:#86efac;}
+
+/* ── TEMP BAR ── */
+.temp-bar-wrap{
+  background:rgba(255,255,255,0.1);
+  border-radius:12px;
+  padding:12px 14px;
+}
+.temp-bar-title{font-size:10px;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+.temp-bar-track{position:relative;height:8px;border-radius:99px;background:linear-gradient(90deg,#60a5fa,#34d399,#fbbf24,#f97316,#ef4444);margin-bottom:6px;}
+.temp-bar-needle{position:absolute;top:50%;transform:translate(-50%,-50%);width:16px;height:16px;background:#fff;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,0.35);left:44%;}
+.temp-bar-labels{display:flex;justify-content:space-between;font-size:8px;color:rgba(255,255,255,0.4);}
+.temp-verdict{background:rgba(255,255,255,0.12);border-radius:8px;padding:8px 12px;font-size:12px;color:#fff;text-align:center;line-height:1.4;}
+
+/* ── ACTIVITY GRID ── */
+.act-section-title{font-size:10px;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:1px;}
+.act-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.act-card{
+  background:rgba(255,255,255,0.07);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:12px;
+  padding:10px 12px;
+}
+.act-card.active{
+  background:rgba(34,197,94,0.12);
+  border-color:rgba(34,197,94,0.3);
+  animation:pulse-card 3s infinite;
+}
+@keyframes pulse-card{
+  0%,100%{border-color:rgba(34,197,94,0.2);}
+  50%{border-color:rgba(34,197,94,0.7);box-shadow:0 0 12px rgba(34,197,94,0.2);}
+}
+.act-card.soon{background:rgba(251,191,36,0.1);border-color:rgba(251,191,36,0.25);}
+.act-status{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:9px;font-weight:400;letter-spacing:1px;text-transform:uppercase;
+  background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);
+  border-radius:20px;padding:2px 8px;margin-bottom:6px;
+}
+.act-status.active{background:rgba(34,197,94,0.2);color:#86efac;}
+.act-status.soon{background:rgba(251,191,36,0.2);color:#fde68a;}
+.act-sdot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,0.3);}
+.act-sdot.active{background:#22c55e;box-shadow:0 0 4px #22c55e;}
+.act-sdot.soon{background:#fbbf24;}
+.act-name{font-size:13px;font-weight:400;color:#fff;margin-bottom:2px;}
+.act-time{font-size:10px;color:rgba(255,255,255,0.55);margin-bottom:4px;}
+.act-tip{font-size:9px;color:rgba(255,255,255,0.35);line-height:1.4;font-style:italic;}
+
+/* ── MIDDLE COL — MAPS & PICKS ── */
+.mid-col{
+  display:grid;
+  grid-template-rows:1fr 1fr;
+  gap:1px;
+  background:rgba(255,255,255,0.03);
+}
+.mid-top,.mid-bot{
+  background:#060e1c;
+  padding:24px 28px;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  overflow:hidden;
+}
+
+/* Mini map mockup */
+.map-mock{
+  flex:1;
+  border-radius:12px;
+  overflow:hidden;
+  position:relative;
+  background:#0d2137;
+  border:1px solid rgba(255,255,255,0.06);
+}
+.map-mock-img{
+  width:100%;height:100%;
+  background:linear-gradient(135deg,#0a1f35 0%,#0d3050 40%,#0a4060 60%,#0d5070 80%,#0a6080 100%);
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.map-label{
+  position:absolute;
+  top:12px;left:12px;
+  background:rgba(10,22,40,0.9);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:6px;
+  padding:6px 12px;
+  font-size:11px;
+  color:rgba(255,255,255,0.7);
+  font-weight:400;
+}
+.map-pins{position:absolute;inset:0;}
+.map-pin{
+  position:absolute;
+  width:10px;height:10px;
+  border-radius:50%;
+  border:2px solid white;
+}
+.map-pin.home{background:#00d4ff;box-shadow:0 0 8px #00d4ff;width:14px;height:14px;}
+.map-pin.restaurant{background:#ff6b6b;}
+.map-pin.grocery{background:#6bde8f;}
+.map-filter-row{
+  display:flex;gap:6px;flex-wrap:wrap;
+}
+.map-filter{
+  padding:4px 12px;
+  border-radius:20px;
+  font-size:10px;
+  font-weight:400;
+  border:1px solid rgba(255,255,255,0.12);
+  color:rgba(255,255,255,0.5);
+  background:transparent;
+}
+.map-filter.active{background:#00d4ff;color:#0a1628;border-color:transparent;font-weight:400;}
+
+/* Today's picks */
+.picks-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  flex:1;
+}
+.pick-card{
+  border-radius:12px;
+  padding:14px 16px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  position:relative;
+  overflow:hidden;
+}
+.pick-card.ozan{
+  background:rgba(0,150,199,0.08);
+  border:1px solid rgba(0,150,199,0.18);
+}
+.pick-card.event{
+  background:rgba(139,92,246,0.08);
+  border:1px solid rgba(139,92,246,0.18);
+}
+.pick-card.restaurant{
+  background:rgba(255,107,107,0.08);
+  border:1px solid rgba(255,107,107,0.18);
+}
+.pick-card.weather{
+  background:rgba(251,191,36,0.08);
+  border:1px solid rgba(251,191,36,0.18);
+}
+.pick-tag{
+  font-size:9px;
+  font-weight:300;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  opacity:0.6;
+}
+.pick-card.ozan .pick-tag{color:#48cae4;}
+.pick-card.event .pick-tag{color:#a78bfa;}
+.pick-card.restaurant .pick-tag{color:#ff6b6b;}
+.pick-card.weather .pick-tag{color:#fbbf24;}
+.pick-title{
+  font-family:'Cormorant Garamond',serif;
+  font-size:18px;
+  font-weight:300;
+  color:#fff;
+  line-height:1.2;
+}
+.pick-body{
+  font-size:11px;
+  font-weight:300;
+  color:rgba(255,255,255,0.5);
+  line-height:1.6;
+}
+.pick-cta{
+  font-size:10px;
+  color:rgba(255,255,255,0.25);
+  margin-top:auto;
+}
+
+/* ── RIGHT COL — QR + DESTINY BLUE ── */
+.right-col{
+  background:#060e1c;
+  padding:32px 28px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+}
+.db-name{
+  font-family:'Cormorant Garamond',serif;
+  font-size:28px;
+  font-weight:300;
+  color:#fff;
+  text-align:center;
+  letter-spacing:-0.5px;
+}
+.db-name span{color:#48cae4;}
+.db-tagline{
+  font-family:'Cormorant Garamond',serif;
+  font-style:italic;
+  font-size:14px;
+  color:rgba(255,255,255,0.35);
+  text-align:center;
+}
+.qr-frame{
+  width:200px;height:200px;
+  background:#fff;
+  border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;
+  flex-shrink:0;
+}
+.qr-frame::before,.qr-frame::after{
+  content:'';position:absolute;
+  width:18px;height:18px;
+  border-color:#48cae4;border-style:solid;
+}
+.qr-frame::before{top:-5px;left:-5px;border-width:2px 0 0 2px;border-radius:3px 0 0 0;}
+.qr-frame::after{bottom:-5px;right:-5px;border-width:0 2px 2px 0;border-radius:0 0 3px 0;}
+.db-caps{
+  width:100%;
+  display:flex;flex-direction:column;gap:10px;
+}
+.db-cap{
+  display:flex;align-items:flex-start;gap:10px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.05);
+  border-radius:8px;
+  padding:8px 12px;
+}
+.db-cap-dot{width:5px;height:5px;border-radius:50%;background:#48cae4;flex-shrink:0;margin-top:5px;opacity:0.7;}
+.db-cap-text{font-size:11px;font-weight:300;color:rgba(255,255,255,0.5);line-height:1.5;}
+.db-cap-text strong{color:rgba(255,255,255,0.8);font-weight:400;}
+.db-url{font-size:10px;color:#48cae4;opacity:0.4;letter-spacing:1px;text-align:center;}
+
+/* ── BOTTOM BAR ── */
+.bottombar{
+  background:#081525;
+  border-top:1px solid rgba(255,255,255,0.04);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 48px;
+}
+.bot-item{
+  font-size:10px;font-weight:200;
+  color:rgba(255,255,255,0.15);
+  letter-spacing:2px;text-transform:uppercase;
+}
+.ocean-bar{
+  position:absolute;bottom:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,#023e8a,#0096c7,#48cae4,#90e0ef,#48cae4,#0096c7,#023e8a);
+}
+
+/* Wave bg */
+.wave-bg{
+  position:absolute;inset:0;pointer-events:none;opacity:0.03;
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- Wave background -->
+  <svg class="wave-bg" viewBox="0 0 1920 1080" preserveAspectRatio="none">
+    <path d="M0 350 Q480 270 960 350 Q1440 430 1920 350" stroke="white" stroke-width="1" fill="none"/>
+    <path d="M0 450 Q480 370 960 450 Q1440 530 1920 450" stroke="white" stroke-width="1" fill="none"/>
+    <path d="M0 550 Q480 470 960 550 Q1440 630 1920 550" stroke="white" stroke-width="1" fill="none"/>
+    <path d="M0 650 Q480 570 960 650 Q1440 730 1920 650" stroke="white" stroke-width="0.5" fill="none"/>
+  </svg>
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-logo">Destiny <span>Blue</span></div>
+    <div style="text-align:center;">
+      <div class="topbar-welcome">Welcome, <strong>Sarah &amp; Family</strong> — we're so glad you're here 🌊</div>
+      <div style="margin-top:6px;display:flex;gap:10px;align-items:center;justify-content:center;">
+        <div class="stay-pill"><div class="stay-dot"></div>Unit 1006 · Day 3 of 7 · Check-out June 13</div>
+      </div>
+    </div>
+    <div class="topbar-right">Saturday, June 8<br>2:45 PM CDT</div>
+  </div>
+
+  <!-- BODY -->
+  <div class="body">
+
+    <!-- LEFT — Beach Conditions -->
+    <div class="col">
+      <div class="sec-label">Live beach conditions</div>
+      <div class="beach-widget">
+        <div class="beach-header">
+          <div class="beach-title">🌊 Destin Live Beach Conditions</div>
+          <div class="beach-badge">LIVE · 2:45 PM</div>
+        </div>
+        <div class="beach-main-grid">
+          <div class="beach-card"><div class="beach-card-icon">🌡️</div><div class="beach-card-val">83°F</div><div class="beach-card-lbl">Water Temp</div></div>
+          <div class="beach-card"><div class="beach-card-icon">🌤️</div><div class="beach-card-val">89°F</div><div class="beach-card-lbl">Air Temp</div></div>
+          <div class="beach-card"><div class="beach-card-icon">💧</div><div class="beach-card-val">68%</div><div class="beach-card-lbl">Humidity</div></div>
+        </div>
+        <div class="beach-row-grid">
+          <div class="beach-row"><div><div class="beach-row-lbl">Wind</div><div class="beach-row-val">12 mph NNE</div></div><div>💨</div></div>
+          <div class="beach-row"><div><div class="beach-row-lbl">Pressure</div><div class="beach-row-val">30.12 inHg</div></div><div>📊</div></div>
+          <div class="beach-row"><div><div class="beach-row-lbl">High Tide</div><div class="beach-row-val">7:45 PM · 1.1ft</div></div><div>🔼</div></div>
+          <div class="beach-row"><div><div class="beach-row-lbl">Low Tide</div><div class="beach-row-val">1:22 PM · -0.3ft</div></div><div>🔽</div></div>
+          <div class="beach-row" style="border:1px solid rgba(255,200,50,0.3);background:rgba(255,200,50,0.1)"><div><div class="beach-row-lbl" style="color:rgba(255,220,100,0.8)">Sunrise</div><div class="beach-row-val">6:18 AM</div></div><div>🌅</div></div>
+          <div class="beach-row" style="border:1px solid rgba(255,140,50,0.3);background:rgba(255,140,50,0.1)"><div><div class="beach-row-lbl" style="color:rgba(255,180,100,0.8)">Sunset</div><div class="beach-row-val">8:12 PM</div></div><div>🌇</div></div>
+        </div>
+        <div class="flag-row"><div class="flag-dot"></div><div class="flag-text">🟢 Green Flag — Safe to swim · Calm Gulf conditions</div></div>
+        <div class="temp-bar-wrap">
+          <div class="temp-bar-title">Gulf Water Temperature Gauge</div>
+          <div class="temp-bar-track"><div class="temp-bar-needle" style="left:60%"></div></div>
+          <div class="temp-bar-labels"><span>50°F</span><span>60°F</span><span>70°F</span><span>80°F</span><span>90°F+</span></div>
+          <div class="temp-verdict">🏄 Warm, busy — perfect beach day. Walk in and feel almost nothing.</div>
+        </div>
+        <div class="act-section-title">🎯 Live Activity Guide — What's Best Right Now</div>
+        <div class="act-grid">
+          <div class="act-card active">
+            <div class="act-status active"><div class="act-sdot active"></div>NOW</div>
+            <div class="act-name">Crab Island</div>
+            <div class="act-time">Until 6:00 PM</div>
+            <div class="act-tip">High tide window. Vendors open, waist-deep water perfect.</div>
+          </div>
+          <div class="act-card soon">
+            <div class="act-status soon"><div class="act-sdot soon"></div>TONIGHT</div>
+            <div class="act-name">Snorkeling</div>
+            <div class="act-time">6:15 PM – 9:15 PM</div>
+            <div class="act-tip">Slack tide at the Jetties — best visibility.</div>
+          </div>
+          <div class="act-card">
+            <div class="act-status"><div class="act-sdot"></div>UPCOMING</div>
+            <div class="act-name">Fishing</div>
+            <div class="act-time">9:45 PM – 11:45 PM</div>
+            <div class="act-tip">Fish bite best during active tidal movement.</div>
+          </div>
+          <div class="act-card">
+            <div class="act-status"><div class="act-sdot"></div>TOMORROW</div>
+            <div class="act-name">Shelling</div>
+            <div class="act-time">Low tide 6:10 AM</div>
+            <div class="act-tip">Falling tide reveals new treasures on the sand.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+    <!-- MIDDLE — Restaurants + Weather + Activities -->
+    <div class="mid-col" style="grid-template-rows:1fr 1fr 1fr;">
+
+      <!-- Top: Tonight restaurants -->
+      <div class="mid-top" style="padding:20px 28px;">
+        <div class="sec-label">Tonight's restaurant picks</div>
+        <div style="display:flex;flex-direction:column;gap:8px;flex:1;">
+          <div style="display:flex;align-items:center;gap:14px;background:rgba(255,107,107,0.08);border:1px solid rgba(255,107,107,0.18);border-radius:12px;padding:12px 16px;">
+            <div style="width:44px;height:44px;border-radius:10px;background:rgba(255,107,107,0.15);border:1px solid rgba(255,107,107,0.25);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🦞</div>
+            <div style="flex:1;">
+              <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:2px;"><div style="font-size:15px;font-weight:400;color:#fff;">The Back Porch</div><div style="font-size:11px;color:rgba(255,255,255,0.35);">Walking distance · 39</div></div>
+              <div style="font-size:11px;color:rgba(255,107,107,0.8);margin-bottom:3px;">Best Overall · Seafood · 4.5★</div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.4);line-height:1.4;">40-year Destin institution. Best amberjack sandwich on the coast. Arrive before sunset — no reservations, first come first served.</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:12px 16px;">
+            <div style="width:44px;height:44px;border-radius:10px;background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🍣</div>
+            <div style="flex:1;">
+              <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:2px;"><div style="font-size:15px;font-weight:400;color:#fff;">Jackacuda's</div><div style="font-size:11px;color:rgba(255,255,255,0.35);">5 min · 39</div></div>
+              <div style="font-size:11px;color:rgba(255,200,100,0.7);margin-bottom:3px;">Best Fusion · Sushi · 4.5★</div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.4);line-height:1.4;">Gulf Coast-Japanese fusion with harbor views. Shrimp Ramen Bowl is a must. Lively, modern, great bar.</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:12px 16px;">
+            <div style="width:44px;height:44px;border-radius:10px;background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🍝</div>
+            <div style="flex:1;">
+              <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:2px;"><div style="font-size:15px;font-weight:400;color:#fff;">Mimmo's Ristorante</div><div style="font-size:11px;color:rgba(255,255,255,0.35);">10 min · 39$</div></div>
+              <div style="font-size:11px;color:rgba(167,139,250,0.8);margin-bottom:3px;">Best Italian · 4.5★ · Reservations recommended</div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.4);line-height:1.4;">Destin's gold standard for Italian. Homemade pasta, wood-fired pizza, family recipes for 20+ years.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Middle: 5-day weather -->
+      <div class="mid-top" style="padding:20px 28px;">
+        <div class="sec-label">5-day forecast · Destin FL</div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;flex:1;">
+          <div style="background:rgba(0,150,199,0.12);border:1px solid rgba(0,150,199,0.25);border-radius:12px;padding:12px 8px;text-align:center;display:flex;flex-direction:column;gap:6px;align-items:center;">
+            <div style="font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:1px;">TODAY</div>
+            <div style="font-size:24px;">☀️</div>
+            <div style="font-size:18px;font-weight:400;color:#fff;">89°F</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.4);">Low 74°F</div>
+            <div style="font-size:10px;color:#48cae4;">Sunny</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:12px 8px;text-align:center;display:flex;flex-direction:column;gap:6px;align-items:center;">
+            <div style="font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:1px;">SUN</div>
+            <div style="font-size:24px;">⛅</div>
+            <div style="font-size:18px;font-weight:400;color:#fff;">87°F</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.4);">Low 72°F</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.4);">Part cloudy</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:12px 8px;text-align:center;display:flex;flex-direction:column;gap:6px;align-items:center;">
+            <div style="font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:1px;">MON</div>
+            <div style="font-size:24px;">🌧️</div>
+            <div style="font-size:18px;font-weight:400;color:#fff;">82°F</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.4);">Low 70°F</div>
+            <div style="font-size:10px;color:rgba(251,191,36,0.7);">PM storms</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:12px 8px;text-align:center;display:flex;flex-direction:column;gap:6px;align-items:center;">
+            <div style="font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:1px;">TUE</div>
+            <div style="font-size:24px;">☀️</div>
+            <div style="font-size:18px;font-weight:400;color:#fff;">91°F</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.4);">Low 75°F</div>
+            <div style="font-size:10px;color:#48cae4;">Sunny</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:12px 8px;text-align:center;display:flex;flex-direction:column;gap:6px;align-items:center;">
+            <div style="font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:1px;">WED</div>
+            <div style="font-size:24px;">☀️</div>
+            <div style="font-size:18px;font-weight:400;color:#fff;">90°F</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.4);">Low 74°F</div>
+            <div style="font-size:10px;color:#48cae4;">Sunny</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom: What to do today -->
+      <div class="mid-top" style="padding:20px 28px;">
+        <div class="sec-label">What to do today</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;flex:1;">
+          <div style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:5px;">
+            <div style="display:flex;align-items:center;gap:6px;"><div style="width:6px;height:6px;border-radius:50%;background:#22c55e;box-shadow:0 0 4px #22c55e;"></div><div style="font-size:9px;color:#86efac;letter-spacing:2px;text-transform:uppercase;">Right Now</div></div>
+            <div style="font-size:15px;font-weight:400;color:#fff;">Crab Island</div>
+            <div style="font-size:11px;color:#48cae4;">Until 6 PM · 15 min by boat</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.4);line-height:1.4;">Perfect high tide window. All vendors open. Rent pontoon from HarborWalk.</div>
+          </div>
+          <div style="background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:5px;">
+            <div style="display:flex;align-items:center;gap:6px;"><div style="width:6px;height:6px;border-radius:50%;background:#fbbf24;"></div><div style="font-size:9px;color:#fde68a;letter-spacing:2px;text-transform:uppercase;">Tonight 9 PM</div></div>
+            <div style="font-size:15px;font-weight:400;color:#fff;">HarborWalk Fireworks</div>
+            <div style="font-size:11px;color:#48cae4;">Free · 10 min drive</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.4);line-height:1.4;">Thursday fireworks over Destin Harbor. Boshamps deck is the best spot.</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:5px;">
+            <div style="display:flex;align-items:center;gap:6px;"><div style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.3);"></div><div style="font-size:9px;color:rgba(255,255,255,0.35);letter-spacing:2px;text-transform:uppercase;">This Evening</div></div>
+            <div style="font-size:15px;font-weight:400;color:#fff;">Snorkeling · The Jetties</div>
+            <div style="font-size:11px;color:#48cae4;">6:15–9:15 PM · 8 min</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.4);line-height:1.4;">Slack tide window — best visibility of the day. Crystal clear Gulf water.</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:5px;">
+            <div style="display:flex;align-items:center;gap:6px;"><div style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.3);"></div><div style="font-size:9px;color:rgba(255,255,255,0.35);letter-spacing:2px;text-transform:uppercase;">Tomorrow 6 AM</div></div>
+            <div style="font-size:15px;font-weight:400;color:#fff;">Shelling · Crystal Beach</div>
+            <div style="font-size:11px;color:#48cae4;">Low tide 6:10 AM · 10 min</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.4);line-height:1.4;">Best finds in the first hour after low tide. Go early before crowds arrive.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+        <!-- RIGHT — Destiny Blue + QR -->
+    <div class="right-col">
+      <div style="text-align:center;">
+        <div class="db-name">Destiny <span>Blue</span></div>
+        <div class="db-tagline">Your personal AI concierge</div>
+      </div>
+
+      <div class="qr-frame">
+        <svg width="160" height="160" viewBox="0 0 56 56">
+          <rect x="2" y="2" width="16" height="16" rx="2" fill="none" stroke="#000" stroke-width="2"/>
+          <rect x="5" y="5" width="10" height="10" fill="#000" rx="1"/>
+          <rect x="38" y="2" width="16" height="16" rx="2" fill="none" stroke="#000" stroke-width="2"/>
+          <rect x="41" y="5" width="10" height="10" fill="#000" rx="1"/>
+          <rect x="2" y="38" width="16" height="16" rx="2" fill="none" stroke="#000" stroke-width="2"/>
+          <rect x="5" y="41" width="10" height="10" fill="#000" rx="1"/>
+          <rect x="22" y="2" width="4" height="4" fill="#000"/>
+          <rect x="28" y="2" width="4" height="4" fill="#000"/>
+          <rect x="22" y="8" width="4" height="4" fill="#000"/>
+          <rect x="28" y="8" width="4" height="4" fill="#000"/>
+          <rect x="22" y="14" width="4" height="4" fill="#000"/>
+          <rect x="2" y="22" width="4" height="4" fill="#000"/>
+          <rect x="8" y="22" width="4" height="4" fill="#000"/>
+          <rect x="14" y="22" width="4" height="4" fill="#000"/>
+          <rect x="22" y="22" width="4" height="4" fill="#000"/>
+          <rect x="28" y="22" width="4" height="4" fill="#000"/>
+          <rect x="34" y="22" width="4" height="4" fill="#000"/>
+          <rect x="40" y="22" width="4" height="4" fill="#000"/>
+          <rect x="46" y="22" width="4" height="4" fill="#000"/>
+          <rect x="50" y="22" width="4" height="4" fill="#000"/>
+          <rect x="22" y="28" width="4" height="4" fill="#000"/>
+          <rect x="34" y="28" width="4" height="4" fill="#000"/>
+          <rect x="46" y="28" width="4" height="4" fill="#000"/>
+          <rect x="28" y="34" width="4" height="4" fill="#000"/>
+          <rect x="40" y="34" width="4" height="4" fill="#000"/>
+          <rect x="50" y="34" width="4" height="4" fill="#000"/>
+          <rect x="22" y="40" width="4" height="4" fill="#000"/>
+          <rect x="34" y="40" width="4" height="4" fill="#000"/>
+          <rect x="46" y="40" width="4" height="4" fill="#000"/>
+          <rect x="22" y="46" width="4" height="4" fill="#000"/>
+          <rect x="28" y="46" width="4" height="4" fill="#000"/>
+          <rect x="40" y="46" width="4" height="4" fill="#000"/>
+          <rect x="50" y="46" width="4" height="4" fill="#000"/>
+        </svg>
+      </div>
+
+      <div style="text-align:center;">
+        <div style="font-size:14px;font-weight:300;color:rgba(255,255,255,0.6);margin-bottom:6px;">Scan to chat on your phone</div>
+        <div class="db-url">destincondogetaways.com/concierge</div>
+      </div>
+
+      <div class="db-caps">
+        <div class="db-cap"><div class="db-cap-dot"></div><div class="db-cap-text"><strong>Check availability</strong> and get booking links instantly</div></div>
+        <div class="db-cap"><div class="db-cap-dot"></div><div class="db-cap-text"><strong>Restaurants, beaches</strong> and activity recommendations</div></div>
+        <div class="db-cap"><div class="db-cap-dot"></div><div class="db-cap-text"><strong>Any question</strong> about the resort or Destin</div></div>
+        <div class="db-cap"><div class="db-cap-dot"></div><div class="db-cap-text"><strong>Connect with Ozan</strong> for anything urgent</div></div>
+        <div class="db-cap"><div class="db-cap-dot"></div><div class="db-cap-text"><strong>Hidden 5% discount</strong> on your next direct booking</div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM BAR -->
+  <div class="bottombar">
+    <div class="bot-item">Pelican Beach Resort · Unit 1006 · Destin, Florida</div>
+    <div class="bot-item">Live data · NOAA station 8729840 · Updated every 6 min</div>
+    <div class="bot-item">Ozan CILI · (972) 357-4262 · destincondogetaways.com</div>
+  </div>
+
+  <div class="ocean-bar"></div>
+</div>
+</body>
+</html>

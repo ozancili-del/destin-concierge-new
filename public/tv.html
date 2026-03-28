@@ -23,7 +23,7 @@ html,body{
   width:1920px;
   height:1080px;
   display:grid;
-  grid-template-rows:72px 1fr 48px;
+  grid-template-rows:180px 1fr 44px;
   position:relative;
 }
 
@@ -143,8 +143,8 @@ html,body{
   text-align:center;
 }
 .beach-card-icon{font-size:20px;margin-bottom:4px;}
-.beach-card-val{font-size:22px;font-weight:800;color:#fff;line-height:1;}
-.beach-card-lbl{font-size:9px;color:rgba(255,255,255,0.65);margin-top:3px;text-transform:uppercase;letter-spacing:1px;}
+.beach-card-val{font-size:26px;font-weight:800;color:#fff;line-height:1;}
+.beach-card-lbl{font-size:11px;color:rgba(255,255,255,0.65);margin-top:3px;text-transform:uppercase;letter-spacing:1px;}
 .beach-row-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
 .beach-row{
   background:rgba(255,255,255,0.12);
@@ -154,8 +154,8 @@ html,body{
   justify-content:space-between;
   align-items:center;
 }
-.beach-row-lbl{font-size:10px;color:rgba(255,255,255,0.6);}
-.beach-row-val{font-size:12px;font-weight:700;color:#fff;}
+.beach-row-lbl{font-size:12px;color:rgba(255,255,255,0.6);}
+.beach-row-val{font-size:14px;font-weight:700;color:#fff;}
 .flag-row{
   background:rgba(34,197,94,0.15);
   border:1px solid rgba(34,197,94,0.3);
@@ -210,9 +210,9 @@ html,body{
 .act-sdot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,0.3);}
 .act-sdot.active{background:#22c55e;box-shadow:0 0 4px #22c55e;}
 .act-sdot.soon{background:#fbbf24;}
-.act-name{font-size:13px;font-weight:400;color:#fff;margin-bottom:2px;}
+.act-name{font-size:15px;font-weight:400;color:#fff;margin-bottom:2px;}
 .act-time{font-size:10px;color:rgba(255,255,255,0.55);margin-bottom:4px;}
-.act-tip{font-size:9px;color:rgba(255,255,255,0.35);line-height:1.4;font-style:italic;}
+.act-tip{font-size:11px;color:rgba(255,255,255,0.35);line-height:1.4;font-style:italic;}
 
 /* ── MIDDLE COL — MAPS & PICKS ── */
 .mid-col{
@@ -435,16 +435,47 @@ html,body{
     <path d="M0 650 Q480 570 960 650 Q1440 730 1920 650" stroke="white" stroke-width="0.5" fill="none"/>
   </svg>
 
-  <!-- TOP BAR -->
-  <div class="topbar">
-    <div class="topbar-logo">Destiny <span>Blue</span></div>
-    <div style="text-align:center;">
-      <div class="topbar-welcome">Welcome, <strong>Sarah &amp; Family</strong> — we're so glad you're here 🌊</div>
-      <div style="margin-top:6px;display:flex;gap:10px;align-items:center;justify-content:center;">
-        <div class="stay-pill"><div class="stay-dot"></div>Unit 1006 · Day 3 of 7 · Check-out June 13</div>
+  <!-- WELCOME PANEL -->
+  <div style="position:relative;overflow:hidden;background:#081828;border-bottom:1px solid rgba(255,255,255,0.05);display:grid;grid-template-columns:1fr auto;align-items:center;padding:0 60px 0 60px;">
+
+    <!-- Subtle background wave -->
+    <svg style="position:absolute;inset:0;width:100%;height:100%;opacity:0.04;pointer-events:none;" viewBox="0 0 1920 180" preserveAspectRatio="none">
+      <path d="M0 90 Q480 30 960 90 Q1440 150 1920 90" stroke="white" stroke-width="1" fill="none"/>
+      <path d="M0 120 Q480 60 960 120 Q1440 180 1920 120" stroke="white" stroke-width="0.5" fill="none"/>
+    </svg>
+
+    <!-- Teal left accent -->
+    <div style="position:absolute;left:0;top:20%;bottom:20%;width:3px;background:linear-gradient(to bottom,transparent,#48cae4,transparent);"></div>
+
+    <!-- Left: Personal message -->
+    <div style="position:relative;">
+      <div style="font-size:11px;font-weight:200;letter-spacing:5px;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-bottom:14px;">Pelican Beach Resort · Unit 1006 · Destin, Florida</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:300;color:#ffffff;line-height:1.1;letter-spacing:-1px;margin-bottom:12px;">
+        Welcome, <span style="color:#48cae4;">Sarah</span> &amp; Family
+      </div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;font-style:italic;color:rgba(255,255,255,0.55);line-height:1.5;max-width:900px;">
+        We're so glad you're here. Tonight is yours to settle in — the Gulf is stunning at sunset from your balcony, and The Back Porch is walking distance for dinner. Welcome home.
       </div>
     </div>
-    <div class="topbar-right">Saturday, June 8<br>2:45 PM CDT</div>
+
+    <!-- Right: Stay info + Destiny Blue -->
+    <div style="position:relative;display:flex;flex-direction:column;align-items:flex-end;gap:12px;flex-shrink:0;padding-left:60px;">
+      <div style="text-align:right;">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:#fff;letter-spacing:-0.5px;">Destiny <span style="color:#48cae4;">Blue</span></div>
+        <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;color:rgba(255,255,255,0.3);">Your personal AI concierge</div>
+      </div>
+      <div style="display:flex;gap:16px;align-items:center;">
+        <div style="text-align:right;">
+          <div style="font-size:10px;font-weight:200;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.2);margin-bottom:4px;">Your stay</div>
+          <div style="font-size:13px;font-weight:300;color:rgba(255,255,255,0.6);">Day 1 of 7 · Check-out June 13</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;background:rgba(72,202,228,0.08);border:1px solid rgba(72,202,228,0.15);border-radius:20px;padding:6px 14px;">
+          <div style="width:6px;height:6px;border-radius:50%;background:#48cae4;animation:blink 2s infinite;"></div>
+          <div style="font-size:11px;font-weight:300;color:#48cae4;letter-spacing:1px;">Saturday, June 8 · 4:45 PM</div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <!-- BODY -->
@@ -509,110 +540,131 @@ html,body{
     </div>
 
     
-    <!-- MIDDLE — Restaurants + Weather + Activities -->
-    <div class="mid-col" style="grid-template-rows:1fr 1fr 1fr;">
+    <!-- MIDDLE — Time-of-day guide + Weather -->
+    <div class="mid-col" style="grid-template-rows:1.3fr 0.7fr;">
 
-      <!-- Top: Tonight restaurants -->
-      <div class="mid-top" style="padding:20px 28px;">
-        <div class="sec-label">Tonight's restaurant picks</div>
-        <div style="display:flex;flex-direction:column;gap:8px;flex:1;">
-          <div style="display:flex;align-items:center;gap:14px;background:rgba(255,107,107,0.08);border:1px solid rgba(255,107,107,0.18);border-radius:12px;padding:12px 16px;">
-            <div style="width:44px;height:44px;border-radius:10px;background:rgba(255,107,107,0.15);border:1px solid rgba(255,107,107,0.25);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🦞</div>
-            <div style="flex:1;">
-              <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:2px;"><div style="font-size:15px;font-weight:400;color:#fff;">The Back Porch</div><div style="font-size:11px;color:rgba(255,255,255,0.35);">Walking distance · 39</div></div>
-              <div style="font-size:11px;color:rgba(255,107,107,0.8);margin-bottom:3px;">Best Overall · Seafood · 4.5★</div>
-              <div style="font-size:11px;color:rgba(255,255,255,0.4);line-height:1.4;">40-year Destin institution. Best amberjack sandwich on the coast. Arrive before sunset — no reservations, first come first served.</div>
+      <!-- Top: Your day guide -->
+      <div class="mid-top" style="padding:22px 28px;">
+        <div class="sec-label">Your day · Saturday June 8</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;flex:1;">
+
+          <!-- Morning -->
+          <div style="background:rgba(255,200,50,0.06);border:1px solid rgba(255,200,50,0.15);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:0;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(255,255,255,0.06);padding-bottom:10px;margin-bottom:10px;">
+              <div style="font-size:20px;">🌅</div>
+              <div>
+                <div style="font-size:13px;font-weight:400;color:rgba(255,255,255,0.9);letter-spacing:1px;">MORNING</div>
+                <div style="font-size:10px;color:rgba(255,255,255,0.3);">Until noon</div>
+              </div>
+            </div>
+            <div style="font-size:11px;color:rgba(255,200,50,0.6);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">Eat</div>
+            <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:auto;">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;"><span style="font-size:17px;color:#fff;">Ruby Slipper</span><span style="font-size:10px;color:rgba(255,255,255,0.3);">10 min · $$</span></div>
+              <div style="display:flex;justify-content:space-between;align-items:baseline;"><span style="font-size:17px;color:#fff;">Crackings</span><span style="font-size:10px;color:rgba(255,255,255,0.3);">5 min · $$</span></div>
+              <div style="display:flex;justify-content:space-between;align-items:baseline;"><span style="font-size:17px;color:#fff;">McGuire's Irish Pub</span><span style="font-size:10px;color:rgba(255,255,255,0.3);">12 min · $$</span></div>
+            </div>
+            <div style="font-size:11px;color:rgba(255,200,50,0.6);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">Do</div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;"><span style="font-size:17px;color:#fff;">Shelling · Crystal Beach</span><span style="font-size:10px;color:rgba(255,255,255,0.3);">Low tide 6 AM</span></div>
+              <div style="display:flex;justify-content:space-between;align-items:baseline;"><span style="font-size:17px;color:#fff;">Kayak Rental</span><span style="font-size:10px;color:rgba(255,255,255,0.3);">HarborWalk</span></div>
+              <div style="display:flex;justify-content:space-between;align-items:baseline;"><span style="font-size:17px;color:#fff;">Dolphin Cruise</span><span style="font-size:10px;color:rgba(255,255,255,0.3);">9 AM · $35</span></div>
             </div>
           </div>
-          <div style="display:flex;align-items:center;gap:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:12px 16px;">
-            <div style="width:44px;height:44px;border-radius:10px;background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🍣</div>
-            <div style="flex:1;">
-              <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:2px;"><div style="font-size:15px;font-weight:400;color:#fff;">Jackacuda's</div><div style="font-size:11px;color:rgba(255,255,255,0.35);">5 min · 39</div></div>
-              <div style="font-size:11px;color:rgba(255,200,100,0.7);margin-bottom:3px;">Best Fusion · Sushi · 4.5★</div>
-              <div style="font-size:11px;color:rgba(255,255,255,0.4);line-height:1.4;">Gulf Coast-Japanese fusion with harbor views. Shrimp Ramen Bowl is a must. Lively, modern, great bar.</div>
+
+          <!-- Afternoon -->
+          <div style="background:rgba(72,202,228,0.06);border:1px solid rgba(72,202,228,0.15);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:0;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(255,255,255,0.06);padding-bottom:10px;margin-bottom:10px;">
+              <div style="font-size:20px;">☀️</div>
+              <div>
+                <div style="font-size:13px;font-weight:400;color:rgba(255,255,255,0.9);letter-spacing:1px;">AFTERNOON</div>
+                <div style="font-size:10px;color:rgba(255,255,255,0.3);">Noon – 5 PM</div>
+              </div>
+            </div>
+            <div style="font-size:11px;color:rgba(72,202,228,0.6);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">Eat</div>
+            <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:auto;">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;"><span style="font-size:17px;color:#fff;">Dewey Destin's</span><span style="font-size:10px;color:rgba(255,255,255,0.3);">5 min · $$</span></div>
+              <div style="display:flex;justify-content:space-between;align-items:baseline;"><span style="font-size:17px;color:#fff;">AJ's Seafood Bar</span><span style="font-size:10px;color:rgba(255,255,255,0.3);">10 min · $$</span></div>
+              <div style="display:flex;justify-content:space-between;align-items:baseline;"><span style="font-size:17px;color:#fff;">Boshamps</span><span style="font-size:10px;color:rgba(255,255,255,0.3);">10 min · $$</span></div>
+            </div>
+            <div style="font-size:11px;color:rgba(72,202,228,0.6);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">Do</div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;"><span style="font-size:17px;color:#fff;">Crab Island</span><span style="font-size:10px;color:rgba(255,255,255,0.3);">Pontoon rental</span></div>
+              <div style="display:flex;justify-content:space-between;align-items:baseline;"><span style="font-size:17px;color:#fff;">Henderson Beach SP</span><span style="font-size:10px;color:rgba(255,255,255,0.3);">8 min · Free</span></div>
+              <div style="display:flex;justify-content:space-between;align-items:baseline;"><span style="font-size:17px;color:#fff;">Paddleboard Rental</span><span style="font-size:10px;color:rgba(255,255,255,0.3);">On the beach</span></div>
             </div>
           </div>
-          <div style="display:flex;align-items:center;gap:14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:12px 16px;">
-            <div style="width:44px;height:44px;border-radius:10px;background:rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">🍝</div>
-            <div style="flex:1;">
-              <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:2px;"><div style="font-size:15px;font-weight:400;color:#fff;">Mimmo's Ristorante</div><div style="font-size:11px;color:rgba(255,255,255,0.35);">10 min · 39$</div></div>
-              <div style="font-size:11px;color:rgba(167,139,250,0.8);margin-bottom:3px;">Best Italian · 4.5★ · Reservations recommended</div>
-              <div style="font-size:11px;color:rgba(255,255,255,0.4);line-height:1.4;">Destin's gold standard for Italian. Homemade pasta, wood-fired pizza, family recipes for 20+ years.</div>
+
+          <!-- Evening -->
+          <div style="background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.15);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:0;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(255,255,255,0.06);padding-bottom:10px;margin-bottom:10px;">
+              <div style="font-size:20px;">🌇</div>
+              <div>
+                <div style="font-size:13px;font-weight:400;color:rgba(255,255,255,0.9);letter-spacing:1px;">EVENING</div>
+                <div style="font-size:10px;color:rgba(255,255,255,0.3);">5 PM onwards</div>
+              </div>
+            </div>
+            <div style="font-size:11px;color:rgba(139,92,246,0.7);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">Eat</div>
+            <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:auto;">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;"><span style="font-size:17px;color:#fff;">The Back Porch</span><span style="font-size:10px;color:rgba(255,255,255,0.3);">Walking · $$</span></div>
+              <div style="display:flex;justify-content:space-between;align-items:baseline;"><span style="font-size:17px;color:#fff;">Mimmo's Ristorante</span><span style="font-size:10px;color:rgba(255,255,255,0.3);">10 min · $$$</span></div>
+              <div style="display:flex;justify-content:space-between;align-items:baseline;"><span style="font-size:17px;color:#fff;">Jackacuda's</span><span style="font-size:10px;color:rgba(255,255,255,0.3);">5 min · $$</span></div>
+            </div>
+            <div style="font-size:11px;color:rgba(139,92,246,0.7);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;">Tonight</div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;"><span style="font-size:17px;color:#fff;">HarborWalk Fireworks</span><span style="font-size:10px;color:rgba(255,255,255,0.3);">9 PM · Free</span></div>
+              <div style="display:flex;justify-content:space-between;align-items:baseline;"><span style="font-size:17px;color:#fff;">Sunset at the Balcony</span><span style="font-size:10px;color:rgba(255,255,255,0.3);">8:12 PM</span></div>
+              <div style="display:flex;justify-content:space-between;align-items:baseline;"><span style="font-size:17px;color:#fff;">Snorkeling · Jetties</span><span style="font-size:10px;color:rgba(255,255,255,0.3);">6:15 PM slack tide</span></div>
             </div>
           </div>
+
         </div>
       </div>
 
-      <!-- Middle: 5-day weather -->
-      <div class="mid-top" style="padding:20px 28px;">
-        <div class="sec-label">5-day forecast · Destin FL</div>
-        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;flex:1;">
-          <div style="background:rgba(0,150,199,0.12);border:1px solid rgba(0,150,199,0.25);border-radius:12px;padding:12px 8px;text-align:center;display:flex;flex-direction:column;gap:6px;align-items:center;">
-            <div style="font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:1px;">TODAY</div>
-            <div style="font-size:24px;">☀️</div>
-            <div style="font-size:18px;font-weight:400;color:#fff;">89°F</div>
-            <div style="font-size:10px;color:rgba(255,255,255,0.4);">Low 74°F</div>
-            <div style="font-size:10px;color:#48cae4;">Sunny</div>
-          </div>
-          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:12px 8px;text-align:center;display:flex;flex-direction:column;gap:6px;align-items:center;">
-            <div style="font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:1px;">SUN</div>
-            <div style="font-size:24px;">⛅</div>
-            <div style="font-size:18px;font-weight:400;color:#fff;">87°F</div>
-            <div style="font-size:10px;color:rgba(255,255,255,0.4);">Low 72°F</div>
-            <div style="font-size:10px;color:rgba(255,255,255,0.4);">Part cloudy</div>
-          </div>
-          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:12px 8px;text-align:center;display:flex;flex-direction:column;gap:6px;align-items:center;">
-            <div style="font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:1px;">MON</div>
-            <div style="font-size:24px;">🌧️</div>
-            <div style="font-size:18px;font-weight:400;color:#fff;">82°F</div>
-            <div style="font-size:10px;color:rgba(255,255,255,0.4);">Low 70°F</div>
-            <div style="font-size:10px;color:rgba(251,191,36,0.7);">PM storms</div>
-          </div>
-          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:12px 8px;text-align:center;display:flex;flex-direction:column;gap:6px;align-items:center;">
-            <div style="font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:1px;">TUE</div>
-            <div style="font-size:24px;">☀️</div>
-            <div style="font-size:18px;font-weight:400;color:#fff;">91°F</div>
-            <div style="font-size:10px;color:rgba(255,255,255,0.4);">Low 75°F</div>
-            <div style="font-size:10px;color:#48cae4;">Sunny</div>
-          </div>
-          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:12px 8px;text-align:center;display:flex;flex-direction:column;gap:6px;align-items:center;">
-            <div style="font-size:11px;color:rgba(255,255,255,0.35);letter-spacing:1px;">WED</div>
-            <div style="font-size:24px;">☀️</div>
-            <div style="font-size:18px;font-weight:400;color:#fff;">90°F</div>
-            <div style="font-size:10px;color:rgba(255,255,255,0.4);">Low 74°F</div>
-            <div style="font-size:10px;color:#48cae4;">Sunny</div>
-          </div>
-        </div>
-      </div>
+      <!-- Bottom: 5-day forecast — filled properly -->
+      <div class="mid-top" style="padding:18px 28px;">
+        <div class="sec-label">5-day forecast · Destin, Florida</div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;flex:1;">
 
-      <!-- Bottom: What to do today -->
-      <div class="mid-top" style="padding:20px 28px;">
-        <div class="sec-label">What to do today</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;flex:1;">
-          <div style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:5px;">
-            <div style="display:flex;align-items:center;gap:6px;"><div style="width:6px;height:6px;border-radius:50%;background:#22c55e;box-shadow:0 0 4px #22c55e;"></div><div style="font-size:9px;color:#86efac;letter-spacing:2px;text-transform:uppercase;">Right Now</div></div>
-            <div style="font-size:15px;font-weight:400;color:#fff;">Crab Island</div>
-            <div style="font-size:11px;color:#48cae4;">Until 6 PM · 15 min by boat</div>
-            <div style="font-size:10px;color:rgba(255,255,255,0.4);line-height:1.4;">Perfect high tide window. All vendors open. Rent pontoon from HarborWalk.</div>
+          <div style="background:rgba(0,150,199,0.12);border:1px solid rgba(0,150,199,0.25);border-radius:12px;padding:0;text-align:center;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px;">
+            <div style="font-size:11px;color:rgba(255,255,255,0.4);letter-spacing:2px;padding-top:14px;">TODAY</div>
+            <div style="font-size:34px;line-height:1;">☀️</div>
+            <div style="font-size:24px;font-weight:400;color:#fff;">89°F</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.3);">Low 74°F</div>
+            <div style="font-size:12px;color:#48cae4;padding-bottom:14px;">Sunny</div>
           </div>
-          <div style="background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:5px;">
-            <div style="display:flex;align-items:center;gap:6px;"><div style="width:6px;height:6px;border-radius:50%;background:#fbbf24;"></div><div style="font-size:9px;color:#fde68a;letter-spacing:2px;text-transform:uppercase;">Tonight 9 PM</div></div>
-            <div style="font-size:15px;font-weight:400;color:#fff;">HarborWalk Fireworks</div>
-            <div style="font-size:11px;color:#48cae4;">Free · 10 min drive</div>
-            <div style="font-size:10px;color:rgba(255,255,255,0.4);line-height:1.4;">Thursday fireworks over Destin Harbor. Boshamps deck is the best spot.</div>
+
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px;text-align:center;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px;">
+            <div style="font-size:11px;color:rgba(255,255,255,0.3);letter-spacing:2px;padding-top:14px;">SUN</div>
+            <div style="font-size:34px;line-height:1;">⛅</div>
+            <div style="font-size:24px;font-weight:400;color:#fff;">87°F</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.3);">Low 72°F</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.35);padding-bottom:14px;">Partly cloudy</div>
           </div>
-          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:5px;">
-            <div style="display:flex;align-items:center;gap:6px;"><div style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.3);"></div><div style="font-size:9px;color:rgba(255,255,255,0.35);letter-spacing:2px;text-transform:uppercase;">This Evening</div></div>
-            <div style="font-size:15px;font-weight:400;color:#fff;">Snorkeling · The Jetties</div>
-            <div style="font-size:11px;color:#48cae4;">6:15–9:15 PM · 8 min</div>
-            <div style="font-size:10px;color:rgba(255,255,255,0.4);line-height:1.4;">Slack tide window — best visibility of the day. Crystal clear Gulf water.</div>
+
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px;text-align:center;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px;">
+            <div style="font-size:11px;color:rgba(255,255,255,0.3);letter-spacing:2px;padding-top:14px;">MON</div>
+            <div style="font-size:34px;line-height:1;">🌧️</div>
+            <div style="font-size:24px;font-weight:400;color:#fff;">82°F</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.3);">Low 70°F</div>
+            <div style="font-size:12px;color:rgba(251,191,36,0.8);padding-bottom:14px;">PM storms</div>
           </div>
-          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:5px;">
-            <div style="display:flex;align-items:center;gap:6px;"><div style="width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.3);"></div><div style="font-size:9px;color:rgba(255,255,255,0.35);letter-spacing:2px;text-transform:uppercase;">Tomorrow 6 AM</div></div>
-            <div style="font-size:15px;font-weight:400;color:#fff;">Shelling · Crystal Beach</div>
-            <div style="font-size:11px;color:#48cae4;">Low tide 6:10 AM · 10 min</div>
-            <div style="font-size:10px;color:rgba(255,255,255,0.4);line-height:1.4;">Best finds in the first hour after low tide. Go early before crowds arrive.</div>
+
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px;text-align:center;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px;">
+            <div style="font-size:11px;color:rgba(255,255,255,0.3);letter-spacing:2px;padding-top:14px;">TUE</div>
+            <div style="font-size:34px;line-height:1;">☀️</div>
+            <div style="font-size:24px;font-weight:400;color:#fff;">91°F</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.3);">Low 75°F</div>
+            <div style="font-size:12px;color:#48cae4;padding-bottom:14px;">Sunny</div>
           </div>
+
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px;text-align:center;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px;">
+            <div style="font-size:11px;color:rgba(255,255,255,0.3);letter-spacing:2px;padding-top:14px;">WED</div>
+            <div style="font-size:34px;line-height:1;">☀️</div>
+            <div style="font-size:24px;font-weight:400;color:#fff;">90°F</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.3);">Low 74°F</div>
+            <div style="font-size:12px;color:#48cae4;padding-bottom:14px;">Sunny</div>
+          </div>
+
         </div>
       </div>
 
@@ -682,7 +734,7 @@ html,body{
   <!-- BOTTOM BAR -->
   <div class="bottombar">
     <div class="bot-item">Pelican Beach Resort · Unit 1006 · Destin, Florida</div>
-    <div class="bot-item">Live data · NOAA station 8729840 · Updated every 6 min</div>
+    <div class="bot-item">Live beach &amp; weather data · Destin, Florida</div>
     <div class="bot-item">Ozan CILI · (972) 357-4262 · destincondogetaways.com</div>
   </div>
 

@@ -357,6 +357,23 @@ let state = {
 // ============================================================
 window.addEventListener('load', async () => {
   renderHistory();
+  // Restore CSV data from localStorage
+  const saved1006 = localStorage.getItem('priceiq_csv_1006');
+  const saved707 = localStorage.getItem('priceiq_csv_707');
+  if (saved1006) {
+    state.csvData['1006'] = JSON.parse(saved1006);
+    document.getElementById('status1006').textContent = `✓ ${state.csvData['1006'].competitors.length} competitors, ${state.csvData['1006'].dates.length} dates (cached)`;
+    document.getElementById('status1006').className = 'upload-status ok';
+  }
+  if (saved707) {
+    state.csvData['707'] = JSON.parse(saved707);
+    document.getElementById('status707').textContent = `✓ ${state.csvData['707'].competitors.length} competitors, ${state.csvData['707'].dates.length} dates (cached)`;
+    document.getElementById('status707').className = 'upload-status ok';
+  }
+  if (saved1006 || saved707) {
+    mergeCompetitors();
+    updateKPIs();
+  }
   await loadListingsData();
   checkAnalyzeReady();
 });
@@ -369,14 +386,16 @@ async function loadListingsData() {
     const r = await fetch(`${API_BASE}?action=listings`);
     const data = await r.json();
 
-    // Parse 1006
-    const l1006 = data['1006'];
+    // Parse 1006 — API returns {listings: [...]}
+    const l1006raw = data['1006'];
+    const l1006 = l1006raw?.listings?.[0] || l1006raw;
     if (l1006 && !l1006.error) {
       updateUnitCard('1006', l1006);
       state.listingsData['1006'] = l1006;
     }
     // Parse 707
-    const l707 = data['707'];
+    const l707raw = data['707'];
+    const l707 = l707raw?.listings?.[0] || l707raw;
     if (l707 && !l707.error) {
       updateUnitCard('707', l707);
       state.listingsData['707'] = l707;
@@ -444,6 +463,7 @@ function handleCSV(event, unit) {
     try {
       const parsed = parseCompetitorCSV(e.target.result, unit);
       state.csvData[unit] = parsed;
+      localStorage.setItem(`priceiq_csv_${unit}`, JSON.stringify(parsed));
       mergeCompetitors();
 
       document.getElementById(`status${unit}`).textContent = `✓ ${parsed.competitors.length} competitors, ${parsed.dates.length} dates`;

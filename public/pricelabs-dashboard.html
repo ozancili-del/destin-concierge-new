@@ -831,13 +831,16 @@ function renderCalGrid() {
 
 function parkDateFromCell(unit, date, defaultPrice, event) {
   event && event.stopPropagation();
-  // Check if user typed a custom value in the input
   const input = document.getElementById(`inp-${unit}-${date}`);
   const customVal = input ? parseInt(input.value) : null;
   const price = (customVal && customVal > 50) ? customVal : defaultPrice;
-  if (!state.parked[unit]) state.parked[unit]={};
-  if (state.parked[unit][date] === price) { delete state.parked[unit][date]; }
-  else { state.parked[unit][date] = price; }
+  if (!state.parked[unit]) state.parked[unit] = {};
+  // Only toggle off if already parked at same price AND no custom input
+  if (state.parked[unit][date] !== undefined && !(customVal && customVal > 50)) {
+    delete state.parked[unit][date];
+  } else {
+    state.parked[unit][date] = price;
+  }
   renderCalGrid();
   updateParkedCount();
 }

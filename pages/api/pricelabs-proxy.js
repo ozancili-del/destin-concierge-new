@@ -121,59 +121,111 @@ export default async function handler(req, res) {
           '707':  { prices: prices_707,  listing: listings_data?.['707']  },
         };
 
-        // Find actionable dates for next 90 days
+        // Find actionable dates for next 180 days
         const actionableDates = [];
-        const endDate = new Date(Date.now() + 90*24*60*60*1000).toISOString().split('T')[0];
+        const endDate = new Date(Date.now() + 180*24*60*60*1000).toISOString().split('T')[0];
+
+        // Group by week to avoid 180 individual date entries
+        const weekMap = {};
 
         for (const [unit, data] of Object.entries(units)) {
           if (!data.prices?.data) continue;
           for (const d of data.prices.data) {
             if (d.date < today || d.date > endDate) continue;
-            if (d.booking_status?.includes('Booked')) continue; // already booked
+            if (d.booking_status?.includes('Booked')) continue;
             if (d.unbookable) continue;
 
             const comp = compByDate[d.date] || { booked: [], available: [] };
             const isUrgent = d.date <= in14Days;
-            const bookedRatio = comp.booked.length / (comp.booked.length + comp.available.length + 0.001);
+            const bookedRatio = comp.booked.length / Math.max(comp.booked.length + comp.available.length, 1);
             const avgAvailPrice = comp.available.length > 0
               ? Math.round(comp.available.reduce((s, c) => s + c.price, 0) / comp.available.length)
               : null;
             const lastYearADR = d.ADR_STLY > 0 ? d.ADR_STLY : null;
             const stlyBooked = d.booking_status_STLY?.includes('Booked');
+            const profileCapped = d.uncustomized_price > d.price * 1.1;
 
-            // Flag interesting dates
-            if (isUrgent || bookedRatio > 0.5 || (stlyBooked && !d.booking_status)) {
-              actionableDates.push({
+            // Week key — group dates into 7-day windows per unit
+            const dateObj = new Date(d.date);
+            const weekStart = new Date(dateObj);
+            weekStart.setDate(dateObj.getDate() - dateObj.getDay());
+            const weekKey = `${unit}_${weekStart.toISOString().split('T')[0]}`;
+
+            if (!weekMap[weekKey]) {
+              weekMap[weekKey] = {
                 unit,
-                date: d.date,
-                yourPrice: d.price,
-                uncustomized: d.uncustomized_price,
-                lastYearADR,
-                stlyBooked,
-                demandColor: d.demand_color,
-                demandDesc: d.demand_desc,
-                isUrgent,
-                competitorsBooked: comp.booked.length,
-                competitorsAvailable: comp.available.length,
-                totalComps: comp.booked.length + comp.available.length,
-                bookedRatio: Math.round(bookedRatio * 100),
-                avgAvailableCompPrice: avgAvailPrice,
-                bookedCompLastSeen: comp.booked.length > 0
-                  ? Math.round(comp.booked.reduce((s,c) => s + c.lastSeenPrice, 0) / comp.booked.length)
-                  : null
-              });
+                weekStart: weekStart.toISOString().split('T')[0],
+                dates: [],
+                prices: [],
+                uncustomized: [],
+                lastYearADRs: [],
+                stlyBooked: false,
+                isUrgent: false,
+                bookedRatios: [],
+                avgAvailPrices: [],
+                bookedLastSeen: [],
+                profileCapped: false,
+                demandDescs: []
+              };
             }
+
+            const wk = weekMap[weekKey];
+            wk.dates.push(d.date);
+            wk.prices.push(d.price);
+            wk.uncustomized.push(d.uncustomized_price);
+            if (lastYearADR) wk.lastYearADRs.push(lastYearADR);
+            if (stlyBooked) wk.stlyBooked = true;
+            if (isUrgent) wk.isUrgent = true;
+            if (profileCapped) wk.profileCapped = true;
+            wk.bookedRatios.push(bookedRatio);
+            if (avgAvailPrice) wk.avgAvailPrices.push(avgAvailPrice);
+            if (comp.booked.length > 0) {
+              wk.bookedLastSeen.push(Math.round(comp.booked.reduce((s,c) => s + c.lastSeenPrice, 0) / comp.booked.length));
+            }
+            if (d.demand_desc) wk.demandDescs.push(d.demand_desc);
           }
         }
 
-        // Sort by urgency then booked ratio
+        // Convert week map to actionable dates
+        for (const wk of Object.values(weekMap)) {
+          const avgPrice = Math.round(wk.prices.reduce((s,v) => s+v, 0) / wk.prices.length);
+          const avgUncust = Math.round(wk.uncustomized.reduce((s,v) => s+v, 0) / wk.uncustomized.length);
+          const avgBookedRatio = wk.bookedRatios.reduce((s,v) => s+v, 0) / wk.bookedRatios.length;
+          const avgLastYearADR = wk.lastYearADRs.length > 0
+            ? Math.round(wk.lastYearADRs.reduce((s,v) => s+v, 0) / wk.lastYearADRs.length) : null;
+          const avgAvailCompPrice = wk.avgAvailPrices.length > 0
+            ? Math.round(wk.avgAvailPrices.reduce((s,v) => s+v, 0) / wk.avgAvailPrices.length) : null;
+          const avgBookedLastSeen = wk.bookedLastSeen.length > 0
+            ? Math.round(wk.bookedLastSeen.reduce((s,v) => s+v, 0) / wk.bookedLastSeen.length) : null;
+
+          actionableDates.push({
+            unit: wk.unit,
+            weekOf: wk.weekStart,
+            dates: wk.dates,
+            dateRange: `${wk.dates[0]} to ${wk.dates[wk.dates.length-1]}`,
+            avgYourPrice: avgPrice,
+            avgUncustomized: avgUncust,
+            avgLastYearADR,
+            stlyBooked: wk.stlyBooked,
+            isUrgent: wk.isUrgent,
+            profileCapped: wk.profileCapped,
+            competitorBookedRatio: Math.round(avgBookedRatio * 100),
+            avgAvailableCompPrice: avgAvailCompPrice,
+            avgBookedCompLastSeen: avgBookedLastSeen,
+            daysInWeek: wk.dates.length,
+            dominantDemand: wk.demandDescs[0] || null
+          });
+        }
+
+        // Sort: urgent first, then by booked ratio, then by date
         actionableDates.sort((a, b) => {
           if (a.isUrgent !== b.isUrgent) return a.isUrgent ? -1 : 1;
-          return b.bookedRatio - a.bookedRatio;
+          if (b.competitorBookedRatio !== a.competitorBookedRatio) return b.competitorBookedRatio - a.competitorBookedRatio;
+          return a.weekOf < b.weekOf ? -1 : 1;
         });
 
-        // Take top 20 most actionable dates for Claude
-        const topDates = actionableDates.slice(0, 20);
+        // Take top 30 weeks for Claude — covers 3-4 months
+        const topDates = actionableDates.slice(0, 30);
 
         const systemPrompt = `You are PriceIQ, an expert vacation rental pricing advisor for Pelican Beach Resort in Destin, FL.
 
@@ -216,19 +268,27 @@ Return a JSON array of recommendations. Each recommendation:
 
 Maximum 6 recommendations. Prioritize: URGENT dates first, then HIGH impact revenue opportunities.`;
 
-        const userPrompt = `Analyze these ${topDates.length} actionable dates across both units and provide pricing recommendations.
+        const userPrompt = `Analyze these ${topDates.length} weekly periods across both units covering the next 6 months and provide pricing recommendations.
 
 MARKET CONTEXT:
 - Unit 1006 occupancy next 30 days: ${listings_data?.['1006']?.occupancy_next_30 || 'N/A'} vs market ${listings_data?.['1006']?.market_occupancy_next_30 || 'N/A'}
 - Unit 707 occupancy next 30 days: ${listings_data?.['707']?.occupancy_next_30 || 'N/A'} vs market ${listings_data?.['707']?.market_occupancy_next_30 || 'N/A'}
 - PriceLabs recommended base: $${listings_data?.['1006']?.recommended_base_price || 291} (current: $315)
+- Upload history context: ${upload_history ? JSON.stringify(upload_history) : 'First analysis'}
 
-UPLOAD HISTORY: ${upload_history ? JSON.stringify(upload_history) : 'First upload'}
-
-ACTIONABLE DATES:
+WEEKLY DATA (each row = one week, both units analyzed separately):
 ${JSON.stringify(topDates, null, 2)}
 
-Return ONLY a valid JSON array of recommendations. No prose, no markdown.`;
+INSTRUCTIONS:
+1. Cover ALL time periods — April, May, June and beyond. Don't focus only on near-term dates.
+2. Group adjacent weeks with same pattern into one recommendation (e.g. "May 10-31 — consistently below market")
+3. Flag URGENT (within 14 days) first
+4. Flag profile-capped dates (profileCapped=true) — these need seasonal profile update not DSO
+5. For empty months with no competitor bookings — tell me if market is just soft or if I need to drop price
+6. Maximum 6 recommendations but cover the full 6-month horizon
+7. Each recommendation must have specific dollar amounts, not vague advice
+
+Return ONLY a valid JSON array. No prose, no markdown backticks.`;
 
         const claudeRes = await fetch('https://api.anthropic.com/v1/messages', {
           method: 'POST',

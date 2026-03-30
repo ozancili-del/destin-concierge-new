@@ -298,12 +298,9 @@ table.comp .avail{color:var(--green);}
   <div class="tab-content" id="tab-competitors">
     <div class="chart-card">
       <div class="card-header">
-        <div class="card-title">Unified competitor pool — next 30 days</div>
-        <div class="legend">
-          <div class="leg"><div class="leg-dot" style="background:var(--red)"></div>Booked</div>
-          <div class="leg"><div class="leg-dot" style="background:var(--green)"></div>Available</div>
-        </div>
-      </div>
+      <div class="card-title">Unified competitor pool</div>
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;" id="monthSelector"></div>
+    </div>
       <div class="comp-table-wrap" id="compTableWrap">
         <div class="empty-state"><div class="empty-sub">Upload CSV files to see competitor data</div></div>
       </div>
@@ -772,6 +769,37 @@ function rejectRec(idx) {
 // ============================================================
 // COMPETITOR TABLE
 // ============================================================
+let activeCompMonth = null;
+
+function renderMonthSelector() {
+  const el = document.getElementById('monthSelector');
+  if (!el || !state.allDates) return;
+
+  const months = [...new Set(state.allDates.map(d => d.substring(0, 7)))].sort();
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  if (!activeCompMonth) activeCompMonth = months[0];
+
+  el.innerHTML = `
+    ${months.map((m, i) => {
+      const [yr, mo] = m.split('-');
+      const label = monthNames[parseInt(mo)-1];
+      const active = m === activeCompMonth;
+      return `<button onclick="setCompMonth('${m}')" title="${label} ${yr}" style="width:28px;height:28px;border-radius:4px;border:1px solid ${active ? 'var(--accent)' : 'var(--border)'};background:${active ? 'rgba(0,200,255,0.12)' : 'transparent'};color:${active ? 'var(--accent)' : 'var(--muted)'};font-size:12px;cursor:pointer;font-family:var(--font-mono);font-weight:500;">${i+1}</button>`;
+    }).join('')}
+    <span style="margin-left:8px;font-size:10px;color:var(--muted);font-family:var(--font-mono);">
+      = ${activeCompMonth ? monthNames[parseInt(activeCompMonth.split('-')[1])-1] + ' ' + activeCompMonth.split('-')[0] : ''}
+      &nbsp; <span style="color:var(--red)">■</span> Booked &nbsp;
+      <span style="color:var(--green)">■</span> Available
+    </span>`;
+}
+
+function setCompMonth(month) {
+  activeCompMonth = month;
+  renderMonthSelector();
+  renderCompetitorTable();
+}
+
 function renderCompetitorTable() {
   const wrap = document.getElementById('compTableWrap');
   if (!state.competitors.length || !state.allDates) {
@@ -779,14 +807,24 @@ function renderCompetitorTable() {
     return;
   }
 
+  renderMonthSelector();
+
   const today = new Date().toISOString().split('T')[0];
-  const next30 = new Date(Date.now() + 30*24*60*60*1000).toISOString().split('T')[0];
-  const dates = state.allDates.filter(d => d >= today && d <= next30).slice(0, 20);
+  const dates = state.allDates.filter(d => {
+    if (d < today) return false;
+    if (activeCompMonth) return d.startsWith(activeCompMonth);
+    return true;
+  });
+
+  if (!dates.length) {
+    wrap.innerHTML = '<div class="empty-state"><div class="empty-sub">No dates for selected month</div></div>';
+    return;
+  }
 
   const shortName = n => n.length > 22 ? n.substring(0, 22) + '…' : n;
   const shortDate = d => { const p = d.split('-'); return `${p[1]}/${p[2]}`; };
 
-  let html = `<table class="comp"><thead><tr><th>Listing</th><th>Src</th>`;
+  let html = `<div style="overflow-x:auto;"><table class="comp"><thead><tr><th style="min-width:160px;">Listing</th><th>Src</th>`;
   for (const d of dates) html += `<th>${shortDate(d)}</th>`;
   html += `</tr></thead><tbody>`;
 
@@ -801,12 +839,7 @@ function renderCompetitorTable() {
     html += `</tr>`;
   }
 
-  html += `</tbody></table>`;
-  html += `<div style="margin-top:8px;font-size:10px;font-family:var(--font-mono);color:var(--muted);">
-    <span style="color:var(--red)">■</span> Booked (last seen price — actual sale price unknown) &nbsp;
-    <span style="color:var(--green)">■</span> Available (current asking price)
-  </div>`;
-
+  html += `</tbody></table></div>`;
   wrap.innerHTML = html;
 }
 

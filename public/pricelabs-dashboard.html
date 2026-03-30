@@ -194,13 +194,12 @@ table.comp .avail{color:var(--green);}
 <div class="main">
 <div class="sidebar">
   <div class="sidebar-section">
-    <div class="sidebar-label">Last Year Actuals</div>
-    <label class="upload-btn">
+    <div class="sidebar-label">Booking History</div>
+    <button class="upload-btn" onclick="loadBookingPace()" id="loadPaceBtn" style="cursor:pointer;border-style:solid;">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-      2025 Actuals Excel
-      <input type="file" accept=".xlsx,.xls" id="actualsInput" onchange="handleActuals(event)"/>
-    </label>
-    <div class="upload-status" id="statusActuals">No file loaded</div>
+      Load from OwnerRez
+    </button>
+    <div class="upload-status" id="statusPace">No data loaded</div>
   </div>
   <div class="sidebar-section">
     <div class="sidebar-label">Competitor Data</div>
@@ -331,7 +330,6 @@ table.comp .avail{color:var(--green);}
 <div class="toast" id="toast"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 const EXCLUDED = new Set(['48096457']);
 const API_BASE = '/api/pricelabs-proxy';
@@ -340,7 +338,8 @@ const MONTHS = ['January','February','March','April','May','June','July','August
 
 let state = {
   csvData: {'1006':null,'707':null},
-  actualsData: {},      // {date: {707: net, 1006: net}}
+  bookingPace: null,    // from OwnerRez API — cached 24hrs in localStorage
+  bookingHistory: null, // full history per unit
   competitors: [],
   allDates: [],
   listingsData: {},
@@ -366,14 +365,19 @@ window.addEventListener('load', async () => {
   renderHistory();
   const saved1006 = localStorage.getItem('priceiq_csv_1006');
   const saved707 = localStorage.getItem('priceiq_csv_707');
-  const savedActuals = localStorage.getItem('priceiq_actuals');
+  // Restore booking pace from cache if fresh (< 24hrs)
+  const savedPace = localStorage.getItem('priceiq_booking_pace');
+  const savedPaceTs = localStorage.getItem('priceiq_booking_pace_ts');
+  if (savedPace && savedPaceTs && (Date.now() - parseInt(savedPaceTs)) < 24*60*60*1000) {
+    const paceData = JSON.parse(savedPace);
+    state.bookingPace = paceData.pace;
+    state.bookingHistory = paceData.history;
+    const count = paceData.totalBookings || 0;
+    document.getElementById('statusPace').textContent = `✓ ${count} bookings loaded (cached)`;
+    document.getElementById('statusPace').className = 'upload-status ok';
+  }
   if (saved1006) { state.csvData['1006'] = JSON.parse(saved1006); updateCSVStatus('1006'); }
   if (saved707)  { state.csvData['707']  = JSON.parse(saved707);  updateCSVStatus('707'); }
-  if (savedActuals) {
-    state.actualsData = JSON.parse(savedActuals);
-    document.getElementById('statusActuals').textContent = `✓ ${Object.keys(state.actualsData).length} dates loaded (cached)`;
-    document.getElementById('statusActuals').className = 'upload-status ok';
-  }
   if (saved1006 || saved707) { mergeCompetitors(); updateKPIs(); }
   await loadListingsData();
   checkAnalyzeReady();
@@ -444,51 +448,36 @@ function updateKPIs() {
 }
 
 // ============================================================
-// EXCEL ACTUALS PARSER
+// BOOKING PACE — OwnerRez API
 // ============================================================
-function handleActuals(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    try {
-      const wb = XLSX.read(e.target.result, {type:'array'});
-      const ws = wb.Sheets[wb.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:null});
-      const actuals = {};
-      // Row 0 = headers: Date, Day, Month, 2025_Unit707, 2025_Unit1006, ...
-      for (let i = 1; i < rows.length; i++) {
-        const row = rows[i];
-        if (!row[0]) continue;
-        // Parse date — DD/MM/YYYY format
-        let dateStr = row[0];
-        if (typeof dateStr === 'number') {
-          // Excel serial date
-          const d = XLSX.SSF.parse_date_code(dateStr);
-          dateStr = `${d.y}-${String(d.m).padStart(2,'0')}-${String(d.d).padStart(2,'0')}`;
-        } else {
-          // DD/MM/YYYY → YYYY-MM-DD
-          const parts = String(dateStr).split('/');
-          if (parts.length === 3) dateStr = `${parts[2]}-${parts[1].padStart(2,'0')}-${parts[0].padStart(2,'0')}`;
-        }
-        const net707  = typeof row[3] === 'number' ? Math.round(row[3]) : null;
-        const net1006 = typeof row[4] === 'number' ? Math.round(row[4]) : null;
-        if (net707 || net1006) {
-          actuals[dateStr] = {'707': net707, '1006': net1006};
-        }
-      }
-      state.actualsData = actuals;
-      localStorage.setItem('priceiq_actuals', JSON.stringify(actuals));
-      const count = Object.keys(actuals).length;
-      document.getElementById('statusActuals').textContent = `✓ ${count} dates loaded`;
-      document.getElementById('statusActuals').className = 'upload-status ok';
-      showToast(`2025 actuals loaded — ${count} dates`, 'success');
-    } catch(err) {
-      document.getElementById('statusActuals').textContent = `Error: ${err.message}`;
-      document.getElementById('statusActuals').className = 'upload-status err';
-    }
-  };
-  reader.readAsArrayBuffer(file);
+async function loadBookingPace() {
+  const btn = document.getElementById('loadPaceBtn');
+  const status = document.getElementById('statusPace');
+  btn.style.opacity = '0.5';
+  btn.style.pointerEvents = 'none';
+  status.textContent = 'Loading from OwnerRez...';
+  status.className = 'upload-status';
+  try {
+    const r = await fetch(`${API_BASE}?action=bookingpace`);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const data = await r.json();
+    state.bookingPace = data.pace;
+    state.bookingHistory = data.history;
+    // Cache for 24hrs
+    localStorage.setItem('priceiq_booking_pace', JSON.stringify(data));
+    localStorage.setItem('priceiq_booking_pace_ts', Date.now().toString());
+    const count = data.totalBookings || 0;
+    status.textContent = `✓ ${count} bookings loaded`;
+    status.className = 'upload-status ok';
+    showToast(`Booking history loaded — ${count} bookings`, 'success');
+    updateKPIs();
+  } catch(e) {
+    status.textContent = `Error: ${e.message}`;
+    status.className = 'upload-status err';
+    showToast('Failed to load booking history', 'error');
+  }
+  btn.style.opacity = '';
+  btn.style.pointerEvents = '';
 }
 
 // ============================================================
@@ -588,7 +577,7 @@ async function runAnalysis() {
   btn.disabled=true; btn.textContent='Analyzing...';
   document.getElementById('recsContainer').innerHTML=`<div class="loading" style="padding:40px 20px;"><div class="spinner"></div>Claude is analyzing ${state.competitors.length} competitors across both units...</div>`;
   try {
-    const r = await fetch(`${API_BASE}?action=analyze`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prices_1006:state.pricesData['1006']||null,prices_707:state.pricesData['707']||null,competitors:state.competitors,listings_data:state.listingsData,upload_history:state.history.slice(0,5),action_log:state.actionLog.slice(0,10)})});
+    const r = await fetch(`${API_BASE}?action=analyze`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prices_1006:state.pricesData['1006']||null,prices_707:state.pricesData['707']||null,competitors:state.competitors,listings_data:state.listingsData,upload_history:state.history.slice(0,5),action_log:state.actionLog.slice(0,10),booking_pace:state.bookingPace||null})});
     const data = await r.json();
     state.recommendations = data.recommendations||[];
     document.getElementById('kpiActions').textContent = state.recommendations.length;
@@ -665,6 +654,21 @@ function openDrillDown(idx) {
   updateParkedCount();
 }
 
+function getLyNetFromHistory(unit, date) {
+  // Find the booking from last year that covers this date (same calendar date -1 year)
+  if (!state.bookingHistory?.[unit]) return null;
+  const lyDate = new Date(date);
+  lyDate.setFullYear(lyDate.getFullYear() - 1);
+  const lyStr = lyDate.toISOString().split('T')[0];
+  // Find a booking whose arrival <= lyStr < departure
+  for (const b of state.bookingHistory[unit]) {
+    if (b.arrival <= lyStr && b.departure > lyStr) {
+      return b.netADR || null;
+    }
+  }
+  return null;
+}
+
 function buildModalDailyData() {
   // Build per-date data for modal from state
   // Uses competitor CSV + prices API data + actuals Excel
@@ -674,7 +678,7 @@ function buildModalDailyData() {
     const compDay = buildCompDayData(date);
     for (const unit of ['1006','707']) {
       const priceInfo = state.pricesByDate[date]?.[unit];
-      const lyNet = state.actualsData[date]?.[unit] || null;
+      const lyNet = getLyNetFromHistory(unit, date);
       // Recommended price: if competitors have availability pattern, suggest based on median available
       let recPrice = null;
       const rec = state.modalRec;

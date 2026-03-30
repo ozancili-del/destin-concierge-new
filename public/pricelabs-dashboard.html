@@ -1,0 +1,947 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PriceIQ — Pelican Beach Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;500;600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #070d17;
+  --surface: #0d1826;
+  --surface2: #111f33;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text: #e8f0f8;
+  --muted: rgba(232,240,248,0.45);
+  --accent: #00c8ff;
+  --accent2: #0088cc;
+  --green: #00e5a0;
+  --red: #ff4d6a;
+  --amber: #ffb938;
+  --purple: #a78bfa;
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:14px;min-height:100vh;}
+
+/* Layout */
+.app{display:grid;grid-template-rows:56px 1fr;min-height:100vh;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 24px;border-bottom:1px solid var(--border);background:var(--surface);}
+.logo{font-family:var(--font-display);font-size:16px;font-weight:700;letter-spacing:-.02em;color:var(--accent);}
+.logo span{color:var(--muted);font-weight:400;}
+.topbar-right{display:flex;align-items:center;gap:12px;}
+.status-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);}
+.last-upload{font-size:12px;color:var(--muted);font-family:var(--font-mono);}
+
+.main{display:grid;grid-template-columns:260px 1fr;min-height:0;}
+.sidebar{background:var(--surface);border-right:1px solid var(--border);padding:20px 16px;display:flex;flex-direction:column;gap:16px;overflow-y:auto;}
+.content{padding:24px;overflow-y:auto;display:flex;flex-direction:column;gap:20px;}
+
+/* Sidebar */
+.sidebar-section{display:flex;flex-direction:column;gap:8px;}
+.sidebar-label{font-size:10px;font-family:var(--font-mono);color:var(--muted);letter-spacing:.12em;text-transform:uppercase;padding:0 4px;}
+.upload-btn{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:8px;border:1px dashed rgba(0,200,255,0.3);background:rgba(0,200,255,0.04);cursor:pointer;font-size:12px;color:var(--accent);font-family:var(--font-body);transition:.2s;}
+.upload-btn:hover{background:rgba(0,200,255,0.08);border-color:rgba(0,200,255,0.5);}
+.upload-btn input{display:none;}
+.upload-status{font-size:11px;color:var(--muted);padding:4px 12px;font-family:var(--font-mono);}
+.upload-status.ok{color:var(--green);}
+.upload-status.err{color:var(--red);}
+
+.unit-card{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px;}
+.unit-name{font-family:var(--font-display);font-size:13px;font-weight:600;margin-bottom:8px;}
+.unit-stat{display:flex;justify-content:space-between;align-items:center;font-size:11px;padding:3px 0;}
+.unit-stat-label{color:var(--muted);}
+.unit-stat-val{font-family:var(--font-mono);font-weight:500;}
+.occ-bar{height:3px;background:var(--border2);border-radius:2px;margin-top:6px;overflow:hidden;}
+.occ-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--accent2),var(--accent));}
+.occ-fill.low{background:linear-gradient(90deg,#cc3300,var(--red));}
+
+.analyze-btn{width:100%;padding:11px;border-radius:8px;border:none;background:linear-gradient(135deg,var(--accent2),var(--accent));color:#fff;font-family:var(--font-display);font-size:13px;font-weight:600;cursor:pointer;letter-spacing:.02em;transition:.2s;}
+.analyze-btn:hover{opacity:.9;transform:translateY(-1px);}
+.analyze-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+
+.history-item{display:flex;align-items:center;gap:8px;padding:6px 4px;border-bottom:1px solid var(--border);font-size:11px;}
+.history-item:last-child{border-bottom:none;}
+.h-date{font-family:var(--font-mono);color:var(--muted);min-width:80px;}
+.h-badge{border-radius:3px;padding:2px 6px;font-size:10px;font-family:var(--font-mono);}
+.h-badge.exec{background:rgba(0,229,160,0.15);color:var(--green);}
+.h-badge.skip{background:rgba(255,185,56,0.12);color:var(--amber);}
+.h-pct{margin-left:auto;font-family:var(--font-mono);color:var(--muted);}
+
+/* KPI Row */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+.kpi-label{font-size:10px;font-family:var(--font-mono);color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;}
+.kpi-val{font-size:26px;font-family:var(--font-display);font-weight:700;line-height:1;}
+.kpi-sub{font-size:11px;color:var(--muted);margin-top:4px;}
+.kpi-sub.bad{color:var(--red);}
+.kpi-sub.good{color:var(--green);}
+.kpi-sub.warn{color:var(--amber);}
+
+/* Chart area */
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px;}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.card-title{font-family:var(--font-display);font-size:13px;font-weight:600;letter-spacing:.01em;}
+.legend{display:flex;gap:14px;font-size:11px;color:var(--muted);}
+.leg{display:flex;align-items:center;gap:5px;}
+.leg-dot{width:8px;height:3px;border-radius:2px;}
+
+/* Recommendations */
+.recs-grid{display:flex;flex-direction:column;gap:12px;}
+.rec-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;transition:.2s;}
+.rec-card:hover{border-color:var(--border2);}
+.rec-card.urgent{border-left:3px solid var(--red);}
+.rec-card.high{border-left:3px solid var(--amber);}
+.rec-card.medium{border-left:3px solid var(--accent);}
+.rec-card.watch{border-left:3px solid var(--purple);}
+
+.rec-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;}
+.rec-priority{font-size:10px;font-family:var(--font-mono);padding:3px 8px;border-radius:4px;font-weight:500;}
+.rec-priority.URGENT{background:rgba(255,77,106,0.15);color:var(--red);}
+.rec-priority.HIGH{background:rgba(255,185,56,0.12);color:var(--amber);}
+.rec-priority.MEDIUM{background:rgba(0,200,255,0.1);color:var(--accent);}
+.rec-priority.WATCH{background:rgba(167,139,250,0.1);color:var(--purple);}
+.rec-unit{font-size:10px;font-family:var(--font-mono);color:var(--muted);background:var(--surface2);padding:3px 8px;border-radius:4px;}
+.rec-dates{font-family:var(--font-display);font-size:14px;font-weight:600;}
+.rec-action-badge{margin-left:auto;font-size:10px;font-family:var(--font-mono);padding:3px 8px;border-radius:4px;}
+.rec-action-badge.RAISE{background:rgba(0,229,160,0.12);color:var(--green);}
+.rec-action-badge.LOWER{background:rgba(255,77,106,0.1);color:var(--red);}
+.rec-action-badge.HOLD{background:rgba(255,255,255,0.06);color:var(--muted);}
+.rec-action-badge.CHECK_PROFILE{background:rgba(167,139,250,0.1);color:var(--purple);}
+
+.rec-prices{display:flex;align-items:center;gap:16px;margin-bottom:10px;}
+.price-block{text-align:center;}
+.price-label{font-size:10px;color:var(--muted);font-family:var(--font-mono);margin-bottom:2px;}
+.price-val{font-size:20px;font-family:var(--font-display);font-weight:700;}
+.price-val.current{color:var(--muted);}
+.price-val.recommended{color:var(--green);}
+.price-arrow{font-size:18px;color:var(--muted);}
+.price-delta{font-size:11px;font-family:var(--font-mono);padding:2px 8px;border-radius:4px;}
+.price-delta.positive{background:rgba(0,229,160,0.1);color:var(--green);}
+.price-delta.negative{background:rgba(255,77,106,0.08);color:var(--red);}
+
+.rec-reasoning{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:10px;padding:10px 12px;background:var(--surface2);border-radius:6px;}
+.rec-context{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+.ctx-tag{font-size:11px;padding:3px 8px;border-radius:4px;font-family:var(--font-mono);}
+.ctx-tag.comp{background:rgba(0,200,255,0.08);color:var(--accent);}
+.ctx-tag.stly{background:rgba(167,139,250,0.08);color:var(--purple);}
+.ctx-tag.profile{background:rgba(255,185,56,0.08);color:var(--amber);}
+.ctx-tag.revenue{background:rgba(0,229,160,0.08);color:var(--green);}
+
+.rec-actions{display:flex;gap:8px;align-items:center;}
+.btn-approve{padding:8px 18px;border-radius:6px;border:none;background:var(--green);color:#000;font-family:var(--font-display);font-size:12px;font-weight:700;cursor:pointer;transition:.15s;}
+.btn-approve:hover{opacity:.85;}
+.btn-approve:disabled{opacity:.4;cursor:not-allowed;}
+.btn-reject{padding:8px 14px;border-radius:6px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-family:var(--font-body);font-size:12px;cursor:pointer;transition:.15s;}
+.btn-reject:hover{background:var(--surface2);}
+.override-input{display:flex;align-items:center;gap:6px;margin-left:auto;}
+.override-input input{width:80px;padding:7px 10px;border-radius:6px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-family:var(--font-mono);font-size:12px;text-align:center;}
+.override-input input:focus{outline:none;border-color:var(--accent);}
+.btn-push{padding:7px 14px;border-radius:6px;border:1px solid var(--accent);background:transparent;color:var(--accent);font-family:var(--font-mono);font-size:11px;cursor:pointer;transition:.15s;}
+.btn-push:hover{background:rgba(0,200,255,0.08);}
+
+.rec-result{margin-top:8px;font-size:11px;font-family:var(--font-mono);padding:6px 10px;border-radius:4px;}
+.rec-result.success{background:rgba(0,229,160,0.1);color:var(--green);}
+.rec-result.error{background:rgba(255,77,106,0.1);color:var(--red);}
+
+/* Empty state */
+.empty-state{text-align:center;padding:60px 20px;color:var(--muted);}
+.empty-icon{font-size:40px;margin-bottom:16px;opacity:.4;}
+.empty-title{font-family:var(--font-display);font-size:16px;font-weight:600;margin-bottom:8px;color:var(--text);}
+.empty-sub{font-size:13px;line-height:1.6;}
+
+/* Loading */
+.loading{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px;font-family:var(--font-mono);}
+.spinner{width:16px;height:16px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* Comp table */
+.comp-table-wrap{overflow-x:auto;}
+table.comp{width:100%;border-collapse:collapse;font-size:11px;font-family:var(--font-mono);}
+table.comp th{padding:6px 10px;text-align:left;color:var(--muted);border-bottom:1px solid var(--border);white-space:nowrap;font-weight:500;}
+table.comp td{padding:5px 10px;border-bottom:1px solid var(--border);white-space:nowrap;}
+table.comp tr.your-row td{color:var(--accent);font-weight:500;}
+table.comp .booked{color:var(--red);}
+table.comp .avail{color:var(--green);}
+
+/* Tab nav */
+.tabs{display:flex;gap:2px;background:var(--surface2);padding:3px;border-radius:8px;width:fit-content;}
+.tab{padding:6px 14px;border-radius:6px;border:none;background:transparent;color:var(--muted);font-size:12px;font-family:var(--font-body);cursor:pointer;transition:.15s;}
+.tab.active{background:var(--surface);color:var(--text);font-weight:500;}
+.tab-content{display:none;}
+.tab-content.active{display:block;}
+
+.toast{position:fixed;bottom:24px;right:24px;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:12px 18px;font-size:13px;font-family:var(--font-mono);z-index:999;transform:translateY(80px);opacity:0;transition:.3s;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.success{border-color:var(--green);color:var(--green);}
+.toast.error{border-color:var(--red);color:var(--red);}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="logo">PriceIQ <span>/ Pelican Beach</span></div>
+  <div class="topbar-right">
+    <div class="status-dot" id="statusDot"></div>
+    <div class="last-upload" id="lastUploadLabel">No CSV uploaded</div>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-section">
+    <div class="sidebar-label">Competitor Data</div>
+    <label class="upload-btn" id="csvUpload1006Label">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      Unit 1006 CSV
+      <input type="file" accept=".csv" id="csvInput1006" onchange="handleCSV(event,'1006')"/>
+    </label>
+    <div class="upload-status" id="status1006">No file loaded</div>
+
+    <label class="upload-btn" id="csvUpload707Label">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      Unit 707 CSV
+      <input type="file" accept=".csv" id="csvInput707" onchange="handleCSV(event,'707')"/>
+    </label>
+    <div class="upload-status" id="status707">No file loaded</div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-label">Units</div>
+    <div class="unit-card" id="unitCard1006">
+      <div class="unit-name">Unit 1006 — 10th Floor</div>
+      <div class="unit-stat"><span class="unit-stat-label">Your occ (30d)</span><span class="unit-stat-val" id="occ1006">—</span></div>
+      <div class="unit-stat"><span class="unit-stat-label">Market occ (30d)</span><span class="unit-stat-val" id="mktOcc1006">—</span></div>
+      <div class="unit-stat"><span class="unit-stat-label">Current base</span><span class="unit-stat-val">$315</span></div>
+      <div class="unit-stat"><span class="unit-stat-label">PL recommends</span><span class="unit-stat-val" id="recBase1006">—</span></div>
+      <div class="occ-bar"><div class="occ-fill low" id="occFill1006" style="width:0%"></div></div>
+    </div>
+
+    <div class="unit-card" id="unitCard707">
+      <div class="unit-name">Unit 707 — 7th Floor</div>
+      <div class="unit-stat"><span class="unit-stat-label">Your occ (30d)</span><span class="unit-stat-val" id="occ707">—</span></div>
+      <div class="unit-stat"><span class="unit-stat-label">Market occ (30d)</span><span class="unit-stat-val" id="mktOcc707">—</span></div>
+      <div class="unit-stat"><span class="unit-stat-label">Current base</span><span class="unit-stat-val">$315</span></div>
+      <div class="unit-stat"><span class="unit-stat-label">PL recommends</span><span class="unit-stat-val" id="recBase707">—</span></div>
+      <div class="occ-bar"><div class="occ-fill low" id="occFill707" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <div class="sidebar-section">
+    <button class="analyze-btn" id="analyzeBtn" onclick="runAnalysis()" disabled>
+      Run Claude Analysis
+    </button>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-label">Upload History</div>
+    <div id="historyList">
+      <div class="upload-status">No history yet</div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="content">
+
+  <!-- KPI Row -->
+  <div class="kpi-row">
+    <div class="kpi">
+      <div class="kpi-label">Competitors tracked</div>
+      <div class="kpi-val" id="kpiComps">—</div>
+      <div class="kpi-sub" id="kpiCompsSub">Upload CSVs to begin</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">1006 vs market</div>
+      <div class="kpi-val" id="kpiOcc1006">—</div>
+      <div class="kpi-sub bad" id="kpiOcc1006Sub">Loading...</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">707 vs market</div>
+      <div class="kpi-val" id="kpiOcc707">—</div>
+      <div class="kpi-sub bad" id="kpiOcc707Sub">Loading...</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Pending actions</div>
+      <div class="kpi-val" id="kpiActions" style="color:var(--amber)">—</div>
+      <div class="kpi-sub" id="kpiActionsSub">Run analysis first</div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('recommendations')">Recommendations</button>
+    <button class="tab" onclick="switchTab('competitors')">Competitor View</button>
+    <button class="tab" onclick="switchTab('calendar')">Price Calendar</button>
+  </div>
+
+  <!-- Recommendations Tab -->
+  <div class="tab-content active" id="tab-recommendations">
+    <div id="recsContainer">
+      <div class="empty-state">
+        <div class="empty-icon">🎯</div>
+        <div class="empty-title">Ready to analyze</div>
+        <div class="empty-sub">Upload both competitor CSVs then click<br>"Run Claude Analysis" to get recommendations.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Competitors Tab -->
+  <div class="tab-content" id="tab-competitors">
+    <div class="chart-card">
+      <div class="card-header">
+        <div class="card-title">Unified competitor pool — next 30 days</div>
+        <div class="legend">
+          <div class="leg"><div class="leg-dot" style="background:var(--red)"></div>Booked</div>
+          <div class="leg"><div class="leg-dot" style="background:var(--green)"></div>Available</div>
+        </div>
+      </div>
+      <div class="comp-table-wrap" id="compTableWrap">
+        <div class="empty-state"><div class="empty-sub">Upload CSV files to see competitor data</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Calendar Tab -->
+  <div class="tab-content" id="tab-calendar">
+    <div class="chart-card">
+      <div class="card-header">
+        <div class="card-title">Price calendar — next 60 days</div>
+        <div style="display:flex;gap:8px;">
+          <button class="tab" onclick="filterCalendar('both')" id="calBoth" style="padding:4px 10px;">Both units</button>
+          <button class="tab" onclick="filterCalendar('1006')" id="cal1006" style="padding:4px 10px;">1006 only</button>
+          <button class="tab" onclick="filterCalendar('707')" id="cal707" style="padding:4px 10px;">707 only</button>
+        </div>
+      </div>
+      <div style="position:relative;height:300px;">
+        <canvas id="calendarChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+// ============================================================
+// STATE
+// ============================================================
+const EXCLUDED = new Set(['48096457']);
+const API_BASE = '/api/pricelabs-proxy';
+
+let state = {
+  csvData: { '1006': null, '707': null },
+  competitors: [],       // merged, deduplicated
+  listingsData: {},      // from /listings API
+  pricesData: {},        // from /listing_prices API
+  recommendations: [],
+  history: JSON.parse(localStorage.getItem('priceiq_history') || '[]'),
+  calendarChart: null,
+  activeCalFilter: 'both'
+};
+
+// ============================================================
+// INIT
+// ============================================================
+window.addEventListener('load', async () => {
+  renderHistory();
+  await loadListingsData();
+  checkAnalyzeReady();
+});
+
+// ============================================================
+// API CALLS
+// ============================================================
+async function loadListingsData() {
+  try {
+    const r = await fetch(`${API_BASE}?action=listings`);
+    const data = await r.json();
+
+    // Parse 1006
+    const l1006 = data['1006'];
+    if (l1006 && !l1006.error) {
+      updateUnitCard('1006', l1006);
+      state.listingsData['1006'] = l1006;
+    }
+    // Parse 707
+    const l707 = data['707'];
+    if (l707 && !l707.error) {
+      updateUnitCard('707', l707);
+      state.listingsData['707'] = l707;
+    }
+
+    // Load prices for next 90 days
+    const today = new Date().toISOString().split('T')[0];
+    const end = new Date(Date.now() + 90*24*60*60*1000).toISOString().split('T')[0];
+    const pr = await fetch(`${API_BASE}?action=prices`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ start_date: today, end_date: end })
+    });
+    const prices = await pr.json();
+    state.pricesData = prices;
+    updateKPIs();
+    renderCalendar();
+  } catch(e) {
+    console.error('Failed to load listings:', e);
+  }
+}
+
+function updateUnitCard(unit, data) {
+  const occ = data.occupancy_next_30 || '—';
+  const mkt = data.market_occupancy_next_30 || '—';
+  const rec = data.recommended_base_price ? `$${data.recommended_base_price}` : '—';
+
+  document.getElementById(`occ${unit}`).textContent = occ;
+  document.getElementById(`mktOcc${unit}`).textContent = mkt;
+  document.getElementById(`recBase${unit}`).textContent = rec;
+
+  const occNum = parseFloat(occ);
+  const mktNum = parseFloat(mkt);
+  const fill = document.getElementById(`occFill${unit}`);
+  if (!isNaN(occNum)) {
+    fill.style.width = occNum + '%';
+    fill.className = 'occ-fill' + (occNum < mktNum * 0.7 ? ' low' : '');
+  }
+
+  document.getElementById(`kpiOcc${unit}`).textContent = occ;
+  const diff = isNaN(occNum) || isNaN(mktNum) ? null : (occNum - mktNum).toFixed(0);
+  const sub = document.getElementById(`kpiOcc${unit}Sub`);
+  if (diff !== null) {
+    sub.textContent = `Market: ${mkt} (${diff > 0 ? '+' : ''}${diff}pts)`;
+    sub.className = 'kpi-sub ' + (parseFloat(diff) < -10 ? 'bad' : parseFloat(diff) >= 0 ? 'good' : 'warn');
+  }
+}
+
+function updateKPIs() {
+  document.getElementById('kpiComps').textContent = state.competitors.length || '—';
+  document.getElementById('kpiCompsSub').textContent = state.competitors.length
+    ? `${state.competitors.length} Pelican Beach units`
+    : 'Upload CSVs to begin';
+}
+
+// ============================================================
+// CSV PARSING
+// ============================================================
+function handleCSV(event, unit) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const parsed = parseCompetitorCSV(e.target.result, unit);
+      state.csvData[unit] = parsed;
+      mergeCompetitors();
+
+      document.getElementById(`status${unit}`).textContent = `✓ ${parsed.competitors.length} competitors, ${parsed.dates.length} dates`;
+      document.getElementById(`status${unit}`).className = 'upload-status ok';
+      document.getElementById('lastUploadLabel').textContent = `Last upload: ${new Date().toLocaleDateString()}`;
+
+      addToHistory(unit, parsed);
+      updateKPIs();
+      renderCompetitorTable();
+      renderCalendar();
+      checkAnalyzeReady();
+      showToast(`${unit === '1006' ? 'Unit 1006' : 'Unit 707'} CSV loaded — ${parsed.competitors.length} competitors`, 'success');
+    } catch(err) {
+      document.getElementById(`status${unit}`).textContent = `Error: ${err.message}`;
+      document.getElementById(`status${unit}`).className = 'upload-status err';
+    }
+  };
+  reader.readAsText(file);
+}
+
+function parseCompetitorCSV(text, sourceUnit) {
+  const lines = text.split('\n').filter(l => l.trim());
+  if (lines.length < 3) throw new Error('Invalid CSV format');
+
+  // Parse headers — row 0 has listing names, row 1 has price/available/min_stay
+  const headerRow = lines[0];
+  const subHeaderRow = lines[1];
+
+  // Extract competitor names and IDs
+  const competitors = [];
+  const seen = new Set();
+
+  // Parse using a simple CSV parser
+  const parseLine = (line) => {
+    const result = [];
+    let current = '';
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') { inQuotes = !inQuotes; continue; }
+      if (ch === ',' && !inQuotes) { result.push(current.trim()); current = ''; continue; }
+      current += ch;
+    }
+    result.push(current.trim());
+    return result;
+  };
+
+  const headers = parseLine(headerRow);
+  const subHeaders = parseLine(subHeaderRow);
+
+  // Build column index — every 3 columns is one listing (price, available, min_stay)
+  // Column 0 is date, then groups of 3
+  let colIdx = 1;
+  while (colIdx < headers.length) {
+    const name = headers[colIdx] || '';
+    if (name) {
+      const idMatch = name.match(/\((\d+)\)$/);
+      const id = idMatch ? idMatch[1] : null;
+      if (id && !seen.has(id) && !EXCLUDED.has(id)) {
+        seen.add(id);
+        const cleanName = name.replace(/\s*\(\d+\)\s*$/, '').trim();
+        competitors.push({
+          id,
+          name: cleanName,
+          priceCol: colIdx,
+          availCol: colIdx + 1,
+          source: sourceUnit
+        });
+      }
+    }
+    colIdx += 3;
+  }
+
+  // Parse date rows
+  const dates = [];
+  const pricesByDate = {};
+
+  for (let i = 3; i < lines.length; i++) {
+    const row = parseLine(lines[i]);
+    const date = row[0];
+    if (!date || !date.match(/^\d{4}-\d{2}-\d{2}$/)) continue;
+
+    dates.push(date);
+    pricesByDate[date] = {};
+
+    for (const comp of competitors) {
+      const price = parseFloat(row[comp.priceCol]);
+      const available = parseInt(row[comp.availCol]);
+      if (!isNaN(price) && price > 0 && price !== -999) {
+        pricesByDate[date][comp.id] = { price, available };
+      }
+    }
+  }
+
+  return { competitors, dates, pricesByDate, sourceUnit };
+}
+
+function mergeCompetitors() {
+  const allComps = {};
+  const allDates = new Set();
+
+  for (const unit of ['1006', '707']) {
+    const csv = state.csvData[unit];
+    if (!csv) continue;
+
+    for (const comp of csv.competitors) {
+      if (!allComps[comp.id]) {
+        allComps[comp.id] = { ...comp, prices: {} };
+      }
+      // Merge price data
+      for (const [date, info] of Object.entries(csv.pricesByDate)) {
+        if (info[comp.id]) {
+          allComps[comp.id].prices[date] = info[comp.id];
+        }
+        allDates.add(date);
+      }
+    }
+  }
+
+  state.competitors = Object.values(allComps);
+  state.allDates = Array.from(allDates).sort();
+  updateKPIs();
+}
+
+// ============================================================
+// ANALYSIS
+// ============================================================
+function checkAnalyzeReady() {
+  const ready = state.csvData['1006'] || state.csvData['707'];
+  document.getElementById('analyzeBtn').disabled = !ready;
+}
+
+async function runAnalysis() {
+  const btn = document.getElementById('analyzeBtn');
+  btn.disabled = true;
+  btn.textContent = 'Analyzing...';
+
+  document.getElementById('recsContainer').innerHTML = `
+    <div class="loading" style="padding:40px 20px;">
+      <div class="spinner"></div>
+      Claude is analyzing ${state.competitors.length} competitors across both units...
+    </div>`;
+
+  try {
+    const r = await fetch(`${API_BASE}?action=analyze`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        prices_1006: state.pricesData['1006'] || null,
+        prices_707: state.pricesData['707'] || null,
+        competitors: state.competitors,
+        listings_data: state.listingsData,
+        upload_history: state.history.slice(0, 5)
+      })
+    });
+
+    const data = await r.json();
+    state.recommendations = data.recommendations || [];
+
+    document.getElementById('kpiActions').textContent = state.recommendations.length;
+    document.getElementById('kpiActionsSub').textContent = `${data.analyzedDates || 0} dates analyzed`;
+
+    renderRecommendations();
+    showToast(`Analysis complete — ${state.recommendations.length} recommendations`, 'success');
+  } catch(e) {
+    document.getElementById('recsContainer').innerHTML = `<div class="empty-state"><div class="empty-sub" style="color:var(--red)">Analysis failed: ${e.message}</div></div>`;
+    showToast('Analysis failed', 'error');
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Run Claude Analysis';
+}
+
+// ============================================================
+// RENDER RECOMMENDATIONS
+// ============================================================
+function renderRecommendations() {
+  const container = document.getElementById('recsContainer');
+
+  if (!state.recommendations.length) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">✓</div><div class="empty-title">All clear</div><div class="empty-sub">No significant pricing actions needed right now.</div></div>`;
+    return;
+  }
+
+  container.innerHTML = `<div class="recs-grid">${state.recommendations.map((rec, i) => renderRec(rec, i)).join('')}</div>`;
+}
+
+function renderRec(rec, idx) {
+  const delta = rec.recommendedPrice && rec.currentPrice
+    ? rec.recommendedPrice - rec.currentPrice : 0;
+  const deltaStr = delta > 0 ? `+$${delta}` : delta < 0 ? `-$${Math.abs(delta)}` : '$0';
+  const deltaClass = delta > 0 ? 'positive' : delta < 0 ? 'negative' : '';
+  const priority = (rec.priority || 'MEDIUM').toUpperCase();
+  const action = (rec.action || 'HOLD').toUpperCase();
+  const cardClass = priority === 'URGENT' ? 'urgent' : priority === 'HIGH' ? 'high' : priority === 'WATCH' ? 'watch' : 'medium';
+
+  return `
+<div class="rec-card ${cardClass}" id="rec-${idx}">
+  <div class="rec-header">
+    <span class="rec-priority ${priority}">${priority}</span>
+    <span class="rec-unit">Unit ${rec.unit}</span>
+    <span class="rec-dates">${rec.dateRange || rec.dates?.[0] || '—'}</span>
+    <span class="rec-action-badge ${action}">${action}</span>
+  </div>
+
+  ${rec.currentPrice && rec.recommendedPrice ? `
+  <div class="rec-prices">
+    <div class="price-block">
+      <div class="price-label">Current</div>
+      <div class="price-val current">$${rec.currentPrice}</div>
+    </div>
+    <div class="price-arrow">→</div>
+    <div class="price-block">
+      <div class="price-label">Recommended</div>
+      <div class="price-val recommended">$${rec.recommendedPrice}</div>
+    </div>
+    <span class="price-delta ${deltaClass}">${deltaStr}/night</span>
+    ${rec.estimatedRevenueDelta ? `<span class="price-delta positive" style="margin-left:4px;">${rec.estimatedRevenueDelta}</span>` : ''}
+  </div>` : ''}
+
+  <div class="rec-reasoning">${rec.reasoning || ''}</div>
+
+  <div class="rec-context">
+    ${rec.competitorContext ? `<span class="ctx-tag comp">${rec.competitorContext}</span>` : ''}
+    ${rec.lastYearContext ? `<span class="ctx-tag stly">${rec.lastYearContext}</span>` : ''}
+    ${rec.profileNote ? `<span class="ctx-tag profile">${rec.profileNote}</span>` : ''}
+  </div>
+
+  <div class="rec-actions">
+    ${rec.recommendedPrice ? `<button class="btn-approve" onclick="applyRec(${idx}, ${rec.recommendedPrice})">✓ Apply $${rec.recommendedPrice}</button>` : ''}
+    <button class="btn-reject" onclick="rejectRec(${idx})">Skip</button>
+    <div class="override-input">
+      <input type="number" id="override-${idx}" placeholder="$—" min="50" max="2000"/>
+      <button class="btn-push" onclick="applyOverride(${idx})">Push ↗</button>
+    </div>
+  </div>
+  <div id="result-${idx}" class="rec-result" style="display:none;"></div>
+</div>`;
+}
+
+// ============================================================
+// APPLY / REJECT
+// ============================================================
+async function applyRec(idx, price) {
+  const rec = state.recommendations[idx];
+  await pushOverride(idx, rec.unit, rec.dates, price, `PriceIQ — ${rec.priority} recommendation: ${rec.dateRange}`);
+}
+
+async function applyOverride(idx) {
+  const rec = state.recommendations[idx];
+  const val = document.getElementById(`override-${idx}`).value;
+  const price = parseInt(val);
+  if (!price || price < 50 || price > 5000) {
+    showToast('Enter a valid price between $50 and $5000', 'error');
+    return;
+  }
+  await pushOverride(idx, rec.unit, rec.dates, price, `PriceIQ — Manual override: ${rec.dateRange}`);
+}
+
+async function pushOverride(idx, unit, dates, price, reason) {
+  const resultEl = document.getElementById(`result-${idx}`);
+  resultEl.style.display = 'block';
+  resultEl.className = 'rec-result';
+  resultEl.textContent = 'Pushing to PriceLabs...';
+
+  // Handle "both" units
+  const units = unit === 'both' ? ['1006', '707'] : [unit];
+
+  try {
+    for (const u of units) {
+      const overrides = (dates || []).map(date => ({ date, price, reason }));
+      if (!overrides.length) continue;
+
+      const r = await fetch(`${API_BASE}?action=override`, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ unit: u, overrides })
+      });
+      const data = await r.json();
+      if (data.error) throw new Error(data.error);
+    }
+
+    resultEl.className = 'rec-result success';
+    resultEl.textContent = `✓ $${price} pushed to PriceLabs for ${dates?.length || 1} date(s) — syncing to Airbnb/VRBO`;
+    showToast(`$${price} applied — PriceLabs will sync shortly`, 'success');
+
+    // Disable buttons
+    document.querySelectorAll(`#rec-${idx} .btn-approve, #rec-${idx} .btn-push`).forEach(b => b.disabled = true);
+
+    // Log to history
+    addActionToHistory(unit, dates, price);
+  } catch(e) {
+    resultEl.className = 'rec-result error';
+    resultEl.textContent = `Error: ${e.message}`;
+    showToast('Failed to push override', 'error');
+  }
+}
+
+function rejectRec(idx) {
+  const card = document.getElementById(`rec-${idx}`);
+  card.style.opacity = '0.4';
+  card.style.pointerEvents = 'none';
+  showToast('Recommendation skipped', '');
+}
+
+// ============================================================
+// COMPETITOR TABLE
+// ============================================================
+function renderCompetitorTable() {
+  const wrap = document.getElementById('compTableWrap');
+  if (!state.competitors.length || !state.allDates) {
+    wrap.innerHTML = '<div class="empty-state"><div class="empty-sub">No competitor data</div></div>';
+    return;
+  }
+
+  const today = new Date().toISOString().split('T')[0];
+  const next30 = new Date(Date.now() + 30*24*60*60*1000).toISOString().split('T')[0];
+  const dates = state.allDates.filter(d => d >= today && d <= next30).slice(0, 20);
+
+  const shortName = n => n.length > 22 ? n.substring(0, 22) + '…' : n;
+  const shortDate = d => { const p = d.split('-'); return `${p[1]}/${p[2]}`; };
+
+  let html = `<table class="comp"><thead><tr><th>Listing</th><th>Src</th>`;
+  for (const d of dates) html += `<th>${shortDate(d)}</th>`;
+  html += `</tr></thead><tbody>`;
+
+  for (const comp of state.competitors) {
+    html += `<tr><td>${shortName(comp.name)}</td><td style="color:var(--muted)">${comp.source}</td>`;
+    for (const d of dates) {
+      const info = comp.prices?.[d];
+      if (!info) { html += `<td style="color:var(--border2)">—</td>`; continue; }
+      if (info.available === 0) html += `<td class="booked">$${info.price}</td>`;
+      else html += `<td class="avail">$${info.price}</td>`;
+    }
+    html += `</tr>`;
+  }
+
+  html += `</tbody></table>`;
+  html += `<div style="margin-top:8px;font-size:10px;font-family:var(--font-mono);color:var(--muted);">
+    <span style="color:var(--red)">■</span> Booked (last seen price — actual sale price unknown) &nbsp;
+    <span style="color:var(--green)">■</span> Available (current asking price)
+  </div>`;
+
+  wrap.innerHTML = html;
+}
+
+// ============================================================
+// CALENDAR CHART
+// ============================================================
+function renderCalendar() {
+  const canvas = document.getElementById('calendarChart');
+  if (!canvas) return;
+
+  const today = new Date().toISOString().split('T')[0];
+  const end = new Date(Date.now() + 60*24*60*60*1000).toISOString().split('T')[0];
+
+  const prices1006 = state.pricesData['1006']?.data || [];
+  const prices707 = state.pricesData['707']?.data || [];
+
+  const filtered1006 = prices1006.filter(d => d.date >= today && d.date <= end);
+  const filtered707 = prices707.filter(d => d.date >= today && d.date <= end);
+
+  const labels = filtered1006.map(d => {
+    const parts = d.date.split('-');
+    return `${parts[1]}/${parts[2]}`;
+  });
+
+  const datasets = [];
+
+  if (state.activeCalFilter !== '707') {
+    datasets.push({
+      label: 'Unit 1006',
+      data: filtered1006.map(d => d.price),
+      borderColor: '#00c8ff',
+      backgroundColor: 'rgba(0,200,255,0.05)',
+      tension: 0.3,
+      pointRadius: 2,
+      borderWidth: 2
+    });
+  }
+
+  if (state.activeCalFilter !== '1006') {
+    datasets.push({
+      label: 'Unit 707',
+      data: filtered707.map(d => d.price),
+      borderColor: '#00e5a0',
+      backgroundColor: 'rgba(0,229,160,0.05)',
+      tension: 0.3,
+      pointRadius: 2,
+      borderWidth: 2
+    });
+  }
+
+  // Last year ADR
+  if (state.activeCalFilter !== '707' && filtered1006.some(d => d.ADR_STLY > 0)) {
+    datasets.push({
+      label: '1006 Last Year ADR',
+      data: filtered1006.map(d => d.ADR_STLY > 0 ? d.ADR_STLY : null),
+      borderColor: 'rgba(167,139,250,0.5)',
+      backgroundColor: 'transparent',
+      tension: 0.3,
+      pointRadius: 2,
+      borderWidth: 1.5,
+      borderDash: [4, 3]
+    });
+  }
+
+  if (state.calendarChart) state.calendarChart.destroy();
+
+  state.calendarChart = new Chart(canvas, {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: {
+          ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 10 }, maxTicksLimit: 15 },
+          grid: { color: 'rgba(255,255,255,0.04)' }
+        },
+        y: {
+          ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 10 }, callback: v => '$'+v },
+          grid: { color: 'rgba(255,255,255,0.06)' }
+        }
+      }
+    }
+  });
+}
+
+function filterCalendar(filter) {
+  state.activeCalFilter = filter;
+  renderCalendar();
+}
+
+// ============================================================
+// HISTORY
+// ============================================================
+function addToHistory(unit, parsed) {
+  const entry = {
+    date: new Date().toISOString(),
+    unit,
+    competitors: parsed.competitors.length,
+    dates: parsed.dates.length,
+    actions: 0
+  };
+  state.history.unshift(entry);
+  state.history = state.history.slice(0, 20);
+  localStorage.setItem('priceiq_history', JSON.stringify(state.history));
+  renderHistory();
+}
+
+function addActionToHistory(unit, dates, price) {
+  if (state.history[0]) {
+    state.history[0].actions = (state.history[0].actions || 0) + 1;
+    localStorage.setItem('priceiq_history', JSON.stringify(state.history));
+    renderHistory();
+  }
+}
+
+function renderHistory() {
+  const el = document.getElementById('historyList');
+  if (!state.history.length) {
+    el.innerHTML = '<div class="upload-status">No history yet</div>';
+    return;
+  }
+  el.innerHTML = state.history.slice(0, 6).map(h => {
+    const d = new Date(h.date);
+    const label = `${d.getMonth()+1}/${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
+    return `<div class="history-item">
+      <div class="h-date">${label}</div>
+      <div style="color:var(--muted);font-size:10px;">Unit ${h.unit} · ${h.competitors} comps</div>
+      ${h.actions ? `<span class="h-badge exec">${h.actions} pushed</span>` : `<span class="h-badge skip">no actions</span>`}
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// TABS
+// ============================================================
+function switchTab(tab) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tabs .tab').forEach(el => el.classList.remove('active'));
+  document.getElementById(`tab-${tab}`).classList.add('active');
+  event.target.classList.add('active');
+  if (tab === 'competitors') renderCompetitorTable();
+  if (tab === 'calendar') renderCalendar();
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.className = 'toast', 3000);
+}
+</script>
+</body>
+</html>

@@ -243,6 +243,10 @@ table.comp .avail{color:var(--green);}
     <div class="sidebar-label">Upload History</div>
     <div id="historyList"><div class="upload-status">No history yet</div></div>
   </div>
+  <div class="sidebar-section">
+    <div class="sidebar-label">Last Actions Pushed</div>
+    <div id="actionLogList"><div class="upload-status">No actions yet</div></div>
+  </div>
 </div>
 
 <div class="content">
@@ -364,6 +368,7 @@ let state = {
 // ============================================================
 window.addEventListener('load', async () => {
   renderHistory();
+  renderActionLog();
   const saved1006 = localStorage.getItem('priceiq_csv_1006');
   const saved707 = localStorage.getItem('priceiq_csv_707');
   // Restore booking pace from cache if fresh (< 24hrs)
@@ -694,12 +699,28 @@ function buildModalDailyData() {
         recPrice = priceInfo.price < compDay.avgAvail * 0.95
           ? Math.round(compDay.avgAvail * 0.97) : null;
       }
+      // Check if this date was previously pushed via action log
+      let pushedPrice = null;
+      let pushedDate = null;
+      for (const action of (state.actionLog || [])) {
+        if (action.details) {
+          for (const a of action.details) {
+            if (a.unit === unit) {
+              const found = a.overrides?.find(o => o.date === date);
+              if (found) { pushedPrice = found.price; pushedDate = action.date; break; }
+            }
+          }
+        }
+        if (pushedPrice) break;
+      }
       state.modalDailyData[unit][date] = {
         yourPrice: priceInfo?.price || null,
         booked: priceInfo?.booked || false,
         adrStly: priceInfo?.adrStly || null,
         lyNet,
         recPrice,
+        pushedPrice,
+        pushedDate,
         compAvgAvail: compDay.avgAvail,
         compAvgBooked: compDay.avgBooked,
         bookedCount: compDay.bookedCount,
@@ -818,6 +839,7 @@ function renderCalGrid() {
       ${data.adrStly?`<div class="cal-row"><span class="cal-row-label">LY gross</span><span class="cal-row-val ly-gross">$${Math.round(data.adrStly)}</span></div>`:''}
       ${lyNetSane?`<div class="cal-row"><span class="cal-row-label">LY net</span><span class="cal-row-val ly-net">$${lyNetSane}</span></div>`:''}
       ${data.compAvgAvail?`<div class="cal-row"><span class="cal-row-label">Comp avg</span><span class="cal-row-val comp">$${data.compAvgAvail}</span></div>`:''}
+      ${data.pushedPrice?`<div class="cal-row" style="border-top:1px solid rgba(255,255,255,0.06);margin-top:2px;padding-top:2px;"><span class="cal-row-label" style="color:var(--green);">↑ Pushed</span><span class="cal-row-val" style="color:var(--green);font-size:10px;">$${data.pushedPrice} on ${new Date(data.pushedDate).toLocaleDateString('en-US',{month:'numeric',day:'numeric'})}</span></div>`:''}
       ${data.bookedCount>0&&!isUrgent?`<div class="cal-row"><span class="cal-row-label">Bkd</span><span class="cal-row-val" style="color:var(--red);">${data.bookedCount}/${data.totalComps}</span></div>`:''}
       <div class="cal-actions">
         <button class="cal-btn approve${isParkedApprove?' active':''}" onclick="parkDateFromCell('${unit}','${dateStr}',${data.recPrice||data.yourPrice},event)">✓</button>
@@ -971,6 +993,7 @@ function addActionToHistory(actionLog, count) {
   const trimmed = existing.slice(0, 30);
   localStorage.setItem('priceiq_actions', JSON.stringify(trimmed));
   state.actionLog = trimmed;
+  renderActionLog();
 
   // Also increment action count in upload history
   if (state.history[0]) {
@@ -1091,6 +1114,26 @@ function renderHistory() {
     const d=new Date(h.date);
     const label=`${d.getMonth()+1}/${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
     return`<div class="history-item"><div class="h-date">${label}</div><div style="color:var(--muted);font-size:10px;">Unit ${h.unit}</div>${h.actions?`<span class="h-badge exec">${h.actions} pushed</span>`:`<span class="h-badge skip">no actions</span>`}</div>`;
+  }).join('');
+}
+
+function renderActionLog() {
+  const el = document.getElementById('actionLogList');
+  if (!el) return;
+  if (!state.actionLog?.length) {
+    el.innerHTML = '<div class="upload-status">No actions yet</div>';
+    return;
+  }
+  el.innerHTML = state.actionLog.slice(0, 8).map(a => {
+    const d = new Date(a.date);
+    const label = `${d.getMonth()+1}/${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
+    return `<div class="history-item" style="flex-direction:column;align-items:flex-start;gap:2px;">
+      <div style="display:flex;justify-content:space-between;width:100%;">
+        <span class="h-date">${label}</span>
+        <span class="h-badge exec">${a.count} dates</span>
+      </div>
+      <div style="font-size:10px;color:var(--muted);">${a.summary}</div>
+    </div>`;
   }).join('');
 }
 

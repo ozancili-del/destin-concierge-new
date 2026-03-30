@@ -828,8 +828,37 @@ function renderCompetitorTable() {
   for (const d of dates) html += `<th>${shortDate(d)}</th>`;
   html += `</tr></thead><tbody>`;
 
+  // YOUR UNITS FIRST — pinned at top
+  const unitPrices = {
+    '1006': {}, '707': {}
+  };
+  for (const [unit, data] of Object.entries(state.pricesData)) {
+    for (const p of (data?.data || [])) {
+      unitPrices[unit][p.date] = { price: p.price, booked: p.booking_status?.includes('Booked') };
+    }
+  }
+
+  for (const [unit, label] of [['1006','Unit 1006 (yours)'],['707','Unit 707 (yours)']]) {
+    html += `<tr class="your-row" style="border-bottom:2px solid rgba(0,200,255,0.2);">
+      <td style="font-weight:600;">${label}</td><td style="color:var(--accent);font-size:10px;">YOU</td>`;
+    for (const d of dates) {
+      const info = unitPrices[unit][d];
+      if (!info) { html += `<td style="color:var(--border2)">—</td>`; continue; }
+      if (info.booked) {
+        html += `<td style="color:var(--accent);opacity:.5;text-decoration:line-through;">$${info.price}</td>`;
+      } else {
+        html += `<td style="color:var(--accent);font-weight:600;">$${info.price}</td>`;
+      }
+    }
+    html += `</tr>`;
+  }
+
+  // SEPARATOR ROW
+  html += `<tr><td colspan="${dates.length + 2}" style="height:4px;background:rgba(0,200,255,0.08);"></td></tr>`;
+
+  // COMPETITORS
   for (const comp of state.competitors) {
-    html += `<tr><td>${shortName(comp.name)}</td><td style="color:var(--muted)">${comp.source}</td>`;
+    html += `<tr><td>${shortName(comp.name)}</td><td style="color:var(--muted);font-size:10px;">${comp.source}</td>`;
     for (const d of dates) {
       const info = comp.prices?.[d];
       if (!info) { html += `<td style="color:var(--border2)">—</td>`; continue; }

@@ -195,11 +195,7 @@ table.comp .avail{color:var(--green);}
 <div class="sidebar">
   <div class="sidebar-section">
     <div class="sidebar-label">Booking History</div>
-    <button class="upload-btn" onclick="loadBookingPace()" id="loadPaceBtn" style="cursor:pointer;border-style:solid;">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-      Load from OwnerRez
-    </button>
-    <div class="upload-status" id="statusPace">No data loaded</div>
+    <div class="upload-status" id="statusPace">Loading from OwnerRez...</div>
   </div>
   <div class="sidebar-section">
     <div class="sidebar-label">Competitor Data</div>
@@ -379,7 +375,7 @@ window.addEventListener('load', async () => {
   if (saved1006) { state.csvData['1006'] = JSON.parse(saved1006); updateCSVStatus('1006'); }
   if (saved707)  { state.csvData['707']  = JSON.parse(saved707);  updateCSVStatus('707'); }
   if (saved1006 || saved707) { mergeCompetitors(); updateKPIs(); }
-  await loadListingsData();
+  await Promise.all([loadListingsData(), loadBookingPace()]);
   checkAnalyzeReady();
 });
 
@@ -451,33 +447,33 @@ function updateKPIs() {
 // BOOKING PACE — OwnerRez API
 // ============================================================
 async function loadBookingPace() {
-  const btn = document.getElementById('loadPaceBtn');
   const status = document.getElementById('statusPace');
-  btn.style.opacity = '0.5';
-  btn.style.pointerEvents = 'none';
-  status.textContent = 'Loading from OwnerRez...';
-  status.className = 'upload-status';
+  // Use cache if fresh (< 24hrs)
+  const savedPace = localStorage.getItem('priceiq_booking_pace');
+  const savedPaceTs = localStorage.getItem('priceiq_booking_pace_ts');
+  if (savedPace && savedPaceTs && (Date.now() - parseInt(savedPaceTs)) < 24*60*60*1000) {
+    const paceData = JSON.parse(savedPace);
+    state.bookingPace = paceData.pace;
+    state.bookingHistory = paceData.history;
+    status.textContent = `✓ ${paceData.totalBookings || 0} bookings (cached)`;
+    status.className = 'upload-status ok';
+    return;
+  }
   try {
     const r = await fetch(`${API_BASE}?action=bookingpace`);
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const data = await r.json();
     state.bookingPace = data.pace;
     state.bookingHistory = data.history;
-    // Cache for 24hrs
     localStorage.setItem('priceiq_booking_pace', JSON.stringify(data));
     localStorage.setItem('priceiq_booking_pace_ts', Date.now().toString());
-    const count = data.totalBookings || 0;
-    status.textContent = `✓ ${count} bookings loaded`;
+    status.textContent = `✓ ${data.totalBookings || 0} bookings loaded`;
     status.className = 'upload-status ok';
-    showToast(`Booking history loaded — ${count} bookings`, 'success');
     updateKPIs();
   } catch(e) {
-    status.textContent = `Error: ${e.message}`;
+    status.textContent = `Booking history: ${e.message}`;
     status.className = 'upload-status err';
-    showToast('Failed to load booking history', 'error');
   }
-  btn.style.opacity = '';
-  btn.style.pointerEvents = '';
 }
 
 // ============================================================

@@ -95,7 +95,7 @@ export default async function handler(req, res) {
       // POST /api/pricelabs-proxy?action=analyze
       // body: { prices_1006, prices_707, competitors, listings_data, seasonal_profile }
       case 'analyze': {
-        const { prices_1006, prices_707, competitors, listings_data, upload_history } = req.body;
+        const { prices_1006, prices_707, competitors, listings_data, upload_history, action_log } = req.body;
 
         // Build competitor summary — only available dates, exclude blocked units
         const today = new Date().toISOString().split('T')[0];
@@ -286,19 +286,24 @@ MARKET CONTEXT:
 - Unit 1006 occupancy next 30 days: ${listings_data?.['1006']?.occupancy_next_30 || 'N/A'} vs market ${listings_data?.['1006']?.market_occupancy_next_30 || 'N/A'}
 - Unit 707 occupancy next 30 days: ${listings_data?.['707']?.occupancy_next_30 || 'N/A'} vs market ${listings_data?.['707']?.market_occupancy_next_30 || 'N/A'}
 - PriceLabs recommended base: $${listings_data?.['1006']?.recommended_base_price || 291} (current: $315)
-- Upload history context: ${upload_history ? JSON.stringify(upload_history) : 'First analysis'}
+
+PREVIOUS PRICING ACTIONS (what you already pushed — use this to assess if changes worked):
+${action_log?.length ? JSON.stringify(action_log, null, 2) : 'No previous actions recorded yet'}
+
+UPLOAD HISTORY: ${upload_history ? JSON.stringify(upload_history) : 'First analysis'}
 
 WEEKLY DATA (each row = one week, both units analyzed separately):
 ${JSON.stringify(topDates, null, 2)}
 
 INSTRUCTIONS:
 1. Cover ALL time periods — April, May, June and beyond. Don't focus only on near-term dates.
-2. Group adjacent weeks with same pattern into one recommendation (e.g. "May 10-31 — consistently below market")
-3. Flag URGENT (within 14 days) first
-4. Flag profile-capped dates (profileCapped=true) — these need seasonal profile update not DSO
-5. For empty months with no competitor bookings — tell me if market is just soft or if I need to drop price
-6. Maximum 6 recommendations but cover the full 6-month horizon
-7. Each recommendation must have specific dollar amounts, not vague advice
+2. If previous actions exist — assess whether they worked. If you raised a price X days ago and the date is still unbooked, flag it. If a raise led to a booking, confirm the strategy.
+3. Group adjacent weeks with same pattern into one recommendation.
+4. Flag URGENT (within 14 days) first.
+5. Flag profile-capped dates (profileCapped=true) — these need seasonal profile update not DSO.
+6. For empty months with no competitor bookings — tell me if market is soft or if I need to drop price.
+7. Maximum 6 recommendations covering the full horizon.
+8. Each recommendation must have specific dollar amounts, not vague advice.
 
 Return ONLY a valid JSON array. No prose, no markdown backticks.`;
 

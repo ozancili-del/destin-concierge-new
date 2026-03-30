@@ -26,7 +26,7 @@ async function fetchORBookings(sinceDate) {
     'User-Agent': 'PriceIQ/1.0'
   };
   let allItems = [];
-  let url = `${OR_BASE}/bookings?property_ids=410894,293722&since_utc=2023-01-01T00:00:00Z&status=active&limit=50`;
+  let url = `${OR_BASE}/bookings?property_ids=410894,293722&since_utc=2022-01-01T00:00:00Z&status=active&limit=50`;
   let pageCount = 0;
   const MAX_PAGES = 15; // safety limit for Vercel 10s timeout
   while (url && pageCount < MAX_PAGES) {
@@ -381,8 +381,14 @@ Return ONLY a valid JSON array. No prose, no markdown backticks.`;
         const today = new Date();
         const todayStr = today.toISOString().split('T')[0];
 
-        // Filter out blocks — real bookings only
-        const bookings = allItems.filter(b => !b.is_block && b.status === 'active' && b.type === 'booking');
+        // Filter: real bookings only, and filter by arrival >= 2023-01-01 
+        // (since_utc filters by updated_utc not arrival, so we filter manually)
+        const bookings = allItems.filter(b => 
+          !b.is_block && 
+          b.status === 'active' && 
+          b.type === 'booking' &&
+          b.arrival >= '2023-01-01'
+        );
 
         // Build per-unit booking history
         const history = { '1006': [], '707': [] };

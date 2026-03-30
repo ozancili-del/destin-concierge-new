@@ -198,6 +198,14 @@ export default async function handler(req, res) {
           const avgBookedLastSeen = wk.bookedLastSeen.length > 0
             ? Math.round(wk.bookedLastSeen.reduce((s,v) => s+v, 0) / wk.bookedLastSeen.length) : null;
 
+          // Overpriced signal: you are available, comps are available, you are more expensive
+          const overpriced = avgAvailCompPrice && avgPrice > avgAvailCompPrice * 1.05
+            && avgBookedRatio < 0.5;
+
+          // Underpriced signal: comps booked at higher last-seen, or profile capping you below uncustomized
+          const underpriced = (avgBookedLastSeen && avgPrice < avgBookedLastSeen * 0.9)
+            || wk.profileCapped;
+
           actionableDates.push({
             unit: wk.unit,
             weekOf: wk.weekStart,
@@ -209,6 +217,8 @@ export default async function handler(req, res) {
             stlyBooked: wk.stlyBooked,
             isUrgent: wk.isUrgent,
             profileCapped: wk.profileCapped,
+            overpriced,
+            underpriced,
             competitorBookedRatio: Math.round(avgBookedRatio * 100),
             avgAvailableCompPrice: avgAvailCompPrice,
             avgBookedCompLastSeen: avgBookedLastSeen,
@@ -236,13 +246,15 @@ You analyze data for two beachfront condo units:
 Base price: $315/night. Both units sleep up to 6.
 
 CRITICAL RULES:
-1. Competitor available=0 means BOOKED. The price shown is the LAST SEEN price before booking — NOT the actual sale price. Never claim to know what they sold for.
-2. If competitors are booked and you are available, flag this as a pricing opportunity.
-3. If recommending below last year's ADR, you MUST provide explicit reasoning.
-4. 14-day window = URGENT. Flag these first.
-5. Never recommend a price below the seasonal floor.
-6. PriceLabs uncustomized_price shows what the algorithm wants to charge — if it's much higher than your current price, the seasonal profile cap may be the issue.
-7. Be specific. Give exact dollar amounts. Give exact date ranges. No vague advice.
+1. Competitor available=0 means BOOKED. Price shown = last seen before booking, NOT actual sale price. Never claim to know actual sale price.
+2. CHECK BOTH DIRECTIONS — you can be TOO LOW or TOO HIGH. Don't only recommend raises.
+3. OVERPRICED signal (overpriced=true): you are available, competitors are available, your price is 5%+ above their avg asking. If date is approaching and you're the most expensive available unit — recommend LOWER.
+4. UNDERPRICED signal (underpriced=true): competitors booked at higher last-seen prices, or profile is capping PriceLabs algorithm.
+5. If recommending below last year ADR, you MUST provide explicit reasoning.
+6. 14-day window (isUrgent=true) = flag first regardless of direction.
+7. profileCapped=true means your seasonal profile MAX is blocking PriceLabs from going higher — recommend CHECK_PROFILE not a DSO.
+8. Cover ALL months in the data — April through September. Don't cluster on near-term only.
+9. Be specific. Exact dollar amounts. Exact date ranges. No vague advice.
 
 COMPETITOR DATA NOTE:
 - 19 unique Pelican Beach competitors tracked (9 from 1006 comp set + 10 from 707 comp set)

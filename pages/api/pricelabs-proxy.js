@@ -4,15 +4,39 @@
 
 const PRICELABS_API_KEY = process.env.PRICELABS_API_KEY;
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
+const OWNERREZ_USER = process.env.OWNERREZ_USER || 'ozan@destincondogetaways.com';
+const OWNERREZ_TOKEN = process.env.OWNERREZ_API_TOKEN;
+const OR_BASE = 'https://api.ownerrez.com/v2';
 const PL_BASE = 'https://api.pricelabs.co/v1';
 
 const LISTINGS = {
-  '1006': { id: '410894', pms: 'ownerrez', name: 'Unit 1006' },
-  '707':  { id: '293722', pms: 'ownerrez', name: 'Unit 707'  },
+  '1006': { id: '410894', pms: 'ownerrez', name: 'Unit 1006', orSince: '2024-01-01' },
+  '707':  { id: '293722', pms: 'ownerrez', name: 'Unit 707',  orSince: '2023-01-01' },
 };
 
-// Competitors to EXCLUDE
 const EXCLUDED_COMPETITORS = new Set(['48096457']);
+
+// OwnerRez paginated fetch helper
+async function fetchORBookings(sinceDate) {
+  const credentials = Buffer.from(`${OWNERREZ_USER}:${OWNERREZ_TOKEN}`).toString('base64');
+  const headers = {
+    'Authorization': `Basic ${credentials}`,
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    'User-Agent': 'PriceIQ/1.0'
+  };
+  let allItems = [];
+  let url = `${OR_BASE}/bookings?property_ids=410894,293722&since_utc=${sinceDate}T00:00:00Z&status=active&limit=50`;
+  while (url) {
+    const r = await fetch(url.startsWith('http') ? url : `https://api.ownerrez.com${url}`, { headers });
+    if (!r.ok) break;
+    const data = await r.json();
+    const items = data.items || [];
+    allItems = allItems.concat(items);
+    url = data.next_page_url || null;
+  }
+  return allItems;
+}
 
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') {
@@ -95,7 +119,7 @@ export default async function handler(req, res) {
       // POST /api/pricelabs-proxy?action=analyze
       // body: { prices_1006, prices_707, competitors, listings_data, seasonal_profile }
       case 'analyze': {
-        const { prices_1006, prices_707, competitors, listings_data, upload_history, action_log } = req.body;
+        const { prices_1006, prices_707, competitors, listings_data, upload_history, action_log, booking_pace } = req.body;
 
         // Build competitor summary — only available dates, exclude blocked units
         const today = new Date().toISOString().split('T')[0];
@@ -255,6 +279,7 @@ CRITICAL RULES:
 7. profileCapped=true means your seasonal profile MAX is blocking PriceLabs from going higher — recommend CHECK_PROFILE not a DSO.
 8. Cover ALL months in the data — April through September. Don't cluster on near-term only.
 9. Be specific. Exact dollar amounts. Exact date ranges. No vague advice.
+10. BOOKING PACE: paceVsLY shows % ahead/behind last year's booking pace for each month. Negative = behind. If a unit is 50%+ behind last year's pace for a future month with no competitor signal explaining it — flag as ALARM: conversion problem not pricing problem. Don't just recommend lowering price if the unit has strong reviews.
 
 COMPETITOR DATA NOTE:
 - 19 unique Pelican Beach competitors tracked (9 from 1006 comp set + 10 from 707 comp set)
@@ -286,6 +311,9 @@ MARKET CONTEXT:
 - Unit 1006 occupancy next 30 days: ${listings_data?.['1006']?.occupancy_next_30 || 'N/A'} vs market ${listings_data?.['1006']?.market_occupancy_next_30 || 'N/A'}
 - Unit 707 occupancy next 30 days: ${listings_data?.['707']?.occupancy_next_30 || 'N/A'} vs market ${listings_data?.['707']?.market_occupancy_next_30 || 'N/A'}
 - PriceLabs recommended base: $${listings_data?.['1006']?.recommended_base_price || 291} (current: $315)
+
+BOOKING PACE VS LAST YEAR (real OwnerRez bookings — nightsBookedByToday = nights booked as of today's date):
+${booking_pace?.length ? JSON.stringify(booking_pace.slice(0, 20), null, 2) : 'No booking pace data — load from OwnerRez first'}
 
 PREVIOUS PRICING ACTIONS (what you already pushed — use this to assess if changes worked):
 ${action_log?.length ? JSON.stringify(action_log, null, 2) : 'No previous actions recorded yet'}
@@ -340,6 +368,129 @@ Return ONLY a valid JSON array. No prose, no markdown backticks.`;
           actionableDatesCount: actionableDates.length,
           analyzedDates: topDates.length,
           generatedAt: new Date().toISOString()
+        });
+      }
+
+      // GET /api/pricelabs-proxy?action=bookingpace
+      case 'bookingpace': {
+        // Fetch all bookings from 2023 (707) / 2024 (1006) to present
+        const allItems = await fetchORBookings('2023-01-01');
+        const today = new Date();
+        const todayStr = today.toISOString().split('T')[0];
+
+        // Filter out blocks
+        const bookings = allItems.filter(b => !b.is_block && b.status === 'active');
+
+        // Build per-unit booking history
+        const history = { '1006': [], '707': [] };
+        for (const b of bookings) {
+          const unit = b.property_id === 410894 ? '1006' : '707';
+          const nights = Math.ceil((new Date(b.departure) - new Date(b.arrival)) / (1000*60*60*24));
+          const grossADR = nights > 0 ? Math.round((b.total_amount || 0) / nights) : 0;
+          const netADR = nights > 0 ? Math.round(((b.total_amount || 0) - (b.total_host_fees || 0)) / nights) : 0;
+          history[unit].push({
+            arrival: b.arrival,
+            departure: b.departure,
+            bookedDate: b.booked_utc?.split('T')[0],
+            nights,
+            grossADR,
+            netADR,
+            totalGross: Math.round(b.total_amount || 0),
+            totalNet: Math.round((b.total_amount || 0) - (b.total_host_fees || 0)),
+            channel: b.listing_site || 'unknown',
+            leadDays: b.booked_utc ? Math.ceil((new Date(b.arrival) - new Date(b.booked_utc)) / (1000*60*60*24)) : null
+          });
+        }
+
+        // Build booking pace: for each future month, how many nights booked as of today
+        // vs same time in prior years
+        const pace = {};
+        for (const [unit, bkgs] of Object.entries(history)) {
+          pace[unit] = {};
+          for (const b of bkgs) {
+            const arrYear = b.arrival.substring(0, 4);
+            const arrMonth = b.arrival.substring(0, 7); // YYYY-MM
+            // Was this booking made by today's date in its year?
+            // i.e. booked_date month/day <= today month/day
+            if (!b.bookedDate) continue;
+            const bookedMD = b.bookedDate.substring(5); // MM-DD
+            const todayMD = todayStr.substring(5);      // MM-DD
+            const bookedByToday = bookedMD <= todayMD;
+
+            if (!pace[unit][arrMonth]) {
+              pace[unit][arrMonth] = { year: arrYear, month: arrMonth, nightsBookedByToday: 0, totalNightsBooked: 0, revenue: 0, bookings: 0 };
+            }
+            pace[unit][arrMonth].totalNightsBooked += b.nights;
+            pace[unit][arrMonth].revenue += b.totalGross;
+            pace[unit][arrMonth].bookings += 1;
+            if (bookedByToday) pace[unit][arrMonth].nightsBookedByToday += b.nights;
+          }
+        }
+
+        // Build YoY pace comparison for each upcoming month
+        const upcoming = [];
+        for (let i = 0; i < 9; i++) {
+          const d = new Date(today.getFullYear(), today.getMonth() + i, 1);
+          const monthKey = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+          const prevYear = `${d.getFullYear()-1}-${String(d.getMonth()+1).padStart(2,'0')}`;
+          const prev2Year = `${d.getFullYear()-2}-${String(d.getMonth()+1).padStart(2,'0')}`;
+
+          for (const unit of ['1006','707']) {
+            const curr = pace[unit]?.[monthKey] || { nightsBookedByToday: 0, totalNightsBooked: 0, revenue: 0, bookings: 0 };
+            const ly   = pace[unit]?.[prevYear]  || null;
+            const ly2  = pace[unit]?.[prev2Year] || null;
+
+            // Skip months with no data at all
+            if (!curr.bookings && !ly && !ly2) continue;
+
+            upcoming.push({
+              unit,
+              month: monthKey,
+              current: curr,
+              lastYear: ly,
+              twoYearsAgo: ly2,
+              paceVsLY: ly ? Math.round((curr.nightsBookedByToday / Math.max(ly.nightsBookedByToday, 1) - 1) * 100) : null
+            });
+          }
+        }
+
+        // Channel mix summary
+        const channelMix = { '1006': {}, '707': {} };
+        for (const [unit, bkgs] of Object.entries(history)) {
+          for (const b of bkgs) {
+            const ch = b.channel || 'unknown';
+            if (!channelMix[unit][ch]) channelMix[unit][ch] = { bookings: 0, revenue: 0, nights: 0 };
+            channelMix[unit][ch].bookings++;
+            channelMix[unit][ch].revenue += b.totalGross;
+            channelMix[unit][ch].nights += b.nights;
+          }
+        }
+
+        // Lead time by month
+        const leadTimes = { '1006': {}, '707': {} };
+        for (const [unit, bkgs] of Object.entries(history)) {
+          for (const b of bkgs) {
+            if (!b.leadDays || !b.arrival) continue;
+            const m = b.arrival.substring(0,7);
+            if (!leadTimes[unit][m]) leadTimes[unit][m] = [];
+            leadTimes[unit][m].push(b.leadDays);
+          }
+        }
+        // Average lead times
+        const avgLeadTimes = { '1006': {}, '707': {} };
+        for (const [unit, months] of Object.entries(leadTimes)) {
+          for (const [m, days] of Object.entries(months)) {
+            avgLeadTimes[unit][m] = Math.round(days.reduce((s,v)=>s+v,0)/days.length);
+          }
+        }
+
+        return res.status(200).json({
+          totalBookings: bookings.length,
+          history,
+          pace: upcoming,
+          channelMix,
+          avgLeadTimes,
+          fetchedAt: new Date().toISOString()
         });
       }
 

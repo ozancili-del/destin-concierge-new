@@ -820,13 +820,26 @@ function renderCalGrid() {
       ${data.compAvgAvail?`<div class="cal-row"><span class="cal-row-label">Comp avg</span><span class="cal-row-val comp">$${data.compAvgAvail}</span></div>`:''}
       ${data.bookedCount>0&&!isUrgent?`<div class="cal-row"><span class="cal-row-label">Bkd</span><span class="cal-row-val" style="color:var(--red);">${data.bookedCount}/${data.totalComps}</span></div>`:''}
       <div class="cal-actions">
-        <button class="cal-btn approve${isParkedApprove?' active':''}" onclick="parkDate('${unit}','${dateStr}',${data.recPrice||data.yourPrice},event)">✓</button>
+        <button class="cal-btn approve${isParkedApprove?' active':''}" onclick="parkDateFromCell('${unit}','${dateStr}',${data.recPrice||data.yourPrice},event)">✓</button>
         <button class="cal-btn skip${isParkedSkip?' active':''}" onclick="parkSkip('${unit}','${dateStr}',event)">✗</button>
-        <input class="cal-custom" type="number" placeholder="$—" value="${isParkedApprove?parkedVal:''}" onchange="parkCustom('${unit}','${dateStr}',this.value)" onclick="event.stopPropagation()"/>
+        <input class="cal-custom" id="inp-${unit}-${dateStr}" type="number" placeholder="$—" value="${isParkedApprove?parkedVal:''}" onchange="parkCustom('${unit}','${dateStr}',this.value)" onclick="event.stopPropagation()"/>
       </div>
     </div>`;
   }
   document.getElementById('calGrid').innerHTML = paceBannerHtml + html;
+}
+
+function parkDateFromCell(unit, date, defaultPrice, event) {
+  event && event.stopPropagation();
+  // Check if user typed a custom value in the input
+  const input = document.getElementById(`inp-${unit}-${date}`);
+  const customVal = input ? parseInt(input.value) : null;
+  const price = (customVal && customVal > 50) ? customVal : defaultPrice;
+  if (!state.parked[unit]) state.parked[unit]={};
+  if (state.parked[unit][date] === price) { delete state.parked[unit][date]; }
+  else { state.parked[unit][date] = price; }
+  renderCalGrid();
+  updateParkedCount();
 }
 
 function parkDate(unit, date, price, event) {

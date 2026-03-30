@@ -147,6 +147,11 @@ table.comp .avail{color:var(--green);}
 .cal-day{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px 6px;min-height:180px;display:flex;flex-direction:column;gap:4px;font-size:11px;}
 .cal-day.empty{background:transparent;border-color:transparent;}
 .cal-day.booked{opacity:.5;background:rgba(255,255,255,0.02);}
+.cal-day.urgent-day{border-color:rgba(255,77,106,0.5);background:rgba(255,77,106,0.04);}
+.pace-banner{padding:8px 12px;border-radius:6px;font-size:12px;font-family:var(--font-mono);margin-bottom:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.pace-banner.bad{background:rgba(255,77,106,0.1);border:1px solid rgba(255,77,106,0.25);color:var(--red);}
+.pace-banner.good{background:rgba(0,229,160,0.08);border:1px solid rgba(0,229,160,0.2);color:var(--green);}
+.pace-banner.neutral{background:rgba(255,255,255,0.04);border:1px solid var(--border);color:var(--muted);}
 .cal-day.parked-approve{border-color:var(--green);background:rgba(0,229,160,0.06);}
 .cal-day.parked-skip{opacity:.4;}
 .cal-day.weekend-day{border-color:rgba(255,185,56,0.2);}
@@ -651,18 +656,22 @@ function openDrillDown(idx) {
 }
 
 function getLyNetFromHistory(unit, date) {
-  // Find the booking from last year that covers this date (same calendar date -1 year)
   if (!state.bookingHistory?.[unit]) return null;
   const lyDate = new Date(date);
   lyDate.setFullYear(lyDate.getFullYear() - 1);
   const lyStr = lyDate.toISOString().split('T')[0];
-  // Find a booking whose arrival <= lyStr < departure
   for (const b of state.bookingHistory[unit]) {
     if (b.arrival <= lyStr && b.departure > lyStr) {
       return b.netADR || null;
     }
   }
   return null;
+}
+
+function getMonthPace(unit, year, month) {
+  if (!state.bookingPace) return null;
+  const monthKey = `${year}-${String(month+1).padStart(2,'0')}`;
+  return state.bookingPace.find(p => p.unit === unit && p.month === monthKey) || null;
 }
 
 function buildModalDailyData() {
@@ -739,6 +748,26 @@ function renderCalGrid() {
   const {year,month} = state.modalMonth;
   const unit = state.modalUnit;
   document.getElementById('modalMonthLabel').textContent = `${MONTHS[month]} ${year}`;
+
+  // Pace banner
+  const pace = getMonthPace(unit, year, month);
+  let paceBannerHtml = '';
+  if (pace) {
+    const pct = pace.paceVsLY;
+    const cls = pct === null ? 'neutral' : pct >= 0 ? 'good' : pct > -30 ? 'neutral' : 'bad';
+    const lyNights = pace.lastYear?.nightsBookedByToday || 0;
+    const currNights = pace.current?.nightsBookedByToday || 0;
+    const arrow = pct === null ? '—' : pct >= 0 ? '▲' : '▼';
+    const pctStr = pct === null ? 'No LY data' : `${arrow} ${Math.abs(pct)}% vs last year`;
+    paceBannerHtml = `<div class="pace-banner ${cls}">
+      <span style="font-weight:500;">Unit ${unit} — ${MONTHS[month]} booking pace:</span>
+      <span>${currNights} nights booked so far this year</span>
+      <span>vs ${lyNights} nights by this date last year</span>
+      <span style="font-weight:500;">${pctStr}</span>
+      ${pct !== null && pct < -50 ? '<span style="color:var(--red);font-weight:500;">⚠ Significantly behind — investigate</span>' : ''}
+    </div>`;
+  }
+
   const firstDay = new Date(year,month,1).getDay();
   const daysInMonth = new Date(year,month+1,0).getDate();
   const today = new Date().toISOString().split('T')[0];
@@ -772,16 +801,24 @@ function renderCalGrid() {
     }
     const recDisplay = parkedVal !== undefined && parkedVal !== null ? parkedVal : (data.recPrice||'—');
     const recClass = data.recPrice > data.yourPrice ? 'rec' : data.recPrice < data.yourPrice ? 'rec lower' : 'rec';
+    // Urgency: within 14 days, not booked
+    const isUrgent = dateStr <= new Date(Date.now()+14*24*60*60*1000).toISOString().split('T')[0] && dateStr >= today;
+    if (isUrgent) cls += ' urgent-day';
+    // LY net sanity: only show if < LY gross (net can never exceed gross)
+    const lyNetSane = data.lyNet && data.adrStly && data.lyNet < data.adrStly ? data.lyNet : 
+                      data.lyNet && !data.adrStly ? data.lyNet : null;
     html += `<div class="${cls}" id="calday-${unit}-${dateStr}">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;">
         <div><div class="cal-day-num">${d}</div><div class="cal-day-dow">${DOW[dow]}</div></div>
-        ${data.bookedCount>0?`<div class="cal-booked-badge">${data.bookedCount}/${data.totalComps} bkd</div>`:''}
+        ${isUrgent?`<div style="font-size:9px;color:var(--red);font-family:var(--font-mono);font-weight:500;">URGENT</div>`:''}
+        ${!isUrgent&&data.bookedCount>0?`<div class="cal-booked-badge">${data.bookedCount}/${data.totalComps} bkd</div>`:''}
       </div>
       <div class="cal-row"><span class="cal-row-label">Yours</span><span class="cal-row-val your">$${data.yourPrice}</span></div>
       ${data.recPrice?`<div class="cal-row"><span class="cal-row-label">Rec</span><span class="cal-row-val ${recClass}">$${recDisplay}</span></div>`:''}
       ${data.adrStly?`<div class="cal-row"><span class="cal-row-label">LY gross</span><span class="cal-row-val ly-gross">$${Math.round(data.adrStly)}</span></div>`:''}
-      ${data.lyNet?`<div class="cal-row"><span class="cal-row-label">LY net</span><span class="cal-row-val ly-net">$${data.lyNet}</span></div>`:''}
+      ${lyNetSane?`<div class="cal-row"><span class="cal-row-label">LY net</span><span class="cal-row-val ly-net">$${lyNetSane}</span></div>`:''}
       ${data.compAvgAvail?`<div class="cal-row"><span class="cal-row-label">Comp avg</span><span class="cal-row-val comp">$${data.compAvgAvail}</span></div>`:''}
+      ${data.bookedCount>0&&!isUrgent?`<div class="cal-row"><span class="cal-row-label">Bkd</span><span class="cal-row-val" style="color:var(--red);">${data.bookedCount}/${data.totalComps}</span></div>`:''}
       <div class="cal-actions">
         <button class="cal-btn approve${isParkedApprove?' active':''}" onclick="parkDate('${unit}','${dateStr}',${data.recPrice||data.yourPrice},event)">✓</button>
         <button class="cal-btn skip${isParkedSkip?' active':''}" onclick="parkSkip('${unit}','${dateStr}',event)">✗</button>
@@ -789,7 +826,7 @@ function renderCalGrid() {
       </div>
     </div>`;
   }
-  document.getElementById('calGrid').innerHTML = html;
+  document.getElementById('calGrid').innerHTML = paceBannerHtml + html;
 }
 
 function parkDate(unit, date, price, event) {

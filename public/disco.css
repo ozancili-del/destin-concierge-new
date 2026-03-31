@@ -23,3 +23,7 @@
   font-size:15px;font-weight:bold;padding:13px 28px;border-radius:8px;
   animation:btnDisco 1.2s ease-in-out infinite;
 }
+@media(max-width:480px){
+  .hub-banner{padding:20px 16px;}
+  .hub-banner-btn{font-size:13px;padding:11px 20px;width:100%;box-sizing:border-box;}
+}

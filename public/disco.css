@@ -1,0 +1,25 @@
+@keyframes hubGlow{
+  0%  {border-color:rgba(232,52,26,0.8);box-shadow:0 0 24px rgba(232,52,26,0.5),0 0 48px rgba(232,52,26,0.2);}
+  25% {border-color:rgba(255,200,0,0.8);box-shadow:0 0 24px rgba(255,200,0,0.5),0 0 48px rgba(255,200,0,0.2);}
+  50% {border-color:rgba(45,219,180,0.8);box-shadow:0 0 24px rgba(45,219,180,0.5),0 0 48px rgba(45,219,180,0.2);}
+  75% {border-color:rgba(124,92,191,0.8);box-shadow:0 0 24px rgba(124,92,191,0.5),0 0 48px rgba(124,92,191,0.2);}
+  100%{border-color:rgba(232,52,26,0.8);box-shadow:0 0 24px rgba(232,52,26,0.5),0 0 48px rgba(232,52,26,0.2);}
+}
+@keyframes btnDisco{
+  0%  {background:linear-gradient(90deg,#e8341a,#ff8c00);box-shadow:0 0 12px rgba(232,52,26,0.7);}
+  25% {background:linear-gradient(90deg,#ff8c00,#ffcc00);box-shadow:0 0 12px rgba(255,200,0,0.7);}
+  50% {background:linear-gradient(90deg,#0d9e8a,#00cfff);box-shadow:0 0 12px rgba(0,207,255,0.7);}
+  75% {background:linear-gradient(90deg,#7c5cbf,#ff3399);box-shadow:0 0 12px rgba(124,92,191,0.7);}
+  100%{background:linear-gradient(90deg,#e8341a,#ff8c00);box-shadow:0 0 12px rgba(232,52,26,0.7);}
+}
+.hub-banner{
+  display:block;background:#07141f;border:2px solid rgba(45,219,180,0.4);
+  border-radius:14px;padding:28px 24px;margin:0 0 48px;
+  text-decoration:none;text-align:center;
+  animation:hubGlow 1.5s ease-in-out infinite;
+}
+.hub-banner-btn{
+  display:inline-block;color:white;font-family:Arial,sans-serif;
+  font-size:15px;font-weight:bold;padding:13px 28px;border-radius:8px;
+  animation:btnDisco 1.2s ease-in-out infinite;
+}

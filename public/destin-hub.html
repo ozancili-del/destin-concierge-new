@@ -5,234 +5,176 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Destin Local Guide — Beaches, Food, Events & More</title>
-<meta name="description" content="Your complete Destin Florida guide — beaches, seafood, live music, fireworks, events, airports, car rental and AI concierge Destiny Blue."/>
+<meta name="description" content="Your complete Destin Florida guide — beaches, seafood, live music, fireworks, events, airports, car rental and AI concierge."/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
+:root{--teal:#0d9e8a;--bg:#07141f;--card:#0d1f2e;--border:rgba(255,255,255,0.07);--text:#e8f4ff;--muted:rgba(255,255,255,0.4);}
 html,body{width:100%;overflow-x:hidden;}
-body{font-family:'DM Sans',sans-serif;background:#faf8f5;color:#1a1a1a;min-height:100vh;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
 
-/* HEADER */
-.header{
-  padding:28px 16px 20px;
-  text-align:center;
-  background:#fff;
-  border-bottom:1px solid #ede9e3;
-}
-.header-tag{
-  font-size:10px;letter-spacing:0.12em;text-transform:uppercase;
-  color:#b0a898;margin-bottom:8px;
-}
-.header h1{
-  font-family:'Playfair Display',serif;
-  font-size:28px;font-weight:700;color:#1a1a1a;
-  line-height:1.2;margin-bottom:4px;
-}
-.header p{font-size:13px;color:#9e9488;}
+.hero{background:linear-gradient(155deg,#030d14 0%,#071e2e 40%,#0a3d5c 100%);padding:36px 20px 52px;position:relative;}
+.hero::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:32px;background:var(--bg);border-radius:32px 32px 0 0;}
+.hero-tag{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:5px 14px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:16px;}
+.hero-dot{width:6px;height:6px;border-radius:50%;background:#2ddbb4;animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(28px,6vw,48px);font-weight:700;color:white;line-height:1.1;margin-bottom:8px;}
+.hero h1 em{color:#7de8d4;font-style:italic;}
+.hero p{color:rgba(255,255,255,0.45);font-size:14px;}
 
-/* GRID */
-.grid-wrap{padding:16px 12px 32px;}
-.grid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:10px;
-  max-width:480px;
-  margin:0 auto;
-}
+.main{max-width:520px;margin:0 auto;padding:20px 12px 48px;}
 
-/* TILES */
-.tile{
-  background:#fff;
-  border-radius:16px;
-  border:1px solid #ede9e3;
-  padding:16px 8px 14px;
-  text-align:center;
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+
+.card{
+  background:linear-gradient(145deg,#0e2030,#0a1a27);
+  border-radius:18px;padding:14px 8px 12px;
+  border:2px solid rgba(45,219,180,0.3);
   cursor:pointer;
-  transition:transform .15s,box-shadow .15s,border-color .15s;
-  -webkit-tap-highlight-color:transparent;
   display:flex;flex-direction:column;align-items:center;gap:8px;
+  -webkit-tap-highlight-color:transparent;
+  animation:cardGlow 3s ease-in-out infinite;
+  text-align:center;
 }
-.tile:active{transform:scale(0.94);}
-.tile:hover{border-color:#c9bfb2;box-shadow:0 4px 16px rgba(0,0,0,0.07);}
-.tile-icon{
-  width:52px;height:52px;border-radius:14px;
-  background:#f5f1eb;
-  display:flex;align-items:center;justify-content:center;
-  font-size:24px;
+@keyframes cardGlow{
+  0%,100%{box-shadow:0 0 8px rgba(45,219,180,0.08);}
+  50%{box-shadow:0 0 18px rgba(45,219,180,0.22);}
 }
-.tile p{font-size:11px;font-weight:500;color:#3a3530;line-height:1.3;}
+.card:active{transform:scale(0.94);animation:none;}
+.card:hover{border-color:rgba(45,219,180,0.65);animation:none;box-shadow:0 0 24px rgba(45,219,180,0.3);}
 
-/* Destiny Blue tile accent */
-.tile.destiny .tile-icon{background:#e8f4f8;}
+.card-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.ic-teal{background:rgba(13,158,138,0.2);border:1px solid rgba(13,158,138,0.25);}
+.ic-ocean{background:rgba(10,107,138,0.25);border:1px solid rgba(10,107,138,0.3);}
+.ic-coral{background:rgba(232,99,74,0.2);border:1px solid rgba(232,99,74,0.25);}
+.ic-amber{background:rgba(201,149,42,0.2);border:1px solid rgba(201,149,42,0.25);}
+.ic-purple{background:rgba(124,92,191,0.2);border:1px solid rgba(124,92,191,0.25);}
+.ic-gold{background:rgba(232,160,32,0.2);border:1px solid rgba(232,160,32,0.25);}
+.ic-navy{background:rgba(26,58,138,0.3);border:1px solid rgba(26,58,138,0.35);}
+.ic-green{background:rgba(42,158,92,0.2);border:1px solid rgba(42,158,92,0.25);}
+.ic-pink{background:rgba(232,52,180,0.2);border:1px solid rgba(232,52,180,0.25);}
+.ic-blue{background:rgba(45,130,219,0.2);border:1px solid rgba(45,130,219,0.25);}
 
-/* BOOK DIRECT BANNER */
-.banner{
-  margin:0 12px 24px;
-  max-width:480px;
-  margin-left:auto;margin-right:auto;
-  background:#1a3a4a;
-  border-radius:16px;
-  padding:16px 20px;
-  display:flex;align-items:center;justify-content:space-between;gap:12px;
-}
-.banner-text p:first-child{font-size:11px;color:rgba(255,255,255,0.5);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2px;}
-.banner-text p:last-child{font-size:14px;font-weight:500;color:#fff;}
-.banner a{
-  background:#2ddbb4;color:#0a2a1f;
-  font-size:12px;font-weight:500;
-  padding:9px 16px;border-radius:10px;
-  text-decoration:none;white-space:nowrap;flex-shrink:0;
-}
+.card-title{font-size:11px;font-weight:500;color:rgba(255,255,255,0.85);line-height:1.3;}
+
+.book-banner{background:linear-gradient(135deg,#071e2e,#0a3d5c);border:1px solid rgba(13,158,138,0.2);border-radius:20px;padding:22px 20px;text-align:center;margin-top:4px;}
+.book-banner-title{font-family:'Playfair Display',serif;font-size:20px;color:white;margin-bottom:4px;}
+.book-banner-sub{font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:14px;}
+.book-btn{display:inline-block;background:linear-gradient(90deg,#0d9e8a,#1ac7a8);color:white;font-weight:600;font-size:14px;padding:12px 28px;border-radius:20px;text-decoration:none;}
 
 /* MODAL */
-.modal-overlay{
-  position:fixed;inset:0;
-  background:rgba(0,0,0,0.5);
-  z-index:1000;
-  display:flex;align-items:flex-end;
-  opacity:0;pointer-events:none;
-  transition:opacity .25s;
-}
-@media(min-width:600px){.modal-overlay{align-items:center;justify-content:center;}}
+.modal-overlay{position:fixed;inset:0;background:rgba(3,13,20,0.85);z-index:1000;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .25s;}
 .modal-overlay.open{opacity:1;pointer-events:all;}
-.modal-sheet{
-  background:#fff;
-  border-radius:24px 24px 0 0;
-  width:100%;
-  height:88vh;
-  display:flex;flex-direction:column;
-  transform:translateY(100%);
-  transition:transform .3s ease;
-}
 @media(min-width:600px){
-  .modal-sheet{border-radius:20px;width:90%;max-width:560px;height:85vh;transform:scale(0.95);}
-  .modal-overlay.open .modal-sheet{transform:scale(1);}
+  .modal-overlay{align-items:center;justify-content:center;}
+  .modal-sheet{width:90%!important;max-width:860px!important;border-radius:20px!important;transform:scale(0.95)!important;}
+  .modal-overlay.open .modal-sheet{transform:scale(1)!important;}
 }
+.modal-sheet{background:#0a1a27;width:100%;max-height:92vh;border-radius:24px 24px 0 0;border-top:1px solid rgba(255,255,255,0.08);overflow:hidden;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .32s cubic-bezier(.4,0,.2,1);touch-action:none;}
 .modal-overlay.open .modal-sheet{transform:translateY(0);}
-.modal-handle{
-  width:36px;height:4px;border-radius:2px;
-  background:#ddd;margin:12px auto 0;flex-shrink:0;
+.modal-handle{width:36px;height:4px;border-radius:2px;background:rgba(255,255,255,0.15);margin:10px auto 0;flex-shrink:0;}
+.modal-header{background:linear-gradient(135deg,#071220,#0a2440);padding:12px 18px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,0.06);}
+.modal-eyebrow{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.35);}
+.modal-title{font-family:'Playfair Display',serif;font-size:20px;color:white;font-weight:700;}
+.modal-header-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.modal-fullpage{display:inline-flex;align-items:center;gap:5px;border-radius:20px;padding:6px 12px;font-size:12px;font-weight:600;color:white;cursor:pointer;white-space:nowrap;border:none;animation:discoBall 1.2s ease-in-out infinite;}
+@keyframes discoBall{
+  0%  {background:linear-gradient(90deg,#e8341a,#ff8c00);box-shadow:0 0 8px rgba(232,52,26,0.6);}
+  25% {background:linear-gradient(90deg,#ff8c00,#ffcc00);box-shadow:0 0 8px rgba(255,200,0,0.6);}
+  50% {background:linear-gradient(90deg,#0d9e8a,#00cfff);box-shadow:0 0 8px rgba(0,207,255,0.6);}
+  75% {background:linear-gradient(90deg,#7c5cbf,#ff3399);box-shadow:0 0 8px rgba(124,92,191,0.6);}
+  100%{background:linear-gradient(90deg,#e8341a,#ff8c00);box-shadow:0 0 8px rgba(232,52,26,0.6);}
 }
-.modal-header{
-  padding:14px 16px 12px;
-  border-bottom:1px solid #ede9e3;
-  display:flex;align-items:center;justify-content:space-between;
-  flex-shrink:0;gap:8px;
-}
-.modal-eyebrow{font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#b0a898;margin-bottom:2px;}
-.modal-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:#1a1a1a;}
-.modal-header-right{display:flex;align-items:center;gap:6px;flex-shrink:0;}
-.modal-blog-btn{
-  background:#f5f1eb;color:#3a3530;border:none;
-  font-size:11px;font-weight:500;font-family:'DM Sans',sans-serif;
-  padding:7px 12px;border-radius:8px;cursor:pointer;white-space:nowrap;
-}
-.modal-blog-btn:hover{background:#ede9e3;}
-.modal-close{
-  width:32px;height:32px;border-radius:50%;
-  background:#f5f1eb;border:none;
-  font-size:16px;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;color:#3a3530;
-}
-.modal-close:hover{background:#ede9e3;}
+.modal-fullpage:hover{transform:scale(1.05);animation:none;background:#0d9e8a;}
+.modal-close{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.7);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.modal-close:hover{background:rgba(255,255,255,0.15);}
 .modal-body{flex:1;overflow:hidden;position:relative;}
-.modal-iframe{
-  width:100%;height:100%;border:none;display:block;
-  transition:opacity .3s;
-}
-.modal-loading{
-  position:absolute;inset:0;
-  display:flex;align-items:center;justify-content:center;
-  background:#fff;flex-direction:column;gap:12px;
-}
-.spinner{
-  width:32px;height:32px;border-radius:50%;
-  border:3px solid #ede9e3;border-top-color:#1a3a4a;
-  animation:spin .8s linear infinite;
-}
+.modal-iframe{width:100%;height:100%;border:none;display:block;min-height:calc(92vh - 80px);}
+@media(min-width:600px){.modal-iframe{min-height:calc(88vh - 80px);}}
+.modal-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#07141f;flex-direction:column;gap:12px;}
+.loading-spinner{width:36px;height:36px;border:2px solid rgba(13,158,138,0.2);border-top-color:#0d9e8a;border-radius:50%;animation:spin .8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
-.modal-loading p{font-size:13px;color:#b0a898;}
+.loading-text{font-size:13px;color:rgba(255,255,255,0.35);}
 </style>
 </head>
 <body>
 
-<div class="header">
-  <div class="header-tag">Destin, Florida</div>
-  <h1>Your Local Guide</h1>
-  <p>Everything you need for the perfect Destin trip</p>
+<div class="hero">
+  <div class="hero-tag"><span class="hero-dot"></span>Destin, Florida</div>
+  <h1>Your Destin<br><em>Local Guide</em></h1>
+  <p>Everything for the perfect Destin trip</p>
 </div>
 
-<div class="grid-wrap">
+<div class="main">
   <div class="grid">
-    <div class="tile" onclick="openModal('beaches')">
-      <div class="tile-icon">🏖️</div>
-      <p>Beaches</p>
+    <div class="card" onclick="openModal('beaches')">
+      <div class="card-icon ic-teal">🏖️</div>
+      <div class="card-title">Beaches</div>
     </div>
-    <div class="tile" onclick="openModal('weather')">
-      <div class="tile-icon">🌊</div>
-      <p>Water & Weather</p>
+    <div class="card" onclick="openModal('weather')">
+      <div class="card-icon ic-ocean">🌊</div>
+      <div class="card-title">Water & Weather</div>
     </div>
-    <div class="tile" onclick="openModal('cams')">
-      <div class="tile-icon">📷</div>
-      <p>Beach Cams</p>
+    <div class="card" onclick="openModal('cams')">
+      <div class="card-icon ic-ocean">📷</div>
+      <div class="card-title">Beach Cams</div>
     </div>
-    <div class="tile" onclick="openModal('seafood')">
-      <div class="tile-icon">🦞</div>
-      <p>Seafood</p>
+    <div class="card" onclick="openModal('seafood')">
+      <div class="card-icon ic-coral">🦞</div>
+      <div class="card-title">Seafood</div>
     </div>
-    <div class="tile" onclick="openModal('localeats')">
-      <div class="tile-icon">🍝</div>
-      <p>Local Eats</p>
+    <div class="card" onclick="openModal('localeats')">
+      <div class="card-icon ic-coral">🍝</div>
+      <div class="card-title">Local Eats</div>
     </div>
-    <div class="tile" onclick="openModal('spas')">
-      <div class="tile-icon">💆</div>
-      <p>Spas</p>
+    <div class="card" onclick="openModal('spas')">
+      <div class="card-icon ic-pink">💆</div>
+      <div class="card-title">Spas</div>
     </div>
-    <div class="tile" onclick="openModal('music')">
-      <div class="tile-icon">🎵</div>
-      <p>Live Music</p>
+    <div class="card" onclick="openModal('music')">
+      <div class="card-icon ic-purple">🎵</div>
+      <div class="card-title">Live Music</div>
     </div>
-    <div class="tile" onclick="openModal('fireworks')">
-      <div class="tile-icon">🎆</div>
-      <p>Fireworks</p>
+    <div class="card" onclick="openModal('fireworks')">
+      <div class="card-icon ic-gold">🎆</div>
+      <div class="card-title">Fireworks</div>
     </div>
-    <div class="tile" onclick="openModal('events')">
-      <div class="tile-icon">📅</div>
-      <p>Events 2026</p>
+    <div class="card" onclick="openModal('events')">
+      <div class="card-icon ic-amber">📅</div>
+      <div class="card-title">Events 2026</div>
     </div>
-    <div class="tile" onclick="openModal('airports')">
-      <div class="tile-icon">✈️</div>
-      <p>Airports</p>
+    <div class="card" onclick="openModal('airports')">
+      <div class="card-icon ic-navy">✈️</div>
+      <div class="card-title">Airports</div>
     </div>
-    <div class="tile" onclick="openModal('car')">
-      <div class="tile-icon">🚗</div>
-      <p>Car Rental</p>
+    <div class="card" onclick="openModal('car')">
+      <div class="card-icon ic-blue">🚗</div>
+      <div class="card-title">Car Rental</div>
     </div>
-    <div class="tile" onclick="openModal('flights')">
-      <div class="tile-icon">💺</div>
-      <p>Cheap Flights</p>
+    <div class="card" onclick="openModal('flights')">
+      <div class="card-icon ic-blue">💺</div>
+      <div class="card-title">Cheap Flights</div>
     </div>
-    <div class="tile" onclick="openModal('grocery')">
-      <div class="tile-icon">🛒</div>
-      <p>Groceries</p>
+    <div class="card" onclick="openModal('grocery')">
+      <div class="card-icon ic-green">🛒</div>
+      <div class="card-title">Groceries</div>
     </div>
-    <div class="tile" onclick="openModal('planner')">
-      <div class="tile-icon">🗺️</div>
-      <p>Trip Planner</p>
+    <div class="card" onclick="openModal('planner')">
+      <div class="card-icon ic-purple">🗺️</div>
+      <div class="card-title">Trip Planner</div>
     </div>
-    <div class="tile destiny" onclick="openModal('destiny')">
-      <div class="tile-icon">💬</div>
-      <p>Destiny Blue</p>
+    <div class="card" onclick="openModal('destiny')" style="border-color:rgba(45,219,180,0.5);">
+      <div class="card-icon" style="background:rgba(45,219,180,0.12);border:1px solid rgba(45,219,180,0.25);">💬</div>
+      <div class="card-title" style="color:#7de8d4;">AI Concierge</div>
     </div>
   </div>
-</div>
 
-<div class="banner" style="margin:0 12px 32px;max-width:480px;display:flex;">
-  <div class="banner-text">
-    <p>Pelican Beach Resort</p>
-    <p>Book direct & save on fees</p>
+  <div class="book-banner">
+    <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:6px;">Pelican Beach Resort · Destin FL</div>
+    <div class="book-banner-title">Stay with us</div>
+    <div class="book-banner-sub">Beachfront condos · Units 707 & 1006 · Best rates direct</div>
+    <a class="book-btn" href="https://www.destincondogetaways.com/" target="_blank">🏖 Book Direct →</a>
   </div>
-  <a href="https://www.destincondogetaways.com/" target="_blank">Book Direct →</a>
 </div>
 
 <!-- MODAL -->
@@ -245,46 +187,46 @@ body{font-family:'DM Sans',sans-serif;background:#faf8f5;color:#1a1a1a;min-heigh
         <div class="modal-title" id="modalTitle">Loading...</div>
       </div>
       <div class="modal-header-right">
-        <button class="modal-blog-btn" id="modalBlogBtn2" onclick="toggleBlog2()" style="display:none;">Local Guide →</button>
-        <button class="modal-blog-btn" id="modalBlogBtn" onclick="toggleBlog()" style="display:none;">Read full guide →</button>
+        <button class="modal-fullpage" id="modalBlogBtn2" onclick="toggleBlog2()" style="display:none;">Local Guide →</button>
+        <button class="modal-fullpage" id="modalBlogBtn" onclick="toggleBlog()" style="display:none;">Read full guide →</button>
         <button class="modal-close" onclick="closeModal()">✕</button>
       </div>
     </div>
     <div class="modal-body">
       <div class="modal-loading" id="modalLoading">
-        <div class="spinner"></div>
-        <p>Loading...</p>
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Loading...</div>
       </div>
-      <iframe class="modal-iframe" id="modalIframe" src="" onload="iframeLoaded()" style="opacity:0;"></iframe>
+      <iframe class="modal-iframe" id="modalIframe" src="" onload="iframeLoaded()" style="opacity:0;transition:opacity .3s;"></iframe>
     </div>
   </div>
 </div>
 
 <script>
-const TILES = {
-  beaches:   { eyebrow:'Explore',        title:'🏖️ Beaches',          url:'https://www.destincondogetaways.com/blog/best-beaches-destin',                        blog:null },
-  weather:   { eyebrow:'Live Conditions',title:'🌊 Water & Weather',   url:'https://destin-concierge-new.vercel.app/destin-beach-conditions.html',               blog:'https://www.destincondogetaways.com/blog/destinweather' },
-  cams:      { eyebrow:'Live',           title:'📷 Beach Cams',        url:'https://www.destincondogetaways.com/destin-live-beach-cam-574002656',                 blog:null },
-  seafood:   { eyebrow:'Food & Drink',   title:'🦞 Seafood',           url:'https://www.destincondogetaways.com/blog/best-restaurants-destin',                   blog:null },
-  localeats: { eyebrow:'Food & Drink',   title:'🍝 Local Eats',        url:'https://www.destincondogetaways.com/blog/best-restaurants-destin-local-guide',       blog:null },
-  spas:      { eyebrow:'Relax',          title:'💆 Spas',              url:'https://www.destincondogetaways.com/blog/destinspa',                                  blog:null },
-  music:     { eyebrow:'Nightlife',      title:'🎵 Live Music',        url:'https://destin-concierge-new.vercel.app/destin-music-calendar.html',                  blog:'https://www.destincondogetaways.com/blog/destin-live-music-2026' },
-  fireworks: { eyebrow:'Events',         title:'🎆 Fireworks',         url:'https://www.destincondogetaways.com/blog/destin-fireworks-2026',                     blog:null },
-  events:    { eyebrow:'Events',         title:'📅 Events 2026',       url:'https://www.destincondogetaways.com/blog/destin-events-2026',                        blog:null },
-  airports:  { eyebrow:'Getting Here',   title:'✈️ Airports',          url:'https://www.destincondogetaways.com/blog/destinairport',                              blog:null },
-  car:       { eyebrow:'Getting Here',   title:'🚗 Car Rental',        url:'https://destin-concierge-new.vercel.app/destin-car-rental.html',                     blog:'https://www.destincondogetaways.com/blog/destincar' },
-  flights:   { eyebrow:'Getting Here',   title:'💺 Cheap Flights',     url:'https://www.destincondogetaways.com/blog/how-to-find-cheaper-flights-and-car-rentals',blog:null },
-  grocery:   { eyebrow:'Essentials',     title:'🛒 Groceries',         url:'https://destin-concierge-new.vercel.app/supermarket-map.html',                       blog:'https://www.destincondogetaways.com/blog/destinsupermarkets' },
-  planner:   { eyebrow:'Plan Your Stay', title:'🗺️ Trip Planner',      url:'https://destin-concierge-new.vercel.app/destin-itinerary-planner.html',              blog:null },
-  destiny:   { eyebrow:'AI Concierge',   title:'💬 Destiny Blue',      url:'https://destin-concierge-new.vercel.app/concierge',                                  blog:null },
+const TILES={
+  beaches:   {eyebrow:'Explore',         title:'🏖️ Beaches',         url:'https://www.destincondogetaways.com/blog/best-beaches-destin',                         blog:null},
+  weather:   {eyebrow:'Live Conditions', title:'🌊 Water & Weather',  url:'https://destin-concierge-new.vercel.app/destin-beach-conditions.html',                blog:'https://www.destincondogetaways.com/blog/destinweather'},
+  cams:      {eyebrow:'Live',            title:'📷 Beach Cams',       url:'https://www.destincondogetaways.com/destin-live-beach-cam-574002656',                  blog:null},
+  seafood:   {eyebrow:'Food & Drink',    title:'🦞 Seafood',          url:'https://www.destincondogetaways.com/blog/best-restaurants-destin',                    blog:null},
+  localeats: {eyebrow:'Food & Drink',    title:'🍝 Local Eats',       url:'https://www.destincondogetaways.com/blog/best-restaurants-destin-local-guide',        blog:null},
+  spas:      {eyebrow:'Relax',           title:'💆 Spas',             url:'https://www.destincondogetaways.com/blog/destinspa',                                   blog:null},
+  music:     {eyebrow:'Nightlife',       title:'🎵 Live Music',       url:'https://destin-concierge-new.vercel.app/destin-music-calendar.html',                   blog:'https://www.destincondogetaways.com/blog/destin-live-music-2026'},
+  fireworks: {eyebrow:'Events',          title:'🎆 Fireworks',        url:'https://www.destincondogetaways.com/blog/destin-fireworks-2026',                      blog:null},
+  events:    {eyebrow:'Events',          title:'📅 Events 2026',      url:'https://www.destincondogetaways.com/blog/destin-events-2026',                         blog:null},
+  airports:  {eyebrow:'Getting Here',    title:'✈️ Airports',         url:'https://www.destincondogetaways.com/blog/destinairport',                               blog:null},
+  car:       {eyebrow:'Getting Here',    title:'🚗 Car Rental',       url:'https://destin-concierge-new.vercel.app/destin-car-rental.html',                      blog:'https://www.destincondogetaways.com/blog/destincar'},
+  flights:   {eyebrow:'Getting Here',    title:'💺 Cheap Flights',    url:'https://www.destincondogetaways.com/blog/how-to-find-cheaper-flights-and-car-rentals', blog:null},
+  grocery:   {eyebrow:'Essentials',      title:'🛒 Groceries',        url:'https://destin-concierge-new.vercel.app/supermarket-map.html',                        blog:'https://www.destincondogetaways.com/blog/destinsupermarkets'},
+  planner:   {eyebrow:'Plan Your Stay',  title:'🗺️ Trip Planner',     url:'https://destin-concierge-new.vercel.app/destin-itinerary-planner.html',               blog:null},
+  destiny:   {eyebrow:'AI Concierge',    title:'💬 Destiny Blue',     url:'https://destin-concierge-new.vercel.app/concierge',                                   blog:null},
 };
 
-var currentTile=null, showingBlog=false;
+var currentTile=null,showingBlog=false;
 
 function openModal(key){
   if(navigator.vibrate) navigator.vibrate(8);
-  var tile=TILES[key]; if(!tile) return;
-  currentTile=key; showingBlog=false;
+  var tile=TILES[key];if(!tile)return;
+  currentTile=key;showingBlog=false;
   document.getElementById('modalEyebrow').textContent=tile.eyebrow;
   document.getElementById('modalTitle').textContent=tile.title;
   updateBlogBtn();
@@ -299,62 +241,47 @@ function updateBlogBtn(){
   var btn2=document.getElementById('modalBlogBtn2');
   if(!tile){btn.style.display='none';btn2.style.display='none';return;}
   if(showingBlog){
-    btn.style.display='inline-block';btn.textContent='← Back';
-    btn2.style.display='none';
-  } else if(tile.blog){
-    btn.style.display='inline-block';btn.textContent='Read full guide →';
-    btn2.style.display=tile.blog2?'inline-block':'none';
-  } else {
-    btn.style.display='none';btn2.style.display='none';
-  }
+    btn.style.display='inline-flex';btn.textContent='← Back';btn2.style.display='none';
+  }else if(tile.blog){
+    btn.style.display='inline-flex';btn.textContent='Read full guide →';
+    btn2.style.display=tile.blog2?'inline-flex':'none';
+  }else{btn.style.display='none';btn2.style.display='none';}
 }
 
 function toggleBlog(){
-  var tile=TILES[currentTile]; if(!tile||!tile.blog) return;
-  showingBlog=!showingBlog;
-  loadIframe(showingBlog?tile.blog:tile.url);
-  updateBlogBtn();
+  var tile=TILES[currentTile];if(!tile||!tile.blog)return;
+  showingBlog=!showingBlog;loadIframe(showingBlog?tile.blog:tile.url);updateBlogBtn();
 }
-
 function toggleBlog2(){
-  var tile=TILES[currentTile]; if(!tile||!tile.blog2) return;
-  showingBlog=true; loadIframe(tile.blog2); updateBlogBtn();
+  var tile=TILES[currentTile];if(!tile||!tile.blog2)return;
+  showingBlog=true;loadIframe(tile.blog2);updateBlogBtn();
 }
-
 function loadIframe(url){
   document.getElementById('modalLoading').style.display='flex';
-  var f=document.getElementById('modalIframe');
-  f.style.opacity='0'; f.src=url;
+  var f=document.getElementById('modalIframe');f.style.opacity='0';f.src=url;
 }
-
 function iframeLoaded(){
   document.getElementById('modalLoading').style.display='none';
   document.getElementById('modalIframe').style.opacity='1';
 }
-
 function closeModal(){
   document.getElementById('modalSheet').style.transform='';
   document.getElementById('modalOverlay').classList.remove('open');
   document.body.style.overflow='';
-  currentTile=null; showingBlog=false;
+  currentTile=null;showingBlog=false;
   setTimeout(function(){
-    var f=document.getElementById('modalIframe');
-    f.src=''; f.style.opacity='0';
+    var f=document.getElementById('modalIframe');f.src='';f.style.opacity='0';
     document.getElementById('modalLoading').style.display='flex';
   },300);
 }
+function handleOverlayClick(e){if(e.target===document.getElementById('modalOverlay'))closeModal();}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal();});
 
-function handleOverlayClick(e){
-  if(e.target===document.getElementById('modalOverlay')) closeModal();
-}
-
-document.addEventListener('keydown',function(e){if(e.key==='Escape') closeModal();});
-
-var touchStartY=0, sheet=document.getElementById('modalSheet');
+var touchStartY=0,sheet=document.getElementById('modalSheet');
 sheet.addEventListener('touchstart',function(e){touchStartY=e.touches[0].clientY;},{passive:true});
 sheet.addEventListener('touchmove',function(e){
   var dy=e.touches[0].clientY-touchStartY;
-  if(dy>0) sheet.style.transform='translateY('+dy+'px)';
+  if(dy>0)sheet.style.transform='translateY('+dy+'px)';
 },{passive:true});
 sheet.addEventListener('touchend',function(e){
   var dy=e.changedTouches[0].clientY-touchStartY;

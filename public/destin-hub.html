@@ -7,6 +7,8 @@
 <title>Destin Local Guide — Beaches, Food, Events & More</title>
 <meta name="description" content="Your complete Destin Florida guide — beaches, seafood, live music, fireworks, events, airports, car rental and AI concierge."/>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3SGXCQ4FTC"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-3SGXCQ4FTC');</script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 :root{--teal:#0d9e8a;--bg:#07141f;--card:#0d1f2e;--border:rgba(255,255,255,0.07);--text:#e8f4ff;--muted:rgba(255,255,255,0.4);}
@@ -225,6 +227,7 @@ var currentTile=null,showingBlog=false;
 
 function openModal(key){
   if(navigator.vibrate) navigator.vibrate(8);
+  gtag('event','tile_click',{tile_name:key});
   var tile=TILES[key];if(!tile)return;
   currentTile=key;showingBlog=false;
   document.getElementById('modalEyebrow').textContent=tile.eyebrow;

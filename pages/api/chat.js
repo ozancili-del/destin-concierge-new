@@ -2304,30 +2304,26 @@ Tell guest warmly that neither unit is free for the full stay, but offer these s
               availabilityStatus = `DATES:${dates.arrival}->${dates.departure} | 707:PARTIAL`;
               const earlier707 = u707.earlierArrival ? (() => {
                 const daysEarlier = Math.round((new Date(dates.arrival) - new Date(u707.earlierArrival)) / 86400000);
-                const today = new Date().toISOString().split("T")[0];
-                const earlyMsg = u707.earlierArrival === today
-                  ? `"Great news — if you can check in today (${u707.earlierArrival}), I can get you ${u707.earlierTotalDays} nights until ${w.to}!"`
-                  : daysEarlier === 1
-                  ? `"If you can arrive tomorrow (${u707.earlierArrival}), I can get you ${u707.earlierTotalDays} nights instead!"`
-                  : `"If you can arrive ${daysEarlier} days earlier on ${u707.earlierArrival}, I can get you ${u707.earlierTotalDays} nights instead!"`;
-                return ` Also mention this earlier arrival option: ${earlyMsg}`;
+                const nowLocal = new Date().toLocaleDateString("en-CA"); // YYYY-MM-DD in local time
+                const earlierLink707 = buildLink("707", u707.earlierArrival, w.to, adults, children);
+                const fmt = iso => new Date(iso+"T12:00:00Z").toLocaleDateString("en-US",{month:"long",day:"numeric"});
+                const arrPhrase = u707.earlierArrival === nowLocal ? "today" : daysEarlier === 1 ? "tomorrow" : fmt(u707.earlierArrival);
+                return ` 🏆 LEAD WITH THIS — BETTER OPTION: Guest can get ${u707.earlierTotalDays} nights by arriving ${arrPhrase}. Say something like: "Good news — if you can arrive ${arrPhrase}, I can get you ${u707.earlierTotalDays} nights! Here's your link: ${earlierLink707}" THEN say: "Or if ${arrPhrase} doesn't work, I have a 2-night option (${w.from} to ${w.to}): ${link}" — two options, better one first, concise.`;
               })() : "";
-              availabilityContext = `LIVE AVAILABILITY: Both units booked for the full requested stay. However Unit 707 has a ${u707.longestDays}-night window available (${w.from} to ${w.to}). Offer this shorter stay warmly: "Unit 707 isn't free for the full week, but I do have ${w.from} to ${w.to} available — would a shorter stay work for you?" Booking link: ${link} Your 10% direct booking discount is already applied! 🎉${earlier707}`;
+              availabilityContext = `LIVE AVAILABILITY: Both units booked for the full requested stay.${earlier707 ? earlier707 : ""} FALLBACK shorter stay: Unit 707 has ${u707.longestDays} nights available (${w.from} to ${w.to}). Booking link for shorter stay: ${link} Your 10% direct booking discount is already applied! 🎉 Lead with the better option first, fallback second. Keep it concise — two options max.`;
             } else if (rec === "ONLY_1006_PARTIAL" && u1006.longestWindow) {
               const w = u1006.longestWindow;
               const link = buildLink("1006", w.from, w.to, adults, children);
               availabilityStatus = `DATES:${dates.arrival}->${dates.departure} | 1006:PARTIAL`;
               const earlier1006 = u1006.earlierArrival ? (() => {
                 const daysEarlier = Math.round((new Date(dates.arrival) - new Date(u1006.earlierArrival)) / 86400000);
-                const today = new Date().toISOString().split("T")[0];
-                const earlyMsg = u1006.earlierArrival === today
-                  ? `"Great news — if you can check in today (${u1006.earlierArrival}), I can get you ${u1006.earlierTotalDays} nights until ${w.to}!"`
-                  : daysEarlier === 1
-                  ? `"If you can arrive tomorrow (${u1006.earlierArrival}), I can get you ${u1006.earlierTotalDays} nights instead!"`
-                  : `"If you can arrive ${daysEarlier} days earlier on ${u1006.earlierArrival}, I can get you ${u1006.earlierTotalDays} nights instead!"`;
-                return ` Also mention this earlier arrival option: ${earlyMsg}`;
+                const nowLocal = new Date().toLocaleDateString("en-CA");
+                const earlierLink1006 = buildLink("1006", u1006.earlierArrival, w.to, adults, children);
+                const fmt = iso => new Date(iso+"T12:00:00Z").toLocaleDateString("en-US",{month:"long",day:"numeric"});
+                const arrPhrase = u1006.earlierArrival === nowLocal ? "today" : daysEarlier === 1 ? "tomorrow" : fmt(u1006.earlierArrival);
+                return ` 🏆 LEAD WITH THIS — BETTER OPTION: Guest can get ${u1006.earlierTotalDays} nights by arriving ${arrPhrase}. Say something like: "Good news — if you can arrive ${arrPhrase}, I can get you ${u1006.earlierTotalDays} nights! Here's your link: ${earlierLink1006}" THEN say: "Or if ${arrPhrase} doesn't work, I have a 2-night option (${w.from} to ${w.to}): ${link}" — two options, better one first, concise.`;
               })() : "";
-              availabilityContext = `LIVE AVAILABILITY: Both units booked for the full requested stay. However Unit 1006 has a ${u1006.longestDays}-night window available (${w.from} to ${w.to}). Offer this shorter stay warmly: "Unit 1006 isn't free for the full week, but I do have ${w.from} to ${w.to} available — would a shorter stay work for you?" Booking link: ${link} Your 10% direct booking discount is already applied! 🎉${earlier1006}`;
+              availabilityContext = `LIVE AVAILABILITY: Both units booked for the full requested stay.${earlier1006 ? earlier1006 : ""} FALLBACK shorter stay: Unit 1006 has ${u1006.longestDays} nights available (${w.from} to ${w.to}). Booking link for shorter stay: ${link} Your 10% direct booking discount is already applied! 🎉 Lead with the better option first, fallback second. Keep it concise — two options max.`;
             } else {
               availabilityContext = `LIVE AVAILABILITY: Both units BOOKED for ${dates.arrival} to ${dates.departure}. Tell guest both unavailable and suggest https://www.destincondogetaways.com/availability for open dates.`;
             }

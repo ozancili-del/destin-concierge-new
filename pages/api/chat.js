@@ -2003,7 +2003,7 @@ RULES — no exceptions:
     }
 
     // 🟢 AVAILABILITY CONTEXT
-    if (!dates && !isDiscountRequest && wantsAvailability && mentionedMonth && !extractSingleDate(lastUser)) {
+    if (!dates && !isDiscountRequest && wantsAvailability && mentionedMonth && !extractSingleDate(lastUser) && !(nightsMatch && hasGuestCount)) {
       // 10 overlapping 3-night windows covering the full month
       const year = new Date().getFullYear();
       const monthNum = monthNames[mentionedMonth];
@@ -2418,6 +2418,59 @@ Tell guest warmly that neither unit is free for the full stay, but offer these s
     // PriceLabs rate suggestions
     let alternativeDatesContext = "";
     let flexibleDatesContext = "";
+    let windowPriceContext = "";
+
+    // Window price follow-up: guest asks "which is cheaper?" after month windows were shown
+    const isPriceFollowUp = /cheaper|cheapest|best price|best rate|best deal|which.*cost|how much|price|pricing|which.*rate|compare.*price|which.*cheaper/i.test(lastUser);
+    const botShownWindows = lastBotMsg && lastBotMsg.content && /early|mid|late/i.test(lastBotMsg.content) && /may|june|july|august|september|october|november|december|january|february|march|april/i.test(lastBotMsg.content);
+    if (isPriceFollowUp && botShownWindows && !dates) {
+      try {
+        // Extract date ranges from last bot message (format: Month D–Month D or Month D-D)
+        const datePattern = /([A-Z][a-z]+)\s+(\d{1,2})[–\-](?:([A-Z][a-z]+)\s+)?(\d{1,2})/g;
+        const yr = new Date().getFullYear();
+        const mn = {January:1,February:2,March:3,April:4,May:5,June:6,July:7,August:8,September:9,October:10,November:11,December:12};
+        const extracted = [];
+        let m;
+        while ((m = datePattern.exec(lastBotMsg.content)) !== null) {
+          const startMonth = mn[m[1]];
+          const endMonth = m[3] ? mn[m[3]] : startMonth;
+          if (!startMonth) continue;
+          const arr = `${yr}-${String(startMonth).padStart(2,"0")}-${String(m[2]).padStart(2,"0")}`;
+          const dep = `${yr}-${String(endMonth).padStart(2,"0")}-${String(m[4]).padStart(2,"0")}`;
+          extracted.push({ arrival: arr, departure: dep });
+        }
+        if (extracted.length > 0) {
+          const scanStart = extracted[0].arrival;
+          const scanEnd = extracted[extracted.length-1].departure;
+          const plRes = await fetch("https://destin-concierge-new.vercel.app/api/pricelabs-proxy?action=prices", {
+            method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ start_date: scanStart, end_date: scanEnd })
+          });
+          if (plRes.ok) {
+            const plData = await plRes.json();
+            const lines = extracted.map(w => {
+              const nights = Math.round((new Date(w.departure)-new Date(w.arrival))/86400000);
+              let bestUnit = null, bestAvg = Infinity;
+              for (const unit of ["707","1006"]) {
+                const ud = plData[unit];
+                if (!ud || !ud.prices) continue;
+                const win = ud.prices.filter(p => p.date >= w.arrival && p.date < w.departure);
+                if (!win.length) continue;
+                const avg = win.reduce((s,p)=>s+(p.price||0),0)/win.length;
+                if (avg < bestAvg) { bestAvg = avg; bestUnit = unit; }
+              }
+              const d = new Date(w.arrival+"T12:00:00Z");
+              const d2 = new Date(w.departure+"T12:00:00Z");
+              const fmt = dt => dt.toLocaleDateString("en-US",{month:"short",day:"numeric"});
+              return bestUnit ? `• ${fmt(d)}–${fmt(d2)}: ~$${Math.round(bestAvg)}/night (Unit ${bestUnit}, ${nights} nights = ~$${Math.round(bestAvg*nights)} total)` : null;
+            }).filter(Boolean).join("\n");
+            if (lines) {
+              windowPriceContext = `💰 WINDOW PRICES FROM PRICELABS:\n${lines}\n\nTell guest which window is cheapest and the total cost difference. Use ONLY the booking links already shared in the previous message — DO NOT invent new URLs.`;
+            }
+          }
+        }
+      } catch(e) { /* silent fail */ }
+    }
 
     // Use case 1: exact dates already sent → suggest cheaper nearby window
     if (dates && hasGuestCount && bookingLinksSent && !isDiscountRequest) {
@@ -2639,7 +2692,7 @@ The guest may be following up or anxious. Your job now:
 - Remind them Ozan is handling it and they should expect direct contact soon
 - Keep it to 1-2 sentences max. Do not ask follow-up questions.
 - Example good responses: "Ozan is on it — you should hear from him or the team very shortly 🙏" / "He's already been notified and is handling this — just hang tight a little longer 🙏"
-\n\n` : ""}${isChildSafetyQuestion ? "👶 CHILD/TODDLER SAFETY QUESTION DETECTED — Follow CHILD / TODDLER / FAMILY SAFETY PRIORITY OVERRIDE exactly. Answer the specific safety question FIRST. No excitement opener. No smart lock pivot. Give portable solutions immediately.\n\n" : ""}${isAccidentalDamage ? "⚠️ ACCIDENTAL DAMAGE SCENARIO: Guest has broken something (plates, glasses etc). Follow the ACCIDENTAL DAMAGE RULE exactly. Do NOT say you notified Ozan. Do NOT offer to relay. Empathy first, then direct to Ozan at (972) 357-4262.\n\n" : ""}${alertWasFired ? "🚨 ALERT SENT THIS SESSION: An emergency Discord alert was automatically sent to Ozan during this conversation. If guest asks if you contacted Ozan or sent a message — say YES, an urgent alert was already sent to him. Do not say you will send it — it is already done.\n\n" : ""}${bookingLinksContext ? bookingLinksContext + "\n\n" : ""}${petsContext ? petsContext + "\n\n" : ""}${holidayContext ? holidayContext + "\n\n" : ""}${dateAdjustContext ? dateAdjustContext + "\n\n" : ""}${competitorContext ? competitorContext + "\n\n" : ""}${conciergePageContext}${sawBannerContext}${conciergeEmailContext}${popupContext}${discountContext ? discountContext + "\n\n" : ""}${externalDisturbanceContext ? externalDisturbanceContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${alternativeDatesContext ? alternativeDatesContext + "\n\n" : ""}${flexibleDatesContext ? flexibleDatesContext + "\n\n" : ""}${blogContext}
+\n\n` : ""}${isChildSafetyQuestion ? "👶 CHILD/TODDLER SAFETY QUESTION DETECTED — Follow CHILD / TODDLER / FAMILY SAFETY PRIORITY OVERRIDE exactly. Answer the specific safety question FIRST. No excitement opener. No smart lock pivot. Give portable solutions immediately.\n\n" : ""}${isAccidentalDamage ? "⚠️ ACCIDENTAL DAMAGE SCENARIO: Guest has broken something (plates, glasses etc). Follow the ACCIDENTAL DAMAGE RULE exactly. Do NOT say you notified Ozan. Do NOT offer to relay. Empathy first, then direct to Ozan at (972) 357-4262.\n\n" : ""}${alertWasFired ? "🚨 ALERT SENT THIS SESSION: An emergency Discord alert was automatically sent to Ozan during this conversation. If guest asks if you contacted Ozan or sent a message — say YES, an urgent alert was already sent to him. Do not say you will send it — it is already done.\n\n" : ""}${bookingLinksContext ? bookingLinksContext + "\n\n" : ""}${petsContext ? petsContext + "\n\n" : ""}${holidayContext ? holidayContext + "\n\n" : ""}${dateAdjustContext ? dateAdjustContext + "\n\n" : ""}${competitorContext ? competitorContext + "\n\n" : ""}${conciergePageContext}${sawBannerContext}${conciergeEmailContext}${popupContext}${discountContext ? discountContext + "\n\n" : ""}${externalDisturbanceContext ? externalDisturbanceContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${alternativeDatesContext ? alternativeDatesContext + "\n\n" : ""}${flexibleDatesContext ? flexibleDatesContext + "\n\n" : ""}${windowPriceContext ? windowPriceContext + "\n\n" : ""}${blogContext}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PROPERTIES

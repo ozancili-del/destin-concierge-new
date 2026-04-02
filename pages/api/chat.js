@@ -2003,7 +2003,7 @@ RULES — no exceptions:
     }
 
     // 🟢 AVAILABILITY CONTEXT
-    if (!dates && !isDiscountRequest && wantsAvailability && mentionedMonth && !extractSingleDate(lastUser) && !(nightsMatch && hasGuestCount)) {
+    if (!dates && !isDiscountRequest && wantsAvailability && mentionedMonth && !extractSingleDate(lastUser)) {
       // 10 overlapping 3-night windows covering the full month
       const year = new Date().getFullYear();
       const monthNum = monthNames[mentionedMonth];

@@ -2302,12 +2302,14 @@ Tell guest warmly that neither unit is free for the full stay, but offer these s
               const w = u707.longestWindow;
               const link = buildLink("707", w.from, w.to, adults, children);
               availabilityStatus = `DATES:${dates.arrival}->${dates.departure} | 707:PARTIAL`;
-              availabilityContext = `LIVE AVAILABILITY: Both units booked for the full requested stay. However Unit 707 has a ${u707.longestDays}-night window available (${w.from} to ${w.to}). Offer this shorter stay warmly: "Unit 707 isn't free for the full week, but I do have ${w.from} to ${w.to} available — would a shorter stay work for you?" Booking link: ${link} Your 10% direct booking discount is already applied! 🎉`;
+              const earlier707 = u707.earlierArrival ? ` Also, if they can arrive on ${u707.earlierArrival} instead, they could get up to ${u707.earlierTotalDays} nights (${u707.earlierArrival} to ${w.to}). Mention this as an option: "If you can arrive a couple of days earlier on ${u707.earlierArrival}, I can get you ${u707.earlierTotalDays} nights instead!"` : "";
+              availabilityContext = `LIVE AVAILABILITY: Both units booked for the full requested stay. However Unit 707 has a ${u707.longestDays}-night window available (${w.from} to ${w.to}). Offer this shorter stay warmly: "Unit 707 isn't free for the full week, but I do have ${w.from} to ${w.to} available — would a shorter stay work for you?" Booking link: ${link} Your 10% direct booking discount is already applied! 🎉${earlier707}`;
             } else if (rec === "ONLY_1006_PARTIAL" && u1006.longestWindow) {
               const w = u1006.longestWindow;
               const link = buildLink("1006", w.from, w.to, adults, children);
               availabilityStatus = `DATES:${dates.arrival}->${dates.departure} | 1006:PARTIAL`;
-              availabilityContext = `LIVE AVAILABILITY: Both units booked for the full requested stay. However Unit 1006 has a ${u1006.longestDays}-night window available (${w.from} to ${w.to}). Offer this shorter stay warmly: "Unit 1006 isn't free for the full week, but I do have ${w.from} to ${w.to} available — would a shorter stay work for you?" Booking link: ${link} Your 10% direct booking discount is already applied! 🎉`;
+              const earlier1006 = u1006.earlierArrival ? ` Also, if they can arrive on ${u1006.earlierArrival} instead, they could get up to ${u1006.earlierTotalDays} nights (${u1006.earlierArrival} to ${w.to}). Mention this as an option: "If you can arrive a couple of days earlier on ${u1006.earlierArrival}, I can get you ${u1006.earlierTotalDays} nights instead!"` : "";
+              availabilityContext = `LIVE AVAILABILITY: Both units booked for the full requested stay. However Unit 1006 has a ${u1006.longestDays}-night window available (${w.from} to ${w.to}). Offer this shorter stay warmly: "Unit 1006 isn't free for the full week, but I do have ${w.from} to ${w.to} available — would a shorter stay work for you?" Booking link: ${link} Your 10% direct booking discount is already applied! 🎉${earlier1006}`;
             } else {
               availabilityContext = `LIVE AVAILABILITY: Both units BOOKED for ${dates.arrival} to ${dates.departure}. Tell guest both unavailable and suggest https://www.destincondogetaways.com/availability for open dates.`;
             }
@@ -2492,6 +2494,8 @@ ${existingGuestContext}
 
 ⛔ CRITICAL URL RULE — NO EXCEPTIONS:
 NEVER invent, generate, guess, or modify booking URLs. The ONLY valid booking URLs are pre-built by the system and provided to you in the context below (they contain "or_arrival=" and "or_departure="). If no pre-built URL is provided, do NOT send any booking link — ask for missing info instead.
+
+FRESH SESSION / NO PRIOR CONTEXT RULE: If a guest's message implies they spoke with you before (e.g. "is it still available?", "can you send the link again?", "as we discussed", "those dates", "my booking") BUT there are no dates, guest count, or booking links anywhere in the current conversation — do NOT invent or assume any details. Instead respond playfully: something like "OMG it's been such a busy day I may have mixed things up! 😅 Could you remind me of your dates and how many guests? I want to make sure I get everything right for you! 🌊" — keep it warm, fun, and never make the guest feel at fault.
 
 TRIPSHOCK AFFILIATE RULE:
 - TripShock links are ONLY for booking local activities — dolphin tours, fishing, jet skis, pontoons, parasailing, Crab Island, snorkeling, sunset cruises, pirate cruises, kayaks, beach photographers, fireworks cruises, tiki boats

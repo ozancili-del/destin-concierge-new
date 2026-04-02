@@ -1299,6 +1299,8 @@ export default async function handler(req, res) {
     // e.g. bot: "when would you like to check out?" → guest: "12th of march" or "the 12th"
     // Combine with prior arrival date to form complete date pair
     const botAskedForCheckout = lastBotMsg && /when would you like to check out|check.?out date|what.*check.?out|departure date|check out/i.test(lastBotMsg.content);
+    const botAskedAvailabilityConfirm = lastBotMsg && /check.*availab|check.*for you|check.*right away|want me to check|shall i check|check.*both units|check.*open|proceed with|check for.*guest/i.test(lastBotMsg.content);
+    const isAvailabilityConfirm = botAskedAvailabilityConfirm && /^(yes|yeah|yep|sure|ok|okay|please|go ahead|do it|check|sounds good|perfect|great|why not|absolutely|yea|yup)\b/i.test(lastUser.trim());
     if (!dates && botAskedForCheckout) {
       const singleReply = extractSingleDate(lastUser);
       const bareDayReply = lastUser.trim().replace(/^the\s+/i, "").match(/^(\d{1,2})(?:st|nd|rd|th)?[.,!?\s]*$/);
@@ -3112,7 +3114,7 @@ NO REPETITION RULE: Review all your previous responses in this conversation befo
         && !availabilityStatus.includes("HOA_UNCERTAIN")
         && !availabilityStatus.includes("HOA_VIOLATION")
         && !availabilityStatus.includes("OCCUPANCY_EXCEEDED")
-        && dates && hasGuestCount && !mentionsPets && !bookingLinksSent && (wantsAvailability || isGuestCountReply || isCheckoutReply || isNightsReply)) {
+        && dates && hasGuestCount && !mentionsPets && !bookingLinksSent && (wantsAvailability || isGuestCountReply || isCheckoutReply || isNightsReply || isAvailabilityConfirm)) {
 
       let bookingReply = null;
 

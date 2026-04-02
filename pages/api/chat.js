@@ -2302,13 +2302,31 @@ Tell guest warmly that neither unit is free for the full stay, but offer these s
               const w = u707.longestWindow;
               const link = buildLink("707", w.from, w.to, adults, children);
               availabilityStatus = `DATES:${dates.arrival}->${dates.departure} | 707:PARTIAL`;
-              const earlier707 = u707.earlierArrival ? ` Also, if they can arrive on ${u707.earlierArrival} instead, they could get up to ${u707.earlierTotalDays} nights (${u707.earlierArrival} to ${w.to}). Mention this as an option: "If you can arrive a couple of days earlier on ${u707.earlierArrival}, I can get you ${u707.earlierTotalDays} nights instead!"` : "";
+              const earlier707 = u707.earlierArrival ? (() => {
+                const daysEarlier = Math.round((new Date(dates.arrival) - new Date(u707.earlierArrival)) / 86400000);
+                const today = new Date().toISOString().split("T")[0];
+                const earlyMsg = u707.earlierArrival === today
+                  ? `"Great news — if you can check in today (${u707.earlierArrival}), I can get you ${u707.earlierTotalDays} nights until ${w.to}!"`
+                  : daysEarlier === 1
+                  ? `"If you can arrive tomorrow (${u707.earlierArrival}), I can get you ${u707.earlierTotalDays} nights instead!"`
+                  : `"If you can arrive ${daysEarlier} days earlier on ${u707.earlierArrival}, I can get you ${u707.earlierTotalDays} nights instead!"`;
+                return ` Also mention this earlier arrival option: ${earlyMsg}`;
+              })() : "";
               availabilityContext = `LIVE AVAILABILITY: Both units booked for the full requested stay. However Unit 707 has a ${u707.longestDays}-night window available (${w.from} to ${w.to}). Offer this shorter stay warmly: "Unit 707 isn't free for the full week, but I do have ${w.from} to ${w.to} available — would a shorter stay work for you?" Booking link: ${link} Your 10% direct booking discount is already applied! 🎉${earlier707}`;
             } else if (rec === "ONLY_1006_PARTIAL" && u1006.longestWindow) {
               const w = u1006.longestWindow;
               const link = buildLink("1006", w.from, w.to, adults, children);
               availabilityStatus = `DATES:${dates.arrival}->${dates.departure} | 1006:PARTIAL`;
-              const earlier1006 = u1006.earlierArrival ? ` Also, if they can arrive on ${u1006.earlierArrival} instead, they could get up to ${u1006.earlierTotalDays} nights (${u1006.earlierArrival} to ${w.to}). Mention this as an option: "If you can arrive a couple of days earlier on ${u1006.earlierArrival}, I can get you ${u1006.earlierTotalDays} nights instead!"` : "";
+              const earlier1006 = u1006.earlierArrival ? (() => {
+                const daysEarlier = Math.round((new Date(dates.arrival) - new Date(u1006.earlierArrival)) / 86400000);
+                const today = new Date().toISOString().split("T")[0];
+                const earlyMsg = u1006.earlierArrival === today
+                  ? `"Great news — if you can check in today (${u1006.earlierArrival}), I can get you ${u1006.earlierTotalDays} nights until ${w.to}!"`
+                  : daysEarlier === 1
+                  ? `"If you can arrive tomorrow (${u1006.earlierArrival}), I can get you ${u1006.earlierTotalDays} nights instead!"`
+                  : `"If you can arrive ${daysEarlier} days earlier on ${u1006.earlierArrival}, I can get you ${u1006.earlierTotalDays} nights instead!"`;
+                return ` Also mention this earlier arrival option: ${earlyMsg}`;
+              })() : "";
               availabilityContext = `LIVE AVAILABILITY: Both units booked for the full requested stay. However Unit 1006 has a ${u1006.longestDays}-night window available (${w.from} to ${w.to}). Offer this shorter stay warmly: "Unit 1006 isn't free for the full week, but I do have ${w.from} to ${w.to} available — would a shorter stay work for you?" Booking link: ${link} Your 10% direct booking discount is already applied! 🎉${earlier1006}`;
             } else {
               availabilityContext = `LIVE AVAILABILITY: Both units BOOKED for ${dates.arrival} to ${dates.departure}. Tell guest both unavailable and suggest https://www.destincondogetaways.com/availability for open dates.`;

@@ -118,21 +118,36 @@ function analyzeAvailability(bookings, requestedArrival, requestedDeparture) {
   const requestedDays = (reqDep - reqArr) / 86400000;
 
   // Scan backwards from requested arrival to see if earlier start gives more nights
+  // Cap to requested stay length and check ALL bookings (not just conflicts in range)
   let earlierArrival = null;
-  let earlierTotalDays = longestDays;
+  const requestedNights = Math.round(requestedDays);
   const longestDepDate = new Date(longest.to);
-  for (let i = 1; i <= 7; i++) {
+
+  // Build full blocked days set from ALL bookings (not just conflicts in range)
+  const allBlockedDays = new Set();
+  for (const b of bookings) {
+    const start = new Date(b.arrival);
+    const end = new Date(b.departure);
+    for (let d = new Date(start); d < end; d.setDate(d.getDate() + 1)) {
+      allBlockedDays.add(d.toISOString().split("T")[0]);
+    }
+  }
+
+  // Scan back up to requestedNights days — stop at any blocked day
+  for (let i = 1; i <= requestedNights; i++) {
     const candidate = new Date(reqArr);
     candidate.setDate(candidate.getDate() - i);
     const candidateStr = candidate.toISOString().split("T")[0];
-    if (blockedDays.has(candidateStr)) break;
-    // Check if this candidate is within 6-month booking window
-    const potentialDays = (longestDepDate - candidate) / 86400000;
-    if (potentialDays > earlierTotalDays) {
+    if (allBlockedDays.has(candidateStr)) break;
+    const potentialDays = Math.round((longestDepDate - candidate) / 86400000);
+    // Only suggest if it gets us closer to the requested nights
+    if (potentialDays >= requestedNights) {
       earlierArrival = candidateStr;
-      earlierTotalDays = potentialDays;
+      break; // Found exact match — stop
     }
+    earlierArrival = candidateStr; // Best we can do so far
   }
+  const earlierTotalDays = earlierArrival ? Math.round((longestDepDate - new Date(earlierArrival)) / 86400000) : null;
 
   return {
     status: "partial",

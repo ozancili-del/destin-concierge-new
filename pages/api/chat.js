@@ -772,6 +772,68 @@ function buildLink(unit, arrival, departure, adults, children) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PriceLabs — fetch rate window and find cheapest available N-night stay
+// ─────────────────────────────────────────────────────────────────────────────
+async function findBestRateWindow(startDate, endDate, nights, adults, children) {
+  try {
+    const BASE = 'https://destin-concierge-new.vercel.app';
+    // Fetch PriceLabs rates for the window
+    const plRes = await fetch(`${BASE}/api/pricelabs-proxy?action=prices`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ start_date: startDate, end_date: endDate })
+    });
+    if (!plRes.ok) return null;
+    const plData = await plRes.json();
+
+    // Build date list in window
+    const results = [];
+    const start = new Date(startDate + 'T00:00:00Z');
+    const end = new Date(endDate + 'T00:00:00Z');
+
+    for (let d = new Date(start); d <= end; d.setUTCDate(d.getUTCDate() + 1)) {
+      const arr = d.toISOString().split('T')[0];
+      const dep = new Date(d);
+      dep.setUTCDate(dep.getUTCDate() + nights);
+      const depStr = dep.toISOString().split('T')[0];
+      if (new Date(depStr) > end) break;
+
+      // Get avg nightly rate for this window from PriceLabs (check both units)
+      let bestUnit = null, bestAvg = Infinity;
+      for (const unit of ['707', '1006']) {
+        const unitData = plData[unit];
+        if (!unitData || !unitData.prices) continue;
+        const window = unitData.prices.filter(p => p.date >= arr && p.date < depStr);
+        if (window.length < nights) continue;
+        const avg = window.reduce((s, p) => s + (p.price || 0), 0) / window.length;
+        if (avg < bestAvg) { bestAvg = avg; bestUnit = unit; }
+      }
+      if (!bestUnit) continue;
+
+      // Check OwnerRez availability for this window
+      const calRes = await fetch(`${BASE}/api/calendar?arrival=${arr}&departure=${depStr}`);
+      if (!calRes.ok) continue;
+      const calData = await calRes.json();
+      const unitAvail = bestUnit === '707' ? calData?.unit707 : calData?.unit1006;
+      if (!unitAvail || unitAvail.status !== 'available') continue;
+
+      results.push({ arrival: arr, departure: depStr, unit: bestUnit, avgNightly: Math.round(bestAvg) });
+    }
+
+    if (!results.length) return null;
+    // Return cheapest available window
+    results.sort((a, b) => a.avgNightly - b.avgNightly);
+    const best = results[0];
+    best.link = buildLink(best.unit, best.arrival, best.departure, adults, children);
+    return best;
+  } catch (e) {
+    console.error('[PriceLabs findBestRateWindow error]', e.message);
+    return null;
+  }
+}
+
 // Brevo — capture website lead (name + email) from popup flow
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -2353,6 +2415,58 @@ Tell guest warmly that neither unit is free for the full stay, but offer these s
       }
     }
 
+    // PriceLabs rate suggestions
+    let alternativeDatesContext = "";
+    let flexibleDatesContext = "";
+
+    // Use case 1: exact dates already sent → suggest cheaper nearby window
+    if (dates && hasGuestCount && bookingLinksSent && !isDiscountRequest) {
+      try {
+        const arrD = new Date(dates.arrival + "T00:00:00Z");
+        const depD = new Date(dates.departure + "T00:00:00Z");
+        const stayNights = Math.round((depD - arrD) / 86400000);
+        const s = new Date(arrD); s.setUTCDate(s.getUTCDate() - 3);
+        const e = new Date(depD); e.setUTCDate(e.getUTCDate() + 3);
+        const best = await findBestRateWindow(s.toISOString().split("T")[0], e.toISOString().split("T")[0], stayNights, adults, children);
+        if (best) {
+          const r2 = await fetch("https://destin-concierge-new.vercel.app/api/pricelabs-proxy?action=prices", {
+            method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ start_date: dates.arrival, end_date: dates.departure })
+          });
+          const d2 = await r2.json();
+          const ud = d2[best.unit];
+          if (ud && ud.prices) {
+            const ow = ud.prices.filter(p => p.date >= dates.arrival && p.date < dates.departure);
+            const origAvg = ow.length ? ow.reduce((s,p) => s+(p.price||0),0)/ow.length : 0;
+            const saving = Math.round((origAvg - best.avgNightly) * stayNights);
+            if (saving > 20) {
+              alternativeDatesContext = "\u{1F4A1} CHEAPER DATES NEARBY: " + best.arrival + " to " + best.departure + " (Unit " + best.unit + ") saves ~$" + saving + " total vs requested dates ($" + best.avgNightly + "/night avg). Guest already has booking link — DO NOT send a new link. Add as a casual PS: \"PS — if you\'re slightly flexible, " + best.arrival + " to " + best.departure + " is about $" + saving + " cheaper for the same " + stayNights + " nights and also available. Just update the dates on the link I sent you! 😊\"";
+            }
+          }
+        }
+      } catch(e) { /* silent */ }
+    }
+
+    // Use case 2: flexible — month + nights, no exact dates
+    const isFlexibleRequest = !dates && mentionedMonth && nightsMatch && hasGuestCount && wantsAvailability;
+    if (isFlexibleRequest) {
+      try {
+        const flexNights = parseInt(nightsMatch[1]);
+        const yr = new Date().getFullYear();
+        const mn2 = {january:1,february:2,march:3,april:4,may:5,june:6,july:7,august:8,september:9,october:10,november:11,december:12};
+        const mNum = mn2[mentionedMonth];
+        if (mNum && flexNights >= 2 && flexNights <= 14) {
+          const ss = yr + "-" + String(mNum).padStart(2,"0") + "-01";
+          const ld = new Date(yr, mNum, 0).getUTCDate();
+          const se = yr + "-" + String(mNum).padStart(2,"0") + "-" + ld;
+          const best = await findBestRateWindow(ss, se, flexNights, adults||2, children||0);
+          if (best) {
+            flexibleDatesContext = "\u{1F4A1} FLEXIBLE DATES RESULT: Best available " + flexNights + "-night window in " + mentionedMonth + " is " + best.arrival + " to " + best.departure + " on Unit " + best.unit + " at $" + best.avgNightly + "/night avg. Booking link: " + best.link + "\nPresent naturally: \"I scanned all of " + mentionedMonth + " for you — best value " + flexNights + "-night window is " + best.arrival + " to " + best.departure + " at ~$" + best.avgNightly + "/night. Here\'s your link: " + best.link + "\" then offer BLUE code if email not yet captured.";
+          }
+        }
+      } catch(e) { /* silent */ }
+    }
+
     // Blog content or real weather
     let blogContext = "";
     const blogTopic = detectBlogTopic(lastUser);
@@ -2525,7 +2639,7 @@ The guest may be following up or anxious. Your job now:
 - Remind them Ozan is handling it and they should expect direct contact soon
 - Keep it to 1-2 sentences max. Do not ask follow-up questions.
 - Example good responses: "Ozan is on it — you should hear from him or the team very shortly 🙏" / "He's already been notified and is handling this — just hang tight a little longer 🙏"
-\n\n` : ""}${isChildSafetyQuestion ? "👶 CHILD/TODDLER SAFETY QUESTION DETECTED — Follow CHILD / TODDLER / FAMILY SAFETY PRIORITY OVERRIDE exactly. Answer the specific safety question FIRST. No excitement opener. No smart lock pivot. Give portable solutions immediately.\n\n" : ""}${isAccidentalDamage ? "⚠️ ACCIDENTAL DAMAGE SCENARIO: Guest has broken something (plates, glasses etc). Follow the ACCIDENTAL DAMAGE RULE exactly. Do NOT say you notified Ozan. Do NOT offer to relay. Empathy first, then direct to Ozan at (972) 357-4262.\n\n" : ""}${alertWasFired ? "🚨 ALERT SENT THIS SESSION: An emergency Discord alert was automatically sent to Ozan during this conversation. If guest asks if you contacted Ozan or sent a message — say YES, an urgent alert was already sent to him. Do not say you will send it — it is already done.\n\n" : ""}${bookingLinksContext ? bookingLinksContext + "\n\n" : ""}${petsContext ? petsContext + "\n\n" : ""}${holidayContext ? holidayContext + "\n\n" : ""}${dateAdjustContext ? dateAdjustContext + "\n\n" : ""}${competitorContext ? competitorContext + "\n\n" : ""}${conciergePageContext}${sawBannerContext}${conciergeEmailContext}${popupContext}${discountContext ? discountContext + "\n\n" : ""}${externalDisturbanceContext ? externalDisturbanceContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
+\n\n` : ""}${isChildSafetyQuestion ? "👶 CHILD/TODDLER SAFETY QUESTION DETECTED — Follow CHILD / TODDLER / FAMILY SAFETY PRIORITY OVERRIDE exactly. Answer the specific safety question FIRST. No excitement opener. No smart lock pivot. Give portable solutions immediately.\n\n" : ""}${isAccidentalDamage ? "⚠️ ACCIDENTAL DAMAGE SCENARIO: Guest has broken something (plates, glasses etc). Follow the ACCIDENTAL DAMAGE RULE exactly. Do NOT say you notified Ozan. Do NOT offer to relay. Empathy first, then direct to Ozan at (972) 357-4262.\n\n" : ""}${alertWasFired ? "🚨 ALERT SENT THIS SESSION: An emergency Discord alert was automatically sent to Ozan during this conversation. If guest asks if you contacted Ozan or sent a message — say YES, an urgent alert was already sent to him. Do not say you will send it — it is already done.\n\n" : ""}${bookingLinksContext ? bookingLinksContext + "\n\n" : ""}${petsContext ? petsContext + "\n\n" : ""}${holidayContext ? holidayContext + "\n\n" : ""}${dateAdjustContext ? dateAdjustContext + "\n\n" : ""}${competitorContext ? competitorContext + "\n\n" : ""}${conciergePageContext}${sawBannerContext}${conciergeEmailContext}${popupContext}${discountContext ? discountContext + "\n\n" : ""}${externalDisturbanceContext ? externalDisturbanceContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${alternativeDatesContext ? alternativeDatesContext + "\n\n" : ""}${flexibleDatesContext ? flexibleDatesContext + "\n\n" : ""}${blogContext}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PROPERTIES

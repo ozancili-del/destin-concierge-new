@@ -117,12 +117,31 @@ function analyzeAvailability(bookings, requestedArrival, requestedDeparture) {
   const longestDays = (new Date(longest.to) - new Date(longest.from)) / 86400000;
   const requestedDays = (reqDep - reqArr) / 86400000;
 
+  // Scan backwards from requested arrival to see if earlier start gives more nights
+  let earlierArrival = null;
+  let earlierTotalDays = longestDays;
+  const longestDepDate = new Date(longest.to);
+  for (let i = 1; i <= 7; i++) {
+    const candidate = new Date(reqArr);
+    candidate.setDate(candidate.getDate() - i);
+    const candidateStr = candidate.toISOString().split("T")[0];
+    if (blockedDays.has(candidateStr)) break;
+    // Check if this candidate is within 6-month booking window
+    const potentialDays = (longestDepDate - candidate) / 86400000;
+    if (potentialDays > earlierTotalDays) {
+      earlierArrival = candidateStr;
+      earlierTotalDays = potentialDays;
+    }
+  }
+
   return {
     status: "partial",
     longestWindow: longest,
     longestDays,
     requestedDays,
     allWindows: freeWindows,
+    earlierArrival,
+    earlierTotalDays: earlierArrival ? Math.round(earlierTotalDays) : null,
   };
 }
 

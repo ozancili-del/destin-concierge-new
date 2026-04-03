@@ -422,7 +422,28 @@ async function findRates() {
 
     available.sort((a, b) => a.avg - b.avg);
     const best = available[0];
-    const others = available.slice(1, 3).filter(w => w.arr !== best.arr || w.unit !== best.unit);
+
+    // For "any" part selection, spread alternatives across early/mid/late month
+    // to avoid showing 3 nearly identical consecutive windows
+    let others = [];
+    if (sel.part === 'any') {
+      const yr2 = new Date().getFullYear();
+      const m2 = String(sel.month).padStart(2,'0');
+      const lastDay2 = new Date(yr2, sel.month, 0).getDate();
+      const midPoint = Math.floor(lastDay2 / 2);
+      const sections = [
+        { min: `${yr2}-${m2}-01`, max: `${yr2}-${m2}-${String(Math.floor(lastDay2/3)).padStart(2,'0')}` },
+        { min: `${yr2}-${m2}-${String(Math.floor(lastDay2/3)+1).padStart(2,'0')}`, max: `${yr2}-${m2}-${String(Math.floor(2*lastDay2/3)).padStart(2,'0')}` },
+        { min: `${yr2}-${m2}-${String(Math.floor(2*lastDay2/3)+1).padStart(2,'0')}`, max: `${yr2}-${m2}-${String(lastDay2).padStart(2,'0')}` },
+      ];
+      sections.forEach(sec => {
+        const sectionWindows = available.filter(w => w.arr >= sec.min && w.arr <= sec.max && (w.arr !== best.arr || w.unit !== best.unit));
+        if (sectionWindows.length > 0) others.push(sectionWindows[0]);
+      });
+      others = others.filter(w => w.arr !== best.arr || w.unit !== best.unit).slice(0, 2);
+    } else {
+      others = available.slice(1, 3).filter(w => w.arr !== best.arr || w.unit !== best.unit);
+    }
 
     renderResults(best, others);
 

@@ -166,6 +166,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
       <div class="card-icon ic-purple">🗺️</div>
       <div class="card-title">Trip Planner</div>
     </div>
+    <div class="card" onclick="openModal('activities')" style="border-color:rgba(240,120,60,0.5);">
+      <div class="card-icon" style="background:rgba(240,120,60,0.12);border:1px solid rgba(240,120,60,0.25);">🐬</div>
+      <div class="card-title" style="color:#f0997b;">Activities & Tours</div>
+    </div>
     <div class="card" onclick="openModal('destiny')" style="border-color:rgba(45,219,180,0.5);">
       <div class="card-icon" style="background:rgba(45,219,180,0.12);border:1px solid rgba(45,219,180,0.25);">💬</div>
       <div class="card-title" style="color:#7de8d4;">AI Concierge</div>
@@ -221,6 +225,7 @@ const TILES={
   deals:     {eyebrow:'Direct Booking',  title:'🏷️ Best Deals',       url:'https://deals.destincondogetaways.com',                                               blog:null},
   grocery:   {eyebrow:'Essentials',      title:'🛒 Groceries',        url:'https://destin-concierge-new.vercel.app/supermarket-map.html',                        blog:'https://www.destincondogetaways.com/blog/destinsupermarkets'},
   planner:   {eyebrow:'Plan Your Stay',  title:'🗺️ Trip Planner',     url:'https://destin-concierge-new.vercel.app/destin-itinerary-planner.html',               blog:null},
+  activities:{eyebrow:'Things To Do',    title:'🐬 Activities & Tours', url:'https://destin-concierge-new.vercel.app/destin-tripshock.html',                      blog:null},
   destiny:   {eyebrow:'AI Concierge',    title:'💬 Destiny Blue',     url:'https://destin-concierge-new.vercel.app/concierge',                                   blog:null},
 };
 

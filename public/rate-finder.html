@@ -533,16 +533,35 @@ function renderResults(best, others) {
   const unitName = best.unit === '707' ? 'Unit 707 — Classic Coastal' : 'Unit 1006 — Fresh Coastal';
   const floor = best.unit === '707' ? '7th floor' : '10th floor';
 
+  const bestFees = calcFees(best.avg, sel.nights);
+  const bestUnitName = best.unit === '707' ? 'Unit 707 — Classic Coastal' : 'Unit 1006 — Fresh Coastal';
+  const bestFloor = best.unit === '707' ? '7th floor' : '10th floor';
+
+  // Collapsed summary (same style as alt cards)
   let html = `
-    <div class="result-best" id="card_best" onclick="expandCard('best')" style="cursor:pointer">
-      <div class="result-best-header" style="justify-content:space-between">
-        <div style="display:flex;align-items:center;gap:8px">
-          <div class="trust-dot"></div>
-          <span class="best-badge">Best value · ${fmtDate(best.arr)}–${fmtDate(best.dep)}</span>
-        </div>
-        <span id="card_best_summary" style="font-size:12px;color:#085041;display:none">${best.unit === '707' ? 'Unit 707' : 'Unit 1006'} · $${calcFees(best.avg, sel.nights).total} total</span>
+    <div class="result-alt" id="card_best_collapsed" onclick="expandCard('best')" style="border:2px solid var(--teal)">
+      <div class="alt-info">
+        <p style="display:flex;align-items:center;gap:6px">
+          <span style="width:7px;height:7px;border-radius:50%;background:var(--teal);display:inline-block;flex-shrink:0"></span>
+          ${bestUnitName} · ${fmtDate(best.arr)}–${fmtDate(best.dep)}
+        </p>
+        <p>$${best.avg}/night avg · Total $${bestFees.total}</p>
       </div>
-      <div id="card_best_body" class="result-body">
+      <span class="alt-btn" style="border-color:var(--teal);color:var(--teal-dark)">Book →</span>
+    </div>
+    <div id="card_best_expanded" style="display:none;background:var(--card);border-radius:20px;border:2px solid var(--teal);overflow:hidden;margin-bottom:10px">
+      <div style="padding:16px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+          <div>
+            <p style="font-size:14px;font-weight:500;margin:0">${bestUnitName}</p>
+            <p style="font-size:11px;color:var(--muted);margin:2px 0 0">${sel.nights} nights · ${sel.guests} guest${sel.guests>1?'s':''} · ${bestFloor}</p>
+          </div>
+          <div style="text-align:right">
+            <p style="font-size:22px;font-weight:600;font-family:'Cormorant Garamond',serif;color:var(--ocean);margin:0">$${best.avg}</p>
+            <p style="font-size:11px;color:var(--muted);margin:0">/night avg</p>
+          </div>
+        </div>
+        <div id="card_best_body" style="border-top:1px solid var(--border);padding-top:12px;margin-bottom:12px">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
           <div>
             <p class="result-unit">${unitName}</p>
@@ -626,6 +645,7 @@ function renderResults(best, others) {
   });
 
   document.getElementById('results').innerHTML = html;
+  expandCard('best');
   document.getElementById('results').classList.add('show');
   document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
@@ -633,19 +653,10 @@ function renderResults(best, others) {
 function expandCard(id) {
   const allIds = ['best', 'alt_0', 'alt_1'];
   allIds.forEach(cid => {
-    if (cid === 'best') {
-      const body = document.getElementById('card_best_body');
-      const summary = document.getElementById('card_best_summary');
-      const card = document.getElementById('card_best');
-      if (body) body.style.display = cid === id ? 'block' : 'none';
-      if (summary) summary.style.display = cid === id ? 'none' : 'inline';
-      if (card) card.style.cursor = cid === id ? 'default' : 'pointer';
-    } else {
-      const card = document.getElementById(cid);
-      const expanded = document.getElementById(cid + '_expanded');
-      if (card) card.style.display = cid === id ? 'none' : 'block';
-      if (expanded) expanded.style.display = cid === id ? 'block' : 'none';
-    }
+    const collapsed = document.getElementById(cid === 'best' ? 'card_best_collapsed' : cid);
+    const expanded = document.getElementById(cid === 'best' ? 'card_best_expanded' : cid + '_expanded');
+    if (collapsed) collapsed.style.display = cid === id ? 'none' : 'flex';
+    if (expanded) expanded.style.display = cid === id ? 'block' : 'none';
   });
 }
 

@@ -181,10 +181,10 @@ html,body{width:100%;min-height:100vh;background:var(--sand);font-family:'DM San
 
     <div class="section-label">When in the month?</div>
     <div class="pill-grid cols-4" id="partGrid">
-      <button class="pill" data-val="first">First</button>
+      <button class="pill active" data-val="first">First</button>
       <button class="pill" data-val="mid">Mid</button>
       <button class="pill" data-val="last">Last</button>
-      <button class="pill active" data-val="any">Any</button>
+
     </div>
 
     <div class="divider"></div>
@@ -238,7 +238,7 @@ const BASE = 'https://destin-concierge-new.vercel.app';
 const UNIT_707  = 'https://www.destincondogetaways.com/pelican-beach-resort-unit-707-orp5b47b5ax';
 const UNIT_1006 = 'https://www.destincondogetaways.com/pelican-beach-resort-unit-1006-orp5b6450ex';
 
-let sel = { month: null, part: 'any', nights: 4, guests: 2 };
+let sel = { month: null, part: 'first', nights: 4, guests: 2 };
 
 document.querySelectorAll('#monthGrid .pill').forEach(b => {
   b.addEventListener('click', () => {

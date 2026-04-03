@@ -233,6 +233,7 @@ html,body{width:100%;min-height:100vh;background:var(--sand);font-family:'DM San
 </div>
 
 <script>
+console.log('Script loaded');
 const BASE = 'https://destin-concierge-new.vercel.app';
 const UNIT_707  = 'https://www.destincondogetaways.com/pelican-beach-resort-unit-707-orp5b47b5ax';
 const UNIT_1006 = 'https://www.destincondogetaways.com/pelican-beach-resort-unit-1006-orp5b6450ex';
@@ -307,6 +308,7 @@ function getDateRange() {
 }
 
 async function findRates() {
+  console.log('findRates called', sel);
   if (!sel.month) {
     showError('Please select a month first.');
     return;
@@ -420,8 +422,8 @@ async function findRates() {
     renderResults(best, others);
 
   } catch(e) {
-    showError('Something went wrong. Please try again.');
-    console.error(e);
+    showError('Error: ' + e.message);
+    console.error('Full error:', e);
   } finally {
     btn.classList.remove('loading');
     btn.disabled = false;

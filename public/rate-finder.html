@@ -70,6 +70,36 @@ html,body{width:100%;min-height:100vh;background:var(--sand);font-family:'DM San
 }
 .find-btn:hover{background:#0a2d45;}
 .find-btn:disabled{background:#b0a898;cursor:not-allowed;}
+@keyframes disco{
+  0%  {background:linear-gradient(90deg,#e8341a,#ff8c00);}
+  25% {background:linear-gradient(90deg,#ff8c00,#ffcc00);}
+  50% {background:linear-gradient(90deg,#0d9e8a,#00cfff);}
+  75% {background:linear-gradient(90deg,#7c5cbf,#ff3399);}
+  100%{background:linear-gradient(90deg,#e8341a,#ff8c00);}
+}
+.book-btn{animation:disco 1.2s ease-in-out infinite!important;}
+.book-btn:hover{animation:none!important;background:#0a2d45;}
+.msg-form{margin-top:12px;border-top:1px solid var(--border);padding-top:14px;}
+.msg-form p{font-size:12px;color:var(--muted);margin:0 0 10px;}
+.msg-form input,.msg-form textarea{
+  width:100%;margin-bottom:8px;font-size:13px;
+  padding:10px 12px;border-radius:10px;
+  border:1px solid var(--border);
+  font-family:'DM Sans',sans-serif;
+  background:#faf8f5;color:var(--text);
+  outline:none;
+}
+.msg-form textarea{resize:none;}
+.msg-form input:focus,.msg-form textarea:focus{border-color:#0d9e8a;}
+.send-btn{
+  width:100%;padding:11px;font-size:13px;font-weight:500;
+  border-radius:10px;border:1px solid var(--border);
+  background:transparent;cursor:pointer;color:var(--text);
+  font-family:'DM Sans',sans-serif;transition:border-color .15s,background .15s;
+}
+.send-btn:hover{border-color:#0d9e8a;background:#e1f5ee;}
+.send-btn:disabled{opacity:0.5;cursor:not-allowed;}
+.msg-success{font-size:13px;color:var(--teal);font-weight:500;text-align:center;padding:8px 0;}
 .find-btn .spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;display:none;}
 .find-btn.loading .spinner{display:block;}
 .find-btn.loading .btn-text{opacity:0.7;}
@@ -533,6 +563,13 @@ function renderResults(best, others) {
           </div>
         </div>
         <a class="book-btn" href="${link}" target="_blank">Book direct — save on fees →</a>
+        <div class="msg-form">
+          <p>Or send Ozan a message — he'll get back to you personally</p>
+          <input type="email" id="msgEmail" placeholder="Your email" />
+          <textarea id="msgText" rows="3" placeholder="Any questions about the unit, dates, or trip?"></textarea>
+          <button class="send-btn" id="sendBtn" onclick="sendMsg('${best.unit}','${best.arr}','${best.dep}')">Send message to Ozan →</button>
+          <div class="msg-success" id="msgOk" style="display:none">Message sent! Ozan will reply shortly 🌊</div>
+        </div>
       </div>
     </div>`;
 
@@ -555,6 +592,39 @@ function renderResults(best, others) {
   document.getElementById('results').innerHTML = html;
   document.getElementById('results').classList.add('show');
   document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+async function sendMsg(unit, arr, dep) {
+  const email = document.getElementById('msgEmail').value.trim();
+  const msg = document.getElementById('msgText').value.trim();
+  if (!email || !email.includes('@')) { alert('Please enter a valid email.'); return; }
+  if (!msg) { alert('Please enter a message.'); return; }
+  const btn = document.getElementById('sendBtn');
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+  try {
+    const monthNames = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const context = `Unit ${unit} · ${arr} to ${dep} · ${sel.nights} nights · ${sel.guests} guests`;
+    const res = await fetch(`${BASE}/api/rate-inquiry`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, message: msg, context })
+    });
+    if (res.ok) {
+      document.getElementById('msgOk').style.display = 'block';
+      btn.style.display = 'none';
+      document.getElementById('msgEmail').style.display = 'none';
+      document.getElementById('msgText').style.display = 'none';
+    } else {
+      btn.disabled = false;
+      btn.textContent = 'Send message to Ozan →';
+      alert('Something went wrong. Please try again.');
+    }
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = 'Send message to Ozan →';
+    alert('Something went wrong. Please try again.');
+  }
 }
 
 function showNoResults() {

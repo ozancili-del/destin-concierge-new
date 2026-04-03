@@ -333,6 +333,11 @@ async function findRates() {
     if (!plRes.ok) throw new Error('Could not fetch rates');
     const plData = await plRes.json();
     const calData = calRes.ok ? await calRes.json() : null;
+    console.log('PL data units:', Object.keys(plData));
+    console.log('PL 707 prices count:', plData['707']?.prices?.length);
+    console.log('Cal data:', JSON.stringify(calData?.unit707?.status), JSON.stringify(calData?.unit1006?.status));
+    console.log('Cal 707 allWindows:', calData?.unit707?.allWindows);
+    console.log('Cal 1006 allWindows:', calData?.unit1006?.allWindows);
 
     const yr = new Date().getFullYear();
     const m = String(sel.month).padStart(2, '0');

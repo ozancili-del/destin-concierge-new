@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -149,13 +150,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
       <div class="card-icon ic-navy">✈️</div>
       <div class="card-title">Airports</div>
     </div>
-    <div class="card" onclick="openModal('car')">
-      <div class="card-icon ic-blue">🚗</div>
-      <div class="card-title">Car Rental</div>
+    <div class="card" onclick="openModal('gettinghere')">
+      <div class="card-icon ic-blue">🚗✈️</div>
+      <div class="card-title">Flights & Cars</div>
     </div>
-    <div class="card" onclick="openModal('flights')">
-      <div class="card-icon ic-blue">💺</div>
-      <div class="card-title">Cheap Flights</div>
+    <div class="card" onclick="openModal('deals')" style="border-color:rgba(250,180,0,0.5);">
+      <div class="card-icon" style="background:rgba(250,180,0,0.12);border:1px solid rgba(250,180,0,0.25);">🏷️</div>
+      <div class="card-title" style="color:#fac755;">Best Deals</div>
     </div>
     <div class="card" onclick="openModal('grocery')">
       <div class="card-icon ic-green">🛒</div>
@@ -215,9 +216,9 @@ const TILES={
   music:     {eyebrow:'Nightlife',       title:'🎵 Live Music',       url:'https://destin-concierge-new.vercel.app/destin-music-calendar.html',                   blog:'https://www.destincondogetaways.com/blog/destin-live-music-2026'},
   fireworks: {eyebrow:'Events',          title:'🎆 Fireworks',        url:'https://www.destincondogetaways.com/blog/destin-fireworks-2026',                      blog:null},
   events:    {eyebrow:'Events',          title:'📅 Events 2026',      url:'https://www.destincondogetaways.com/blog/destin-events-2026',                         blog:null},
-  airports:  {eyebrow:'Getting Here',    title:'✈️ Airports',         url:'https://www.destincondogetaways.com/blog/destinairport',                               blog:null},
-  car:       {eyebrow:'Getting Here',    title:'🚗 Car Rental',       url:'https://destin-concierge-new.vercel.app/destin-car-rental.html',                      blog:'https://www.destincondogetaways.com/blog/destincar'},
-  flights:   {eyebrow:'Getting Here',    title:'💺 Cheap Flights',    url:'https://www.destincondogetaways.com/blog/how-to-find-cheaper-flights-and-car-rentals', blog:null},
+  airports:  {eyebrow:'Flights & Cars',    title:'✈️ Airports',         url:'https://www.destincondogetaways.com/blog/destinairport',                               blog:null},
+  gettinghere:{eyebrow:'Flights & Cars',   title:'🚗✈️ Flights & Cars',   url:'https://destin-concierge-new.vercel.app/destin-car-rental.html',                      blog:'https://www.destincondogetaways.com/blog/how-to-find-cheaper-flights-and-car-rentals', blog2:'https://www.destincondogetaways.com/blog/destincar'},
+  deals:     {eyebrow:'Direct Booking',  title:'🏷️ Best Deals',       url:'https://deals.destincondogetaways.com',                                               blog:null},
   grocery:   {eyebrow:'Essentials',      title:'🛒 Groceries',        url:'https://destin-concierge-new.vercel.app/supermarket-map.html',                        blog:'https://www.destincondogetaways.com/blog/destinsupermarkets'},
   planner:   {eyebrow:'Plan Your Stay',  title:'🗺️ Trip Planner',     url:'https://destin-concierge-new.vercel.app/destin-itinerary-planner.html',               blog:null},
   destiny:   {eyebrow:'AI Concierge',    title:'💬 Destiny Blue',     url:'https://destin-concierge-new.vercel.app/concierge',                                   blog:null},
@@ -246,8 +247,10 @@ function updateBlogBtn(){
   if(showingBlog){
     btn.style.display='inline-flex';btn.textContent='← Back';btn2.style.display='none';
   }else if(tile.blog){
-    btn.style.display='inline-flex';btn.textContent='Read full guide →';
-    btn2.style.display=tile.blog2?'inline-flex':'none';
+    btn.style.display='inline-flex';
+    btn.textContent=currentTile==='gettinghere'?'Flights guide →':'Read full guide →';
+    if(tile.blog2){btn2.style.display='inline-flex';btn2.textContent=currentTile==='gettinghere'?'Car rental guide →':'Local Guide →';}
+    else{btn2.style.display='none';}
   }else{btn.style.display='none';btn2.style.display='none';}
 }
 

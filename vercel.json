@@ -11,5 +11,17 @@
         }
       ]
     }
+    ,
+    {
+      "source": "/",
+      "destination": "/destin-hub.html",
+      "permanent": false,
+      "has": [
+        {
+          "type": "host",
+          "value": "explore.destincondogetaways.com"
+        }
+      ]
+    }
   ]
 }

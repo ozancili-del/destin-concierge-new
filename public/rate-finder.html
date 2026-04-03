@@ -535,9 +535,12 @@ function renderResults(best, others) {
 
   let html = `
     <div class="result-best" id="card_best" onclick="expandCard('best')" style="cursor:pointer">
-      <div class="result-best-header">
-        <div class="trust-dot"></div>
-        <span class="best-badge">Best value · ${fmtDate(best.arr)}–${fmtDate(best.dep)}</span>
+      <div class="result-best-header" style="justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="trust-dot"></div>
+          <span class="best-badge">Best value · ${fmtDate(best.arr)}–${fmtDate(best.dep)}</span>
+        </div>
+        <span id="card_best_summary" style="font-size:12px;color:#085041;display:none">${best.unit === '707' ? 'Unit 707' : 'Unit 1006'} · $${calcFees(best.avg, sel.nights).total} total</span>
       </div>
       <div id="card_best_body" class="result-body">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
@@ -632,8 +635,10 @@ function expandCard(id) {
   allIds.forEach(cid => {
     if (cid === 'best') {
       const body = document.getElementById('card_best_body');
-      if (body) body.style.display = cid === id ? 'block' : 'none';
+      const summary = document.getElementById('card_best_summary');
       const card = document.getElementById('card_best');
+      if (body) body.style.display = cid === id ? 'block' : 'none';
+      if (summary) summary.style.display = cid === id ? 'none' : 'inline';
       if (card) card.style.cursor = cid === id ? 'default' : 'pointer';
     } else {
       const card = document.getElementById(cid);

@@ -278,14 +278,15 @@ function buildLink(unit, arrival, departure) {
 }
 
 function calcFees(nightlyAvg, nights) {
-  const rent = Math.round(nightlyAvg * nights);
-  const discount = Math.round(rent * 0.125);
-  const rentAfter = rent - discount;
+  const plRent = Math.round(nightlyAvg * nights);
+  const discount = Math.round(plRent * 0.125);
+  const mgmt = 25 * nights;
+  const rentAfter = plRent - discount + mgmt;
   const cleaning = 175;
   const tax = Math.round((rentAfter + cleaning) * 0.13);
   const admin = Math.round((rentAfter + cleaning + tax) * 0.03);
   const total = rentAfter + cleaning + tax + admin;
-  return { rent, discount, rentAfter, cleaning, admin, tax, total };
+  return { rent: plRent, discount, mgmt, rentAfter, cleaning, admin, tax, total };
 }
 
 function fmtDate(iso) {
@@ -459,10 +460,10 @@ function renderResults(best, others) {
         </div>
         <div class="fee-breakdown">
           <div class="fee-row"><span class="fee-label">Rent (${sel.nights} × $${best.avg})</span><span class="fee-value">$${fees.rent}</span></div>
-          <div class="fee-row"><span class="fee-label">Direct discount (12.5%)</span><span class="fee-value discount">-$${fees.discount}</span></div>
+          <div class="fee-row"><span class="fee-label">Direct booking discount (12.5%)</span><span class="fee-value discount">-$${fees.discount}</span></div>
           <div class="fee-row"><span class="fee-label">Cleaning fee</span><span class="fee-value">$${fees.cleaning}</span></div>
           <div class="fee-row"><span class="fee-label">Tax (13%)</span><span class="fee-value">$${fees.tax}</span></div>
-          <div class="fee-row"><span class="fee-label">Admin fee (3%)</span><span class="fee-value">$${fees.admin}</span></div>
+          <div class="fee-row"><span class="fee-label">Administrative fee (3%)</span><span class="fee-value">$${fees.admin}</span></div>
           <div class="fee-total">
             <span class="fee-total-label">Total</span>
             <span class="fee-total-value">$${fees.total}</span>

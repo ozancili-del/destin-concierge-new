@@ -381,32 +381,36 @@ async function findRates() {
 
       for (const unit of ['707', '1006']) {
         const ud = plData[unit];
-        if (!ud || !ud.prices) continue;
-        const days = ud.prices.filter(p => p.date >= arr && p.date < dep);
+        if (!ud || !ud.data) continue;
+
+        // Use PriceLabs data array (not prices)
+        const days = ud.data.filter(p => p.date >= arr && p.date < dep);
         if (days.length < sel.nights) continue;
+
+        // Check if any day in window is already booked via PriceLabs booking_status
+        const hasBooking = days.some(p => p.booking_status && p.booking_status !== '' && !p.booking_status.includes('Check-In') && !p.booking_status.includes('Check-Out'));
+
         const avg = days.reduce((s, p) => s + (p.price || 0), 0) / days.length;
         if (avg <= 0) continue;
 
-        // Check availability using calendar data
-        const blocked = unit === '707' ? blocked707 : blocked1006;
+        // Check OwnerRez calendar availability
         const unitStatus = unit === '707' ? calData?.unit707?.status : calData?.unit1006?.status;
-        
-        // If fully available for the whole range, all windows are free
+        if (unitStatus === 'booked') continue;
+
         if (unitStatus === 'available') {
-          windows.push({ arr, dep, unit, avg: Math.round(avg) });
+          if (!hasBooking) windows.push({ arr, dep, unit, avg: Math.round(avg) });
           continue;
         }
-        
-        // If partial, check if this specific window is clear
+
         if (unitStatus === 'partial') {
           const unitData = unit === '707' ? calData?.unit707 : calData?.unit1006;
-          const allFreeWindows = unitData?.allWindows || [];
-          const windowClear = allFreeWindows.some(fw => fw.from <= arr && fw.to >= dep);
-          if (windowClear) windows.push({ arr, dep, unit, avg: Math.round(avg) });
+          const freeWindows = unitData?.allWindows || [];
+          const clear = freeWindows.some(fw => fw.from <= arr && fw.to >= dep);
+          if (clear && !hasBooking) windows.push({ arr, dep, unit, avg: Math.round(avg) });
         }
-        // status === 'booked' → skip
       }
     }
+    console.log('Windows found:', windows.length, windows.slice(0,3));
 
     if (windows.length === 0) {
       showNoResults();

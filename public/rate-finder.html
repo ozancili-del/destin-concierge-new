@@ -4,8 +4,10 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Best Bookin Window Finder — Pelican Beach Resort Destin</title>
+<title>Best Rate Finder — Pelican Beach Resort Destin</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3SGXCQ4FTC"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-3SGXCQ4FTC');</script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 :root{
@@ -425,6 +427,7 @@ function getDateRange() {
 
 async function findRates() {
   console.log('findRates called', sel);
+  gtag('event', 'find_window_click', { month: sel.month, year: sel.year, nights: sel.nights, adults: sel.adults, children: sel.children, part: sel.part });
   if (!sel.month) {
     showError('Please select a month first.');
     return;
@@ -575,7 +578,7 @@ function renderResults(best, others) {
             <div class="fee-row"><span class="fee-label">Administrative fee (3%)</span><span class="fee-value">$${f.admin}</span></div>
             <div class="fee-total"><span class="fee-total-label">Total</span><span class="fee-total-value">$${f.total}</span></div>
           </div>
-          <a class="book-btn" href="${l}" target="_blank" onclick="event.stopPropagation()">Book direct — save on fees →</a>
+          <a class="book-btn" href="${l}" target="_blank" onclick="gtag('event','book_direct_click',{unit:'${w.unit}',arrival:'${w.arr}',departure:'${w.dep}',total:${f.total}});event.stopPropagation()">Book direct — save on fees →</a>
           <p style="font-size:10px;color:var(--muted);text-align:center;margin:8px 0 0;line-height:1.5">By proceeding you acknowledge our <a href="https://www.destincondogetaways.com/-pelican-beach-resort-condo-rental-574046950" target="_blank" style="color:var(--muted);text-decoration:underline">booking terms</a>, cancellation policy, and house rules. Rates shown are estimates — final total confirmed at checkout.</p>
           <div class="msg-form" onclick="event.stopPropagation()">
             <p>Or send Ozan a message — he'll get back to you personally</p>
@@ -685,6 +688,7 @@ async function sendMsg(unit, arr, dep) {
       body: JSON.stringify({ email, message: msg, context })
     });
     if (res.ok) {
+      gtag('event','inquiry_sent',{unit:unit,arrival:arr,departure:dep});
       document.getElementById('msgOk').style.display = 'block';
       btn.style.display = 'none';
       document.getElementById('msgEmail').style.display = 'none';

@@ -165,8 +165,18 @@ html,body{width:100%;min-height:100vh;background:var(--sand);font-family:'DM San
 
 <div class="main">
   <div class="card">
-    <div class="section-label">Which month?</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div class="section-label" style="margin:0">Which month?</div>
+      <div style="display:flex;gap:4px">
+        <button class="pill active" id="yr2026" onclick="setYear(2026)" style="padding:5px 10px;font-size:11px">2026</button>
+        <button class="pill" id="yr2027" onclick="setYear(2027)" style="padding:5px 10px;font-size:11px">2027</button>
+      </div>
+    </div>
     <div class="pill-grid cols-4" id="monthGrid">
+      <button class="pill" data-val="1">Jan</button>
+      <button class="pill" data-val="2">Feb</button>
+      <button class="pill" data-val="3">Mar</button>
+      <button class="pill" data-val="4">Apr</button>
       <button class="pill" data-val="5">May</button>
       <button class="pill" data-val="6">June</button>
       <button class="pill" data-val="7">July</button>
@@ -238,15 +248,40 @@ const BASE = 'https://destin-concierge-new.vercel.app';
 const UNIT_707  = 'https://www.destincondogetaways.com/pelican-beach-resort-unit-707-orp5b47b5ax';
 const UNIT_1006 = 'https://www.destincondogetaways.com/pelican-beach-resort-unit-1006-orp5b6450ex';
 
-let sel = { month: null, part: 'first', nights: 4, guests: 2 };
+let sel = { month: null, part: 'first', nights: 4, guests: 2, year: 2026 };
+
+function setYear(yr) {
+  sel.year = yr;
+  sel.month = null;
+  document.querySelectorAll('#monthGrid .pill').forEach(x => x.classList.remove('active'));
+  document.getElementById('yr2026').classList.toggle('active', yr === 2026);
+  document.getElementById('yr2027').classList.toggle('active', yr === 2027);
+  updateMonthStates();
+}
+
+function updateMonthStates() {
+  const now = new Date();
+  const curYear = now.getFullYear();
+  const curMonth = now.getMonth() + 1;
+  document.querySelectorAll('#monthGrid .pill').forEach(b => {
+    const m = parseInt(b.dataset.val);
+    const isPast = sel.year < curYear || (sel.year === curYear && m < curMonth);
+    b.disabled = isPast;
+    b.style.opacity = isPast ? '0.35' : '1';
+    b.style.cursor = isPast ? 'not-allowed' : 'pointer';
+  });
+}
 
 document.querySelectorAll('#monthGrid .pill').forEach(b => {
   b.addEventListener('click', () => {
+    if (b.disabled) return;
     document.querySelectorAll('#monthGrid .pill').forEach(x => x.classList.remove('active'));
     b.classList.add('active');
     sel.month = parseInt(b.dataset.val);
   });
 });
+
+updateMonthStates();
 
 document.querySelectorAll('#partGrid .pill').forEach(b => {
   b.addEventListener('click', () => {
@@ -297,7 +332,7 @@ function fmtDate(iso) {
 }
 
 function getDateRange() {
-  const yr = new Date().getFullYear();
+  const yr = sel.year || new Date().getFullYear();
   const m = String(sel.month).padStart(2, '0');
   const lastDay = new Date(yr, sel.month, 0).getDate();
   let startDay = 1, endDay = lastDay;
@@ -344,7 +379,7 @@ async function findRates() {
     console.log('Cal 707 allWindows:', calData?.unit707?.allWindows);
     console.log('Cal 1006 allWindows:', calData?.unit1006?.allWindows);
 
-    const yr = new Date().getFullYear();
+    const yr = sel.year;
     const m = String(sel.month).padStart(2, '0');
     const lastDay = new Date(yr, sel.month, 0).getDate();
     const { start: rangeStart, end: rangeEnd } = getDateRange();
@@ -427,7 +462,7 @@ async function findRates() {
     let best, others;
     if (sel.part === 'any') {
       // Show one option from each section: first / mid / last
-      const yr2 = new Date().getFullYear();
+      const yr2 = sel.year || new Date().getFullYear();
       const m2 = String(sel.month).padStart(2,'0');
       const lastDay2 = new Date(yr2, sel.month, 0).getDate();
       const sections = [

@@ -284,7 +284,7 @@ html,body{width:100%;min-height:100vh;background:var(--sand);font-family:'DM San
 
   <div class="trust-bar">
     <div class="trust-dot"></div>
-    <p class="trust-text">No platform fees · Direct with Ozan · Best direct rate for our condos only · Prices calculated via live 3rd-party data and may change</p>
+    <p class="trust-text">No platform fees · Direct with Ozan · We use dynamic pricing provided by 3rd parties — rates may change in real time · Rates shown are for our condos only</p>
   </div>
 </div>
 
@@ -345,11 +345,21 @@ document.querySelectorAll('[data-group="nights"]').forEach(b => {
   });
 });
 
+function enforceMaxGuests() {
+  if (sel.adults + sel.children > 6) {
+    sel.children = Math.max(0, 6 - sel.adults);
+    document.querySelectorAll('[data-group="children"]').forEach(x => x.classList.remove('active'));
+    const btn = document.querySelector('[data-group="children"][data-val="' + sel.children + '"]');
+    if (btn) btn.classList.add('active');
+  }
+}
+
 document.querySelectorAll('[data-group="adults"]').forEach(b => {
   b.addEventListener('click', () => {
     document.querySelectorAll('[data-group="adults"]').forEach(x => x.classList.remove('active'));
     b.classList.add('active');
     sel.adults = parseInt(b.dataset.val);
+    enforceMaxGuests();
   });
 });
 
@@ -358,6 +368,7 @@ document.querySelectorAll('[data-group="children"]').forEach(b => {
     document.querySelectorAll('[data-group="children"]').forEach(x => x.classList.remove('active'));
     b.classList.add('active');
     sel.children = parseInt(b.dataset.val);
+    enforceMaxGuests();
   });
 });
 
@@ -440,22 +451,7 @@ async function findRates() {
     const lastDay = new Date(yr, sel.month, 0).getDate();
     const { start: rangeStart, end: rangeEnd } = getDateRange();
 
-    // Build blocked days sets from calendar data
-    const blocked707 = new Set();
-    const blocked1006 = new Set();
-    if (calData) {
-      if (calData.unit707?.status === 'booked') {
-        for (let d = new Date(start + 'T12:00:00Z'); d <= new Date(end + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate()+1)) {
-          blocked707.add(d.toISOString().split('T')[0]);
-        }
-      }
 
-      if (calData.unit1006?.status === 'booked') {
-        for (let d = new Date(start + 'T12:00:00Z'); d <= new Date(end + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate()+1)) {
-          blocked1006.add(d.toISOString().split('T')[0]);
-        }
-      }
-    }
 
     const windows = [];
     for (let day = 1; day <= lastDay - sel.nights; day++) {
@@ -508,31 +504,8 @@ async function findRates() {
     available.sort((a, b) => a.avg - b.avg);
 
     let best, others;
-    if (sel.part === 'any') {
-      // Show one option from each section: first / mid / last
-      const yr2 = sel.year || new Date().getFullYear();
-      const m2 = String(sel.month).padStart(2,'0');
-      const lastDay2 = new Date(yr2, sel.month, 0).getDate();
-      const sections = [
-        { label:'early', min:`${yr2}-${m2}-01`, max:`${yr2}-${m2}-${String(Math.floor(lastDay2/3)).padStart(2,'0')}` },
-        { label:'mid',   min:`${yr2}-${m2}-${String(Math.floor(lastDay2/3)+1).padStart(2,'0')}`, max:`${yr2}-${m2}-${String(Math.floor(2*lastDay2/3)).padStart(2,'0')}` },
-        { label:'late',  min:`${yr2}-${m2}-${String(Math.floor(2*lastDay2/3)+1).padStart(2,'0')}`, max:`${yr2}-${m2}-${String(lastDay2).padStart(2,'0')}` },
-      ];
-      const sectionBests = sections.map(sec => {
-        const wins = available.filter(w => w.arr >= sec.min && w.arr <= sec.max);
-        wins.sort((a,b) => a.avg - b.avg);
-        return wins[0] || null;
-      }).filter(Boolean);
-
-      if (sectionBests.length === 0) { showNoResults(); return; }
-      sectionBests.sort((a,b) => a.avg - b.avg);
-      best = sectionBests[0];
-      others = sectionBests.slice(1);
-    } else {
-      best = available[0];
-      // Only show the other unit on the same dates, not a different window
-      others = available.filter(w => w.arr === best.arr && w.unit !== best.unit).slice(0,1);
-    }
+    best = available[0];
+    others = available.filter(w => w.arr === best.arr && w.unit !== best.unit).slice(0,1);
 
     renderResults(best, others);
 
@@ -570,7 +543,7 @@ function renderResults(best, others) {
           <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
             <div>
               <p style="font-size:14px;font-weight:500;margin:0">${uName}</p>
-              <p style="font-size:11px;color:var(--muted);margin:2px 0 0">${sel.nights} nights · ${sel.guests} guest${sel.guests>1?'s':''} · ${floor}</p>
+              <p style="font-size:11px;color:var(--muted);margin:2px 0 0">${sel.nights} nights · ${sel.adults + sel.children} guest${(sel.adults+sel.children)>1?'s':''} · ${floor}</p>
             </div>
             <div style="text-align:right">
               <p style="font-size:22px;font-weight:600;font-family:'Cormorant Garamond',serif;color:var(--ocean);margin:0">$${w.avg}</p>
@@ -580,13 +553,14 @@ function renderResults(best, others) {
           <div style="border-top:1px solid var(--border);padding-top:12px;margin-bottom:12px">
             <div class="fee-row"><span class="fee-label">Rent (${sel.nights} × $${w.avg})</span><span class="fee-value">$${f.rent}</span></div>
             <div class="fee-row"><span class="fee-label">Direct booking discount (12.5%)</span><span class="fee-value discount">-$${f.discount}</span></div>
-            ${f.extraGuestFee > 0 ? `<div class="fee-row"><span class="fee-label">Extra guest fee ($20/night × ${sel.guests-4} guest${sel.guests-4>1?'s':''})</span><span class="fee-value">$${f.extraGuestFee}</span></div>` : ''}
+            ${f.extraGuestFee > 0 ? `<div class="fee-row"><span class="fee-label">Extra guest fee ($20/night × ${(sel.adults + sel.children - 4)} guest${(sel.adults + sel.children - 4)>1?'s':''})</span><span class="fee-value">$${f.extraGuestFee}</span></div>` : ''}
             <div class="fee-row"><span class="fee-label">Cleaning fee</span><span class="fee-value">$${f.cleaning}</span></div>
             <div class="fee-row"><span class="fee-label">Tax (13%)</span><span class="fee-value">$${f.tax}</span></div>
             <div class="fee-row"><span class="fee-label">Administrative fee (3%)</span><span class="fee-value">$${f.admin}</span></div>
             <div class="fee-total"><span class="fee-total-label">Total</span><span class="fee-total-value">$${f.total}</span></div>
           </div>
           <a class="book-btn" href="${l}" target="_blank" onclick="event.stopPropagation()">Book direct — save on fees →</a>
+          <p style="font-size:10px;color:var(--muted);text-align:center;margin:8px 0 0;line-height:1.5">By proceeding you acknowledge our <a href="https://www.destincondogetaways.com/-pelican-beach-resort-condo-rental-574046950" target="_blank" style="color:var(--muted);text-decoration:underline">booking terms</a>, cancellation policy, and house rules. Rates shown are estimates — final total confirmed at checkout.</p>
           <div class="msg-form" onclick="event.stopPropagation()">
             <p>Or send Ozan a message — he'll get back to you personally</p>
             <input type="email" id="msgEmail_${id}" placeholder="Your email" />
@@ -633,7 +607,7 @@ async function sendMsgAlt(id, unit, arr, dep) {
   const btn = document.getElementById('sendBtn_' + id);
   btn.disabled = true; btn.textContent = 'Sending...';
   try {
-    const context = `Unit ${unit} · ${arr} to ${dep} · ${sel.nights} nights · ${sel.guests} guests`;
+    const context = `Unit ${unit} · ${arr} to ${dep} · ${sel.nights} nights · ${sel.adults + sel.children} guests`;
     const res = await fetch(`${BASE}/api/rate-inquiry`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -658,7 +632,7 @@ async function sendMsg(unit, arr, dep) {
   btn.textContent = 'Sending...';
   try {
     const monthNames = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    const context = `Unit ${unit} · ${arr} to ${dep} · ${sel.nights} nights · ${sel.guests} guests`;
+    const context = `Unit ${unit} · ${arr} to ${dep} · ${sel.nights} nights · ${sel.adults + sel.children} guests`;
     const res = await fetch(`${BASE}/api/rate-inquiry`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

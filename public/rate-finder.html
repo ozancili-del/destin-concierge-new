@@ -189,8 +189,8 @@ html,body{width:100%;min-height:100vh;background:var(--sand);font-family:'DM San
 
 <div class="hero">
   <div class="hero-tag">Pelican Beach Resort · Destin FL</div>
-  <h1>Find your <em>best rate</em></h1>
-  <p>Flexible? We'll find your cheapest available window.</p>
+  <h1>Find your <em>best window</em></h1>
+  <p>Find the cheapest available dates in your selected month — direct rates, no platform fees.</p>
 </div>
 
 <div class="main">
@@ -241,16 +241,32 @@ html,body{width:100%;min-height:100vh;background:var(--sand);font-family:'DM San
           <button class="pill" data-val="10" data-group="nights">10</button>
         </div>
       </div>
-      <div>
-        <div class="section-label">Guests <span style="font-size:10px;color:var(--muted);text-transform:none;letter-spacing:0">(adults + kids)</span></div>
-        <div class="pill-grid cols-3">
-          <button class="pill" data-val="1" data-group="guests">1</button>
-          <button class="pill active" data-val="2" data-group="guests">2</button>
-          <button class="pill" data-val="3" data-group="guests">3</button>
-          <button class="pill" data-val="4" data-group="guests">4</button>
-          <button class="pill" data-val="5" data-group="guests">5</button>
-          <button class="pill" data-val="6" data-group="guests">6</button>
+      <div style="grid-column:1/-1">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div>
+            <div class="section-label">Adults</div>
+            <div class="pill-grid cols-3">
+              <button class="pill" data-val="1" data-group="adults">1</button>
+              <button class="pill active" data-val="2" data-group="adults">2</button>
+              <button class="pill" data-val="3" data-group="adults">3</button>
+              <button class="pill" data-val="4" data-group="adults">4</button>
+              <button class="pill" data-val="5" data-group="adults">5</button>
+              <button class="pill" data-val="6" data-group="adults">6</button>
+            </div>
+          </div>
+          <div>
+            <div class="section-label">Children <span style="font-size:10px;color:var(--muted);text-transform:none;letter-spacing:0">(incl. infants)</span></div>
+            <div class="pill-grid cols-3">
+              <button class="pill active" data-val="0" data-group="children">0</button>
+              <button class="pill" data-val="1" data-group="children">1</button>
+              <button class="pill" data-val="2" data-group="children">2</button>
+              <button class="pill" data-val="3" data-group="children">3</button>
+              <button class="pill" data-val="4" data-group="children">4</button>
+              <button class="pill" data-val="5" data-group="children">5</button>
+            </div>
+          </div>
         </div>
+        <p style="font-size:10px;color:var(--muted);margin-top:8px">Max 6 total guests (adults + children) per unit per fire code.</p>
       </div>
     </div>
 
@@ -268,7 +284,7 @@ html,body{width:100%;min-height:100vh;background:var(--sand);font-family:'DM San
 
   <div class="trust-bar">
     <div class="trust-dot"></div>
-    <p class="trust-text">No Airbnb fees · Direct with Ozan · Best rate guaranteed · Book in seconds</p>
+    <p class="trust-text">No platform fees · Direct with Ozan · Best direct rate for our condos only · Prices calculated via live 3rd-party data and may change</p>
   </div>
 </div>
 
@@ -278,7 +294,7 @@ const BASE = 'https://destin-concierge-new.vercel.app';
 const UNIT_707  = 'https://www.destincondogetaways.com/pelican-beach-resort-unit-707-orp5b47b5ax';
 const UNIT_1006 = 'https://www.destincondogetaways.com/pelican-beach-resort-unit-1006-orp5b6450ex';
 
-let sel = { month: null, part: 'first', nights: 4, guests: 2, year: 2026 };
+let sel = { month: null, part: 'first', nights: 4, adults: 2, children: 0, year: 2026 };
 
 function setYear(yr) {
   sel.year = yr;
@@ -329,24 +345,33 @@ document.querySelectorAll('[data-group="nights"]').forEach(b => {
   });
 });
 
-document.querySelectorAll('[data-group="guests"]').forEach(b => {
+document.querySelectorAll('[data-group="adults"]').forEach(b => {
   b.addEventListener('click', () => {
-    document.querySelectorAll('[data-group="guests"]').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('[data-group="adults"]').forEach(x => x.classList.remove('active'));
     b.classList.add('active');
-    sel.guests = parseInt(b.dataset.val);
+    sel.adults = parseInt(b.dataset.val);
+  });
+});
+
+document.querySelectorAll('[data-group="children"]').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('[data-group="children"]').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    sel.children = parseInt(b.dataset.val);
   });
 });
 
 function buildLink(unit, arrival, departure) {
   const base = unit === '707' ? UNIT_707 : UNIT_1006;
-  return `${base}?or_arrival=${arrival}&or_departure=${departure}&or_adults=${sel.guests}&or_children=0&or_guests=${sel.guests}`;
+  const total = sel.adults + sel.children;
+  return `${base}?or_arrival=${arrival}&or_departure=${departure}&or_adults=${sel.adults}&or_children=${sel.children}&or_guests=${total}`;
 }
 
 function calcFees(nightlyAvg, nights) {
   const plRent = Math.round(nightlyAvg * nights);
   const discount = Math.round(plRent * 0.125);
   const mgmt = 25 * nights;
-  const extraGuests = Math.max(0, sel.guests - 4);
+  const extraGuests = Math.max(0, (sel.adults + sel.children) - 4);
   const extraGuestFee = extraGuests * 20 * nights;
   const rentAfter = plRent - discount + mgmt + extraGuestFee;
   const cleaning = 175;
@@ -391,14 +416,15 @@ async function findRates() {
   try {
     const { start, end } = getDateRange();
 
-    const [plRes, calRes] = await Promise.all([
+    const timeout = new Promise((_,reject) => setTimeout(() => reject(new Error("Request timed out — please try again")), 12000));
+    const [plRes, calRes] = await Promise.race([Promise.all([
       fetch(`${BASE}/api/pricelabs-proxy?action=prices`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ start_date: start, end_date: end })
       }),
       fetch(`${BASE}/api/calendar?arrival=${start}&departure=${end}`)
-    ]);
+    ]), timeout]);
 
     if (!plRes.ok) throw new Error('Could not fetch rates');
     const plData = await plRes.json();
@@ -423,15 +449,7 @@ async function findRates() {
           blocked707.add(d.toISOString().split('T')[0]);
         }
       }
-      if (calData.unit707?.allWindows) {
-        const freeSet = new Set(calData.unit707.allWindows.flatMap(w => {
-          const days = [];
-          for (let d = new Date(w.from + 'T12:00:00Z'); d < new Date(w.to + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate()+1)) {
-            days.push(d.toISOString().split('T')[0]);
-          }
-          return days;
-        }));
-      }
+
       if (calData.unit1006?.status === 'booked') {
         for (let d = new Date(start + 'T12:00:00Z'); d <= new Date(end + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate()+1)) {
           blocked1006.add(d.toISOString().split('T')[0]);

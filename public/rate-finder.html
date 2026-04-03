@@ -1,0 +1,470 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Best Rate Finder — Pelican Beach Resort Destin</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --ocean:#07141f;
+  --teal:#0d9e8a;
+  --teal-light:#e1f5ee;
+  --teal-dark:#085041;
+  --sand:#f5f0e8;
+  --text:#1a1a1a;
+  --muted:#7a7a7a;
+  --border:#e0dbd0;
+  --card:#ffffff;
+  --selected:#0a3d5c;
+}
+html,body{width:100%;min-height:100vh;background:var(--sand);font-family:'DM Sans',sans-serif;color:var(--text);}
+
+.hero{
+  background:var(--ocean);
+  padding:32px 20px 48px;
+  text-align:center;
+  position:relative;
+}
+.hero::after{
+  content:'';position:absolute;bottom:-1px;left:0;right:0;
+  height:28px;background:var(--sand);border-radius:28px 28px 0 0;
+}
+.hero-tag{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:10px;}
+.hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,6vw,42px);color:white;font-weight:400;line-height:1.2;margin-bottom:6px;}
+.hero h1 em{color:#7de8d4;font-style:italic;}
+.hero p{font-size:13px;color:rgba(255,255,255,0.45);}
+
+.main{max-width:480px;margin:0 auto;padding:20px 16px 60px;}
+
+.card{background:var(--card);border-radius:20px;border:1px solid var(--border);padding:20px;margin-bottom:14px;}
+
+.section-label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+
+.pill-grid{display:grid;gap:7px;}
+.pill-grid.cols-4{grid-template-columns:repeat(4,1fr);}
+.pill-grid.cols-3{grid-template-columns:repeat(3,1fr);}
+.pill-grid.cols-2{grid-template-columns:repeat(2,1fr);}
+
+.pill{
+  padding:9px 6px;font-size:12px;font-weight:500;
+  border-radius:10px;border:1px solid var(--border);
+  background:transparent;color:var(--muted);
+  cursor:pointer;transition:all .15s;text-align:center;
+  font-family:'DM Sans',sans-serif;
+}
+.pill:hover{border-color:#b0a898;color:var(--text);}
+.pill.active{background:var(--selected);color:white;border-color:var(--selected);}
+
+.divider{height:1px;background:var(--border);margin:16px 0;}
+
+.find-btn{
+  width:100%;padding:14px;
+  background:var(--ocean);color:white;
+  font-size:14px;font-weight:500;font-family:'DM Sans',sans-serif;
+  border:none;border-radius:12px;cursor:pointer;
+  transition:background .15s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.find-btn:hover{background:#0a2d45;}
+.find-btn:disabled{background:#b0a898;cursor:not-allowed;}
+.find-btn .spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;display:none;}
+.find-btn.loading .spinner{display:block;}
+.find-btn.loading .btn-text{opacity:0.7;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+.results{display:none;}
+.results.show{display:block;}
+
+.result-best{
+  background:var(--card);border-radius:20px;
+  border:2px solid var(--teal);
+  overflow:hidden;margin-bottom:10px;
+}
+.result-best-header{
+  background:var(--teal-light);
+  padding:10px 16px;
+  display:flex;align-items:center;gap:8px;
+}
+.best-badge{
+  font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--teal-dark);
+}
+.result-body{padding:16px;}
+.result-unit{font-size:14px;font-weight:500;margin-bottom:2px;}
+.result-dates{font-size:12px;color:var(--muted);margin-bottom:12px;}
+.result-rate{font-size:22px;font-weight:600;font-family:'Cormorant Garamond',serif;color:var(--ocean);}
+.result-rate-label{font-size:11px;color:var(--muted);}
+
+.fee-breakdown{border-top:1px solid var(--border);padding-top:12px;margin-top:12px;}
+.fee-row{display:flex;justify-content:space-between;margin-bottom:5px;}
+.fee-label{font-size:12px;color:var(--muted);}
+.fee-value{font-size:12px;color:var(--text);}
+.fee-value.discount{color:var(--teal);}
+.fee-total{display:flex;justify-content:space-between;padding-top:10px;border-top:1px solid var(--border);margin-top:8px;}
+.fee-total-label{font-size:13px;font-weight:500;}
+.fee-total-value{font-size:17px;font-weight:600;font-family:'Cormorant Garamond',serif;}
+
+.book-btn{
+  display:block;width:100%;margin-top:14px;
+  padding:13px;text-align:center;
+  background:var(--ocean);color:white;
+  font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;
+  border-radius:12px;text-decoration:none;
+  transition:background .15s;
+}
+.book-btn:hover{background:#0a2d45;}
+
+.result-alt{
+  background:var(--card);border-radius:16px;
+  border:1px solid var(--border);
+  padding:14px 16px;margin-bottom:10px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.alt-info p:first-child{font-size:13px;font-weight:500;}
+.alt-info p:last-child{font-size:11px;color:var(--muted);margin-top:2px;}
+.alt-btn{
+  padding:8px 14px;background:transparent;
+  border:1px solid var(--border);border-radius:10px;
+  font-size:12px;font-weight:500;font-family:'DM Sans',sans-serif;
+  color:var(--text);cursor:pointer;text-decoration:none;
+  transition:border-color .15s;
+}
+.alt-btn:hover{border-color:#b0a898;}
+
+.no-results{
+  background:var(--card);border-radius:16px;border:1px solid var(--border);
+  padding:24px;text-align:center;margin-bottom:14px;
+}
+.no-results p:first-child{font-size:14px;font-weight:500;margin-bottom:6px;}
+.no-results p:last-child{font-size:12px;color:var(--muted);}
+
+.trust-bar{
+  display:flex;align-items:center;gap:8px;
+  padding:12px 16px;
+  background:var(--card);border-radius:14px;border:1px solid var(--border);
+}
+.trust-dot{width:7px;height:7px;border-radius:50%;background:var(--teal);flex-shrink:0;}
+.trust-text{font-size:11px;color:var(--muted);}
+
+.error-msg{
+  background:#fff5f5;border:1px solid #fcc;border-radius:12px;
+  padding:12px 16px;font-size:12px;color:#c00;margin-bottom:14px;display:none;
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-tag">Pelican Beach Resort · Destin FL</div>
+  <h1>Find your <em>best rate</em></h1>
+  <p>Flexible? We'll find your cheapest available window.</p>
+</div>
+
+<div class="main">
+  <div class="card">
+    <div class="section-label">Which month?</div>
+    <div class="pill-grid cols-4" id="monthGrid">
+      <button class="pill" data-val="5">May</button>
+      <button class="pill" data-val="6">June</button>
+      <button class="pill" data-val="7">July</button>
+      <button class="pill" data-val="8">Aug</button>
+      <button class="pill" data-val="9">Sept</button>
+      <button class="pill" data-val="10">Oct</button>
+      <button class="pill" data-val="11">Nov</button>
+      <button class="pill" data-val="12">Dec</button>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="section-label">When in the month?</div>
+    <div class="pill-grid cols-4" id="partGrid">
+      <button class="pill" data-val="first">First</button>
+      <button class="pill" data-val="mid">Mid</button>
+      <button class="pill" data-val="last">Last</button>
+      <button class="pill active" data-val="any">Any</button>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="pill-grid cols-2" style="gap:14px">
+      <div>
+        <div class="section-label">Nights</div>
+        <div class="pill-grid cols-3">
+          <button class="pill" data-val="2" data-group="nights">2</button>
+          <button class="pill" data-val="3" data-group="nights">3</button>
+          <button class="pill active" data-val="4" data-group="nights">4</button>
+          <button class="pill" data-val="5" data-group="nights">5</button>
+          <button class="pill" data-val="7" data-group="nights">7</button>
+          <button class="pill" data-val="10" data-group="nights">10</button>
+        </div>
+      </div>
+      <div>
+        <div class="section-label">Guests</div>
+        <div class="pill-grid cols-3">
+          <button class="pill" data-val="1" data-group="guests">1</button>
+          <button class="pill active" data-val="2" data-group="guests">2</button>
+          <button class="pill" data-val="3" data-group="guests">3</button>
+          <button class="pill" data-val="4" data-group="guests">4</button>
+          <button class="pill" data-val="5" data-group="guests">5</button>
+          <button class="pill" data-val="6" data-group="guests">6</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <button class="find-btn" id="findBtn" onclick="findRates()">
+      <div class="spinner" id="spinner"></div>
+      <span class="btn-text">Find best rate →</span>
+    </button>
+  </div>
+
+  <div class="error-msg" id="errorMsg"></div>
+
+  <div class="results" id="results"></div>
+
+  <div class="trust-bar">
+    <div class="trust-dot"></div>
+    <p class="trust-text">No Airbnb fees · Direct with Ozan · Best rate guaranteed · Book in seconds</p>
+  </div>
+</div>
+
+<script>
+const BASE = 'https://destin-concierge-new.vercel.app';
+const UNIT_707  = 'https://www.destincondogetaways.com/pelican-beach-resort-unit-707-orp5b47b5ax';
+const UNIT_1006 = 'https://www.destincondogetaways.com/pelican-beach-resort-unit-1006-orp5b6450ex';
+
+let sel = { month: null, part: 'any', nights: 4, guests: 2 };
+
+document.querySelectorAll('#monthGrid .pill').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('#monthGrid .pill').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    sel.month = parseInt(b.dataset.val);
+  });
+});
+
+document.querySelectorAll('#partGrid .pill').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('#partGrid .pill').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    sel.part = b.dataset.val;
+  });
+});
+
+document.querySelectorAll('[data-group="nights"]').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('[data-group="nights"]').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    sel.nights = parseInt(b.dataset.val);
+  });
+});
+
+document.querySelectorAll('[data-group="guests"]').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('[data-group="guests"]').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    sel.guests = parseInt(b.dataset.val);
+  });
+});
+
+function buildLink(unit, arrival, departure) {
+  const base = unit === '707' ? UNIT_707 : UNIT_1006;
+  return `${base}?or_arrival=${arrival}&or_departure=${departure}&or_adults=${sel.guests}&or_children=0&or_guests=${sel.guests}`;
+}
+
+function calcFees(nightlyAvg, nights) {
+  const rent = Math.round(nightlyAvg * nights);
+  const discount = Math.round(rent * 0.125);
+  const rentAfter = rent - discount;
+  const cleaning = 175;
+  const admin = Math.round((rentAfter + cleaning) * 0.03);
+  const tax = Math.round((rentAfter + cleaning + admin) * 0.13);
+  const total = rentAfter + cleaning + admin + tax;
+  return { rent, discount, rentAfter, cleaning, admin, tax, total };
+}
+
+function fmtDate(iso) {
+  const d = new Date(iso + 'T12:00:00Z');
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+function getDateRange() {
+  const yr = new Date().getFullYear();
+  const m = String(sel.month).padStart(2, '0');
+  const lastDay = new Date(yr, sel.month, 0).getDate();
+  let startDay = 1, endDay = lastDay;
+  if (sel.part === 'first') { startDay = 1; endDay = 10; }
+  else if (sel.part === 'mid') { startDay = 10; endDay = 20; }
+  else if (sel.part === 'last') { startDay = 20; endDay = lastDay; }
+  return {
+    start: `${yr}-${m}-${String(startDay).padStart(2,'0')}`,
+    end: `${yr}-${m}-${String(Math.min(endDay, lastDay)).padStart(2,'0')}`
+  };
+}
+
+async function findRates() {
+  if (!sel.month) {
+    showError('Please select a month first.');
+    return;
+  }
+
+  const btn = document.getElementById('findBtn');
+  btn.classList.add('loading');
+  btn.disabled = true;
+  document.getElementById('errorMsg').style.display = 'none';
+  document.getElementById('results').classList.remove('show');
+
+  try {
+    const { start, end } = getDateRange();
+
+    const [plRes, calResults] = await Promise.all([
+      fetch(`${BASE}/api/pricelabs-proxy?action=prices`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ start_date: start, end_date: end })
+      }),
+      null
+    ]);
+
+    if (!plRes.ok) throw new Error('Could not fetch rates');
+    const plData = await plRes.json();
+
+    const yr = new Date().getFullYear();
+    const m = String(sel.month).padStart(2, '0');
+    const lastDay = new Date(yr, sel.month, 0).getDate();
+    const { start: rangeStart, end: rangeEnd } = getDateRange();
+
+    const windows = [];
+    for (let day = 1; day <= lastDay - sel.nights; day++) {
+      const arr = `${yr}-${m}-${String(day).padStart(2,'0')}`;
+      if (arr < rangeStart || arr > rangeEnd) continue;
+      const depDay = day + sel.nights;
+      if (depDay > lastDay + 1) continue;
+      const dep = `${yr}-${m}-${String(depDay).padStart(2,'0')}`;
+
+      for (const unit of ['707', '1006']) {
+        const ud = plData[unit];
+        if (!ud || !ud.prices) continue;
+        const days = ud.prices.filter(p => p.date >= arr && p.date < dep);
+        if (days.length < sel.nights) continue;
+        const avg = days.reduce((s, p) => s + (p.price || 0), 0) / days.length;
+        if (avg > 0) windows.push({ arr, dep, unit, avg: Math.round(avg) });
+      }
+    }
+
+    if (windows.length === 0) {
+      showNoResults();
+      return;
+    }
+
+    const calChecks = await Promise.all(
+      windows.map(w =>
+        fetch(`${BASE}/api/calendar?arrival=${w.arr}&departure=${w.dep}`)
+          .then(r => r.json())
+          .then(d => {
+            const avail = w.unit === '707' ? d.unit707?.status : d.unit1006?.status;
+            return avail === 'available' ? w : null;
+          })
+          .catch(() => null)
+      )
+    );
+
+    const available = calChecks.filter(Boolean);
+    if (available.length === 0) {
+      showNoResults();
+      return;
+    }
+
+    available.sort((a, b) => a.avg - b.avg);
+    const best = available[0];
+    const others = available.slice(1, 3).filter(w => w.arr !== best.arr || w.unit !== best.unit);
+
+    renderResults(best, others);
+
+  } catch(e) {
+    showError('Something went wrong. Please try again.');
+    console.error(e);
+  } finally {
+    btn.classList.remove('loading');
+    btn.disabled = false;
+  }
+}
+
+function renderResults(best, others) {
+  const fees = calcFees(best.avg, sel.nights);
+  const link = buildLink(best.unit, best.arr, best.dep);
+  const unitName = best.unit === '707' ? 'Unit 707 — Classic Coastal' : 'Unit 1006 — Fresh Coastal';
+  const floor = best.unit === '707' ? '7th floor' : '10th floor';
+
+  let html = `
+    <div class="result-best">
+      <div class="result-best-header">
+        <div class="trust-dot"></div>
+        <span class="best-badge">Best value · ${fmtDate(best.arr)}–${fmtDate(best.dep)}</span>
+      </div>
+      <div class="result-body">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+          <div>
+            <p class="result-unit">${unitName}</p>
+            <p class="result-dates">${sel.nights} nights · ${sel.guests} guest${sel.guests>1?'s':''} · ${floor}</p>
+          </div>
+          <div style="text-align:right">
+            <p class="result-rate">$${best.avg}</p>
+            <p class="result-rate-label">/night avg</p>
+          </div>
+        </div>
+        <div class="fee-breakdown">
+          <div class="fee-row"><span class="fee-label">Rent (${sel.nights} × $${best.avg})</span><span class="fee-value">$${fees.rent}</span></div>
+          <div class="fee-row"><span class="fee-label">Direct discount (12.5%)</span><span class="fee-value discount">-$${fees.discount}</span></div>
+          <div class="fee-row"><span class="fee-label">Cleaning fee</span><span class="fee-value">$${fees.cleaning}</span></div>
+          <div class="fee-row"><span class="fee-label">Admin fee (3%)</span><span class="fee-value">$${fees.admin}</span></div>
+          <div class="fee-row"><span class="fee-label">Tax (13%)</span><span class="fee-value">$${fees.tax}</span></div>
+          <div class="fee-total">
+            <span class="fee-total-label">Total</span>
+            <span class="fee-total-value">$${fees.total}</span>
+          </div>
+        </div>
+        <a class="book-btn" href="${link}" target="_blank">Book direct — save on fees →</a>
+      </div>
+    </div>`;
+
+  others.forEach(w => {
+    const f = calcFees(w.avg, sel.nights);
+    const l = buildLink(w.unit, w.arr, w.dep);
+    const uName = w.unit === '707' ? 'Unit 707 — Classic Coastal' : 'Unit 1006 — Fresh Coastal';
+    html += `
+      <div class="result-alt">
+        <div class="alt-info">
+          <p>${uName}</p>
+          <p>${fmtDate(w.arr)}–${fmtDate(w.dep)} · $${w.avg}/night · Total $${f.total}</p>
+        </div>
+        <a class="alt-btn" href="${l}" target="_blank">Book →</a>
+      </div>`;
+  });
+
+  document.getElementById('results').innerHTML = html;
+  document.getElementById('results').classList.add('show');
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function showNoResults() {
+  document.getElementById('results').innerHTML = `
+    <div class="no-results">
+      <p>No availability found</p>
+      <p>Try a different month, part of month, or fewer nights.</p>
+    </div>`;
+  document.getElementById('results').classList.add('show');
+}
+
+function showError(msg) {
+  const el = document.getElementById('errorMsg');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+</script>
+</body>
+</html>

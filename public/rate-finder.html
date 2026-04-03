@@ -534,12 +534,12 @@ function renderResults(best, others) {
   const floor = best.unit === '707' ? '7th floor' : '10th floor';
 
   let html = `
-    <div class="result-best">
+    <div class="result-best" id="card_best" onclick="expandCard('best')" style="cursor:pointer">
       <div class="result-best-header">
         <div class="trust-dot"></div>
         <span class="best-badge">Best value · ${fmtDate(best.arr)}–${fmtDate(best.dep)}</span>
       </div>
-      <div class="result-body">
+      <div id="card_best_body" class="result-body">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
           <div>
             <p class="result-unit">${unitName}</p>
@@ -562,8 +562,8 @@ function renderResults(best, others) {
             <span class="fee-total-value">$${fees.total}</span>
           </div>
         </div>
-        <a class="book-btn" href="${link}" target="_blank">Book direct — save on fees →</a>
-        <div class="msg-form">
+        <a class="book-btn" href="${link}" target="_blank" onclick="event.stopPropagation()">Book direct — save on fees →</a>
+        <div class="msg-form" onclick="event.stopPropagation()">
           <p>Or send Ozan a message — he'll get back to you personally</p>
           <input type="email" id="msgEmail" placeholder="Your email" />
           <textarea id="msgText" rows="3" placeholder="Any questions about the unit, dates, or trip?"></textarea>
@@ -577,21 +577,98 @@ function renderResults(best, others) {
   others.forEach((w, i) => {
     const f = calcFees(w.avg, sel.nights);
     const l = buildLink(w.unit, w.arr, w.dep);
-    const uName = w.unit === '707' ? 'Unit 707' : 'Unit 1006';
+    const uName = w.unit === '707' ? 'Unit 707 — Classic Coastal' : 'Unit 1006 — Fresh Coastal';
+    const floor = w.unit === '707' ? '7th floor' : '10th floor';
     const label = sel.part === 'any' ? sectionLabels[i+1] || '' : '';
+    const id = `alt_${i}`;
     html += `
-      <div class="result-alt">
+      <div class="result-alt" id="${id}" onclick="expandAlt('${id}')" style="cursor:pointer">
         <div class="alt-info">
           <p>${label ? label + ' · ' : ''}${uName} · ${fmtDate(w.arr)}–${fmtDate(w.dep)}</p>
           <p>$${w.avg}/night avg · Total $${f.total}</p>
         </div>
-        <a class="alt-btn" href="${l}" target="_blank">Book →</a>
+        <span class="alt-btn">Book →</span>
+      </div>
+      <div id="${id}_expanded" style="display:none;background:var(--card);border-radius:20px;border:1px solid var(--border);overflow:hidden;margin-bottom:10px">
+        <div style="padding:16px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+            <div>
+              <p style="font-size:14px;font-weight:500;margin:0">${uName}</p>
+              <p style="font-size:11px;color:var(--muted);margin:2px 0 0">${sel.nights} nights · ${sel.guests} guest${sel.guests>1?'s':''} · ${floor}</p>
+            </div>
+            <div style="text-align:right">
+              <p style="font-size:22px;font-weight:600;font-family:'Cormorant Garamond',serif;color:var(--ocean);margin:0">$${w.avg}</p>
+              <p style="font-size:11px;color:var(--muted);margin:0">/night avg</p>
+            </div>
+          </div>
+          <div style="border-top:1px solid var(--border);padding-top:12px;margin-bottom:12px">
+            <div class="fee-row"><span class="fee-label">Rent (${sel.nights} × $${w.avg})</span><span class="fee-value">$${f.rent}</span></div>
+            <div class="fee-row"><span class="fee-label">Direct booking discount (12.5%)</span><span class="fee-value discount">-$${f.discount}</span></div>
+            ${f.extraGuestFee > 0 ? `<div class="fee-row"><span class="fee-label">Extra guest fee</span><span class="fee-value">$${f.extraGuestFee}</span></div>` : ''}
+            <div class="fee-row"><span class="fee-label">Cleaning fee</span><span class="fee-value">$${f.cleaning}</span></div>
+            <div class="fee-row"><span class="fee-label">Tax (13%)</span><span class="fee-value">$${f.tax}</span></div>
+            <div class="fee-row"><span class="fee-label">Administrative fee (3%)</span><span class="fee-value">$${f.admin}</span></div>
+            <div class="fee-total"><span class="fee-total-label">Total</span><span class="fee-total-value">$${f.total}</span></div>
+          </div>
+          <a class="book-btn" href="${l}" target="_blank" onclick="event.stopPropagation()">Book direct — save on fees →</a>
+          <div class="msg-form" onclick="event.stopPropagation()">
+            <p>Or send Ozan a message — he'll get back to you personally</p>
+            <input type="email" id="msgEmail_${id}" placeholder="Your email" />
+            <textarea id="msgText_${id}" rows="3" placeholder="Any questions about the unit, dates, or trip?"></textarea>
+            <button class="send-btn" id="sendBtn_${id}" onclick="sendMsgAlt('${id}','${w.unit}','${w.arr}','${w.dep}')">Send message to Ozan →</button>
+            <div class="msg-success" id="msgOk_${id}" style="display:none">Message sent! Ozan will reply shortly 🌊</div>
+          </div>
+        </div>
       </div>`;
   });
 
   document.getElementById('results').innerHTML = html;
   document.getElementById('results').classList.add('show');
   document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function expandCard(id) {
+  const allIds = ['best', 'alt_0', 'alt_1'];
+  allIds.forEach(cid => {
+    if (cid === 'best') {
+      const body = document.getElementById('card_best_body');
+      if (body) body.style.display = cid === id ? 'block' : 'none';
+      const card = document.getElementById('card_best');
+      if (card) card.style.cursor = cid === id ? 'default' : 'pointer';
+    } else {
+      const card = document.getElementById(cid);
+      const expanded = document.getElementById(cid + '_expanded');
+      if (card) card.style.display = cid === id ? 'none' : 'block';
+      if (expanded) expanded.style.display = cid === id ? 'block' : 'none';
+    }
+  });
+}
+
+function expandAlt(id) {
+  expandCard(id);
+}
+
+async function sendMsgAlt(id, unit, arr, dep) {
+  const email = document.getElementById('msgEmail_' + id).value.trim();
+  const msg = document.getElementById('msgText_' + id).value.trim();
+  if (!email || !email.includes('@')) { alert('Please enter a valid email.'); return; }
+  if (!msg) { alert('Please enter a message.'); return; }
+  const btn = document.getElementById('sendBtn_' + id);
+  btn.disabled = true; btn.textContent = 'Sending...';
+  try {
+    const context = `Unit ${unit} · ${arr} to ${dep} · ${sel.nights} nights · ${sel.guests} guests`;
+    const res = await fetch(`${BASE}/api/rate-inquiry`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, message: msg, context })
+    });
+    if (res.ok) {
+      document.getElementById('msgOk_' + id).style.display = 'block';
+      btn.style.display = 'none';
+      document.getElementById('msgEmail_' + id).style.display = 'none';
+      document.getElementById('msgText_' + id).style.display = 'none';
+    } else { btn.disabled = false; btn.textContent = 'Send message to Ozan →'; }
+  } catch(e) { btn.disabled = false; btn.textContent = 'Send message to Ozan →'; }
 }
 
 async function sendMsg(unit, arr, dep) {

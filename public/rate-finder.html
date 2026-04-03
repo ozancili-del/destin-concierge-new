@@ -321,22 +321,48 @@ async function findRates() {
   try {
     const { start, end } = getDateRange();
 
-    const [plRes, calResults] = await Promise.all([
+    const [plRes, calRes] = await Promise.all([
       fetch(`${BASE}/api/pricelabs-proxy?action=prices`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ start_date: start, end_date: end })
       }),
-      null
+      fetch(`${BASE}/api/calendar?arrival=${start}&departure=${end}`)
     ]);
 
     if (!plRes.ok) throw new Error('Could not fetch rates');
     const plData = await plRes.json();
+    const calData = calRes.ok ? await calRes.json() : null;
 
     const yr = new Date().getFullYear();
     const m = String(sel.month).padStart(2, '0');
     const lastDay = new Date(yr, sel.month, 0).getDate();
     const { start: rangeStart, end: rangeEnd } = getDateRange();
+
+    // Build blocked days sets from calendar data
+    const blocked707 = new Set();
+    const blocked1006 = new Set();
+    if (calData) {
+      if (calData.unit707?.status === 'booked') {
+        for (let d = new Date(start + 'T12:00:00Z'); d <= new Date(end + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate()+1)) {
+          blocked707.add(d.toISOString().split('T')[0]);
+        }
+      }
+      if (calData.unit707?.allWindows) {
+        const freeSet = new Set(calData.unit707.allWindows.flatMap(w => {
+          const days = [];
+          for (let d = new Date(w.from + 'T12:00:00Z'); d < new Date(w.to + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate()+1)) {
+            days.push(d.toISOString().split('T')[0]);
+          }
+          return days;
+        }));
+      }
+      if (calData.unit1006?.status === 'booked') {
+        for (let d = new Date(start + 'T12:00:00Z'); d <= new Date(end + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate()+1)) {
+          blocked1006.add(d.toISOString().split('T')[0]);
+        }
+      }
+    }
 
     const windows = [];
     for (let day = 1; day <= lastDay - sel.nights; day++) {
@@ -344,7 +370,7 @@ async function findRates() {
       if (arr < rangeStart || arr > rangeEnd) continue;
       const depDay = day + sel.nights;
       if (depDay > lastDay + 1) continue;
-      const dep = `${yr}-${m}-${String(depDay).padStart(2,'0')}`;
+      const dep = `${yr}-${m}-${String(Math.min(depDay, lastDay)).padStart(2,'0')}`;
 
       for (const unit of ['707', '1006']) {
         const ud = plData[unit];
@@ -352,7 +378,26 @@ async function findRates() {
         const days = ud.prices.filter(p => p.date >= arr && p.date < dep);
         if (days.length < sel.nights) continue;
         const avg = days.reduce((s, p) => s + (p.price || 0), 0) / days.length;
-        if (avg > 0) windows.push({ arr, dep, unit, avg: Math.round(avg) });
+        if (avg <= 0) continue;
+
+        // Check availability using calendar data
+        const blocked = unit === '707' ? blocked707 : blocked1006;
+        const unitStatus = unit === '707' ? calData?.unit707?.status : calData?.unit1006?.status;
+        
+        // If fully available for the whole range, all windows are free
+        if (unitStatus === 'available') {
+          windows.push({ arr, dep, unit, avg: Math.round(avg) });
+          continue;
+        }
+        
+        // If partial, check if this specific window is clear
+        if (unitStatus === 'partial') {
+          const unitData = unit === '707' ? calData?.unit707 : calData?.unit1006;
+          const allFreeWindows = unitData?.allWindows || [];
+          const windowClear = allFreeWindows.some(fw => fw.from <= arr && fw.to >= dep);
+          if (windowClear) windows.push({ arr, dep, unit, avg: Math.round(avg) });
+        }
+        // status === 'booked' → skip
       }
     }
 
@@ -361,23 +406,7 @@ async function findRates() {
       return;
     }
 
-    const calChecks = await Promise.all(
-      windows.map(w =>
-        fetch(`${BASE}/api/calendar?arrival=${w.arr}&departure=${w.dep}`)
-          .then(r => r.json())
-          .then(d => {
-            const avail = w.unit === '707' ? d.unit707?.status : d.unit1006?.status;
-            return avail === 'available' ? w : null;
-          })
-          .catch(() => null)
-      )
-    );
-
-    const available = calChecks.filter(Boolean);
-    if (available.length === 0) {
-      showNoResults();
-      return;
-    }
+    const available = windows;
 
     available.sort((a, b) => a.avg - b.avg);
     const best = available[0];

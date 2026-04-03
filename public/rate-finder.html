@@ -279,7 +279,7 @@ html,body{width:100%;min-height:100vh;background:var(--sand);font-family:'DM San
 
     <button class="find-btn" id="findBtn" onclick="findRates()">
       <div class="spinner" id="spinner"></div>
-      <span class="btn-text">Find best rate →</span>
+      <span class="btn-text">Find best window →</span>
     </button>
   </div>
 
@@ -645,7 +645,8 @@ async function sendGroupInquiry() {
   const email = document.getElementById('groupEmail')?.value.trim();
   const msg = document.getElementById('groupMsg')?.value.trim();
   if (!email || !email.includes('@') || !msg) { alert('Please fill in both fields.'); return; }
-  const context = `Group inquiry — ${sel.adults} adults + ${sel.children} children`;
+  const monthNames = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const context = `Group inquiry — ${sel.adults} adults + ${sel.children} children · ${monthNames[sel.month] || ''} ${sel.year} · ${sel.nights} nights`;
   const res = await fetch(`${BASE}/api/rate-inquiry`, {
     method: 'POST', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, message: msg, context })

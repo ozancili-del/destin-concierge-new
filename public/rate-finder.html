@@ -269,8 +269,15 @@ html,body{width:100%;min-height:100vh;background:var(--sand);font-family:'DM San
         <p style="font-size:10px;color:var(--muted);margin-top:8px">Max 6 total guests per unit due to fire code.</p>
         <div id="guestWarning" style="display:none;margin-top:10px;background:#fff5f0;border:1px solid #f0b898;border-radius:10px;padding:12px 14px">
           <p style="font-size:12px;font-weight:500;color:#7a3010;margin:0 0 4px">Group over 6 guests</p>
-          <p style="font-size:12px;color:#7a3010;margin:0 0 10px">Due to fire code, each unit accommodates max 6 guests. If you selected the wrong number, please adjust above. If your group is larger than 6, you may need both units — send Ozan a message and he'll help you out.</p>
-          <button onclick="showGroupInquiry()" style="font-size:12px;font-weight:500;padding:7px 14px;border-radius:8px;border:1px solid #7a3010;background:transparent;color:#7a3010;cursor:pointer;font-family:'DM Sans',sans-serif">Send group inquiry to Ozan →</button>
+          <p style="font-size:12px;color:#7a3010;margin:0 0 10px">Due to fire code, each unit accommodates max 6 guests. If you selected the wrong number, please adjust above. If your group is larger, send Ozan a message — he'll sort it out.</p>
+          <button id="showInquiryBtn" onclick="toggleGroupInquiry()" style="font-size:12px;font-weight:500;padding:7px 14px;border-radius:8px;border:1px solid #7a3010;background:transparent;color:#7a3010;cursor:pointer;font-family:'DM Sans',sans-serif">Send group inquiry to Ozan →</button>
+        </div>
+        <div id="groupInquiryForm" style="display:none;margin-top:8px;background:#fff5f0;border:1px solid #f0b898;border-radius:10px;padding:12px 14px">
+          <input type="email" id="groupEmail" placeholder="Your email" style="width:100%;margin-bottom:6px;font-size:13px;padding:9px 12px;border-radius:8px;border:1px solid #f0b898;font-family:'DM Sans',sans-serif;background:#fff;color:#1a1a1a"/>
+          <textarea id="groupMsg" rows="2" placeholder="Tell Ozan about your group size and dates" style="width:100%;margin-bottom:8px;font-size:13px;padding:9px 12px;border-radius:8px;border:1px solid #f0b898;font-family:'DM Sans',sans-serif;resize:none;background:#fff;color:#1a1a1a"></textarea>
+          <button id="groupSendBtn" onclick="sendGroupInquiry()" style="font-size:12px;font-weight:500;padding:8px 14px;border-radius:8px;border:none;background:#7a3010;color:white;cursor:pointer;font-family:'DM Sans',sans-serif">Send →</button>
+          <span id="groupOk" style="display:none;font-size:12px;color:#0d9e8a;margin-left:10px;font-weight:500">Sent! Ozan will reply shortly.</span>
+          <span id="groupErr" style="display:none;font-size:12px;color:#c00;margin-left:10px">Failed — please try again.</span>
         </div>
       </div>
     </div>
@@ -423,7 +430,7 @@ async function findRates() {
     return;
   }
   if (sel.adults + sel.children > 6) {
-    showError('Please adjust your guest count — max 6 per unit due to fire code.');
+    document.getElementById('guestWarning').scrollIntoView({ behavior: 'smooth', block: 'center' });
     return;
   }
 
@@ -631,28 +638,33 @@ async function sendMsgAlt(id, unit, arr, dep) {
   } catch(e) { btn.disabled = false; btn.textContent = 'Send message to Ozan →'; }
 }
 
-function showGroupInquiry() {
-  document.getElementById('guestWarning').innerHTML = `
-    <p style="font-size:12px;font-weight:500;color:#7a3010;margin:0 0 8px">Group inquiry</p>
-    <input type="email" id="groupEmail" placeholder="Your email" style="width:100%;margin-bottom:6px;font-size:13px;padding:9px 12px;border-radius:8px;border:1px solid #f0b898;font-family:'DM Sans',sans-serif;background:#fff;color:#1a1a1a"/>
-    <textarea id="groupMsg" rows="2" placeholder="Tell Ozan about your group size and dates" style="width:100%;margin-bottom:6px;font-size:13px;padding:9px 12px;border-radius:8px;border:1px solid #f0b898;font-family:'DM Sans',sans-serif;resize:none;background:#fff;color:#1a1a1a"></textarea>
-    <button onclick="sendGroupInquiry()" style="font-size:12px;font-weight:500;padding:8px 14px;border-radius:8px;border:none;background:#7a3010;color:white;cursor:pointer;font-family:'DM Sans',sans-serif">Send →</button>
-    <span id="groupOk" style="display:none;font-size:12px;color:#7a3010;margin-left:10px">Sent! Ozan will reply shortly.</span>
-  `;
+function toggleGroupInquiry() {
+  const form = document.getElementById('groupInquiryForm');
+  form.style.display = form.style.display === 'none' ? 'block' : 'none';
 }
 
 async function sendGroupInquiry() {
   const email = document.getElementById('groupEmail')?.value.trim();
   const msg = document.getElementById('groupMsg')?.value.trim();
-  if (!email || !email.includes('@') || !msg) { alert('Please fill in both fields.'); return; }
+  if (!email || !email.includes('@')) { alert('Please enter a valid email.'); return; }
+  if (!msg) { alert('Please describe your group.'); return; }
+  const btn = document.getElementById('groupSendBtn');
+  btn.disabled = true; btn.textContent = 'Sending...';
   const monthNames = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const context = `Group inquiry — ${sel.adults} adults + ${sel.children} children · ${monthNames[sel.month] || ''} ${sel.year} · ${sel.nights} nights`;
-  const res = await fetch(`${BASE}/api/rate-inquiry`, {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, message: msg, context })
-  }).catch(() => null);
-  if (res?.ok) {
-    document.getElementById('groupOk').style.display = 'inline';
+  const context = `Group inquiry — ${sel.adults} adults + ${sel.children} children · ${monthNames[sel.month] || ''} ${sel.year} · ${sel.nights} nights · ${sel.part} of month`;
+  try {
+    const res = await fetch(`${BASE}/api/rate-inquiry`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, message: msg, context })
+    });
+    if (res.ok) {
+      document.getElementById('groupOk').style.display = 'inline';
+      document.getElementById('groupErr').style.display = 'none';
+      btn.style.display = 'none';
+    } else { throw new Error(); }
+  } catch(e) {
+    document.getElementById('groupErr').style.display = 'inline';
+    btn.disabled = false; btn.textContent = 'Send →';
   }
 }
 

@@ -447,7 +447,8 @@ async function findRates() {
       others = sectionBests.slice(1);
     } else {
       best = available[0];
-      others = available.slice(1, 3).filter(w => w.arr !== best.arr || w.unit !== best.unit);
+      // Only show the other unit on the same dates, not a different window
+      others = available.filter(w => w.arr === best.arr && w.unit !== best.unit).slice(0,1);
     }
 
     renderResults(best, others);

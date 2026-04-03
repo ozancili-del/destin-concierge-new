@@ -202,7 +202,7 @@ html,body{width:100%;min-height:100vh;background:var(--sand);font-family:'DM San
         </div>
       </div>
       <div>
-        <div class="section-label">Guests</div>
+        <div class="section-label">Guests <span style="font-size:10px;color:var(--muted);text-transform:none;letter-spacing:0">(adults + kids)</span></div>
         <div class="pill-grid cols-3">
           <button class="pill" data-val="1" data-group="guests">1</button>
           <button class="pill active" data-val="2" data-group="guests">2</button>
@@ -281,12 +281,14 @@ function calcFees(nightlyAvg, nights) {
   const plRent = Math.round(nightlyAvg * nights);
   const discount = Math.round(plRent * 0.125);
   const mgmt = 25 * nights;
-  const rentAfter = plRent - discount + mgmt;
+  const extraGuests = Math.max(0, sel.guests - 4);
+  const extraGuestFee = extraGuests * 20 * nights;
+  const rentAfter = plRent - discount + mgmt + extraGuestFee;
   const cleaning = 175;
   const tax = Math.round((rentAfter + cleaning) * 0.13);
   const admin = Math.round((rentAfter + cleaning + tax) * 0.03);
   const total = rentAfter + cleaning + tax + admin;
-  return { rent: plRent, discount, mgmt, rentAfter, cleaning, admin, tax, total };
+  return { rent: plRent, discount, mgmt, extraGuestFee, rentAfter, cleaning, admin, tax, total };
 }
 
 function fmtDate(iso) {
@@ -485,6 +487,7 @@ function renderResults(best, others) {
         <div class="fee-breakdown">
           <div class="fee-row"><span class="fee-label">Rent (${sel.nights} × $${best.avg})</span><span class="fee-value">$${fees.rent}</span></div>
           <div class="fee-row"><span class="fee-label">Direct booking discount (12.5%)</span><span class="fee-value discount">-$${fees.discount}</span></div>
+          ${fees.extraGuestFee > 0 ? `<div class="fee-row"><span class="fee-label">Extra guest fee ($20/night × ${sel.guests-4} guest${sel.guests-4>1?'s':''})</span><span class="fee-value">$${fees.extraGuestFee}</span></div>` : ''}
           <div class="fee-row"><span class="fee-label">Cleaning fee</span><span class="fee-value">$${fees.cleaning}</span></div>
           <div class="fee-row"><span class="fee-label">Tax (13%)</span><span class="fee-value">$${fees.tax}</span></div>
           <div class="fee-row"><span class="fee-label">Administrative fee (3%)</span><span class="fee-value">$${fees.admin}</span></div>

@@ -421,27 +421,30 @@ async function findRates() {
     const available = windows;
 
     available.sort((a, b) => a.avg - b.avg);
-    const best = available[0];
 
-    // For "any" part selection, spread alternatives across early/mid/late month
-    // to avoid showing 3 nearly identical consecutive windows
-    let others = [];
+    let best, others;
     if (sel.part === 'any') {
+      // Show one option from each section: first / mid / last
       const yr2 = new Date().getFullYear();
       const m2 = String(sel.month).padStart(2,'0');
       const lastDay2 = new Date(yr2, sel.month, 0).getDate();
-      const midPoint = Math.floor(lastDay2 / 2);
       const sections = [
-        { min: `${yr2}-${m2}-01`, max: `${yr2}-${m2}-${String(Math.floor(lastDay2/3)).padStart(2,'0')}` },
-        { min: `${yr2}-${m2}-${String(Math.floor(lastDay2/3)+1).padStart(2,'0')}`, max: `${yr2}-${m2}-${String(Math.floor(2*lastDay2/3)).padStart(2,'0')}` },
-        { min: `${yr2}-${m2}-${String(Math.floor(2*lastDay2/3)+1).padStart(2,'0')}`, max: `${yr2}-${m2}-${String(lastDay2).padStart(2,'0')}` },
+        { label:'early', min:`${yr2}-${m2}-01`, max:`${yr2}-${m2}-${String(Math.floor(lastDay2/3)).padStart(2,'0')}` },
+        { label:'mid',   min:`${yr2}-${m2}-${String(Math.floor(lastDay2/3)+1).padStart(2,'0')}`, max:`${yr2}-${m2}-${String(Math.floor(2*lastDay2/3)).padStart(2,'0')}` },
+        { label:'late',  min:`${yr2}-${m2}-${String(Math.floor(2*lastDay2/3)+1).padStart(2,'0')}`, max:`${yr2}-${m2}-${String(lastDay2).padStart(2,'0')}` },
       ];
-      sections.forEach(sec => {
-        const sectionWindows = available.filter(w => w.arr >= sec.min && w.arr <= sec.max && (w.arr !== best.arr || w.unit !== best.unit));
-        if (sectionWindows.length > 0) others.push(sectionWindows[0]);
-      });
-      others = others.filter(w => w.arr !== best.arr || w.unit !== best.unit).slice(0, 2);
+      const sectionBests = sections.map(sec => {
+        const wins = available.filter(w => w.arr >= sec.min && w.arr <= sec.max);
+        wins.sort((a,b) => a.avg - b.avg);
+        return wins[0] || null;
+      }).filter(Boolean);
+
+      if (sectionBests.length === 0) { showNoResults(); return; }
+      sectionBests.sort((a,b) => a.avg - b.avg);
+      best = sectionBests[0];
+      others = sectionBests.slice(1);
     } else {
+      best = available[0];
       others = available.slice(1, 3).filter(w => w.arr !== best.arr || w.unit !== best.unit);
     }
 
@@ -494,15 +497,17 @@ function renderResults(best, others) {
       </div>
     </div>`;
 
-  others.forEach(w => {
+  const sectionLabels = ['Early month', 'Mid month', 'Late month'];
+  others.forEach((w, i) => {
     const f = calcFees(w.avg, sel.nights);
     const l = buildLink(w.unit, w.arr, w.dep);
-    const uName = w.unit === '707' ? 'Unit 707 — Classic Coastal' : 'Unit 1006 — Fresh Coastal';
+    const uName = w.unit === '707' ? 'Unit 707' : 'Unit 1006';
+    const label = sel.part === 'any' ? sectionLabels[i+1] || '' : '';
     html += `
       <div class="result-alt">
         <div class="alt-info">
-          <p>${uName}</p>
-          <p>${fmtDate(w.arr)}–${fmtDate(w.dep)} · $${w.avg}/night · Total $${f.total}</p>
+          <p>${label ? label + ' · ' : ''}${uName} · ${fmtDate(w.arr)}–${fmtDate(w.dep)}</p>
+          <p>$${w.avg}/night avg · Total $${f.total}</p>
         </div>
         <a class="alt-btn" href="${l}" target="_blank">Book →</a>
       </div>`;

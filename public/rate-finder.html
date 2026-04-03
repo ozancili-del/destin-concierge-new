@@ -562,7 +562,7 @@ function renderResults(best, others) {
           <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
             <div>
               <p style="font-size:14px;font-weight:500;margin:0">${uName}</p>
-              <p style="font-size:11px;color:var(--muted);margin:2px 0 0">${sel.nights} nights · ${sel.adults + sel.children} guest${(sel.adults+sel.children)>1?'s':''} · ${floor}</p>
+              <p style="font-size:11px;color:var(--muted);margin:2px 0 0">${fmtDate(w.arr)} – ${fmtDate(w.dep)} · ${sel.nights} nights · ${sel.adults + sel.children} guest${(sel.adults+sel.children)>1?'s':''} · ${floor}</p>
             </div>
             <div style="text-align:right">
               <p style="font-size:22px;font-weight:600;font-family:'Cormorant Garamond',serif;color:var(--ocean);margin:0">$${w.avg}</p>

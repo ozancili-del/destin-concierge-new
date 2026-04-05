@@ -4,12 +4,22 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Car Rental at Destin VPS Airport</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<title>Flights & Car Rental · Destin FL</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'DM Sans',sans-serif;background:#f0ebe0;color:#0d1f2d;min-height:100vh;}
 .wrap{max-width:560px;margin:0 auto;padding:24px 16px 48px;}
+
+.section-divider{
+  display:flex;align-items:center;gap:12px;margin:28px 0 20px;
+}
+.section-divider span{
+  font-size:13px;font-weight:600;color:#0a3d5c;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;
+}
+.section-divider::before,.section-divider::after{
+  content:'';flex:1;height:1px;background:rgba(10,61,92,0.15);
+}
 
 .dc-hero{
   background:linear-gradient(135deg,#051c2c,#0a3d5c);
@@ -19,9 +29,12 @@ body{font-family:'DM Sans',sans-serif;background:#f0ebe0;color:#0d1f2d;min-heigh
 .dc-logo{
   background:white;border-radius:10px;padding:10px 20px;
   display:inline-block;font-size:22px;font-weight:700;
-  color:#e8341a;letter-spacing:-0.5px;
+  letter-spacing:-0.5px;
 }
-.dc-logo span{color:#0a3d5c;}
+.dc-logo.cars{color:#e8341a;}
+.dc-logo.cars span{color:#0a3d5c;}
+.dc-logo.flights{color:#1a8fe8;}
+.dc-logo.flights span{color:#ff6d00;}
 .dc-tagline{color:rgba(255,255,255,0.7);font-size:14px;margin-bottom:6px;}
 .dc-headline{color:white;font-size:22px;font-weight:500;line-height:1.3;}
 
@@ -35,13 +48,15 @@ body{font-family:'DM Sans',sans-serif;background:#f0ebe0;color:#0d1f2d;min-heigh
 .award-sub{font-size:10px;color:rgba(255,255,255,0.5);margin-top:2px;}
 
 .cta-btn{
-  display:block;width:100%;background:linear-gradient(90deg,#e8341a,#ff5533);
+  display:block;width:100%;
   color:white;border:none;border-radius:14px;padding:16px;
   font-size:17px;font-weight:600;font-family:'DM Sans',sans-serif;
   cursor:pointer;text-decoration:none;text-align:center;
   margin-top:16px;transition:.15s;
 }
 .cta-btn:hover{opacity:.9;}
+.cta-btn.cars{background:linear-gradient(90deg,#e8341a,#ff5533);}
+.cta-btn.flights{background:linear-gradient(90deg,#1a8fe8,#00b4d8);}
 .cta-sub{text-align:center;font-size:11px;color:rgba(255,255,255,0.45);margin-top:8px;}
 
 .info-card{
@@ -64,75 +79,196 @@ body{font-family:'DM Sans',sans-serif;background:#f0ebe0;color:#0d1f2d;min-heigh
 .rating-row{display:flex;align-items:center;gap:8px;margin-top:8px;}
 .stars{color:#f5a623;font-size:16px;letter-spacing:1px;}
 .rating-text{font-size:13px;color:#3a5a6a;}
+
+.airport-card{
+  background:#f0ebe0;border:1px solid rgba(10,61,92,0.1);
+  border-radius:12px;padding:12px 14px;margin-bottom:8px;
+}
+.airport-card:last-child{margin-bottom:0;}
+.airport-code{font-size:18px;font-weight:700;color:#0a3d5c;display:inline;}
+.airport-name{font-size:14px;color:#3a5a6a;display:inline;margin-left:6px;}
+.airport-detail{font-size:13px;color:#6a8a9a;margin-top:4px;line-height:1.4;}
+.airport-badge{
+  display:inline-block;font-size:10px;font-weight:600;
+  padding:2px 8px;border-radius:6px;margin-left:8px;vertical-align:middle;
+}
+.badge-closest{background:#d4edda;color:#155724;}
+.badge-major{background:#cce5ff;color:#004085;}
+
+.tip-box{
+  background:linear-gradient(135deg,#fff8e1,#fff3cd);
+  border:1px solid rgba(245,166,35,0.2);
+  border-radius:12px;padding:14px;margin-top:12px;
+}
+.tip-box strong{color:#856404;font-size:13px;}
+.tip-box p{font-size:13px;color:#856404;margin-top:4px;line-height:1.5;}
+
+/* Jump nav at top */
+.jump-nav{
+  display:flex;gap:8px;margin-bottom:20px;justify-content:center;
+}
+.jump-btn{
+  background:rgba(10,61,92,0.08);border:1px solid rgba(10,61,92,0.12);
+  border-radius:10px;padding:10px 18px;font-size:14px;font-weight:500;
+  color:#0a3d5c;text-decoration:none;font-family:'DM Sans',sans-serif;
+  transition:.15s;
+}
+.jump-btn:hover{background:rgba(10,61,92,0.14);}
+.jump-btn .jicon{margin-right:6px;}
 </style>
 </head>
 <body>
 <div class="wrap">
 
-  <div class="dc-hero">
-    <div class="dc-logo-wrap">
-      <div class="dc-logo">discover<span>cars</span></div>
-    </div>
-    <div class="dc-tagline">Car Rental at VPS Airport · Destin FL</div>
-    <div class="dc-headline">Compare all rental companies.<br>Best price guaranteed.</div>
-
-    <div class="awards">
-      <div class="award">
-        <div class="award-icon">🏆</div>
-        <div class="award-title">World's Best Car Rental Booking Website</div>
-        <div class="award-sub">World Travel Tech Awards 2025</div>
-      </div>
-      <div class="award">
-        <div class="award-icon">🥇</div>
-        <div class="award-title">Magellan Awards Gold Winner</div>
-        <div class="award-sub">2025</div>
-      </div>
-    </div>
-
-    <div class="rating-row" style="justify-content:center;">
-      <span class="stars">★★★★★</span>
-      <span class="rating-text" style="color:rgba(255,255,255,0.7);">4.6 · 261,324 reviews on Trustpilot</span>
-    </div>
-
-    <a class="cta-btn" href="https://www.discovercars.com/?a_aid=ocili994989" target="_blank" rel="nofollow sponsored">
-      Search Cars at VPS Airport →
-    </a>
-    <div class="cta-sub">Free cancellation · No hidden fees · 365-day cookie</div>
+  <!-- Jump nav -->
+  <div class="jump-nav">
+    <a class="jump-btn" href="#cars"><span class="jicon">🚗</span>Car Rental</a>
+    <a class="jump-btn" href="#flights"><span class="jicon">✈️</span>Flights</a>
   </div>
 
-  <div class="info-card">
-    <div class="info-title">What to know</div>
-    <div class="info-row">
-      <div class="info-icon">✈️</div>
-      <div class="info-text"><strong>In-terminal pickup</strong> — All major rental companies are inside VPS terminal. No shuttle needed.</div>
+  <!-- ============ CAR RENTAL SECTION ============ -->
+  <div id="cars">
+    <div class="dc-hero">
+      <div class="dc-logo-wrap">
+        <div class="dc-logo cars">discover<span>cars</span></div>
+      </div>
+      <div class="dc-tagline">Car Rental at VPS Airport · Destin FL</div>
+      <div class="dc-headline">Compare all rental companies.<br>Best price guaranteed.</div>
+
+      <div class="awards">
+        <div class="award">
+          <div class="award-icon">🏆</div>
+          <div class="award-title">World's Best Car Rental Booking Website</div>
+          <div class="award-sub">World Travel Tech Awards 2025</div>
+        </div>
+        <div class="award">
+          <div class="award-icon">🥇</div>
+          <div class="award-title">Magellan Awards Gold Winner</div>
+          <div class="award-sub">2025</div>
+        </div>
+      </div>
+
+      <div class="rating-row" style="justify-content:center;">
+        <span class="stars">★★★★★</span>
+        <span class="rating-text" style="color:rgba(255,255,255,0.7);">4.6 · 261,324 reviews on Trustpilot</span>
+      </div>
+
+      <a class="cta-btn cars" href="https://www.discovercars.com/?a_aid=ocili994989" target="_blank" rel="nofollow sponsored">
+        Search Cars at VPS Airport →
+      </a>
+      <div class="cta-sub">Free cancellation · No hidden fees · 365-day cookie</div>
     </div>
-    <div class="info-row">
-      <div class="info-icon">🚗</div>
-      <div class="info-text"><strong>You'll need a car</strong> — Destin has limited walkable dining. A car is essential for restaurants, groceries, and activities.</div>
+
+    <div class="info-card">
+      <div class="info-title">What to know</div>
+      <div class="info-row">
+        <div class="info-icon">✈️</div>
+        <div class="info-text"><strong>In-terminal pickup</strong> — All major rental companies are inside VPS terminal. No shuttle needed.</div>
+      </div>
+      <div class="info-row">
+        <div class="info-icon">🚗</div>
+        <div class="info-text"><strong>You'll need a car</strong> — Destin has limited walkable dining. A car is essential for restaurants, groceries, and activities.</div>
+      </div>
+      <div class="info-row">
+        <div class="info-icon">📅</div>
+        <div class="info-text"><strong>Book early</strong> — Summer weekends sell out fast. Lock in your rate before prices spike.</div>
+      </div>
+      <div class="info-row">
+        <div class="info-icon">💳</div>
+        <div class="info-text"><strong>Check your credit card</strong> — Many cards include rental car insurance. You may not need to buy the rental company's coverage.</div>
+      </div>
     </div>
-    <div class="info-row">
-      <div class="info-icon">📅</div>
-      <div class="info-text"><strong>Book early</strong> — Summer weekends sell out fast. Lock in your rate before prices spike.</div>
-    </div>
-    <div class="info-row">
-      <div class="info-icon">💳</div>
-      <div class="info-text"><strong>Check your credit card</strong> — Many cards include rental car insurance. You may not need to buy the rental company's coverage.</div>
+
+    <div class="info-card">
+      <div class="info-title">Available at VPS</div>
+      <div class="trust">
+        <div class="trust-pill">Avis · 8.0 ★</div>
+        <div class="trust-pill">Budget · 7.5 ★</div>
+        <div class="trust-pill">Alamo · 8.9 ★</div>
+        <div class="trust-pill">Enterprise · 8.5 ★</div>
+        <div class="trust-pill">National · 8.4 ★</div>
+      </div>
+      <div style="margin-top:12px;">
+        <div class="info-row" style="margin-bottom:6px;">
+          <div class="info-icon">🏝</div>
+          <div class="info-text"><strong>From the resort:</strong> Pelican Beach is 17 miles from VPS — about 25 min on US-98 East.</div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="info-card">
-    <div class="info-title">Available at VPS</div>
-    <div class="trust">
-      <div class="trust-pill">Avis · 8.0 ★</div>
-      <div class="trust-pill">Budget · 7.5 ★</div>
-      <div class="trust-pill">Alamo · 8.9 ★</div>
-      <div class="trust-pill">Enterprise · 8.5 ★</div>
-      <div class="trust-pill">National · 8.4 ★</div>
+  <!-- ============ FLIGHTS SECTION ============ -->
+  <div class="section-divider"><span>✈️ Flights</span></div>
+
+  <div id="flights">
+    <div class="dc-hero">
+      <div class="dc-logo-wrap">
+        <div class="dc-logo flights">avia<span>sales</span></div>
+      </div>
+      <div class="dc-tagline">Cheap Flights to Destin · Northwest Florida</div>
+      <div class="dc-headline">Compare 728 airlines.<br>Find the cheapest fare.</div>
+
+      <div class="awards">
+        <div class="award">
+          <div class="award-icon">🔍</div>
+          <div class="award-title">Compares all airlines & OTAs in one search</div>
+          <div class="award-sub">No markup · No booking fees</div>
+        </div>
+        <div class="award">
+          <div class="award-icon">💰</div>
+          <div class="award-title">Price alerts & flexible date calendar</div>
+          <div class="award-sub">Find the cheapest day to fly</div>
+        </div>
+      </div>
+
+      <a class="cta-btn flights" href="https://aviasales.tpx.gr/64WMWf6l" target="_blank" rel="nofollow sponsored">
+        Search Flights to Destin →
+      </a>
+      <div class="cta-sub">No booking fees · Compare all airlines · Free cancellation on most fares</div>
     </div>
-    <div style="margin-top:12px;">
-      <div class="info-row" style="margin-bottom:6px;">
-        <div class="info-icon">🏝</div>
-        <div class="info-text"><strong>From the resort:</strong> Pelican Beach is 17 miles from VPS — about 25 min on US-98 East.</div>
+
+    <div class="info-card">
+      <div class="info-title">3 airports near Destin</div>
+
+      <div class="airport-card">
+        <span class="airport-code">VPS</span>
+        <span class="airport-name">Destin–Fort Walton Beach</span>
+        <span class="airport-badge badge-closest">Closest</span>
+        <div class="airport-detail">17 miles from Pelican Beach Resort · ~25 min drive on US-98 East. Small terminal, quick pickup. Most convenient option.</div>
+      </div>
+
+      <div class="airport-card">
+        <span class="airport-code">ECP</span>
+        <span class="airport-name">Panama City Beach</span>
+        <div class="airport-detail">50 miles east · ~1 hr drive. Sometimes cheaper fares, especially on budget carriers. Worth checking.</div>
+      </div>
+
+      <div class="airport-card">
+        <span class="airport-code">PNS</span>
+        <span class="airport-name">Pensacola</span>
+        <span class="airport-badge badge-major">Larger Hub</span>
+        <div class="airport-detail">60 miles west · ~1 hr drive. Biggest airport in the region — more flight options and often lower fares.</div>
+      </div>
+
+      <div class="tip-box">
+        <strong>💡 Pro tip</strong>
+        <p>Search all three airports and compare. VPS is closest, but ECP and PNS can save you $50–$150+ per ticket — easily worth the extra drive.</p>
+      </div>
+    </div>
+
+    <div class="info-card">
+      <div class="info-title">What to know</div>
+      <div class="info-row">
+        <div class="info-icon">📅</div>
+        <div class="info-text"><strong>Flexible dates = big savings</strong> — Shifting your trip by a day or two can save hundreds. Use the calendar view in Aviasales.</div>
+      </div>
+      <div class="info-row">
+        <div class="info-icon">✈️</div>
+        <div class="info-text"><strong>Direct flights to VPS</strong> — Available from Atlanta, Dallas, Nashville, Chicago, Denver, and more (seasonal routes vary).</div>
+      </div>
+      <div class="info-row">
+        <div class="info-icon">🏖</div>
+        <div class="info-text"><strong>Peak season</strong> — June–August flights fill fast and cost more. Spring (April–May) and fall (Sept–Oct) offer the best value.</div>
       </div>
     </div>
   </div>

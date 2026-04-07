@@ -47,7 +47,7 @@ html,body{
   border-radius:24px;
   padding:0 36px;
 }
-.eyebrow{font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--faint);margin-bottom:10px;}
+.eyebrow{font-size:14px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.7);margin-bottom:10px;}
 h1{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:300;line-height:1;letter-spacing:-1px;}
 h1 span{color:var(--teal);}
 .welcome-msg{font-family:'Cormorant Garamond',serif;font-size:19px;font-style:italic;color:var(--soft);margin-top:8px;line-height:1.5;max-width:900px;}
@@ -310,7 +310,10 @@ async function loadLiveData() {
     if (d.booking) {
       const dep = new Date(d.booking.departure + 'T12:00:00');
       const depFmt = dep.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'America/Chicago' });
-      document.getElementById('stayInfo').textContent = `Check-out ${depFmt}`;
+      const arrival = new Date(d.booking.arrival + 'T12:00:00');
+      const todayDate = new Date(d.today + 'T12:00:00');
+      const dayNum = Math.round((todayDate - arrival) / (1000 * 60 * 60 * 24)) + 1;
+      document.getElementById('stayInfo').textContent = `Day ${dayNum} of ${d.booking.nights} · Check-out ${depFmt}`;
       document.getElementById('checkoutDate').textContent = dep.toLocaleDateString('en-US', { month: 'long', day: 'numeric', timeZone: 'America/Chicago' });
 
       // Checkout eve
@@ -388,18 +391,45 @@ async function fetchAIRecommendations(guestName, weather, noaa, today, isCheckou
     const weatherDesc = weather?.[0] ? `${weather[0].high}°F high, ${weather[0].desc}` : 'warm and sunny';
     const waterDesc = noaa?.waterTemp ? `Gulf water ${noaa.waterTemp}°F` : '';
     const sunsetTime = noaa?.sunset || 'around 8pm';
+    const isRainy = (weather?.[0]?.desc || '').toLowerCase().match(/rain|storm|thunder|shower/);
 
-    const prompt = `You are Destiny Blue, AI concierge for Destin Condo Getaways at Pelican Beach Resort Unit 707, 7th floor, Gulf-front.
+    // Calculate day number of stay
+    let dayNumber = 1;
+    let totalNights = booking?.nights || 1;
+    if (booking?.arrival) {
+      const arrival = new Date(booking.arrival + 'T12:00:00');
+      const todayDate = new Date(today + 'T12:00:00');
+      dayNumber = Math.round((todayDate - arrival) / (1000 * 60 * 60 * 24)) + 1;
+    }
+    const isFirstDay = dayNumber === 1;
+    const isLastNight = isCheckoutEve;
+    const isMiddleDay = !isFirstDay && !isLastNight;
 
-Today is ${dayOfWeek}. Weather: ${weatherDesc}. ${waterDesc}. Sunset: ${sunsetTime}.
-${isCheckoutEve ? `IMPORTANT: Tonight is the guest's last night. They check out tomorrow at 10 AM.` : ''}
+    const dayContext = isFirstDay
+      ? `This is DAY 1 of their ${totalNights}-night stay — their first hours in the unit.`
+      : isLastNight
+      ? `This is their LAST NIGHT — they check out tomorrow at 10 AM.`
+      : `This is day ${dayNumber} of ${totalNights} — they are settled in and enjoying their stay.`;
 
-Generate a JSON response with this EXACT structure - no markdown, no explanation, just raw JSON:
+    const prompt = `You are Destiny Blue, the personal AI concierge for Destin Condo Getaways. You are warm, personal, and knowledgeable about Destin — like a local friend who manages the property.
+
+Guest: ${guestName}. Unit 707, 7th floor Gulf-front, Pelican Beach Resort, Destin FL.
+Today: ${dayOfWeek}. Weather: ${weatherDesc}. ${waterDesc}. Sunset tonight: ${sunsetTime}.
+${dayContext}
+${isRainy ? 'IMPORTANT: It is rainy/stormy today — recommend indoor activities and covered venues. No beach, parasailing, or outdoor water sports.' : ''}
+
+Write the messages as if Ozan (the owner) wrote them personally — warm, genuine, never robotic or generic. No filler phrases like "I hope you enjoy your stay." Be specific to Destin and the weather today.
+
+${isFirstDay ? `For day 1 messages: welcome them warmly, mention the view from the 7th floor balcony, and tell them to scan the TripShock QR on the TV to book activities, and the Destiny Blue QR to chat with their AI concierge for restaurant tips and local advice.` : ''}
+${isMiddleDay ? `For middle-day messages: casual daily note from Ozan, no "welcome" — they are already settled in. Reference the day, weather, and one specific thing worth doing today.` : ''}
+${isLastNight ? `For last night messages: heartfelt thank you, mention something they might want to do tonight before they leave, remind them checkout is 10 AM tomorrow.` : ''}
+
+Generate ONLY raw JSON, no markdown, no explanation:
 {
-  "welcomeMorning": "A warm 1-sentence personalized morning welcome for ${guestName} mentioning the weather and one specific thing to do",
-  "welcomeAfternoon": "A warm 1-sentence afternoon welcome for ${guestName} mentioning conditions and an afternoon suggestion",
-  "welcomeEvening": "A warm 1-sentence evening welcome for ${guestName} mentioning sunset and an evening suggestion",
-  "checkoutEveMsg": "A warm thank you message for ${guestName}'s last evening, mention checkout at 10am tomorrow, no mention of keys",
+  "welcomeMorning": "${isFirstDay ? 'Day 1 morning welcome — warm, personal, mention balcony view, orient them to TripShock QR for activities and Destiny Blue QR for local tips' : isLastNight ? 'Last morning — gentle reminder of checkout at 10 AM, wish them safe travels' : 'Day ' + dayNumber + ' morning note from Ozan — casual, weather-aware, one specific suggestion'}",
+  "welcomeAfternoon": "${isFirstDay ? 'Day 1 afternoon — they are settling in, suggest one perfect afternoon activity based on weather' : 'Afternoon note — conversational, weather-aware'}",
+  "welcomeEvening": "${isLastNight ? 'Last evening thank you — heartfelt, mention something worth doing tonight, checkout 10 AM tomorrow' : 'Evening note — mention sunset at ' + sunsetTime + ', suggest one evening activity'}",
+  "checkoutEveMsg": "Heartfelt thank you for ${guestName}'s stay, mention checkout at 10 AM tomorrow, hope to see them again",
   "morning": {
     "eat": [{"name": "restaurant name"}, {"name": "..."}, {"name": "..."}],
     "do": [{"name": "activity name"}, {"name": "..."}, {"name": "..."}]
@@ -414,7 +444,9 @@ Generate a JSON response with this EXACT structure - no markdown, no explanation
   }
 }
 
-Use real Destin restaurants and activities. Morning eat: Crackings, Ruby Slipper, Another Broken Egg are good options. Afternoon: AJ's Seafood, Dewey Destin's, Boshamps. Evening: The Back Porch, Louisiana Lagniappe, Mimmo's. Activities should reflect today's weather and conditions. Evening tonight section: always include sunset from balcony with exact time ${sunsetTime}.`;
+Use real Destin places. Morning eat: Crackings, Ruby Slipper Café, Another Broken Egg. Afternoon: AJ's Seafood & Oyster Bar, Dewey Destin's Seafood, Boshamps. Evening: The Back Porch, Louisiana Lagniappe, Mimmo's Ristorante.
+${isRainy ? 'Activities must be rain-friendly: museums, shopping at Destin Commons, Big Kahuna\'s water park (covered slides), escape rooms, bowling, HarborWalk Village covered dining.' : 'Activities should reflect today\'s weather and conditions.'}
+Evening tonight section: always include "Sunset from Balcony" with exact time ${sunsetTime} unless it is raining.`;
 
     const res = await fetch(`${BASE}/api/tv-recommendations`, {
       method: 'POST',

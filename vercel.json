@@ -4,24 +4,16 @@
       "source": "/",
       "destination": "/rate-finder.html",
       "permanent": false,
-      "has": [
-        {
-          "type": "host",
-          "value": "deals.destincondogetaways.com"
-        }
-      ]
-    }
-    ,
+      "has": [{"type": "host", "value": "deals.destincondogetaways.com"}]
+    },
     {
       "source": "/",
       "destination": "/destin-hub.html",
       "permanent": false,
-      "has": [
-        {
-          "type": "host",
-          "value": "explore.destincondogetaways.com"
-        }
-      ]
+      "has": [{"type": "host", "value": "explore.destincondogetaways.com"}]
     }
+  ],
+  "rewrites": [
+    {"source": "/tv-707.html", "destination": "/tv-707.html"}
   ]
 }

@@ -27,7 +27,7 @@ async function fetchCurrentBooking(propertyId) {
     const credentials = Buffer.from(`${OWNERREZ_USER}:${token}`).toString("base64");
     const today = todayCT();
     // Get bookings that include today
-    const sinceUtc = new Date(today + "T00:00:00-05:00").toISOString();
+    const sinceUtcDate = new Date(today + "T00:00:00-05:00"); sinceUtcDate.setDate(sinceUtcDate.getDate() - 1); const sinceUtc = sinceUtcDate.toISOString();
     const url = `https://api.ownerrez.com/v2/bookings?property_ids=${propertyId}&since_utc=${sinceUtc}&status=active`;
     const res = await fetch(url, {
       headers: { Authorization: `Basic ${credentials}`, Accept: "application/json" }
@@ -36,10 +36,13 @@ async function fetchCurrentBooking(propertyId) {
     const data = await res.json();
     const bookings = data.items || data.bookings || [];
     // Find booking where today is between arrival and departure
+    const hourCT = parseInt(new Date().toLocaleString("en-US", { timeZone: "America/Chicago", hour: "numeric", hour12: false }));
     const active = bookings.find(b => {
       const arr = b.arrival || b.check_in;
       const dep = b.departure || b.check_out;
-      return arr <= today && dep > today;
+      // Show arriving guest from noon onwards, show checked-in guests all day
+      if (arr === today) return hourCT >= 12; // arriving today — only show from noon
+      return arr < today && dep > today; // already checked in
     });
     if (!active) return null;
     return {

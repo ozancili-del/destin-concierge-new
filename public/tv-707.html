@@ -438,14 +438,10 @@ Generate a JSON response with this EXACT structure - no markdown, no explanation
 
 Use real Destin restaurants and activities. Morning eat: Crackings, Ruby Slipper, Another Broken Egg are good options. Afternoon: AJ's Seafood, Dewey Destin's, Boshamps. Evening: The Back Porch, Louisiana Lagniappe, Mimmo's. Activities should reflect today's weather and conditions. Evening tonight section: always include sunset from balcony with exact time ${sunsetTime}.`;
 
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch(`${BASE}/api/tv-recommendations`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{ role: 'user', content: prompt }]
-      })
+      body: JSON.stringify({ prompt })
     });
 
     const data = await res.json();

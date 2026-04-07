@@ -295,6 +295,45 @@ function dayLabel(dateStr) {
   return d.toLocaleDateString('en-US', { weekday: 'short', timeZone: 'America/Chicago' }).toUpperCase();
 }
 
+// ── Screen state machine ─────────────────────────────────────────
+// STATE A: Active stay — booking exists, not checkout morning
+// STATE B: Checkout morning — departure=today AND hour>=10 → goodbye screen
+// STATE C: Between guests — no booking, hour>=10 → generic screen
+// STATE D: New guest from noon — booking exists, arrival=today, hour>=12
+
+function clearOldCache(currentKey) {
+  Object.keys(localStorage)
+    .filter(k => k.startsWith('tv707_recs_') && k !== currentKey)
+    .forEach(k => localStorage.removeItem(k));
+}
+
+function showGoodbyeScreen(name, weather, noaa) {
+  document.getElementById('guestName').textContent = name;
+  document.getElementById('welcomeMsg').textContent = `Safe travels, ${name}! We hope this stay was everything you dreamed of. Check-out is 10 AM — door locks automatically behind you. We'd love to have you back! 🌊`;
+  document.getElementById('stayInfo').textContent = 'Check-out Day · Thank you for staying with us';
+  document.getElementById('recsCard').style.display = 'none';
+  document.getElementById('checkoutDate').textContent = 'Today';
+  // Hide Destiny Blue QR on goodbye screen — guest is leaving
+  const qrSingle = document.querySelector('.qr-single');
+  if (qrSingle) qrSingle.style.display = 'none';
+  // Clear all cached recs — fresh start for next guest
+  Object.keys(localStorage).filter(k => k.startsWith('tv707_recs_')).forEach(k => localStorage.removeItem(k));
+}
+
+function showGenericScreen() {
+  document.getElementById('guestName').textContent = 'Unit 707';
+  document.getElementById('welcomeMsg').textContent = 'Welcome to Pelican Beach Resort. Check-in begins at 4 PM. WiFi details are in the essentials panel.';
+  document.getElementById('stayInfo').textContent = 'Pelican Beach Resort · 7th Floor · Destin, Florida';
+  document.getElementById('recsCard').style.display = 'none';
+  // Hide Destiny Blue QR — no guest booking
+  const qrSingle = document.querySelector('.qr-single');
+  if (qrSingle) qrSingle.style.display = 'none';
+  document.getElementById('checkoutDate').textContent = '4:00 PM';
+  document.querySelector('.e-label') && (document.querySelector('.e-label').textContent === '🕐 Check-out'
+    ? document.querySelector('.e-label').closest('.essential').querySelector('.e-sub').textContent = 'Check-in begins at 4 PM'
+    : null);
+}
+
 // ── Load live data from /api/tv-data ──────────────────────────────
 async function loadLiveData() {
   try {
@@ -302,41 +341,7 @@ async function loadLiveData() {
     if (!res.ok) throw new Error('tv-data failed');
     const d = await res.json();
 
-    // Guest name
-    const name = d.booking?.guestFirstName || 'Guest';
-    document.getElementById('guestName').textContent = name;
-
-    // Stay info
-    if (d.booking) {
-      const dep = new Date(d.booking.departure + 'T12:00:00');
-      const depFmt = dep.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'America/Chicago' });
-      const arrival = new Date(d.booking.arrival + 'T12:00:00');
-      const todayDate = new Date(d.today + 'T12:00:00');
-      const dayNum = Math.round((todayDate - arrival) / (1000 * 60 * 60 * 24)) + 1;
-      document.getElementById('stayInfo').textContent = `Day ${dayNum} of ${d.booking.nights} · Check-out ${depFmt}`;
-      document.getElementById('checkoutDate').textContent = dep.toLocaleDateString('en-US', { month: 'long', day: 'numeric', timeZone: 'America/Chicago' });
-
-      // Checkout eve
-      if (d.isCheckoutEve) {
-        document.getElementById('checkoutEveAlert').style.display = 'block';
-      }
-    }
-
-    // Generate dynamic Destiny Blue QR with booking ID
-    if (d.booking) {
-      const bid = d.booking.ref || d.booking.id || '';
-      const fname = d.booking.guestFirstName || '';
-      const bookingUrl = `https://www.destincondogetaways.com/ai-concierge-574036277?fname=${encodeURIComponent(fname)}&bid=${bid}`;
-      QRCode.toCanvas(document.getElementById('destinyQR'), bookingUrl, {
-        width: 92, margin: 1, color: { dark: '#000000', light: '#ffffff' }
-      }, err => { if(err) console.error('QR error:', err); });
-    } else {
-      QRCode.toCanvas(document.getElementById('destinyQR'), 'https://www.destincondogetaways.com/ai-concierge-574036277', {
-        width: 92, margin: 1, color: { dark: '#000000', light: '#ffffff' }
-      }, err => { if(err) console.error('QR error:', err); });
-    }
-
-    // Forecast footer
+    // Always render weather forecast footer regardless of state
     if (d.weather) {
       const cards = document.getElementById('forecastFooter').children;
       d.weather.slice(0, 5).forEach((day, i) => {
@@ -353,8 +358,44 @@ async function loadLiveData() {
       });
     }
 
-    // Load AI recommendations (cached daily)
-    await loadRecommendations(name, d.weather, d.noaa, d.today, d.timeSlot, d.isCheckoutEve, d.booking);
+    // ── STATE B: Checkout morning ────────────────────────────────
+    if (d.isCheckoutMorning) {
+      showGoodbyeScreen(d.booking?.guestFirstName || 'Guest', d.weather, d.noaa);
+      return;
+    }
+
+    // ── STATE C: Between guests ──────────────────────────────────
+    if (d.isBetweenGuests) {
+      showGenericScreen();
+      return;
+    }
+
+    // ── STATE A/D: Active stay or new guest from noon ────────────
+    const name = d.booking?.guestFirstName || 'Guest';
+    document.getElementById('guestName').textContent = name;
+
+    if (d.booking) {
+      const dep = new Date(d.booking.departure + 'T12:00:00');
+      const depFmt = dep.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'America/Chicago' });
+      const arrival = new Date(d.booking.arrival + 'T12:00:00');
+      const todayDate = new Date(d.today + 'T12:00:00');
+      const dayNum = Math.round((todayDate - arrival) / (1000 * 60 * 60 * 24)) + 1;
+      document.getElementById('stayInfo').textContent = `Day ${dayNum} of ${d.booking.nights} · Check-out ${depFmt}`;
+      document.getElementById('checkoutDate').textContent = dep.toLocaleDateString('en-US', { month: 'long', day: 'numeric', timeZone: 'America/Chicago' });
+      if (d.isCheckoutEve) document.getElementById('checkoutEveAlert').style.display = 'block';
+
+      // Dynamic Destiny Blue QR — keyed to this specific guest
+      const bid = d.booking.ref || d.booking.id || '';
+      const fname = d.booking.guestFirstName || '';
+      const bookingUrl = `https://www.destincondogetaways.com/ai-concierge-574036277?fname=${encodeURIComponent(fname)}&bid=${bid}`;
+      QRCode.toCanvas(document.getElementById('destinyQR'), bookingUrl, {
+        width: 92, margin: 1, color: { dark: '#000000', light: '#ffffff' }
+      }, err => { if(err) console.error('QR error:', err); });
+    }
+
+    // Load AI recommendations — cache key includes booking ref to prevent bleed-through between guests
+    const bookingRef = d.booking?.ref || d.booking?.id || 'generic';
+    await loadRecommendations(name, d.weather, d.noaa, d.today, d.timeSlot, d.isCheckoutEve, d.booking, bookingRef);
 
   } catch (e) {
     console.error('loadLiveData error:', e);
@@ -363,9 +404,9 @@ async function loadLiveData() {
   }
 }
 
-// ── AI Recommendations (OpenAI, cached daily in localStorage) ─────
-async function loadRecommendations(guestName, weather, noaa, today, timeSlot, isCheckoutEve, booking) {
-  const cacheKey = `tv707_recs_${today}`;
+// ── AI Recommendations — cached by date + booking ref ─────────────
+async function loadRecommendations(guestName, weather, noaa, today, timeSlot, isCheckoutEve, booking, bookingRef) {
+  const cacheKey = `tv707_recs_${today}_${bookingRef}`;
   const cached = localStorage.getItem(cacheKey);
 
   let recs;
@@ -376,8 +417,8 @@ async function loadRecommendations(guestName, weather, noaa, today, timeSlot, is
   if (!recs) {
     recs = await fetchAIRecommendations(guestName, weather, noaa, today, isCheckoutEve, booking);
     if (recs) localStorage.setItem(cacheKey, JSON.stringify(recs));
-    // Clean up old cache keys
-    Object.keys(localStorage).filter(k => k.startsWith('tv707_recs_') && k !== cacheKey).forEach(k => localStorage.removeItem(k));
+    // Clean up all other cache keys — only keep current guest's cache
+    clearOldCache(cacheKey);
   }
 
   if (recs) {

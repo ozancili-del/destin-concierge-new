@@ -411,42 +411,33 @@ async function fetchAIRecommendations(guestName, weather, noaa, today, isCheckou
       ? `This is their LAST NIGHT — they check out tomorrow at 10 AM.`
       : `This is day ${dayNumber} of ${totalNights} — they are settled in and enjoying their stay.`;
 
-    const prompt = `You are Destiny Blue, the personal AI concierge for Destin Condo Getaways. You are warm, personal, and knowledgeable about Destin — like a local friend who manages the property.
-
-Guest: ${guestName}. Unit 707, 7th floor Gulf-front, Pelican Beach Resort, Destin FL.
-Today: ${dayOfWeek}. Weather: ${weatherDesc}. ${waterDesc}. Sunset tonight: ${sunsetTime}.
-${dayContext}
-${isRainy ? 'IMPORTANT: It is rainy/stormy today — recommend indoor activities and covered venues. No beach, parasailing, or outdoor water sports.' : ''}
-
-Write the messages as if Ozan (the owner) wrote them personally — warm, genuine, never robotic or generic. No filler phrases like "I hope you enjoy your stay." Be specific to Destin and the weather today.
-
-${isFirstDay ? `For day 1 messages: welcome them warmly, mention the view from the 7th floor balcony, and tell them to scan the TripShock QR on the TV to book activities, and the Destiny Blue QR to chat with their AI concierge for restaurant tips and local advice.` : ''}
-${isMiddleDay ? `For middle-day messages: casual daily note from Ozan, no "welcome" — they are already settled in. Reference the day, weather, and one specific thing worth doing today.` : ''}
-${isLastNight ? `For last night messages: heartfelt thank you, mention something they might want to do tonight before they leave, remind them checkout is 10 AM tomorrow.` : ''}
-
-Generate ONLY raw JSON, no markdown, no explanation:
-{
-  "welcomeMorning": "${isFirstDay ? 'Day 1 morning welcome — warm, personal, mention balcony view, orient them to TripShock QR for activities and Destiny Blue QR for local tips' : isLastNight ? 'Last morning — gentle reminder of checkout at 10 AM, wish them safe travels' : 'Day ' + dayNumber + ' morning note from Ozan — casual, weather-aware, one specific suggestion'}",
-  "welcomeAfternoon": "${isFirstDay ? 'Day 1 afternoon — they are settling in, suggest one perfect afternoon activity based on weather' : 'Afternoon note — conversational, weather-aware'}",
-  "welcomeEvening": "${isLastNight ? 'Last evening thank you — heartfelt, mention something worth doing tonight, checkout 10 AM tomorrow' : 'Evening note — mention sunset at ' + sunsetTime + ', suggest one evening activity'}",
-  "checkoutEveMsg": "Heartfelt thank you for ${guestName}'s stay, mention checkout at 10 AM tomorrow, hope to see them again",
-  "morning": {
-    "eat": [{"name": "restaurant name"}, {"name": "..."}, {"name": "..."}],
-    "do": [{"name": "activity name"}, {"name": "..."}, {"name": "..."}]
-  },
-  "afternoon": {
-    "eat": [{"name": "..."}, {"name": "..."}, {"name": "..."}],
-    "do": [{"name": "..."}, {"name": "..."}, {"name": "..."}]
-  },
-  "evening": {
-    "eat": [{"name": "..."}, {"name": "..."}, {"name": "..."}],
-    "tonight": [{"name": "..."}, {"name": "..."}, {"name": "..."}]
-  }
-}
-
-Use real Destin places. Morning eat: Crackings, Ruby Slipper Café, Another Broken Egg. Afternoon: AJ's Seafood & Oyster Bar, Dewey Destin's Seafood, Boshamps. Evening: The Back Porch, Louisiana Lagniappe, Mimmo's Ristorante.
-${isRainy ? 'Activities must be rain-friendly: museums, shopping at Destin Commons, Big Kahuna\'s water park (covered slides), escape rooms, bowling, HarborWalk Village covered dining.' : 'Activities should reflect today\'s weather and conditions.'}
-Evening tonight section: always include "Sunset from Balcony" with exact time ${sunsetTime} unless it is raining.`;
+    const prompt = [
+      'You are Destiny Blue, the personal AI concierge for Destin Condo Getaways. You write as Ozan, the owner — warm, genuine, personal. Never robotic or generic.',
+      '',
+      'Guest: ' + guestName + '. Unit 707, 7th floor Gulf-front, Pelican Beach Resort, Destin FL.',
+      'Today: ' + dayOfWeek + '. Weather: ' + weatherDesc + '. ' + waterDesc + '. Sunset tonight: ' + sunsetTime + '.',
+      dayContext,
+      isRainy ? 'IMPORTANT: Rainy today — all activity recommendations must be indoor or covered.' : '',
+      '',
+      isFirstDay ? ('DAY 1 RULES: Do NOT mention weather. Write a warm personal welcome from Ozan with these elements: (1) So happy to have ' + guestName + ' here (2) This TV page was created just for them — it shows daily recommendations and live beach conditions updating near real-time (3) Tell them to scan the TripShock QR on the left panel to book activities like dolphin cruises, fishing, Crab Island (4) Tell them to scan the Destiny Blue QR on the right to chat with their AI concierge for restaurant tips, local advice, anything about Destin (5) We are always here for them — enjoy every moment. Max 3-4 sentences. Natural and personal, not a bullet list.') : '',
+      isMiddleDay ? ('MIDDLE DAY RULES: No welcome. Casual daily note from Ozan — reference day ' + dayNumber + ' of ' + totalNights + ', today weather, one specific thing worth doing. Like a text from a local friend who lives in Destin.') : '',
+      isLastNight ? 'LAST NIGHT RULES: Heartfelt thank you. One thing worth doing tonight. Checkout is 10 AM tomorrow.' : '',
+      '',
+      'Generate ONLY raw JSON, no markdown, no explanation:',
+      '{',
+      '  "welcomeMorning": "morning version of the message for ' + guestName + '",',
+      '  "welcomeAfternoon": "afternoon version of the message for ' + guestName + '",',
+      '  "welcomeEvening": "evening version of the message for ' + guestName + '",',
+      '  "checkoutEveMsg": "heartfelt thank you, checkout 10 AM tomorrow, hope to see ' + guestName + ' again",',
+      '  "morning": {"eat": [{"name": "..."},{"name": "..."},{"name": "..."}],"do": [{"name": "..."},{"name": "..."},{"name": "..."}]},',
+      '  "afternoon": {"eat": [{"name": "..."},{"name": "..."},{"name": "..."}],"do": [{"name": "..."},{"name": "..."},{"name": "..."}]},',
+      '  "evening": {"eat": [{"name": "..."},{"name": "..."},{"name": "..."}],"tonight": [{"name": "..."},{"name": "..."},{"name": "..."}]}',
+      '}',
+      '',
+      'Real Destin places only. Morning eat: Crackings, Ruby Slipper Cafe, Another Broken Egg. Afternoon eat: AJs Seafood and Oyster Bar, Dewey Destins Seafood, Boshamps. Evening eat: The Back Porch, Louisiana Lagniappe, Mimmos Ristorante.',
+      isRainy ? 'Rain activities: Destin Commons shopping, HarborWalk covered dining, escape rooms, bowling.' : 'Activities match todays weather and conditions.',
+      'Evening tonight: always include Sunset from Balcony at ' + sunsetTime + ' unless raining.'
+    ].filter(Boolean).join('\n');
 
     const res = await fetch(`${BASE}/api/tv-recommendations`, {
       method: 'POST',

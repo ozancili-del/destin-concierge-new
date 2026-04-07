@@ -29,7 +29,7 @@ async function fetchCurrentBooking(propertyId) {
     // Get bookings that include today
     // Go back 6 months to ensure we catch all active bookings regardless of when they were updated
     const sinceUtcDate = new Date(); sinceUtcDate.setMonth(sinceUtcDate.getMonth() - 6); const sinceUtc = sinceUtcDate.toISOString();
-    const url = `https://api.ownerrez.com/v2/bookings?property_ids=${propertyId}&since_utc=${sinceUtc}&status=active`;
+    const url = `https://api.ownerrez.com/v2/bookings?property_ids=${propertyId}&since_utc=${sinceUtc}&status=active&include_guest=true`;
     const res = await fetch(url, {
       headers: { Authorization: `Basic ${credentials}`, Accept: "application/json" }
     });
@@ -46,8 +46,20 @@ async function fetchCurrentBooking(propertyId) {
       return arr < today && dep > today; // already checked in
     });
     if (!active) return null;
+    // Fetch full booking details to get guest name (list API doesn't include guest fields)
+    const bookingId = active.id;
+    let guestFirstName = "Guest";
+    try {
+      const fullRes = await fetch(`https://api.ownerrez.com/v2/bookings/${bookingId}`, {
+        headers: { Authorization: `Basic ${credentials}`, Accept: "application/json" }
+      });
+      if (fullRes.ok) {
+        const full = await fullRes.json();
+        guestFirstName = full.guest?.first_name || full.guest_first_name || full.first_name || "Guest";
+      }
+    } catch(e) { console.error("fetchFullBooking error:", e.message); }
     return {
-      guestFirstName: active.guest?.first_name || "Guest",
+      guestFirstName,
       arrival: active.arrival || active.check_in,
       departure: active.departure || active.check_out,
       nights: Math.ceil((new Date(active.departure) - new Date(active.arrival)) / (1000 * 60 * 60 * 24)),

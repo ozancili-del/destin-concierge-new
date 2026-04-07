@@ -1,0 +1,525 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Unit 707 — Destin Condo Getaways</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@200;300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#071321;
+  --panel:rgba(255,255,255,0.03);
+  --line:rgba(255,255,255,0.08);
+  --soft:rgba(255,255,255,0.55);
+  --faint:rgba(255,255,255,0.28);
+  --teal:#48cae4;
+  --green:#4ade80;
+  --gold:#f6c453;
+  --violet:#a78bfa;
+  --coral:#f87171;
+}
+html,body{
+  width:1920px;height:1080px;
+  background:radial-gradient(circle at 15% 20%,#103255 0%,var(--bg) 45%,#040a12 100%);
+  color:#fff;
+  font-family:'DM Sans',system-ui,sans-serif;
+  overflow:hidden;
+}
+.waves{position:absolute;inset:0;pointer-events:none;opacity:0.04;}
+.screen{
+  width:1920px;height:1080px;
+  padding:28px 40px 24px;
+  display:grid;
+  grid-template-rows:155px 1fr 96px;
+  gap:18px;
+  position:relative;
+}
+/* HEADER */
+.header{
+  display:grid;
+  grid-template-columns:1fr 400px;
+  gap:20px;
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:24px;
+  padding:0 36px;
+}
+.eyebrow{font-size:13px;letter-spacing:4px;text-transform:uppercase;color:var(--faint);margin-bottom:10px;}
+h1{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:300;line-height:1;letter-spacing:-1px;}
+h1 span{color:var(--teal);}
+.welcome-msg{font-family:'Cormorant Garamond',serif;font-size:19px;font-style:italic;color:var(--soft);margin-top:8px;line-height:1.5;max-width:900px;}
+.status{display:flex;flex-direction:column;justify-content:center;align-items:flex-end;text-align:right;gap:8px;}
+.brand{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;}
+.brand span{color:var(--teal);}
+.tagline{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;color:var(--faint);}
+.pill{display:inline-flex;align-items:center;gap:8px;background:rgba(72,202,228,0.1);border:1px solid rgba(72,202,228,0.2);border-radius:20px;padding:7px 16px;font-size:13px;color:var(--teal);}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--teal);animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.3;}}
+@keyframes pulse-live{0%,100%{box-shadow:0 0 6px var(--green);}50%{box-shadow:0 0 14px var(--green),0 0 24px rgba(74,222,128,0.4);}}
+.stay-info{font-size:12px;color:var(--faint);letter-spacing:0.5px;}
+/* MAIN */
+.main-grid{display:grid;grid-template-columns:420px 1fr 320px;gap:20px;}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:24px;padding:22px;display:flex;flex-direction:column;gap:12px;}
+.sec-label{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--faint);}
+/* BEACH CARD */
+.beach-card{background:linear-gradient(145deg,#0369a1 0%,#0284c7 100%);border:none;}
+.weather-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.metric{background:rgba(255,255,255,0.15);border-radius:14px;padding:14px 8px;text-align:center;}
+.metric .val{font-size:30px;font-weight:600;line-height:1;margin:4px 0;}
+.metric .lbl{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.75);}
+.flag-row{background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.3);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:8px;color:#86efac;font-size:13px;}
+.flag-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse-live 2.5s ease-in-out infinite;}
+.tide-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.tide-box{background:rgba(255,255,255,0.12);border-radius:10px;padding:10px;}
+.tide-box .k{font-size:10px;color:rgba(255,255,255,0.65);text-transform:uppercase;letter-spacing:1px;}
+.tide-box .v{font-size:14px;font-weight:600;margin-top:3px;}
+.tripshock-box{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:16px;padding:14px;display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:4px;}
+/* ITINERARY */
+.day-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;flex:1;}
+.moment{border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:0;border:1px solid var(--line);}
+.moment.morning{background:rgba(246,196,83,0.04);border-color:rgba(246,196,83,0.15);}
+.moment.afternoon{background:rgba(72,202,228,0.04);border-color:rgba(72,202,228,0.15);}
+.moment.evening{background:rgba(167,139,250,0.04);border-color:rgba(167,139,250,0.15);}
+.moment-head{display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.07);margin-bottom:10px;}
+.m-icon{font-size:24px;}
+.m-title{font-size:15px;font-weight:500;letter-spacing:1px;text-transform:uppercase;}
+.m-time{font-size:11px;color:var(--soft);}
+.split-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;margin-top:8px;}
+.moment.morning .split-label{color:var(--gold);}
+.moment.afternoon .split-label{color:var(--teal);}
+.moment.evening .split-label{color:var(--violet);}
+.rec-item{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;}
+.rec-name{font-size:16px;color:#fff;font-family:'Cormorant Garamond',serif;font-weight:400;}
+.rec-meta{font-size:11px;color:var(--faint);}
+.loading-recs{font-family:'Cormorant Garamond',serif;font-size:17px;font-style:italic;color:var(--faint);text-align:center;padding:20px 0;}
+/* ESSENTIALS */
+.essentials-card{justify-content:space-between;}
+.essential{border-radius:14px;padding:14px;}
+.essential.blue{background:rgba(72,202,228,0.08);border:1px solid rgba(72,202,228,0.2);}
+.essential.green{background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);}
+.essential.amber{background:rgba(246,196,83,0.08);border:1px solid rgba(246,196,83,0.2);}
+.e-label{font-size:10px;text-transform:uppercase;letter-spacing:3px;color:var(--soft);margin-bottom:6px;}
+.e-network{font-size:17px;font-weight:400;color:#fff;margin-bottom:3px;}
+.e-password{font-size:13px;color:var(--teal);}
+.e-checkout{font-size:26px;font-weight:300;color:#86efac;letter-spacing:1px;}
+.e-sub{font-size:11px;color:rgba(255,255,255,0.3);margin-top:4px;}
+.divider{height:1px;background:var(--line);margin:4px 0;}
+.qr-single{display:flex;flex-direction:column;align-items:center;gap:8px;background:rgba(255,255,255,0.03);border:1px solid var(--line);border-radius:16px;padding:14px;}
+.qr-img{width:100px;height:100px;background:#fff;border-radius:8px;padding:7px;display:flex;align-items:center;justify-content:center;}
+.qr-lbl{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:300;color:rgba(255,255,255,0.7);text-align:center;line-height:1.3;}
+.qr-sub{font-size:10px;color:var(--faint);text-align:center;letter-spacing:1px;}
+.host-row{display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px solid var(--line);}
+.host-label{font-size:10px;color:var(--faint);letter-spacing:1px;text-transform:uppercase;}
+.host-num{font-size:13px;color:var(--soft);}
+/* FOOTER */
+.footer{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;}
+.forecast{background:var(--panel);border:1px solid var(--line);border-radius:18px;display:flex;align-items:center;justify-content:center;gap:16px;padding:0 20px;}
+.forecast .wx{font-size:36px;line-height:1;}
+.f-day{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--faint);margin-bottom:3px;}
+.f-temp{font-size:24px;font-weight:500;line-height:1;margin-bottom:2px;}
+.f-low{font-size:11px;color:var(--faint);}
+.f-desc{font-size:12px;color:var(--soft);}
+/* checkout eve */
+.checkout-banner{background:linear-gradient(135deg,rgba(246,196,83,0.15),rgba(246,196,83,0.05));border:1px solid rgba(246,196,83,0.3);border-radius:16px;padding:16px 20px;text-align:center;}
+.checkout-banner p{font-family:'Cormorant Garamond',serif;font-size:20px;font-style:italic;color:var(--gold);line-height:1.5;}
+</style>
+</head>
+<body>
+<div class="screen">
+
+<svg class="waves" viewBox="0 0 1920 1080" preserveAspectRatio="none">
+  <path d="M0 280 Q480 220 960 280 Q1440 340 1920 280" stroke="white" stroke-width="2" fill="none"/>
+  <path d="M0 380 Q480 320 960 380 Q1440 440 1920 380" stroke="white" stroke-width="1" fill="none"/>
+</svg>
+
+<!-- HEADER -->
+<header class="header">
+  <div style="display:flex;flex-direction:column;justify-content:center;gap:6px;">
+    <div class="eyebrow">Pelican Beach Resort · Unit 707 · 7th Floor · Destin, Florida</div>
+    <h1>Welcome, <span id="guestName">...</span></h1>
+    <div class="welcome-msg" id="welcomeMsg">Loading your personalized welcome...</div>
+  </div>
+  <div class="status">
+    <div>
+      <div class="brand">Destiny <span>Blue</span></div>
+      <div class="tagline">Your personal AI concierge</div>
+    </div>
+    <div class="pill"><span class="dot"></span><span id="clockDisplay">—</span></div>
+    <div class="stay-info" id="stayInfo">Loading stay details...</div>
+  </div>
+</header>
+
+<!-- MAIN -->
+<div class="main-grid">
+
+  <!-- LEFT: Beach conditions -->
+  <div class="card beach-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div class="sec-label" style="color:rgba(255,255,255,0.75);">Live Gulf Conditions</div>
+      <div class="sec-label" id="noaaTime" style="color:#baf3ff;">—</div>
+    </div>
+    <div class="weather-metrics">
+      <div class="metric"><div class="val" id="waterTemp">—</div><div class="lbl">Water °F</div></div>
+      <div class="metric"><div class="val" id="airTemp">—</div><div class="lbl">Air °F</div></div>
+      <div class="metric"><div class="val" id="windSpeed">—</div><div class="lbl">Wind mph</div></div>
+    </div>
+    <div class="flag-row"><div class="flag-dot"></div>Always check beach flags at access points before entering the water</div>
+    <div class="tide-grid">
+      <div class="tide-box"><div class="k">Tide 1</div><div class="v" id="tide1">—</div></div>
+      <div class="tide-box"><div class="k">Tide 2</div><div class="v" id="tide2">—</div></div>
+      <div class="tide-box"><div class="k">Tide 3</div><div class="v" id="tide3">—</div></div>
+      <div class="tide-box"><div class="k">Sunset</div><div class="v" id="sunset">—</div></div>
+    </div>
+    <div class="tripshock-box">
+      <div style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.85);font-weight:500;">Book Activities & Tours</div>
+      <div style="background:#fff;border-radius:10px;padding:7px;width:100px;height:100px;display:flex;align-items:center;justify-content:center;">
+        <!-- TripShock QR placeholder -->
+        <svg width="86" height="86" viewBox="0 0 56 56">
+          <rect x="2" y="2" width="16" height="16" rx="2" fill="none" stroke="#000" stroke-width="2"/><rect x="5" y="5" width="10" height="10" fill="#000" rx="1"/>
+          <rect x="38" y="2" width="16" height="16" rx="2" fill="none" stroke="#000" stroke-width="2"/><rect x="41" y="5" width="10" height="10" fill="#000" rx="1"/>
+          <rect x="2" y="38" width="16" height="16" rx="2" fill="none" stroke="#000" stroke-width="2"/><rect x="5" y="41" width="10" height="10" fill="#000" rx="1"/>
+          <rect x="22" y="2" width="4" height="4" fill="#000"/><rect x="28" y="2" width="4" height="4" fill="#000"/>
+          <rect x="22" y="8" width="4" height="4" fill="#000"/><rect x="32" y="8" width="4" height="4" fill="#000"/>
+          <rect x="26" y="14" width="4" height="4" fill="#000"/>
+          <rect x="2" y="22" width="52" height="4" fill="#000"/>
+          <rect x="22" y="28" width="4" height="4" fill="#000"/><rect x="30" y="28" width="4" height="4" fill="#000"/>
+          <rect x="38" y="28" width="4" height="4" fill="#000"/><rect x="46" y="28" width="4" height="4" fill="#000"/>
+          <rect x="26" y="34" width="4" height="4" fill="#000"/><rect x="34" y="34" width="4" height="4" fill="#000"/>
+          <rect x="22" y="40" width="4" height="4" fill="#000"/><rect x="34" y="40" width="4" height="4" fill="#000"/>
+          <rect x="46" y="40" width="4" height="4" fill="#000"/><rect x="26" y="46" width="4" height="4" fill="#000"/>
+          <rect x="38" y="46" width="4" height="4" fill="#000"/><rect x="50" y="46" width="4" height="4" fill="#000"/>
+        </svg>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:20px;color:#fff;">TripShock Destin</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:3px;">Dolphin cruises · Crab Island · Fishing · Water sports</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CENTER: AI Recommendations -->
+  <div class="card" style="gap:14px;" id="recsCard">
+    <div class="sec-label" id="recsLabel">Your day · loading...</div>
+    <div class="day-grid" id="recsGrid">
+      <div class="moment morning"><div class="loading-recs">Loading morning recommendations...</div></div>
+      <div class="moment afternoon"><div class="loading-recs">Loading afternoon recommendations...</div></div>
+      <div class="moment evening"><div class="loading-recs">Loading evening recommendations...</div></div>
+    </div>
+    <div id="checkoutBanner" style="display:none;" class="checkout-banner">
+      <p id="checkoutMsg"></p>
+    </div>
+  </div>
+
+  <!-- RIGHT: Essentials -->
+  <div class="card essentials-card">
+    <div class="sec-label">Unit Essentials</div>
+    <div class="essential blue">
+      <div class="e-label">📶 Wi-Fi</div>
+      <div class="e-network">PelicanBeach_5G</div>
+      <div class="e-password">Beach2024!</div>
+    </div>
+    <div class="essential green">
+      <div class="e-label">🕐 Check-out</div>
+      <div class="e-checkout" id="checkoutDate">—</div>
+      <div class="e-sub">10:00 AM · Door locks automatically</div>
+    </div>
+    <div class="essential amber" style="display:none;" id="checkoutEveAlert">
+      <div class="e-label">⚡ Tomorrow</div>
+      <div class="e-network" style="font-size:14px;color:#fde68a;">Check-out at 10 AM · Make sure the door is locked behind you</div>
+    </div>
+    <div class="divider"></div>
+    <div class="qr-single">
+      <div class="qr-img">
+        <!-- Destiny Blue QR placeholder - replace with real QR -->
+        <svg viewBox="0 0 56 56">
+          <rect x="2" y="2" width="16" height="16" rx="2" fill="none" stroke="#000" stroke-width="2"/><rect x="5" y="5" width="10" height="10" fill="#000" rx="1"/>
+          <rect x="38" y="2" width="16" height="16" rx="2" fill="none" stroke="#000" stroke-width="2"/><rect x="41" y="5" width="10" height="10" fill="#000" rx="1"/>
+          <rect x="2" y="38" width="16" height="16" rx="2" fill="none" stroke="#000" stroke-width="2"/><rect x="5" y="41" width="10" height="10" fill="#000" rx="1"/>
+          <rect x="22" y="2" width="4" height="4" fill="#000"/><rect x="28" y="2" width="4" height="4" fill="#000"/>
+          <rect x="22" y="8" width="4" height="4" fill="#000"/><rect x="28" y="8" width="4" height="4" fill="#000"/>
+          <rect x="22" y="14" width="4" height="4" fill="#000"/>
+          <rect x="2" y="22" width="4" height="4" fill="#000"/><rect x="8" y="22" width="4" height="4" fill="#000"/>
+          <rect x="14" y="22" width="4" height="4" fill="#000"/><rect x="22" y="22" width="4" height="4" fill="#000"/>
+          <rect x="28" y="22" width="4" height="4" fill="#000"/><rect x="34" y="22" width="4" height="4" fill="#000"/>
+          <rect x="40" y="22" width="4" height="4" fill="#000"/><rect x="46" y="22" width="4" height="4" fill="#000"/>
+          <rect x="22" y="28" width="4" height="4" fill="#000"/><rect x="34" y="28" width="4" height="4" fill="#000"/>
+          <rect x="46" y="28" width="4" height="4" fill="#000"/><rect x="28" y="34" width="4" height="4" fill="#000"/>
+          <rect x="40" y="34" width="4" height="4" fill="#000"/><rect x="22" y="40" width="4" height="4" fill="#000"/>
+          <rect x="34" y="40" width="4" height="4" fill="#000"/><rect x="46" y="40" width="4" height="4" fill="#000"/>
+          <rect x="22" y="46" width="4" height="4" fill="#000"/><rect x="28" y="46" width="4" height="4" fill="#000"/>
+          <rect x="40" y="46" width="4" height="4" fill="#000"/>
+        </svg>
+      </div>
+      <div class="qr-lbl">Chat with Destiny Blue</div>
+      <div class="qr-sub">Restaurants · Activities · Beach · Help</div>
+    </div>
+    <div class="host-row">
+      <div>
+        <div class="host-label">Need anything?</div>
+        <div class="host-num">Ozan · (972) 357-4262</div>
+      </div>
+      <div style="font-size:11px;color:var(--teal);letter-spacing:1px;">destincondogetaways.com</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER: 5-day forecast -->
+<div class="footer" id="forecastFooter">
+  <div class="forecast"><div class="wx">—</div><div><div class="f-day">—</div><div class="f-temp">—</div><div class="f-low">—</div><div class="f-desc">Loading...</div></div></div>
+  <div class="forecast"><div class="wx">—</div><div><div class="f-day">—</div><div class="f-temp">—</div><div class="f-low">—</div><div class="f-desc">—</div></div></div>
+  <div class="forecast"><div class="wx">—</div><div><div class="f-day">—</div><div class="f-temp">—</div><div class="f-low">—</div><div class="f-desc">—</div></div></div>
+  <div class="forecast"><div class="wx">—</div><div><div class="f-day">—</div><div class="f-temp">—</div><div class="f-low">—</div><div class="f-desc">—</div></div></div>
+  <div class="forecast"><div class="wx">—</div><div><div class="f-day">—</div><div class="f-temp">—</div><div class="f-low">—</div><div class="f-desc">—</div></div></div>
+</div>
+
+</div>
+
+<script>
+const BASE = 'https://destin-concierge-new.vercel.app';
+const UNIT = '707';
+const OPENAI_KEY = ''; // Leave blank — recommendations fetched via /api/tv-recommendations
+
+// ── Clock ─────────────────────────────────────────────────────────
+function updateClock() {
+  const now = new Date();
+  const opts = { timeZone: 'America/Chicago', weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true };
+  document.getElementById('clockDisplay').textContent = now.toLocaleString('en-US', opts);
+}
+updateClock();
+setInterval(updateClock, 30000);
+
+// ── Condition icons ────────────────────────────────────────────────
+function wxIcon(condition) {
+  const c = (condition || '').toUpperCase();
+  if (c.includes('THUNDER') || c.includes('STORM')) return '⛈️';
+  if (c.includes('RAIN') || c.includes('DRIZZLE')) return '🌧️';
+  if (c.includes('PARTLY') || c.includes('MOSTLY_CLOUDY')) return '⛅';
+  if (c.includes('CLOUDY') || c.includes('OVERCAST')) return '☁️';
+  if (c.includes('FOG')) return '🌫️';
+  if (c.includes('WIND')) return '💨';
+  return '☀️';
+}
+
+function dayLabel(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  return d.toLocaleDateString('en-US', { weekday: 'short', timeZone: 'America/Chicago' }).toUpperCase();
+}
+
+// ── Load live data from /api/tv-data ──────────────────────────────
+async function loadLiveData() {
+  try {
+    const res = await fetch(`${BASE}/api/tv-data?unit=${UNIT}`);
+    if (!res.ok) throw new Error('tv-data failed');
+    const d = await res.json();
+
+    // Guest name
+    const name = d.booking?.guestFirstName || 'Guest';
+    document.getElementById('guestName').textContent = name;
+
+    // Stay info
+    if (d.booking) {
+      const dep = new Date(d.booking.departure + 'T12:00:00');
+      const depFmt = dep.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'America/Chicago' });
+      document.getElementById('stayInfo').textContent = `Check-out ${depFmt}`;
+      document.getElementById('checkoutDate').textContent = dep.toLocaleDateString('en-US', { month: 'long', day: 'numeric', timeZone: 'America/Chicago' });
+
+      // Checkout eve
+      if (d.isCheckoutEve) {
+        document.getElementById('checkoutEveAlert').style.display = 'block';
+      }
+    }
+
+    // NOAA
+    if (d.noaa) {
+      document.getElementById('waterTemp').textContent = d.noaa.waterTemp ? d.noaa.waterTemp + '°' : '—';
+      document.getElementById('windSpeed').textContent = d.noaa.wind ? d.noaa.wind.speed + ' ' + d.noaa.wind.dir : '—';
+      document.getElementById('sunset').textContent = d.noaa.sunset || '—';
+      document.getElementById('noaaTime').textContent = 'Live · NOAA';
+
+      const tides = d.noaa.tides || [];
+      ['tide1', 'tide2', 'tide3'].forEach((id, i) => {
+        if (tides[i]) {
+          const t = tides[i];
+          const time = new Date(t.time).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/Chicago' });
+          document.getElementById(id).textContent = `${t.type} ${time}`;
+          document.getElementById(id).previousElementSibling.textContent = `Tide ${i + 1}`;
+        }
+      });
+    }
+
+    // Weather - air temp today
+    if (d.weather && d.weather[0]) {
+      document.getElementById('airTemp').textContent = d.weather[0].high + '°';
+    }
+
+    // Forecast footer
+    if (d.weather) {
+      const cards = document.getElementById('forecastFooter').children;
+      d.weather.slice(0, 5).forEach((day, i) => {
+        if (cards[i]) {
+          cards[i].innerHTML = `
+            <div class="wx">${wxIcon(day.condition)}</div>
+            <div>
+              <div class="f-day">${dayLabel(day.date)}</div>
+              <div class="f-temp">${day.high}°F</div>
+              <div class="f-low">Low ${day.low}°F</div>
+              <div class="f-desc" style="color:var(--teal);">${day.desc}</div>
+            </div>`;
+        }
+      });
+    }
+
+    // Load AI recommendations (cached daily)
+    await loadRecommendations(name, d.weather, d.noaa, d.today, d.timeSlot, d.isCheckoutEve, d.booking);
+
+  } catch (e) {
+    console.error('loadLiveData error:', e);
+    document.getElementById('guestName').textContent = 'Guest';
+    document.getElementById('welcomeMsg').textContent = 'Welcome to Unit 707 at Pelican Beach Resort. We hope you enjoy your stay!';
+  }
+}
+
+// ── AI Recommendations (OpenAI, cached daily in localStorage) ─────
+async function loadRecommendations(guestName, weather, noaa, today, timeSlot, isCheckoutEve, booking) {
+  const cacheKey = `tv707_recs_${today}`;
+  const cached = localStorage.getItem(cacheKey);
+
+  let recs;
+  if (cached) {
+    try { recs = JSON.parse(cached); } catch(e) { recs = null; }
+  }
+
+  if (!recs) {
+    recs = await fetchAIRecommendations(guestName, weather, noaa, today, isCheckoutEve, booking);
+    if (recs) localStorage.setItem(cacheKey, JSON.stringify(recs));
+    // Clean up old cache keys
+    Object.keys(localStorage).filter(k => k.startsWith('tv707_recs_') && k !== cacheKey).forEach(k => localStorage.removeItem(k));
+  }
+
+  if (recs) {
+    renderRecommendations(recs, timeSlot, isCheckoutEve, guestName, today);
+  }
+}
+
+async function fetchAIRecommendations(guestName, weather, noaa, today, isCheckoutEve, booking) {
+  try {
+    const dayOfWeek = new Date(today + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', timeZone: 'America/Chicago' });
+    const weatherDesc = weather?.[0] ? `${weather[0].high}°F high, ${weather[0].desc}` : 'warm and sunny';
+    const waterDesc = noaa?.waterTemp ? `Gulf water ${noaa.waterTemp}°F` : '';
+    const sunsetTime = noaa?.sunset || 'around 8pm';
+
+    const prompt = `You are Destiny Blue, AI concierge for Destin Condo Getaways at Pelican Beach Resort Unit 707, 7th floor, Gulf-front.
+
+Today is ${dayOfWeek}. Weather: ${weatherDesc}. ${waterDesc}. Sunset: ${sunsetTime}.
+${isCheckoutEve ? `IMPORTANT: Tonight is the guest's last night. They check out tomorrow at 10 AM.` : ''}
+
+Generate a JSON response with this EXACT structure - no markdown, no explanation, just raw JSON:
+{
+  "welcomeMorning": "A warm 1-sentence personalized morning welcome for ${guestName} mentioning the weather and one specific thing to do",
+  "welcomeAfternoon": "A warm 1-sentence afternoon welcome for ${guestName} mentioning conditions and an afternoon suggestion",
+  "welcomeEvening": "A warm 1-sentence evening welcome for ${guestName} mentioning sunset and an evening suggestion",
+  "checkoutEveMsg": "A warm thank you message for ${guestName}'s last evening, mention checkout at 10am tomorrow, no mention of keys",
+  "morning": {
+    "eat": [{"name": "restaurant name", "meta": "distance · price range"}, {"name": "...", "meta": "..."}, {"name": "...", "meta": "..."}],
+    "do": [{"name": "activity name", "meta": "detail"}, {"name": "...", "meta": "..."}, {"name": "...", "meta": "..."}]
+  },
+  "afternoon": {
+    "eat": [{"name": "...", "meta": "..."}, {"name": "...", "meta": "..."}, {"name": "...", "meta": "..."}],
+    "do": [{"name": "...", "meta": "..."}, {"name": "...", "meta": "..."}, {"name": "...", "meta": "..."}]
+  },
+  "evening": {
+    "eat": [{"name": "...", "meta": "..."}, {"name": "...", "meta": "..."}, {"name": "...", "meta": "..."}],
+    "tonight": [{"name": "...", "meta": "..."}, {"name": "...", "meta": "..."}, {"name": "...", "meta": "..."}]
+  }
+}
+
+Use real Destin restaurants and activities. Morning eat: Crackings, Ruby Slipper, Another Broken Egg are good options. Afternoon: AJ's Seafood, Dewey Destin's, Boshamps. Evening: The Back Porch, Louisiana Lagniappe, Mimmo's. Activities should reflect today's weather and conditions. Evening tonight section: always include sunset from balcony with exact time ${sunsetTime}.`;
+
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    const data = await res.json();
+    const text = data.content?.[0]?.text || '';
+    const clean = text.replace(/```json|```/g, '').trim();
+    return JSON.parse(clean);
+  } catch (e) {
+    console.error('fetchAIRecommendations error:', e);
+    return null;
+  }
+}
+
+function renderRecommendations(recs, timeSlot, isCheckoutEve, guestName, today) {
+  // Welcome message based on time slot
+  const welcomeMap = { morning: recs.welcomeMorning, afternoon: recs.welcomeAfternoon, evening: recs.welcomeEvening };
+  const msg = isCheckoutEve ? recs.checkoutEveMsg : (welcomeMap[timeSlot] || recs.welcomeMorning);
+  document.getElementById('welcomeMsg').textContent = msg || '';
+
+  // Checkout eve banner
+  if (isCheckoutEve) {
+    document.getElementById('checkoutBanner').style.display = 'block';
+    document.getElementById('checkoutMsg').textContent = recs.checkoutEveMsg || '';
+  }
+
+  // Day label
+  const dayLabel = new Date(today + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'America/Chicago' });
+  document.getElementById('recsLabel').textContent = `Your day · ${dayLabel}`;
+
+  function buildItems(items) {
+    return (items || []).map(item => `
+      <div class="rec-item">
+        <span class="rec-name">${item.name}</span>
+        <span class="rec-meta">${item.meta}</span>
+      </div>`).join('');
+  }
+
+  const grid = document.getElementById('recsGrid');
+  grid.innerHTML = `
+    <div class="moment morning">
+      <div class="moment-head"><div class="m-icon">🌅</div><div><div class="m-title">Morning</div><div class="m-time">Until noon</div></div></div>
+      <div class="split-label">Eat</div>${buildItems(recs.morning?.eat)}
+      <div class="split-label">Do</div>${buildItems(recs.morning?.do)}
+    </div>
+    <div class="moment afternoon">
+      <div class="moment-head"><div class="m-icon">☀️</div><div><div class="m-title">Afternoon</div><div class="m-time">Noon – 5 PM</div></div></div>
+      <div class="split-label">Eat</div>${buildItems(recs.afternoon?.eat)}
+      <div class="split-label">Do</div>${buildItems(recs.afternoon?.do)}
+    </div>
+    <div class="moment evening">
+      <div class="moment-head"><div class="m-icon">🌇</div><div><div class="m-title">Evening</div><div class="m-time">5 PM onwards</div></div></div>
+      <div class="split-label">Eat</div>${buildItems(recs.evening?.eat)}
+      <div class="split-label">Tonight</div>${buildItems(recs.evening?.tonight)}
+    </div>`;
+}
+
+// ── Refresh schedule ───────────────────────────────────────────────
+// Live data: every 30 min
+// Recommendations: cached daily, checked on each load
+loadLiveData();
+setInterval(loadLiveData, 30 * 60 * 1000);
+
+// Re-check time slot every 30 min to switch welcome message
+setInterval(() => {
+  const cached = localStorage.getItem(`tv707_recs_${new Date().toLocaleDateString('en-CA', { timeZone: 'America/Chicago' })}`);
+  if (cached) {
+    try {
+      const recs = JSON.parse(cached);
+      const hour = parseInt(new Date().toLocaleString('en-US', { timeZone: 'America/Chicago', hour: 'numeric', hour12: false }));
+      const slot = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening';
+      const map = { morning: recs.welcomeMorning, afternoon: recs.welcomeAfternoon, evening: recs.welcomeEvening };
+      document.getElementById('welcomeMsg').textContent = map[slot] || '';
+    } catch(e) {}
+  }
+}, 30 * 60 * 1000);
+</script>
+</body>
+</html>

@@ -50,7 +50,7 @@ html,body{
 .eyebrow{font-size:14px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.7);margin-bottom:10px;}
 h1{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:300;line-height:1;letter-spacing:-1px;}
 h1 span{color:var(--teal);}
-.welcome-msg{font-family:'Cormorant Garamond',serif;font-size:19px;font-style:italic;color:var(--soft);margin-top:8px;line-height:1.5;max-width:900px;}
+.welcome-msg{font-family:'Cormorant Garamond',serif;font-size:17px;font-style:italic;color:var(--soft);margin-top:6px;line-height:1.4;max-width:900px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;}
 .status{display:flex;flex-direction:column;justify-content:center;align-items:flex-end;text-align:right;gap:8px;}
 .brand{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;}
 .brand span{color:var(--teal);}
@@ -419,7 +419,7 @@ async function fetchAIRecommendations(guestName, weather, noaa, today, isCheckou
       dayContext,
       isRainy ? 'IMPORTANT: Rainy today — all activity recommendations must be indoor or covered.' : '',
       '',
-      isFirstDay ? ('DAY 1 RULES: Do NOT mention weather. Write a warm personal welcome from Ozan with these elements: (1) So happy to have ' + guestName + ' here (2) This TV page was created just for them — it shows daily recommendations and live beach conditions updating near real-time (3) Tell them to scan the TripShock QR on the left panel to book activities like dolphin cruises, fishing, Crab Island (4) Tell them to scan the Destiny Blue QR on the right to chat with their AI concierge for restaurant tips, local advice, anything about Destin (5) We are always here for them — enjoy every moment. Max 3-4 sentences. Natural and personal, not a bullet list.') : '',
+      isFirstDay ? ('DAY 1 RULES: Do NOT mention weather. Write a warm personal welcome from Ozan — max 2 sentences. Cover: (1) So happy to have ' + guestName + ' here, this TV page shows daily recommendations and live beach conditions (2) Scan TripShock QR on the left for activities like dolphin cruises and Crab Island, scan Destiny Blue QR on the right for restaurant tips and local advice. Natural and personal.') : '',
       isMiddleDay ? ('MIDDLE DAY RULES: No welcome. Casual daily note from Ozan — reference day ' + dayNumber + ' of ' + totalNights + ', today weather, one specific thing worth doing. Like a text from a local friend who lives in Destin.') : '',
       isLastNight ? 'LAST NIGHT RULES: Heartfelt thank you. One thing worth doing tonight. Checkout is 10 AM tomorrow.' : '',
       '',

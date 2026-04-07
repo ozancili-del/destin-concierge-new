@@ -6,6 +6,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Unit 707 — Destin Condo Getaways</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@200;300;400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 :root{
@@ -235,29 +236,11 @@ h1 span{color:var(--teal);}
     </div>
     <div class="divider"></div>
     <div class="qr-single">
-      <div class="qr-img">
-        <!-- Destiny Blue QR placeholder - replace with real QR -->
-        <svg viewBox="0 0 56 56">
-          <rect x="2" y="2" width="16" height="16" rx="2" fill="none" stroke="#000" stroke-width="2"/><rect x="5" y="5" width="10" height="10" fill="#000" rx="1"/>
-          <rect x="38" y="2" width="16" height="16" rx="2" fill="none" stroke="#000" stroke-width="2"/><rect x="41" y="5" width="10" height="10" fill="#000" rx="1"/>
-          <rect x="2" y="38" width="16" height="16" rx="2" fill="none" stroke="#000" stroke-width="2"/><rect x="5" y="41" width="10" height="10" fill="#000" rx="1"/>
-          <rect x="22" y="2" width="4" height="4" fill="#000"/><rect x="28" y="2" width="4" height="4" fill="#000"/>
-          <rect x="22" y="8" width="4" height="4" fill="#000"/><rect x="28" y="8" width="4" height="4" fill="#000"/>
-          <rect x="22" y="14" width="4" height="4" fill="#000"/>
-          <rect x="2" y="22" width="4" height="4" fill="#000"/><rect x="8" y="22" width="4" height="4" fill="#000"/>
-          <rect x="14" y="22" width="4" height="4" fill="#000"/><rect x="22" y="22" width="4" height="4" fill="#000"/>
-          <rect x="28" y="22" width="4" height="4" fill="#000"/><rect x="34" y="22" width="4" height="4" fill="#000"/>
-          <rect x="40" y="22" width="4" height="4" fill="#000"/><rect x="46" y="22" width="4" height="4" fill="#000"/>
-          <rect x="22" y="28" width="4" height="4" fill="#000"/><rect x="34" y="28" width="4" height="4" fill="#000"/>
-          <rect x="46" y="28" width="4" height="4" fill="#000"/><rect x="28" y="34" width="4" height="4" fill="#000"/>
-          <rect x="40" y="34" width="4" height="4" fill="#000"/><rect x="22" y="40" width="4" height="4" fill="#000"/>
-          <rect x="34" y="40" width="4" height="4" fill="#000"/><rect x="46" y="40" width="4" height="4" fill="#000"/>
-          <rect x="22" y="46" width="4" height="4" fill="#000"/><rect x="28" y="46" width="4" height="4" fill="#000"/>
-          <rect x="40" y="46" width="4" height="4" fill="#000"/>
-        </svg>
+      <div class="qr-img" style="padding:4px;">
+        <canvas id="destinyQR" width="92" height="92"></canvas>
       </div>
       <div class="qr-lbl">Chat with Destiny Blue</div>
-      <div class="qr-sub">Restaurants · Activities · Beach · Help</div>
+      <div class="qr-sub">Scan · She already knows who you are</div>
     </div>
     <div class="host-row">
       <div>
@@ -336,7 +319,18 @@ async function loadLiveData() {
       }
     }
 
-    // NOAA and weather now handled by fetchBeachConditions() directly
+    // Generate dynamic Destiny Blue QR with booking ID
+    if (d.booking) {
+      const bid = d.booking.ref || d.booking.id || '';
+      const bookingUrl = `https://destin-concierge-new.vercel.app/concierge?guestBid=${bid}`;
+      QRCode.toCanvas(document.getElementById('destinyQR'), bookingUrl, {
+        width: 92, margin: 1, color: { dark: '#000000', light: '#ffffff' }
+      }, err => { if(err) console.error('QR error:', err); });
+    } else {
+      QRCode.toCanvas(document.getElementById('destinyQR'), 'https://destin-concierge-new.vercel.app/concierge', {
+        width: 92, margin: 1, color: { dark: '#000000', light: '#ffffff' }
+      }, err => { if(err) console.error('QR error:', err); });
+    }
 
     // Forecast footer
     if (d.weather) {

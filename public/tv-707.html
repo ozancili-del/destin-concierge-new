@@ -152,12 +152,14 @@ h1 span{color:var(--teal);}
     <div class="welcome-msg" id="welcomeMsg">Loading your personalized welcome...</div>
   </div>
   <div class="status">
-    <div>
-      <div class="brand">Destiny <span>Blue</span></div>
-      <div class="tagline">Your personal AI concierge</div>
+    <div style="display:flex;align-items:center;gap:16px;">
+      <img src="https://uc.orez.io/f/006fdc883e3f47debca4cefddbdfd9ef" style="width:110px;height:130px;border-radius:14px;object-fit:cover;object-position:center top;border:2px solid rgba(72,202,228,0.5);flex-shrink:0;" alt="Destiny Blue"/>
+      <div>
+        <div class="brand">Destiny <span>Blue</span></div>
+        <div class="tagline">Your personal AI concierge</div>
+      </div>
     </div>
     <div class="pill"><span class="dot"></span><span id="clockDisplay">—</span></div>
-    <div class="stay-info" id="stayInfo">Loading stay details...</div>
   </div>
 </header>
 
@@ -328,7 +330,6 @@ function showGoodbyeScreen(name) {
   resetScreenElements();
   document.getElementById('guestName').textContent = name;
   document.getElementById('welcomeMsg').textContent = `Safe travels, ${name}! We hope this stay was everything you dreamed of. Check-out is 10 AM — door locks automatically behind you. We'd love to have you back! 🌊`;
-  document.getElementById('stayInfo').textContent = 'Check-out Day · Thank you for staying with us';
   document.getElementById('recsCard').style.display = 'none';
   document.getElementById('checkoutDate').textContent = 'Today';
   // Hide Destiny Blue QR on goodbye screen — guest is leaving
@@ -342,7 +343,6 @@ function showGenericScreen() {
   resetScreenElements();
   document.getElementById('guestName').textContent = 'Unit 707';
   document.getElementById('welcomeMsg').textContent = 'Welcome to Pelican Beach Resort. Check-in begins at 4 PM. WiFi details are in the panel below.';
-  document.getElementById('stayInfo').textContent = 'Pelican Beach Resort · 7th Floor · Destin, Florida';
   document.getElementById('recsCard').style.display = 'none';
   // Hide Destiny Blue QR — no guest booking
   const qrSingle = document.querySelector('.qr-single');
@@ -405,7 +405,6 @@ async function loadLiveData() {
       const arrival = new Date(d.booking.arrival + 'T12:00:00');
       const todayDate = new Date(d.today + 'T12:00:00');
       const dayNum = Math.round((todayDate - arrival) / (1000 * 60 * 60 * 24)) + 1;
-      document.getElementById('stayInfo').textContent = `Day ${dayNum} of ${d.booking.nights} · Check-out ${depFmt}`;
       document.getElementById('checkoutDate').textContent = dep.toLocaleDateString('en-US', { month: 'long', day: 'numeric', timeZone: 'America/Chicago' });
       if (d.isCheckoutEve) document.getElementById('checkoutEveAlert').style.display = 'block';
 

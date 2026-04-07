@@ -59,6 +59,8 @@ async function fetchCurrentBooking(propertyId) {
       }
     } catch(e) { console.error("fetchFullBooking error:", e.message); }
     return {
+      id: active.id || null,
+      ref: active.booking_number || active.reference || active.id || null,
       guestFirstName,
       arrival: active.arrival || active.check_in,
       departure: active.departure || active.check_out,

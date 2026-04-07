@@ -307,7 +307,25 @@ function clearOldCache(currentKey) {
     .forEach(k => localStorage.removeItem(k));
 }
 
-function showGoodbyeScreen(name, weather, noaa) {
+function resetScreenElements() {
+  // Ensure all elements are visible and reset before applying a new state
+  document.getElementById('recsCard').style.display = '';
+  document.getElementById('checkoutEveAlert').style.display = 'none';
+  document.getElementById('checkoutBanner').style.display = 'none';
+  const qrSingle = document.querySelector('.qr-single');
+  if (qrSingle) qrSingle.style.display = '';
+  // Restore checkout card labels to default — may have been changed by generic screen
+  const checkoutDate = document.getElementById('checkoutDate');
+  if (checkoutDate) {
+    const labelEl = checkoutDate.previousElementSibling;
+    const subEl = checkoutDate.nextElementSibling;
+    if (labelEl) labelEl.textContent = '🕐 Check-out';
+    if (subEl) subEl.textContent = '10:00 AM · Door locks automatically';
+  }
+}
+
+function showGoodbyeScreen(name) {
+  resetScreenElements();
   document.getElementById('guestName').textContent = name;
   document.getElementById('welcomeMsg').textContent = `Safe travels, ${name}! We hope this stay was everything you dreamed of. Check-out is 10 AM — door locks automatically behind you. We'd love to have you back! 🌊`;
   document.getElementById('stayInfo').textContent = 'Check-out Day · Thank you for staying with us';
@@ -321,17 +339,23 @@ function showGoodbyeScreen(name, weather, noaa) {
 }
 
 function showGenericScreen() {
+  resetScreenElements();
   document.getElementById('guestName').textContent = 'Unit 707';
-  document.getElementById('welcomeMsg').textContent = 'Welcome to Pelican Beach Resort. Check-in begins at 4 PM. WiFi details are in the essentials panel.';
+  document.getElementById('welcomeMsg').textContent = 'Welcome to Pelican Beach Resort. Check-in begins at 4 PM. WiFi details are in the panel below.';
   document.getElementById('stayInfo').textContent = 'Pelican Beach Resort · 7th Floor · Destin, Florida';
   document.getElementById('recsCard').style.display = 'none';
   // Hide Destiny Blue QR — no guest booking
   const qrSingle = document.querySelector('.qr-single');
   if (qrSingle) qrSingle.style.display = 'none';
+  // Fix checkout card to show check-in time — target by ID not class selector
   document.getElementById('checkoutDate').textContent = '4:00 PM';
-  document.querySelector('.e-label') && (document.querySelector('.e-label').textContent === '🕐 Check-out'
-    ? document.querySelector('.e-label').closest('.essential').querySelector('.e-sub').textContent = 'Check-in begins at 4 PM'
-    : null);
+  const checkoutEl = document.getElementById('checkoutDate');
+  if (checkoutEl) {
+    const subEl = checkoutEl.nextElementSibling;
+    if (subEl) subEl.textContent = 'Check-in begins at 4 PM';
+    const labelEl = checkoutEl.previousElementSibling;
+    if (labelEl) labelEl.textContent = '🕐 Check-in';
+  }
 }
 
 // ── Load live data from /api/tv-data ──────────────────────────────
@@ -360,7 +384,7 @@ async function loadLiveData() {
 
     // ── STATE B: Checkout morning ────────────────────────────────
     if (d.isCheckoutMorning) {
-      showGoodbyeScreen(d.booking?.guestFirstName || 'Guest', d.weather, d.noaa);
+      showGoodbyeScreen(d.booking?.guestFirstName || 'Guest');
       return;
     }
 
@@ -371,6 +395,7 @@ async function loadLiveData() {
     }
 
     // ── STATE A/D: Active stay or new guest from noon ────────────
+    resetScreenElements(); // ensure nothing is stuck hidden from a prior state
     const name = d.booking?.guestFirstName || 'Guest';
     document.getElementById('guestName').textContent = name;
 
@@ -632,24 +657,9 @@ async function fetchBeachConditions() {
 fetchBeachConditions();
 setInterval(fetchBeachConditions, 6*60*1000);
 setInterval(()=>{if(bcCachedTides.length)bcUpdateActivities(bcCachedTides);},60*1000);
-// Live data: every 30 min
-// Recommendations: cached daily, checked on each load
+// loadLiveData runs every 30 min and handles all state transitions + time slot switching
 loadLiveData();
 setInterval(loadLiveData, 30 * 60 * 1000);
-
-// Re-check time slot every 30 min to switch welcome message
-setInterval(() => {
-  const cached = localStorage.getItem(`tv707_recs_${new Date().toLocaleDateString('en-CA', { timeZone: 'America/Chicago' })}`);
-  if (cached) {
-    try {
-      const recs = JSON.parse(cached);
-      const hour = parseInt(new Date().toLocaleString('en-US', { timeZone: 'America/Chicago', hour: 'numeric', hour12: false }));
-      const slot = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening';
-      const map = { morning: recs.welcomeMorning, afternoon: recs.welcomeAfternoon, evening: recs.welcomeEvening };
-      document.getElementById('welcomeMsg').textContent = map[slot] || '';
-    } catch(e) {}
-  }
-}, 30 * 60 * 1000);
 </script>
 </body>
 </html>

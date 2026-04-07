@@ -322,12 +322,13 @@ async function loadLiveData() {
     // Generate dynamic Destiny Blue QR with booking ID
     if (d.booking) {
       const bid = d.booking.ref || d.booking.id || '';
-      const bookingUrl = `https://destin-concierge-new.vercel.app/concierge?guestBid=${bid}`;
+      const fname = d.booking.guestFirstName || '';
+      const bookingUrl = `https://www.destincondogetaways.com/ai-concierge-574036277?fname=${encodeURIComponent(fname)}&bid=${bid}`;
       QRCode.toCanvas(document.getElementById('destinyQR'), bookingUrl, {
         width: 92, margin: 1, color: { dark: '#000000', light: '#ffffff' }
       }, err => { if(err) console.error('QR error:', err); });
     } else {
-      QRCode.toCanvas(document.getElementById('destinyQR'), 'https://destin-concierge-new.vercel.app/concierge', {
+      QRCode.toCanvas(document.getElementById('destinyQR'), 'https://www.destincondogetaways.com/ai-concierge-574036277', {
         width: 92, margin: 1, color: { dark: '#000000', light: '#ffffff' }
       }, err => { if(err) console.error('QR error:', err); });
     }

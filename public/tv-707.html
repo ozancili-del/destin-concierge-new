@@ -335,28 +335,7 @@ async function loadLiveData() {
       }
     }
 
-    // NOAA
-    if (d.noaa) {
-      document.getElementById('waterTemp').textContent = d.noaa.waterTemp ? d.noaa.waterTemp + '°' : '—';
-      document.getElementById('windSpeed').textContent = d.noaa.wind ? d.noaa.wind.speed + ' ' + d.noaa.wind.dir : '—';
-      document.getElementById('sunset').textContent = d.noaa.sunset || '—';
-      document.getElementById('noaaTime').textContent = 'Live · NOAA';
-
-      const tides = d.noaa.tides || [];
-      ['tide1', 'tide2', 'tide3'].forEach((id, i) => {
-        if (tides[i]) {
-          const t = tides[i];
-          const time = new Date(t.time).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/Chicago' });
-          document.getElementById(id).textContent = `${t.type} ${time}`;
-          document.getElementById(id).previousElementSibling.textContent = `Tide ${i + 1}`;
-        }
-      });
-    }
-
-    // Weather - air temp today
-    if (d.weather && d.weather[0]) {
-      document.getElementById('airTemp').textContent = d.weather[0].high + '°';
-    }
+    // NOAA and weather now handled by fetchBeachConditions() directly
 
     // Forecast footer
     if (d.weather) {

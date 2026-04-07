@@ -124,6 +124,15 @@ h1 span{color:var(--teal);}
 /* checkout eve */
 .checkout-banner{background:linear-gradient(135deg,rgba(246,196,83,0.15),rgba(246,196,83,0.05));border:1px solid rgba(246,196,83,0.3);border-radius:16px;padding:16px 20px;text-align:center;}
 .checkout-banner p{font-family:'Cormorant Garamond',serif;font-size:20px;font-style:italic;color:var(--gold);line-height:1.5;}
+/* beach activity cards */
+.bc-act-card{background:rgba(255,255,255,0.08);border-radius:10px;padding:8px 10px;border:1px solid rgba(255,255,255,0.06);}
+@keyframes card-flash{0%,100%{border-color:rgba(34,197,94,0.2);box-shadow:0 0 0px rgba(34,197,94,0);background:rgba(34,197,94,0.12);}50%{border-color:rgba(34,197,94,0.9);box-shadow:0 0 16px rgba(34,197,94,0.5);background:rgba(34,197,94,0.28);}}
+.bc-act-card.active{border-width:2px;animation:card-flash 1.8s ease-in-out infinite;}
+.bc-act-card.soon{background:rgba(251,191,36,0.15);border-color:rgba(251,191,36,0.35);}
+.bc-act-status{display:inline-block;font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 6px;border-radius:20px;margin-bottom:4px;}
+.bc-act-status.active{background:rgba(34,197,94,0.3);color:#86efac;}
+.bc-act-status.soon{background:rgba(251,191,36,0.3);color:#fde68a;}
+.bc-act-status.upcoming{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);}
 </style>
 </head>
 <body>
@@ -154,49 +163,43 @@ h1 span{color:var(--teal);}
 <!-- MAIN -->
 <div class="main-grid">
 
-  <!-- LEFT: Beach conditions -->
-  <div class="card beach-card">
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-      <div class="sec-label" style="color:rgba(255,255,255,0.75);">Live Gulf Conditions</div>
-      <div class="sec-label" id="noaaTime" style="color:#baf3ff;">—</div>
+  <!-- LEFT: Beach conditions (live widget) -->
+  <div class="card beach-card" style="padding:16px;overflow:hidden;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <div class="sec-label" style="color:rgba(255,255,255,0.75);">🌊 Live Gulf Conditions</div>
+      <span id="bc-badge" style="font-size:9px;background:rgba(255,255,255,0.2);color:#fff;border-radius:20px;padding:3px 10px;letter-spacing:1px;">LOADING...</span>
     </div>
-    <div class="weather-metrics">
-      <div class="metric"><div class="val" id="waterTemp">—</div><div class="lbl">Water °F</div></div>
-      <div class="metric"><div class="val" id="airTemp">—</div><div class="lbl">Air °F</div></div>
-      <div class="metric"><div class="val" id="windSpeed">—</div><div class="lbl">Wind mph</div></div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:7px;">
+      <div style="background:rgba(255,255,255,0.15);border-radius:12px;padding:10px 6px;text-align:center;"><div style="font-size:11px;color:rgba(255,255,255,0.65);text-transform:uppercase;letter-spacing:1px;">Water</div><div style="font-size:22px;font-weight:800;color:#fff;" id="bc-water">--°F</div></div>
+      <div style="background:rgba(255,255,255,0.15);border-radius:12px;padding:10px 6px;text-align:center;"><div style="font-size:11px;color:rgba(255,255,255,0.65);text-transform:uppercase;letter-spacing:1px;">Air</div><div style="font-size:22px;font-weight:800;color:#fff;" id="bc-air">--°F</div></div>
+      <div style="background:rgba(255,255,255,0.15);border-radius:12px;padding:10px 6px;text-align:center;"><div style="font-size:11px;color:rgba(255,255,255,0.65);text-transform:uppercase;letter-spacing:1px;">Humidity</div><div style="font-size:22px;font-weight:800;color:#fff;" id="bc-hum">--%</div></div>
     </div>
-    <div class="flag-row"><div class="flag-dot"></div>Always check beach flags at access points before entering the water</div>
-    <div class="tide-grid">
-      <div class="tide-box"><div class="k">Tide 1</div><div class="v" id="tide1">—</div></div>
-      <div class="tide-box"><div class="k">Tide 2</div><div class="v" id="tide2">—</div></div>
-      <div class="tide-box"><div class="k">Tide 3</div><div class="v" id="tide3">—</div></div>
-      <div class="tide-box"><div class="k">Sunset</div><div class="v" id="sunset">—</div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:7px;">
+      <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:10px;color:rgba(255,255,255,0.6);">Wind</div><div style="font-size:12px;font-weight:700;color:#fff;" id="bc-wind">-- mph</div></div><span style="font-size:16px;">🌬️</span></div>
+      <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:10px;color:rgba(255,255,255,0.6);">Pressure</div><div style="font-size:12px;font-weight:700;color:#fff;" id="bc-pressure">-- inHg</div></div><span style="font-size:16px;">📊</span></div>
+      <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:10px;color:rgba(255,255,255,0.6);">High Tide</div><div style="font-size:12px;font-weight:700;color:#fff;" id="bc-htide">--:--</div></div><span style="font-size:16px;">🔼</span></div>
+      <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:10px;color:rgba(255,255,255,0.6);">Low Tide</div><div style="font-size:12px;font-weight:700;color:#fff;" id="bc-ltide">--:--</div></div><span style="font-size:16px;">🔽</span></div>
+      <div style="background:rgba(255,200,50,0.1);border:1px solid rgba(255,200,50,0.3);border-radius:10px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:10px;color:rgba(255,220,100,0.8);">Sunrise</div><div style="font-size:12px;font-weight:700;color:#fff;" id="bc-sunrise">--:--</div></div><span style="font-size:16px;">🌅</span></div>
+      <div style="background:rgba(255,140,50,0.1);border:1px solid rgba(255,140,50,0.3);border-radius:10px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:10px;color:rgba(255,180,100,0.8);">Sunset</div><div style="font-size:12px;font-weight:700;color:#fff;" id="bc-sunset">--:--</div></div><span style="font-size:16px;">🌇</span></div>
     </div>
-    <div class="tripshock-box">
-      <div style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.85);font-weight:500;">Book Activities & Tours</div>
-      <div style="background:#fff;border-radius:10px;padding:7px;width:100px;height:100px;display:flex;align-items:center;justify-content:center;">
-        <!-- TripShock QR placeholder -->
-        <svg width="86" height="86" viewBox="0 0 56 56">
-          <rect x="2" y="2" width="16" height="16" rx="2" fill="none" stroke="#000" stroke-width="2"/><rect x="5" y="5" width="10" height="10" fill="#000" rx="1"/>
-          <rect x="38" y="2" width="16" height="16" rx="2" fill="none" stroke="#000" stroke-width="2"/><rect x="41" y="5" width="10" height="10" fill="#000" rx="1"/>
-          <rect x="2" y="38" width="16" height="16" rx="2" fill="none" stroke="#000" stroke-width="2"/><rect x="5" y="41" width="10" height="10" fill="#000" rx="1"/>
-          <rect x="22" y="2" width="4" height="4" fill="#000"/><rect x="28" y="2" width="4" height="4" fill="#000"/>
-          <rect x="22" y="8" width="4" height="4" fill="#000"/><rect x="32" y="8" width="4" height="4" fill="#000"/>
-          <rect x="26" y="14" width="4" height="4" fill="#000"/>
-          <rect x="2" y="22" width="52" height="4" fill="#000"/>
-          <rect x="22" y="28" width="4" height="4" fill="#000"/><rect x="30" y="28" width="4" height="4" fill="#000"/>
-          <rect x="38" y="28" width="4" height="4" fill="#000"/><rect x="46" y="28" width="4" height="4" fill="#000"/>
-          <rect x="26" y="34" width="4" height="4" fill="#000"/><rect x="34" y="34" width="4" height="4" fill="#000"/>
-          <rect x="22" y="40" width="4" height="4" fill="#000"/><rect x="34" y="40" width="4" height="4" fill="#000"/>
-          <rect x="46" y="40" width="4" height="4" fill="#000"/><rect x="26" y="46" width="4" height="4" fill="#000"/>
-          <rect x="38" y="46" width="4" height="4" fill="#000"/><rect x="50" y="46" width="4" height="4" fill="#000"/>
-        </svg>
-      </div>
-      <div style="text-align:center;">
-        <div style="font-family:'Cormorant Garamond',serif;font-size:20px;color:#fff;">TripShock Destin</div>
-        <div style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:3px;">Dolphin cruises · Crab Island · Fishing · Water sports</div>
-      </div>
+    <div style="background:rgba(255,255,255,0.1);border-radius:12px;padding:10px 14px;margin-bottom:7px;">
+      <div style="font-size:9px;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Gulf Water Temperature</div>
+      <div style="position:relative;height:8px;border-radius:99px;background:linear-gradient(90deg,#60a5fa,#34d399,#fbbf24,#f97316,#ef4444);margin-bottom:5px;"><div id="bc-needle" style="position:absolute;top:50%;left:0%;transform:translate(-50%,-50%);width:14px;height:14px;background:#fff;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.35);border:2px solid rgba(0,0,0,0.15);transition:left 1s ease;"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:8px;color:rgba(255,255,255,0.4);margin-bottom:6px;"><span>50°F</span><span>60°F</span><span>70°F</span><span>80°F</span><span>90°F+</span></div>
+      <div style="background:rgba(255,255,255,0.15);border-radius:8px;padding:8px;font-size:11px;color:#fff;text-align:center;" id="bc-verdict">Loading conditions...</div>
     </div>
+    <div style="background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.3);border-radius:8px;padding:8px 12px;display:flex;align-items:center;gap:7px;color:#86efac;font-size:11px;margin-bottom:7px;">
+      <div style="width:7px;height:7px;border-radius:50%;background:#22c55e;animation:pulse-live 2.5s ease-in-out infinite;flex-shrink:0;"></div>
+      Always check beach flags at access points before entering the water
+    </div>
+    <div style="font-size:9px;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">🎯 Best Right Now</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;" id="bc-acts">
+      <div class="bc-act-card upcoming"><span class="bc-act-status upcoming">Loading</span><span style="font-size:16px;">🏝️</span><div style="font-size:11px;font-weight:700;color:#fff;">Crab Island</div><div style="font-size:9px;color:rgba(255,255,255,0.6);" id="bc-t-crab">--</div></div>
+      <div class="bc-act-card upcoming"><span class="bc-act-status upcoming">Loading</span><span style="font-size:16px;">🤿</span><div style="font-size:11px;font-weight:700;color:#fff;">Snorkeling</div><div style="font-size:9px;color:rgba(255,255,255,0.6);" id="bc-t-snorkel">--</div></div>
+      <div class="bc-act-card upcoming"><span class="bc-act-status upcoming">Loading</span><span style="font-size:16px;">🎣</span><div style="font-size:11px;font-weight:700;color:#fff;">Fishing</div><div style="font-size:9px;color:rgba(255,255,255,0.6);" id="bc-t-fish">--</div></div>
+      <div class="bc-act-card upcoming"><span class="bc-act-status upcoming">Loading</span><span style="font-size:16px;">🐚</span><div style="font-size:11px;font-weight:700;color:#fff;">Shelling</div><div style="font-size:9px;color:rgba(255,255,255,0.6);" id="bc-t-shell">--</div></div>
+    </div>
+    <div style="margin-top:6px;font-size:8px;color:rgba(255,255,255,0.3);text-align:center;">NOAA Station 8729840 · Pensacola ~25mi from Destin</div>
   </div>
 
   <!-- CENTER: AI Recommendations -->
@@ -497,7 +500,100 @@ function renderRecommendations(recs, timeSlot, isCheckoutEve, guestName, today) 
     </div>`;
 }
 
-// ── Refresh schedule ───────────────────────────────────────────────
+// ── Beach Conditions (NOAA + Open-Meteo direct) ───────────────────
+const NOAA_BASE = 'https://api.tidesandcurrents.noaa.gov/api/prod/datagetter';
+const NOAA_ST = '8729840';
+const NOAA_APP = 'destincondogetaways';
+
+function noaaUrl(product) { return `${NOAA_BASE}?date=latest&station=${NOAA_ST}&product=${product}&units=english&time_zone=lst&application=${NOAA_APP}&format=json`; }
+function tidesUrl(day) {
+  if (day === 'today') return `${NOAA_BASE}?date=today&station=${NOAA_ST}&product=predictions&datum=MLLW&time_zone=lst&interval=hilo&units=english&application=${NOAA_APP}&format=json`;
+  const d = new Date(); d.setDate(d.getDate()+1);
+  const ds = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+  return `${NOAA_BASE}?begin_date=${ds}&end_date=${ds}&station=${NOAA_ST}&product=predictions&datum=MLLW&time_zone=lst&interval=hilo&units=english&application=${NOAA_APP}&format=json`;
+}
+function openMeteoUrl() { return 'https://api.open-meteo.com/v1/forecast?latitude=30.3763&longitude=-86.4958&current=relative_humidity_2m,wind_speed_10m,wind_direction_10m&wind_speed_unit=mph&daily=sunrise,sunset&timezone=America%2FChicago'; }
+function degToCompass(d) { return ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'][Math.round(d/22.5)%16]; }
+function mbToInHg(mb) { return (mb*0.02953).toFixed(2); }
+function parseNoaaTime(str) {
+  if (!str) return null;
+  const [dp,tp] = str.split(' '); const [y,mo,day] = dp.split('-').map(Number); const [h,m] = tp.split(':').map(Number);
+  const tmp = new Date(Date.UTC(y,mo-1,day,12,0,0));
+  const chiH = parseInt(new Intl.DateTimeFormat('en-US',{timeZone:'America/Chicago',hour:'numeric',hour12:false}).format(tmp));
+  return new Date(Date.UTC(y,mo-1,day,h+(12-chiH),m));
+}
+function formatTime(s) { const [,t]=s.split(' '); if(!t) return s; const [h,m]=t.split(':'); const hr=parseInt(h); return `${hr%12||12}:${m} ${hr>=12?'PM':'AM'}`; }
+function fmtMs(ms) { return new Date(ms).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true,timeZone:'America/Chicago'}); }
+function dayPfx(ms) {
+  const opts={timeZone:'America/Chicago',year:'numeric',month:'numeric',day:'numeric'};
+  const fmt=new Intl.DateTimeFormat('en-US',opts);
+  const tod=fmt.format(new Date()); const tgt=fmt.format(new Date(ms));
+  if(tod===tgt) return 'Today ';
+  const tmr=new Date(); tmr.setDate(tmr.getDate()+1);
+  if(fmt.format(tmr)===tgt) return 'Tomorrow ';
+  return new Date(ms).toLocaleDateString('en-US',{weekday:'short',timeZone:'America/Chicago'})+' ';
+}
+function bcVerdict(t) {
+  if(t<66) return{e:'🧥',txt:'Brisk — best for a shoreline stroll or shell hunting.'};
+  if(t<75) return{e:'🏄',txt:'Refreshing! Great for paddleboarding or a quick dip.'};
+  if(t<83) return{e:'🌴',txt:'Paradise! The Gulf is perfect — dive in!'};
+  return{e:'☀️',txt:'Tropical! Like a bathtub. Stay hydrated!'};
+}
+function bcStatus(s,e) { const n=Date.now(); if(n>=s&&n<=e) return 'active'; if(s>n&&s-n<=3600000) return 'soon'; return 'upcoming'; }
+function bcStatusLabel(s) { return s==='active'?'Active Now':s==='soon'?'Starting Soon':'Upcoming'; }
+let bcSunriseMs=null, bcSunsetMs=null, bcCachedTides=[];
+function bcDaylight(s,e) {
+  const rise=bcSunriseMs||(()=>{const d=new Date();d.setHours(7,0,0,0);return d.getTime()})();
+  const set=bcSunsetMs||(()=>{const d=new Date();d.setHours(20,0,0,0);return d.getTime()})();
+  return s<set&&e>rise;
+}
+function bcApplyAct(elId, timeId, status, s, e) {
+  const el=document.getElementById('bc-acts')?.children;
+  const idx=['crab','snorkel','fish','shell'].indexOf(elId); if(idx===-1||!el) return;
+  const card=el[idx]; card.className=`bc-act-card ${status}`;
+  const st=card.querySelector('.bc-act-status'); if(st){st.className=`bc-act-status ${status}`;st.textContent=bcStatusLabel(status);}
+  const te=document.getElementById(timeId); if(!te) return;
+  if(s&&e){const sp=dayPfx(s);const ep=dayPfx(e);te.textContent=`${sp}${fmtMs(s)} – ${ep!==sp?ep:''}${fmtMs(e)}`;}
+  else te.textContent='Check back tomorrow';
+}
+function bcUpdateActivities(tides) {
+  if(!tides||!tides.length) return;
+  const MIN=60000, HR=3600000, now=Date.now();
+  const highs=tides.filter(t=>t.type==='H').map(t=>({ms:parseNoaaTime(t.t)?.getTime()})).filter(t=>t.ms).sort((a,b)=>a.ms-b.ms);
+  const lows=tides.filter(t=>t.type==='L').map(t=>({ms:parseNoaaTime(t.t)?.getTime()})).filter(t=>t.ms).sort((a,b)=>a.ms-b.ms);
+  const all=[...highs.map(t=>({...t,type:'H'})),...lows.map(t=>({...t,type:'L'}))].sort((a,b)=>a.ms-b.ms);
+  const crabH=highs.find(t=>{const s=t.ms-90*MIN,e=t.ms+90*MIN,hr=parseInt(new Intl.DateTimeFormat('en-US',{timeZone:'America/Chicago',hour:'numeric',hour12:false}).format(new Date(t.ms)));return e>now&&bcDaylight(s,e)&&hr<13;})||null;
+  if(crabH){const s=crabH.ms-90*MIN,e=crabH.ms+90*MIN;bcApplyAct('crab','bc-t-crab',bcStatus(s,e),s,e);}else bcApplyAct('crab','bc-t-crab','upcoming',null,null);
+  const snorkT=all.find(t=>{const s=t.ms-90*MIN,e=t.ms+90*MIN;return e>now&&bcDaylight(s,e);})||null;
+  if(snorkT){const s=snorkT.ms-90*MIN,e=snorkT.ms+90*MIN;bcApplyAct('snorkel','bc-t-snorkel',bcStatus(s,e),s,e);}else bcApplyAct('snorkel','bc-t-snorkel','upcoming',null,null);
+  const fishT=all.find(t=>(t.ms+4*HR)>now)||null;
+  if(fishT){const s=fishT.ms+2*HR,e=fishT.ms+4*HR;bcApplyAct('fish','bc-t-fish',bcStatus(s,e),s,e);}else bcApplyAct('fish','bc-t-fish','upcoming',null,null);
+  const shellL=lows.find(t=>{const s=t.ms-HR,e=t.ms+HR;return e>now&&bcDaylight(s,e);})||null;
+  if(shellL){const s=shellL.ms-HR,e=shellL.ms+HR;bcApplyAct('shell','bc-t-shell',bcStatus(s,e),s,e);}else bcApplyAct('shell','bc-t-shell','upcoming',null,null);
+}
+function bcSet(id,val){const el=document.getElementById(id);if(el)el.textContent=val;}
+async function fetchBeachConditions() {
+  try {
+    const [wRes,aRes,pRes,tRes,tmrRes,mRes]=await Promise.all([
+      fetch(noaaUrl('water_temperature')).then(r=>r.json()),
+      fetch(noaaUrl('air_temperature')).then(r=>r.json()),
+      fetch(noaaUrl('air_pressure')).then(r=>r.json()),
+      fetch(tidesUrl('today')).then(r=>r.json()),
+      fetch(tidesUrl('tomorrow')).then(r=>r.json()),
+      fetch(openMeteoUrl()).then(r=>r.json())
+    ]);
+    if(wRes.data?.[0]?.v){const wt=parseFloat(wRes.data[0].v);bcSet('bc-water',wt.toFixed(1)+'°F');const pct=Math.min(98,Math.max(2,((wt-50)/45)*100));const n=document.getElementById('bc-needle');if(n)n.style.left=pct+'%';const v=bcVerdict(wt);bcSet('bc-verdict',v.e+' '+v.txt);}
+    if(aRes.data?.[0]?.v)bcSet('bc-air',parseFloat(aRes.data[0].v).toFixed(1)+'°F');
+    if(pRes.data?.[0]?.v)bcSet('bc-pressure',mbToInHg(parseFloat(pRes.data[0].v))+' inHg');
+    if(tRes.predictions?.length){const all=[...tRes.predictions,...(tmrRes.predictions||[])];bcCachedTides=all;const now=new Date();const hs=tRes.predictions.filter(p=>p.type==='H');const ls=tRes.predictions.filter(p=>p.type==='L');const nh=hs.find(p=>parseNoaaTime(p.t)>now)||hs[0];const nl=ls.find(p=>parseNoaaTime(p.t)>now)||ls[0];if(nh)bcSet('bc-htide',formatTime(nh.t)+' · '+parseFloat(nh.v).toFixed(1)+'ft');if(nl)bcSet('bc-ltide',formatTime(nl.t)+' · '+parseFloat(nl.v).toFixed(1)+'ft');bcUpdateActivities(all);}
+    if(mRes.current){bcSet('bc-wind',mRes.current.wind_speed_10m.toFixed(1)+' mph '+degToCompass(mRes.current.wind_direction_10m));bcSet('bc-hum',mRes.current.relative_humidity_2m+'%');}
+    if(mRes.daily?.sunrise?.[0]){bcSunriseMs=new Date(mRes.daily.sunrise[0]).getTime();bcSunsetMs=new Date(mRes.daily.sunset[0]).getTime();const f=ms=>new Date(ms).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true,timeZone:'America/Chicago'});bcSet('bc-sunrise',f(bcSunriseMs));bcSet('bc-sunset',f(bcSunsetMs));}
+    const now2=new Date();const ts=now2.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true,timeZone:'America/Chicago'});bcSet('bc-badge','LIVE · '+ts);
+  } catch(e){console.error('beach conditions error:',e);}
+}
+fetchBeachConditions();
+setInterval(fetchBeachConditions, 6*60*1000);
+setInterval(()=>{if(bcCachedTides.length)bcUpdateActivities(bcCachedTides);},60*1000);
 // Live data: every 30 min
 // Recommendations: cached daily, checked on each load
 loadLiveData();

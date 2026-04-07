@@ -27,7 +27,8 @@ async function fetchCurrentBooking(propertyId) {
     const credentials = Buffer.from(`${OWNERREZ_USER}:${token}`).toString("base64");
     const today = todayCT();
     // Get bookings that include today
-    const sinceUtcDate = new Date(today + "T00:00:00-05:00"); sinceUtcDate.setDate(sinceUtcDate.getDate() - 1); const sinceUtc = sinceUtcDate.toISOString();
+    // Go back 6 months to ensure we catch all active bookings regardless of when they were updated
+    const sinceUtcDate = new Date(); sinceUtcDate.setMonth(sinceUtcDate.getMonth() - 6); const sinceUtc = sinceUtcDate.toISOString();
     const url = `https://api.ownerrez.com/v2/bookings?property_ids=${propertyId}&since_utc=${sinceUtc}&status=active`;
     const res = await fetch(url, {
       headers: { Authorization: `Basic ${credentials}`, Accept: "application/json" }

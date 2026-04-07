@@ -457,7 +457,6 @@ function renderRecommendations(recs, timeSlot, isCheckoutEve, guestName, today) 
     return (items || []).map(item => `
       <div class="rec-item">
         <span class="rec-name">${item.name}</span>
-        <span class="rec-meta">${item.meta}</span>
       </div>`).join('');
   }
 

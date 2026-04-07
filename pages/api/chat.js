@@ -738,7 +738,7 @@ function extractDates(text) {
 
   // "4 september 12" or "4th september 12th" — day month day, no connector
   // Only runs when dmMatches found fewer than 2 matches
-  const dmDayMatch = t.match(/(\d{1,2})(?:st|nd|rd|th)?\s+(?:of\s+)?(january|february|march|april|may|june|july|august|september|october|november|december)\s+(\d{1,2})(?:st|nd|rd|th)?(?!\s*(?:adult|kid|child|children|guest|person|people|ppl|pax|infant|baby|toddler|pet|dog|cat|bird|animal))/i);
+  const dmDayMatch = t.match(/(\d{1,2})(?:st|nd|rd|th)?\s+(?:of\s+)?(january|february|march|april|may|june|july|august|september|october|november|december)\s+(\d{1,2})(?:st|nd|rd|th)?(?!\s*(?:adult|kid|child|children|guest|person|people|ppl|pax|infant|baby|toddler|pet|dog|cat|bird|animal))(?=\s+\S)/i);
   if (dmDayMatch) {
     const month = months[dmDayMatch[2].toLowerCase()];
     return {
@@ -1221,7 +1221,9 @@ export default async function handler(req, res) {
     // Bug 5 fix: group composition changes also need fresh links
     // Detect add/remove/change of group members in last message
     const isGuestCountChange = /\b(add|adding|remove|removing|not coming|won't come|wont come|decided not|isn't coming|isnt coming|is coming|also coming|joining|will join|joining us|bringing|not joining|dropping out|changed.*mind.*guest|my (wife|husband|partner|mom|dad|mother|father|girlfriend|boyfriend|friend|kid|child|kids|children|baby|infant|toddler))\b/i.test(lastUser) && !detectDateAdjustment(lastUser);
-    const bookingLinksSent = bookingLinksSentRaw && !isDateAdjustEarly && !isGuestCountChange;
+    // Also reset if guest is explicitly asking to check availability again with dates
+    const isExplicitAvailabilityRecheck = /check.*availab|availab.*check|check.*dates|are.*available|is.*available|availability.*for|for.*availab/i.test(lastUser) && extractDates(lastUser) !== null;
+    const bookingLinksSent = bookingLinksSentRaw && !isDateAdjustEarly && !isGuestCountChange && !isExplicitAvailabilityRecheck;
 
     // ── UPDATE REQUEST DETECTION ─────────────────────────────────────────────
     const isAskingForUpdate = /any update|any news|heard.*back|what.*happening|what.*status|still waiting|waiting.*hear|did.*ozan|ozan.*call|ozan.*reach|ozan.*contact|ozan.*back|anything.*ozan|update.*ticket|ticket.*update|fix.*yet|fixed.*yet|someone.*coming|when.*coming|how long|anything yet|anyting|annything|let me know.*hear|hear.*anything|you hear|heard anything|still there|still nothing|no response|no word|any word|update me|keep me|following up/i.test(lastUser);
@@ -1285,9 +1287,11 @@ export default async function handler(req, res) {
     const isDateAdjust    = detectDateAdjustment(lastUser);
 
     // Only look back in history for dates on genuine follow-ups
+    // Strip URLs before extracting dates from history to avoid picking up ISO dates from booking links
+    const stripUrls = t => t.replace(/https?:\/\/\S+/g, '');
     const rawDates = extractDates(lastUser) || (
       messages.length > 0 && !extractSingleDate(lastUser)
-        ? extractDates(allUserText) || extractDates(allConvoText)
+        ? extractDates(stripUrls(allUserText)) || extractDates(stripUrls(allConvoText))
         : null
     );
 
@@ -1496,7 +1500,7 @@ Examples:
     let competitorContext = "";
     let holidayContext = "";
     let dateAdjustContext = "";
-    let bookingLinksContext = bookingLinksSent ? `📎 BOOKING LINKS ALREADY SENT: You already sent booking links earlier in this conversation. DO NOT send links again unless the guest explicitly asks for them again.
+    let bookingLinksContext = bookingLinksSent ? `📎 BOOKING LINKS ALREADY SENT: You already sent booking links earlier in this conversation. DO NOT send links again unless the guest explicitly asks for them again. CRITICAL: NEVER construct or generate new booking URLs yourself — if new links are needed, the system will provide them. If no pre-built links are in the context, do NOT send any booking URL.
 The guest is now in follow-up conversation mode. Answer their questions naturally and conversationally:
 - If they ask about price/cost → explain the link shows total pricing with 10% discount already applied
 - If they ask for a price match → direct them warmly to the Comments/Questions box on the booking page

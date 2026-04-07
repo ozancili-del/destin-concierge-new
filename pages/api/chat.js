@@ -757,6 +757,16 @@ function extractDates(text) {
     };
   }
 
+  // "9 to 11 april" — digit connector digit month (month at end, word connector)
+  const numToNumMonthMatch = t.match(/(\d{1,2})\s*(?:to|until|through|thru|till)\s*(\d{1,2})\s+(?:of\s+)?(january|february|march|april|may|june|july|august|september|october|november|december)/i);
+  if (numToNumMonthMatch) {
+    const month = months[numToNumMonthMatch[3].toLowerCase()];
+    return {
+      arrival:   `${year}-${month}-${numToNumMonthMatch[1].padStart(2,"0")}`,
+      departure: `${year}-${month}-${numToNumMonthMatch[2].padStart(2,"0")}`,
+    };
+  }
+
   return null;
 }
 

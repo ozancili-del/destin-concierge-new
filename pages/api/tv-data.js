@@ -38,6 +38,12 @@ async function fetchCurrentBooking(propertyId) {
     const bookings = data.items || data.bookings || [];
     // Find booking where today is between arrival and departure
     const hourCT = parseInt(new Date().toLocaleString("en-US", { timeZone: "America/Chicago", hour: "numeric", hour12: false }));
+    // Also find departing guest for goodbye screen (departure = today)
+    const departing = bookings.find(b => {
+      const dep = b.departure || b.check_out;
+      return dep === today;
+    });
+
     const active = bookings.find(b => {
       const arr = b.arrival || b.check_in;
       const dep = b.departure || b.check_out;
@@ -45,9 +51,13 @@ async function fetchCurrentBooking(propertyId) {
       if (arr === today) return hourCT >= 12; // arriving today — only show from noon
       return arr < today && dep > today; // already checked in
     });
-    if (!active) return null;
+
+    // If no active booking but there is a departing guest and it's before noon — return departing for goodbye screen
+    const target = active || (departing && hourCT < 12 ? departing : null);
+    if (!target) return null;
+    // Replace active references below with target
     // Fetch full booking details to get guest name (list API doesn't include guest fields)
-    const bookingId = active.id;
+    const bookingId = target.id;
     let guestFirstName = "Guest";
     try {
       const fullRes = await fetch(`https://api.ownerrez.com/v2/bookings/${bookingId}`, {
@@ -59,12 +69,13 @@ async function fetchCurrentBooking(propertyId) {
       }
     } catch(e) { console.error("fetchFullBooking error:", e.message); }
     return {
-      id: active.id || null,
-      ref: active.booking_number || active.reference || active.id || null,
+      id: target.id || null,
+      ref: target.booking_number || target.reference || target.id || null,
       guestFirstName,
-      arrival: active.arrival || active.check_in,
-      departure: active.departure || active.check_out,
-      nights: Math.ceil((new Date(active.departure) - new Date(active.arrival)) / (1000 * 60 * 60 * 24)),
+      arrival: target.arrival || target.check_in,
+      departure: target.departure || target.check_out,
+      nights: Math.ceil((new Date(target.departure) - new Date(target.arrival)) / (1000 * 60 * 60 * 24)),
+      isDeparting: !active && !!departing,
     };
   } catch (e) {
     console.error("fetchCurrentBooking error:", e.message);
@@ -161,11 +172,13 @@ export default async function handler(req, res) {
     ]);
 
     const today = todayCT();
+    const hourCT = nowCTHour();
     const isCheckoutEve = booking?.departure
       ? new Date(booking.departure) - new Date(today) === 86400000
       : false;
-
-    const hourCT = nowCTHour();
+    // Checkout morning: departure is today AND it's 10am or later
+    const isCheckoutMorning = booking?.isDeparting === true && hourCT >= 10;
+    const isBetweenGuests = !booking && hourCT >= 10;
     const timeSlot = hourCT < 12 ? "morning" : hourCT < 17 ? "afternoon" : "evening";
 
     return res.status(200).json({
@@ -174,6 +187,8 @@ export default async function handler(req, res) {
       timeSlot,
       booking,
       isCheckoutEve,
+      isCheckoutMorning,
+      isBetweenGuests,
       weather,
       noaa,
       generatedAt: new Date().toISOString()

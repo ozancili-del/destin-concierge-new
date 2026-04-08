@@ -1954,6 +1954,13 @@ RULES — no exceptions:
 9. Never promise exceptions. Never say "let me see what I can do" in a way that implies flexibility on the 6 limit.`;
     }
 
+    // 🟢 DATE SANITY CHECK — departure before arrival
+    if (dates && new Date(dates.departure) <= new Date(dates.arrival)) {
+      const reply = `Hmm, the calendar seems a little confused by those dates — ${dates.departure} actually comes before ${dates.arrival}! 😄 Can you double-check and confirm? Just want to make sure I find you the perfect dates 🌊`;
+      await logToSheets(sessionId, lastUser, reply, `${dates.arrival} to ${dates.departure}`, "INVALID_DATES", "");
+      return res.status(200).json({ reply, alertSent: false, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
+    }
+
     // 🟢 AVAILABILITY CONTEXT
     if (!dates && !isDiscountRequest && wantsAvailability && mentionedMonth && !extractSingleDate(lastUser)) {
       // 10 overlapping 3-night windows covering the full month

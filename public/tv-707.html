@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -453,10 +454,18 @@ async function loadRecommendations(guestName, weather, noaa, today, timeSlot, is
 async function fetchAIRecommendations(guestName, weather, noaa, today, isCheckoutEve, booking) {
   try {
     const dayOfWeek = new Date(today + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', timeZone: 'America/Chicago' });
-    const weatherDesc = weather?.[0] ? `${weather[0].high}°F high, ${weather[0].desc}` : 'warm and sunny';
+    const tempHigh = weather?.[0]?.high || 78;
+    const weatherDesc = weather?.[0] ? `${tempHigh}°F high, ${weather[0].desc}` : 'warm and sunny';
     const waterDesc = noaa?.waterTemp ? `Gulf water ${noaa.waterTemp}°F` : '';
     const sunsetTime = noaa?.sunset || 'around 8pm';
-    const isRainy = (weather?.[0]?.desc || '').toLowerCase().match(/rain|storm|thunder|shower/);
+    const windSpeed = noaa?.wind?.speed || 0;
+    const rainDesc = (() => {
+      const desc = (weather?.[0]?.desc || '').toLowerCase();
+      if (desc.match(/thunder|storm/)) return 'heavy';
+      if (desc.match(/rain|shower/)) return 'light';
+      return 'none';
+    })();
+    const isHot = tempHigh >= 85;
 
     // Calculate day number of stay
     let dayNumber = 1;
@@ -480,9 +489,25 @@ async function fetchAIRecommendations(guestName, weather, noaa, today, isCheckou
       'You are Destiny Blue, the personal AI concierge for Destin Condo Getaways. You write as Ozan, the owner — warm, genuine, personal. Never robotic or generic.',
       '',
       'Guest: ' + guestName + '. Unit 707, 7th floor Gulf-front, Pelican Beach Resort, Destin FL.',
-      'Today: ' + dayOfWeek + '. Weather: ' + weatherDesc + '. ' + waterDesc + '. Sunset tonight: ' + sunsetTime + '.',
+      'Today: ' + dayOfWeek + '. Temp: ' + tempHigh + '°F high. ' + weatherDesc + '. ' + waterDesc + '. Wind: ' + windSpeed + ' mph. Sunset: ' + sunsetTime + '.',
       dayContext,
-      isRainy ? 'IMPORTANT: Rainy today — all activity recommendations must be indoor or covered.' : '',
+      '',
+      'WEATHER RULES:',
+      rainDesc === 'heavy' ? 'Heavy rain today — all activities must be fully indoor: Destin Commons, escape rooms, bowling, covered HarborWalk dining.' : '',
+      rainDesc === 'light' ? 'Light rain today — prefer covered outdoor or indoor options: HarborWalk covered dining, Boshamps covered deck, Destin Commons. Avoid open beach activities.' : '',
+      rainDesc === 'none' && isHot ? 'Hot day (' + tempHigh + '°F) — recommend beach and water activities for early morning only. Afternoon should favour air-conditioned dining or shaded waterfront spots.' : '',
+      windSpeed >= 20 ? 'Wind is ' + windSpeed + ' mph — do NOT recommend paddleboarding, kayaking, dolphin cruises, or any open-water activities.' : '',
+      rainDesc === 'none' && !isHot ? 'Great weather — outdoor and water activities are appropriate all day.' : '',
+      '',
+      'RESTAURANT POOLS — pick from these only, real Destin places:',
+      'Morning eat pool (pick any 3, this is day ' + dayNumber + ' of the stay — choose a different combination from previous days, do not repeat restaurants already recommended earlier in this stay): Crackings, Ruby Slipper Cafe, Another Broken Egg, Donut Hole Bakery, Aegean Greek Restaurant, Capriccio Cafe.',
+      'Afternoon + Evening eat pool (pick 3 per slot appropriate to lunch or dinner — this is day ' + dayNumber + ', choose different restaurants from those recommended on earlier days of this stay): AJs Seafood and Oyster Bar, Dewey Destins Seafood, Boshamps, The Back Porch, Louisiana Lagniappe, Mimmos Ristorante, Pazzo Italiano, McGuires Irish Pub, The Edge SkyBar, Harbor Docks, Jackacudas Seafood and Sushi, Boathouse Oyster Bar, Fudpuckers, Harry Ts Lighthouse, Harbor Tavern, Osaka Japanese, Sushimoto.',
+      'Pool exhausted rule: if dayNumber exceeds pool variety, repeats are fine — always prioritise best fit for conditions and meal type.',
+      '',
+      'ACTIVITY RULES:',
+      'Vary DO recommendations daily — prefer activities not recommended on earlier days of this stay.',
+      'Weather appropriateness takes priority over variety.',
+      'Only recommend legal, established activities in Destin. Never suggest beach bonfires, fireworks on the beach, or dogs on the beach.',
       '',
       isFirstDay ? ('DAY 1 RULES: Do NOT mention weather. Write a warm personal welcome from Ozan — max 2 sentences. Cover: (1) So happy to have ' + guestName + ' here, this TV page shows daily recommendations and live beach conditions (2) Scan TripShock QR on the left for activities like dolphin cruises and Crab Island, scan Destiny Blue QR on the right for restaurant tips and local advice. Natural and personal.') : '',
       isMiddleDay ? ('MIDDLE DAY RULES: No welcome. Casual daily note from Ozan — reference day ' + dayNumber + ' of ' + totalNights + ', today weather, one specific thing worth doing. Like a text from a local friend who lives in Destin.') : '',
@@ -499,9 +524,7 @@ async function fetchAIRecommendations(guestName, weather, noaa, today, isCheckou
       '  "evening": {"eat": [{"name": "..."},{"name": "..."},{"name": "..."}],"tonight": [{"name": "..."},{"name": "..."},{"name": "..."}]}',
       '}',
       '',
-      'Real Destin places only. Morning eat: Crackings, Ruby Slipper Cafe, Another Broken Egg. Afternoon eat: AJs Seafood and Oyster Bar, Dewey Destins Seafood, Boshamps. Evening eat: The Back Porch, Louisiana Lagniappe, Mimmos Ristorante.',
-      isRainy ? 'Rain activities: Destin Commons shopping, HarborWalk covered dining, escape rooms, bowling.' : 'Activities match todays weather and conditions.',
-      'Evening tonight: always include Sunset from Balcony at ' + sunsetTime + ' unless raining.'
+      'Evening tonight: always include Sunset from Balcony at ' + sunsetTime + ' unless raining. All tonight items must be legal, established Destin activities only.',
     ].filter(Boolean).join('\n');
 
     const res = await fetch(`${BASE}/api/tv-recommendations`, {

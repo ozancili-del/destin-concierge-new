@@ -1,0 +1,751 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Unit 1006 — Destin Condo Getaways</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@200;300;400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#071321;
+  --panel:rgba(255,255,255,0.03);
+  --line:rgba(255,255,255,0.08);
+  --soft:rgba(255,255,255,0.55);
+  --faint:rgba(255,255,255,0.28);
+  --teal:#48cae4;
+  --green:#4ade80;
+  --gold:#f6c453;
+  --violet:#a78bfa;
+  --coral:#f87171;
+}
+html,body{
+  width:1920px;height:1080px;
+  background:radial-gradient(circle at 15% 20%,#103255 0%,var(--bg) 45%,#040a12 100%);
+  transition:background 2s ease;
+  color:#fff;
+  font-family:'DM Sans',system-ui,sans-serif;
+  overflow:hidden;
+}
+.waves{position:absolute;inset:0;pointer-events:none;opacity:0.04;}
+.screen{
+  width:1920px;height:1080px;
+  padding:28px 40px 24px;
+  display:grid;
+  grid-template-rows:175px 1fr 96px;
+  gap:18px;
+  position:relative;
+}
+/* HEADER */
+.header{
+  display:grid;
+  grid-template-columns:1fr 400px;
+  gap:20px;
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:24px;
+  padding:0 36px;
+}
+.eyebrow{font-size:14px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.7);margin-bottom:10px;}
+h1{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:300;line-height:1;letter-spacing:-1px;}
+h1 span{color:var(--teal);}
+.welcome-msg{font-family:'Cormorant Garamond',serif;font-size:17px;font-style:italic;color:var(--soft);margin-top:6px;line-height:1.4;max-width:900px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;}
+.status{display:flex;flex-direction:column;justify-content:center;align-items:flex-end;text-align:right;gap:8px;}
+.brand{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;}
+.brand span{color:var(--teal);}
+.tagline{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;color:var(--faint);}
+.pill{display:inline-flex;align-items:center;gap:8px;background:rgba(72,202,228,0.1);border:1px solid rgba(72,202,228,0.2);border-radius:20px;padding:7px 16px;font-size:13px;color:var(--teal);}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--teal);animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.3;}}
+@keyframes pulse-live{0%,100%{box-shadow:0 0 6px var(--green);}50%{box-shadow:0 0 14px var(--green),0 0 24px rgba(74,222,128,0.4);}}
+.stay-info{font-size:12px;color:var(--faint);letter-spacing:0.5px;}
+/* MAIN */
+.main-grid{display:grid;grid-template-columns:420px 1fr 320px;gap:20px;}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:24px;padding:22px;display:flex;flex-direction:column;gap:12px;}
+.sec-label{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--faint);}
+/* BEACH CARD */
+.beach-card{background:linear-gradient(145deg,#0369a1 0%,#0284c7 100%);border:none;}
+.weather-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.metric{background:rgba(255,255,255,0.15);border-radius:14px;padding:14px 8px;text-align:center;}
+.metric .val{font-size:30px;font-weight:600;line-height:1;margin:4px 0;}
+.metric .lbl{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.75);}
+.flag-row{background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.3);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:8px;color:#86efac;font-size:13px;}
+.flag-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse-live 2.5s ease-in-out infinite;}
+.tide-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.tide-box{background:rgba(255,255,255,0.12);border-radius:10px;padding:10px;}
+.tide-box .k{font-size:10px;color:rgba(255,255,255,0.65);text-transform:uppercase;letter-spacing:1px;}
+.tide-box .v{font-size:14px;font-weight:600;margin-top:3px;}
+.tripshock-box{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:16px;padding:14px;display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:4px;}
+/* ITINERARY */
+.day-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;flex:1;}
+.moment{border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:0;border:1px solid var(--line);}
+.moment.morning{background:rgba(246,196,83,0.04);border-color:rgba(246,196,83,0.15);}
+.moment.afternoon{background:rgba(72,202,228,0.04);border-color:rgba(72,202,228,0.15);}
+.moment.evening{background:rgba(167,139,250,0.04);border-color:rgba(167,139,250,0.15);}
+.moment-head{display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.07);margin-bottom:10px;}
+.m-icon{font-size:24px;}
+.m-title{font-size:15px;font-weight:500;letter-spacing:1px;text-transform:uppercase;}
+.m-time{font-size:11px;color:var(--soft);}
+.split-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;margin-top:8px;}
+.moment.morning .split-label{color:var(--gold);}
+.moment.afternoon .split-label{color:var(--teal);}
+.moment.evening .split-label{color:var(--violet);}
+.rec-item{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;}
+.rec-name{font-size:16px;color:#fff;font-family:'Cormorant Garamond',serif;font-weight:400;}
+.rec-meta{font-size:11px;color:var(--faint);}
+.loading-recs{font-family:'Cormorant Garamond',serif;font-size:17px;font-style:italic;color:var(--faint);text-align:center;padding:20px 0;}
+/* ESSENTIALS */
+.essentials-card{justify-content:space-between;}
+.essential{border-radius:14px;padding:14px;}
+.essential.blue{background:rgba(72,202,228,0.08);border:1px solid rgba(72,202,228,0.2);}
+.essential.green{background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);}
+.essential.amber{background:rgba(246,196,83,0.08);border:1px solid rgba(246,196,83,0.2);}
+.e-label{font-size:10px;text-transform:uppercase;letter-spacing:3px;color:var(--soft);margin-bottom:6px;}
+.e-network{font-size:17px;font-weight:400;color:#fff;margin-bottom:3px;}
+.e-password{font-size:13px;color:var(--teal);}
+.e-checkout{font-size:26px;font-weight:300;color:#86efac;letter-spacing:1px;}
+.e-sub{font-size:11px;color:rgba(255,255,255,0.3);margin-top:4px;}
+.divider{height:1px;background:var(--line);margin:4px 0;}
+.qr-single{display:flex;flex-direction:column;align-items:center;gap:8px;background:rgba(255,255,255,0.03);border:1px solid var(--line);border-radius:16px;padding:14px;}
+.qr-img{width:100px;height:100px;background:#fff;border-radius:8px;padding:7px;display:flex;align-items:center;justify-content:center;}
+.qr-lbl{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:300;color:rgba(255,255,255,0.7);text-align:center;line-height:1.3;}
+.qr-sub{font-size:10px;color:var(--faint);text-align:center;letter-spacing:1px;}
+.host-row{display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px solid var(--line);}
+.host-label{font-size:10px;color:var(--faint);letter-spacing:1px;text-transform:uppercase;}
+.host-num{font-size:13px;color:var(--soft);}
+/* FOOTER */
+.footer{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;}
+.forecast{background:var(--panel);border:1px solid var(--line);border-radius:18px;display:flex;align-items:center;justify-content:center;gap:16px;padding:0 20px;}
+.forecast .wx{font-size:36px;line-height:1;}
+.f-day{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--faint);margin-bottom:3px;}
+.f-temp{font-size:24px;font-weight:500;line-height:1;margin-bottom:2px;}
+.f-low{font-size:11px;color:var(--faint);}
+.f-desc{font-size:12px;color:var(--soft);}
+/* checkout eve */
+.checkout-banner{background:linear-gradient(135deg,rgba(246,196,83,0.15),rgba(246,196,83,0.05));border:1px solid rgba(246,196,83,0.3);border-radius:16px;padding:16px 20px;text-align:center;}
+.checkout-banner p{font-family:'Cormorant Garamond',serif;font-size:20px;font-style:italic;color:var(--gold);line-height:1.5;}
+/* beach activity cards */
+.bc-act-card{background:rgba(255,255,255,0.08);border-radius:10px;padding:8px 10px;border:1px solid rgba(255,255,255,0.06);}
+@keyframes card-flash{0%,100%{border-color:rgba(34,197,94,0.2);box-shadow:0 0 0px rgba(34,197,94,0);background:rgba(34,197,94,0.12);}50%{border-color:rgba(34,197,94,0.9);box-shadow:0 0 16px rgba(34,197,94,0.5);background:rgba(34,197,94,0.28);}}
+.bc-act-card.active{border-width:2px;animation:card-flash 1.8s ease-in-out infinite;}
+.bc-act-card.soon{background:rgba(251,191,36,0.15);border-color:rgba(251,191,36,0.35);}
+.bc-act-status{display:inline-block;font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:2px 6px;border-radius:20px;margin-bottom:4px;}
+.bc-act-status.active{background:rgba(34,197,94,0.3);color:#86efac;}
+.bc-act-status.soon{background:rgba(251,191,36,0.3);color:#fde68a;}
+.bc-act-status.upcoming{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);}
+</style>
+</head>
+<body>
+<div class="screen">
+
+<canvas id="starCanvas" style="position:absolute;inset:0;width:1920px;height:1080px;pointer-events:none;opacity:0;transition:opacity 1.5s ease;z-index:1;"></canvas>
+<svg class="waves" viewBox="0 0 1920 1080" preserveAspectRatio="none">
+  <path d="M0 280 Q480 220 960 280 Q1440 340 1920 280" stroke="white" stroke-width="2" fill="none"/>
+  <path d="M0 380 Q480 320 960 380 Q1440 440 1920 380" stroke="white" stroke-width="1" fill="none"/>
+</svg>
+
+<!-- HEADER -->
+<header class="header">
+  <div style="display:flex;flex-direction:column;justify-content:center;gap:6px;">
+    <div class="eyebrow">Pelican Beach Resort · Unit 1006 · 10th Floor · Destin, Florida</div>
+    <h1><span id="welcomePrefix">Welcome, </span><span id="guestName">...</span></h1>
+    <div class="welcome-msg" id="welcomeMsg">Loading your personalized welcome...</div>
+  </div>
+  <div class="status">
+    <div style="display:flex;align-items:center;gap:16px;">
+      <img src="https://uc.orez.io/f/006fdc883e3f47debca4cefddbdfd9ef" style="width:110px;height:130px;border-radius:14px;object-fit:cover;object-position:center top;border:2px solid rgba(72,202,228,0.5);flex-shrink:0;" alt="Destiny Blue"/>
+      <div>
+        <div class="brand">Destiny <span>Blue</span></div>
+        <div class="tagline">Your personal AI concierge</div>
+      </div>
+    </div>
+    <div class="pill"><span class="dot"></span><span id="clockDisplay">—</span></div>
+  </div>
+</header>
+
+<!-- MAIN -->
+<div class="main-grid">
+
+  <!-- LEFT: Beach conditions (live widget) -->
+  <div class="card beach-card" style="padding:16px;overflow:hidden;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <div class="sec-label" style="color:rgba(255,255,255,0.75);">🌊 Live Gulf Conditions</div>
+      <span id="bc-badge" style="font-size:9px;background:rgba(255,255,255,0.2);color:#fff;border-radius:20px;padding:3px 10px;letter-spacing:1px;">LOADING...</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:7px;">
+      <div style="background:rgba(255,255,255,0.15);border-radius:12px;padding:10px 6px;text-align:center;"><div style="font-size:11px;color:rgba(255,255,255,0.65);text-transform:uppercase;letter-spacing:1px;">Water</div><div style="font-size:22px;font-weight:800;color:#fff;" id="bc-water">--°F</div></div>
+      <div style="background:rgba(255,255,255,0.15);border-radius:12px;padding:10px 6px;text-align:center;"><div style="font-size:11px;color:rgba(255,255,255,0.65);text-transform:uppercase;letter-spacing:1px;">Air</div><div style="font-size:22px;font-weight:800;color:#fff;" id="bc-air">--°F</div></div>
+      <div style="background:rgba(255,255,255,0.15);border-radius:12px;padding:10px 6px;text-align:center;"><div style="font-size:11px;color:rgba(255,255,255,0.65);text-transform:uppercase;letter-spacing:1px;">Humidity</div><div style="font-size:22px;font-weight:800;color:#fff;" id="bc-hum">--%</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:7px;">
+      <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:10px;color:rgba(255,255,255,0.6);">Wind</div><div style="font-size:12px;font-weight:700;color:#fff;" id="bc-wind">-- mph</div></div><span style="font-size:16px;">🌬️</span></div>
+      <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:10px;color:rgba(255,255,255,0.6);">Pressure</div><div style="font-size:12px;font-weight:700;color:#fff;" id="bc-pressure">-- inHg</div></div><span style="font-size:16px;">📊</span></div>
+      <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:10px;color:rgba(255,255,255,0.6);">High Tide</div><div style="font-size:12px;font-weight:700;color:#fff;" id="bc-htide">--:--</div></div><span style="font-size:16px;">🔼</span></div>
+      <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:10px;color:rgba(255,255,255,0.6);">Low Tide</div><div style="font-size:12px;font-weight:700;color:#fff;" id="bc-ltide">--:--</div></div><span style="font-size:16px;">🔽</span></div>
+      <div style="background:rgba(255,200,50,0.1);border:1px solid rgba(255,200,50,0.3);border-radius:10px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:10px;color:rgba(255,220,100,0.8);">Sunrise</div><div style="font-size:12px;font-weight:700;color:#fff;" id="bc-sunrise">--:--</div></div><span style="font-size:16px;">🌅</span></div>
+      <div style="background:rgba(255,140,50,0.1);border:1px solid rgba(255,140,50,0.3);border-radius:10px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:10px;color:rgba(255,180,100,0.8);">Sunset</div><div style="font-size:12px;font-weight:700;color:#fff;" id="bc-sunset">--:--</div></div><span style="font-size:16px;">🌇</span></div>
+    </div>
+    <div style="background:rgba(255,255,255,0.1);border-radius:12px;padding:10px 14px;margin-bottom:7px;">
+      <div style="font-size:9px;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Gulf Water Temperature</div>
+      <div style="position:relative;height:8px;border-radius:99px;background:linear-gradient(90deg,#60a5fa,#34d399,#fbbf24,#f97316,#ef4444);margin-bottom:5px;"><div id="bc-needle" style="position:absolute;top:50%;left:0%;transform:translate(-50%,-50%);width:14px;height:14px;background:#fff;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.35);border:2px solid rgba(0,0,0,0.15);transition:left 1s ease;"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:8px;color:rgba(255,255,255,0.4);margin-bottom:6px;"><span>50°F</span><span>60°F</span><span>70°F</span><span>80°F</span><span>90°F+</span></div>
+      <div style="background:rgba(255,255,255,0.15);border-radius:8px;padding:8px;font-size:11px;color:#fff;text-align:center;" id="bc-verdict">Loading conditions...</div>
+    </div>
+    <div style="background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.3);border-radius:8px;padding:8px 12px;display:flex;align-items:center;gap:7px;color:#86efac;font-size:11px;margin-bottom:7px;">
+      <div style="width:7px;height:7px;border-radius:50%;background:#22c55e;animation:pulse-live 2.5s ease-in-out infinite;flex-shrink:0;"></div>
+      Always check beach flags at access points before entering the water
+    </div>
+    <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:14px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:8px;">
+      <div style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.85);font-weight:500;">Book Activities & Tours</div>
+      <img src="/tripshock-qr.png" style="width:110px;height:110px;border-radius:8px;background:#fff;padding:6px;" alt="TripShock QR"/>
+      <div style="text-align:center;">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:18px;color:#fff;">TripShock Destin</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.65);margin-top:2px;">Dolphin cruises · Crab Island · Fishing · Water sports</div>
+      </div>
+    </div>
+    <div style="margin-top:4px;font-size:8px;color:rgba(255,255,255,0.3);text-align:center;">NOAA Station 8729840 · Pensacola ~25mi from Destin</div>
+  </div>
+
+  <!-- CENTER: AI Recommendations -->
+  <div class="card" style="gap:14px;" id="recsCard">
+    <div class="sec-label" id="recsLabel">Your day · loading...</div>
+    <div class="day-grid" id="recsGrid">
+      <div class="moment morning"><div class="loading-recs">Loading morning recommendations...</div></div>
+      <div class="moment afternoon"><div class="loading-recs">Loading afternoon recommendations...</div></div>
+      <div class="moment evening"><div class="loading-recs">Loading evening recommendations...</div></div>
+    </div>
+    <div id="checkoutBanner" style="display:none;" class="checkout-banner">
+      <p id="checkoutMsg"></p>
+    </div>
+  </div>
+
+  <!-- RIGHT: Essentials -->
+  <div class="card essentials-card">
+    <div class="sec-label">Unit Essentials</div>
+    <div class="essential blue">
+      <div class="e-label">📶 Wi-Fi</div>
+      <div class="e-network">Pelican-guest.encowifi.com</div>
+      <div class="e-password">54541884</div>
+    </div>
+    <div class="essential green">
+      <div class="e-label">🕐 Check-out</div>
+      <div class="e-checkout" id="checkoutDate">—</div>
+      <div class="e-sub">10:00 AM · Door locks automatically</div>
+    </div>
+    <div class="essential amber" style="display:none;" id="checkoutEveAlert">
+      <div class="e-label">⚡ Tomorrow</div>
+      <div class="e-network" style="font-size:14px;color:#fde68a;">Check-out at 10 AM · Make sure the door is locked behind you</div>
+    </div>
+    <div class="divider"></div>
+    <div class="qr-single">
+      <div class="qr-img" style="padding:4px;">
+        <canvas id="destinyQR" width="92" height="92"></canvas>
+      </div>
+      <div class="qr-lbl">Chat with Destiny Blue</div>
+      <div class="qr-sub">Scan · She already knows who you are</div>
+    </div>
+    <div class="host-row">
+      <div>
+        <div class="host-label">Need anything?</div>
+        <div class="host-num">Ozan · (972) 357-4262</div>
+      </div>
+      <div style="font-size:11px;color:var(--teal);letter-spacing:1px;">destincondogetaways.com</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER: 5-day forecast -->
+<div class="footer" id="forecastFooter">
+  <div class="forecast"><div class="wx">—</div><div><div class="f-day">—</div><div class="f-temp">—</div><div class="f-low">—</div><div class="f-desc">Loading...</div></div></div>
+  <div class="forecast"><div class="wx">—</div><div><div class="f-day">—</div><div class="f-temp">—</div><div class="f-low">—</div><div class="f-desc">—</div></div></div>
+  <div class="forecast"><div class="wx">—</div><div><div class="f-day">—</div><div class="f-temp">—</div><div class="f-low">—</div><div class="f-desc">—</div></div></div>
+  <div class="forecast"><div class="wx">—</div><div><div class="f-day">—</div><div class="f-temp">—</div><div class="f-low">—</div><div class="f-desc">—</div></div></div>
+  <div class="forecast"><div class="wx">—</div><div><div class="f-day">—</div><div class="f-temp">—</div><div class="f-low">—</div><div class="f-desc">—</div></div></div>
+</div>
+
+</div>
+
+<script>
+const BASE = 'https://destin-concierge-new.vercel.app';
+const UNIT = '1006';
+const OPENAI_KEY = ''; // Leave blank — recommendations fetched via /api/tv-recommendations
+
+// ── Clock ─────────────────────────────────────────────────────────
+function updateClock() {
+  const now = new Date();
+  const opts = { timeZone: 'America/Chicago', weekday: 'long', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true };
+  document.getElementById('clockDisplay').textContent = now.toLocaleString('en-US', opts);
+}
+updateClock();
+setInterval(updateClock, 30000);
+
+// ── Condition icons ────────────────────────────────────────────────
+function wxIcon(condition) {
+  const c = (condition || '').toUpperCase();
+  if (c.includes('THUNDER') || c.includes('STORM')) return '⛈️';
+  if (c.includes('RAIN') || c.includes('DRIZZLE')) return '🌧️';
+  if (c.includes('PARTLY') || c.includes('MOSTLY_CLOUDY')) return '⛅';
+  if (c.includes('CLOUDY') || c.includes('OVERCAST')) return '☁️';
+  if (c.includes('FOG')) return '🌫️';
+  if (c.includes('WIND')) return '💨';
+  return '☀️';
+}
+
+function dayLabel(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  return d.toLocaleDateString('en-US', { weekday: 'short', timeZone: 'America/Chicago' }).toUpperCase();
+}
+
+// ── Screen state machine ─────────────────────────────────────────
+// STATE A: Active stay — booking exists, not checkout morning
+// STATE B: Checkout morning — departure=today AND hour>=10 → goodbye screen
+// STATE C: Between guests — no booking, hour>=10 → generic screen
+// STATE D: New guest from noon — booking exists, arrival=today, hour>=12
+
+function clearOldCache(currentKey) {
+  Object.keys(localStorage)
+    .filter(k => k.startsWith('tv1006_recs_') && k !== currentKey)
+    .forEach(k => localStorage.removeItem(k));
+}
+
+function resetScreenElements() {
+  // Ensure all elements are visible and reset before applying a new state
+  document.getElementById('recsCard').style.display = '';
+  document.getElementById('checkoutEveAlert').style.display = 'none';
+  document.getElementById('checkoutBanner').style.display = 'none';
+  const qrSingle = document.querySelector('.qr-single');
+  if (qrSingle) qrSingle.style.display = '';
+  // Restore checkout card labels to default — may have been changed by generic screen
+  const checkoutDate = document.getElementById('checkoutDate');
+  if (checkoutDate) {
+    const labelEl = checkoutDate.previousElementSibling;
+    const subEl = checkoutDate.nextElementSibling;
+    if (labelEl) labelEl.textContent = '🕐 Check-out';
+    if (subEl) subEl.textContent = '10:00 AM · Door locks automatically';
+  }
+}
+
+function showGoodbyeScreen(name) {
+  resetScreenElements();
+  document.getElementById('guestName').textContent = name;
+  document.getElementById('welcomeMsg').textContent = `Safe travels, ${name}! We hope this stay was everything you dreamed of. Check-out is 10 AM — door locks automatically behind you. We'd love to have you back! 🌊`;
+  document.getElementById('recsCard').style.display = 'none';
+  document.getElementById('checkoutDate').textContent = 'Today';
+  // Hide Destiny Blue QR on goodbye screen — guest is leaving
+  const qrSingle = document.querySelector('.qr-single');
+  if (qrSingle) qrSingle.style.display = 'none';
+  // Clear all cached recs — fresh start for next guest
+  Object.keys(localStorage).filter(k => k.startsWith('tv1006_recs_')).forEach(k => localStorage.removeItem(k));
+}
+
+function showGenericScreen() {
+  resetScreenElements();
+  document.getElementById('guestName').textContent = 'Unit 1006';
+  document.getElementById('welcomeMsg').textContent = 'Welcome to Pelican Beach Resort. Check-in begins at 4 PM. WiFi details are in the panel below.';
+  document.getElementById('recsCard').style.display = 'none';
+  // Hide Destiny Blue QR — no guest booking
+  const qrSingle = document.querySelector('.qr-single');
+  if (qrSingle) qrSingle.style.display = 'none';
+  // Fix checkout card to show check-in time — target by ID not class selector
+  document.getElementById('checkoutDate').textContent = '4:00 PM';
+  const checkoutEl = document.getElementById('checkoutDate');
+  if (checkoutEl) {
+    const subEl = checkoutEl.nextElementSibling;
+    if (subEl) subEl.textContent = 'Check-in begins at 4 PM';
+    const labelEl = checkoutEl.previousElementSibling;
+    if (labelEl) labelEl.textContent = '🕐 Check-in';
+  }
+}
+
+// ── Load live data from /api/tv-data ──────────────────────────────
+function updateBackground(timeSlot, isCheckoutEve) {
+  const gradients = {
+    morning:   'radial-gradient(ellipse at 20% 80%,#7c3f00 0%,#b45309 20%,#1e3a5f 55%,#0a1628 100%)',
+    afternoon: 'radial-gradient(ellipse at 50% 0%,#0a4a6e 0%,#0a3352 30%,#081e38 65%,#040e1c 100%)',
+    evening:   'radial-gradient(ellipse at 60% 90%,#7c2d12 0%,#9d174d 25%,#2e1065 60%,#0a0a1a 100%)',
+    night:     'radial-gradient(ellipse at 50% 50%,#0f172a 0%,#050a14 60%,#020408 100%)'
+  };
+  const slot = isCheckoutEve ? 'night' : (timeSlot || 'morning');
+  document.body.style.background = gradients[slot] || gradients.morning;
+  const starCanvas = document.getElementById('starCanvas');
+  if (starCanvas) starCanvas.style.opacity = slot === 'night' ? '1' : '0';
+}
+
+(function initStars() {
+  const canvas = document.getElementById('starCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  canvas.width = 1920;
+  canvas.height = 1080;
+  const stars = [];
+  for (let i = 0; i < 220; i++) {
+    stars.push({
+      x: Math.random() * 1920,
+      y: Math.random() * 1080,
+      r: Math.random() * 1.4 + 0.3,
+      alpha: Math.random() * 0.6 + 0.2,
+      speed: Math.random() * 0.008 + 0.002,
+      offset: Math.random() * Math.PI * 2,
+      bright: Math.random() < 0.08
+    });
+  }
+  let t = 0;
+  function draw() {
+    ctx.clearRect(0, 0, 1920, 1080);
+    stars.forEach(s => {
+      const twinkle = s.alpha + Math.sin(t * s.speed * 60 + s.offset) * 0.25;
+      const alpha = Math.max(0.05, Math.min(1, twinkle));
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.shadowBlur = s.bright ? 6 : 0;
+      ctx.shadowColor = 'rgba(200,210,255,0.8)';
+      ctx.fillStyle = 'rgba(220,225,255,' + alpha + ')';
+      ctx.fill();
+    });
+    t += 0.016;
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+async function loadLiveData() {
+  try {
+    const res = await fetch(`${BASE}/api/tv-data?unit=${UNIT}`);
+    if (!res.ok) throw new Error('tv-data failed');
+    const d = await res.json();
+
+    // Always render weather forecast footer regardless of state
+    if (d.weather) {
+      const cards = document.getElementById('forecastFooter').children;
+      d.weather.slice(0, 5).forEach((day, i) => {
+        if (cards[i]) {
+          cards[i].innerHTML = `
+            <div class="wx">${wxIcon(day.condition)}</div>
+            <div>
+              <div class="f-day">${dayLabel(day.date)}</div>
+              <div class="f-temp">${day.high}°F</div>
+              <div class="f-low">Low ${day.low}°F</div>
+              <div class="f-desc" style="color:var(--teal);">${day.desc}</div>
+            </div>`;
+        }
+      });
+    }
+
+    // ── STATE B: Checkout morning ────────────────────────────────
+    if (d.isCheckoutMorning) {
+      showGoodbyeScreen(d.booking?.guestFirstName || 'Guest');
+      return;
+    }
+
+    // ── STATE C: Between guests ──────────────────────────────────
+    if (d.isBetweenGuests) {
+      showGenericScreen();
+      return;
+    }
+
+    // ── STATE A/D: Active stay or new guest from noon ────────────
+    resetScreenElements(); // ensure nothing is stuck hidden from a prior state
+    const name = d.booking?.guestFirstName || 'Guest';
+    document.getElementById('guestName').textContent = name;
+
+    if (d.booking) {
+      const dep = new Date(d.booking.departure + 'T12:00:00');
+      const depFmt = dep.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'America/Chicago' });
+      const arrival = new Date(d.booking.arrival + 'T12:00:00');
+      const todayDate = new Date(d.today + 'T12:00:00');
+      const dayNum = Math.round((todayDate - arrival) / (1000 * 60 * 60 * 24)) + 1;
+      document.getElementById('checkoutDate').textContent = dep.toLocaleDateString('en-US', { month: 'long', day: 'numeric', timeZone: 'America/Chicago' });
+      if (d.isCheckoutEve) document.getElementById('checkoutEveAlert').style.display = 'block';
+
+      // Dynamic Destiny Blue QR — keyed to this specific guest
+      const bid = d.booking.ref || d.booking.id || '';
+      const fname = d.booking.guestFirstName || '';
+      const bookingUrl = `https://www.destincondogetaways.com/ai-concierge-574036277?fname=${encodeURIComponent(fname)}&bid=${bid}`;
+      QRCode.toCanvas(document.getElementById('destinyQR'), bookingUrl, {
+        width: 92, margin: 1, color: { dark: '#000000', light: '#ffffff' }
+      }, err => { if(err) console.error('QR error:', err); });
+    }
+
+    // Load AI recommendations — cache key includes booking ref to prevent bleed-through between guests
+    const bookingRef = d.booking?.ref || d.booking?.id || 'generic';
+    updateBackground(d.timeSlot, d.isCheckoutEve);
+    await loadRecommendations(name, d.weather, d.noaa, d.today, d.timeSlot, d.isCheckoutEve, d.booking, bookingRef);
+
+  } catch (e) {
+    console.error('loadLiveData error:', e);
+    document.getElementById('guestName').textContent = 'Guest';
+    document.getElementById('welcomeMsg').textContent = 'Welcome to Unit 1006 at Pelican Beach Resort. We hope you enjoy your stay!';
+  }
+}
+
+// ── AI Recommendations — cached by date + booking ref ─────────────
+async function loadRecommendations(guestName, weather, noaa, today, timeSlot, isCheckoutEve, booking, bookingRef) {
+  const cacheKey = `tv1006_recs_${today}_${bookingRef}`;
+  const cached = localStorage.getItem(cacheKey);
+
+  let recs;
+  if (cached) {
+    try { recs = JSON.parse(cached); } catch(e) { recs = null; }
+  }
+
+  if (!recs) {
+    recs = await fetchAIRecommendations(guestName, weather, noaa, today, isCheckoutEve, booking);
+    if (recs) localStorage.setItem(cacheKey, JSON.stringify(recs));
+    // Clean up all other cache keys — only keep current guest's cache
+    clearOldCache(cacheKey);
+  }
+
+  if (recs) {
+    renderRecommendations(recs, timeSlot, isCheckoutEve, guestName, today);
+  }
+}
+
+async function fetchAIRecommendations(guestName, weather, noaa, today, isCheckoutEve, booking) {
+  try {
+    const dayOfWeek = new Date(today + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', timeZone: 'America/Chicago' });
+    const tempHigh = weather?.[0]?.high || 78;
+    const weatherDesc = weather?.[0] ? `${tempHigh}°F high, ${weather[0].desc}` : 'warm and sunny';
+    const waterDesc = noaa?.waterTemp ? `Gulf water ${noaa.waterTemp}°F` : '';
+    const sunsetTime = noaa?.sunset || 'around 8pm';
+    const windSpeed = noaa?.wind?.speed || 0;
+    const rainDesc = (() => {
+      const desc = (weather?.[0]?.desc || '').toLowerCase();
+      if (desc.match(/thunder|storm/)) return 'heavy';
+      if (desc.match(/rain|shower/)) return 'light';
+      return 'none';
+    })();
+    const isHot = tempHigh >= 85;
+
+    // Calculate day number of stay
+    let dayNumber = 1;
+    let totalNights = booking?.nights || 1;
+    if (booking?.arrival) {
+      const arrival = new Date(booking.arrival + 'T12:00:00');
+      const todayDate = new Date(today + 'T12:00:00');
+      dayNumber = Math.round((todayDate - arrival) / (1000 * 60 * 60 * 24)) + 1;
+    }
+    const isFirstDay = dayNumber === 1;
+    const isLastNight = isCheckoutEve;
+    const isMiddleDay = !isFirstDay && !isLastNight;
+
+    const dayContext = isFirstDay
+      ? `This is DAY 1 of their ${totalNights}-night stay — their first hours in the unit.`
+      : isLastNight
+      ? `This is their LAST NIGHT — they check out tomorrow at 10 AM.`
+      : `This is day ${dayNumber} of ${totalNights} — they are settled in and enjoying their stay.`;
+
+    const prompt = [
+      'You are Destiny Blue, the personal AI concierge for Destin Condo Getaways. You write as Ozan, the owner — warm, genuine, personal. Never robotic or generic.',
+      '',
+      'Guest: ' + guestName + '. Unit 1006, 10th floor Gulf-front, Pelican Beach Resort, Destin FL.',
+      'Today: ' + dayOfWeek + '. Temp: ' + tempHigh + '°F high. ' + weatherDesc + '. ' + waterDesc + '. Wind: ' + windSpeed + ' mph. Sunset: ' + sunsetTime + '.',
+      dayContext,
+      '',
+      'WEATHER RULES:',
+      rainDesc === 'heavy' ? 'Heavy rain today — all activities must be fully indoor: Destin Commons, escape rooms, bowling, covered HarborWalk dining.' : '',
+      rainDesc === 'light' ? 'Light rain today — prefer covered outdoor or indoor options: HarborWalk covered dining, Boshamps covered deck, Destin Commons. Avoid open beach activities.' : '',
+      rainDesc === 'none' && isHot ? 'Hot day (' + tempHigh + '°F) — recommend beach and water activities for early morning only. Afternoon should favour air-conditioned dining or shaded waterfront spots.' : '',
+      windSpeed >= 20 ? 'Wind is ' + windSpeed + ' mph — do NOT recommend paddleboarding, kayaking, dolphin cruises, or any open-water activities.' : '',
+      rainDesc === 'none' && !isHot ? 'Great weather — outdoor and water activities are appropriate all day.' : '',
+      '',
+      'RESTAURANT POOLS — pick from these only, real Destin places:',
+      'Morning eat pool (pick any 3, this is day ' + dayNumber + ' of the stay — choose a different combination from previous days, do not repeat restaurants already recommended earlier in this stay): Crackings, Ruby Slipper Cafe, Another Broken Egg, Donut Hole Bakery, Aegean Greek Restaurant, Capriccio Cafe.',
+      'Afternoon + Evening eat pool (pick 3 per slot appropriate to lunch or dinner — this is day ' + dayNumber + ', choose different restaurants from those recommended on earlier days of this stay): AJs Seafood and Oyster Bar, Dewey Destins Seafood, Boshamps, The Back Porch, Louisiana Lagniappe, Mimmos Ristorante, Pazzo Italiano, McGuires Irish Pub, The Edge SkyBar, Harbor Docks, Jackacudas Seafood and Sushi, Boathouse Oyster Bar, Fudpuckers, Harry Ts Lighthouse, Harbor Tavern, Osaka Japanese, Sushimoto.',
+      'Pool exhausted rule: if dayNumber exceeds pool variety, repeats are fine — always prioritise best fit for conditions and meal type.',
+      '',
+      'ACTIVITY RULES:',
+      'Vary DO recommendations daily — prefer activities not recommended on earlier days of this stay.',
+      'Weather appropriateness takes priority over variety.',
+      'Only recommend legal, established activities in Destin. Never suggest beach bonfires, fireworks on the beach, or dogs on the beach.',
+      '',
+      isFirstDay ? ('DAY 1 RULES: Do NOT mention weather. subMorning/Afternoon/Evening should be a warm personal welcome from Ozan — max 2 sentences. Cover: (1) So happy to have ' + guestName + ' here, this TV page shows daily recommendations and live beach conditions (2) Scan TripShock QR on the left for activities like dolphin cruises and Crab Island, scan Destiny Blue QR on the right for restaurant tips and local advice. Natural and personal. greetingMorning/Afternoon/Evening should be Welcome, ' + guestName + ' on day 1.') : '',
+      isMiddleDay ? ('MIDDLE DAY RULES: No welcome. Casual daily note from Ozan — reference day ' + dayNumber + ' of ' + totalNights + ', today weather, one specific thing worth doing. Like a text from a local friend who lives in Destin.') : '',
+      isLastNight ? 'LAST NIGHT RULES: Heartfelt thank you. One thing worth doing tonight. Checkout is 10 AM tomorrow.' : '',
+      '',
+      'Generate ONLY raw JSON, no markdown, no explanation:',
+      '{',
+      '  "greetingMorning": "Good morning, ' + guestName + '",',
+      '  "greetingAfternoon": "Good afternoon, ' + guestName + '",',
+      '  "greetingEvening": "Good evening, ' + guestName + '",',
+      '  "subMorning": "2-3 sentences, personal and warm, written as Ozan. Reference the day number, weather, something specific about the 7th floor unit or Gulf view. Like a note slipped under the door from a host who genuinely cares. No greeting prefix.",',
+      '  "subAfternoon": "2-3 sentences, same tone, afternoon-appropriate observation about the day, weather, or something worth noticing from the balcony. No greeting prefix.",',
+      '  "subEvening": "2-3 sentences, warm and winding-down tone, reference the sunset or evening Gulf atmosphere. No greeting prefix.",',
+      '  "checkoutEveMsg": "heartfelt thank you, checkout 10 AM tomorrow, hope to see ' + guestName + ' again",',
+      '  "morning": {"eat": [{"name": "...","tip": "one specific thing to order or know, max 10 words"},{"name": "...","tip": "..."},{"name": "...","tip": "..."}],"do": [{"name": "...","tip": "why today specifically, max 10 words"},{"name": "...","tip": "..."},{"name": "...","tip": "..."}]},',
+      '  "afternoon": {"eat": [{"name": "...","tip": "..."},{"name": "...","tip": "..."},{"name": "...","tip": "..."}],"do": [{"name": "...","tip": "..."},{"name": "...","tip": "..."},{"name": "...","tip": "..."}]},',
+      '  "evening": {"eat": [{"name": "...","tip": "..."},{"name": "...","tip": "..."},{"name": "...","tip": "..."}],"tonight": [{"name": "...","tip": "..."},{"name": "...","tip": "..."},{"name": "...","tip": "..."}]}',
+      '}',
+      '',
+      'Evening tonight: always include Sunset from Balcony at ' + sunsetTime + ' unless raining. All tonight items must be legal, established Destin activities only.'
+    ].filter(Boolean).join('\n');
+
+    const res = await fetch(`${BASE}/api/tv-recommendations`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt })
+    });
+
+    const data = await res.json();
+    const text = data.content?.[0]?.text || '';
+    const clean = text.replace(/```json|```/g, '').trim();
+    return JSON.parse(clean);
+  } catch (e) {
+    console.error('fetchAIRecommendations error:', e);
+    return null;
+  }
+}
+
+function renderRecommendations(recs, timeSlot, isCheckoutEve, guestName, today) {
+  // Greeting goes into h1, subtext goes into welcomeMsg
+  const greetingMap = { morning: recs.greetingMorning, afternoon: recs.greetingAfternoon, evening: recs.greetingEvening };
+  const subMap = { morning: recs.subMorning, afternoon: recs.subAfternoon, evening: recs.subEvening };
+  const greeting = greetingMap[timeSlot] || recs.greetingMorning || guestName;
+  const sub = isCheckoutEve ? recs.checkoutEveMsg : (subMap[timeSlot] || recs.subMorning || '');
+  // Update h1: hide "Welcome, " prefix, replace guestName span with full greeting
+  const prefixEl = document.getElementById('welcomePrefix');
+  const nameEl = document.getElementById('guestName');
+  if (prefixEl) prefixEl.style.display = 'none';
+  if (nameEl) nameEl.textContent = greeting;
+  document.getElementById('welcomeMsg').textContent = sub || '';
+
+  // Checkout eve banner
+  if (isCheckoutEve) {
+    document.getElementById('checkoutBanner').style.display = 'block';
+    document.getElementById('checkoutMsg').textContent = recs.checkoutEveMsg || '';
+  }
+
+  // Day label
+  const dayLabel = new Date(today + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'America/Chicago' });
+  document.getElementById('recsLabel').textContent = `Your day · ${dayLabel}`;
+
+  function buildItems(items) {
+    return (items || []).map(item => `
+      <div class="rec-item" style="flex-direction:column;align-items:flex-start;margin-bottom:8px;">
+        <span class="rec-name">${item.name}</span>
+        ${item.tip ? `<span class="rec-meta" style="font-size:11px;color:var(--soft);margin-top:2px;font-family:'DM Sans',sans-serif;">${item.tip}</span>` : ''}
+      </div>`).join('');
+  }
+
+  const grid = document.getElementById('recsGrid');
+  grid.innerHTML = `
+    <div class="moment morning">
+      <div class="moment-head"><div class="m-icon">🌅</div><div><div class="m-title">Morning</div><div class="m-time">Until noon</div></div></div>
+      <div class="split-label">Eat</div>${buildItems(recs.morning?.eat)}
+      <div class="split-label">Do</div>${buildItems(recs.morning?.do)}
+    </div>
+    <div class="moment afternoon">
+      <div class="moment-head"><div class="m-icon">☀️</div><div><div class="m-title">Afternoon</div><div class="m-time">Noon – 5 PM</div></div></div>
+      <div class="split-label">Eat</div>${buildItems(recs.afternoon?.eat)}
+      <div class="split-label">Do</div>${buildItems(recs.afternoon?.do)}
+    </div>
+    <div class="moment evening">
+      <div class="moment-head"><div class="m-icon">🌇</div><div><div class="m-title">Evening</div><div class="m-time">5 PM onwards</div></div></div>
+      <div class="split-label">Eat</div>${buildItems(recs.evening?.eat)}
+      <div class="split-label">Tonight</div>${buildItems(recs.evening?.tonight)}
+    </div>`;
+}
+
+// ── Beach Conditions (NOAA + Open-Meteo direct) ───────────────────
+const NOAA_BASE = 'https://api.tidesandcurrents.noaa.gov/api/prod/datagetter';
+const NOAA_ST = '8729840';
+const NOAA_APP = 'destincondogetaways';
+
+function noaaUrl(product) { return `${NOAA_BASE}?date=latest&station=${NOAA_ST}&product=${product}&units=english&time_zone=lst&application=${NOAA_APP}&format=json`; }
+function tidesUrl(day) {
+  if (day === 'today') return `${NOAA_BASE}?date=today&station=${NOAA_ST}&product=predictions&datum=MLLW&time_zone=lst&interval=hilo&units=english&application=${NOAA_APP}&format=json`;
+  const d = new Date(); d.setDate(d.getDate()+1);
+  const ds = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+  return `${NOAA_BASE}?begin_date=${ds}&end_date=${ds}&station=${NOAA_ST}&product=predictions&datum=MLLW&time_zone=lst&interval=hilo&units=english&application=${NOAA_APP}&format=json`;
+}
+function openMeteoUrl() { return 'https://api.open-meteo.com/v1/forecast?latitude=30.3763&longitude=-86.4958&current=relative_humidity_2m,wind_speed_10m,wind_direction_10m&wind_speed_unit=mph&daily=sunrise,sunset&timezone=America%2FChicago'; }
+function degToCompass(d) { return ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'][Math.round(d/22.5)%16]; }
+function mbToInHg(mb) { return (mb*0.02953).toFixed(2); }
+function parseNoaaTime(str) {
+  if (!str) return null;
+  const [dp,tp] = str.split(' '); const [y,mo,day] = dp.split('-').map(Number); const [h,m] = tp.split(':').map(Number);
+  const tmp = new Date(Date.UTC(y,mo-1,day,12,0,0));
+  const chiH = parseInt(new Intl.DateTimeFormat('en-US',{timeZone:'America/Chicago',hour:'numeric',hour12:false}).format(tmp));
+  return new Date(Date.UTC(y,mo-1,day,h+(12-chiH),m));
+}
+function formatTime(s) { const [,t]=s.split(' '); if(!t) return s; const [h,m]=t.split(':'); const hr=parseInt(h); return `${hr%12||12}:${m} ${hr>=12?'PM':'AM'}`; }
+function fmtMs(ms) { return new Date(ms).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true,timeZone:'America/Chicago'}); }
+function dayPfx(ms) {
+  const opts={timeZone:'America/Chicago',year:'numeric',month:'numeric',day:'numeric'};
+  const fmt=new Intl.DateTimeFormat('en-US',opts);
+  const tod=fmt.format(new Date()); const tgt=fmt.format(new Date(ms));
+  if(tod===tgt) return 'Today ';
+  const tmr=new Date(); tmr.setDate(tmr.getDate()+1);
+  if(fmt.format(tmr)===tgt) return 'Tomorrow ';
+  return new Date(ms).toLocaleDateString('en-US',{weekday:'short',timeZone:'America/Chicago'})+' ';
+}
+function bcVerdict(t) {
+  if(t<66) return{e:'🧥',txt:'Brisk — best for a shoreline stroll or shell hunting.'};
+  if(t<75) return{e:'🏄',txt:'Refreshing! Great for paddleboarding or a quick dip.'};
+  if(t<83) return{e:'🌴',txt:'Paradise! The Gulf is perfect — dive in!'};
+  return{e:'☀️',txt:'Tropical! Like a bathtub. Stay hydrated!'};
+}
+function bcStatus(s,e) { const n=Date.now(); if(n>=s&&n<=e) return 'active'; if(s>n&&s-n<=3600000) return 'soon'; return 'upcoming'; }
+function bcStatusLabel(s) { return s==='active'?'Active Now':s==='soon'?'Starting Soon':'Upcoming'; }
+let bcSunriseMs=null, bcSunsetMs=null, bcCachedTides=[];
+function bcDaylight(s,e) {
+  const rise=bcSunriseMs||(()=>{const d=new Date();d.setHours(7,0,0,0);return d.getTime()})();
+  const set=bcSunsetMs||(()=>{const d=new Date();d.setHours(20,0,0,0);return d.getTime()})();
+  return s<set&&e>rise;
+}
+function bcApplyAct(elId, timeId, status, s, e) {
+  const el=document.getElementById('bc-acts')?.children;
+  const idx=['crab','snorkel','fish','shell'].indexOf(elId); if(idx===-1||!el) return;
+  const card=el[idx]; card.className=`bc-act-card ${status}`;
+  const st=card.querySelector('.bc-act-status'); if(st){st.className=`bc-act-status ${status}`;st.textContent=bcStatusLabel(status);}
+  const te=document.getElementById(timeId); if(!te) return;
+  if(s&&e){const sp=dayPfx(s);const ep=dayPfx(e);te.textContent=`${sp}${fmtMs(s)} – ${ep!==sp?ep:''}${fmtMs(e)}`;}
+  else te.textContent='Check back tomorrow';
+}
+function bcUpdateActivities(tides) {
+  if(!tides||!tides.length) return;
+  const MIN=60000, HR=3600000, now=Date.now();
+  const highs=tides.filter(t=>t.type==='H').map(t=>({ms:parseNoaaTime(t.t)?.getTime()})).filter(t=>t.ms).sort((a,b)=>a.ms-b.ms);
+  const lows=tides.filter(t=>t.type==='L').map(t=>({ms:parseNoaaTime(t.t)?.getTime()})).filter(t=>t.ms).sort((a,b)=>a.ms-b.ms);
+  const all=[...highs.map(t=>({...t,type:'H'})),...lows.map(t=>({...t,type:'L'}))].sort((a,b)=>a.ms-b.ms);
+  const crabH=highs.find(t=>{const s=t.ms-90*MIN,e=t.ms+90*MIN,hr=parseInt(new Intl.DateTimeFormat('en-US',{timeZone:'America/Chicago',hour:'numeric',hour12:false}).format(new Date(t.ms)));return e>now&&bcDaylight(s,e)&&hr<13;})||null;
+  if(crabH){const s=crabH.ms-90*MIN,e=crabH.ms+90*MIN;bcApplyAct('crab','bc-t-crab',bcStatus(s,e),s,e);}else bcApplyAct('crab','bc-t-crab','upcoming',null,null);
+  const snorkT=all.find(t=>{const s=t.ms-90*MIN,e=t.ms+90*MIN;return e>now&&bcDaylight(s,e);})||null;
+  if(snorkT){const s=snorkT.ms-90*MIN,e=snorkT.ms+90*MIN;bcApplyAct('snorkel','bc-t-snorkel',bcStatus(s,e),s,e);}else bcApplyAct('snorkel','bc-t-snorkel','upcoming',null,null);
+  const fishT=all.find(t=>(t.ms+4*HR)>now)||null;
+  if(fishT){const s=fishT.ms+2*HR,e=fishT.ms+4*HR;bcApplyAct('fish','bc-t-fish',bcStatus(s,e),s,e);}else bcApplyAct('fish','bc-t-fish','upcoming',null,null);
+  const shellL=lows.find(t=>{const s=t.ms-HR,e=t.ms+HR;return e>now&&bcDaylight(s,e);})||null;
+  if(shellL){const s=shellL.ms-HR,e=shellL.ms+HR;bcApplyAct('shell','bc-t-shell',bcStatus(s,e),s,e);}else bcApplyAct('shell','bc-t-shell','upcoming',null,null);
+}
+function bcSet(id,val){const el=document.getElementById(id);if(el)el.textContent=val;}
+async function fetchBeachConditions() {
+  try {
+    const [wRes,aRes,pRes,tRes,tmrRes,mRes]=await Promise.all([
+      fetch(noaaUrl('water_temperature')).then(r=>r.json()),
+      fetch(noaaUrl('air_temperature')).then(r=>r.json()),
+      fetch(noaaUrl('air_pressure')).then(r=>r.json()),
+      fetch(tidesUrl('today')).then(r=>r.json()),
+      fetch(tidesUrl('tomorrow')).then(r=>r.json()),
+      fetch(openMeteoUrl()).then(r=>r.json())
+    ]);
+    if(wRes.data?.[0]?.v){const wt=parseFloat(wRes.data[0].v);bcSet('bc-water',wt.toFixed(1)+'°F');const pct=Math.min(98,Math.max(2,((wt-50)/45)*100));const n=document.getElementById('bc-needle');if(n)n.style.left=pct+'%';const v=bcVerdict(wt);bcSet('bc-verdict',v.e+' '+v.txt);}
+    if(aRes.data?.[0]?.v)bcSet('bc-air',parseFloat(aRes.data[0].v).toFixed(1)+'°F');
+    if(pRes.data?.[0]?.v)bcSet('bc-pressure',mbToInHg(parseFloat(pRes.data[0].v))+' inHg');
+    if(tRes.predictions?.length){const all=[...tRes.predictions,...(tmrRes.predictions||[])];bcCachedTides=all;const now=new Date();const hs=tRes.predictions.filter(p=>p.type==='H');const ls=tRes.predictions.filter(p=>p.type==='L');const nh=hs.find(p=>parseNoaaTime(p.t)>now)||hs[0];const nl=ls.find(p=>parseNoaaTime(p.t)>now)||ls[0];if(nh)bcSet('bc-htide',formatTime(nh.t)+' · '+parseFloat(nh.v).toFixed(1)+'ft');if(nl)bcSet('bc-ltide',formatTime(nl.t)+' · '+parseFloat(nl.v).toFixed(1)+'ft');bcUpdateActivities(all);}
+    if(mRes.current){bcSet('bc-wind',mRes.current.wind_speed_10m.toFixed(1)+' mph '+degToCompass(mRes.current.wind_direction_10m));bcSet('bc-hum',mRes.current.relative_humidity_2m+'%');}
+    if(mRes.daily?.sunrise?.[0]){bcSunriseMs=new Date(mRes.daily.sunrise[0]).getTime();bcSunsetMs=new Date(mRes.daily.sunset[0]).getTime();const f=ms=>new Date(ms).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true,timeZone:'America/Chicago'});bcSet('bc-sunrise',f(bcSunriseMs));bcSet('bc-sunset',f(bcSunsetMs));}
+    const now2=new Date();const ts=now2.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',hour12:true,timeZone:'America/Chicago'});bcSet('bc-badge','LIVE · '+ts);
+  } catch(e){console.error('beach conditions error:',e);}
+}
+fetchBeachConditions();
+setInterval(fetchBeachConditions, 6*60*1000);
+setInterval(()=>{if(bcCachedTides.length)bcUpdateActivities(bcCachedTides);},60*1000);
+// loadLiveData runs every 30 min and handles all state transitions + time slot switching
+loadLiveData();
+setInterval(loadLiveData, 30 * 60 * 1000);
+</script>
+</body>
+</html>

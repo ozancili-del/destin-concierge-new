@@ -369,7 +369,7 @@ function updateBackground(timeSlot, isCheckoutEve) {
     evening:   'radial-gradient(ellipse at 60% 90%,#7c2d12 0%,#9d174d 25%,#2e1065 60%,#0a0a1a 100%)',
     night:     'radial-gradient(ellipse at 50% 50%,#0f172a 0%,#050a14 60%,#020408 100%)'
   };
-  const slot = isCheckoutEve ? 'night' : (timeSlot || 'morning');
+  const slot = (isCheckoutEve && timeSlot === 'evening') ? 'night' : (timeSlot || 'morning');
   document.body.style.background = gradients[slot] || gradients.morning;
   const starCanvas = document.getElementById('starCanvas');
   if (starCanvas) starCanvas.style.opacity = slot === 'night' ? '1' : '0';

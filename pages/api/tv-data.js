@@ -92,7 +92,9 @@ async function fetchWeather() {
     if (!res.ok) return null;
     const data = await res.json();
     const days = data.forecastDays || [];
-    return days.map(day => ({
+    return days
+      .filter(day => day.date >= todayCT())
+      .map(day => ({
       date: day.interval?.startTime?.split("T")[0],
       high: Math.round(day.maxTemperature?.degrees || 0),
       low: Math.round(day.minTemperature?.degrees || 0),

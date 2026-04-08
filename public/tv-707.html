@@ -149,7 +149,7 @@ h1 span{color:var(--teal);}
 <header class="header">
   <div style="display:flex;flex-direction:column;justify-content:center;gap:6px;">
     <div class="eyebrow">Pelican Beach Resort · Unit 707 · 7th Floor · Destin, Florida</div>
-    <h1>Welcome, <span id="guestName">...</span></h1>
+    <h1><span id="welcomePrefix">Welcome, </span><span id="guestName">...</span></h1>
     <div class="welcome-msg" id="welcomeMsg">Loading your personalized welcome...</div>
   </div>
   <div class="status">
@@ -509,15 +509,18 @@ async function fetchAIRecommendations(guestName, weather, noaa, today, isCheckou
       'Weather appropriateness takes priority over variety.',
       'Only recommend legal, established activities in Destin. Never suggest beach bonfires, fireworks on the beach, or dogs on the beach.',
       '',
-      isFirstDay ? ('DAY 1 RULES: Do NOT mention weather. Write a warm personal welcome from Ozan — max 2 sentences. Cover: (1) So happy to have ' + guestName + ' here, this TV page shows daily recommendations and live beach conditions (2) Scan TripShock QR on the left for activities like dolphin cruises and Crab Island, scan Destiny Blue QR on the right for restaurant tips and local advice. Natural and personal.') : '',
+      isFirstDay ? ('DAY 1 RULES: Do NOT mention weather. subMorning/Afternoon/Evening should be a warm personal welcome from Ozan — max 2 sentences. Cover: (1) So happy to have ' + guestName + ' here, this TV page shows daily recommendations and live beach conditions (2) Scan TripShock QR on the left for activities like dolphin cruises and Crab Island, scan Destiny Blue QR on the right for restaurant tips and local advice. Natural and personal. greetingMorning/Afternoon/Evening should be Welcome, ' + guestName + ' on day 1.') : '',
       isMiddleDay ? ('MIDDLE DAY RULES: No welcome. Casual daily note from Ozan — reference day ' + dayNumber + ' of ' + totalNights + ', today weather, one specific thing worth doing. Like a text from a local friend who lives in Destin.') : '',
       isLastNight ? 'LAST NIGHT RULES: Heartfelt thank you. One thing worth doing tonight. Checkout is 10 AM tomorrow.' : '',
       '',
       'Generate ONLY raw JSON, no markdown, no explanation:',
       '{',
-      '  "welcomeMorning": "morning version of the message for ' + guestName + '",',
-      '  "welcomeAfternoon": "afternoon version of the message for ' + guestName + '",',
-      '  "welcomeEvening": "evening version of the message for ' + guestName + '",',
+      '  "greetingMorning": "Good morning, ' + guestName + '",',
+      '  "greetingAfternoon": "Good afternoon, ' + guestName + '",',
+      '  "greetingEvening": "Good evening, ' + guestName + '",',
+      '  "subMorning": "clever short subtext for morning — weather-aware, reference something specific about the unit or Destin, no greeting prefix",',
+      '  "subAfternoon": "clever short subtext for afternoon — weather-aware, something specific, no greeting prefix",',
+      '  "subEvening": "clever short subtext for evening — weather-aware, something specific, no greeting prefix",',
       '  "checkoutEveMsg": "heartfelt thank you, checkout 10 AM tomorrow, hope to see ' + guestName + ' again",',
       '  "morning": {"eat": [{"name": "..."},{"name": "..."},{"name": "..."}],"do": [{"name": "..."},{"name": "..."},{"name": "..."}]},',
       '  "afternoon": {"eat": [{"name": "..."},{"name": "..."},{"name": "..."}],"do": [{"name": "..."},{"name": "..."},{"name": "..."}]},',
@@ -544,10 +547,17 @@ async function fetchAIRecommendations(guestName, weather, noaa, today, isCheckou
 }
 
 function renderRecommendations(recs, timeSlot, isCheckoutEve, guestName, today) {
-  // Welcome message based on time slot
-  const welcomeMap = { morning: recs.welcomeMorning, afternoon: recs.welcomeAfternoon, evening: recs.welcomeEvening };
-  const msg = isCheckoutEve ? recs.checkoutEveMsg : (welcomeMap[timeSlot] || recs.welcomeMorning);
-  document.getElementById('welcomeMsg').textContent = msg || '';
+  // Greeting goes into h1, subtext goes into welcomeMsg
+  const greetingMap = { morning: recs.greetingMorning, afternoon: recs.greetingAfternoon, evening: recs.greetingEvening };
+  const subMap = { morning: recs.subMorning, afternoon: recs.subAfternoon, evening: recs.subEvening };
+  const greeting = greetingMap[timeSlot] || recs.greetingMorning || guestName;
+  const sub = isCheckoutEve ? recs.checkoutEveMsg : (subMap[timeSlot] || recs.subMorning || '');
+  // Update h1: hide "Welcome, " prefix, replace guestName span with full greeting
+  const prefixEl = document.getElementById('welcomePrefix');
+  const nameEl = document.getElementById('guestName');
+  if (prefixEl) prefixEl.style.display = 'none';
+  if (nameEl) nameEl.textContent = greeting;
+  document.getElementById('welcomeMsg').textContent = sub || '';
 
   // Checkout eve banner
   if (isCheckoutEve) {

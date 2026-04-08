@@ -141,6 +141,7 @@ h1 span{color:var(--teal);}
 <body>
 <div class="screen">
 
+<canvas id="starCanvas" style="position:absolute;inset:0;width:1920px;height:1080px;pointer-events:none;opacity:0;transition:opacity 1.5s ease;z-index:1;"></canvas>
 <svg class="waves" viewBox="0 0 1920 1080" preserveAspectRatio="none">
   <path d="M0 280 Q480 220 960 280 Q1440 340 1920 280" stroke="white" stroke-width="2" fill="none"/>
   <path d="M0 380 Q480 320 960 380 Q1440 440 1920 380" stroke="white" stroke-width="1" fill="none"/>
@@ -370,7 +371,46 @@ function updateBackground(timeSlot, isCheckoutEve) {
   };
   const slot = isCheckoutEve ? 'night' : (timeSlot || 'morning');
   document.body.style.background = gradients[slot] || gradients.morning;
+  const starCanvas = document.getElementById('starCanvas');
+  if (starCanvas) starCanvas.style.opacity = slot === 'night' ? '1' : '0';
 }
+
+(function initStars() {
+  const canvas = document.getElementById('starCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  canvas.width = 1920;
+  canvas.height = 1080;
+  const stars = [];
+  for (let i = 0; i < 220; i++) {
+    stars.push({
+      x: Math.random() * 1920,
+      y: Math.random() * 1080,
+      r: Math.random() * 1.4 + 0.3,
+      alpha: Math.random() * 0.6 + 0.2,
+      speed: Math.random() * 0.008 + 0.002,
+      offset: Math.random() * Math.PI * 2,
+      bright: Math.random() < 0.08
+    });
+  }
+  let t = 0;
+  function draw() {
+    ctx.clearRect(0, 0, 1920, 1080);
+    stars.forEach(s => {
+      const twinkle = s.alpha + Math.sin(t * s.speed * 60 + s.offset) * 0.25;
+      const alpha = Math.max(0.05, Math.min(1, twinkle));
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.shadowBlur = s.bright ? 6 : 0;
+      ctx.shadowColor = 'rgba(200,210,255,0.8)';
+      ctx.fillStyle = 'rgba(220,225,255,' + alpha + ')';
+      ctx.fill();
+    });
+    t += 0.016;
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
 
 async function loadLiveData() {
   try {

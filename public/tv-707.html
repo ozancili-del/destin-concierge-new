@@ -518,13 +518,13 @@ async function fetchAIRecommendations(guestName, weather, noaa, today, isCheckou
       '  "greetingMorning": "Good morning, ' + guestName + '",',
       '  "greetingAfternoon": "Good afternoon, ' + guestName + '",',
       '  "greetingEvening": "Good evening, ' + guestName + '",',
-      '  "subMorning": "clever short subtext for morning — weather-aware, reference something specific about the unit or Destin, no greeting prefix",',
-      '  "subAfternoon": "clever short subtext for afternoon — weather-aware, something specific, no greeting prefix",',
-      '  "subEvening": "clever short subtext for evening — weather-aware, something specific, no greeting prefix",',
+      '  "subMorning": "2-3 sentences, personal and warm, written as Ozan. Reference the day number, weather, something specific about the 7th floor unit or Gulf view. Like a note slipped under the door from a host who genuinely cares. No greeting prefix.",',
+      '  "subAfternoon": "2-3 sentences, same tone, afternoon-appropriate observation about the day, weather, or something worth noticing from the balcony. No greeting prefix.",',
+      '  "subEvening": "2-3 sentences, warm and winding-down tone, reference the sunset or evening Gulf atmosphere. No greeting prefix.",',
       '  "checkoutEveMsg": "heartfelt thank you, checkout 10 AM tomorrow, hope to see ' + guestName + ' again",',
-      '  "morning": {"eat": [{"name": "..."},{"name": "..."},{"name": "..."}],"do": [{"name": "..."},{"name": "..."},{"name": "..."}]},',
-      '  "afternoon": {"eat": [{"name": "..."},{"name": "..."},{"name": "..."}],"do": [{"name": "..."},{"name": "..."},{"name": "..."}]},',
-      '  "evening": {"eat": [{"name": "..."},{"name": "..."},{"name": "..."}],"tonight": [{"name": "..."},{"name": "..."},{"name": "..."}]}',
+      '  "morning": {"eat": [{"name": "...","tip": "one specific thing to order or know, max 10 words"},{"name": "...","tip": "..."},{"name": "...","tip": "..."}],"do": [{"name": "...","tip": "why today specifically, max 10 words"},{"name": "...","tip": "..."},{"name": "...","tip": "..."}]},',
+      '  "afternoon": {"eat": [{"name": "...","tip": "..."},{"name": "...","tip": "..."},{"name": "...","tip": "..."}],"do": [{"name": "...","tip": "..."},{"name": "...","tip": "..."},{"name": "...","tip": "..."}]},',
+      '  "evening": {"eat": [{"name": "...","tip": "..."},{"name": "...","tip": "..."},{"name": "...","tip": "..."}],"tonight": [{"name": "...","tip": "..."},{"name": "...","tip": "..."},{"name": "...","tip": "..."}]}',
       '}',
       '',
       'Evening tonight: always include Sunset from Balcony at ' + sunsetTime + ' unless raining. All tonight items must be legal, established Destin activities only.'
@@ -571,8 +571,9 @@ function renderRecommendations(recs, timeSlot, isCheckoutEve, guestName, today) 
 
   function buildItems(items) {
     return (items || []).map(item => `
-      <div class="rec-item">
+      <div class="rec-item" style="flex-direction:column;align-items:flex-start;margin-bottom:8px;">
         <span class="rec-name">${item.name}</span>
+        ${item.tip ? `<span class="rec-meta" style="font-size:11px;color:var(--soft);margin-top:2px;font-family:'DM Sans',sans-serif;">${item.tip}</span>` : ''}
       </div>`).join('');
   }
 

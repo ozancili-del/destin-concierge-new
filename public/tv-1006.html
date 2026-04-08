@@ -235,10 +235,7 @@ h1 span{color:var(--teal);}
       <div class="e-checkout" id="checkoutDate">—</div>
       <div class="e-sub">10:00 AM · Door locks automatically</div>
     </div>
-    <div class="essential amber" style="display:none;" id="checkoutEveAlert">
-      <div class="e-label">⚡ Tomorrow</div>
-      <div class="e-network" style="font-size:14px;color:#fde68a;">Check-out at 10 AM · Make sure the door is locked behind you</div>
-    </div>
+
     <div class="divider"></div>
     <div class="qr-single">
       <div class="qr-img" style="padding:4px;">
@@ -315,7 +312,6 @@ function clearOldCache(currentKey) {
 function resetScreenElements() {
   // Ensure all elements are visible and reset before applying a new state
   document.getElementById('recsCard').style.display = '';
-  document.getElementById('checkoutEveAlert').style.display = 'none';
   document.getElementById('checkoutBanner').style.display = 'none';
   const qrSingle = document.querySelector('.qr-single');
   if (qrSingle) qrSingle.style.display = '';
@@ -459,7 +455,6 @@ async function loadLiveData() {
       const todayDate = new Date(d.today + 'T12:00:00');
       const dayNum = Math.round((todayDate - arrival) / (1000 * 60 * 60 * 24)) + 1;
       document.getElementById('checkoutDate').textContent = dep.toLocaleDateString('en-US', { month: 'long', day: 'numeric', timeZone: 'America/Chicago' });
-      if (d.isCheckoutEve) document.getElementById('checkoutEveAlert').style.display = 'block';
 
       // Dynamic Destiny Blue QR — keyed to this specific guest
       const bid = d.booking.ref || d.booking.id || '';
@@ -530,12 +525,10 @@ async function fetchAIRecommendations(guestName, weather, noaa, today, isCheckou
     }
     const isFirstDay = dayNumber === 1;
     const isLastNight = isCheckoutEve;
-    const isMiddleDay = !isFirstDay && !isLastNight;
+    const isMiddleDay = !isFirstDay;
 
     const dayContext = isFirstDay
       ? `This is DAY 1 of their ${totalNights}-night stay — their first hours in the unit.`
-      : isLastNight
-      ? `This is their LAST NIGHT — they check out tomorrow at 10 AM.`
       : `This is day ${dayNumber} of ${totalNights} — they are settled in and enjoying their stay.`;
 
     const prompt = [
@@ -564,7 +557,6 @@ async function fetchAIRecommendations(guestName, weather, noaa, today, isCheckou
       '',
       isFirstDay ? ('DAY 1 RULES: Do NOT mention weather. subMorning/Afternoon/Evening should be a warm personal welcome from Ozan — max 2 sentences. Cover: (1) So happy to have ' + guestName + ' here, this TV page shows daily recommendations and live beach conditions (2) Scan TripShock QR on the left for activities like dolphin cruises and Crab Island, scan Destiny Blue QR on the right for restaurant tips and local advice. Natural and personal. greetingMorning/Afternoon/Evening should be Welcome, ' + guestName + ' on day 1.') : '',
       isMiddleDay ? ('MIDDLE DAY RULES: No welcome. Casual daily note from Ozan — reference day ' + dayNumber + ' of ' + totalNights + ', today weather, one specific thing worth doing. Like a text from a local friend who lives in Destin.') : '',
-      isLastNight ? 'LAST NIGHT RULES: Heartfelt thank you. One thing worth doing tonight. Checkout is 10 AM tomorrow.' : '',
       '',
       'Generate ONLY raw JSON, no markdown, no explanation:',
       '{',
@@ -574,7 +566,7 @@ async function fetchAIRecommendations(guestName, weather, noaa, today, isCheckou
       '  "subMorning": "2-3 sentences, personal and warm, written as Ozan. Reference the day number, weather, something specific about the 7th floor unit or Gulf view. Like a note slipped under the door from a host who genuinely cares. No greeting prefix.",',
       '  "subAfternoon": "2-3 sentences, same tone, afternoon-appropriate observation about the day, weather, or something worth noticing from the balcony. No greeting prefix.",',
       '  "subEvening": "2-3 sentences, warm and winding-down tone, reference the sunset or evening Gulf atmosphere. No greeting prefix.",',
-      '  "checkoutEveMsg": "heartfelt thank you, checkout 10 AM tomorrow, hope to see ' + guestName + ' again",',
+
       '  "morning": {"eat": [{"name": "...","tip": "one specific thing to order or know, max 10 words"},{"name": "...","tip": "..."},{"name": "...","tip": "..."}],"do": [{"name": "...","tip": "why today specifically, max 10 words"},{"name": "...","tip": "..."},{"name": "...","tip": "..."}]},',
       '  "afternoon": {"eat": [{"name": "...","tip": "..."},{"name": "...","tip": "..."},{"name": "...","tip": "..."}],"do": [{"name": "...","tip": "..."},{"name": "...","tip": "..."},{"name": "...","tip": "..."}]},',
       '  "evening": {"eat": [{"name": "...","tip": "..."},{"name": "...","tip": "..."},{"name": "...","tip": "..."}],"tonight": [{"name": "...","tip": "..."},{"name": "...","tip": "..."},{"name": "...","tip": "..."}]}',
@@ -604,7 +596,7 @@ function renderRecommendations(recs, timeSlot, isCheckoutEve, guestName, today) 
   const greetingMap = { morning: recs.greetingMorning, afternoon: recs.greetingAfternoon, evening: recs.greetingEvening };
   const subMap = { morning: recs.subMorning, afternoon: recs.subAfternoon, evening: recs.subEvening };
   const greeting = greetingMap[timeSlot] || recs.greetingMorning || guestName;
-  const sub = isCheckoutEve ? recs.checkoutEveMsg : (subMap[timeSlot] || recs.subMorning || '');
+  const sub = subMap[timeSlot] || recs.subMorning || '';
   // Update h1: hide "Welcome, " prefix, replace guestName span with full greeting
   const prefixEl = document.getElementById('welcomePrefix');
   const nameEl = document.getElementById('guestName');
@@ -613,9 +605,10 @@ function renderRecommendations(recs, timeSlot, isCheckoutEve, guestName, today) 
   document.getElementById('welcomeMsg').textContent = sub || '';
 
   // Checkout eve banner
-  if (isCheckoutEve) {
+  const hourNow = parseInt(new Date().toLocaleString('en-US', { timeZone: 'America/Chicago', hour: 'numeric', hour12: false }));
+  if (isCheckoutEve && hourNow >= 19) {
     document.getElementById('checkoutBanner').style.display = 'block';
-    document.getElementById('checkoutMsg').textContent = recs.checkoutEveMsg || '';
+    document.getElementById('checkoutMsg').textContent = `${guestName}, it's been such a pleasure having you as our guest at Pelican Beach Resort. Thank you for choosing us for your Destin getaway — checkout is at 10 AM tomorrow, and I truly hope we'll welcome you back to the Gulf soon. Safe travels.`;
   }
 
   // Day label

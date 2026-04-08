@@ -25,6 +25,7 @@
 html,body{
   width:1920px;height:1080px;
   background:radial-gradient(circle at 15% 20%,#103255 0%,var(--bg) 45%,#040a12 100%);
+  transition:background 2s ease;
   color:#fff;
   font-family:'DM Sans',system-ui,sans-serif;
   overflow:hidden;
@@ -360,6 +361,17 @@ function showGenericScreen() {
 }
 
 // ── Load live data from /api/tv-data ──────────────────────────────
+function updateBackground(timeSlot, isCheckoutEve) {
+  const gradients = {
+    morning:   'radial-gradient(ellipse at 20% 80%,#7c3f00 0%,#b45309 20%,#1e3a5f 55%,#0a1628 100%)',
+    afternoon: 'radial-gradient(ellipse at 50% 0%,#0a4a6e 0%,#0a3352 30%,#081e38 65%,#040e1c 100%)',
+    evening:   'radial-gradient(ellipse at 60% 90%,#7c2d12 0%,#9d174d 25%,#2e1065 60%,#0a0a1a 100%)',
+    night:     'radial-gradient(ellipse at 50% 50%,#0f172a 0%,#050a14 60%,#020408 100%)'
+  };
+  const slot = isCheckoutEve ? 'night' : (timeSlot || 'morning');
+  document.body.style.background = gradients[slot] || gradients.morning;
+}
+
 async function loadLiveData() {
   try {
     const res = await fetch(`${BASE}/api/tv-data?unit=${UNIT}`);
@@ -420,6 +432,7 @@ async function loadLiveData() {
 
     // Load AI recommendations — cache key includes booking ref to prevent bleed-through between guests
     const bookingRef = d.booking?.ref || d.booking?.id || 'generic';
+    updateBackground(d.timeSlot, d.isCheckoutEve);
     await loadRecommendations(name, d.weather, d.noaa, d.today, d.timeSlot, d.isCheckoutEve, d.booking, bookingRef);
 
   } catch (e) {

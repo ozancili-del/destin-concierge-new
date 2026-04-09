@@ -81,7 +81,10 @@ export default function GuestViewOnboard() {
       if (!res.ok) throw new Error(data.error);
       const withState = data.data.buildings.map(b => ({
         ...b,
-        units: b.units.map(u => ({ ...u, active: true, wifi_name: '', wifi_password: '', tv_brand: '', unit_number: '' }))
+        units: b.units.map(u => {
+          const numMatch = u.name.match(/\b(\d{3,4})\b/);
+          return { ...u, active: true, wifi_name: '', wifi_password: '', tv_brand: '', unit_number: numMatch ? numMatch[1] : '' };
+        })
       }));
       setBuildings(withState);
       setCheckTimes(data.data.buildings.map(b => ({ building: b.name, checkin: '4:00 PM', checkout: '10:00 AM' })));
@@ -329,8 +332,7 @@ export default function GuestViewOnboard() {
         .host-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .host-field { display: flex; flex-direction: column; gap: 5px; }
         .host-field label { font-size: 11px; font-weight: 500; color: #6b6b65; text-transform: uppercase; letter-spacing: 0.4px; }
-        .affiliate-note { font-size: 12px; color: #9b9b94; margin-top: 4px; display: flex; align-items: center; gap: 5px; }
-        .affiliate-note span { color: #1D9E75; font-weight: 500; }
+        .affiliate-note { font-size: 12px; color: #9b9b94; margin-top: 4px; line-height: 1.5; }
         .err { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #dc2626; margin-bottom: 1rem; }
         .auth-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1.5rem; }
         .auth-card { border: 1px solid #e8e6e0; border-radius: 10px; padding: 16px; text-align: center; cursor: pointer; transition: all 0.15s; background: #fff; }
@@ -409,7 +411,7 @@ export default function GuestViewOnboard() {
           <div className="logo">Guest<span>View</span></div>
           <div className="top-bar">
             {step > 1 && step < 8 && (
-              <button className="back-btn" onClick={() => setStep(s => s - 1)}>←</button>
+              <button className="back-btn" onClick={() => setStep(s => s === 6 ? 5 : s - 1)}>←</button>
             )}
             <div className="steps">
               {Array.from({ length: totalSteps }).map((_, i) => (
@@ -529,7 +531,7 @@ export default function GuestViewOnboard() {
                 <div className="host-field">
                   <label>Activities affiliate link</label>
                   <input type="text" placeholder="e.g. tripshock.com/?aff=yourcode" value={hostInfo.affiliate} onChange={e => setHostInfo(p => ({ ...p, affiliate: e.target.value }))} />
-                  <div className="affiliate-note">We'll <span>automatically generate a QR code</span> from this link and display it on your TV dashboard so guests can book activities directly.</div>
+                  <div className="affiliate-note">We'll automatically generate a QR code from this link and display it on your TV dashboard so guests can book activities directly.</div>
                 </div>
               </div>
               <div className="confirm-bar">

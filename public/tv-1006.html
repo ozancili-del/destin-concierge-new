@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -479,6 +480,12 @@ async function loadLiveData() {
 
 // ── AI Recommendations — cached by date + booking ref ─────────────
 async function loadRecommendations(guestName, weather, noaa, today, timeSlot, isCheckoutEve, booking, bookingRef) {
+  const hourNow = parseInt(new Date().toLocaleString('en-US', { timeZone: 'America/Chicago', hour: 'numeric', hour12: false }));
+  const isDepartureMorning = booking && booking.departure === today && hourNow < 10;
+  if ((isCheckoutEve && hourNow >= 19) || isDepartureMorning) {
+    renderCheckoutMode(guestName, timeSlot, isDepartureMorning);
+    return;
+  }
   const cacheKey = `tv1006_recs_${today}_${bookingRef}`;
   const cached = localStorage.getItem(cacheKey);
 
@@ -591,6 +598,53 @@ async function fetchAIRecommendations(guestName, weather, noaa, today, isCheckou
   }
 }
 
+function renderCheckoutMode(guestName, timeSlot, isDepartureMorning) {
+  const prefixEl = document.getElementById('welcomePrefix');
+  const nameEl = document.getElementById('guestName');
+
+  if (isDepartureMorning) {
+    if (prefixEl) prefixEl.style.display = 'none';
+    if (nameEl) nameEl.textContent = 'Thank you, ' + guestName;
+    document.getElementById('welcomeMsg').textContent = "What an incredible stay. We\u2019re so grateful you chose us for your Destin getaway \u2014 we hope every moment was exactly what you needed. Check-out is at 10 AM, no rush. Soak up that Gulf view one last time before you go.";
+  } else {
+    if (prefixEl) prefixEl.style.display = 'none';
+    if (nameEl) nameEl.textContent = 'Good evening, ' + guestName;
+    document.getElementById('welcomeMsg').textContent = '';
+  }
+
+  document.getElementById('checkoutBanner').style.display = 'block';
+  document.getElementById('checkoutMsg').textContent = guestName + ", it\u2019s been such a pleasure having you as our guest at Pelican Beach Resort. Thank you for choosing us for your Destin getaway \u2014 checkout is at 10 AM tomorrow, and I truly hope we\u2019ll welcome you back to the Gulf soon. Safe travels.";
+
+  const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Chicago' });
+  const dayLabel = new Date(todayStr + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'America/Chicago' });
+  document.getElementById('recsLabel').textContent = isDepartureMorning ? 'Check-out day \u00b7 ' + dayLabel : 'Your evening \u00b7 ' + dayLabel;
+
+  const grid = document.getElementById('recsGrid');
+  grid.innerHTML =
+    '<div class="moment morning">' +
+    '<div class="moment-head"><div class="m-icon">&#x1F9F3;</div><div><div class="m-title">Before You Go</div><div class="m-time">Checkout at 10 AM</div></div></div>' +
+    '<div class="rec-item" style="flex-direction:column;align-items:flex-start;margin-bottom:10px;"><span class="rec-name">&#x1F37D;&#xFE0F; Dishwasher</span><span class="rec-meta" style="font-size:11px;color:var(--soft);margin-top:2px;">Pop the dishes in and run a cycle \u2014 future guests will thank you!</span></div>' +
+    '<div class="rec-item" style="flex-direction:column;align-items:flex-start;margin-bottom:10px;"><span class="rec-name">&#x1F5D1;&#xFE0F; Trash chute</span><span class="rec-meta" style="font-size:11px;color:var(--soft);margin-top:2px;">In the exterior hallway, just a few steps to your left</span></div>' +
+    '<div class="rec-item" style="flex-direction:column;align-items:flex-start;margin-bottom:10px;"><span class="rec-name">&#x1F6CF;&#xFE0F; Check the blankets</span><span class="rec-meta" style="font-size:11px;color:var(--soft);margin-top:2px;">Things have a way of disappearing in there &#x1F604;</span></div>' +
+    '<div class="rec-item" style="flex-direction:column;align-items:flex-start;margin-bottom:10px;"><span class="rec-name">&#x1F6CB;&#xFE0F; Pull-out sofa bed</span><span class="rec-meta" style="font-size:11px;color:var(--soft);margin-top:2px;">If used, leave it open so we can properly prep for the next guest</span></div>' +
+    '<div class="rec-item" style="flex-direction:column;align-items:flex-start;margin-bottom:10px;"><span class="rec-name">&#x2728; Leave it tidy</span><span class="rec-meta" style="font-size:11px;color:var(--soft);margin-top:2px;">Leave the place as neat and tidy as you found it \u2014 you\u2019ve been amazing guests</span></div>' +
+    '</div>' +
+    '<div class="moment afternoon">' +
+    '<div class="moment-head"><div class="m-icon">&#x1F30A;</div><div><div class="m-title">Come Back Soon</div><div class="m-time">You\u2019re always welcome</div></div></div>' +
+    '<div class="rec-item" style="flex-direction:column;align-items:flex-start;margin-bottom:10px;"><span class="rec-name">&#x1F4B0; Save $50 on your next stay</span><span class="rec-meta" style="font-size:11px;color:var(--soft);margin-top:2px;">Book direct at destincondogetaways.com and mention this stay</span></div>' +
+    '<div class="rec-item" style="flex-direction:column;align-items:flex-start;margin-bottom:10px;"><span class="rec-name">&#x2B50; Leave us a review</span><span class="rec-meta" style="font-size:11px;color:var(--soft);margin-top:2px;">A quick review means the world to us and helps other families find their Destin escape</span></div>' +
+    '<div class="rec-item" style="flex-direction:column;align-items:flex-start;margin-bottom:10px;"><span class="rec-name">&#x1F91D; Refer a friend</span><span class="rec-meta" style="font-size:11px;color:var(--soft);margin-top:2px;">They\u2019ll save $50 on their first stay too</span></div>' +
+    '<div class="rec-item" style="flex-direction:column;align-items:flex-start;margin-bottom:10px;"><span class="rec-name">&#x1F4F1; Chat with Destiny Blue</span><span class="rec-meta" style="font-size:11px;color:var(--soft);margin-top:2px;">Scan the QR \u2014 she\u2019ll have your details ready for next time</span></div>' +
+    '</div>' +
+    '<div class="moment evening">' +
+    '<div class="moment-head"><div class="m-icon">&#x1F307;</div><div><div class="m-title">Tonight</div><div class="m-time">One last evening</div></div></div>' +
+    '<div class="rec-item" style="flex-direction:column;align-items:flex-start;margin-bottom:10px;"><span class="rec-name">&#x1F305; Sunset from your balcony</span><span class="rec-meta" style="font-size:11px;color:var(--soft);margin-top:2px;">Your last Gulf sunset from up here \u2014 make it count</span></div>' +
+    '<div class="rec-item" style="flex-direction:column;align-items:flex-start;margin-bottom:10px;"><span class="rec-name">&#x1F6B6; One last beach walk</span><span class="rec-meta" style="font-size:11px;color:var(--soft);margin-top:2px;">The Gulf will miss you too</span></div>' +
+    '<div class="rec-item" style="flex-direction:column;align-items:flex-start;margin-bottom:10px;"><span class="rec-name">&#x1F374; Dinner at The Back Porch</span><span class="rec-meta" style="font-size:11px;color:var(--soft);margin-top:2px;">End the trip the right way \u2014 toes in the sand, fresh Gulf seafood</span></div>' +
+    '</div>';
+}
+
+
 function renderRecommendations(recs, timeSlot, isCheckoutEve, guestName, today) {
   // Greeting goes into h1, subtext goes into welcomeMsg
   const greetingMap = { morning: recs.greetingMorning, afternoon: recs.greetingAfternoon, evening: recs.greetingEvening };
@@ -604,12 +658,7 @@ function renderRecommendations(recs, timeSlot, isCheckoutEve, guestName, today) 
   if (nameEl) nameEl.textContent = greeting;
   document.getElementById('welcomeMsg').textContent = sub || '';
 
-  // Checkout eve banner
-  const hourNow = parseInt(new Date().toLocaleString('en-US', { timeZone: 'America/Chicago', hour: 'numeric', hour12: false }));
-  if (isCheckoutEve && hourNow >= 19) {
-    document.getElementById('checkoutBanner').style.display = 'block';
-    document.getElementById('checkoutMsg').textContent = `${guestName}, it's been such a pleasure having you as our guest at Pelican Beach Resort. Thank you for choosing us for your Destin getaway — checkout is at 10 AM tomorrow, and I truly hope we'll welcome you back to the Gulf soon. Safe travels.`;
-  }
+  // Checkout banner handled by renderCheckoutMode
 
   // Day label
   const dayLabel = new Date(today + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'America/Chicago' });

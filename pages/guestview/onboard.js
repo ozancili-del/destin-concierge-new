@@ -19,9 +19,14 @@ export default function GuestViewOnboard() {
   const [crawlLog, setCrawlLog] = useState([]);
   const [buildings, setBuildings] = useState([]);
   const [wifiSameBuilding, setWifiSameBuilding] = useState({});
-  const [email, setEmail] = useState('');
+  const [checkTimes, setCheckTimes] = useState([]);
+  const [allSameTimes, setAllSameTimes] = useState(false);
+  const [missingUnits, setMissingUnits] = useState([]);
+  const [showMissingModal, setShowMissingModal] = useState(false);
+  const [hostInfo, setHostInfo] = useState({ name: '', phone: '', email: '', website: '', affiliate: '' });
   const [authMode, setAuthMode] = useState(null);
   const [authSent, setAuthSent] = useState(false);
+  const [email, setEmail] = useState('');
   const [user, setUser] = useState(null);
   const [orEmail, setOrEmail] = useState('');
   const [orKey, setOrKey] = useState('');
@@ -38,10 +43,10 @@ export default function GuestViewOnboard() {
   useEffect(() => {
     const supabase = getSupabase();
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) { setUser(session.user); setStep(5); }
+      if (session?.user) { setUser(session.user); setStep(6); }
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
-      if (session?.user) { setUser(session.user); setStep(5); }
+      if (session?.user) { setUser(session.user); setStep(6); }
     });
     return () => subscription.unsubscribe();
   }, []);
@@ -51,23 +56,14 @@ export default function GuestViewOnboard() {
     setCrawling(true);
     setError('');
     setCrawlLog([]);
-
-    // Check URL ownership first
     try {
       const checkRes = await fetch('/api/guestview/check-url', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url })
       });
       const checkData = await checkRes.json();
-      if (checkData.claimed) {
-        setCrawling(false);
-        setClaimedModal(true);
-        return;
-      }
-    } catch (e) {
-      // If check fails, proceed anyway
-    }
+      if (checkData.claimed) { setCrawling(false); setClaimedModal(true); return; }
+    } catch (e) {}
 
     const logs = ['Connecting to your website...', 'Scanning property listings...', 'Grouping units by building...'];
     for (let i = 0; i < logs.length; i++) {
@@ -78,8 +74,7 @@ export default function GuestViewOnboard() {
     }
     try {
       const res = await fetch('/api/guestview/crawl', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url })
       });
       const data = await res.json();
@@ -89,6 +84,7 @@ export default function GuestViewOnboard() {
         units: b.units.map(u => ({ ...u, active: true, wifi_name: '', wifi_password: '', tv_brand: '', unit_number: '' }))
       }));
       setBuildings(withState);
+      setCheckTimes(data.data.buildings.map(b => ({ building: b.name, checkin: '4:00 PM', checkout: '10:00 AM' })));
       setCrawlLog(prev => [...prev, { text: `Found ${data.data.total} units across ${data.data.buildings.length} buildings`, done: true, highlight: true }]);
       await new Promise(r => setTimeout(r, 800));
       setStep(2);
@@ -99,14 +95,24 @@ export default function GuestViewOnboard() {
     }
   }
 
-  async function handleClaimedLogin() {
-    if (!claimedEmail.trim()) return;
-    const { error } = await getSupabase().auth.signInWithOtp({
-      email: claimedEmail,
-      options: { emailRedirectTo: `${window.location.origin}/guestview/onboard` }
+  function handleLooksGood() {
+    const missing = [];
+    buildings.forEach(b => {
+      b.units.forEach(u => {
+        if (!u.active) return;
+        const gaps = [];
+        if (!u.unit_number) gaps.push('unit #');
+        if (!u.wifi_name) gaps.push('WiFi name');
+        if (!u.wifi_password) gaps.push('WiFi password');
+        if (gaps.length) missing.push({ building: b.name, unit: u.name, gaps });
+      });
     });
-    if (error) { setError(error.message); return; }
-    setClaimedAuthSent(true);
+    if (missing.length) {
+      setMissingUnits(missing);
+      setShowMissingModal(true);
+    } else {
+      setStep(3);
+    }
   }
 
   function updateUnit(bIdx, uIdx, field, value) {
@@ -142,12 +148,32 @@ export default function GuestViewOnboard() {
     }
   }
 
+  function updateCheckTime(idx, field, value) {
+    setCheckTimes(prev => prev.map((t, i) => i !== idx ? t : { ...t, [field]: value }));
+  }
+
+  function toggleAllSameTimes() {
+    const isOn = !allSameTimes;
+    setAllSameTimes(isOn);
+    if (isOn && checkTimes.length > 0) {
+      const first = checkTimes[0];
+      setCheckTimes(prev => prev.map(t => ({ ...t, checkin: first.checkin, checkout: first.checkout })));
+    }
+  }
+
+  function handleTimeChange(idx, field, value) {
+    if (allSameTimes) {
+      setCheckTimes(prev => prev.map(t => ({ ...t, [field]: value })));
+    } else {
+      updateCheckTime(idx, field, value);
+    }
+  }
+
   async function handleAuth() {
     setError('');
     if (!email.trim()) return;
     const { error } = await getSupabase().auth.signInWithOtp({
-      email,
-      options: { emailRedirectTo: `${window.location.origin}/guestview/onboard` }
+      email, options: { emailRedirectTo: `${window.location.origin}/guestview/onboard` }
     });
     if (error) { setError(error.message); return; }
     setAuthSent(true);
@@ -161,20 +187,39 @@ export default function GuestViewOnboard() {
     if (error) setError(error.message);
   }
 
+  async function handleClaimedLogin() {
+    if (!claimedEmail.trim()) return;
+    const { error } = await getSupabase().auth.signInWithOtp({
+      email: claimedEmail,
+      options: { emailRedirectTo: `${window.location.origin}/guestview/onboard` }
+    });
+    if (error) { setError(error.message); return; }
+    setClaimedAuthSent(true);
+  }
+
   async function handleSaveUnits() {
     setSaving(true);
     setError('');
     try {
-      const allUnits = buildings.flatMap(b => b.units.map(u => ({ ...u, building: b.name })));
+      const allUnits = buildings.flatMap((b, bIdx) => b.units.map(u => ({
+        ...u,
+        building: b.name,
+        checkin_time: checkTimes[bIdx]?.checkin || '4:00 PM',
+        checkout_time: checkTimes[bIdx]?.checkout || '10:00 AM',
+        host_name: hostInfo.name,
+        host_phone: hostInfo.phone,
+        host_email: hostInfo.email,
+        host_website: hostInfo.website,
+        affiliate_url: hostInfo.affiliate
+      })));
       const res = await fetch('/api/guestview/save-units', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_id: user.id, user_slug: user.email.split('@')[0], units: allUnits, website_url: url })
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setSavedUnits(data.units);
-      setStep(6);
+      setStep(8);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -187,8 +232,7 @@ export default function GuestViewOnboard() {
     setOrError('');
     try {
       const res = await fetch('/api/guestview/validate-or', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ or_email: orEmail, or_key: orKey, user_id: user.id })
       });
       const data = await res.json();
@@ -204,6 +248,7 @@ export default function GuestViewOnboard() {
   }
 
   const activeCount = buildings.flatMap(b => b.units.filter(u => u.active)).length;
+  const totalSteps = 8;
 
   return (
     <>
@@ -221,7 +266,7 @@ export default function GuestViewOnboard() {
         .top-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 2rem; }
         .back-btn { background: none; border: 1px solid #e8e6e0; border-radius: 8px; width: 34px; height: 34px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #6b6b65; flex-shrink: 0; transition: all 0.15s; }
         .back-btn:hover { background: #f7f6f3; color: #1a1a18; }
-        .steps { display: flex; gap: 6px; flex: 1; }
+        .steps { display: flex; gap: 5px; flex: 1; }
         .step-pip { height: 3px; border-radius: 2px; background: #e8e6e0; flex: 1; transition: background 0.3s; }
         .step-pip.done { background: #1D9E75; }
         .step-pip.active { background: #1D9E75; opacity: 0.5; }
@@ -230,18 +275,18 @@ export default function GuestViewOnboard() {
         .input-row { display: flex; gap: 8px; margin-bottom: 1rem; }
         input[type=text], input[type=email] { width: 100%; height: 42px; border: 1px solid #e8e6e0; border-radius: 8px; padding: 0 12px; font-size: 14px; font-family: 'DM Sans', sans-serif; background: #fafaf8; color: #1a1a18; outline: none; transition: border-color 0.2s; }
         input:focus { border-color: #1D9E75; background: #fff; }
-        .legal-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 1.5rem; padding: 12px 14px; background: #fafaf8; border: 1px solid #e8e6e0; border-radius: 8px; }
-        .legal-check { width: 18px; height: 18px; border-radius: 4px; border: 1.5px solid #d0cdc7; background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; transition: all 0.15s; }
-        .legal-check.checked { background: #1D9E75; border-color: #1D9E75; }
-        .legal-check-mark { color: #fff; font-size: 11px; font-weight: 700; }
-        .legal-text { font-size: 12px; color: #6b6b65; line-height: 1.6; cursor: pointer; }
-        .legal-text a { color: #1D9E75; text-decoration: none; }
         .btn { height: 42px; padding: 0 20px; border-radius: 8px; font-size: 14px; font-weight: 500; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: all 0.15s; border: none; white-space: nowrap; }
         .btn-primary { background: #1D9E75; color: #fff; }
         .btn-primary:hover { background: #0F6E56; }
         .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
         .btn-outline { background: #fff; color: #1a1a18; border: 1px solid #e8e6e0; }
         .btn-outline:hover { background: #f7f6f3; }
+        .legal-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 1.5rem; padding: 12px 14px; background: #fafaf8; border: 1px solid #e8e6e0; border-radius: 8px; cursor: pointer; }
+        .legal-check { width: 18px; height: 18px; border-radius: 4px; border: 1.5px solid #d0cdc7; background: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; transition: all 0.15s; }
+        .legal-check.checked { background: #1D9E75; border-color: #1D9E75; }
+        .legal-check-mark { color: #fff; font-size: 11px; font-weight: 700; }
+        .legal-text { font-size: 12px; color: #6b6b65; line-height: 1.6; }
+        .legal-text a { color: #1D9E75; text-decoration: none; }
         .crawl-log { background: #fafaf8; border: 1px solid #e8e6e0; border-radius: 10px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; }
         .log-line { font-size: 13px; font-family: 'DM Mono', monospace; padding: 3px 0; color: #6b6b65; display: flex; align-items: center; gap: 8px; }
         .log-line.done { color: #1a1a18; }
@@ -273,9 +318,23 @@ export default function GuestViewOnboard() {
         .check-mark { color: #fff; font-size: 10px; font-weight: 700; }
         .confirm-bar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-top: 1.5rem; border-top: 1px solid #f0ede8; flex-wrap: wrap; }
         .confirm-note { font-size: 13px; color: #9b9b94; }
+        .times-table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; }
+        .times-table th { text-align: left; font-size: 11px; font-weight: 500; color: #9b9b94; padding: 0 8px 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .times-table td { padding: 5px 6px; vertical-align: middle; font-size: 13px; }
+        .times-table input { width: 100%; height: 34px; border: 1px solid #e8e6e0; border-radius: 6px; padding: 0 10px; font-size: 13px; font-family: 'DM Sans', sans-serif; background: #fafaf8; color: #1a1a18; outline: none; }
+        .times-table input:focus { border-color: #1D9E75; }
+        .times-table input:disabled { opacity: 0.5; }
+        .same-times-bar { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-bottom: 12px; font-size: 13px; color: #6b6b65; cursor: pointer; user-select: none; }
+        .host-form { display: flex; flex-direction: column; gap: 12px; margin-bottom: 1.5rem; }
+        .host-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .host-field { display: flex; flex-direction: column; gap: 5px; }
+        .host-field label { font-size: 11px; font-weight: 500; color: #6b6b65; text-transform: uppercase; letter-spacing: 0.4px; }
+        .affiliate-note { font-size: 12px; color: #9b9b94; margin-top: 4px; display: flex; align-items: center; gap: 5px; }
+        .affiliate-note span { color: #1D9E75; font-weight: 500; }
+        .err { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #dc2626; margin-bottom: 1rem; }
         .auth-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1.5rem; }
         .auth-card { border: 1px solid #e8e6e0; border-radius: 10px; padding: 16px; text-align: center; cursor: pointer; transition: all 0.15s; background: #fff; }
-        .auth-card:hover { background: #f7f6f3; border-color: #d0cdc7; }
+        .auth-card:hover { background: #f7f6f3; }
         .auth-icon { font-size: 22px; margin-bottom: 6px; }
         .auth-label { font-size: 14px; font-weight: 500; }
         .auth-sublabel { font-size: 12px; color: #9b9b94; margin-top: 2px; }
@@ -284,8 +343,9 @@ export default function GuestViewOnboard() {
         .or-form { background: #fafaf8; border: 1px solid #e8e6e0; border-radius: 10px; padding: 1.25rem; margin-bottom: 1.5rem; }
         .or-form label { font-size: 12px; font-weight: 500; color: #6b6b65; display: block; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.4px; }
         .or-form input { margin-bottom: 10px; }
-        .or-sample { background: #e8f7f1; border: 1px solid #b3e6d4; border-radius: 8px; padding: 12px 14px; font-size: 13px; color: #0F6E56; margin-top: 10px; }
-        .err { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #dc2626; margin-bottom: 1rem; }
+        .or-sample { background: #e8f7f1; border: 1px solid #b3e6d4; border-radius: 8px; padding: 12px 14px; font-size: 13px; color: #0F6E56; }
+        .sent-box { background: #e8f7f1; border: 1px solid #b3e6d4; border-radius: 10px; padding: 1.25rem; text-align: center; }
+        .sent-box p { font-size: 14px; color: #0F6E56; line-height: 1.6; }
         .success-wrap { text-align: center; padding: 1rem 0; }
         .success-icon { width: 60px; height: 60px; background: #e8f7f1; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 26px; }
         .url-list { margin-top: 1.5rem; text-align: left; }
@@ -295,16 +355,18 @@ export default function GuestViewOnboard() {
         .trial-badge { display: inline-flex; align-items: center; gap: 6px; background: #e8f7f1; color: #0F6E56; border-radius: 20px; padding: 6px 14px; font-size: 13px; font-weight: 500; margin-top: 1.5rem; }
         .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block; margin-right: 6px; vertical-align: middle; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .sent-box { background: #e8f7f1; border: 1px solid #b3e6d4; border-radius: 10px; padding: 1.25rem; text-align: center; }
-        .sent-box p { font-size: 14px; color: #0F6E56; line-height: 1.6; }
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 1rem; }
-        .modal { background: #fff; border-radius: 16px; padding: 2rem; max-width: 400px; width: 100%; }
+        .modal { background: #fff; border-radius: 16px; padding: 2rem; max-width: 440px; width: 100%; }
         .modal h2 { font-size: 18px; font-weight: 600; margin-bottom: 0.5rem; }
-        .modal p { font-size: 14px; color: #6b6b65; line-height: 1.6; margin-bottom: 1.5rem; }
+        .modal p { font-size: 14px; color: #6b6b65; line-height: 1.6; margin-bottom: 1rem; }
         .modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: #9b9b94; float: right; margin-top: -4px; }
+        .missing-list { background: #fef9ec; border: 1px solid #fde68a; border-radius: 8px; padding: 10px 14px; margin-bottom: 1rem; }
+        .missing-item { font-size: 13px; color: #92400e; padding: 3px 0; }
+        .modal-btns { display: flex; gap: 8px; }
+        .already-account { text-align: center; margin-top: 1rem; font-size: 13px; color: #9b9b94; }
+        .already-account a { color: #1D9E75; cursor: pointer; font-weight: 500; text-decoration: none; }
       `}</style>
 
-      {/* Claimed modal */}
       {claimedModal && (
         <div className="modal-overlay">
           <div className="modal">
@@ -317,10 +379,27 @@ export default function GuestViewOnboard() {
                 <button className="btn btn-primary" onClick={handleClaimedLogin}>Log in →</button>
               </div>
             ) : (
-              <div className="sent-box">
-                <p>Magic link sent to <strong>{claimedEmail}</strong>. Check your inbox.</p>
-              </div>
+              <div className="sent-box"><p>Magic link sent to <strong>{claimedEmail}</strong>. Check your inbox.</p></div>
             )}
+          </div>
+        </div>
+      )}
+
+      {showMissingModal && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <button className="modal-close" onClick={() => setShowMissingModal(false)}>×</button>
+            <h2>Some units are incomplete</h2>
+            <p>The following active units are missing information. You can fix them now or continue and update later in your dashboard.</p>
+            <div className="missing-list">
+              {missingUnits.map((m, i) => (
+                <div key={i} className="missing-item">{m.building} — {m.unit}: missing {m.gaps.join(', ')}</div>
+              ))}
+            </div>
+            <div className="modal-btns">
+              <button className="btn btn-outline" style={{ flex: 1 }} onClick={() => setShowMissingModal(false)}>Fix now</button>
+              <button className="btn btn-primary" style={{ flex: 1 }} onClick={() => { setShowMissingModal(false); setStep(3); }}>Continue anyway →</button>
+            </div>
           </div>
         </div>
       )}
@@ -328,14 +407,13 @@ export default function GuestViewOnboard() {
       <div className="wrap">
         <div className="card">
           <div className="logo">Guest<span>View</span></div>
-
           <div className="top-bar">
-            {step > 1 && step < 6 && (
+            {step > 1 && step < 8 && (
               <button className="back-btn" onClick={() => setStep(s => s - 1)}>←</button>
             )}
             <div className="steps">
-              {[1,2,3,4,5,6].map(s => (
-                <div key={s} className={`step-pip ${step > s ? 'done' : step === s ? 'active' : ''}`} />
+              {Array.from({ length: totalSteps }).map((_, i) => (
+                <div key={i} className={`step-pip ${step > i + 1 ? 'done' : step === i + 1 ? 'active' : ''}`} />
               ))}
             </div>
           </div>
@@ -354,9 +432,7 @@ export default function GuestViewOnboard() {
                 <div className={`legal-check ${legalChecked ? 'checked' : ''}`}>
                   {legalChecked && <span className="legal-check-mark">✓</span>}
                 </div>
-                <span className="legal-text">
-                  I confirm that I own or am authorized to manage this website and have the legal right to scan and index its content for use with GuestView. I agree to the <a href="#" onClick={e => e.stopPropagation()}>Terms of Service</a>.
-                </span>
+                <span className="legal-text">I confirm I own or am authorized to manage this website and have the legal right to scan its content for use with GuestView. I agree to the <a href="#" onClick={e => e.stopPropagation()}>Terms of Service</a>.</span>
               </div>
               {crawlLog.length > 0 && (
                 <div className="crawl-log">
@@ -368,6 +444,7 @@ export default function GuestViewOnboard() {
                 </div>
               )}
               {error && <div className="err">{error}</div>}
+              <div className="already-account">Already have an account? <a onClick={() => setStep(5)}>Log in</a></div>
             </>
           )}
 
@@ -379,37 +456,23 @@ export default function GuestViewOnboard() {
               {buildings.map((b, bIdx) => (
                 <div key={bIdx} className="building-block">
                   <div className="building-header">
-                    <div>
-                      <span className="building-name">{b.name}</span>
-                      <span className="building-count">({b.units.length} units)</span>
-                    </div>
+                    <div><span className="building-name">{b.name}</span><span className="building-count">({b.units.length} units)</span></div>
                     <div className="wifi-toggle" onClick={() => toggleWifi(bIdx)}>
                       <div className={`tog ${wifiSameBuilding[`b${bIdx}`] ? 'on' : ''}`} />
                       <span>Same WiFi for all</span>
                     </div>
                   </div>
                   <table className="unit-table">
-                    <thead>
-                      <tr><th></th><th>Unit</th><th>Unit #</th><th>WiFi name</th><th>WiFi password</th><th>TV brand</th></tr>
-                    </thead>
+                    <thead><tr><th></th><th>Unit</th><th>Unit #</th><th>WiFi name</th><th>WiFi password</th><th>TV brand</th></tr></thead>
                     <tbody>
                       {b.units.map((u, uIdx) => (
                         <tr key={uIdx} className={u.active ? '' : 'inactive'}>
-                          <td>
-                            <div className={`checkbox ${u.active ? 'checked' : ''}`} onClick={() => toggleUnit(bIdx, uIdx)}>
-                              {u.active && <span className="check-mark">✓</span>}
-                            </div>
-                          </td>
+                          <td><div className={`checkbox ${u.active ? 'checked' : ''}`} onClick={() => toggleUnit(bIdx, uIdx)}>{u.active && <span className="check-mark">✓</span>}</div></td>
                           <td style={{ fontSize: 12, color: '#6b6b65', paddingLeft: 4 }}>{u.name}</td>
                           <td><input type="text" placeholder="707" value={u.unit_number} onChange={e => updateUnit(bIdx, uIdx, 'unit_number', e.target.value)} disabled={!u.active} /></td>
                           <td><input type="text" placeholder="Network" value={u.wifi_name} onChange={e => handleWifiChange(bIdx, uIdx, 'wifi_name', e.target.value)} disabled={!u.active || (wifiSameBuilding[`b${bIdx}`] && uIdx > 0)} /></td>
                           <td><input type="text" placeholder="Password" value={u.wifi_password} onChange={e => handleWifiChange(bIdx, uIdx, 'wifi_password', e.target.value)} disabled={!u.active || (wifiSameBuilding[`b${bIdx}`] && uIdx > 0)} /></td>
-                          <td>
-                            <select value={u.tv_brand} onChange={e => updateUnit(bIdx, uIdx, 'tv_brand', e.target.value)} disabled={!u.active}>
-                              <option value="">Brand</option>
-                              {TV_BRANDS.map(tv => <option key={tv}>{tv}</option>)}
-                            </select>
-                          </td>
+                          <td><select value={u.tv_brand} onChange={e => updateUnit(bIdx, uIdx, 'tv_brand', e.target.value)} disabled={!u.active}><option value="">Brand</option>{TV_BRANDS.map(tv => <option key={tv}>{tv}</option>)}</select></td>
                         </tr>
                       ))}
                     </tbody>
@@ -418,29 +481,74 @@ export default function GuestViewOnboard() {
               ))}
               <div className="confirm-bar">
                 <span className="confirm-note">{activeCount} units selected</span>
-                <button className="btn btn-primary" onClick={() => setStep(3)}>Looks good →</button>
+                <button className="btn btn-primary" onClick={handleLooksGood}>Looks good →</button>
               </div>
             </>
           )}
 
           {step === 3 && (
             <>
+              <h1>Check-in & check-out times</h1>
+              <p className="sub">Set the times per building. Most hosts use the same times everywhere.</p>
+              <div className="same-times-bar" onClick={toggleAllSameTimes}>
+                <div className={`tog ${allSameTimes ? 'on' : ''}`} />
+                <span>All buildings same times</span>
+              </div>
+              <table className="times-table">
+                <thead><tr><th>Building</th><th>Check-in</th><th>Check-out</th></tr></thead>
+                <tbody>
+                  {checkTimes.map((t, i) => (
+                    <tr key={i}>
+                      <td style={{ fontWeight: 500, fontSize: 13 }}>{t.building}</td>
+                      <td><input type="text" value={t.checkin} onChange={e => handleTimeChange(i, 'checkin', e.target.value)} disabled={allSameTimes && i > 0} /></td>
+                      <td><input type="text" value={t.checkout} onChange={e => handleTimeChange(i, 'checkout', e.target.value)} disabled={allSameTimes && i > 0} /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <div className="confirm-bar">
+                <span className="confirm-note">You can update these anytime in your dashboard</span>
+                <button className="btn btn-primary" onClick={() => setStep(4)}>Next →</button>
+              </div>
+            </>
+          )}
+
+          {step === 4 && (
+            <>
+              <h1>Your host info</h1>
+              <p className="sub">This shows on the TV so guests know how to reach you.</p>
+              <div className="host-form">
+                <div className="host-row">
+                  <div className="host-field"><label>Your first name</label><input type="text" placeholder="e.g. Tufan" value={hostInfo.name} onChange={e => setHostInfo(p => ({ ...p, name: e.target.value }))} /></div>
+                  <div className="host-field"><label>Phone number</label><input type="text" placeholder="+1 (555) 000-0000" value={hostInfo.phone} onChange={e => setHostInfo(p => ({ ...p, phone: e.target.value }))} /></div>
+                </div>
+                <div className="host-row">
+                  <div className="host-field"><label>Email</label><input type="text" placeholder="you@example.com" value={hostInfo.email} onChange={e => setHostInfo(p => ({ ...p, email: e.target.value }))} /></div>
+                  <div className="host-field"><label>Website</label><input type="text" placeholder="vacationsatdestin.com" value={hostInfo.website} onChange={e => setHostInfo(p => ({ ...p, website: e.target.value }))} /></div>
+                </div>
+                <div className="host-field">
+                  <label>Activities affiliate link</label>
+                  <input type="text" placeholder="e.g. tripshock.com/?aff=yourcode" value={hostInfo.affiliate} onChange={e => setHostInfo(p => ({ ...p, affiliate: e.target.value }))} />
+                  <div className="affiliate-note">We'll <span>automatically generate a QR code</span> from this link and display it on your TV dashboard so guests can book activities directly.</div>
+                </div>
+              </div>
+              <div className="confirm-bar">
+                <span className="confirm-note">All fields optional — update anytime in dashboard</span>
+                <button className="btn btn-primary" onClick={() => setStep(5)}>Next →</button>
+              </div>
+            </>
+          )}
+
+          {step === 5 && (
+            <>
               <h1>Create your account</h1>
-              <p className="sub">Your {activeCount} units are ready. Sign in to save your setup and get your TV URLs.</p>
+              <p className="sub">Almost done. Sign in to save your setup and get your TV URLs.</p>
               {error && <div className="err">{error}</div>}
               {!authSent ? (
                 <>
                   <div className="auth-grid">
-                    <div className="auth-card" onClick={handleGoogleAuth}>
-                      <div className="auth-icon">G</div>
-                      <div className="auth-label">Google</div>
-                      <div className="auth-sublabel">One click</div>
-                    </div>
-                    <div className="auth-card" onClick={() => setAuthMode('email')}>
-                      <div className="auth-icon">@</div>
-                      <div className="auth-label">Email link</div>
-                      <div className="auth-sublabel">No password</div>
-                    </div>
+                    <div className="auth-card" onClick={handleGoogleAuth}><div className="auth-icon">G</div><div className="auth-label">Google</div><div className="auth-sublabel">One click</div></div>
+                    <div className="auth-card" onClick={() => setAuthMode('email')}><div className="auth-icon">@</div><div className="auth-label">Email link</div><div className="auth-sublabel">No password</div></div>
                   </div>
                   {authMode === 'email' && (
                     <>
@@ -453,14 +561,12 @@ export default function GuestViewOnboard() {
                   )}
                 </>
               ) : (
-                <div className="sent-box">
-                  <p>Magic link sent to <strong>{email}</strong>.<br />Check your inbox and click the link to continue.</p>
-                </div>
+                <div className="sent-box"><p>Magic link sent to <strong>{email}</strong>.<br />Check your inbox and click the link to continue.</p></div>
               )}
             </>
           )}
 
-          {step === 5 && user && (
+          {step === 6 && user && (
             <>
               <h1>Connect OwnerRez</h1>
               <p className="sub">GuestView reads your guest's name and check-in / check-out dates to personalize each TV screen. We encrypt your API key — we never see it in plain text.</p>
@@ -476,15 +582,13 @@ export default function GuestViewOnboard() {
                   </button>
                 </div>
               ) : (
-                <div className="or-sample">
-                  ✓ Connected — found booking for <strong>{orSample.guest_first_name}</strong>, arriving <strong>{orSample.arrival}</strong>, departing <strong>{orSample.departure}</strong>
-                </div>
+                <div className="or-sample">✓ Connected — found booking for <strong>{orSample.guest_first_name}</strong>, arriving <strong>{orSample.arrival}</strong>, departing <strong>{orSample.departure}</strong></div>
               )}
               {saving && <p style={{ fontSize: 13, color: '#9b9b94', marginTop: 10 }}>Saving your units...</p>}
             </>
           )}
 
-          {step === 6 && (
+          {step === 8 && (
             <div className="success-wrap">
               <div className="success-icon">✓</div>
               <h1>You're all set.</h1>
@@ -492,21 +596,11 @@ export default function GuestViewOnboard() {
               <div className="url-list">
                 {savedUnits.slice(0, 5).map((u, i) => (
                   <div key={i} className="url-item">
-                    <div>
-                      <div className="url-building">{u.building}</div>
-                      <div className="url-val">{u.tv_url}</div>
-                    </div>
-                    <button className="btn btn-outline" style={{ fontSize: 12, height: 30, padding: '0 12px' }}
-                      onClick={() => navigator.clipboard.writeText(`https://${u.tv_url}`)}>
-                      Copy
-                    </button>
+                    <div><div className="url-building">{u.building}</div><div className="url-val">{u.tv_url}</div></div>
+                    <button className="btn btn-outline" style={{ fontSize: 12, height: 30, padding: '0 12px' }} onClick={() => navigator.clipboard.writeText(`https://${u.tv_url}`)}>Copy</button>
                   </div>
                 ))}
-                {savedUnits.length > 5 && (
-                  <p style={{ fontSize: 13, color: '#9b9b94', textAlign: 'center', marginTop: 8 }}>
-                    + {savedUnits.length - 5} more — view all in your dashboard
-                  </p>
-                )}
+                {savedUnits.length > 5 && <p style={{ fontSize: 13, color: '#9b9b94', textAlign: 'center', marginTop: 8 }}>+ {savedUnits.length - 5} more — view all in your dashboard</p>}
               </div>
               <div className="trial-badge">Trial active · $2 / TV / month · no commitment</div>
             </div>

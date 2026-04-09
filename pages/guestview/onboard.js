@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import Head from 'next/head';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-);
-
 const TV_BRANDS = ['Samsung', 'LG', 'Sony', 'Vizio', 'TCL', 'Hisense', 'Other'];
+
+function getSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_GUESTVIEW_SUPABASE_URL,
+    process.env.NEXT_PUBLIC_GUESTVIEW_SUPABASE_ANON_KEY
+  );
+}
 
 export default function GuestViewOnboard() {
   const [step, setStep] = useState(1);
@@ -30,8 +32,9 @@ export default function GuestViewOnboard() {
   const [error, setError] = useState('');
 
   useEffect(() => {
+    const supabase = getSupabase();
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) setUser(session.user);
+      if (session?.user) { setUser(session.user); setStep(5); }
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
       if (session?.user) { setUser(session.user); setStep(5); }
@@ -44,11 +47,7 @@ export default function GuestViewOnboard() {
     setCrawling(true);
     setError('');
     setCrawlLog([]);
-    const logs = [
-      'Connecting to your website...',
-      'Scanning property listings...',
-      'Grouping units by building...',
-    ];
+    const logs = ['Connecting to your website...','Scanning property listings...','Grouping units by building...'];
     for (let i = 0; i < logs.length; i++) {
       await new Promise(r => setTimeout(r, 700));
       setCrawlLog(prev => [...prev, { text: logs[i], done: false }]);
@@ -80,8 +79,7 @@ export default function GuestViewOnboard() {
 
   function updateUnit(bIdx, uIdx, field, value) {
     setBuildings(prev => prev.map((b, bi) => bi !== bIdx ? b : {
-      ...b,
-      units: b.units.map((u, ui) => ui !== uIdx ? u : { ...u, [field]: value })
+      ...b, units: b.units.map((u, ui) => ui !== uIdx ? u : { ...u, [field]: value })
     }));
   }
 
@@ -96,8 +94,7 @@ export default function GuestViewOnboard() {
     if (isOn) {
       const first = buildings[bIdx].units[0];
       setBuildings(prev => prev.map((b, bi) => bi !== bIdx ? b : {
-        ...b,
-        units: b.units.map((u, ui) => ui === 0 ? u : { ...u, wifi_name: first.wifi_name, wifi_password: first.wifi_password })
+        ...b, units: b.units.map((u, ui) => ui === 0 ? u : { ...u, wifi_name: first.wifi_name, wifi_password: first.wifi_password })
       }));
     }
   }
@@ -106,8 +103,7 @@ export default function GuestViewOnboard() {
     const bid = `b${bIdx}`;
     if (wifiSameBuilding[bid] && uIdx === 0) {
       setBuildings(prev => prev.map((b, bi) => bi !== bIdx ? b : {
-        ...b,
-        units: b.units.map(u => ({ ...u, [field]: value }))
+        ...b, units: b.units.map(u => ({ ...u, [field]: value }))
       }));
     } else {
       updateUnit(bIdx, uIdx, field, value);
@@ -117,7 +113,7 @@ export default function GuestViewOnboard() {
   async function handleAuth() {
     setError('');
     if (!email.trim()) return;
-    const { error } = await supabase.auth.signInWithOtp({
+    const { error } = await getSupabase().auth.signInWithOtp({
       email,
       options: { emailRedirectTo: `${window.location.origin}/guestview/onboard` }
     });
@@ -126,7 +122,7 @@ export default function GuestViewOnboard() {
   }
 
   async function handleGoogleAuth() {
-    const { error } = await supabase.auth.signInWithOAuth({
+    const { error } = await getSupabase().auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: `${window.location.origin}/guestview/onboard` }
     });
@@ -248,11 +244,10 @@ export default function GuestViewOnboard() {
         .or-form label { font-size: 12px; font-weight: 500; color: #6b6b65; display: block; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.4px; }
         .or-form input { margin-bottom: 10px; }
         .or-sample { background: #e8f7f1; border: 1px solid #b3e6d4; border-radius: 8px; padding: 12px 14px; font-size: 13px; color: #0F6E56; margin-top: 10px; }
-        .or-sample strong { font-weight: 600; }
         .err { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #dc2626; margin-bottom: 1rem; }
         .success-wrap { text-align: center; padding: 1rem 0; }
         .success-icon { width: 60px; height: 60px; background: #e8f7f1; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 26px; }
-        .url-list { margin-top: 1.5rem; }
+        .url-list { margin-top: 1.5rem; text-align: left; }
         .url-item { background: #fafaf8; border: 1px solid #e8e6e0; border-radius: 8px; padding: 10px 14px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
         .url-building { font-size: 12px; color: #9b9b94; margin-bottom: 2px; }
         .url-val { font-size: 12px; font-family: 'DM Mono', monospace; color: #1D9E75; }
@@ -266,28 +261,18 @@ export default function GuestViewOnboard() {
       <div className="wrap">
         <div className="card">
           <div className="logo">Guest<span>View</span></div>
-
-          {/* Step indicators */}
           <div className="steps">
             {[1,2,3,4,5,6].map(s => (
               <div key={s} className={`step-pip ${step > s ? 'done' : step === s ? 'active' : ''}`} />
             ))}
           </div>
 
-          {/* STEP 1 — URL entry */}
           {step === 1 && (
             <>
               <h1>Welcome — let's find your units</h1>
               <p className="sub">Enter your vacation rental website and we'll scan it to find all your properties automatically.</p>
               <div className="input-row">
-                <input
-                  type="text"
-                  placeholder="yoursite.com"
-                  value={url}
-                  onChange={e => setUrl(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && !crawling && handleCrawl()}
-                  style={{ flex: 1 }}
-                />
+                <input type="text" placeholder="yoursite.com" value={url} onChange={e => setUrl(e.target.value)} onKeyDown={e => e.key === 'Enter' && !crawling && handleCrawl()} style={{ flex: 1 }} />
                 <button className="btn btn-primary" onClick={handleCrawl} disabled={crawling || !url.trim()}>
                   {crawling ? <><span className="spinner" />Scanning...</> : 'Find my units →'}
                 </button>
@@ -296,8 +281,7 @@ export default function GuestViewOnboard() {
                 <div className="crawl-log">
                   {crawlLog.map((l, i) => (
                     <div key={i} className={`log-line ${l.done ? 'done' : ''} ${l.highlight ? 'highlight' : ''}`}>
-                      <span className="log-dot" />
-                      {l.text}
+                      <span className="log-dot" />{l.text}
                     </div>
                   ))}
                 </div>
@@ -306,11 +290,10 @@ export default function GuestViewOnboard() {
             </>
           )}
 
-          {/* STEP 2 — Review units */}
           {step === 2 && (
             <>
               <h1>Are these your units?</h1>
-              <p className="sub">We found {activeCount} units. Check the boxes for units you want on GuestView, then fill in WiFi and TV details.</p>
+              <p className="sub">We found {activeCount} units. Uncheck any you don't want on GuestView, then fill in WiFi and TV details.</p>
               {error && <div className="err">{error}</div>}
               {buildings.map((b, bIdx) => (
                 <div key={bIdx} className="building-block">
@@ -326,14 +309,7 @@ export default function GuestViewOnboard() {
                   </div>
                   <table className="unit-table">
                     <thead>
-                      <tr>
-                        <th></th>
-                        <th>Unit</th>
-                        <th>Unit #</th>
-                        <th>WiFi name</th>
-                        <th>WiFi password</th>
-                        <th>TV brand</th>
-                      </tr>
+                      <tr><th></th><th>Unit</th><th>Unit #</th><th>WiFi name</th><th>WiFi password</th><th>TV brand</th></tr>
                     </thead>
                     <tbody>
                       {b.units.map((u, uIdx) => (
@@ -344,8 +320,8 @@ export default function GuestViewOnboard() {
                             </div>
                           </td>
                           <td style={{ fontSize: 12, color: '#6b6b65', paddingLeft: 4 }}>{u.name}</td>
-                          <td><input type="text" placeholder="e.g. 707" value={u.unit_number} onChange={e => updateUnit(bIdx, uIdx, 'unit_number', e.target.value)} disabled={!u.active} /></td>
-                          <td><input type="text" placeholder="Network name" value={u.wifi_name} onChange={e => handleWifiChange(bIdx, uIdx, 'wifi_name', e.target.value)} disabled={!u.active || (wifiSameBuilding[`b${bIdx}`] && uIdx > 0)} /></td>
+                          <td><input type="text" placeholder="707" value={u.unit_number} onChange={e => updateUnit(bIdx, uIdx, 'unit_number', e.target.value)} disabled={!u.active} /></td>
+                          <td><input type="text" placeholder="Network" value={u.wifi_name} onChange={e => handleWifiChange(bIdx, uIdx, 'wifi_name', e.target.value)} disabled={!u.active || (wifiSameBuilding[`b${bIdx}`] && uIdx > 0)} /></td>
                           <td><input type="text" placeholder="Password" value={u.wifi_password} onChange={e => handleWifiChange(bIdx, uIdx, 'wifi_password', e.target.value)} disabled={!u.active || (wifiSameBuilding[`b${bIdx}`] && uIdx > 0)} /></td>
                           <td>
                             <select value={u.tv_brand} onChange={e => updateUnit(bIdx, uIdx, 'tv_brand', e.target.value)} disabled={!u.active}>
@@ -366,7 +342,6 @@ export default function GuestViewOnboard() {
             </>
           )}
 
-          {/* STEP 3 — Auth */}
           {step === 3 && (
             <>
               <h1>Create your account</h1>
@@ -404,13 +379,10 @@ export default function GuestViewOnboard() {
             </>
           )}
 
-          {/* STEP 4 — skip (auth redirect brings to 5) */}
-
-          {/* STEP 5 — Connect OwnerRez */}
           {step === 5 && user && (
             <>
               <h1>Connect OwnerRez</h1>
-              <p className="sub">GuestView reads your guest's name and check-in / check-out dates to personalize each TV screen. We encrypt your API key — we never see it.</p>
+              <p className="sub">GuestView reads your guest's name and check-in / check-out dates to personalize each TV screen. We encrypt your API key — we never see it in plain text.</p>
               {orError && <div className="err">{orError}</div>}
               {!orSample ? (
                 <div className="or-form">
@@ -431,7 +403,6 @@ export default function GuestViewOnboard() {
             </>
           )}
 
-          {/* STEP 6 — Done + TV URLs */}
           {step === 6 && (
             <div className="success-wrap">
               <div className="success-icon">✓</div>
@@ -456,11 +427,10 @@ export default function GuestViewOnboard() {
                   </p>
                 )}
               </div>
-              <div className="trial-badge">
-                Trial active · $2 / TV / month · no commitment
-              </div>
+              <div className="trial-badge">Trial active · $2 / TV / month · no commitment</div>
             </div>
           )}
+
         </div>
       </div>
     </>

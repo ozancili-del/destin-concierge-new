@@ -11,6 +11,12 @@
       "destination": "/destin-hub.html",
       "permanent": false,
       "has": [{"type": "host", "value": "explore.destincondogetaways.com"}]
+    },
+    {
+      "source": "/",
+      "destination": "/guestview/onboard",
+      "permanent": false,
+      "has": [{"type": "host", "value": "guestview.destincondogetaways.com"}]
     }
   ],
   "rewrites": [

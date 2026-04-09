@@ -2,6 +2,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -110,6 +111,10 @@ h1 span{color:var(--teal);}
 .e-password{font-size:13px;color:var(--teal);}
 .e-checkout{font-size:26px;font-weight:300;color:#86efac;letter-spacing:1px;}
 .e-sub{font-size:11px;color:rgba(255,255,255,0.3);margin-top:4px;}
+/* ANNOUNCEMENT */
+.announcement-card{background:rgba(246,196,83,0.08);border:1px solid rgba(246,196,83,0.25);border-radius:12px;padding:12px 14px;}
+.announcement-label{font-size:10px;text-transform:uppercase;letter-spacing:3px;color:rgba(246,196,83,0.6);margin-bottom:6px;}
+.announcement-text{font-size:13px;color:rgba(255,255,255,0.85);line-height:1.5;}
 .divider{height:1px;background:var(--line);margin:4px 0;}
 .qr-single{display:flex;flex-direction:column;align-items:center;gap:8px;background:rgba(255,255,255,0.03);border:1px solid var(--line);border-radius:16px;padding:14px;}
 .qr-img{width:100px;height:100px;background:#fff;border-radius:8px;padding:7px;display:flex;align-items:center;justify-content:center;}
@@ -236,6 +241,11 @@ h1 span{color:var(--teal);}
       <div class="e-label">🕐 Check-out</div>
       <div class="e-checkout" id="checkoutDate">—</div>
       <div class="e-sub">10:00 AM · Door locks automatically</div>
+    </div>
+
+    <div id="announcementCard" class="announcement-card">
+      <div class="announcement-label">📢 Building Notice</div>
+      <div class="announcement-text" id="announcementText">There are no building announcements at this time. Enjoy your stay!</div>
     </div>
 
     <div class="divider"></div>

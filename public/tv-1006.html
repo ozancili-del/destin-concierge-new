@@ -1,6 +1,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -432,15 +433,15 @@ async function loadLiveData() {
       });
     }
 
-    // ── STATE B: Checkout morning ────────────────────────────────
-    if (d.isCheckoutMorning) {
-      showGoodbyeScreen(d.booking?.guestFirstName || 'Guest');
-      return;
-    }
-
     // ── STATE C: Between guests ──────────────────────────────────
     if (d.isBetweenGuests) {
       showGenericScreen();
+      return;
+    }
+
+    // ── STATE B: Checkout morning ────────────────────────────────
+    if (d.isCheckoutMorning) {
+      showGoodbyeScreen(d.booking?.guestFirstName || 'Guest');
       return;
     }
 

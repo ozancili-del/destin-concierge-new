@@ -14,6 +14,7 @@ function getSupabase() {
 export default function GuestViewOnboard() {
   const [step, setStep] = useState(1);
   const [url, setUrl] = useState('');
+  const [legalChecked, setLegalChecked] = useState(false);
   const [crawling, setCrawling] = useState(false);
   const [crawlLog, setCrawlLog] = useState([]);
   const [buildings, setBuildings] = useState([]);
@@ -30,6 +31,9 @@ export default function GuestViewOnboard() {
   const [saving, setSaving] = useState(false);
   const [savedUnits, setSavedUnits] = useState([]);
   const [error, setError] = useState('');
+  const [claimedModal, setClaimedModal] = useState(false);
+  const [claimedEmail, setClaimedEmail] = useState('');
+  const [claimedAuthSent, setClaimedAuthSent] = useState(false);
 
   useEffect(() => {
     const supabase = getSupabase();
@@ -43,11 +47,29 @@ export default function GuestViewOnboard() {
   }, []);
 
   async function handleCrawl() {
-    if (!url.trim()) return;
+    if (!url.trim() || !legalChecked) return;
     setCrawling(true);
     setError('');
     setCrawlLog([]);
-    const logs = ['Connecting to your website...','Scanning property listings...','Grouping units by building...'];
+
+    // Check URL ownership first
+    try {
+      const checkRes = await fetch('/api/guestview/check-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url })
+      });
+      const checkData = await checkRes.json();
+      if (checkData.claimed) {
+        setCrawling(false);
+        setClaimedModal(true);
+        return;
+      }
+    } catch (e) {
+      // If check fails, proceed anyway
+    }
+
+    const logs = ['Connecting to your website...', 'Scanning property listings...', 'Grouping units by building...'];
     for (let i = 0; i < logs.length; i++) {
       await new Promise(r => setTimeout(r, 700));
       setCrawlLog(prev => [...prev, { text: logs[i], done: false }]);
@@ -75,6 +97,16 @@ export default function GuestViewOnboard() {
     } finally {
       setCrawling(false);
     }
+  }
+
+  async function handleClaimedLogin() {
+    if (!claimedEmail.trim()) return;
+    const { error } = await getSupabase().auth.signInWithOtp({
+      email: claimedEmail,
+      options: { emailRedirectTo: `${window.location.origin}/guestview/onboard` }
+    });
+    if (error) { setError(error.message); return; }
+    setClaimedAuthSent(true);
   }
 
   function updateUnit(bIdx, uIdx, field, value) {
@@ -186,15 +218,24 @@ export default function GuestViewOnboard() {
         .card { background: #fff; border-radius: 16px; border: 1px solid #e8e6e0; width: 100%; max-width: 680px; padding: 2.5rem; }
         .logo { font-size: 17px; font-weight: 600; letter-spacing: -0.3px; color: #1a1a18; margin-bottom: 2rem; }
         .logo span { color: #1D9E75; }
-        .steps { display: flex; gap: 6px; margin-bottom: 2rem; }
+        .top-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 2rem; }
+        .back-btn { background: none; border: 1px solid #e8e6e0; border-radius: 8px; width: 34px; height: 34px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #6b6b65; flex-shrink: 0; transition: all 0.15s; }
+        .back-btn:hover { background: #f7f6f3; color: #1a1a18; }
+        .steps { display: flex; gap: 6px; flex: 1; }
         .step-pip { height: 3px; border-radius: 2px; background: #e8e6e0; flex: 1; transition: background 0.3s; }
         .step-pip.done { background: #1D9E75; }
         .step-pip.active { background: #1D9E75; opacity: 0.5; }
         h1 { font-size: 24px; font-weight: 600; letter-spacing: -0.5px; margin-bottom: 0.4rem; }
         .sub { font-size: 15px; color: #6b6b65; line-height: 1.6; margin-bottom: 2rem; }
-        .input-row { display: flex; gap: 8px; margin-bottom: 1.5rem; }
+        .input-row { display: flex; gap: 8px; margin-bottom: 1rem; }
         input[type=text], input[type=email] { width: 100%; height: 42px; border: 1px solid #e8e6e0; border-radius: 8px; padding: 0 12px; font-size: 14px; font-family: 'DM Sans', sans-serif; background: #fafaf8; color: #1a1a18; outline: none; transition: border-color 0.2s; }
         input:focus { border-color: #1D9E75; background: #fff; }
+        .legal-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 1.5rem; padding: 12px 14px; background: #fafaf8; border: 1px solid #e8e6e0; border-radius: 8px; }
+        .legal-check { width: 18px; height: 18px; border-radius: 4px; border: 1.5px solid #d0cdc7; background: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; transition: all 0.15s; }
+        .legal-check.checked { background: #1D9E75; border-color: #1D9E75; }
+        .legal-check-mark { color: #fff; font-size: 11px; font-weight: 700; }
+        .legal-text { font-size: 12px; color: #6b6b65; line-height: 1.6; cursor: pointer; }
+        .legal-text a { color: #1D9E75; text-decoration: none; }
         .btn { height: 42px; padding: 0 20px; border-radius: 8px; font-size: 14px; font-weight: 500; font-family: 'DM Sans', sans-serif; cursor: pointer; transition: all 0.15s; border: none; white-space: nowrap; }
         .btn-primary { background: #1D9E75; color: #fff; }
         .btn-primary:hover { background: #0F6E56; }
@@ -256,15 +297,47 @@ export default function GuestViewOnboard() {
         @keyframes spin { to { transform: rotate(360deg); } }
         .sent-box { background: #e8f7f1; border: 1px solid #b3e6d4; border-radius: 10px; padding: 1.25rem; text-align: center; }
         .sent-box p { font-size: 14px; color: #0F6E56; line-height: 1.6; }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 1rem; }
+        .modal { background: #fff; border-radius: 16px; padding: 2rem; max-width: 400px; width: 100%; }
+        .modal h2 { font-size: 18px; font-weight: 600; margin-bottom: 0.5rem; }
+        .modal p { font-size: 14px; color: #6b6b65; line-height: 1.6; margin-bottom: 1.5rem; }
+        .modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: #9b9b94; float: right; margin-top: -4px; }
       `}</style>
+
+      {/* Claimed modal */}
+      {claimedModal && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <button className="modal-close" onClick={() => setClaimedModal(false)}>×</button>
+            <h2>This website is already registered</h2>
+            <p>Another GuestView account is linked to this website. If you own it, log in to access your account.</p>
+            {!claimedAuthSent ? (
+              <div className="input-row">
+                <input type="email" placeholder="your@email.com" value={claimedEmail} onChange={e => setClaimedEmail(e.target.value)} style={{ flex: 1 }} />
+                <button className="btn btn-primary" onClick={handleClaimedLogin}>Log in →</button>
+              </div>
+            ) : (
+              <div className="sent-box">
+                <p>Magic link sent to <strong>{claimedEmail}</strong>. Check your inbox.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       <div className="wrap">
         <div className="card">
           <div className="logo">Guest<span>View</span></div>
-          <div className="steps">
-            {[1,2,3,4,5,6].map(s => (
-              <div key={s} className={`step-pip ${step > s ? 'done' : step === s ? 'active' : ''}`} />
-            ))}
+
+          <div className="top-bar">
+            {step > 1 && step < 6 && (
+              <button className="back-btn" onClick={() => setStep(s => s - 1)}>←</button>
+            )}
+            <div className="steps">
+              {[1,2,3,4,5,6].map(s => (
+                <div key={s} className={`step-pip ${step > s ? 'done' : step === s ? 'active' : ''}`} />
+              ))}
+            </div>
           </div>
 
           {step === 1 && (
@@ -273,9 +346,17 @@ export default function GuestViewOnboard() {
               <p className="sub">Enter your vacation rental website and we'll scan it to find all your properties automatically.</p>
               <div className="input-row">
                 <input type="text" placeholder="yoursite.com" value={url} onChange={e => setUrl(e.target.value)} onKeyDown={e => e.key === 'Enter' && !crawling && handleCrawl()} style={{ flex: 1 }} />
-                <button className="btn btn-primary" onClick={handleCrawl} disabled={crawling || !url.trim()}>
+                <button className="btn btn-primary" onClick={handleCrawl} disabled={crawling || !url.trim() || !legalChecked}>
                   {crawling ? <><span className="spinner" />Scanning...</> : 'Find my units →'}
                 </button>
+              </div>
+              <div className="legal-row" onClick={() => setLegalChecked(v => !v)}>
+                <div className={`legal-check ${legalChecked ? 'checked' : ''}`}>
+                  {legalChecked && <span className="legal-check-mark">✓</span>}
+                </div>
+                <span className="legal-text">
+                  I confirm that I own or am authorized to manage this website and have the legal right to scan and index its content for use with GuestView. I agree to the <a href="#" onClick={e => e.stopPropagation()}>Terms of Service</a>.
+                </span>
               </div>
               {crawlLog.length > 0 && (
                 <div className="crawl-log">

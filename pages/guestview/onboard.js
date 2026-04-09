@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import Head from 'next/head';
 
-const TV_BRANDS = ['Samsung', 'LG', 'Sony', 'Vizio', 'TCL', 'Hisense', 'Other'];
+const TV_BRANDS = ['Samsung', 'LG', 'Sony', 'Vizio', 'TCL', 'Hisense', 'Toshiba', 'Other'];
 
 function getSupabase() {
   return createClient(
@@ -267,7 +267,7 @@ export default function GuestViewOnboard() {
         .logo { font-size: 17px; font-weight: 600; letter-spacing: -0.3px; color: #1a1a18; margin-bottom: 2rem; }
         .logo span { color: #1D9E75; }
         .top-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 2rem; }
-        .back-btn { background: none; border: 1px solid #e8e6e0; border-radius: 8px; width: 34px; height: 34px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #6b6b65; flex-shrink: 0; transition: all 0.15s; }
+        .back-btn { background: #fff; border: 1px solid #e8e6e0; border-radius: 8px; height: 42px; padding: 0 20px; font-size: 14px; font-weight: 500; font-family: 'DM Sans', sans-serif; color: #6b6b65; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
         .back-btn:hover { background: #f7f6f3; color: #1a1a18; }
         .steps { display: flex; gap: 5px; flex: 1; }
         .step-pip { height: 3px; border-radius: 2px; background: #e8e6e0; flex: 1; transition: background 0.3s; }
@@ -387,32 +387,33 @@ export default function GuestViewOnboard() {
         </div>
       )}
 
-      {showMissingModal && (
+      {showMissingModal && (() => {
+        const gapCounts = {};
+        missingUnits.forEach(m => m.gaps.forEach(g => { gapCounts[g] = (gapCounts[g] || 0) + 1; }));
+        return (
         <div className="modal-overlay">
           <div className="modal">
             <button className="modal-close" onClick={() => setShowMissingModal(false)}>×</button>
-            <h2>Some units are incomplete</h2>
-            <p>The following active units are missing information. You can fix them now or continue and update later in your dashboard.</p>
+            <h2>Some info is missing</h2>
+            <p>You can finish now or fill in the gaps later from your dashboard.</p>
             <div className="missing-list">
-              {missingUnits.map((m, i) => (
-                <div key={i} className="missing-item">{m.building} — {m.unit}: missing {m.gaps.join(', ')}</div>
+              {Object.entries(gapCounts).map(([gap, count]) => (
+                <div key={gap} className="missing-item">{count} unit{count > 1 ? 's' : ''} missing {gap}</div>
               ))}
             </div>
             <div className="modal-btns">
-              <button className="btn btn-outline" style={{ flex: 1 }} onClick={() => setShowMissingModal(false)}>Fix now</button>
-              <button className="btn btn-primary" style={{ flex: 1 }} onClick={() => { setShowMissingModal(false); setStep(3); }}>Continue anyway →</button>
+              <button className="btn btn-outline" style={{ flex: 1 }} onClick={() => setShowMissingModal(false)}>Finish now</button>
+              <button className="btn btn-primary" style={{ flex: 1 }} onClick={() => { setShowMissingModal(false); setStep(3); }}>Fill in dashboard →</button>
             </div>
           </div>
         </div>
-      )}
+        );
+      })()}
 
       <div className="wrap">
         <div className="card">
           <div className="logo">Guest<span>View</span></div>
           <div className="top-bar">
-            {step > 1 && step < 8 && (
-              <button className="back-btn" onClick={() => setStep(s => s === 6 ? 5 : s - 1)}>←</button>
-            )}
             <div className="steps">
               {Array.from({ length: totalSteps }).map((_, i) => (
                 <div key={i} className={`step-pip ${step > i + 1 ? 'done' : step === i + 1 ? 'active' : ''}`} />
@@ -482,8 +483,11 @@ export default function GuestViewOnboard() {
                 </div>
               ))}
               <div className="confirm-bar">
-                <span className="confirm-note">{activeCount} units selected</span>
-                <button className="btn btn-primary" onClick={handleLooksGood}>Looks good →</button>
+                <button className="back-btn" onClick={() => setStep(1)}>← Back</button>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <span className="confirm-note">{activeCount} units selected</span>
+                  <button className="btn btn-primary" onClick={handleLooksGood}>Looks good →</button>
+                </div>
               </div>
             </>
           )}
@@ -509,8 +513,11 @@ export default function GuestViewOnboard() {
                 </tbody>
               </table>
               <div className="confirm-bar">
-                <span className="confirm-note">You can update these anytime in your dashboard</span>
-                <button className="btn btn-primary" onClick={() => setStep(4)}>Next →</button>
+                <button className="back-btn" onClick={() => setStep(2)}>← Back</button>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <span className="confirm-note">You can update these anytime in your dashboard</span>
+                  <button className="btn btn-primary" onClick={() => setStep(4)}>Next →</button>
+                </div>
               </div>
             </>
           )}
@@ -535,8 +542,11 @@ export default function GuestViewOnboard() {
                 </div>
               </div>
               <div className="confirm-bar">
-                <span className="confirm-note">All fields optional — update anytime in dashboard</span>
-                <button className="btn btn-primary" onClick={() => setStep(5)}>Next →</button>
+                <button className="back-btn" onClick={() => setStep(3)}>← Back</button>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <span className="confirm-note">All fields optional — update anytime in dashboard</span>
+                  <button className="btn btn-primary" onClick={() => setStep(5)}>Next →</button>
+                </div>
               </div>
             </>
           )}

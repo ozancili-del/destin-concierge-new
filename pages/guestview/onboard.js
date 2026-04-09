@@ -455,6 +455,15 @@ export default function GuestViewOnboard() {
             <>
               <h1>Are these your units?</h1>
               <p className="sub">We found {activeCount} units. Uncheck any you don't want on GuestView, then fill in WiFi and TV details.</p>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+                <button className="btn-outline btn" style={{ height: 32, fontSize: 12, padding: '0 14px' }}
+                  onClick={() => {
+                    const allActive = buildings.every(b => b.units.every(u => u.active));
+                    setBuildings(prev => prev.map(b => ({ ...b, units: b.units.map(u => ({ ...u, active: !allActive })) })));
+                  }}>
+                  {buildings.every(b => b.units.every(u => u.active)) ? 'Deselect all' : 'Select all'}
+                </button>
+              </div>
               {error && <div className="err">{error}</div>}
               {buildings.map((b, bIdx) => (
                 <div key={bIdx} className="building-block">

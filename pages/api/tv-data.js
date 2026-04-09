@@ -180,7 +180,7 @@ export default async function handler(req, res) {
       : false;
     // Checkout morning: departure is today AND it's 10am or later
     const isCheckoutMorning = booking?.isDeparting === true && hourCT >= 10;
-    const isBetweenGuests = !booking && hourCT >= 10;
+    const isBetweenGuests = (!booking || isCheckoutMorning) && hourCT >= 10;
     const timeSlot = hourCT < 12 ? "morning" : hourCT < 17 ? "afternoon" : "evening";
 
     return res.status(200).json({

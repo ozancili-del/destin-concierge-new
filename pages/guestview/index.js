@@ -172,7 +172,7 @@ export default function GuestViewDashboard() {
         const res = await fetch('/api/guestview/save-announcement', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ user_id: user.id, building, message, starts_at: new Date(announceForm.start).toISOString(), expires_at: new Date(announceForm.end).toISOString() })
+          body: JSON.stringify({ user_id: user.id, building, message, starts_at: announceForm.start, expires_at: announceForm.end })
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error);

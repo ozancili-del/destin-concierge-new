@@ -648,18 +648,29 @@ export default function GuestViewDashboard() {
                     {unitAnnouncements.length === 0 && <div style={{ fontSize: 12, color: '#9b9b94', marginBottom: 8 }}>No announcements for this building.</div>}
                     {unitAnnouncements.map((a, i) => {
                       const now = new Date();
-                      const isLive = now >= new Date(a.starts_at) && now <= new Date(a.expires_at);
+                      const start = new Date(a.starts_at);
+                      const end = new Date(a.expires_at);
+                      const isExpired = now > end;
+                      const isLive = now >= start && now <= end;
+                      const isScheduled = start > now;
+                      if (isExpired) return null;
                       return (
                         <div key={i} className="announce-row">
-                          <div>
+                          <div style={{ flex: 1 }}>
                             <div className="announce-msg">{a.message}</div>
-                            <div className="announce-meta">{new Date(a.starts_at).toLocaleDateString()} – {new Date(a.expires_at).toLocaleDateString()}</div>
+                            <div className="announce-meta">{start.toLocaleDateString()} – {end.toLocaleDateString()}</div>
                           </div>
-                          <span className={`ann-badge ${isLive ? 'ann-live' : 'ann-sched'}`}>{isLive ? 'Live' : 'Scheduled'}</span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+                            <span className={`ann-badge ${isLive ? 'ann-live' : 'ann-sched'}`}>{isLive ? 'Live' : 'Scheduled'}</span>
+                            <button onClick={async () => {
+                              await fetch('/api/guestview/delete-announcement', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: a.id, user_id: user.id }) });
+                              setAnnouncements(prev => prev.filter((_, idx) => idx !== i));
+                              showToast('Announcement deleted.');
+                            }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9b9b94', fontSize: 16, padding: '0 4px' }}>×</button>
+                          </div>
                         </div>
                       );
-                    })}
-                    <button className="add-btn" onClick={() => setShowAddAnnounce(v => !v)}>+ Add announcement</button>
+                    })}\n                    <button className="add-btn" onClick={() => setShowAddAnnounce(v => !v)}>+ Add announcement</button>
                     {showAddAnnounce && (
                       <div className="add-form">
                         <select value={announceForm.type} onChange={e => setAnnounceForm(p => ({ ...p, type: e.target.value, customText: '' }))}>
@@ -670,8 +681,8 @@ export default function GuestViewDashboard() {
                           <input type="text" placeholder={announceForm.type === 'Custom message' ? 'Type your announcement...' : 'Add details (optional)...'} value={announceForm.customText || ''} onChange={e => setAnnounceForm(p => ({ ...p, customText: e.target.value }))} style={{ marginBottom: 6 }} />
                         )}
                         <div className="date-row">
-                          <input type="date" value={announceForm.start} onChange={e => setAnnounceForm(p => ({ ...p, start: e.target.value }))} />
-                          <input type="date" value={announceForm.end} onChange={e => setAnnounceForm(p => ({ ...p, end: e.target.value }))} />
+                          <input type="datetime-local" value={announceForm.start} onChange={e => setAnnounceForm(p => ({ ...p, start: e.target.value }))} />
+                          <input type="datetime-local" value={announceForm.end} onChange={e => setAnnounceForm(p => ({ ...p, end: e.target.value }))} />
                         </div>
                         <button className="btn btn-primary btn-sm" onClick={handleSaveAnnouncement}>Save announcement</button>
                       </div>

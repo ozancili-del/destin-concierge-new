@@ -304,7 +304,8 @@ async function loadRecs(name,weather,noaa,today,timeSlot){
     const res=await fetch(BASE+'/api/tv-recommendations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt})});
     const data=await res.json();
     const text=data.content?.[0]?.text||'';
-    const recs=JSON.parse(text.replace(/```json|```/g,'').trim());
+    const clean=text.replace(/\u0060\u0060\u0060json|\u0060\u0060\u0060/g,'').trim();
+    const recs=JSON.parse(clean);
     renderRecs(recs,timeSlot||'afternoon',today);
   }catch(e){console.error('loadRecs error:',e);}
 }

@@ -72,6 +72,9 @@ export default async function handler(req, res) {
       subpageTexts
     ].join('\n\n').substring(0, 30000);
 
+    // Strip invalid unicode surrogate pairs that break JSON
+    const safeCombined = combined.replace(/[\uD800-\uDFFF]/g, '').replace(/[^\x09\x0A\x0D\x20-\x7E\xA0-\uD7FF\uE000-\uFFFD]/g, ' ');
+
     const response = await client.messages.create({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 2000,
@@ -80,7 +83,7 @@ export default async function handler(req, res) {
         content: `You are extracting vacation rental unit information from a website. The content below includes the homepage and several subpages.
 
 Website content:
-${combined}
+${safeCombined}
 
 Extract ALL rental units/properties found across all pages. For each unit identify:
 1. The building/resort name (e.g. "Pelican Beach Resort", "Waterscape", "Majestic Sun")

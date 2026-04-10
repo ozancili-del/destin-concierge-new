@@ -31,7 +31,7 @@ export async function getServerSideProps({ params }) {
     const nowISO = new Date().toISOString().slice(0, 19);
     const { data: announcements } = await supabase
       .from('guestview_announcements')
-      .select('message')
+      .select('message, starts_at, expires_at')
       .eq('user_id', unit.user_id)
       .eq('building', unit.building)
       .lte('starts_at', nowISO)
@@ -41,7 +41,7 @@ export async function getServerSideProps({ params }) {
       props: {
         unit,
         booking,
-        announcement: announcements?.[0]?.message || null,
+        const ann = announcements?.[0] || null; announcement: ann,
         isMock: userProfile?.mock_mode || false,
         brandName: userProfile?.brand_name || unit.host_name || 'Your Host',
         logoUrl: userProfile?.logo_url || null,
@@ -244,7 +244,11 @@ ${isMock ? `<div class="preview-banner"><span>Preview mode · sample guest data<
     </div>
     <div class="announcement-card">
       <div class="announcement-label">📢 Building Notice</div>
-      <div class="announcement-text">${announcement || 'There are no building announcements at this time. Enjoy your stay!'}</div>
+      <div class="announcement-text">${(() => {
+        if (!announcement) return 'There are no building announcements at this time. Enjoy your stay!';
+        const fmt = s => new Date(s).toLocaleString('en-US', {month:'short',day:'numeric',hour:'numeric',minute:'2-digit',hour12:true,timeZone:'America/Chicago'});
+        return announcement.message + ' · ' + fmt(announcement.starts_at) + ' – ' + fmt(announcement.expires_at);
+      })()}</div>
     </div>
     <div class="divider"></div>
     <div class="qr-single">

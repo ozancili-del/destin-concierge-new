@@ -114,28 +114,40 @@ export default async function handler(req, res) {
       candidateUrls = getInternalLinks(homepageHtml, baseUrl);
     }
 
-    // --- STEP 4: Score and pick top pages to fetch ---
-    const scored = candidateUrls
-      .map(u => ({ url: u, score: scoreUrl(u) }))
-      .filter(u => u.score > 0 || candidateUrls.length < 15) // if few URLs, include all
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 8);
+    // --- STEP 4: Build context for Claude ---
+    let combined = '';
+    const homepageText = sanitize(stripHtml(homepageHtml)).substring(0, 3000);
 
-    // --- STEP 5: Fetch top pages in parallel ---
-    const pageResults = await Promise.allSettled(
-      scored.map(({ url: u }) => fetchRaw(u, 8000).then(html => ({ url: u, text: sanitize(stripHtml(html)).substring(0, 6000) })))
-    );
+    // Always extract homepage links as additional candidates
+    const homepageLinks = getInternalLinks(homepageHtml, baseUrl);
+    const allCandidates = [...new Set([...candidateUrls, ...homepageLinks])];
 
-    const pages = pageResults
-      .filter(r => r.status === 'fulfilled')
-      .map(r => `--- ${r.value.url} ---\n${r.value.text}`);
+    if (allCandidates.length > 0) {
+      // Feed ALL URLs as a list to Claude — unit numbers in URLs are the key signal
+      const urlList = allCandidates.join('\n');
 
-    // Always include homepage text
-    const homepageText = sanitize(stripHtml(homepageHtml)).substring(0, 4000);
-    const combined = sanitize([
-      `--- HOMEPAGE: ${baseUrl} ---\n${homepageText}`,
-      ...pages
-    ].join('\n\n')).substring(0, 28000);
+      // Also fetch top scored pages for extra context
+      const scored = allCandidates
+        .map(u => ({ url: u, score: scoreUrl(u) }))
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 8);
+
+      const pageResults = await Promise.allSettled(
+        scored.map(({ url: u }) => fetchRaw(u, 8000).then(html => ({ url: u, text: sanitize(stripHtml(html)).substring(0, 5000) })))
+      );
+
+      const pages = pageResults
+        .filter(r => r.status === 'fulfilled')
+        .map(r => `--- ${r.value.url} ---\n${r.value.text}`);
+
+      combined = sanitize([
+        `--- HOMEPAGE: ${baseUrl} ---\n${homepageText}`,
+        `--- ALL SITE URLS (from sitemap/nav) ---\n${urlList}`,
+        ...pages
+      ].join('\n\n')).substring(0, 28000);
+    } else {
+      combined = sanitize(`--- HOMEPAGE: ${baseUrl} ---\n${homepageText}\n\n--- HOMEPAGE LINKS ---\n${homepageLinks.join("\n")}`);
+    }
 
     // --- STEP 6: Claude extraction with retry ---
     let response;
@@ -146,18 +158,20 @@ export default async function handler(req, res) {
           max_tokens: 2000,
           messages: [{
             role: 'user',
-            content: `You are extracting vacation rental unit information from a website. Content from multiple pages is included below.
+            content: `You are extracting vacation rental unit information from a website.
+
+The content below includes the homepage text, a list of ALL URLs on the site (from sitemap or navigation), and content from key listing pages.
 
 ${combined}
 
-Extract ALL individual rental units/properties. For each unit identify:
-1. The building/resort name (e.g. "Pelican Beach Resort", "Waterscape")
-2. The unit name (e.g. "Beachfront Condo 302", "Unit 707", "2 Bedroom Suite")
+Your job: Extract ALL individual rental units/properties.
 
 Rules:
-- Include every individual unit you find, not just unit types
-- If you see "Beachfront Condo 302", "Beachfront Condo 306" etc, list each one separately
-- Group by building/resort
+- Look at BOTH the page content AND the URL list — unit numbers often appear in URLs like /pelicanbeach302/ or /unit-707/ 
+- If a URL contains a unit number (e.g. pelicanbeach302, pelicanbeach1102, unit707), treat it as a unit
+- Use page content to get the building/resort name and full unit name (e.g. "Beachfront Condo 302")
+- List EVERY individual unit separately — not just unit types like "1 Bedroom"
+- Group units by building/resort name
 
 Return ONLY valid JSON, no other text:
 {

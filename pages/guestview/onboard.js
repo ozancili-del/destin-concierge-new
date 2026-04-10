@@ -719,6 +719,9 @@ export default function GuestViewOnboard() {
                 {savedUnits.length > 5 && <p style={{ fontSize: 13, color: '#9b9b94', textAlign: 'center', marginTop: 8 }}>+ {savedUnits.length - 5} more — view all in your dashboard</p>}
               </div>
               <div className="trial-badge">Trial active · $2 / TV / month · no commitment</div>
+              <div style={{ marginTop: '1.5rem' }}>
+                <button className="btn btn-primary" style={{ width: '100%' }} onClick={() => window.location.href = '/guestview'}>Go to my dashboard →</button>
+              </div>
             </div>
           )}
 

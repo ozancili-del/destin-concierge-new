@@ -281,7 +281,6 @@ window.addEventListener('load',function(){
     QRCode.toCanvas(document.getElementById('bookingQR'),bUrl,{width:92,margin:1,color:{dark:'#000000',light:'#ffffff'}},function(err){if(err)console.error(err);});
   }
   setTimeout(tryQR,500);
-  }
 });
 function updateClock(){const now=new Date();document.getElementById('clockDisplay').textContent=now.toLocaleString('en-US',{timeZone:'America/Chicago',weekday:'long',month:'long',day:'numeric',hour:'numeric',minute:'2-digit',hour12:true});}
 updateClock();setInterval(updateClock,30000);

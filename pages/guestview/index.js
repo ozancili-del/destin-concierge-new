@@ -163,24 +163,25 @@ export default function GuestViewDashboard() {
     const details = announceForm.customText?.trim() || '';
     const message = baseType && details ? `${baseType} — ${details}` : baseType || details;
     if (!message || !announceForm.start || !announceForm.end) return;
+    const buildings = announceForm.allBuildings
+      ? [...new Set(units.map(u => u.building))]
+      : [selectedUnit.building];
     try {
-      const res = await fetch('/api/guestview/save-announcement', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          user_id: user.id,
-          building: selectedUnit.building,
-          message: message,
-          starts_at: announceForm.start,
-          expires_at: announceForm.end
-        })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      setAnnouncements(prev => [...prev, data.announcement]);
-      setAnnounceForm({ type: '', start: '', end: '' });
+      const saved = [];
+      for (const building of buildings) {
+        const res = await fetch('/api/guestview/save-announcement', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: user.id, building, message, starts_at: announceForm.start, expires_at: announceForm.end })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        saved.push(data.announcement);
+      }
+      setAnnouncements(prev => [...prev, ...saved]);
+      setAnnounceForm({ type: '', start: '', end: '', allBuildings: false });
       setShowAddAnnounce(false);
-      showToast('Announcement saved.');
+      showToast(buildings.length > 1 ? `Saved for all ${buildings.length} buildings.` : 'Announcement saved.');
     } catch (e) {
       showToast('Failed to save announcement.');
     }
@@ -695,6 +696,10 @@ export default function GuestViewDashboard() {
                           <input type="datetime-local" value={announceForm.start} onChange={e => setAnnounceForm(p => ({ ...p, start: e.target.value }))} />
                           <input type="datetime-local" value={announceForm.end} onChange={e => setAnnounceForm(p => ({ ...p, end: e.target.value }))} />
                         </div>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#6b6b65', marginBottom: 8, cursor: 'pointer' }}>
+                          <input type="checkbox" checked={announceForm.allBuildings || false} onChange={e => setAnnounceForm(p => ({ ...p, allBuildings: e.target.checked }))} />
+                          Apply to all buildings
+                        </label>
                         <button className="btn btn-primary btn-sm" onClick={handleSaveAnnouncement}>Save announcement</button>
                       </div>
                     )}

@@ -2,33 +2,37 @@ import Anthropic from '@anthropic-ai/sdk';
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-async function fetchPage(url) {
+async function fetchText(url) {
   const res = await fetch(url, {
     headers: { 'User-Agent': 'Mozilla/5.0 (compatible; GuestView/1.0)' },
     signal: AbortSignal.timeout(10000)
   });
   const html = await res.text();
-  return html
+  return { html, text: html
     .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
     .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
     .replace(/<[^>]+>/g, ' ')
     .replace(/\s+/g, ' ')
-    .trim();
+    .trim()
+  };
 }
 
-function findListingsUrl(html, baseUrl) {
-  const raw = html.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '').replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
-  const links = [...raw.matchAll(/href=["']([^"']+)["']/gi)].map(m => m[1]);
-  const keywords = /properties|rentals|units|listings|accommodations|condos|vacation/i;
+function extractInternalLinks(html, baseUrl) {
   const base = new URL(baseUrl);
-  for (const link of links) {
-    if (keywords.test(link)) {
-      try {
-        return new URL(link, base).href;
-      } catch {}
-    }
+  const matches = [...html.matchAll(/href=["']([^"'#?]+)["']/gi)].map(m => m[1]);
+  const keywords = /properties|rentals|units|listings|accommodations|condos|condo|vacation|resort|rooms|suites|1bedroom|2bedroom|bedroom/i;
+  const seen = new Set();
+  const links = [];
+  for (const link of matches) {
+    try {
+      const full = new URL(link, base).href;
+      if (full.startsWith(base.origin) && full !== baseUrl && !seen.has(full) && keywords.test(full)) {
+        seen.add(full);
+        links.push(full);
+      }
+    } catch {}
   }
-  return null;
+  return links.slice(0, 6); // max 6 subpages
 }
 
 export default async function handler(req, res) {
@@ -40,52 +44,49 @@ export default async function handler(req, res) {
   const cleanUrl = url.startsWith('http') ? url : `https://${url}`;
 
   try {
-    let siteContent = '';
-    let rawHtml = '';
+    let homepageHtml = '';
+    let homepageText = '';
 
     try {
-      const fetchRes = await fetch(cleanUrl, {
-        headers: { 'User-Agent': 'Mozilla/5.0 (compatible; GuestView/1.0)' },
-        signal: AbortSignal.timeout(10000)
-      });
-      rawHtml = await fetchRes.text();
-      siteContent = rawHtml
-        .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
-        .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
-        .replace(/<[^>]+>/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim();
+      const { html, text } = await fetchText(cleanUrl);
+      homepageHtml = html;
+      homepageText = text;
     } catch (e) {
       return res.status(400).json({ error: 'Could not reach that website. Check the URL and try again.' });
     }
 
-    // If homepage content looks thin on units, try to find a listings page
-    let extraContent = '';
-    const listingsUrl = findListingsUrl(rawHtml, cleanUrl);
-    if (listingsUrl && listingsUrl !== cleanUrl) {
-      try {
-        const listingsContent = await fetchPage(listingsUrl);
-        extraContent = listingsContent.substring(0, 15000);
-      } catch {}
-    }
+    // Find relevant subpages and fetch them in parallel
+    const subpageUrls = extractInternalLinks(homepageHtml, cleanUrl);
+    const subpageResults = await Promise.allSettled(
+      subpageUrls.map(u => fetchText(u))
+    );
 
-    const combined = (siteContent.substring(0, 12000) + (extraContent ? '\n\n--- LISTINGS PAGE ---\n\n' + extraContent : '')).substring(0, 25000);
+    const subpageTexts = subpageResults
+      .filter(r => r.status === 'fulfilled')
+      .map((r, i) => `--- PAGE: ${subpageUrls[i]} ---\n${r.value.text.substring(0, 5000)}`)
+      .join('\n\n');
+
+    const combined = [
+      `--- HOMEPAGE: ${cleanUrl} ---`,
+      homepageText.substring(0, 8000),
+      subpageTexts
+    ].join('\n\n').substring(0, 30000);
 
     const response = await client.messages.create({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 2000,
       messages: [{
         role: 'user',
-        content: `You are extracting vacation rental unit information from a website.
+        content: `You are extracting vacation rental unit information from a website. The content below includes the homepage and several subpages.
 
-Website content (may include homepage + a listings page):
+Website content:
 ${combined}
 
-Extract ALL rental units/properties. For each unit identify:
+Extract ALL rental units/properties found across all pages. For each unit identify:
 1. The building/resort name (e.g. "Pelican Beach Resort", "Waterscape", "Majestic Sun")
-2. The unit name/description (e.g. "7th Floor", "2 Bedroom Suite")
+2. The unit name/description (e.g. "Unit 707", "2 Bedroom Suite", "1408")
 
-Group units by building. Return ONLY valid JSON, no other text:
+Group units by building. If you find individual unit numbers or names on listing pages, include each one separately. Return ONLY valid JSON, no other text:
 {
   "buildings": [
     {
@@ -95,7 +96,7 @@ Group units by building. Return ONLY valid JSON, no other text:
       ]
     }
   ],
-  "total": 27
+  "total": 10
 }`
       }]
     });

@@ -16,7 +16,7 @@ export async function getServerSideProps({ params }) {
     if (!unit) return { notFound: true };
     const { data: userProfile } = await supabase
       .from('guestview_users')
-      .select('mock_mode, brand_name, logo_url, tagline')
+      .select('mock_mode, brand_name, logo_url, tagline, name, phone, website')
       .eq('id', unit.user_id)
       .single();
     let booking = null;
@@ -45,7 +45,10 @@ export async function getServerSideProps({ params }) {
         isMock: userProfile?.mock_mode || false,
         brandName: userProfile?.brand_name || unit.host_name || 'Your Host',
         logoUrl: userProfile?.logo_url || null,
-        tagline: userProfile?.tagline || 'Your vacation rental concierge'
+        tagline: userProfile?.tagline || 'Your vacation rental concierge',
+        profileName: userProfile?.name || '',
+        profilePhone: userProfile?.phone || '',
+        profileWebsite: userProfile?.website || ''
       }
     };
   } catch (err) {
@@ -54,15 +57,15 @@ export async function getServerSideProps({ params }) {
   }
 }
 
-export default function TVPreview({ unit, booking, announcement, isMock, brandName, logoUrl, tagline }) {
+export default function TVPreview({ unit, booking, announcement, isMock, brandName, logoUrl, tagline, profileName, profilePhone, profileWebsite }) {
   const accentColor = unit.accent_color || '#48cae4';
   const headline = unit.headline || `${unit.building} · Unit ${unit.unit_number} · Destin, Florida`;
   const wifiName = unit.wifi_name || 'WiFi Network';
   const wifiPass = unit.wifi_password || '--------';
   const checkoutTime = unit.checkout_time || '10:00 AM';
-  const hostName = unit.host_name || brandName;
-  const hostPhone = unit.host_phone || '';
-  const hostWebsite = unit.host_website || '';
+  const hostName = unit.host_name || profileName || '';
+  const hostPhone = unit.host_phone || profilePhone || '';
+  const hostWebsite = unit.host_website || profileWebsite || '';
   const affiliateUrl = unit.affiliate_url || 'https://www.tripshock.com/?aff=destindreamcondo';
   const guestName = booking?.guestFirstName || 'Guest';
   const departure = booking?.departure
@@ -85,6 +88,7 @@ export default function TVPreview({ unit, booking, announcement, isMock, brandNa
 *{margin:0;padding:0;box-sizing:border-box;}
 :root{--bg:#071321;--panel:rgba(255,255,255,0.03);--line:rgba(255,255,255,0.08);--soft:rgba(255,255,255,0.55);--faint:rgba(255,255,255,0.28);--teal:${accentColor};--green:#4ade80;--gold:#f6c453;--violet:#a78bfa;--coral:#f87171;}
 html,body{width:1920px;height:1080px;background:radial-gradient(circle at 15% 20%,#103255 0%,var(--bg) 45%,#040a12 100%);transition:background 2s ease;color:#fff;font-family:'DM Sans',system-ui,sans-serif;overflow:hidden;}
+body{transform-origin:top left;}
 ${isMock ? `.preview-banner{position:fixed;top:0;left:0;right:0;background:rgba(246,196,83,0.15);border-bottom:1px solid rgba(246,196,83,0.3);padding:6px 24px;display:flex;align-items:center;justify-content:space-between;font-size:11px;color:rgba(246,196,83,0.9);z-index:100;}` : ''}
 .waves{position:absolute;inset:0;pointer-events:none;opacity:0.04;}
 .screen{width:1920px;height:1080px;padding:${isMock ? '42px' : '28px'} 40px 24px;display:grid;grid-template-rows:175px 1fr 96px;gap:18px;position:relative;}
@@ -168,7 +172,7 @@ ${isMock ? `<div class="preview-banner"><span>Preview mode · sample guest data<
     <div style="display:flex;align-items:center;gap:16px;">
       ${logoUrl
         ? `<img src="${logoUrl}" style="width:110px;height:130px;border-radius:14px;object-fit:cover;border:2px solid rgba(72,202,228,0.5);flex-shrink:0;" alt="${brandName}"/>`
-        : `<div style="width:110px;height:130px;border-radius:14px;background:rgba(72,202,228,0.1);border:2px solid rgba(72,202,228,0.3);display:flex;align-items:center;justify-content:center;font-size:48px;flex-shrink:0;">🏠</div>`
+        : ''
       }
       <div>
         <div class="brand">${brandHtml}</div>
@@ -284,6 +288,8 @@ window.addEventListener('load',function(){
 });
 function updateClock(){const now=new Date();document.getElementById('clockDisplay').textContent=now.toLocaleString('en-US',{timeZone:'America/Chicago',weekday:'long',month:'long',day:'numeric',hour:'numeric',minute:'2-digit',hour12:true});}
 updateClock();setInterval(updateClock,30000);
+function scaleToFit(){const s=Math.min(window.innerWidth/1920,window.innerHeight/1080);document.body.style.transform='scale('+s+')';document.body.style.marginBottom=((1080*s)-1080)+'px';}
+scaleToFit();window.addEventListener('resize',scaleToFit);
 function wxIcon(c){c=(c||'').toUpperCase();if(c.includes('THUNDER')||c.includes('STORM'))return '⛈️';if(c.includes('RAIN'))return '🌧️';if(c.includes('PARTLY'))return '⛅';if(c.includes('CLOUDY'))return '☁️';return '☀️';}
 function dayLabel(ds){return new Date(ds+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',timeZone:'America/Chicago'}).toUpperCase();}
 function updateBg(ts){const g={morning:'radial-gradient(ellipse at 20% 80%,#7c3f00 0%,#b45309 20%,#1e3a5f 55%,#0a1628 100%)',afternoon:'radial-gradient(ellipse at 50% 0%,#0a4a6e 0%,#0a3352 30%,#081e38 65%,#040e1c 100%)',evening:'radial-gradient(ellipse at 60% 90%,#7c2d12 0%,#9d174d 25%,#2e1065 60%,#0a0a1a 100%)'};document.body.style.background=g[ts]||g.afternoon;}

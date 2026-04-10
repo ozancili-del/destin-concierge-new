@@ -47,7 +47,6 @@ export default function GuestViewOnboard() {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (session?.user) {
         setUser(session.user);
-        // Restore onboarding data from localStorage if exists
         try {
           const saved = localStorage.getItem('guestview_onboard_data');
           if (saved) {
@@ -56,12 +55,20 @@ export default function GuestViewOnboard() {
             if (data.checkTimes) setCheckTimes(data.checkTimes);
             if (data.hostInfo) setHostInfo(data.hostInfo);
             if (data.url) setUrl(data.url);
-            // Save units to Supabase now that we have user_id
             await saveUnitsToSupabase(session.user.id, data);
             localStorage.removeItem('guestview_onboard_data');
+            setStep(6);
+          } else {
+            // Check if already has units — if so go to dashboard
+            const res = await fetch(`/api/guestview/get-units?user_id=${session.user.id}`);
+            const data = await res.json();
+            if (data.units?.length > 0) {
+              window.location.href = '/guestview';
+            } else {
+              setStep(6);
+            }
           }
-        } catch (e) { console.error('localStorage restore error:', e); }
-        setStep(6);
+        } catch (e) { setStep(6); }
       }
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_e, session) => {

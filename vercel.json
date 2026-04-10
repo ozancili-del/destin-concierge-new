@@ -14,7 +14,7 @@
     },
     {
       "source": "/",
-      "destination": "/guestview/onboard",
+      "destination": "/guestview",
       "permanent": false,
       "has": [{"type": "host", "value": "guestview.destincondogetaways.com"}]
     }

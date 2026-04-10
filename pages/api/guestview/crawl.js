@@ -32,7 +32,14 @@ function extractInternalLinks(html, baseUrl) {
       }
     } catch {}
   }
-  return links.slice(0, 6); // max 6 subpages
+  // Deduplicate and prioritize pages likely to list individual units
+  // Sort: pages with bedroom/unit numbers first
+  links.sort((a, b) => {
+    const aScore = /1bedroom|2bedroom|all-units|our-units|properties/.test(a) ? 1 : 0;
+    const bScore = /1bedroom|2bedroom|all-units|our-units|properties/.test(b) ? 1 : 0;
+    return bScore - aScore;
+  });
+  return links.slice(0, 8); // max 8 subpages
 }
 
 export default async function handler(req, res) {
@@ -63,14 +70,14 @@ export default async function handler(req, res) {
 
     const subpageTexts = subpageResults
       .filter(r => r.status === 'fulfilled')
-      .map((r, i) => `--- PAGE: ${subpageUrls[i]} ---\n${r.value.text.substring(0, 5000)}`)
+      .map((r, i) => `--- PAGE: ${subpageUrls[i]} ---\n${r.value.text.substring(0, 12000)}`)
       .join('\n\n');
 
     const combined = [
       `--- HOMEPAGE: ${cleanUrl} ---`,
       homepageText.substring(0, 8000),
       subpageTexts
-    ].join('\n\n').substring(0, 30000);
+    ].join('\n\n').substring(0, 40000);
 
     // Strip invalid unicode surrogate pairs that break JSON
     const safeCombined = combined.replace(/[\uD800-\uDFFF]/g, '').replace(/[^\x09\x0A\x0D\x20-\x7E\xA0-\uD7FF\uE000-\uFFFD]/g, ' ');

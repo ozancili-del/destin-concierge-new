@@ -37,11 +37,12 @@ export async function getServerSideProps({ params }) {
       .lte('starts_at', nowISO)
       .gte('expires_at', nowISO)
       .limit(1);
+    const ann = announcements?.[0] || null;
     return {
       props: {
         unit,
         booking,
-        const ann = announcements?.[0] || null; announcement: ann,
+        announcement: ann,
         isMock: userProfile?.mock_mode || false,
         brandName: userProfile?.brand_name || unit.host_name || 'Your Host',
         logoUrl: userProfile?.logo_url || null,

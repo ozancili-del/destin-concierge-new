@@ -429,14 +429,24 @@ export default function GuestViewDashboard() {
                   const now = new Date();
                   const start = new Date(a.starts_at);
                   const end = new Date(a.expires_at);
-                  const isLive = now >= start && now <= end;
+                  const now2 = new Date();
+                  const isExpired = now2 > end;
+                  const isLive = now2 >= start && now2 <= end;
+                  const fmt = d => { const dt = new Date(d); return dt.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/Chicago' }); };
                   return (
                     <div key={i} className="announce-row" style={{ maxWidth: 680, marginBottom: 8 }}>
-                      <div>
+                      <div style={{ flex: 1 }}>
                         <div className="announce-msg">{a.message}</div>
-                        <div className="announce-meta">{new Date(a.starts_at).toLocaleDateString()} – {new Date(a.expires_at).toLocaleDateString()} · {a.building}</div>
+                        <div className="announce-meta">{fmt(a.starts_at)} – {fmt(a.expires_at)} · {a.building}</div>
                       </div>
-                      <span className={`ann-badge ${isLive ? 'ann-live' : 'ann-sched'}`}>{isLive ? 'Live' : 'Scheduled'}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+                        <span className={`ann-badge ${isLive ? 'ann-live' : 'ann-sched'}`}>{isLive ? 'Live' : 'Scheduled'}</span>
+                        <button onClick={async () => {
+                          await fetch('/api/guestview/delete-announcement', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: a.id, user_id: user.id }) });
+                          setAnnouncements(prev => prev.filter((_, idx) => idx !== i));
+                          showToast('Announcement deleted.');
+                        }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9b9b94', fontSize: 18, padding: '0 4px', lineHeight: 1 }}>×</button>
+                      </div>
                     </div>
                   );
                 })
@@ -658,7 +668,7 @@ export default function GuestViewDashboard() {
                         <div key={i} className="announce-row">
                           <div style={{ flex: 1 }}>
                             <div className="announce-msg">{a.message}</div>
-                            <div className="announce-meta">{start.toLocaleDateString()} – {end.toLocaleDateString()}</div>
+                            <div className="announce-meta">{start.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/Chicago' })} – {end.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/Chicago' })}</div>
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
                             <span className={`ann-badge ${isLive ? 'ann-live' : 'ann-sched'}`}>{isLive ? 'Live' : 'Scheduled'}</span>
@@ -670,7 +680,8 @@ export default function GuestViewDashboard() {
                           </div>
                         </div>
                       );
-                    })}\n                    <button className="add-btn" onClick={() => setShowAddAnnounce(v => !v)}>+ Add announcement</button>
+                    })}
+                    <button className="add-btn" onClick={() => setShowAddAnnounce(v => !v)}>+ Add announcement</button>
                     {showAddAnnounce && (
                       <div className="add-form">
                         <select value={announceForm.type} onChange={e => setAnnounceForm(p => ({ ...p, type: e.target.value, customText: '' }))}>

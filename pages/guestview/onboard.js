@@ -580,6 +580,9 @@ export default function GuestViewOnboard() {
                       </div>
                     </>
                   )}
+                  <div className="confirm-bar" style={{ marginTop: '1.5rem' }}>
+                    <button className="back-btn" onClick={() => setStep(4)}>← Back</button>
+                  </div>
                 </>
               ) : (
                 <div className="sent-box"><p>Magic link sent to <strong>{email}</strong>.<br />Check your inbox and click the link to continue.</p></div>

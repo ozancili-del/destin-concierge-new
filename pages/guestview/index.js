@@ -42,6 +42,7 @@ export default function GuestViewDashboard() {
   const [showGoLiveModal, setShowGoLiveModal] = useState(false);
   const [showPublishBlocker, setShowPublishBlocker] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [brandingForm, setBrandingForm] = useState({ brand_name: '', logo_url: '', tagline: '' });
   const [deleteConfirm, setDeleteConfirm] = useState('');
   const [goLiveEmail, setGoLiveEmail] = useState('');
   const [goLiveKey, setGoLiveKey] = useState('');
@@ -69,6 +70,7 @@ export default function GuestViewDashboard() {
       const data = await res.json();
       setUnits(data.units || []);
       setProfile(data.profile || null);
+      if (data.profile) setBrandingForm({ brand_name: data.profile.brand_name || '', logo_url: data.profile.logo_url || '', tagline: data.profile.tagline || '' });
       setAnnouncements(data.announcements || []);
     } catch (e) {
       console.error('Load error:', e);
@@ -461,11 +463,15 @@ export default function GuestViewDashboard() {
               <div className="section" style={{ maxWidth: 480 }}>
                 <h3>Your brand</h3>
                 <div className="field-grid" style={{ gap: 10 }}>
-                  <div className="field full"><label>Brand name</label><input type="text" placeholder="e.g. Vacations at Destin" defaultValue={profile?.brand_name || ''} /></div>
-                  <div className="field full"><label>Logo URL</label><input type="text" placeholder="https://... (replaces Destiny Blue on TV)" defaultValue={profile?.logo_url || ''} /></div>
-                  <div className="field full"><label>Tagline</label><input type="text" placeholder="e.g. Your Gulf Coast home away from home" defaultValue={profile?.tagline || ''} /></div>
+                  <div className="field full"><label>Brand name</label><input type="text" placeholder="e.g. Vacations at Destin" value={brandingForm.brand_name} onChange={e => setBrandingForm(p => ({...p, brand_name: e.target.value}))} /></div>
+                  <div className="field full"><label>Logo URL</label><input type="text" placeholder="https://... (replaces Destiny Blue on TV)" value={brandingForm.logo_url} onChange={e => setBrandingForm(p => ({...p, logo_url: e.target.value}))} /></div>
+                  <div className="field full"><label>Tagline</label><input type="text" placeholder="e.g. Your Gulf Coast home away from home" value={brandingForm.tagline} onChange={e => setBrandingForm(p => ({...p, tagline: e.target.value}))} /></div>
                 </div>
-                <button className="btn btn-primary" style={{ marginTop: 12 }}>Save branding</button>
+                <button className="btn btn-primary" style={{ marginTop: 12 }} onClick={async () => {
+                  const res = await fetch('/api/guestview/save-branding', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: user.id, ...brandingForm }) });
+                  if (res.ok) { setProfile(prev => ({ ...prev, ...brandingForm })); showToast('Branding saved.'); }
+                  else showToast('Save failed. Try again.');
+                }}>Save branding</button>
               </div>
             </>
           )}

@@ -70,19 +70,23 @@ export default async function handler(req, res) {
 
     const subpageTexts = subpageResults
       .filter(r => r.status === 'fulfilled')
-      .map((r, i) => `--- PAGE: ${subpageUrls[i]} ---\n${r.value.text.substring(0, 12000)}`)
+      .map((r, i) => `--- PAGE: ${subpageUrls[i]} ---\n${r.value.text.substring(0, 8000)}`)
       .join('\n\n');
 
     const combined = [
       `--- HOMEPAGE: ${cleanUrl} ---`,
       homepageText.substring(0, 8000),
       subpageTexts
-    ].join('\n\n').substring(0, 40000);
+    ].join('\n\n').substring(0, 25000);
 
     // Strip invalid unicode surrogate pairs that break JSON
     const safeCombined = combined.replace(/[\uD800-\uDFFF]/g, '').replace(/[^\x09\x0A\x0D\x20-\x7E\xA0-\uD7FF\uE000-\uFFFD]/g, ' ');
 
-    const response = await client.messages.create({
+    // Retry up to 2 times on overload
+    let response;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        response = await client.messages.create({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 2000,
       messages: [{
@@ -110,6 +114,16 @@ Group units by building. If you find individual unit numbers or names on listing
 }`
       }]
     });
+
+        break; // success
+      } catch (e) {
+        if (e.status === 529 && attempt < 2) {
+          await new Promise(r => setTimeout(r, 2000 * (attempt + 1)));
+          continue;
+        }
+        throw e;
+      }
+    }
 
     const text = response.content[0].text.trim();
     const clean = text.replace(/```json|```/g, '').trim();

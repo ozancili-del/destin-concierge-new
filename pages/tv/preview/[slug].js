@@ -83,6 +83,8 @@ export default function TVPreview({ unit, booking, announcement, isMock, brandNa
 <head>
 <meta charset="UTF-8"/>
 <title>${unit.building} · Unit ${unit.unit_number}</title>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3SGXCQ4FTC"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-3SGXCQ4FTC');</script>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@200;300;400;500&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 <style>

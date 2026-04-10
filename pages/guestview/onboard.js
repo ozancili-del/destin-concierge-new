@@ -39,17 +39,72 @@ export default function GuestViewOnboard() {
   const [claimedModal, setClaimedModal] = useState(false);
   const [claimedEmail, setClaimedEmail] = useState('');
   const [claimedAuthSent, setClaimedAuthSent] = useState(false);
+  const [showConsentModal, setShowConsentModal] = useState(false);
+  const [pendingConnect, setPendingConnect] = useState(false);
 
   useEffect(() => {
     const supabase = getSupabase();
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) { setUser(session.user); setStep(6); }
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (session?.user) {
+        setUser(session.user);
+        // Restore onboarding data from localStorage if exists
+        try {
+          const saved = localStorage.getItem('guestview_onboard_data');
+          if (saved) {
+            const data = JSON.parse(saved);
+            if (data.buildings) setBuildings(data.buildings);
+            if (data.checkTimes) setCheckTimes(data.checkTimes);
+            if (data.hostInfo) setHostInfo(data.hostInfo);
+            if (data.url) setUrl(data.url);
+            // Save units to Supabase now that we have user_id
+            await saveUnitsToSupabase(session.user.id, data);
+            localStorage.removeItem('guestview_onboard_data');
+          }
+        } catch (e) { console.error('localStorage restore error:', e); }
+        setStep(6);
+      }
     });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
-      if (session?.user) { setUser(session.user); setStep(6); }
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_e, session) => {
+      if (session?.user) {
+        setUser(session.user);
+        setStep(6);
+      }
     });
     return () => subscription.unsubscribe();
   }, []);
+
+  async function saveUnitsToSupabase(userId, data) {
+    try {
+      const allUnits = (data.buildings || []).flatMap((b, bIdx) => b.units.map(u => ({
+        ...u,
+        building: b.name,
+        checkin_time: data.checkTimes?.[bIdx]?.checkin || '4:00 PM',
+        checkout_time: data.checkTimes?.[bIdx]?.checkout || '10:00 AM',
+        host_name: data.hostInfo?.name || '',
+        host_phone: data.hostInfo?.phone || '',
+        host_email: data.hostInfo?.email || '',
+        host_website: data.hostInfo?.website || '',
+        affiliate_url: data.hostInfo?.affiliate || ''
+      })));
+      await fetch('/api/guestview/save-units', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId, user_slug: userId.substring(0, 8), units: allUnits, website_url: data.url })
+      });
+      // Also save user profile
+      await fetch('/api/guestview/save-profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId, email: data.hostInfo?.email || '', name: data.hostInfo?.name || '', phone: data.hostInfo?.phone || '', website: data.hostInfo?.website || '', affiliate_url: data.hostInfo?.affiliate || '' })
+      });
+    } catch (e) { console.error('saveUnitsToSupabase error:', e); }
+  }
+
+  function saveToLocalStorage() {
+    try {
+      localStorage.setItem('guestview_onboard_data', JSON.stringify({ buildings, checkTimes, hostInfo, url }));
+    } catch (e) { console.error('localStorage save error:', e); }
+  }
 
   async function handleCrawl() {
     if (!url.trim() || !legalChecked) return;
@@ -175,6 +230,7 @@ export default function GuestViewOnboard() {
   async function handleAuth() {
     setError('');
     if (!email.trim()) return;
+    saveToLocalStorage();
     const { error } = await getSupabase().auth.signInWithOtp({
       email, options: { emailRedirectTo: `${window.location.origin}/guestview/onboard` }
     });
@@ -183,6 +239,7 @@ export default function GuestViewOnboard() {
   }
 
   async function handleGoogleAuth() {
+    saveToLocalStorage();
     const { error } = await getSupabase().auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: `${window.location.origin}/guestview/onboard` }
@@ -230,7 +287,13 @@ export default function GuestViewOnboard() {
     }
   }
 
+  function handleConnectClick() {
+    if (!orEmail.trim() || !orKey.trim()) return;
+    setShowConsentModal(true);
+  }
+
   async function handleValidateOR() {
+    setShowConsentModal(false);
     setOrValidating(true);
     setOrError('');
     try {
@@ -601,15 +664,44 @@ export default function GuestViewOnboard() {
                   <input type="text" placeholder="you@example.com" value={orEmail} onChange={e => setOrEmail(e.target.value)} />
                   <label>OwnerRez API key</label>
                   <input type="text" placeholder="Paste your API key" value={orKey} onChange={e => setOrKey(e.target.value)} style={{ fontFamily: 'DM Mono, monospace', fontSize: 12 }} />
-                  <button className="btn btn-primary" onClick={handleValidateOR} disabled={orValidating || !orEmail || !orKey} style={{ width: '100%', marginTop: 4 }}>
+                  <div style={{ fontSize: 12, color: '#9b9b94', marginBottom: 10, marginTop: -4, padding: '6px 10px', background: '#f7f6f3', borderRadius: 6 }}>
+                    Not ready to connect yet? Enter <strong style={{ fontFamily: 'DM Mono, monospace' }}>1111</strong> as your API key to explore with sample guest data first.
+                  </div>
+                  <button className="btn btn-primary" onClick={handleConnectClick} disabled={orValidating || !orEmail || !orKey} style={{ width: '100%', marginTop: 4 }}>
                     {orValidating ? <><span className="spinner" />Connecting...</> : 'Connect OwnerRez →'}
                   </button>
                 </div>
               ) : (
-                <div className="or-sample">✓ Connected — found booking for <strong>{orSample.guest_first_name}</strong>, arriving <strong>{orSample.arrival}</strong>, departing <strong>{orSample.departure}</strong></div>
+                <div className="or-sample">
+                  {orSample ? <>✓ Connected — found booking for <strong>{orSample.guest_first_name}</strong>, arriving <strong>{orSample.arrival}</strong>, departing <strong>{orSample.departure}</strong></> : '✓ Connected in demo mode — sample guest data ready'}
+                </div>
               )}
               {saving && <p style={{ fontSize: 13, color: '#9b9b94', marginTop: 10 }}>Saving your units...</p>}
             </>
+          )}
+
+          {/* Consent Modal */}
+          {showConsentModal && (
+            <div className="modal-overlay">
+              <div className="modal">
+                <h2 style={{ fontSize: 17, fontWeight: 600, marginBottom: 10 }}>Data access authorization</h2>
+                <p style={{ fontSize: 14, color: '#6b6b65', lineHeight: 1.7, marginBottom: 16 }}>
+                  By connecting OwnerRez, you authorize GuestView to access the following guest data only:
+                </p>
+                <div style={{ background: '#f7f6f3', borderRadius: 8, padding: '12px 16px', marginBottom: 16 }}>
+                  <div style={{ fontSize: 13, color: '#1a1a18', padding: '4px 0', display: 'flex', gap: 8 }}>✓ Guest first name</div>
+                  <div style={{ fontSize: 13, color: '#1a1a18', padding: '4px 0', display: 'flex', gap: 8 }}>✓ Check-in date</div>
+                  <div style={{ fontSize: 13, color: '#1a1a18', padding: '4px 0', display: 'flex', gap: 8 }}>✓ Check-out date</div>
+                </div>
+                <p style={{ fontSize: 12, color: '#9b9b94', marginBottom: 20, lineHeight: 1.6 }}>
+                  We access nothing else. No payment information, no contact details, no personal data beyond what's listed above.
+                </p>
+                <div className="modal-btns">
+                  <button className="btn btn-outline" style={{ flex: 1 }} onClick={() => setShowConsentModal(false)}>Cancel</button>
+                  <button className="btn btn-primary" style={{ flex: 1 }} onClick={handleValidateOR}>I agree, connect →</button>
+                </div>
+              </div>
+            </div>
           )}
 
           {step === 8 && (

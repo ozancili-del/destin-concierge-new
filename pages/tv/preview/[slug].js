@@ -268,11 +268,11 @@ ${isMock ? `<div class="preview-banner"><span>Preview mode · sample guest data<
 </div>
 </div>
 <script>
-const BASE='${BASE}';
-const GUEST_NAME='${guestName.replace(/'/g, "\\'")}';
-const AFFILIATE_URL='${affiliateUrl}';
-const HOST_WEBSITE='${hostWebsite}';
-const BUILDING='${unit.building.replace(/'/g, "\\'")}';
+const BASE=${JSON.stringify(BASE)};
+const GUEST_NAME=${JSON.stringify(guestName)};
+const AFFILIATE_URL=${JSON.stringify(affiliateUrl)};
+const HOST_WEBSITE=${JSON.stringify(hostWebsite)};
+const BUILDING=${JSON.stringify(unit.building)};
 window.addEventListener('load',function(){
   function tryQR(){
     if(typeof QRCode==='undefined'){setTimeout(tryQR,200);return;}

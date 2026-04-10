@@ -28,14 +28,14 @@ export async function getServerSideProps({ params }) {
         .single();
       if (mock) booking = { guestFirstName: mock.guest_first_name, arrival: mock.arrival, departure: mock.departure };
     }
-    const nowDate = new Date().toISOString().split('T')[0];
+    const nowISO = new Date().toISOString();
     const { data: announcements } = await supabase
       .from('guestview_announcements')
       .select('message')
       .eq('user_id', unit.user_id)
       .eq('building', unit.building)
-      .lte('starts_at', nowDate)
-      .gte('expires_at', nowDate)
+      .lte('starts_at', nowISO)
+      .gte('expires_at', nowISO)
       .limit(1);
     return {
       props: {

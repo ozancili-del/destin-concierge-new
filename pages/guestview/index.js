@@ -433,7 +433,7 @@ export default function GuestViewDashboard() {
                   const now2 = new Date();
                   const isExpired = now2 > end;
                   const isLive = now2 >= start && now2 <= end;
-                  const fmt = d => { const dt = new Date(d); return dt.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/Chicago' }); };
+                  const fmt = d => { const s = typeof d === 'string' ? d.replace('T',' ').replace('+00:00','').replace('.000Z','') : ''; const dt = new Date(s + (s.includes('T') || s.includes(' ') ? '' : '')); return dt.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true }); };
                   return (
                     <div key={i} className="announce-row" style={{ maxWidth: 680, marginBottom: 8 }}>
                       <div style={{ flex: 1 }}>
@@ -669,7 +669,7 @@ export default function GuestViewDashboard() {
                         <div key={i} className="announce-row">
                           <div style={{ flex: 1 }}>
                             <div className="announce-msg">{a.message}</div>
-                            <div className="announce-meta">{start.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/Chicago' })} – {end.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'America/Chicago' })}</div>
+                            <div className="announce-meta">{new Date(a.starts_at.replace('+00:00','').replace('Z','')).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true })} – {new Date(a.expires_at.replace('+00:00','').replace('Z','')).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true })}</div>
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
                             <span className={`ann-badge ${isLive ? 'ann-live' : 'ann-sched'}`}>{isLive ? 'Live' : 'Scheduled'}</span>
@@ -698,7 +698,7 @@ export default function GuestViewDashboard() {
                         </div>
                         <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#6b6b65', marginBottom: 8, cursor: 'pointer' }}>
                           <input type="checkbox" checked={announceForm.allBuildings || false} onChange={e => setAnnounceForm(p => ({ ...p, allBuildings: e.target.checked }))} />
-                          Apply to all buildings
+                          Apply to all units in this building
                         </label>
                         <button className="btn btn-primary btn-sm" onClick={handleSaveAnnouncement}>Save announcement</button>
                       </div>

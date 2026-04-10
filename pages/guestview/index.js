@@ -391,7 +391,7 @@ export default function GuestViewDashboard() {
             <>
               <div className="main-header">
                 <h1>My units</h1>
-                <span className="badge-trial">Trial · $2/TV/mo</span>
+                <span className="badge-trial">Trial · $4.99/TV/mo</span>
               </div>
               {Object.keys(buildingGroups).length === 0 ? (
                 <div className="empty-state">No units found. Something went wrong — contact support.</div>

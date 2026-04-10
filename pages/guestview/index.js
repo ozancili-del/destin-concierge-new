@@ -143,7 +143,10 @@ export default function GuestViewDashboard() {
   }
 
   async function handleSaveAnnouncement() {
-    if (!announceForm.type || !announceForm.start || !announceForm.end) return;
+    const baseType = announceForm.type === 'Custom message' ? '' : announceForm.type;
+    const details = announceForm.customText?.trim() || '';
+    const message = baseType && details ? `${baseType} — ${details}` : baseType || details;
+    if (!message || !announceForm.start || !announceForm.end) return;
     try {
       const res = await fetch('/api/guestview/save-announcement', {
         method: 'POST',
@@ -151,7 +154,7 @@ export default function GuestViewDashboard() {
         body: JSON.stringify({
           user_id: user.id,
           building: selectedUnit.building,
-          message: announceForm.type,
+          message: message,
           starts_at: announceForm.start,
           expires_at: announceForm.end
         })
@@ -487,10 +490,13 @@ export default function GuestViewDashboard() {
                     <button className="add-btn" onClick={() => setShowAddAnnounce(v => !v)}>+ Add announcement</button>
                     {showAddAnnounce && (
                       <div className="add-form">
-                        <select value={announceForm.type} onChange={e => setAnnounceForm(p => ({ ...p, type: e.target.value }))}>
+                        <select value={announceForm.type} onChange={e => setAnnounceForm(p => ({ ...p, type: e.target.value, customText: '' }))}>
                           <option value="">Select type...</option>
                           {ANNOUNCEMENT_TYPES.map(t => <option key={t}>{t}</option>)}
                         </select>
+                        {announceForm.type && (
+                          <input type="text" placeholder={announceForm.type === 'Custom message' ? 'Type your announcement...' : 'Add details (optional)...'} value={announceForm.customText || ''} onChange={e => setAnnounceForm(p => ({ ...p, customText: e.target.value }))} style={{ marginBottom: 6 }} />
+                        )}
                         <div className="date-row">
                           <input type="date" value={announceForm.start} onChange={e => setAnnounceForm(p => ({ ...p, start: e.target.value }))} />
                           <input type="date" value={announceForm.end} onChange={e => setAnnounceForm(p => ({ ...p, end: e.target.value }))} />

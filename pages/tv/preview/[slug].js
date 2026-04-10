@@ -28,7 +28,7 @@ export async function getServerSideProps({ params }) {
         .single();
       if (mock) booking = { guestFirstName: mock.guest_first_name, arrival: mock.arrival, departure: mock.departure };
     }
-    const nowISO = new Date().toISOString().slice(0, 19);
+    const nowISO = new Date().toISOString();
     const { data: announcements } = await supabase
       .from('guestview_announcements')
       .select('message')

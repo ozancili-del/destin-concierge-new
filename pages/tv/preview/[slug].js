@@ -306,8 +306,7 @@ async function loadRecs(name,weather,noaa,today,timeSlot){
     const th=weather?.[0]?.high||78;
     const ss=noaa?.sunset||'around 7:30pm';
     const ws=noaa?.wind?.speed||0;
-    const prompt='You are a warm vacation rental concierge for '+BUILDING+', Destin FL. Guest: '+name+'. Today: '+dw+'. Weather: '+th+'F. Sunset: '+ss+'. Wind: '+ws+' mph. Respond ONLY with raw JSON no markdown:\n{"greetingMorning":"Good morning, '+name+'","greetingAfternoon":"Good afternoon, '+name+'","greetingEvening":"Good evening, '+name+'","subMorning":"2-3 warm sentences about the morning","subAfternoon":"2-3 warm afternoon sentences","subEvening":"2-3 warm evening sentences","morning":{"eat":[{"name":"Ruby Slipper Cafe","tip":"French toast is legendary"},{"name":"Donut Hole Bakery","tip":"Local favorite since 1978"},{"name":"Crackings","tip":"Crab benedict is a must"}],"do":[{"name":"Beach walk at sunrise","tip":"Best shells at low tide"},{"name":"Parasailing","tip":"Calm winds perfect today"},{"name":"Snorkeling at Jetties","tip":"Crystal clear visibility"}]},"afternoon":{"eat":[{"name":"AJs Seafood","tip":"Fresh Gulf oysters"},{"name":"The Back Porch","tip":"Toes in the sand dining"},{"name":"Dewey Destins","tip":"Local seafood classic"}],"do":[{"name":"Crab Island","tip":"Afternoon is perfect"},{"name":"Paddleboarding","tip":"Glassy water today"},{"name":"Destin Commons","tip":"Beat the afternoon heat"}]},"evening":{"eat":[{"name":"Harbor Docks","tip":"Best harbor views in Destin"},{"name":"The Edge SkyBar","tip":"Panoramic Gulf views"},{"name":"Osaka Japanese","tip":"Best hibachi show"}],"tonight":[{"name":"Sunset from balcony","tip":"'+ss+' tonight — do not miss"},{"name":"Harbor Boardwalk Stroll","tip":"Evening lights on the water"},{"name":"Live music at HarborWalk","tip":"Check local listings"}]}}';
-    const res=await fetch('/api/guestview/recs',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt,building:BUILDING,guestName:name,weather,timeSlot})});
+    const res=await fetch('/api/guestview/recs',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({building:BUILDING,guestName:name,weather:weather,timeSlot:timeSlot,sunset:ss,windSpeed:ws,temp:th,dayOfWeek:dw})});
     const data=await res.json();
     const text=data.content?.[0]?.text||'';
     const clean=text.replace(/\u0060\u0060\u0060json|\u0060\u0060\u0060/g,'').trim();
@@ -337,7 +336,7 @@ function dc(d){return['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','
 function mi(mb){return(mb*0.02953).toFixed(2);}
 function pnt(str){if(!str)return null;const[dp,tp]=str.split(' ');const[y,mo,day]=dp.split('-').map(Number);const[h,m]=tp.split(':').map(Number);return new Date(y,mo-1,day,h,m);}
 function ft(s){const[,t]=s.split(' ');if(!t)return s;const[h,m]=t.split(':');const hr=parseInt(h);return(hr%12||12)+':'+m+' '+(hr>=12?'PM':'AM');}
-function bv(t){if(t<66)return'🧥 Brisk — best for a shoreline stroll.';if(t<75)return'🏄 Refreshing! Great for paddleboarding.';if(t<83)return'🌴 Paradise! The Gulf is perfect.';return'☀️ Tropical! Like a bathtub.';}
+function bv(t){if(t<66)return'Brisk - best for a shoreline stroll.';if(t<75)return'Refreshing! Great for paddleboarding.';if(t<83)return'Paradise! The Gulf is perfect.';return'Tropical! Like a bathtub.';}
 function bs(id,v){const el=document.getElementById(id);if(el)el.textContent=v;}
 async function fbc(){
   try{

@@ -19,27 +19,32 @@ async function fetchText(url) {
 
 function extractInternalLinks(html, baseUrl) {
   const base = new URL(baseUrl);
-  const matches = [...html.matchAll(/href=["']([^"'#?]+)["']/gi)].map(m => m[1]);
-  const keywords = /properties|rentals|units|listings|accommodations|condos|condo|vacation|resort|rooms|suites|1bedroom|2bedroom|bedroom/i;
-  const seen = new Set();
+  const seen = new Set([baseUrl]);
   const links = [];
-  for (const link of matches) {
+
+  // Extract all internal links
+  const allMatches = [...html.matchAll(/href=["']([^"'#?]+)["']/gi)].map(m => m[1]);
+  const excluded = /blog|news|about|contact|policy|privacy|terms|faq|review|event|gallery|discount|login|signup|sitemap|feed|tag|category|author|search|cart|checkout|account/i;
+
+  for (const link of allMatches) {
     try {
       const full = new URL(link, base).href;
-      if (full.startsWith(base.origin) && full !== baseUrl && !seen.has(full) && keywords.test(full)) {
+      if (full.startsWith(base.origin) && !seen.has(full) && !excluded.test(full)) {
         seen.add(full);
         links.push(full);
       }
     } catch {}
   }
-  // Deduplicate and prioritize pages likely to list individual units
-  // Sort: pages with bedroom/unit numbers first
+
+  // Score each link — higher = more likely to contain unit listings
+  const highValue = /properties|rentals|units|listings|condos|condo|vacation|resort|rooms|suites|bedroom|terrace|crystal|pelican|building|floor|suite|villa|cottage|cabin|chalet|our-homes|our-properties|accommodations/i;
   links.sort((a, b) => {
-    const aScore = /1bedroom|2bedroom|all-units|our-units|properties/.test(a) ? 1 : 0;
-    const bScore = /1bedroom|2bedroom|all-units|our-units|properties/.test(b) ? 1 : 0;
+    const aScore = highValue.test(a) ? 1 : 0;
+    const bScore = highValue.test(b) ? 1 : 0;
     return bScore - aScore;
   });
-  return links.slice(0, 8); // max 8 subpages
+
+  return links.slice(0, 8);
 }
 
 export default async function handler(req, res) {

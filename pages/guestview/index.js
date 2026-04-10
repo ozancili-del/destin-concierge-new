@@ -39,6 +39,15 @@ export default function GuestViewDashboard() {
   const [form, setForm] = useState({});
   const [announceForm, setAnnounceForm] = useState({ type: '', start: '', end: '' });
   const [toast, setToast] = useState('');
+  const [showGoLiveModal, setShowGoLiveModal] = useState(false);
+  const [showPublishBlocker, setShowPublishBlocker] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState('');
+  const [goLiveEmail, setGoLiveEmail] = useState('');
+  const [goLiveKey, setGoLiveKey] = useState('');
+  const [goLiveError, setGoLiveError] = useState('');
+  const [goLiveLoading, setGoLiveLoading] = useState(false);
+  const [showGoLiveConsent, setShowGoLiveConsent] = useState(false);
 
   useEffect(() => {
     const supabase = getSupabase();
@@ -117,6 +126,11 @@ export default function GuestViewDashboard() {
   }
 
   async function handlePublish() {
+    if (profile?.mock_mode) {
+      setModalOpen(false);
+      setShowPublishBlocker(true);
+      return;
+    }
     if (hasUnsaved) await handleSave();
     setPublishing(true);
     try {
@@ -167,6 +181,46 @@ export default function GuestViewDashboard() {
       showToast('Announcement saved.');
     } catch (e) {
       showToast('Failed to save announcement.');
+    }
+  }
+
+  async function handleGoLive() {
+    setGoLiveLoading(true);
+    setGoLiveError('');
+    try {
+      const res = await fetch('/api/guestview/go-live', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ or_email: goLiveEmail, or_key: goLiveKey, user_id: user.id })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      setProfile(prev => ({ ...prev, mock_mode: false }));
+      setShowGoLiveConsent(false);
+      setShowGoLiveModal(false);
+      setGoLiveEmail('');
+      setGoLiveKey('');
+      showToast('You are now live! Real guest data will appear on your TV dashboards.');
+    } catch (e) {
+      setGoLiveError(e.message);
+      setShowGoLiveConsent(false);
+    } finally {
+      setGoLiveLoading(false);
+    }
+  }
+
+  async function handleDeleteAccount() {
+    if (deleteConfirm !== 'DELETE') return;
+    try {
+      await fetch('/api/guestview/delete-account', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: user.id })
+      });
+      await getSupabase().auth.signOut();
+      router.push('/guestview/onboard');
+    } catch (e) {
+      showToast('Failed to delete account. Contact support.');
     }
   }
 
@@ -321,6 +375,15 @@ export default function GuestViewDashboard() {
         </div>
 
         <div className="main">
+          {profile?.mock_mode && (
+            <div style={{ background: '#FAEEDA', border: '1px solid #EF9F27', borderRadius: 10, padding: '12px 16px', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 500, color: '#633806' }}>You're in demo mode</div>
+                <div style={{ fontSize: 12, color: '#854F0B', marginTop: 2 }}>Your TV dashboards are running with sample guest data. Connect your real OwnerRez account to go live.</div>
+              </div>
+              <button className="btn" style={{ background: '#EF9F27', color: '#fff', border: 'none', whiteSpace: 'nowrap', fontSize: 12 }} onClick={() => setShowGoLiveModal(true)}>Go live →</button>
+            </div>
+          )}
           {activeNav === 'units' && (
             <>
               <div className="main-header">
@@ -415,10 +478,113 @@ export default function GuestViewDashboard() {
                 <div style={{ fontSize: 13, color: '#6b6b65', marginBottom: 12 }}>Signed in as <strong>{user?.email}</strong></div>
                 <button className="btn btn-ghost" onClick={handleSignOut}>Sign out</button>
               </div>
+              <div className="section" style={{ maxWidth: 480, marginTop: 12, borderColor: '#fecaca' }}>
+                <h3 style={{ color: '#dc2626' }}>Danger zone</h3>
+                <div style={{ fontSize: 13, color: '#6b6b65', marginBottom: 12 }}>Permanently delete your account and all data. This cannot be undone.</div>
+                <button className="btn" style={{ background: 'transparent', border: '1px solid #fecaca', color: '#dc2626' }} onClick={() => setShowDeleteModal(true)}>Delete my account</button>
+              </div>
             </>
           )}
         </div>
       </div>
+
+      {/* Go live modal */}
+      {showGoLiveModal && (
+        <div className="modal-bg open" onClick={e => { if (e.target.classList.contains('modal-bg')) { setShowGoLiveModal(false); setShowGoLiveConsent(false); }}}>
+          <div className="modal" style={{ maxWidth: 480 }}>
+            {!showGoLiveConsent ? (
+              <>
+                <div className="modal-header">
+                  <div className="modal-title">Connect your real OwnerRez account</div>
+                  <button className="modal-close" onClick={() => setShowGoLiveModal(false)}>×</button>
+                </div>
+                <div style={{ padding: '1.25rem 1.5rem' }}>
+                  {goLiveError && <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, padding: '10px 14px', fontSize: 13, color: '#dc2626', marginBottom: 12 }}>{goLiveError}</div>}
+                  <div style={{ marginBottom: 10 }}>
+                    <label style={{ fontSize: 11, fontWeight: 500, color: '#6b6b65', textTransform: 'uppercase', letterSpacing: '0.4px', display: 'block', marginBottom: 4 }}>OwnerRez account email</label>
+                    <input type="text" placeholder="you@example.com" value={goLiveEmail} onChange={e => setGoLiveEmail(e.target.value)} style={{ width: '100%', height: 38, border: '1px solid #e8e6e0', borderRadius: 8, padding: '0 12px', fontSize: 13, fontFamily: 'DM Sans, sans-serif', outline: 'none', background: '#fafaf8' }} />
+                  </div>
+                  <div style={{ marginBottom: 16 }}>
+                    <label style={{ fontSize: 11, fontWeight: 500, color: '#6b6b65', textTransform: 'uppercase', letterSpacing: '0.4px', display: 'block', marginBottom: 4 }}>OwnerRez API key</label>
+                    <input type="text" placeholder="Paste your real API key" value={goLiveKey} onChange={e => setGoLiveKey(e.target.value)} style={{ width: '100%', height: 38, border: '1px solid #e8e6e0', borderRadius: 8, padding: '0 12px', fontSize: 13, fontFamily: 'DM Mono, monospace', outline: 'none', background: '#fafaf8' }} />
+                  </div>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button className="btn btn-ghost" style={{ flex: 1 }} onClick={() => setShowGoLiveModal(false)}>Cancel</button>
+                    <button className="btn btn-primary" style={{ flex: 1, background: '#EF9F27' }} disabled={!goLiveEmail || !goLiveKey} onClick={() => setShowGoLiveConsent(true)}>Connect →</button>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="modal-header">
+                  <div className="modal-title">Data access authorization</div>
+                  <button className="modal-close" onClick={() => setShowGoLiveConsent(false)}>×</button>
+                </div>
+                <div style={{ padding: '1.25rem 1.5rem' }}>
+                  <p style={{ fontSize: 14, color: '#6b6b65', lineHeight: 1.7, marginBottom: 12 }}>By connecting OwnerRez, you authorize GuestView to access the following guest data only:</p>
+                  <div style={{ background: '#f7f6f3', borderRadius: 8, padding: '12px 16px', marginBottom: 16 }}>
+                    <div style={{ fontSize: 13, color: '#1a1a18', padding: '3px 0' }}>✓ Guest first name</div>
+                    <div style={{ fontSize: 13, color: '#1a1a18', padding: '3px 0' }}>✓ Check-in date</div>
+                    <div style={{ fontSize: 13, color: '#1a1a18', padding: '3px 0' }}>✓ Check-out date</div>
+                  </div>
+                  <p style={{ fontSize: 12, color: '#9b9b94', marginBottom: 16, lineHeight: 1.6 }}>We access nothing else. No payment info, no contact details, no personal data beyond what's listed above.</p>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button className="btn btn-ghost" style={{ flex: 1 }} onClick={() => setShowGoLiveConsent(false)}>Back</button>
+                    <button className="btn btn-primary" style={{ flex: 1, background: '#EF9F27' }} disabled={goLiveLoading} onClick={handleGoLive}>{goLiveLoading ? 'Connecting...' : 'I agree, go live →'}</button>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Publish blocker */}
+      {showPublishBlocker && (
+        <div className="modal-bg open" onClick={e => { if (e.target.classList.contains('modal-bg')) setShowPublishBlocker(false); }}>
+          <div className="modal" style={{ maxWidth: 440 }}>
+            <div className="modal-header">
+              <div className="modal-title">You're in demo mode</div>
+              <button className="modal-close" onClick={() => setShowPublishBlocker(false)}>×</button>
+            </div>
+            <div style={{ padding: '1.25rem 1.5rem' }}>
+              <p style={{ fontSize: 14, color: '#6b6b65', lineHeight: 1.7, marginBottom: 16 }}>Your TV dashboard is not yet live on a device. To publish to TV you need to:</p>
+              <div style={{ background: '#f7f6f3', borderRadius: 8, padding: '12px 16px', marginBottom: 16 }}>
+                <div style={{ fontSize: 13, color: '#1a1a18', padding: '4px 0' }}>1. Connect your real OwnerRez account</div>
+                <div style={{ fontSize: 13, color: '#1a1a18', padding: '4px 0' }}>2. Enable the GuestView service for this unit</div>
+                <div style={{ fontSize: 13, color: '#1a1a18', padding: '4px 0' }}>3. Set up your Amazon Signage Stick</div>
+              </div>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button className="btn btn-ghost" style={{ flex: 1 }} onClick={() => setShowPublishBlocker(false)}>Close</button>
+                <button className="btn btn-primary" style={{ flex: 1, background: '#EF9F27' }} onClick={() => { setShowPublishBlocker(false); setShowGoLiveModal(true); }}>Go live →</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete account modal */}
+      {showDeleteModal && (
+        <div className="modal-bg open" onClick={e => { if (e.target.classList.contains('modal-bg')) setShowDeleteModal(false); }}>
+          <div className="modal" style={{ maxWidth: 420 }}>
+            <div className="modal-header">
+              <div className="modal-title" style={{ color: '#dc2626' }}>Delete account</div>
+              <button className="modal-close" onClick={() => setShowDeleteModal(false)}>×</button>
+            </div>
+            <div style={{ padding: '1.25rem 1.5rem' }}>
+              <p style={{ fontSize: 14, color: '#6b6b65', lineHeight: 1.7, marginBottom: 16 }}>This will permanently delete all your units, announcements, and data. This cannot be undone.</p>
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ fontSize: 12, color: '#6b6b65', display: 'block', marginBottom: 6 }}>Type <strong>DELETE</strong> to confirm</label>
+                <input type="text" placeholder="DELETE" value={deleteConfirm} onChange={e => setDeleteConfirm(e.target.value)} style={{ width: '100%', height: 38, border: '1px solid #fecaca', borderRadius: 8, padding: '0 12px', fontSize: 13, fontFamily: 'DM Sans, sans-serif', outline: 'none' }} />
+              </div>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button className="btn btn-ghost" style={{ flex: 1 }} onClick={() => { setShowDeleteModal(false); setDeleteConfirm(''); }}>Cancel</button>
+                <button className="btn" style={{ flex: 1, background: deleteConfirm === 'DELETE' ? '#dc2626' : '#f0ede8', color: deleteConfirm === 'DELETE' ? '#fff' : '#9b9b94', border: 'none' }} disabled={deleteConfirm !== 'DELETE'} onClick={handleDeleteAccount}>Delete everything</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {modalOpen && selectedUnit && (() => {
         const ms = modalStatus();

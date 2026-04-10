@@ -290,7 +290,10 @@ function dayLabel(ds){return new Date(ds+'T12:00:00').toLocaleDateString('en-US'
 function updateBg(ts){const g={morning:'radial-gradient(ellipse at 20% 80%,#7c3f00 0%,#b45309 20%,#1e3a5f 55%,#0a1628 100%)',afternoon:'radial-gradient(ellipse at 50% 0%,#0a4a6e 0%,#0a3352 30%,#081e38 65%,#040e1c 100%)',evening:'radial-gradient(ellipse at 60% 90%,#7c2d12 0%,#9d174d 25%,#2e1065 60%,#0a0a1a 100%)'};document.body.style.background=g[ts]||g.afternoon;}
 async function loadLiveData(){
   try{
-    const r=await fetch(BASE+'/api/tv-data?unit=707');
+    const controller=new AbortController();
+    const timeout=setTimeout(()=>controller.abort(),8000);
+    const r=await fetch(BASE+'/api/tv-data?unit=707',{signal:controller.signal});
+    clearTimeout(timeout);
     const d=await r.json();
     if(d.weather){const cards=document.getElementById('forecastFooter').children;d.weather.slice(0,5).forEach((day,i)=>{if(cards[i])cards[i].innerHTML='<div class="wx">'+wxIcon(day.condition)+'</div><div><div class="f-day">'+dayLabel(day.date)+'</div><div class="f-temp">'+day.high+'°F</div><div class="f-low">Low '+day.low+'°F</div><div class="f-desc" style="color:var(--teal);">'+day.desc+'</div></div>';});}
     updateBg(d.timeSlot||'afternoon');

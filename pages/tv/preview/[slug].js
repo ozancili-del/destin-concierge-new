@@ -28,14 +28,14 @@ export async function getServerSideProps({ params }) {
         .single();
       if (mock) booking = { guestFirstName: mock.guest_first_name, arrival: mock.arrival, departure: mock.departure };
     }
-    const now = new Date().toISOString();
+    const nowDate = new Date().toISOString().split('T')[0];
     const { data: announcements } = await supabase
       .from('guestview_announcements')
       .select('message')
       .eq('user_id', unit.user_id)
       .eq('building', unit.building)
-      .lte('starts_at', now)
-      .gte('expires_at', now)
+      .lte('starts_at', nowDate)
+      .gte('expires_at', nowDate)
       .limit(1);
     return {
       props: {
@@ -274,10 +274,13 @@ const AFFILIATE_URL='${affiliateUrl}';
 const HOST_WEBSITE='${hostWebsite}';
 const BUILDING='${unit.building.replace(/'/g, "\\'")}';
 window.addEventListener('load',function(){
-  if(typeof QRCode!=='undefined'){
+  function tryQR(){
+    if(typeof QRCode==='undefined'){setTimeout(tryQR,200);return;}
     QRCode.toCanvas(document.getElementById('affiliateQR'),AFFILIATE_URL||'https://www.tripshock.com',{width:110,margin:1,color:{dark:'#000000',light:'#ffffff'}},function(err){if(err)console.error(err);});
     const bUrl=HOST_WEBSITE?(HOST_WEBSITE.startsWith('http')?HOST_WEBSITE:'https://'+HOST_WEBSITE):'https://destincondogetaways.com';
     QRCode.toCanvas(document.getElementById('bookingQR'),bUrl,{width:92,margin:1,color:{dark:'#000000',light:'#ffffff'}},function(err){if(err)console.error(err);});
+  }
+  setTimeout(tryQR,500);
   }
 });
 function updateClock(){const now=new Date();document.getElementById('clockDisplay').textContent=now.toLocaleString('en-US',{timeZone:'America/Chicago',weekday:'long',month:'long',day:'numeric',hour:'numeric',minute:'2-digit',hour12:true});}
@@ -301,7 +304,7 @@ async function loadRecs(name,weather,noaa,today,timeSlot){
     const ss=noaa?.sunset||'around 7:30pm';
     const ws=noaa?.wind?.speed||0;
     const prompt='You are a warm vacation rental concierge for '+BUILDING+', Destin FL. Guest: '+name+'. Today: '+dw+'. Weather: '+th+'F. Sunset: '+ss+'. Wind: '+ws+' mph. Respond ONLY with raw JSON no markdown:\n{"greetingMorning":"Good morning, '+name+'","greetingAfternoon":"Good afternoon, '+name+'","greetingEvening":"Good evening, '+name+'","subMorning":"2-3 warm sentences about the morning","subAfternoon":"2-3 warm afternoon sentences","subEvening":"2-3 warm evening sentences","morning":{"eat":[{"name":"Ruby Slipper Cafe","tip":"French toast is legendary"},{"name":"Donut Hole Bakery","tip":"Local favorite since 1978"},{"name":"Crackings","tip":"Crab benedict is a must"}],"do":[{"name":"Beach walk at sunrise","tip":"Best shells at low tide"},{"name":"Parasailing","tip":"Calm winds perfect today"},{"name":"Snorkeling at Jetties","tip":"Crystal clear visibility"}]},"afternoon":{"eat":[{"name":"AJs Seafood","tip":"Fresh Gulf oysters"},{"name":"The Back Porch","tip":"Toes in the sand dining"},{"name":"Dewey Destins","tip":"Local seafood classic"}],"do":[{"name":"Crab Island","tip":"Afternoon is perfect"},{"name":"Paddleboarding","tip":"Glassy water today"},{"name":"Destin Commons","tip":"Beat the afternoon heat"}]},"evening":{"eat":[{"name":"Harbor Docks","tip":"Best harbor views in Destin"},{"name":"The Edge SkyBar","tip":"Panoramic Gulf views"},{"name":"Osaka Japanese","tip":"Best hibachi show"}],"tonight":[{"name":"Sunset from balcony","tip":"'+ss+' tonight — do not miss"},{"name":"Harbor Boardwalk Stroll","tip":"Evening lights on the water"},{"name":"Live music at HarborWalk","tip":"Check local listings"}]}}';
-    const res=await fetch(BASE+'/api/tv-recommendations',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt})});
+    const res=await fetch('/api/guestview/recs',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt,building:BUILDING,guestName:name,weather,timeSlot})});
     const data=await res.json();
     const text=data.content?.[0]?.text||'';
     const clean=text.replace(/\u0060\u0060\u0060json|\u0060\u0060\u0060/g,'').trim();

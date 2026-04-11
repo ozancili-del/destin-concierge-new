@@ -47,6 +47,7 @@ export default function GuestViewOnboard() {
   const [claimedModal, setClaimedModal] = useState(false);
   const [claimedEmail, setClaimedEmail] = useState('');
   const [claimedRegisteredEmail, setClaimedRegisteredEmail] = useState(null);
+  const [claimedError, setClaimedError] = useState('');
   const [claimedAuthSent, setClaimedAuthSent] = useState(false);
   const [showConsentModal, setShowConsentModal] = useState(false);
   const [pendingConnect, setPendingConnect] = useState(false);
@@ -307,15 +308,16 @@ export default function GuestViewOnboard() {
 
   async function handleClaimedLogin() {
     if (!claimedEmail.trim()) return;
+    setClaimedError('');
     if (claimedRegisteredEmail && claimedEmail.trim().toLowerCase() !== claimedRegisteredEmail.toLowerCase()) {
-      setError('This email does not match the account registered to this website. Please contact support.');
+      setClaimedError('This email does not match the account registered to this website. Please contact support.');
       return;
     }
     const { error } = await getSupabase().auth.signInWithOtp({
       email: claimedEmail,
       options: { emailRedirectTo: `${window.location.origin}/guestview` }
     });
-    if (error) { setError(error.message); return; }
+    if (error) { setClaimedError(error.message); return; }
     setClaimedAuthSent(true);
   }
 
@@ -554,7 +556,8 @@ export default function GuestViewOnboard() {
             <p>Another GuestView account is linked to this website. If you own it, log in to access your account.</p>
             {!claimedAuthSent ? (
               <div className="input-row">
-                <input type="email" placeholder="your@email.com" value={claimedEmail} onChange={e => setClaimedEmail(e.target.value)} style={{ flex: 1 }} />
+                {claimedError && <div className="err" style={{ marginBottom: 8, fontSize: 13 }}>{claimedError}</div>}
+              <input type="email" placeholder="your@email.com" value={claimedEmail} onChange={e => setClaimedEmail(e.target.value)} style={{ flex: 1 }} />
                 <button className="btn btn-primary" onClick={handleClaimedLogin}>Log in →</button>
               </div>
             ) : (

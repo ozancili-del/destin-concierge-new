@@ -766,6 +766,12 @@ export default function GuestViewOnboard() {
                     </div>
                   ))}
                   <button className="add-building-btn" onClick={addManualBuilding}>+ Add another resort</button>
+                  <div className="legal-row" style={{ marginTop: '1rem' }} onClick={() => setLegalChecked(v => !v)}>
+                    <div className={`legal-check ${legalChecked ? 'checked' : ''}`}>
+                      {legalChecked && <span className="legal-check-mark">✓</span>}
+                    </div>
+                    <span className="legal-text">I confirm I own or am authorized to manage these properties and have the legal right to use GuestView for them. I agree to the <a href="#" onClick={e => e.stopPropagation()}>Terms of Service</a>.</span>
+                  </div>
                 </>
               )}
 
@@ -773,7 +779,7 @@ export default function GuestViewOnboard() {
               {entryMode === 'manual' && (
                 <div className="confirm-bar" style={{ marginTop: '1.5rem' }}>
                   <div />
-                  <button className="btn btn-primary" onClick={handleManualNext}>Next →</button>
+                  <button className="btn btn-primary" onClick={handleManualNext} disabled={!legalChecked}>Next →</button>
                 </div>
               )}
               <div className="already-account">Already have an account? <a onClick={() => { setShowLoginModal(true); setLoginSent(false); setLoginEmail(''); setLoginError(''); }}>Log in</a></div>

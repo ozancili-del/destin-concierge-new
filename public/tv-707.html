@@ -339,7 +339,7 @@ function showGoodbyeScreen(name) {
   document.getElementById('welcomeMsg').textContent = `Safe travels, ${name}! We hope this stay was everything you dreamed of. Check-out is 10 AM — door locks automatically behind you. We'd love to have you back! 🌊`;
   document.getElementById('checkoutDate').textContent = 'Today · 10:00 AM';
   // Reset Destiny Blue QR to neutral
-  QRCode.toCanvas(document.getElementById('destinyQR'), 'https://www.destincondogetaways.com', { width: 92, margin: 1, color: { dark: '#000000', light: '#ffffff' } }, function(err){});
+  QRCode.toCanvas(document.getElementById('destinyQR'), 'https://www.destincondogetaways.com/ai-concierge-574036277', { width: 92, margin: 1, color: { dark: '#000000', light: '#ffffff' } }, function(err){});
   // Clear all cached recs — fresh start for next guest
   Object.keys(localStorage).filter(k => k.startsWith('tv707_recs_')).forEach(k => localStorage.removeItem(k));
 }
@@ -351,7 +351,7 @@ function showGenericScreen() {
   // Fix checkout card to show check-in time
   document.getElementById('checkoutDate').textContent = '4:00 PM';
   // Reset Destiny Blue QR to neutral
-  QRCode.toCanvas(document.getElementById('destinyQR'), 'https://www.destincondogetaways.com', { width: 92, margin: 1, color: { dark: '#000000', light: '#ffffff' } }, function(err){});
+  QRCode.toCanvas(document.getElementById('destinyQR'), 'https://www.destincondogetaways.com/ai-concierge-574036277', { width: 92, margin: 1, color: { dark: '#000000', light: '#ffffff' } }, function(err){});
   const checkoutEl = document.getElementById('checkoutDate');
   if (checkoutEl) {
     const subEl = checkoutEl.nextElementSibling;

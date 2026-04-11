@@ -399,32 +399,33 @@ export default function GuestViewDashboard() {
                   <div className="building-label" style={{ marginTop: 0 }}>In my plan</div>
                   <p style={{ fontSize: 12, color: '#9b9b94', marginBottom: 12, marginTop: -4 }}>These units will be active when you go live.</p>
                   {Object.entries(
-                    units.filter(u => u.active).reduce((acc, u) => {
-                      if (!acc[u.building]) acc[u.building] = [];
-                      acc[u.building].push(u);
-                      return acc;
-                    }, {})
+                    units.filter(u => u.active).reduce((acc, u) => { if (!acc[u.building]) acc[u.building] = []; acc[u.building].push(u); return acc; }, {})
                   ).map(([building, bUnits]) => (
                     <div key={building}>
                       <div style={{ fontSize: 11, color: '#9b9b94', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 6, marginTop: 12 }}>{building}</div>
-                      {bUnits.map(unit => {
-                        const s = statusInfo(unit);
-                        return (
-                          <div key={unit.id} className="unit-card" onClick={() => openUnit(unit)} style={{ maxWidth: 680 }}>
-                            <div>
-                              <div className="unit-name">{unit.unit_name}</div>
-                              <div className="unit-sub">Unit {unit.unit_number || '—'}</div>
-                            </div>
-                            <div className="unit-right">
-                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11, fontWeight: 500, padding: '3px 10px', borderRadius: 6, background: '#E1F5EE', color: '#0F6E56' }}>
-                                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#1D9E75', display: 'inline-block' }} />
-                                In plan
-                              </span>
-                              <span className="arrow">›</span>
-                            </div>
+                      {bUnits.map(unit => (
+                        <div key={unit.id} className="unit-card" style={{ maxWidth: 680 }}>
+                          <div style={{ cursor: 'pointer', flex: 1 }} onClick={() => openUnit(unit)}>
+                            <div className="unit-name">{unit.unit_name}</div>
+                            <div className="unit-sub">Unit {unit.unit_number || '—'}</div>
                           </div>
-                        );
-                      })}
+                          <div className="unit-right">
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11, fontWeight: 500, padding: '3px 10px', borderRadius: 6, background: '#E1F5EE', color: '#0F6E56' }}>
+                              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#1D9E75', display: 'inline-block' }} />In plan
+                            </span>
+                            <button style={{ fontSize: 11, color: '#9b9b94', background: 'none', border: '0.5px solid #e8e6e0', borderRadius: 6, padding: '3px 10px', cursor: 'pointer' }}
+                              onClick={async (e) => {
+                                e.stopPropagation();
+                                const res = await fetch('/api/guestview/update-unit', {
+                                  method: 'POST', headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ unit_id: unit.id, user_id: user.id, active: false })
+                                });
+                                if (res.ok) { setUnits(prev => prev.map(u => u.id === unit.id ? { ...u, active: false } : u)); showToast('Removed from plan.'); }
+                              }}>Remove from plan</button>
+                            <span className="arrow" style={{ cursor: 'pointer' }} onClick={() => openUnit(unit)}>›</span>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   ))}
                 </>
@@ -436,11 +437,7 @@ export default function GuestViewDashboard() {
                   <div className="building-label" style={{ marginTop: 20 }}>Not in plan</div>
                   <p style={{ fontSize: 12, color: '#9b9b94', marginBottom: 12, marginTop: -4 }}>Saved from your website. Add to your plan anytime — no charge until you go live.</p>
                   {Object.entries(
-                    units.filter(u => !u.active).reduce((acc, u) => {
-                      if (!acc[u.building]) acc[u.building] = [];
-                      acc[u.building].push(u);
-                      return acc;
-                    }, {})
+                    units.filter(u => !u.active).reduce((acc, u) => { if (!acc[u.building]) acc[u.building] = []; acc[u.building].push(u); return acc; }, {})
                   ).map(([building, bUnits]) => (
                     <div key={building}>
                       <div style={{ fontSize: 11, color: '#9b9b94', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 6, marginTop: 12 }}>{building}</div>
@@ -455,14 +452,10 @@ export default function GuestViewDashboard() {
                             <button style={{ fontSize: 12, color: '#185FA5', background: 'none', border: '0.5px solid #B5D4F4', borderRadius: 6, padding: '4px 12px', cursor: 'pointer' }}
                               onClick={async () => {
                                 const res = await fetch('/api/guestview/update-unit', {
-                                  method: 'POST',
-                                  headers: { 'Content-Type': 'application/json' },
+                                  method: 'POST', headers: { 'Content-Type': 'application/json' },
                                   body: JSON.stringify({ unit_id: unit.id, user_id: user.id, active: true, status: 'draft' })
                                 });
-                                if (res.ok) {
-                                  setUnits(prev => prev.map(u => u.id === unit.id ? { ...u, active: true, status: 'draft' } : u));
-                                  showToast('Added to your plan.');
-                                }
+                                if (res.ok) { setUnits(prev => prev.map(u => u.id === unit.id ? { ...u, active: true, status: 'draft' } : u)); showToast('Added to your plan.'); }
                               }}>Add to plan →</button>
                           </div>
                         </div>
@@ -473,6 +466,54 @@ export default function GuestViewDashboard() {
               )}
 
               {units.length === 0 && <div className="empty-state">No units found. Something went wrong — contact support.</div>}
+            </>
+          )}
+
+          {activeNav === 'saved' && (
+            <>
+              <div className="main-header">
+                <h1>My saved units</h1>
+                <span style={{ fontSize: 12, color: '#9b9b94' }}>Activate units to include them in your plan</span>
+              </div>
+              {units.filter(u => !u.active).length === 0 ? (
+                <div className="empty-state">No saved units. All your units are active.</div>
+              ) : (
+                Object.entries(
+                  units.filter(u => !u.active).reduce((acc, u) => {
+                    if (!acc[u.building]) acc[u.building] = [];
+                    acc[u.building].push(u);
+                    return acc;
+                  }, {})
+                ).map(([building, bUnits]) => (
+                  <div key={building}>
+                    <div className="building-label">{building}</div>
+                    {bUnits.map(unit => (
+                      <div key={unit.id} className="unit-card" style={{ maxWidth: 680 }}>
+                        <div>
+                          <div className="unit-name">{unit.unit_name}</div>
+                          <div className="unit-sub">Unit {unit.unit_number || '—'} · Saved for later</div>
+                        </div>
+                        <div className="unit-right">
+                          <button className="btn btn-primary" style={{ fontSize: 12, height: 32, padding: '0 16px' }}
+                            onClick={async () => {
+                              const res = await fetch('/api/guestview/update-unit', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ unit_id: unit.id, user_id: user.id, active: true, status: 'draft' })
+                              });
+                              if (res.ok) {
+                                setUnits(prev => prev.map(u => u.id === unit.id ? { ...u, active: true, status: 'draft' } : u));
+                                showToast('Unit activated — complete setup from My active units.');
+                              }
+                            }}>
+                            Activate →
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ))
+              )}
             </>
           )}
 

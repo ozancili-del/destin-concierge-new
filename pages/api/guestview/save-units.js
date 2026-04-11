@@ -24,7 +24,7 @@ export default async function handler(req, res) {
   try {
     // Ensure guestview_users row exists (handles re-onboarding after account deletion)
     const { error: upsertError } = await supabase.from('guestview_users').upsert(
-      { id: user_id, email: email || '', full_name: '', updated_at: new Date().toISOString() },
+      { id: user_id, email: email || '', full_name: '' },
       { onConflict: 'id' }
     );
     if (upsertError) {

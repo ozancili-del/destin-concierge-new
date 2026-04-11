@@ -15,6 +15,9 @@ function getSupabase() {
 
 export default function GuestViewOnboard() {
   const [step, setStep] = useState(1);
+  const [entryMode, setEntryMode] = useState('scan'); // 'scan' | 'manual'
+  const [availableBuildings, setAvailableBuildings] = useState([]);
+  const [manualBuildings, setManualBuildings] = useState([{ name: '', customName: '', units: [{ name: '', unit_number: '' }] }]);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [loginEmail, setLoginEmail] = useState('');
   const [loginSent, setLoginSent] = useState(false);
@@ -56,6 +59,11 @@ export default function GuestViewOnboard() {
     const supabase = getSupabase();
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       setAuthChecking(false);
+      // Load building list from Supabase
+      try {
+        const { data: bData } = await getSupabase().from('guestview_buildings').select('name').order('name');
+        if (bData) setAvailableBuildings(bData.map(b => b.name));
+      } catch(_) {}
       if (session?.user) {
         setUser(session.user);
         try {
@@ -167,6 +175,67 @@ export default function GuestViewOnboard() {
     } catch (e) {
       setLoginError(e.message || 'Failed to send link. Try again.');
     }
+  }
+
+  function addManualBuilding() {
+    setManualBuildings(prev => [...prev, { name: '', customName: '', units: [{ name: '', unit_number: '' }] }]);
+  }
+
+  function updateManualBuilding(idx, field, value) {
+    setManualBuildings(prev => prev.map((b, i) => i === idx ? { ...b, [field]: value } : b));
+  }
+
+  function addManualUnit(bIdx) {
+    setManualBuildings(prev => prev.map((b, i) => i === bIdx ? { ...b, units: [...b.units, { name: '', unit_number: '' }] } : b));
+  }
+
+  function updateManualUnit(bIdx, uIdx, field, value) {
+    setManualBuildings(prev => prev.map((b, i) => i === bIdx ? { ...b, units: b.units.map((u, j) => j === uIdx ? { ...u, [field]: value } : u) } : b));
+  }
+
+  function removeManualUnit(bIdx, uIdx) {
+    setManualBuildings(prev => prev.map((b, i) => i === bIdx ? { ...b, units: b.units.filter((_, j) => j !== uIdx) } : b));
+  }
+
+  function removeManualBuilding(idx) {
+    setManualBuildings(prev => prev.filter((_, i) => i !== idx));
+  }
+
+  async function handleManualNext() {
+    setError('');
+    const built = manualBuildings
+      .filter(b => (b.name || b.customName).trim())
+      .map(b => {
+        const bName = b.name === '__custom__' ? b.customName.trim() : b.name;
+        return {
+          name: bName,
+          units: b.units
+            .filter(u => u.name.trim())
+            .map(u => ({
+              name: u.name.trim(),
+              unit_number: u.unit_number.trim(),
+              active: true,
+              wifi_name: '', wifi_password: '', tv_brand: ''
+            }))
+        };
+      })
+      .filter(b => b.units.length > 0);
+    if (built.length === 0) { setError('Add at least one building with one unit.'); return; }
+    // Save new custom buildings to Supabase
+    for (const b of manualBuildings) {
+      if (b.name === '__custom__' && b.customName.trim()) {
+        try {
+          await fetch('/api/guestview/save-building', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: b.customName.trim() })
+          });
+        } catch(_) {}
+      }
+    }
+    setBuildings(built);
+    setCheckTimes(built.map(b => ({ building: b.name, checkin: '4:00 PM', checkout: '10:00 AM' })));
+    setStep(2);
   }
 
   async function handleGoogleLogin() {
@@ -512,6 +581,16 @@ export default function GuestViewOnboard() {
         .missing-item { font-size: 13px; color: #92400e; padding: 3px 0; }
         .modal-btns { display: flex; gap: 8px; }
         .already-account { text-align: center; margin-top: 1rem; font-size: 13px; color: #9b9b94; }
+        .mode-tabs { display: flex; gap: 6px; margin-bottom: 1.25rem; background: #f7f6f3; border-radius: 10px; padding: 4px; }
+        .mode-tab { flex: 1; padding: 8px; border: none; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; background: transparent; color: #9b9b94; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+        .mode-tab.active { background: #fff; color: #1a1a18; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+        .manual-building { border: 1px solid #e8e6e0; border-radius: 12px; padding: 1rem; margin-bottom: 10px; }
+        .manual-building-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+        .manual-units { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+        .manual-unit-row { display: flex; gap: 6px; align-items: center; }
+        .add-unit-btn { background: none; border: none; color: #1D9E75; font-size: 12px; font-weight: 500; cursor: pointer; padding: 4px 0; margin-top: 4px; font-family: 'DM Sans', sans-serif; }
+        .add-building-btn { background: none; border: 1px dashed #c8c6c0; color: #6b6b65; font-size: 13px; font-weight: 500; cursor: pointer; padding: 10px; width: 100%; border-radius: 10px; margin-top: 4px; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+        .add-building-btn:hover { border-color: #1D9E75; color: #1D9E75; }
         .already-account a { color: #1D9E75; cursor: pointer; font-weight: 500; text-decoration: none; }
       `}</style>
 
@@ -615,29 +694,88 @@ export default function GuestViewOnboard() {
           {step === 1 && (
             <>
               <h1>Welcome — let's find your units</h1>
-              <p className="sub">Enter your vacation rental website and we'll scan it to find all your properties automatically.</p>
-              <div className="input-row">
-                <input type="text" placeholder="yoursite.com" value={url} onChange={e => setUrl(e.target.value)} onKeyDown={e => e.key === 'Enter' && !crawling && handleCrawl()} style={{ flex: 1 }} />
-                <button className="btn btn-primary" onClick={handleCrawl} disabled={crawling || !url.trim() || !legalChecked}>
-                  {crawling ? <><span className="spinner" />Scanning...</> : 'Find my units →'}
-                </button>
+              <div className="mode-tabs">
+                <button className={`mode-tab ${entryMode === 'scan' ? 'active' : ''}`} onClick={() => setEntryMode('scan')}>Scan my website</button>
+                <button className={`mode-tab ${entryMode === 'manual' ? 'active' : ''}`} onClick={() => setEntryMode('manual')}>Enter manually</button>
               </div>
-              <div className="legal-row" onClick={() => setLegalChecked(v => !v)}>
-                <div className={`legal-check ${legalChecked ? 'checked' : ''}`}>
-                  {legalChecked && <span className="legal-check-mark">✓</span>}
-                </div>
-                <span className="legal-text">I confirm I own or am authorized to manage this website and have the legal right to scan its content for use with GuestView. I agree to the <a href="#" onClick={e => e.stopPropagation()}>Terms of Service</a>.</span>
-              </div>
-              {crawlLog.length > 0 && (
-                <div className="crawl-log">
-                  {crawlLog.map((l, i) => (
-                    <div key={i} className={`log-line ${l.done ? 'done' : ''} ${l.highlight ? 'highlight' : ''}`}>
-                      <span className="log-dot" />{l.text}
+
+              {entryMode === 'scan' && (
+                <>
+                  <p className="sub">Enter your vacation rental website and we'll scan it to find all your properties automatically.</p>
+                  <div className="input-row">
+                    <input type="text" placeholder="yoursite.com" value={url} onChange={e => setUrl(e.target.value)} onKeyDown={e => e.key === 'Enter' && !crawling && handleCrawl()} style={{ flex: 1 }} />
+                    <button className="btn btn-primary" onClick={handleCrawl} disabled={crawling || !url.trim() || !legalChecked}>
+                      {crawling ? <><span className="spinner" />Scanning...</> : 'Find my units →'}
+                    </button>
+                  </div>
+                  <div className="legal-row" onClick={() => setLegalChecked(v => !v)}>
+                    <div className={`legal-check ${legalChecked ? 'checked' : ''}`}>
+                      {legalChecked && <span className="legal-check-mark">✓</span>}
+                    </div>
+                    <span className="legal-text">I confirm I own or am authorized to manage this website and have the legal right to scan its content for use with GuestView. I agree to the <a href="#" onClick={e => e.stopPropagation()}>Terms of Service</a>.</span>
+                  </div>
+                  {crawlLog.length > 0 && (
+                    <div className="crawl-log">
+                      {crawlLog.map((l, i) => (
+                        <div key={i} className={`log-line ${l.done ? 'done' : ''} ${l.highlight ? 'highlight' : ''}`}>
+                          <span className="log-dot" />{l.text}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
+              )}
+
+              {entryMode === 'manual' && (
+                <>
+                  <p className="sub">Select your resort and add your units. You can add multiple buildings.</p>
+                  {manualBuildings.map((b, bIdx) => (
+                    <div key={bIdx} className="manual-building">
+                      <div className="manual-building-header">
+                        <select
+                          value={b.name}
+                          onChange={e => updateManualBuilding(bIdx, 'name', e.target.value)}
+                          style={{ flex: 1, height: 36, border: '1px solid #e8e6e0', borderRadius: 8, padding: '0 10px', fontSize: 13, fontFamily: 'DM Sans, sans-serif', background: '#fff', color: b.name ? '#1a1a18' : '#9b9b94', outline: 'none' }}
+                        >
+                          <option value="">Select resort...</option>
+                          {availableBuildings.map(name => <option key={name} value={name}>{name}</option>)}
+                          <option value="__custom__">My resort isn't listed →</option>
+                        </select>
+                        {manualBuildings.length > 1 && (
+                          <button onClick={() => removeManualBuilding(bIdx)} style={{ background: 'none', border: 'none', color: '#9b9b94', cursor: 'pointer', fontSize: 18, padding: '0 4px' }}>×</button>
+                        )}
+                      </div>
+                      {b.name === '__custom__' && (
+                        <input type="text" placeholder="Resort name" value={b.customName} onChange={e => updateManualBuilding(bIdx, 'customName', e.target.value)}
+                          style={{ width: '100%', height: 34, border: '1px solid #e8e6e0', borderRadius: 8, padding: '0 10px', fontSize: 13, fontFamily: 'DM Sans, sans-serif', marginTop: 6, boxSizing: 'border-box' }} />
+                      )}
+                      <div className="manual-units">
+                        {b.units.map((u, uIdx) => (
+                          <div key={uIdx} className="manual-unit-row">
+                            <input type="text" placeholder="Unit name (e.g. 10th Floor 1BR)" value={u.name} onChange={e => updateManualUnit(bIdx, uIdx, 'name', e.target.value)}
+                              style={{ flex: 2, height: 32, border: '1px solid #e8e6e0', borderRadius: 8, padding: '0 8px', fontSize: 12, fontFamily: 'DM Sans, sans-serif' }} />
+                            <input type="text" placeholder="Unit #" value={u.unit_number} onChange={e => updateManualUnit(bIdx, uIdx, 'unit_number', e.target.value)}
+                              style={{ flex: 1, height: 32, border: '1px solid #e8e6e0', borderRadius: 8, padding: '0 8px', fontSize: 12, fontFamily: 'DM Sans, sans-serif' }} />
+                            {b.units.length > 1 && (
+                              <button onClick={() => removeManualUnit(bIdx, uIdx)} style={{ background: 'none', border: 'none', color: '#9b9b94', cursor: 'pointer', fontSize: 16, padding: '0 4px' }}>×</button>
+                            )}
+                          </div>
+                        ))}
+                        <button className="add-unit-btn" onClick={() => addManualUnit(bIdx)}>+ Add unit</button>
+                      </div>
                     </div>
                   ))}
+                  <button className="add-building-btn" onClick={addManualBuilding}>+ Add another resort</button>
+                </>
+              )}
+
+              {error && <div className="err">{error}</div>}
+              {entryMode === 'manual' && (
+                <div className="confirm-bar" style={{ marginTop: '1.5rem' }}>
+                  <div />
+                  <button className="btn btn-primary" onClick={handleManualNext}>Next →</button>
                 </div>
               )}
-              {error && <div className="err">{error}</div>}
               <div className="already-account">Already have an account? <a onClick={() => { setShowLoginModal(true); setLoginSent(false); setLoginEmail(''); setLoginError(''); }}>Log in</a></div>
             </>
           )}

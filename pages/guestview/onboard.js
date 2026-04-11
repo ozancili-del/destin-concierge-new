@@ -96,7 +96,7 @@ export default function GuestViewOnboard() {
       await fetch('/api/guestview/save-units', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: userId, user_slug: userId.substring(0, 8), units: allUnits, website_url: data.url })
+        body: JSON.stringify({ user_id: userId, user_slug: userId.substring(0, 8), units: allUnits, website_url: data.url, email: data.hostInfo?.email || '' })
       });
       // Also save user profile
       await fetch('/api/guestview/save-profile', {
@@ -281,7 +281,7 @@ export default function GuestViewOnboard() {
       })));
       const res = await fetch('/api/guestview/save-units', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: user.id, user_slug: user.email.split('@')[0], units: allUnits, website_url: url })
+        body: JSON.stringify({ user_id: user.id, user_slug: user.email.split('@')[0], units: allUnits, website_url: url, email: user.email || '' })
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
@@ -731,7 +731,7 @@ export default function GuestViewOnboard() {
                 ))}
                 {savedUnits.length > 5 && <p style={{ fontSize: 13, color: '#9b9b94', textAlign: 'center', marginTop: 8 }}>+ {savedUnits.length - 5} more — view all in your dashboard</p>}
               </div>
-              <div className="trial-badge">Trial active · $4.99 / TV / month · no commitment</div>
+              <div className="trial-badge">Trial active · $2 / TV / month · no commitment</div>
               <div style={{ marginTop: '1.5rem' }}>
                 <button className="btn btn-primary" style={{ width: '100%' }} onClick={() => window.location.href = '/guestview'}>Go to my dashboard →</button>
               </div>

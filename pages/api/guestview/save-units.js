@@ -14,7 +14,7 @@ function generateTvUrl(userSlug, building, unitName) {
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { user_id, user_slug, units, website_url } = req.body;
+  const { user_id, user_slug, units, website_url, email } = req.body;
   if (!user_id || !units?.length) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
@@ -22,8 +22,8 @@ export default async function handler(req, res) {
   try {
     // Ensure guestview_users row exists (handles re-onboarding after account deletion)
     await supabase.from('guestview_users').upsert(
-      { id: user_id, updated_at: new Date().toISOString() },
-      { onConflict: 'id', ignoreDuplicates: true }
+      { id: user_id, email: email || '', updated_at: new Date().toISOString() },
+      { onConflict: 'id' }
     );
 
     await supabase.from('guestview_units').delete().eq('user_id', user_id);

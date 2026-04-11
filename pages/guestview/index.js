@@ -366,7 +366,8 @@ export default function GuestViewDashboard() {
         <div className="sidebar">
           <div className="sb-logo">Guest<span>View</span></div>
           <div className="sb-section">Manage</div>
-          <div className={`sb-item ${activeNav === 'units' ? 'active' : ''}`} onClick={() => setActiveNav('units')}><span className="sb-dot" />My units</div>
+          <div className={`sb-item ${activeNav === 'units' ? 'active' : ''}`} onClick={() => setActiveNav('units')}><span className="sb-dot" />My active units</div>
+          <div className={`sb-item ${activeNav === 'saved' ? 'active' : ''}`} onClick={() => setActiveNav('saved')}><span className="sb-dot" />My saved units</div>
           <div className={`sb-item ${activeNav === 'announcements' ? 'active' : ''}`} onClick={() => setActiveNav('announcements')}><span className="sb-dot" />Announcements</div>
           <div className="sb-section">Account</div>
           <div className={`sb-item ${activeNav === 'ownerrez' ? 'active' : ''}`} onClick={() => setActiveNav('ownerrez')}><span className="sb-dot" />OwnerRez</div>
@@ -392,7 +393,7 @@ export default function GuestViewDashboard() {
           {activeNav === 'units' && (
             <>
               <div className="main-header">
-                <h1>My units</h1>
+                <h1>My active units</h1>
                 <span className="badge-trial">Trial · $4.99/TV/mo</span>
               </div>
               {Object.keys(buildingGroups).length === 0 ? (
@@ -416,6 +417,54 @@ export default function GuestViewDashboard() {
                         </div>
                       );
                     })}
+                  </div>
+                ))
+              )}
+            </>
+          )}
+
+          {activeNav === 'saved' && (
+            <>
+              <div className="main-header">
+                <h1>My saved units</h1>
+                <span style={{ fontSize: 12, color: '#9b9b94' }}>Activate units to include them in your plan</span>
+              </div>
+              {units.filter(u => !u.active).length === 0 ? (
+                <div className="empty-state">No saved units. All your units are active.</div>
+              ) : (
+                Object.entries(
+                  units.filter(u => !u.active).reduce((acc, u) => {
+                    if (!acc[u.building]) acc[u.building] = [];
+                    acc[u.building].push(u);
+                    return acc;
+                  }, {})
+                ).map(([building, bUnits]) => (
+                  <div key={building}>
+                    <div className="building-label">{building}</div>
+                    {bUnits.map(unit => (
+                      <div key={unit.id} className="unit-card" style={{ maxWidth: 680 }}>
+                        <div>
+                          <div className="unit-name">{unit.unit_name}</div>
+                          <div className="unit-sub">Unit {unit.unit_number || '—'} · Saved for later</div>
+                        </div>
+                        <div className="unit-right">
+                          <button className="btn btn-primary" style={{ fontSize: 12, height: 32, padding: '0 16px' }}
+                            onClick={async () => {
+                              const res = await fetch('/api/guestview/update-unit', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ unit_id: unit.id, user_id: user.id, active: true, status: 'draft' })
+                              });
+                              if (res.ok) {
+                                setUnits(prev => prev.map(u => u.id === unit.id ? { ...u, active: true, status: 'draft' } : u));
+                                showToast('Unit activated — complete setup from My active units.');
+                              }
+                            }}>
+                            Activate →
+                          </button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 ))
               )}

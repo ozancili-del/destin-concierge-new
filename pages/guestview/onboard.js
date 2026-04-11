@@ -13,6 +13,7 @@ function getSupabase() {
 
 export default function GuestViewOnboard() {
   const [step, setStep] = useState(1);
+  const [showNoAccountModal, setShowNoAccountModal] = useState(false);
   const [authChecking, setAuthChecking] = useState(true);
   const [url, setUrl] = useState('');
   const [legalChecked, setLegalChecked] = useState(false);
@@ -55,9 +56,10 @@ export default function GuestViewOnboard() {
             const data = JSON.parse(saved);
             const hasUnits = data.buildings?.some(b => b.units?.length > 0);
             if (!hasUnits) {
-              // Stale or empty localStorage — clear it and go to dashboard
+              // Stale or empty localStorage — clear it, sign out, show no-account modal
               localStorage.removeItem('guestview_onboard_data');
-              window.location.href = '/guestview';
+              try { await getSupabase().auth.signOut(); } catch(_) {}
+              setShowNoAccountModal(true);
               return;
             }
             if (data.buildings) setBuildings(data.buildings);
@@ -68,8 +70,18 @@ export default function GuestViewOnboard() {
             localStorage.removeItem('guestview_onboard_data');
             setStep(8);
           } else {
-            // Already logged in, no pending onboard data — always go to dashboard
-            window.location.href = '/guestview';
+            // Already logged in, no pending onboard data — check profile exists
+            try {
+              const res = await fetch(`/api/guestview/get-units?user_id=${session.user.id}`);
+              const data = await res.json();
+              if (data.profile?.id) {
+                window.location.href = '/guestview';
+              } else {
+                // Auth user exists but no profile — ghost account
+                try { await getSupabase().auth.signOut(); } catch(_) {}
+                setShowNoAccountModal(true);
+              }
+            } catch(_) { window.location.href = '/guestview'; }
           }
         } catch (e) { window.location.href = '/guestview'; }
       }
@@ -448,6 +460,25 @@ export default function GuestViewOnboard() {
         .already-account { text-align: center; margin-top: 1rem; font-size: 13px; color: #9b9b94; }
         .already-account a { color: #1D9E75; cursor: pointer; font-weight: 500; text-decoration: none; }
       `}</style>
+
+      {showNoAccountModal && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h2 style={{ fontSize: 17, fontWeight: 600, marginBottom: 10 }}>Account not found</h2>
+            <p style={{ fontSize: 14, color: '#6b6b65', lineHeight: 1.7, marginBottom: 16 }}>
+              We couldn't find a GuestView account linked to your login. This can happen if your account was deleted or if there was a setup issue.
+            </p>
+            <div style={{ background: '#f7f6f3', borderRadius: 8, padding: '12px 16px', marginBottom: 16, fontSize: 13, color: '#6b6b65', lineHeight: 1.8 }}>
+              <div>If this is a mistake — <a href="mailto:support@destincondogetaways.com" style={{ color: '#1D9E75' }}>open a support ticket</a></div>
+              <div>If you're new — start the onboarding below</div>
+            </div>
+            <div className="modal-btns">
+              <button className="btn btn-outline" style={{ flex: 1 }} onClick={() => window.location.href = 'mailto:support@destincondogetaways.com'}>Contact support</button>
+              <button className="btn btn-primary" style={{ flex: 1 }} onClick={() => { setShowNoAccountModal(false); setStep(1); }}>Start onboarding →</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {claimedModal && (
         <div className="modal-overlay">

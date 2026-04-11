@@ -338,7 +338,6 @@ function showGoodbyeScreen(name) {
   document.getElementById('guestName').textContent = name;
   document.getElementById('welcomeMsg').textContent = `Safe travels, ${name}! We hope this stay was everything you dreamed of. Check-out is 10 AM — door locks automatically behind you. We'd love to have you back! 🌊`;
   document.getElementById('checkoutDate').textContent = 'Today · 10:00 AM';
-  // Reset Destiny Blue QR to neutral
   QRCode.toCanvas(document.getElementById('destinyQR'), 'https://www.destincondogetaways.com/ai-concierge-574036277', { width: 92, margin: 1, color: { dark: '#000000', light: '#ffffff' } }, function(err){});
   // Clear all cached recs — fresh start for next guest
   Object.keys(localStorage).filter(k => k.startsWith('tv707_recs_')).forEach(k => localStorage.removeItem(k));
@@ -348,14 +347,13 @@ function showGenericScreen() {
   resetScreenElements();
   document.getElementById('guestName').textContent = 'Unit 707';
   document.getElementById('welcomeMsg').textContent = 'Welcome to Pelican Beach Resort. Check-in begins at 4 PM. WiFi details are in the panel below.';
-  // Fix checkout card to show check-in time
-  document.getElementById('checkoutDate').textContent = '4:00 PM';
-  // Reset Destiny Blue QR to neutral
   QRCode.toCanvas(document.getElementById('destinyQR'), 'https://www.destincondogetaways.com/ai-concierge-574036277', { width: 92, margin: 1, color: { dark: '#000000', light: '#ffffff' } }, function(err){});
+  // Fix checkout card to show check-in time — target by ID not class selector
+  document.getElementById('checkoutDate').textContent = '4:00 PM';
   const checkoutEl = document.getElementById('checkoutDate');
   if (checkoutEl) {
     const subEl = checkoutEl.nextElementSibling;
-    if (subEl) subEl.textContent = 'Check-in begins at 4 PM';
+    if (subEl) subEl.textContent = '';
     const labelEl = checkoutEl.previousElementSibling;
     if (labelEl) labelEl.textContent = '🕐 Check-in';
   }
@@ -438,10 +436,6 @@ async function loadLiveData() {
     // ── STATE C: Between guests ──────────────────────────────────
     if (d.isBetweenGuests) {
       showGenericScreen();
-      // Reset Destiny Blue QR to neutral homepage — no guest-specific data
-      QRCode.toCanvas(document.getElementById('destinyQR'), 'https://www.destincondogetaways.com', {
-        width: 92, margin: 1, color: { dark: '#000000', light: '#ffffff' }
-      }, err => { if(err) console.error('QR neutral error:', err); });
       return;
     }
 

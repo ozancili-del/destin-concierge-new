@@ -147,6 +147,17 @@ export default function GuestViewOnboard() {
     if (!loginEmail.trim()) return;
     setLoginError('');
     try {
+      // Check email exists before hitting Supabase auth
+      const checkRes = await fetch('/api/guestview/check-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: loginEmail.trim() })
+      });
+      const checkData = await checkRes.json();
+      if (!checkData.exists) {
+        setLoginError('No account found for this email. Please check your email or contact support.');
+        return;
+      }
       const { error } = await getSupabase().auth.signInWithOtp({
         email: loginEmail.trim(),
         options: { emailRedirectTo: window.location.origin + '/guestview' }

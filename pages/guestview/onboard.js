@@ -72,7 +72,7 @@ export default function GuestViewOnboard() {
           } else {
             // Already logged in, no pending onboard data — check profile exists
             try {
-              const res = await fetch(`/api/guestview/get-units?user_id=${session.user.id}`);
+              const res = await fetch(`/api/guestview/get-units?user_id=${session.user.id}&_=${Date.now()}`);
               const data = await res.json();
               if (data.profile?.id) {
                 window.location.href = '/guestview';

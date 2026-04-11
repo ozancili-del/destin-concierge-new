@@ -10,6 +10,8 @@ function getSupabase() {
   );
 }
 
+const TV_BRANDS = ['Samsung', 'LG', 'Sony', 'Vizio', 'TCL', 'Hisense', 'Toshiba', 'Other'];
+
 const ANNOUNCEMENT_TYPES = [
   'Pool closed / limited access',
   'Elevator out of service',
@@ -644,7 +646,7 @@ export default function GuestViewDashboard() {
                     <h3>Unit details</h3>
                     <div className="field-grid">
                       <div className="field"><label>Unit #</label><input type="text" value={form.unit_number} onChange={e => updateForm('unit_number', e.target.value)} /></div>
-                      <div className="field"><label>TV brand</label><input type="text" value={form.tv_brand} onChange={e => updateForm('tv_brand', e.target.value)} /></div>
+                      <div className="field"><label>TV brand</label><select value={form.tv_brand} onChange={e => updateForm('tv_brand', e.target.value)} style={{ height: 34, border: '1px solid #e8e6e0', borderRadius: 8, padding: '0 10px', fontSize: 13, background: '#fff', color: form.tv_brand ? '#1a1a18' : '#9b9b94', outline: 'none', fontFamily: 'DM Sans, sans-serif', width: '100%' }}><option value="">Select brand...</option>{TV_BRANDS.map(b => <option key={b} value={b}>{b}</option>)}</select></div>
                       <div className="field"><label>Check-in</label><input type="text" value={form.checkin_time} onChange={e => updateForm('checkin_time', e.target.value)} /></div>
                       <div className="field"><label>Check-out</label><input type="text" value={form.checkout_time} onChange={e => updateForm('checkout_time', e.target.value)} /></div>
                       <div className="field"><label>WiFi name</label><input type="text" value={form.wifi_name} onChange={e => updateForm('wifi_name', e.target.value)} /></div>

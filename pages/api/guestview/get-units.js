@@ -11,13 +11,13 @@ export default async function handler(req, res) {
   try {
     const [unitsRes, profileRes, announcementsRes, onboardingRes] = await Promise.all([
       supabase.from('guestview_units').select('*').eq('user_id', user_id).order('building').order('unit_name'),
-      supabase.from('guestview_users').select('*').eq('id', user_id).single(),
+      supabase.from('guestview_users').select('*').eq('id', user_id).maybeSingle(),
       supabase.from('guestview_announcements').select('*').eq('user_id', user_id).order('starts_at', { ascending: false }),
-      supabase.from('guestview_or_connections').select('validated_at').eq('user_id', user_id).single()
+      supabase.from('guestview_or_connections').select('validated_at').eq('user_id', user_id).maybeSingle()
     ]);
     return res.status(200).json({
       units: unitsRes.data || [],
-      profile: { ...profileRes.data, or_connected: !!onboardingRes.data?.validated_at },
+      profile: profileRes.data ? { ...profileRes.data, or_connected: !!onboardingRes.data?.validated_at } : null,
       announcements: announcementsRes.data || []
     });
   } catch (err) {

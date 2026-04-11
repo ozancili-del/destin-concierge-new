@@ -13,6 +13,7 @@ function getSupabase() {
 
 export default function GuestViewOnboard() {
   const [step, setStep] = useState(1);
+  const [authChecking, setAuthChecking] = useState(true);
   const [url, setUrl] = useState('');
   const [legalChecked, setLegalChecked] = useState(false);
   const [crawling, setCrawling] = useState(false);
@@ -45,6 +46,7 @@ export default function GuestViewOnboard() {
   useEffect(() => {
     const supabase = getSupabase();
     supabase.auth.getSession().then(async ({ data: { session } }) => {
+      setAuthChecking(false);
       if (session?.user) {
         setUser(session.user);
         try {
@@ -327,6 +329,8 @@ export default function GuestViewOnboard() {
 
   const activeCount = buildings.flatMap(b => b.units.filter(u => u.active)).length;
   const totalSteps = 8;
+
+  if (authChecking) return null;
 
   return (
     <>

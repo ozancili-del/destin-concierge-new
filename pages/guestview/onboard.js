@@ -57,7 +57,7 @@ export default function GuestViewOnboard() {
             if (data.url) setUrl(data.url);
             await saveUnitsToSupabase(session.user.id, data);
             localStorage.removeItem('guestview_onboard_data');
-            handleSaveUnits();
+            setStep(8);
           } else {
             // Check if already has units — if so go to dashboard
             const res = await fetch(`/api/guestview/get-units?user_id=${session.user.id}`);
@@ -65,16 +65,15 @@ export default function GuestViewOnboard() {
             if (data.units?.length > 0) {
               window.location.href = '/guestview';
             } else {
-              handleSaveUnits();
+              setStep(8);
             }
           }
-        } catch (e) { handleSaveUnits(); }
+        } catch (e) { window.location.href = '/guestview'; }
       }
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_e, session) => {
       if (session?.user) {
         setUser(session.user);
-        handleSaveUnits();
       }
     });
     return () => subscription.unsubscribe();

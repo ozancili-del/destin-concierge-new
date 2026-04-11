@@ -68,7 +68,8 @@ export default function GuestViewDashboard() {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session?.user) { router.push('/guestview/onboard'); return; }
       setUser(session.user);
-      await loadData(session.user.id);
+      const ok = await loadData(session.user.id);
+      if (!ok) { router.push('/guestview/onboard'); return; }
       setLoading(false);
       setAuthed(true);
     });
@@ -83,13 +84,16 @@ export default function GuestViewDashboard() {
     try {
       const res = await fetch(`/api/guestview/get-units?user_id=${userId}`);
       const data = await res.json();
+      // No profile = deleted or ghost account — boot to onboard
+      if (!data.profile) return false;
       setUnits(data.units || []);
-      setProfile(data.profile || null);
-      if (data.profile) setBrandingForm({ brand_name: data.profile.brand_name || '', logo_url: data.profile.logo_url || '', tagline: data.profile.tagline || '' });
+      setProfile(data.profile);
+      setBrandingForm({ brand_name: data.profile.brand_name || '', logo_url: data.profile.logo_url || '', tagline: data.profile.tagline || '' });
       setAnnouncements(data.announcements || []);
+      return true;
     } catch (e) {
       console.error('Load error:', e);
-      setLoading(false);
+      return false;
     }
   }
 
@@ -245,7 +249,8 @@ export default function GuestViewDashboard() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_id: user.id })
       });
-      await getSupabase().auth.signOut();
+      try { await getSupabase().auth.signOut(); } catch (_) {}
+      try { localStorage.clear(); } catch (_) {}
       setShowDeleteModal(false);
       setShowDeletedConfirm(true);
     } catch (e) {

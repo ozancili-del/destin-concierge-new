@@ -61,14 +61,8 @@ export default function GuestViewOnboard() {
             localStorage.removeItem('guestview_onboard_data');
             setStep(8);
           } else {
-            // Check if already has units — if so go to dashboard
-            const res = await fetch(`/api/guestview/get-units?user_id=${session.user.id}`);
-            const data = await res.json();
-            if (data.units?.length > 0) {
-              window.location.href = '/guestview';
-            } else {
-              setStep(8);
-            }
+            // Already logged in, no pending onboard data — always go to dashboard
+            window.location.href = '/guestview';
           }
         } catch (e) { window.location.href = '/guestview'; }
       }

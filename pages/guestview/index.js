@@ -44,6 +44,7 @@ export default function GuestViewDashboard() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [brandingForm, setBrandingForm] = useState({ brand_name: '', logo_url: '', tagline: '' });
   const [deleteConfirm, setDeleteConfirm] = useState('');
+  const [showDeletedConfirm, setShowDeletedConfirm] = useState(false);
   const [goLiveEmail, setGoLiveEmail] = useState('');
   const [goLiveKey, setGoLiveKey] = useState('');
   const [goLiveError, setGoLiveError] = useState('');
@@ -221,7 +222,8 @@ export default function GuestViewDashboard() {
         body: JSON.stringify({ user_id: user.id })
       });
       await getSupabase().auth.signOut();
-      router.push('/guestview/onboard');
+      setShowDeleteModal(false);
+      setShowDeletedConfirm(true);
     } catch (e) {
       showToast('Failed to delete account. Contact support.');
     }
@@ -729,6 +731,34 @@ export default function GuestViewDashboard() {
       <div className="toast-wrap">
         <div className="toast">{toast}</div>
       </div>
+
+      {showDeletedConfirm && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: '#fff', borderRadius: 16, padding: '2rem', maxWidth: 480, width: '90%', boxShadow: '0 20px 60px rgba(0,0,0,0.15)' }}>
+            <div style={{ fontSize: 32, marginBottom: 12, textAlign: 'center' }}>👋</div>
+            <h2 style={{ fontSize: 18, fontWeight: 600, color: '#1a1a18', marginBottom: 12, textAlign: 'center' }}>Sorry to see you go</h2>
+            <p style={{ fontSize: 14, color: '#6b6b65', lineHeight: 1.7, marginBottom: 16 }}>
+              We confirm that all your data has been permanently deleted from our systems, including:
+            </p>
+            <div style={{ background: '#f7f6f3', borderRadius: 8, padding: '12px 16px', marginBottom: 16, fontSize: 13, color: '#1a1a18', lineHeight: 2 }}>
+              <div>✓ All unit and property information</div>
+              <div>✓ Your OwnerRez API connection</div>
+              <div>✓ All building announcements</div>
+              <div>✓ Your account profile and branding</div>
+              <div>✓ Your GuestView account</div>
+            </div>
+            <p style={{ fontSize: 12, color: '#9b9b94', marginBottom: 20, lineHeight: 1.6 }}>
+              This deletion is permanent and cannot be undone. If you ever want to return, you are welcome to create a new account at any time.
+            </p>
+            <button
+              style={{ width: '100%', height: 44, background: '#1D9E75', color: '#fff', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}
+              onClick={() => { setShowDeletedConfirm(false); router.push('/guestview/onboard'); }}
+            >
+              I acknowledge — goodbye
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 }

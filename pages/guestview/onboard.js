@@ -57,7 +57,7 @@ export default function GuestViewOnboard() {
             if (data.url) setUrl(data.url);
             await saveUnitsToSupabase(session.user.id, data);
             localStorage.removeItem('guestview_onboard_data');
-            setStep(6);
+            handleSaveUnits();
           } else {
             // Check if already has units — if so go to dashboard
             const res = await fetch(`/api/guestview/get-units?user_id=${session.user.id}`);
@@ -65,16 +65,16 @@ export default function GuestViewOnboard() {
             if (data.units?.length > 0) {
               window.location.href = '/guestview';
             } else {
-              setStep(6);
+              handleSaveUnits();
             }
           }
-        } catch (e) { setStep(6); }
+        } catch (e) { handleSaveUnits(); }
       }
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_e, session) => {
       if (session?.user) {
         setUser(session.user);
-        setStep(6);
+        handleSaveUnits();
       }
     });
     return () => subscription.unsubscribe();
@@ -530,7 +530,7 @@ export default function GuestViewOnboard() {
           {step === 2 && (
             <>
               <h1>Are these your units?</h1>
-              <p className="sub">We found {activeCount} units. Uncheck any you don't want on GuestView, then fill in WiFi and TV details.</p>
+              <p className="sub">Check the units you want to include in your plan. Unchecked units are saved to your account and can be activated anytime from your dashboard.</p>
               <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
                 <button className="btn-outline btn" style={{ height: 32, fontSize: 12, padding: '0 14px' }}
                   onClick={() => {
@@ -555,7 +555,12 @@ export default function GuestViewOnboard() {
                     <tbody>
                       {b.units.map((u, uIdx) => (
                         <tr key={uIdx} className={u.active ? '' : 'inactive'}>
-                          <td><div className={`checkbox ${u.active ? 'checked' : ''}`} onClick={() => toggleUnit(bIdx, uIdx)}>{u.active && <span className="check-mark">✓</span>}</div></td>
+                          <td style={{ minWidth: 130 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }} onClick={() => toggleUnit(bIdx, uIdx)}>
+                              <div className={`checkbox ${u.active ? 'checked' : ''}`}>{u.active && <span className="check-mark">✓</span>}</div>
+                              <span style={{ fontSize: 11, color: u.active ? '#0F6E56' : '#9b9b94', fontWeight: 500 }}>{u.active ? 'Include in my plan' : 'Save for later'}</span>
+                            </div>
+                          </td>
                           <td style={{ fontSize: 12, color: '#6b6b65', paddingLeft: 4 }}>{u.name}</td>
                           <td><input type="text" placeholder="707" value={u.unit_number} onChange={e => updateUnit(bIdx, uIdx, 'unit_number', e.target.value)} disabled={!u.active} /></td>
                           <td><input type="text" placeholder="Network" value={u.wifi_name} onChange={e => handleWifiChange(bIdx, uIdx, 'wifi_name', e.target.value)} disabled={!u.active || (wifiSameBuilding[`b${bIdx}`] && uIdx > 0)} /></td>
@@ -666,32 +671,7 @@ export default function GuestViewOnboard() {
             </>
           )}
 
-          {step === 6 && user && (
-            <>
-              <h1>Connect OwnerRez</h1>
-              <p className="sub">GuestView reads your guest's name and check-in / check-out dates to personalize each TV screen. We encrypt your API key — we never see it in plain text.</p>
-              {orError && <div className="err">{orError}</div>}
-              {!orSample ? (
-                <div className="or-form">
-                  <label>OwnerRez account email</label>
-                  <input type="text" placeholder="you@example.com" value={orEmail} onChange={e => setOrEmail(e.target.value)} />
-                  <label>OwnerRez API key</label>
-                  <input type="text" placeholder="Paste your API key" value={orKey} onChange={e => setOrKey(e.target.value)} style={{ fontFamily: 'DM Mono, monospace', fontSize: 12 }} />
-                  <div style={{ fontSize: 12, color: '#9b9b94', marginBottom: 10, marginTop: -4, padding: '6px 10px', background: '#f7f6f3', borderRadius: 6 }}>
-                    Not ready to connect yet? Enter <strong style={{ fontFamily: 'DM Mono, monospace' }}>1111</strong> as your API key to explore with sample guest data first.
-                  </div>
-                  <button className="btn btn-primary" onClick={handleConnectClick} disabled={orValidating || !orEmail || !orKey} style={{ width: '100%', marginTop: 4 }}>
-                    {orValidating ? <><span className="spinner" />Connecting...</> : 'Connect OwnerRez →'}
-                  </button>
-                </div>
-              ) : (
-                <div className="or-sample">
-                  {orSample ? <>✓ Connected — found booking for <strong>{orSample.guest_first_name}</strong>, arriving <strong>{orSample.arrival}</strong>, departing <strong>{orSample.departure}</strong></> : '✓ Connected in demo mode — sample guest data ready'}
-                </div>
-              )}
-              {saving && <p style={{ fontSize: 13, color: '#9b9b94', marginTop: 10 }}>Saving your units...</p>}
-            </>
-          )}
+          {step === 6 && user && null /* OR connection moved to dashboard activate flow */}
 
           {/* Consent Modal */}
           {showConsentModal && (

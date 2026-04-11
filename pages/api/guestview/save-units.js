@@ -31,7 +31,6 @@ export default async function handler(req, res) {
     await supabase.from('guestview_units').delete().eq('user_id', user_id);
 
     const rows = units
-      .filter(u => u.active !== false)
       .map(u => ({
         user_id,
         building: u.building,
@@ -40,8 +39,8 @@ export default async function handler(req, res) {
         wifi_name: u.wifi_name || null,
         wifi_password: u.wifi_password || null,
         tv_brand: u.tv_brand || null,
-        tv_url: generateTvUrl(user_slug || user_id.substring(0, 8), u.building, u.name, u.unit_number),
-        active: true
+        tv_url: u.active !== false ? generateTvUrl(user_slug || user_id.substring(0, 8), u.building, u.name, u.unit_number) : null,
+        active: u.active !== false
       }));
 
     const { error } = await supabase.from('guestview_units').insert(rows);

@@ -69,7 +69,20 @@ export default function GuestViewDashboard() {
       if (!session?.user) { router.push('/guestview/onboard'); return; }
       setUser(session.user);
       const ok = await loadData(session.user.id);
-      if (!ok) { try { await supabase.auth.signOut(); } catch(_){} router.push('/guestview/onboard'); return; }
+      if (!ok) {
+        // Ghost auth user — delete it server-side then sign out
+        try {
+          await fetch('/api/guestview/delete-account', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ user_id: session.user.id })
+          });
+        } catch(_) {}
+        try { await supabase.auth.signOut(); } catch(_) {}
+        try { localStorage.clear(); } catch(_) {}
+        router.push('/guestview/onboard');
+        return;
+      }
       setLoading(false);
       setAuthed(true);
     });

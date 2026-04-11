@@ -3,11 +3,13 @@ import { createClient } from '@supabase/supabase-js';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 
+let _supabase;
 function getSupabase() {
-  return createClient(
+  if (!_supabase) _supabase = createClient(
     process.env.NEXT_PUBLIC_GUESTVIEW_SUPABASE_URL,
     process.env.NEXT_PUBLIC_GUESTVIEW_SUPABASE_ANON_KEY
   );
+  return _supabase;
 }
 
 const TV_BRANDS = ['Samsung', 'LG', 'Sony', 'Vizio', 'TCL', 'Hisense', 'Toshiba', 'Other'];

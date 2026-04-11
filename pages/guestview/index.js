@@ -95,7 +95,7 @@ export default function GuestViewDashboard() {
 
   async function loadData(userId) {
     try {
-      const res = await fetch(`/api/guestview/get-units?user_id=${userId}`);
+      const res = await fetch(`/api/guestview/get-units?user_id=${userId}&_=${Date.now()}`);
       const data = await res.json();
       // No profile = deleted or ghost account — boot to onboard
       if (!data.profile?.id) return false;

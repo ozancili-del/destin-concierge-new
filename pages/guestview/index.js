@@ -31,6 +31,7 @@ export default function GuestViewDashboard() {
   const [units, setUnits] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [authed, setAuthed] = useState(false);
   const [selectedUnit, setSelectedUnit] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [hasUnsaved, setHasUnsaved] = useState(false);
@@ -69,6 +70,7 @@ export default function GuestViewDashboard() {
       setUser(session.user);
       await loadData(session.user.id);
       setLoading(false);
+      setAuthed(true);
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_OUT') { router.push('/guestview/onboard'); return; }
@@ -284,7 +286,7 @@ export default function GuestViewDashboard() {
     return { dot: 'dot-amber', title: 'Not configured yet', sub: 'Save draft or add to basket when ready' };
   };
 
-  if (loading) return null;
+  if (!authed) return null;
 
   const SectionHeader = ({ sectionKey, label, count, dotClass }) => (
     <div className="sec-header" onClick={() => toggleSection(sectionKey)}>

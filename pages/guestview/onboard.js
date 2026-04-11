@@ -53,6 +53,13 @@ export default function GuestViewOnboard() {
           const saved = localStorage.getItem('guestview_onboard_data');
           if (saved) {
             const data = JSON.parse(saved);
+            const hasUnits = data.buildings?.some(b => b.units?.length > 0);
+            if (!hasUnits) {
+              // Stale or empty localStorage — clear it and go to dashboard
+              localStorage.removeItem('guestview_onboard_data');
+              window.location.href = '/guestview';
+              return;
+            }
             if (data.buildings) setBuildings(data.buildings);
             if (data.checkTimes) setCheckTimes(data.checkTimes);
             if (data.hostInfo) setHostInfo(data.hostInfo);

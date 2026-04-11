@@ -69,7 +69,7 @@ export default function GuestViewDashboard() {
       if (!session?.user) { router.push('/guestview/onboard'); return; }
       setUser(session.user);
       const ok = await loadData(session.user.id);
-      if (!ok) { router.push('/guestview/onboard'); return; }
+      if (!ok) { try { await supabase.auth.signOut(); } catch(_){} router.push('/guestview/onboard'); return; }
       setLoading(false);
       setAuthed(true);
     });
@@ -85,7 +85,7 @@ export default function GuestViewDashboard() {
       const res = await fetch(`/api/guestview/get-units?user_id=${userId}`);
       const data = await res.json();
       // No profile = deleted or ghost account — boot to onboard
-      if (!data.profile) return false;
+      if (!data.profile?.id) return false;
       setUnits(data.units || []);
       setProfile(data.profile);
       setBrandingForm({ brand_name: data.profile.brand_name || '', logo_url: data.profile.logo_url || '', tagline: data.profile.tagline || '' });

@@ -5,9 +5,11 @@ const supabase = createClient(
   process.env.GUESTVIEW_SUPABASE_SERVICE_ROLE_KEY
 );
 
-function generateTvUrl(userSlug, building, unitName) {
+function generateTvUrl(userSlug, building, unitName, unitNumber) {
   const b = building.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').substring(0, 10);
-  const u = unitName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').substring(0, 8);
+  // Use unit number if available, otherwise extract trailing number/word from unit name
+  const uRaw = unitNumber || unitName.replace(/^.*?([\w-]+)$/, '$1');
+  const u = uRaw.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').substring(0, 10);
   return `guestview.destincondogetaways.com/tv/${userSlug}-${b}-${u}`;
 }
 
@@ -38,7 +40,7 @@ export default async function handler(req, res) {
         wifi_name: u.wifi_name || null,
         wifi_password: u.wifi_password || null,
         tv_brand: u.tv_brand || null,
-        tv_url: generateTvUrl(user_slug || user_id.substring(0, 8), u.building, u.name),
+        tv_url: generateTvUrl(user_slug || user_id.substring(0, 8), u.building, u.name, u.unit_number),
         active: true
       }));
 

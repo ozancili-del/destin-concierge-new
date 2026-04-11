@@ -59,9 +59,9 @@ export default function GuestViewDashboard() {
       await loadData(session.user.id);
       setLoading(false);
     });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_e, session) => {
-      if (!session?.user) { router.push('/guestview/onboard'); return; }
-      setUser(session.user);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_OUT') { router.push('/guestview/onboard'); return; }
+      if (session?.user) setUser(session.user);
     });
     return () => subscription.unsubscribe();
   }, []);

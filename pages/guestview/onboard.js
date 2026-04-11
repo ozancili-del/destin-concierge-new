@@ -156,6 +156,13 @@ export default function GuestViewOnboard() {
     }
   }
 
+  async function handleGoogleLogin() {
+    await getSupabase().auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: `${window.location.origin}/guestview` }
+    });
+  }
+
   async function handleCrawl() {
     if (!url.trim() || !legalChecked) return;
     setCrawling(true);
@@ -498,10 +505,16 @@ export default function GuestViewOnboard() {
             <p style={{ fontSize: 14, color: '#6b6b65', lineHeight: 1.7, marginBottom: 16 }}>Enter your email and we'll send you a magic link to access your dashboard.</p>
             {loginError && <div className="err" style={{ marginBottom: 12 }}>{loginError}</div>}
             {!loginSent ? (
-              <div className="input-row">
-                <input type="email" placeholder="you@example.com" value={loginEmail} onChange={e => setLoginEmail(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleLoginMagicLink()} style={{ flex: 1 }} />
-                <button className="btn btn-primary" onClick={handleLoginMagicLink}>Send link →</button>
-              </div>
+              <>
+                <div className="auth-grid" style={{ marginBottom: 16 }}>
+                  <div className="auth-card" onClick={handleGoogleLogin}><div className="auth-icon">G</div><div className="auth-label">Google</div><div className="auth-sublabel">One click</div></div>
+                </div>
+                <div className="divider">or use email</div>
+                <div className="input-row">
+                  <input type="email" placeholder="you@example.com" value={loginEmail} onChange={e => setLoginEmail(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleLoginMagicLink()} style={{ flex: 1 }} />
+                  <button className="btn btn-primary" onClick={handleLoginMagicLink}>Send link →</button>
+                </div>
+              </>
             ) : (
               <div className="sent-box"><p>Magic link sent to <strong>{loginEmail}</strong>.<br />Click the link in your inbox to go straight to your dashboard.</p></div>
             )}

@@ -33,7 +33,6 @@ export default function GuestViewDashboard() {
   const [modalOpen, setModalOpen] = useState(false);
   const [hasUnsaved, setHasUnsaved] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [publishing, setPublishing] = useState(false);
   const [showAddAnnounce, setShowAddAnnounce] = useState(false);
   const [activeNav, setActiveNav] = useState('units');
   const [form, setForm] = useState({});
@@ -50,6 +49,16 @@ export default function GuestViewDashboard() {
   const [goLiveError, setGoLiveError] = useState('');
   const [goLiveLoading, setGoLiveLoading] = useState(false);
   const [showGoLiveConsent, setShowGoLiveConsent] = useState(false);
+
+  // Basket: set of unit IDs
+  const [basket, setBasket] = useState(new Set());
+
+  // Collapsible sections: default all collapsed
+  const [openSections, setOpenSections] = useState({ selected: false, notSelected: false, published: false });
+
+  // Basket view
+  const [showBasket, setShowBasket] = useState(false);
+  const [showPreviewConfirm, setShowPreviewConfirm] = useState(false);
 
   useEffect(() => {
     const supabase = getSupabase();
@@ -128,14 +137,8 @@ export default function GuestViewDashboard() {
     }
   }
 
-  async function handlePublish() {
-    if (profile?.mock_mode) {
-      setModalOpen(false);
-      setShowPublishBlocker(true);
-      return;
-    }
+  async function handlePushUpdate() {
     if (hasUnsaved) await handleSave();
-    setPublishing(true);
     try {
       const res = await fetch('/api/guestview/publish-unit', {
         method: 'POST',
@@ -146,12 +149,29 @@ export default function GuestViewDashboard() {
       if (!res.ok) throw new Error(data.error);
       setUnits(prev => prev.map(u => u.id === selectedUnit.id ? { ...u, status: 'live', published_at: new Date().toISOString() } : u));
       setModalOpen(false);
-      showToast('Published! TV dashboard is now live.');
+      showToast('Update pushed to TV.');
     } catch (e) {
-      showToast('Publish failed. Try again.');
-    } finally {
-      setPublishing(false);
+      showToast('Push failed. Try again.');
     }
+  }
+
+  function handleAddToBasket() {
+    if (!selectedUnit.wifi_name || !selectedUnit.wifi_password || !selectedUnit.tv_brand) {
+      // soft warning — ask if they previewed
+      setShowPreviewConfirm(true);
+      return;
+    }
+    doAddToBasket();
+  }
+
+  function doAddToBasket() {
+    setBasket(prev => new Set([...prev, selectedUnit.id]));
+    setModalOpen(false);
+    showToast('Added to basket.');
+  }
+
+  function removeFromBasket(unitId) {
+    setBasket(prev => { const n = new Set(prev); n.delete(unitId); return n; });
   }
 
   function handlePreview() {
@@ -239,30 +259,78 @@ export default function GuestViewDashboard() {
     setTimeout(() => setToast(''), 2500);
   }
 
-  const buildingGroups = units.reduce((acc, u) => {
-    if (!acc[u.building]) acc[u.building] = [];
-    acc[u.building].push(u);
-    return acc;
-  }, {});
+  function toggleSection(key) {
+    setOpenSections(prev => ({ ...prev, [key]: !prev[key] }));
+  }
+
+  // Categorise units
+  const publishedUnits = units.filter(u => u.status === 'live');
+  const selectedUnits = units.filter(u => u.active && u.status !== 'live');
+  const notSelectedUnits = units.filter(u => !u.active && u.status !== 'live');
+
+  const basketUnits = units.filter(u => basket.has(u.id));
+  const basketTotal = (basketUnits.length * 4.99).toFixed(2);
 
   const unitAnnouncements = selectedUnit
     ? announcements.filter(a => a.building === selectedUnit.building)
     : [];
 
-  const statusInfo = (unit) => {
-    if (unit.status === 'live') return { label: 'Live', cls: 'pill-live' };
-    if (unit.status === 'draft') return { label: 'Draft', cls: 'pill-draft' };
-    return { label: 'Not published', cls: 'pill-empty' };
-  };
-
   const modalStatus = () => {
     if (hasUnsaved) return { dot: 'dot-red', title: selectedUnit?.status === 'live' ? 'Live — unsaved changes' : 'Unsaved changes', sub: 'Save your changes first' };
     if (selectedUnit?.status === 'live') return { dot: 'dot-green', title: `Live — published ${selectedUnit.published_at ? new Date(selectedUnit.published_at).toLocaleDateString() : ''}`, sub: 'Up to date' };
-    if (selectedUnit?.status === 'draft') return { dot: 'dot-amber', title: 'Draft saved — not yet published', sub: 'Preview before publishing' };
-    return { dot: 'dot-amber', title: 'Not published yet', sub: 'Save draft or publish when ready' };
+    if (selectedUnit?.status === 'draft') return { dot: 'dot-amber', title: 'Draft saved — not yet in basket', sub: 'Preview, then add to basket' };
+    return { dot: 'dot-amber', title: 'Not configured yet', sub: 'Save draft or add to basket when ready' };
   };
 
   if (loading) return null;
+
+  const SectionHeader = ({ sectionKey, label, count, dotClass }) => (
+    <div className="sec-header" onClick={() => toggleSection(sectionKey)}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <span className={`sec-dot ${dotClass}`} />
+        <span className="sec-label">{label}</span>
+        <span className="sec-count">{count} unit{count !== 1 ? 's' : ''}</span>
+      </div>
+      <span className="sec-chevron">{openSections[sectionKey] ? '▲' : '▼'}</span>
+    </div>
+  );
+
+  const UnitCard = ({ unit, section }) => {
+    const inBasket = basket.has(unit.id);
+    return (
+      <div className="unit-card" style={{ maxWidth: 680, background: section === 'notSelected' ? '#fafaf8' : '#fff' }}>
+        <div style={{ cursor: 'pointer', flex: 1 }} onClick={() => openUnit(unit)}>
+          <div className="unit-name" style={{ color: section === 'notSelected' ? '#6b6b65' : '#1a1a18' }}>{unit.unit_name}</div>
+          <div className="unit-sub">
+            Unit {unit.unit_number || '—'}
+            {section === 'notSelected' && ' · Not configured'}
+            {section === 'selected' && unit.status === 'draft' && ' · Draft saved'}
+            {section === 'selected' && unit.status !== 'draft' && ' · Not configured'}
+            {section === 'published' && unit.published_at && ` · Published ${new Date(unit.published_at).toLocaleDateString()}`}
+          </div>
+        </div>
+        <div className="unit-right">
+          {section === 'published' && (
+            <span className="pill pill-live"><span className="pill-dot" />Live</span>
+          )}
+          {section === 'selected' && inBasket && (
+            <span className="pill pill-draft"><span className="pill-dot" />In basket</span>
+          )}
+          {section === 'notSelected' && (
+            <button className="btn-inline btn-select" onClick={async (e) => {
+              e.stopPropagation();
+              const res = await fetch('/api/guestview/update-unit', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ unit_id: unit.id, user_id: user.id, active: true, status: 'draft' })
+              });
+              if (res.ok) { setUnits(prev => prev.map(u => u.id === unit.id ? { ...u, active: true, status: 'draft' } : u)); showToast('Unit selected.'); }
+            }}>Select →</button>
+          )}
+          <span className="arrow" style={{ cursor: 'pointer' }} onClick={() => openUnit(unit)}>›</span>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <>
@@ -291,10 +359,28 @@ export default function GuestViewDashboard() {
         .main-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
         .main-header h1 { font-size: 20px; font-weight: 600; color: #1a1a18; }
         .badge-trial { background: #E1F5EE; color: #0F6E56; font-size: 11px; font-weight: 500; padding: 3px 12px; border-radius: 20px; }
-        .building-label { font-size: 10px; font-weight: 500; color: #9b9b94; text-transform: uppercase; letter-spacing: 0.5px; margin: 1.25rem 0 6px; }
-        .unit-card { background: #fff; border: 1px solid #e8e6e0; border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 8px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: border-color 0.15s; max-width: 680px; }
-        .unit-card:hover { border-color: #c8c6c0; }
-        .unit-name { font-size: 15px; font-weight: 500; color: #1a1a18; }
+        /* Basket chip */
+        .basket-chip { display: flex; align-items: center; gap: 8px; background: #fff; border: 1px solid #e8e6e0; border-radius: 20px; padding: 6px 14px; font-size: 13px; color: #1a1a18; cursor: pointer; transition: border-color 0.15s; }
+        .basket-chip:hover { border-color: #1D9E75; }
+        .basket-badge { background: #1D9E75; color: #fff; border-radius: 99px; font-size: 11px; font-weight: 600; padding: 1px 7px; }
+        .basket-price { font-size: 12px; color: #6b6b65; }
+        /* Collapsible sections */
+        .sec-wrap { border: 1px solid #e8e6e0; border-radius: 12px; margin-bottom: 10px; overflow: hidden; max-width: 680px; }
+        .sec-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: #fff; cursor: pointer; user-select: none; }
+        .sec-header:hover { background: #fafaf8; }
+        .sec-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .sec-dot-selected { background: #378ADD; }
+        .sec-dot-notSelected { background: #c8c6c0; }
+        .sec-dot-published { background: #1D9E75; }
+        .sec-label { font-size: 14px; font-weight: 500; color: #1a1a18; }
+        .sec-count { font-size: 12px; color: #9b9b94; background: #f7f6f3; border-radius: 99px; padding: 1px 8px; }
+        .sec-chevron { font-size: 10px; color: #9b9b94; }
+        .sec-body { border-top: 1px solid #e8e6e0; }
+        /* Unit cards */
+        .unit-card { background: #fff; border-bottom: 1px solid #f0ede8; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; transition: background 0.1s; }
+        .unit-card:last-child { border-bottom: none; }
+        .unit-card:hover { background: #fafaf8; }
+        .unit-name { font-size: 14px; font-weight: 500; color: #1a1a18; }
         .unit-sub { font-size: 12px; color: #9b9b94; margin-top: 2px; }
         .unit-right { display: flex; align-items: center; gap: 10px; }
         .pill { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; }
@@ -303,6 +389,10 @@ export default function GuestViewDashboard() {
         .pill-empty { background: #f7f6f3; color: #9b9b94; border: 1px solid #e8e6e0; }
         .pill-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
         .arrow { font-size: 18px; color: #9b9b94; }
+        .btn-inline { font-size: 12px; padding: 4px 12px; border-radius: 6px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; border: none; transition: all 0.15s; }
+        .btn-select { background: #E6F1FB; color: #185FA5; border: 0.5px solid #B5D4F4; }
+        .btn-select:hover { background: #B5D4F4; }
+        /* Modal */
         .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; align-items: center; justify-content: center; padding: 1.5rem; }
         .modal-bg.open { display: flex; }
         .modal { background: #fff; border-radius: 16px; width: 100%; max-width: 820px; max-height: 90vh; display: flex; flex-direction: column; border: 1px solid #e8e6e0; overflow: hidden; }
@@ -356,14 +446,20 @@ export default function GuestViewDashboard() {
         .empty-state { text-align: center; padding: 3rem 1rem; color: #9b9b94; font-size: 14px; }
         .toast-wrap { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 200; pointer-events: none; transition: opacity 0.3s; opacity: ${toast ? 1 : 0}; }
         .toast { background: #1a1a18; color: #fff; font-size: 13px; padding: 10px 18px; border-radius: 8px; white-space: nowrap; }
+        /* Basket modal */
+        .basket-modal { background: #fff; border-radius: 16px; width: 100%; max-width: 480px; border: 1px solid #e8e6e0; overflow: hidden; }
+        .basket-unit-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0ede8; }
+        .basket-unit-row:last-child { border-bottom: none; }
+        .basket-remove { background: none; border: none; color: #9b9b94; cursor: pointer; font-size: 18px; padding: 0 4px; line-height: 1; }
+        .basket-remove:hover { color: #E24B4A; }
+        .basket-total { display: flex; justify-content: space-between; align-items: center; padding: 12px 0 0; font-size: 14px; font-weight: 500; color: #1a1a18; border-top: 1px solid #e8e6e0; margin-top: 4px; }
       `}</style>
 
       <div className="shell">
         <div className="sidebar">
           <div className="sb-logo">Guest<span>View</span></div>
           <div className="sb-section">Manage</div>
-          <div className={`sb-item ${activeNav === 'units' ? 'active' : ''}`} onClick={() => setActiveNav('units')}><span className="sb-dot" />My active units</div>
-
+          <div className={`sb-item ${activeNav === 'units' ? 'active' : ''}`} onClick={() => setActiveNav('units')}><span className="sb-dot" />My units</div>
           <div className={`sb-item ${activeNav === 'announcements' ? 'active' : ''}`} onClick={() => setActiveNav('announcements')}><span className="sb-dot" />Announcements</div>
           <div className="sb-section">Account</div>
           <div className={`sb-item ${activeNav === 'ownerrez' ? 'active' : ''}`} onClick={() => setActiveNav('ownerrez')}><span className="sb-dot" />OwnerRez</div>
@@ -386,134 +482,63 @@ export default function GuestViewDashboard() {
               <button className="btn" style={{ background: '#EF9F27', color: '#fff', border: 'none', whiteSpace: 'nowrap', fontSize: 12 }} onClick={() => setShowGoLiveModal(true)}>Go live →</button>
             </div>
           )}
+
           {activeNav === 'units' && (
             <>
               <div className="main-header">
                 <h1>My units</h1>
-                <span className="badge-trial">Trial · $4.99/TV/mo</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span className="badge-trial">$4.99/TV/mo</span>
+                  {basket.size > 0 && (
+                    <div className="basket-chip" onClick={() => setShowBasket(true)}>
+                      <span>Basket</span>
+                      <span className="basket-badge">{basket.size}</span>
+                      <span className="basket-price">${basketTotal}/mo</span>
+                    </div>
+                  )}
+                </div>
               </div>
 
-              {/* In my plan */}
-              {units.filter(u => u.active).length > 0 && (
-                <>
-                  <div className="building-label" style={{ marginTop: 0 }}>In my plan</div>
-                  <p style={{ fontSize: 12, color: '#9b9b94', marginBottom: 12, marginTop: -4 }}>These units will be active when you go live.</p>
-                  {Object.entries(
-                    units.filter(u => u.active).reduce((acc, u) => { if (!acc[u.building]) acc[u.building] = []; acc[u.building].push(u); return acc; }, {})
-                  ).map(([building, bUnits]) => (
-                    <div key={building}>
-                      <div style={{ fontSize: 11, color: '#9b9b94', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 6, marginTop: 12 }}>{building}</div>
-                      {bUnits.map(unit => (
-                        <div key={unit.id} className="unit-card" style={{ maxWidth: 680 }}>
-                          <div style={{ cursor: 'pointer', flex: 1 }} onClick={() => openUnit(unit)}>
-                            <div className="unit-name">{unit.unit_name}</div>
-                            <div className="unit-sub">Unit {unit.unit_number || '—'}</div>
-                          </div>
-                          <div className="unit-right">
-                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11, fontWeight: 500, padding: '3px 10px', borderRadius: 6, background: '#E1F5EE', color: '#0F6E56' }}>
-                              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#1D9E75', display: 'inline-block' }} />In plan
-                            </span>
-                            <button style={{ fontSize: 11, color: '#9b9b94', background: 'none', border: '0.5px solid #e8e6e0', borderRadius: 6, padding: '3px 10px', cursor: 'pointer' }}
-                              onClick={async (e) => {
-                                e.stopPropagation();
-                                const res = await fetch('/api/guestview/update-unit', {
-                                  method: 'POST', headers: { 'Content-Type': 'application/json' },
-                                  body: JSON.stringify({ unit_id: unit.id, user_id: user.id, active: false })
-                                });
-                                if (res.ok) { setUnits(prev => prev.map(u => u.id === unit.id ? { ...u, active: false } : u)); showToast('Removed from plan.'); }
-                              }}>Remove from plan</button>
-                            <span className="arrow" style={{ cursor: 'pointer' }} onClick={() => openUnit(unit)}>›</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ))}
-                </>
-              )}
+              {/* Selected */}
+              <div className="sec-wrap">
+                <SectionHeader sectionKey="selected" label="Selected" count={selectedUnits.length} dotClass="sec-dot-selected" />
+                {openSections.selected && (
+                  <div className="sec-body">
+                    {selectedUnits.length === 0
+                      ? <div style={{ padding: '12px 16px', fontSize: 13, color: '#9b9b94' }}>No selected units yet.</div>
+                      : selectedUnits.map(unit => <UnitCard key={unit.id} unit={unit} section="selected" />)
+                    }
+                  </div>
+                )}
+              </div>
 
-              {/* Not in plan */}
-              {units.filter(u => !u.active).length > 0 && (
-                <>
-                  <div className="building-label" style={{ marginTop: 20 }}>Not in plan</div>
-                  <p style={{ fontSize: 12, color: '#9b9b94', marginBottom: 12, marginTop: -4 }}>Saved from your website. Add to your plan anytime — no charge until you go live.</p>
-                  {Object.entries(
-                    units.filter(u => !u.active).reduce((acc, u) => { if (!acc[u.building]) acc[u.building] = []; acc[u.building].push(u); return acc; }, {})
-                  ).map(([building, bUnits]) => (
-                    <div key={building}>
-                      <div style={{ fontSize: 11, color: '#9b9b94', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 6, marginTop: 12 }}>{building}</div>
-                      {bUnits.map(unit => (
-                        <div key={unit.id} className="unit-card" style={{ maxWidth: 680, background: '#fafaf8', cursor: 'default' }}>
-                          <div>
-                            <div className="unit-name" style={{ color: '#6b6b65' }}>{unit.unit_name}</div>
-                            <div className="unit-sub">Unit {unit.unit_number || '—'} · Not configured</div>
-                          </div>
-                          <div className="unit-right">
-                            <span style={{ fontSize: 11, fontWeight: 500, padding: '3px 10px', borderRadius: 6, background: '#f0ede8', color: '#9b9b94', border: '0.5px solid #e8e6e0' }}>Not in plan</span>
-                            <button style={{ fontSize: 12, color: '#185FA5', background: 'none', border: '0.5px solid #B5D4F4', borderRadius: 6, padding: '4px 12px', cursor: 'pointer' }}
-                              onClick={async () => {
-                                const res = await fetch('/api/guestview/update-unit', {
-                                  method: 'POST', headers: { 'Content-Type': 'application/json' },
-                                  body: JSON.stringify({ unit_id: unit.id, user_id: user.id, active: true, status: 'draft' })
-                                });
-                                if (res.ok) { setUnits(prev => prev.map(u => u.id === unit.id ? { ...u, active: true, status: 'draft' } : u)); showToast('Added to your plan.'); }
-                              }}>Add to plan →</button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ))}
-                </>
-              )}
+              {/* Not selected */}
+              <div className="sec-wrap">
+                <SectionHeader sectionKey="notSelected" label="Not selected" count={notSelectedUnits.length} dotClass="sec-dot-notSelected" />
+                {openSections.notSelected && (
+                  <div className="sec-body">
+                    {notSelectedUnits.length === 0
+                      ? <div style={{ padding: '12px 16px', fontSize: 13, color: '#9b9b94' }}>All units are selected.</div>
+                      : notSelectedUnits.map(unit => <UnitCard key={unit.id} unit={unit} section="notSelected" />)
+                    }
+                  </div>
+                )}
+              </div>
+
+              {/* Published */}
+              <div className="sec-wrap">
+                <SectionHeader sectionKey="published" label="Published" count={publishedUnits.length} dotClass="sec-dot-published" />
+                {openSections.published && (
+                  <div className="sec-body">
+                    {publishedUnits.length === 0
+                      ? <div style={{ padding: '12px 16px', fontSize: 13, color: '#9b9b94' }}>No published units yet.</div>
+                      : publishedUnits.map(unit => <UnitCard key={unit.id} unit={unit} section="published" />)
+                    }
+                  </div>
+                )}
+              </div>
 
               {units.length === 0 && <div className="empty-state">No units found. Something went wrong — contact support.</div>}
-            </>
-          )}
-
-          {activeNav === 'saved' && (
-            <>
-              <div className="main-header">
-                <h1>My saved units</h1>
-                <span style={{ fontSize: 12, color: '#9b9b94' }}>Activate units to include them in your plan</span>
-              </div>
-              {units.filter(u => !u.active).length === 0 ? (
-                <div className="empty-state">No saved units. All your units are active.</div>
-              ) : (
-                Object.entries(
-                  units.filter(u => !u.active).reduce((acc, u) => {
-                    if (!acc[u.building]) acc[u.building] = [];
-                    acc[u.building].push(u);
-                    return acc;
-                  }, {})
-                ).map(([building, bUnits]) => (
-                  <div key={building}>
-                    <div className="building-label">{building}</div>
-                    {bUnits.map(unit => (
-                      <div key={unit.id} className="unit-card" style={{ maxWidth: 680 }}>
-                        <div>
-                          <div className="unit-name">{unit.unit_name}</div>
-                          <div className="unit-sub">Unit {unit.unit_number || '—'} · Saved for later</div>
-                        </div>
-                        <div className="unit-right">
-                          <button className="btn btn-primary" style={{ fontSize: 12, height: 32, padding: '0 16px' }}
-                            onClick={async () => {
-                              const res = await fetch('/api/guestview/update-unit', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ unit_id: unit.id, user_id: user.id, active: true, status: 'draft' })
-                              });
-                              if (res.ok) {
-                                setUnits(prev => prev.map(u => u.id === unit.id ? { ...u, active: true, status: 'draft' } : u));
-                                showToast('Unit activated — complete setup from My active units.');
-                              }
-                            }}>
-                            Activate →
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ))
-              )}
             </>
           )}
 
@@ -527,10 +552,10 @@ export default function GuestViewDashboard() {
                   const now = new Date();
                   const start = new Date(a.starts_at);
                   const end = new Date(a.expires_at);
-                  const now2 = new Date();
-                  const isExpired = now2 > end;
-                  const isLive = now2 >= start && now2 <= end;
-                  const fmt = d => { const s = typeof d === 'string' ? d.replace('T',' ').replace('+00:00','').replace('.000Z','') : ''; const dt = new Date(s + (s.includes('T') || s.includes(' ') ? '' : '')); return dt.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true }); };
+                  const isExpired = now > end;
+                  const isLive = now >= start && now <= end;
+                  const fmt = d => { const s = typeof d === 'string' ? d.replace('T',' ').replace('+00:00','').replace('.000Z','') : ''; const dt = new Date(s); return dt.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true }); };
+                  if (isExpired) return null;
                   return (
                     <div key={i} className="announce-row" style={{ maxWidth: 680, marginBottom: 8 }}>
                       <div style={{ flex: 1 }}>
@@ -570,15 +595,14 @@ export default function GuestViewDashboard() {
               <div className="main-header"><h1>Branding</h1></div>
               <div className="section" style={{ maxWidth: 480 }}>
                 <h3>Your brand</h3>
-                <div className="field-grid" style={{ gap: 10 }}>
-                  <div className="field full"><label>Brand name</label><input type="text" placeholder="e.g. Vacations at Destin" value={brandingForm.brand_name} onChange={e => setBrandingForm(p => ({...p, brand_name: e.target.value}))} /></div>
-                  <div className="field full"><label>Logo URL</label><input type="text" placeholder="https://... (replaces Destiny Blue on TV)" value={brandingForm.logo_url} onChange={e => setBrandingForm(p => ({...p, logo_url: e.target.value}))} /></div>
-                  <div className="field full"><label>Tagline</label><input type="text" placeholder="e.g. Your Gulf Coast home away from home" value={brandingForm.tagline} onChange={e => setBrandingForm(p => ({...p, tagline: e.target.value}))} /></div>
+                <div className="field-grid">
+                  <div className="field full"><label>Brand name</label><input type="text" value={brandingForm.brand_name} onChange={e => setBrandingForm(p => ({ ...p, brand_name: e.target.value }))} /></div>
+                  <div className="field full"><label>Logo URL</label><input type="text" value={brandingForm.logo_url} onChange={e => setBrandingForm(p => ({ ...p, logo_url: e.target.value }))} /></div>
+                  <div className="field full"><label>Tagline</label><input type="text" value={brandingForm.tagline} onChange={e => setBrandingForm(p => ({ ...p, tagline: e.target.value }))} /></div>
                 </div>
-                <button className="btn btn-primary" style={{ marginTop: 12 }} onClick={async () => {
+                <button className="btn btn-primary btn-sm" style={{ marginTop: 12 }} onClick={async () => {
                   const res = await fetch('/api/guestview/save-branding', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: user.id, ...brandingForm }) });
-                  if (res.ok) { setProfile(prev => ({ ...prev, ...brandingForm })); showToast('Branding saved.'); }
-                  else showToast('Save failed. Try again.');
+                  if (res.ok) showToast('Branding saved.'); else showToast('Save failed.');
                 }}>Save branding</button>
               </div>
             </>
@@ -588,19 +612,200 @@ export default function GuestViewDashboard() {
             <>
               <div className="main-header"><h1>Settings</h1></div>
               <div className="section" style={{ maxWidth: 480 }}>
-                <h3>Account</h3>
-                <div style={{ fontSize: 13, color: '#6b6b65', marginBottom: 12 }}>Signed in as <strong>{user?.email}</strong></div>
-                <button className="btn btn-ghost" onClick={handleSignOut}>Sign out</button>
-              </div>
-              <div className="section" style={{ maxWidth: 480, marginTop: 12, borderColor: '#fecaca' }}>
-                <h3 style={{ color: '#dc2626' }}>Danger zone</h3>
-                <div style={{ fontSize: 13, color: '#6b6b65', marginBottom: 12 }}>Permanently delete your account and all data. This cannot be undone.</div>
-                <button className="btn" style={{ background: 'transparent', border: '1px solid #fecaca', color: '#dc2626' }} onClick={() => setShowDeleteModal(true)}>Delete my account</button>
+                <h3>Danger zone</h3>
+                <div style={{ fontSize: 13, color: '#6b6b65', marginBottom: 12 }}>Permanently delete your account and all associated data.</div>
+                <button className="btn" style={{ background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca' }} onClick={() => setShowDeleteModal(true)}>Delete account</button>
               </div>
             </>
           )}
         </div>
       </div>
+
+      {/* Unit configure modal */}
+      {modalOpen && selectedUnit && (() => {
+        const ms = modalStatus();
+        const isPublished = selectedUnit.status === 'live';
+        const inBasket = basket.has(selectedUnit.id);
+        const unitAnnouncements = announcements.filter(a => a.building === selectedUnit.building);
+        return (
+          <div className="modal-bg open" onClick={e => { if (e.target.classList.contains('modal-bg')) setModalOpen(false); }}>
+            <div className="modal">
+              <div className="modal-header">
+                <div>
+                  <div className="modal-title">{selectedUnit.unit_name} — {selectedUnit.building}</div>
+                  <div className="modal-sub">{selectedUnit.tv_url || 'URL pending publish'}</div>
+                </div>
+                <button className="modal-close" onClick={() => setModalOpen(false)}>×</button>
+              </div>
+
+              <div className="modal-body">
+                <div className="col">
+                  <div className="section">
+                    <h3>Unit details</h3>
+                    <div className="field-grid">
+                      <div className="field"><label>Unit #</label><input type="text" value={form.unit_number} onChange={e => updateForm('unit_number', e.target.value)} /></div>
+                      <div className="field"><label>TV brand</label><input type="text" value={form.tv_brand} onChange={e => updateForm('tv_brand', e.target.value)} /></div>
+                      <div className="field"><label>Check-in</label><input type="text" value={form.checkin_time} onChange={e => updateForm('checkin_time', e.target.value)} /></div>
+                      <div className="field"><label>Check-out</label><input type="text" value={form.checkout_time} onChange={e => updateForm('checkout_time', e.target.value)} /></div>
+                      <div className="field"><label>WiFi name</label><input type="text" value={form.wifi_name} onChange={e => updateForm('wifi_name', e.target.value)} /></div>
+                      <div className="field"><label>WiFi password</label><input type="text" value={form.wifi_password} onChange={e => updateForm('wifi_password', e.target.value)} /></div>
+                      <div className="field full"><label>TV headline</label><input type="text" value={form.headline} onChange={e => updateForm('headline', e.target.value)} /></div>
+                    </div>
+                  </div>
+                  <div className="section">
+                    <h3>Accent color</h3>
+                    <div className="field full">
+                      <label>Pick your color</label>
+                      <input type="color" value={form.accent_color} onChange={e => updateForm('accent_color', e.target.value)} />
+                      <div className="color-preview">
+                        <div className="color-dot" style={{ background: form.accent_color }} />
+                        <span>{form.accent_color === '#48cae4' ? 'Default teal' : `Custom: ${form.accent_color}`}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="col">
+                  <div className="section">
+                    <h3>Host info</h3>
+                    <div className="field-grid">
+                      <div className="field"><label>Name</label><input type="text" value={form.host_name} onChange={e => updateForm('host_name', e.target.value)} /></div>
+                      <div className="field"><label>Phone</label><input type="text" value={form.host_phone} onChange={e => updateForm('host_phone', e.target.value)} /></div>
+                      <div className="field"><label>Email</label><input type="text" value={form.host_email} onChange={e => updateForm('host_email', e.target.value)} /></div>
+                      <div className="field"><label>Website</label><input type="text" value={form.host_website} onChange={e => updateForm('host_website', e.target.value)} /></div>
+                      <div className="field full"><label>Affiliate link</label><input type="text" value={form.affiliate_url} onChange={e => updateForm('affiliate_url', e.target.value)} /></div>
+                    </div>
+                  </div>
+                  <div className="section">
+                    <h3>Building announcements</h3>
+                    {unitAnnouncements.length === 0 && <div style={{ fontSize: 12, color: '#9b9b94', marginBottom: 8 }}>No announcements for this building.</div>}
+                    {unitAnnouncements.map((a, i) => {
+                      const now = new Date();
+                      const end = new Date(a.expires_at);
+                      const start = new Date(a.starts_at);
+                      const isExpired = now > end;
+                      const isLive = now >= start && now <= end;
+                      if (isExpired) return null;
+                      return (
+                        <div key={i} className="announce-row">
+                          <div style={{ flex: 1 }}>
+                            <div className="announce-msg">{a.message}</div>
+                            <div className="announce-meta">{new Date(a.starts_at.replace('+00:00','').replace('Z','')).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true })} – {new Date(a.expires_at.replace('+00:00','').replace('Z','')).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true })}</div>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+                            <span className={`ann-badge ${isLive ? 'ann-live' : 'ann-sched'}`}>{isLive ? 'Live' : 'Scheduled'}</span>
+                            <button onClick={async () => {
+                              await fetch('/api/guestview/delete-announcement', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: a.id, user_id: user.id }) });
+                              setAnnouncements(prev => prev.filter((_, idx) => idx !== i));
+                              showToast('Announcement deleted.');
+                            }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9b9b94', fontSize: 16, padding: '0 4px' }}>×</button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                    <button className="add-btn" onClick={() => setShowAddAnnounce(v => !v)}>+ Add announcement</button>
+                    {showAddAnnounce && (
+                      <div className="add-form">
+                        <select value={announceForm.type} onChange={e => setAnnounceForm(p => ({ ...p, type: e.target.value, customText: '' }))}>
+                          <option value="">Select type...</option>
+                          {ANNOUNCEMENT_TYPES.map(t => <option key={t}>{t}</option>)}
+                        </select>
+                        {announceForm.type && (
+                          <input type="text" placeholder={announceForm.type === 'Custom message' ? 'Type your announcement...' : 'Add details (optional)...'} value={announceForm.customText || ''} onChange={e => setAnnounceForm(p => ({ ...p, customText: e.target.value }))} style={{ marginBottom: 6, width: '100%', height: 32, border: '1px solid #e8e6e0', borderRadius: 8, padding: '0 8px', fontSize: 12, fontFamily: 'DM Sans, sans-serif', outline: 'none' }} />
+                        )}
+                        <div className="date-row">
+                          <input type="datetime-local" value={announceForm.start} onChange={e => setAnnounceForm(p => ({ ...p, start: e.target.value }))} />
+                          <input type="datetime-local" value={announceForm.end} onChange={e => setAnnounceForm(p => ({ ...p, end: e.target.value }))} />
+                        </div>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#6b6b65', marginBottom: 8, cursor: 'pointer' }}>
+                          <input type="checkbox" checked={announceForm.allBuildings || false} onChange={e => setAnnounceForm(p => ({ ...p, allBuildings: e.target.checked }))} />
+                          Apply to all units in this building
+                        </label>
+                        <button className="btn btn-primary btn-sm" onClick={handleSaveAnnouncement}>Save announcement</button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="modal-footer">
+                <div className="footer-status">
+                  <div className={`status-dot ${ms.dot}`} />
+                  <div className="status-text">
+                    <strong>{ms.title}</strong>
+                    <span>{ms.sub}</span>
+                  </div>
+                </div>
+                <div className="footer-btns">
+                  <button className="btn btn-save" onClick={handleSave} disabled={saving || !hasUnsaved}>{saving ? 'Saving...' : 'Save draft'}</button>
+                  <button className="btn btn-ghost" onClick={handlePreview}>Preview TV</button>
+                  {isPublished
+                    ? <button className="btn btn-primary" onClick={handlePushUpdate}>Push update</button>
+                    : inBasket
+                      ? <button className="btn btn-ghost" onClick={() => { removeFromBasket(selectedUnit.id); showToast('Removed from basket.'); setModalOpen(false); }}>Remove from basket</button>
+                      : <button className="btn btn-primary" onClick={handleAddToBasket}>Add to basket</button>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* Preview confirm (soft gate before Add to basket) */}
+      {showPreviewConfirm && (
+        <div className="modal-bg open" onClick={e => { if (e.target.classList.contains('modal-bg')) setShowPreviewConfirm(false); }}>
+          <div className="modal" style={{ maxWidth: 400 }}>
+            <div className="modal-header">
+              <div className="modal-title">Have you previewed this unit?</div>
+              <button className="modal-close" onClick={() => setShowPreviewConfirm(false)}>×</button>
+            </div>
+            <div style={{ padding: '1.25rem 1.5rem' }}>
+              <p style={{ fontSize: 14, color: '#6b6b65', lineHeight: 1.7, marginBottom: 16 }}>Some fields look incomplete. We recommend previewing the TV before adding to basket — but you can skip if you're sure.</p>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button className="btn btn-ghost" style={{ flex: 1 }} onClick={() => { setShowPreviewConfirm(false); handlePreview(); }}>Preview first</button>
+                <button className="btn btn-primary" style={{ flex: 1 }} onClick={() => { setShowPreviewConfirm(false); doAddToBasket(); }}>Add anyway</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Basket modal */}
+      {showBasket && (
+        <div className="modal-bg open" onClick={e => { if (e.target.classList.contains('modal-bg')) setShowBasket(false); }}>
+          <div className="basket-modal">
+            <div className="modal-header">
+              <div className="modal-title">Basket</div>
+              <button className="modal-close" onClick={() => setShowBasket(false)}>×</button>
+            </div>
+            <div style={{ padding: '1.25rem 1.5rem' }}>
+              {basketUnits.length === 0
+                ? <div style={{ fontSize: 13, color: '#9b9b94', textAlign: 'center', padding: '1rem 0' }}>Your basket is empty.</div>
+                : <>
+                    {basketUnits.map(unit => (
+                      <div key={unit.id} className="basket-unit-row">
+                        <div>
+                          <div style={{ fontSize: 14, fontWeight: 500, color: '#1a1a18' }}>{unit.unit_name}</div>
+                          <div style={{ fontSize: 12, color: '#9b9b94' }}>Unit {unit.unit_number || '—'} · $4.99/mo</div>
+                        </div>
+                        <button className="basket-remove" onClick={() => removeFromBasket(unit.id)}>×</button>
+                      </div>
+                    ))}
+                    <div className="basket-total">
+                      <span>{basketUnits.length} unit{basketUnits.length !== 1 ? 's' : ''}</span>
+                      <span>${basketTotal}/mo</span>
+                    </div>
+                    <div style={{ marginTop: 16, display: 'flex', gap: 8 }}>
+                      <button className="btn btn-ghost" style={{ flex: 1 }} onClick={() => setShowBasket(false)}>Keep configuring</button>
+                      <button className="btn btn-primary" style={{ flex: 1 }} onClick={() => { showToast('Stripe coming soon.'); }}>Publish & pay →</button>
+                    </div>
+                  </>
+              }
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Go live modal */}
       {showGoLiveModal && (
@@ -700,141 +905,12 @@ export default function GuestViewDashboard() {
         </div>
       )}
 
-      {modalOpen && selectedUnit && (() => {
-        const ms = modalStatus();
-        return (
-          <div className="modal-bg open" onClick={e => { if (e.target.classList.contains('modal-bg')) setModalOpen(false); }}>
-            <div className="modal">
-              <div className="modal-header">
-                <div>
-                  <div className="modal-title">{selectedUnit.unit_name} — {selectedUnit.building}</div>
-                  <div className="modal-sub">{selectedUnit.tv_url || 'URL pending publish'}</div>
-                </div>
-                <button className="modal-close" onClick={() => setModalOpen(false)}>×</button>
-              </div>
-
-              <div className="modal-body">
-                <div className="col">
-                  <div className="section">
-                    <h3>Unit details</h3>
-                    <div className="field-grid">
-                      <div className="field"><label>Unit #</label><input type="text" value={form.unit_number} onChange={e => updateForm('unit_number', e.target.value)} /></div>
-                      <div className="field"><label>TV brand</label><input type="text" value={form.tv_brand} onChange={e => updateForm('tv_brand', e.target.value)} /></div>
-                      <div className="field"><label>Check-in</label><input type="text" value={form.checkin_time} onChange={e => updateForm('checkin_time', e.target.value)} /></div>
-                      <div className="field"><label>Check-out</label><input type="text" value={form.checkout_time} onChange={e => updateForm('checkout_time', e.target.value)} /></div>
-                      <div className="field"><label>WiFi name</label><input type="text" value={form.wifi_name} onChange={e => updateForm('wifi_name', e.target.value)} /></div>
-                      <div className="field"><label>WiFi password</label><input type="text" value={form.wifi_password} onChange={e => updateForm('wifi_password', e.target.value)} /></div>
-                      <div className="field full"><label>TV headline</label><input type="text" value={form.headline} onChange={e => updateForm('headline', e.target.value)} /></div>
-                    </div>
-                  </div>
-                  <div className="section">
-                    <h3>Accent color</h3>
-                    <div className="field full">
-                      <label>Pick your color</label>
-                      <input type="color" value={form.accent_color} onChange={e => updateForm('accent_color', e.target.value)} />
-                      <div className="color-preview">
-                        <div className="color-dot" style={{ background: form.accent_color }} />
-                        <span>{form.accent_color === '#48cae4' ? 'Default teal' : `Custom: ${form.accent_color}`}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="col">
-                  <div className="section">
-                    <h3>Host info</h3>
-                    <div className="field-grid">
-                      <div className="field"><label>Name</label><input type="text" value={form.host_name} onChange={e => updateForm('host_name', e.target.value)} /></div>
-                      <div className="field"><label>Phone</label><input type="text" value={form.host_phone} onChange={e => updateForm('host_phone', e.target.value)} /></div>
-                      <div className="field"><label>Email</label><input type="text" value={form.host_email} onChange={e => updateForm('host_email', e.target.value)} /></div>
-                      <div className="field"><label>Website</label><input type="text" value={form.host_website} onChange={e => updateForm('host_website', e.target.value)} /></div>
-                      <div className="field full"><label>Affiliate link</label><input type="text" value={form.affiliate_url} onChange={e => updateForm('affiliate_url', e.target.value)} /></div>
-                    </div>
-                  </div>
-                  <div className="section">
-                    <h3>Building announcements</h3>
-                    {unitAnnouncements.length === 0 && <div style={{ fontSize: 12, color: '#9b9b94', marginBottom: 8 }}>No announcements for this building.</div>}
-                    {unitAnnouncements.map((a, i) => {
-                      const now = new Date();
-                      const start = new Date(a.starts_at);
-                      const end = new Date(a.expires_at);
-                      const isExpired = now > end;
-                      const isLive = now >= start && now <= end;
-                      const isScheduled = start > now;
-                      if (isExpired) return null;
-                      return (
-                        <div key={i} className="announce-row">
-                          <div style={{ flex: 1 }}>
-                            <div className="announce-msg">{a.message}</div>
-                            <div className="announce-meta">{new Date(a.starts_at.replace('+00:00','').replace('Z','')).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true })} – {new Date(a.expires_at.replace('+00:00','').replace('Z','')).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true })}</div>
-                          </div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-                            <span className={`ann-badge ${isLive ? 'ann-live' : 'ann-sched'}`}>{isLive ? 'Live' : 'Scheduled'}</span>
-                            <button onClick={async () => {
-                              await fetch('/api/guestview/delete-announcement', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: a.id, user_id: user.id }) });
-                              setAnnouncements(prev => prev.filter((_, idx) => idx !== i));
-                              showToast('Announcement deleted.');
-                            }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9b9b94', fontSize: 16, padding: '0 4px' }}>×</button>
-                          </div>
-                        </div>
-                      );
-                    })}
-                    <button className="add-btn" onClick={() => setShowAddAnnounce(v => !v)}>+ Add announcement</button>
-                    {showAddAnnounce && (
-                      <div className="add-form">
-                        <select value={announceForm.type} onChange={e => setAnnounceForm(p => ({ ...p, type: e.target.value, customText: '' }))}>
-                          <option value="">Select type...</option>
-                          {ANNOUNCEMENT_TYPES.map(t => <option key={t}>{t}</option>)}
-                        </select>
-                        {announceForm.type && (
-                          <input type="text" placeholder={announceForm.type === 'Custom message' ? 'Type your announcement...' : 'Add details (optional)...'} value={announceForm.customText || ''} onChange={e => setAnnounceForm(p => ({ ...p, customText: e.target.value }))} style={{ marginBottom: 6 }} />
-                        )}
-                        <div className="date-row">
-                          <input type="datetime-local" value={announceForm.start} onChange={e => setAnnounceForm(p => ({ ...p, start: e.target.value }))} />
-                          <input type="datetime-local" value={announceForm.end} onChange={e => setAnnounceForm(p => ({ ...p, end: e.target.value }))} />
-                        </div>
-                        <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#6b6b65', marginBottom: 8, cursor: 'pointer' }}>
-                          <input type="checkbox" checked={announceForm.allBuildings || false} onChange={e => setAnnounceForm(p => ({ ...p, allBuildings: e.target.checked }))} />
-                          Apply to all units in this building
-                        </label>
-                        <button className="btn btn-primary btn-sm" onClick={handleSaveAnnouncement}>Save announcement</button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <div className="modal-footer">
-                <div className="footer-status">
-                  <div className={`status-dot ${ms.dot}`} />
-                  <div className="status-text">
-                    <strong>{ms.title}</strong>
-                    <span>{ms.sub}</span>
-                  </div>
-                </div>
-                <div className="footer-btns">
-                  <button className="btn btn-save" onClick={handleSave} disabled={saving || !hasUnsaved}>{saving ? 'Saving...' : 'Save draft'}</button>
-                  <button className="btn btn-ghost" onClick={handlePreview}>Preview TV</button>
-                  <button className="btn btn-primary" onClick={handlePublish} disabled={publishing}>{publishing ? 'Publishing...' : 'Publish live'}</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-      })()}
-
-      <div className="toast-wrap">
-        <div className="toast">{toast}</div>
-      </div>
-
       {showDeletedConfirm && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ background: '#fff', borderRadius: 16, padding: '2rem', maxWidth: 480, width: '90%', boxShadow: '0 20px 60px rgba(0,0,0,0.15)' }}>
+          <div style={{ background: '#fff', borderRadius: 16, padding: '2rem', maxWidth: 480, width: '90%' }}>
             <div style={{ fontSize: 32, marginBottom: 12, textAlign: 'center' }}>👋</div>
             <h2 style={{ fontSize: 18, fontWeight: 600, color: '#1a1a18', marginBottom: 12, textAlign: 'center' }}>Sorry to see you go</h2>
-            <p style={{ fontSize: 14, color: '#6b6b65', lineHeight: 1.7, marginBottom: 16 }}>
-              We confirm that all your data has been permanently deleted from our systems, including:
-            </p>
+            <p style={{ fontSize: 14, color: '#6b6b65', lineHeight: 1.7, marginBottom: 16 }}>We confirm that all your data has been permanently deleted from our systems, including:</p>
             <div style={{ background: '#f7f6f3', borderRadius: 8, padding: '12px 16px', marginBottom: 16, fontSize: 13, color: '#1a1a18', lineHeight: 2 }}>
               <div>✓ All unit and property information</div>
               <div>✓ Your OwnerRez API connection</div>
@@ -842,18 +918,18 @@ export default function GuestViewDashboard() {
               <div>✓ Your account profile and branding</div>
               <div>✓ Your GuestView account</div>
             </div>
-            <p style={{ fontSize: 12, color: '#9b9b94', marginBottom: 20, lineHeight: 1.6 }}>
-              This deletion is permanent and cannot be undone. If you ever want to return, you are welcome to create a new account at any time.
-            </p>
-            <button
-              style={{ width: '100%', height: 44, background: '#1D9E75', color: '#fff', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}
-              onClick={() => { setShowDeletedConfirm(false); router.push('/guestview/onboard'); }}
-            >
+            <p style={{ fontSize: 12, color: '#9b9b94', marginBottom: 20, lineHeight: 1.6 }}>This deletion is permanent and cannot be undone. If you ever want to return, you are welcome to create a new account at any time.</p>
+            <button style={{ width: '100%', height: 44, background: '#1D9E75', color: '#fff', border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 500, cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}
+              onClick={() => { setShowDeletedConfirm(false); router.push('/guestview/onboard'); }}>
               I acknowledge — goodbye
             </button>
           </div>
         </div>
       )}
+
+      <div className="toast-wrap">
+        <div className="toast">{toast}</div>
+      </div>
     </>
   );
 }

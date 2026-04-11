@@ -15,6 +15,10 @@ function getSupabase() {
 
 export default function GuestViewOnboard() {
   const [step, setStep] = useState(1);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginSent, setLoginSent] = useState(false);
+  const [loginError, setLoginError] = useState('');
   const [showNoAccountModal, setShowNoAccountModal] = useState(false);
   const [authChecking, setAuthChecking] = useState(true);
   const [url, setUrl] = useState('');
@@ -135,6 +139,21 @@ export default function GuestViewOnboard() {
     try {
       localStorage.setItem('guestview_onboard_data', JSON.stringify({ buildings, checkTimes, hostInfo, url }));
     } catch (e) { console.error('localStorage save error:', e); }
+  }
+
+  async function handleLoginMagicLink() {
+    if (!loginEmail.trim()) return;
+    setLoginError('');
+    try {
+      const { error } = await getSupabase().auth.signInWithOtp({
+        email: loginEmail.trim(),
+        options: { emailRedirectTo: window.location.origin + '/guestview' }
+      });
+      if (error) throw error;
+      setLoginSent(true);
+    } catch (e) {
+      setLoginError(e.message || 'Failed to send link. Try again.');
+    }
   }
 
   async function handleCrawl() {
@@ -471,6 +490,25 @@ export default function GuestViewOnboard() {
         .already-account a { color: #1D9E75; cursor: pointer; font-weight: 500; text-decoration: none; }
       `}</style>
 
+      {showLoginModal && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <button className="modal-close" onClick={() => setShowLoginModal(false)}>×</button>
+            <h2 style={{ fontSize: 17, fontWeight: 600, marginBottom: 8 }}>Log in to your account</h2>
+            <p style={{ fontSize: 14, color: '#6b6b65', lineHeight: 1.7, marginBottom: 16 }}>Enter your email and we'll send you a magic link to access your dashboard.</p>
+            {loginError && <div className="err" style={{ marginBottom: 12 }}>{loginError}</div>}
+            {!loginSent ? (
+              <div className="input-row">
+                <input type="email" placeholder="you@example.com" value={loginEmail} onChange={e => setLoginEmail(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleLoginMagicLink()} style={{ flex: 1 }} />
+                <button className="btn btn-primary" onClick={handleLoginMagicLink}>Send link →</button>
+              </div>
+            ) : (
+              <div className="sent-box"><p>Magic link sent to <strong>{loginEmail}</strong>.<br />Click the link in your inbox to go straight to your dashboard.</p></div>
+            )}
+          </div>
+        </div>
+      )}
+
       {showNoAccountModal && (
         <div className="modal-overlay">
           <div className="modal">
@@ -568,7 +606,7 @@ export default function GuestViewOnboard() {
                 </div>
               )}
               {error && <div className="err">{error}</div>}
-              <div className="already-account">Already have an account? <a onClick={() => setStep(5)}>Log in</a></div>
+              <div className="already-account">Already have an account? <a onClick={() => { setShowLoginModal(true); setLoginSent(false); setLoginEmail(''); setLoginError(''); }}>Log in</a></div>
             </>
           )}
 

@@ -46,6 +46,7 @@ export default function GuestViewOnboard() {
   const [error, setError] = useState('');
   const [claimedModal, setClaimedModal] = useState(false);
   const [claimedEmail, setClaimedEmail] = useState('');
+  const [claimedRegisteredEmail, setClaimedRegisteredEmail] = useState(null);
   const [claimedAuthSent, setClaimedAuthSent] = useState(false);
   const [showConsentModal, setShowConsentModal] = useState(false);
   const [pendingConnect, setPendingConnect] = useState(false);
@@ -174,7 +175,7 @@ export default function GuestViewOnboard() {
         body: JSON.stringify({ url })
       });
       const checkData = await checkRes.json();
-      if (checkData.claimed) { setCrawling(false); setClaimedModal(true); return; }
+      if (checkData.claimed) { setCrawling(false); setClaimedRegisteredEmail(checkData.registered_email || null); setClaimedModal(true); return; }
     } catch (e) {}
 
     const logs = ['Connecting to your website...', 'Scanning property listings...', 'Grouping units by building...'];
@@ -306,9 +307,13 @@ export default function GuestViewOnboard() {
 
   async function handleClaimedLogin() {
     if (!claimedEmail.trim()) return;
+    if (claimedRegisteredEmail && claimedEmail.trim().toLowerCase() !== claimedRegisteredEmail.toLowerCase()) {
+      setError('This email does not match the account registered to this website. Please contact support.');
+      return;
+    }
     const { error } = await getSupabase().auth.signInWithOtp({
       email: claimedEmail,
-      options: { emailRedirectTo: `${window.location.origin}/guestview/onboard` }
+      options: { emailRedirectTo: `${window.location.origin}/guestview` }
     });
     if (error) { setError(error.message); return; }
     setClaimedAuthSent(true);

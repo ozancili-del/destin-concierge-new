@@ -77,8 +77,16 @@ export default function GuestViewOnboard() {
               if (data.profile?.id) {
                 window.location.href = '/guestview';
               } else {
-                // Auth user exists but no profile — ghost account
+                // Auth user exists but no profile — auto-delete ghost + sign out
+                try {
+                  await fetch('/api/guestview/delete-account', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: session.user.id })
+                  });
+                } catch(_) {}
                 try { await getSupabase().auth.signOut(); } catch(_) {}
+                try { localStorage.clear(); } catch(_) {}
                 setShowNoAccountModal(true);
               }
             } catch(_) { window.location.href = '/guestview'; }

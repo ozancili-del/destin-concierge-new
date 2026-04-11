@@ -20,6 +20,12 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Ensure guestview_users row exists (handles re-onboarding after account deletion)
+    await supabase.from('guestview_users').upsert(
+      { id: user_id, updated_at: new Date().toISOString() },
+      { onConflict: 'id', ignoreDuplicates: true }
+    );
+
     await supabase.from('guestview_units').delete().eq('user_id', user_id);
 
     const rows = units

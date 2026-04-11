@@ -312,7 +312,13 @@ export default function GuestViewOnboard() {
       if (!res.ok) throw new Error(data.error);
       setOrSample(data.sample);
       await new Promise(r => setTimeout(r, 1500));
-      handleSaveUnits();
+      // If buildings is empty, units already saved — go straight to dashboard
+      const activeUnits = buildings.flatMap(b => b.units.filter(u => u.active));
+      if (activeUnits.length === 0) {
+        window.location.href = '/guestview';
+      } else {
+        handleSaveUnits();
+      }
     } catch (err) {
       setOrError(err.message);
     } finally {

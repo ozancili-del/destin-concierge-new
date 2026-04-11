@@ -57,6 +57,7 @@ export default function GuestViewDashboard() {
       if (!session?.user) { router.push('/guestview/onboard'); return; }
       setUser(session.user);
       await loadData(session.user.id);
+      setLoading(false);
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_e, session) => {
       if (!session?.user) { router.push('/guestview/onboard'); return; }
@@ -75,7 +76,6 @@ export default function GuestViewDashboard() {
       setAnnouncements(data.announcements || []);
     } catch (e) {
       console.error('Load error:', e);
-    } finally {
       setLoading(false);
     }
   }

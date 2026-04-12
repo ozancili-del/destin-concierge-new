@@ -75,6 +75,7 @@ function openOverlay(period) {
       ${d.do.map(i => `<div class="rec-overlay-item"><div class="rec-overlay-name">${i.name}</div><div class="rec-overlay-meta">${i.meta}</div></div>`).join('')}
     </div>`;
   document.getElementById('recOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('overlayCloseBtn').focus(), 50);
 }
 
 function closeOverlay() {
@@ -246,7 +247,8 @@ h1 span{color:var(--teal);}
 #recOverlay{position:fixed;inset:0;background:rgba(4,10,20,0.92);z-index:999;display:none;align-items:center;justify-content:center;}
 #recOverlay.open{display:flex;}
 .rec-overlay-inner{width:1100px;max-height:860px;background:rgba(10,22,40,0.98);border:1px solid rgba(255,255,255,0.1);border-radius:32px;padding:48px 56px;position:relative;overflow:hidden;}
-.rec-overlay-close{position:absolute;top:24px;right:32px;font-size:28px;color:rgba(255,255,255,0.4);cursor:pointer;background:none;border:none;line-height:1;}
+.rec-overlay-close{position:absolute;top:24px;right:32px;font-size:28px;color:rgba(255,255,255,0.4);cursor:pointer;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:50%;width:48px;height:48px;display:flex;align-items:center;justify-content:center;line-height:1;transition:all 0.2s;}
+.rec-overlay-close:hover,.rec-overlay-close:focus{color:#fff;border-color:#48cae4;box-shadow:0 0 0 3px #48cae4,0 0 20px rgba(72,202,228,0.8),0 0 40px rgba(72,202,228,0.4);outline:none;}
 .rec-overlay-close:hover{color:#fff;}
 .rec-overlay-title{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:300;margin-bottom:6px;line-height:1;}
 .rec-overlay-time{font-size:14px;letter-spacing:2px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:40px;}
@@ -605,6 +607,7 @@ function openOverlay(period) {
       ${d.do.map(i => `<div class="rec-overlay-item"><div class="rec-overlay-name">${i.name}</div><div class="rec-overlay-meta">${i.meta}</div></div>`).join('')}
     </div>`;
   document.getElementById('recOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('overlayCloseBtn').focus(), 50);
 }
 
 function closeOverlay() {
@@ -631,11 +634,11 @@ setTimeout(attachMomentClicks, 1000);
 
 <div id="recOverlay">
   <div class="rec-overlay-inner" id="recOverlayInner">
-    <button class="rec-overlay-close" onclick="closeOverlay()">✕</button>
+    <button class="rec-overlay-close" id="overlayCloseBtn" tabindex="0" onclick="closeOverlay()">✕</button>
     <div class="rec-overlay-title" id="overlayTitle"></div>
     <div class="rec-overlay-time" id="overlayTime"></div>
     <div class="rec-overlay-cols" id="overlayCols"></div>
-    <div class="rec-overlay-hint">Press back or click ✕ to close</div>
+    <div class="rec-overlay-hint">D-pad to ✕ then OK · or press Back</div>
   </div>
 </div>
 </body>

@@ -1,6 +1,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -212,7 +213,7 @@ h1 span{color:var(--teal);}
     </div>
     <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:14px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:8px;">
       <div style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.85);font-weight:500;">Book Activities & Tours</div>
-      <img src="/tripshock-qr.png" style="width:110px;height:110px;border-radius:8px;background:#fff;padding:6px;" alt="TripShock QR"/>
+      <canvas id="tripshockQR" width="110" height="110" style="border-radius:8px;background:#fff;padding:6px;"></canvas>
       <div style="text-align:center;">
         <div style="font-family:'Cormorant Garamond',serif;font-size:18px;color:#fff;">TripShock Destin</div>
         <div style="font-size:10px;color:rgba(255,255,255,0.65);margin-top:2px;">Dolphin cruises · Crab Island · Fishing · Water sports</div>
@@ -236,12 +237,12 @@ h1 span{color:var(--teal);}
     <div class="streaming-row">
       <div class="streaming-title">Watch · Streaming</div>
       <div class="streaming-apps">
-        <div class="s-btn"><div class="s-ico" style="background:#E50914;"><img src="https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg" alt="Netflix"/></div><div class="s-inf"><div class="s-name">Netflix</div><div class="s-sub">Movies &amp; series</div></div></div>
-        <div class="s-btn"><div class="s-ico" style="background:linear-gradient(160deg,#1c6fc5,#0d4fa8);"><img src="https://upload.wikimedia.org/wikipedia/commons/1/11/Amazon_Prime_Video_logo.svg" alt="Prime Video"/></div><div class="s-inf"><div class="s-name">Prime Video</div><div class="s-sub">Amazon originals</div></div></div>
-        <div class="s-btn"><div class="s-ico" style="background:#0f0f0f;"><img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg" alt="YouTube"/></div><div class="s-inf"><div class="s-name">YouTube</div><div class="s-sub">Videos &amp; music</div></div></div>
-        <div class="s-btn"><div class="s-ico" style="background:linear-gradient(160deg,#04173a,#0d2f7a);"><img src="https://upload.wikimedia.org/wikipedia/commons/3/3e/Disney%2B_logo.svg" alt="Disney+"/></div><div class="s-inf"><div class="s-name">Disney+</div><div class="s-sub">Marvel · Star Wars</div></div></div>
-        <div class="s-btn"><div class="s-ico" style="background:#141414;"><img src="https://upload.wikimedia.org/wikipedia/commons/2/28/Apple_TV_Plus_Logo.svg" alt="Apple TV+"/></div><div class="s-inf"><div class="s-name">Apple TV+</div><div class="s-sub">Apple originals</div></div></div>
-        <div class="s-btn"><div class="s-ico" style="background:#0d0d0d;"><img src="https://upload.wikimedia.org/wikipedia/commons/e/e4/Hulu_Logo.svg" alt="Hulu"/></div><div class="s-inf"><div class="s-name">Hulu</div><div class="s-sub">TV &amp; live sports</div></div></div>
+        <div class="s-btn"><div class="s-ico" style="background:#E50914;display:flex;align-items:center;justify-content:center;"><span style="font-family:Arial Black,sans-serif;font-size:11px;font-weight:900;color:#fff;letter-spacing:-0.5px;">NETFLIX</span></div><div class="s-inf"><div class="s-name">Netflix</div><div class="s-sub">Movies &amp; series</div></div></div>
+        <div class="s-btn"><div class="s-ico" style="background:linear-gradient(160deg,#1c6fc5,#0d4fa8);display:flex;align-items:center;justify-content:center;flex-direction:column;"><span style="font-family:Arial,sans-serif;font-size:9px;color:#fff;line-height:1.2;text-align:center;">prime<br>video</span></div><div class="s-inf"><div class="s-name">Prime Video</div><div class="s-sub">Amazon originals</div></div></div>
+        <div class="s-btn"><div class="s-ico" style="background:#FF0000;display:flex;align-items:center;justify-content:center;"><svg width="40" height="28" viewBox="0 0 40 28"><rect x="4" y="2" width="32" height="20" rx="6" fill="#FF0000"/><polygon points="14,6 14,18 28,12" fill="white"/></svg></div><div class="s-inf"><div class="s-name">YouTube</div><div class="s-sub">Videos &amp; music</div></div></div>
+        <div class="s-btn"><div class="s-ico" style="background:linear-gradient(160deg,#04173a,#0d2f7a);display:flex;align-items:center;justify-content:center;"><span style="font-family:Georgia,serif;font-size:12px;font-style:italic;color:#fff;">Disney<b style="font-style:normal;">+</b></span></div><div class="s-inf"><div class="s-name">Disney+</div><div class="s-sub">Marvel · Star Wars</div></div></div>
+        <div class="s-btn"><div class="s-ico" style="background:#141414;display:flex;align-items:center;justify-content:center;"><span style="font-family:Helvetica,sans-serif;font-size:13px;font-weight:300;color:#fff;">&#xF8FF; tv</span></div><div class="s-inf"><div class="s-name">Apple TV+</div><div class="s-sub">Apple originals</div></div></div>
+        <div class="s-btn"><div class="s-ico" style="background:#0d0d0d;display:flex;align-items:center;justify-content:center;"><span style="font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#1CE783;letter-spacing:1px;">hulu</span></div><div class="s-inf"><div class="s-name">Hulu</div><div class="s-sub">TV &amp; live sports</div></div></div>
       </div>
     </div>
   </div>
@@ -393,6 +394,15 @@ forecasts.forEach((f,i) => {
       <div class="f-desc" style="color:var(--teal);">${f.desc}</div>
     </div>`;
 });
+
+// Generate TripShock QR
+if(typeof QRCode !== 'undefined') {
+  QRCode.toCanvas(document.getElementById('tripshockQR'),
+    'https://www.tripshock.com/?aff=destindreamcondo',
+    { width: 110, margin: 1, color: { dark: '#000000', light: '#ffffff' } },
+    err => { if(err) console.error('TripShock QR error:', err); }
+  );
+}
 
 // Generate Destiny Blue QR (generic concierge link)
 if(typeof QRCode !== 'undefined') {

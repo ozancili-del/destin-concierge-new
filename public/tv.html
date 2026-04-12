@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -81,20 +82,20 @@ h1 span{color:var(--teal);}
 .tripshock-box{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:16px;padding:14px;display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:4px;}
 /* ITINERARY */
 .day-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;flex:1;}
-.moment{border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:0;border:1px solid var(--line);}
+.moment{border-radius:18px;padding:10px 14px;display:flex;flex-direction:column;gap:0;border:1px solid var(--line);}
 .moment.morning{background:rgba(246,196,83,0.04);border-color:rgba(246,196,83,0.15);}
 .moment.afternoon{background:rgba(72,202,228,0.04);border-color:rgba(72,202,228,0.15);}
 .moment.evening{background:rgba(167,139,250,0.04);border-color:rgba(167,139,250,0.15);}
-.moment-head{display:flex;align-items:center;gap:10px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.07);margin-bottom:10px;}
+.moment-head{display:flex;align-items:center;gap:10px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.07);margin-bottom:6px;}
 .m-icon{font-size:24px;}
 .m-title{font-size:15px;font-weight:500;letter-spacing:1px;text-transform:uppercase;}
 .m-time{font-size:11px;color:var(--soft);}
-.split-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;margin-top:8px;}
+.split-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;margin-bottom:3px;margin-top:5px;}
 .moment.morning .split-label{color:var(--gold);}
 .moment.afternoon .split-label{color:var(--teal);}
 .moment.evening .split-label{color:var(--violet);}
-.rec-item{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;}
-.rec-name{font-size:16px;color:#fff;font-family:'Cormorant Garamond',serif;font-weight:400;}
+.rec-item{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:3px;}
+.rec-name{font-size:14px;color:#fff;font-family:'Cormorant Garamond',serif;font-weight:400;}
 .rec-meta{font-size:11px;color:var(--faint);}
 .loading-recs{font-family:'Cormorant Garamond',serif;font-size:17px;font-style:italic;color:var(--faint);text-align:center;padding:20px 0;}
 /* ESSENTIALS */
@@ -136,6 +137,17 @@ h1 span{color:var(--teal);}
 .bc-act-status.active{background:rgba(34,197,94,0.3);color:#86efac;}
 .bc-act-status.soon{background:rgba(251,191,36,0.3);color:#fde68a;}
 .bc-act-status.upcoming{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);}
+
+.streaming-row{margin-top:12px;flex-shrink:0;}
+.streaming-title{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-bottom:8px;}
+.streaming-apps{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.s-btn{display:flex;align-items:center;border-radius:14px;cursor:pointer;border:1px solid rgba(255,255,255,0.08);overflow:hidden;background:rgba(255,255,255,0.03);transition:border-color 0.2s,transform 0.15s;}
+.s-btn:hover{border-color:rgba(72,202,228,0.4);transform:scale(1.02);}
+.s-ico{width:68px;height:68px;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin:7px;border-radius:12px;overflow:hidden;}
+.s-ico img{width:100%;height:100%;object-fit:contain;}
+.s-inf{padding:0 10px 0 6px;}
+.s-name{font-size:15px;font-weight:500;color:#fff;}
+.s-sub{font-size:10px;color:rgba(255,255,255,0.28);}
 </style>
 </head>
 <body>
@@ -210,7 +222,7 @@ h1 span{color:var(--teal);}
   </div>
 
   <!-- CENTER: AI Recommendations -->
-  <div class="card" style="gap:14px;" id="recsCard">
+  <div class="card" style="gap:14px;display:flex;flex-direction:column;" id="recsCard">
     <div class="sec-label" id="recsLabel">Your day · loading...</div>
     <div class="day-grid" id="recsGrid">
       <div class="moment morning"><div class="loading-recs">Loading morning recommendations...</div></div>
@@ -219,6 +231,18 @@ h1 span{color:var(--teal);}
     </div>
     <div id="checkoutBanner" style="display:none;" class="checkout-banner">
       <p id="checkoutMsg"></p>
+    </div>
+    <!-- STREAMING -->
+    <div class="streaming-row">
+      <div class="streaming-title">Watch · Streaming</div>
+      <div class="streaming-apps">
+        <div class="s-btn"><div class="s-ico" style="background:#E50914;"><img src="https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg" alt="Netflix"/></div><div class="s-inf"><div class="s-name">Netflix</div><div class="s-sub">Movies &amp; series</div></div></div>
+        <div class="s-btn"><div class="s-ico" style="background:linear-gradient(160deg,#1c6fc5,#0d4fa8);"><img src="https://upload.wikimedia.org/wikipedia/commons/1/11/Amazon_Prime_Video_logo.svg" alt="Prime Video"/></div><div class="s-inf"><div class="s-name">Prime Video</div><div class="s-sub">Amazon originals</div></div></div>
+        <div class="s-btn"><div class="s-ico" style="background:#0f0f0f;"><img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/YouTube_Logo_2017.svg" alt="YouTube"/></div><div class="s-inf"><div class="s-name">YouTube</div><div class="s-sub">Videos &amp; music</div></div></div>
+        <div class="s-btn"><div class="s-ico" style="background:linear-gradient(160deg,#04173a,#0d2f7a);"><img src="https://upload.wikimedia.org/wikipedia/commons/3/3e/Disney%2B_logo.svg" alt="Disney+"/></div><div class="s-inf"><div class="s-name">Disney+</div><div class="s-sub">Marvel · Star Wars</div></div></div>
+        <div class="s-btn"><div class="s-ico" style="background:#141414;"><img src="https://upload.wikimedia.org/wikipedia/commons/2/28/Apple_TV_Plus_Logo.svg" alt="Apple TV+"/></div><div class="s-inf"><div class="s-name">Apple TV+</div><div class="s-sub">Apple originals</div></div></div>
+        <div class="s-btn"><div class="s-ico" style="background:#0d0d0d;"><img src="https://upload.wikimedia.org/wikipedia/commons/e/e4/Hulu_Logo.svg" alt="Hulu"/></div><div class="s-inf"><div class="s-name">Hulu</div><div class="s-sub">TV &amp; live sports</div></div></div>
+      </div>
     </div>
   </div>
 

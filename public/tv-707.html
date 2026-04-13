@@ -893,24 +893,24 @@ document.getElementById('recOverlay').addEventListener('click', function(e) {
 });
 
 document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape' || e.key === 'Backspace') closeOverlay();
+  if (e.key === 'Escape' || e.key === 'Backspace' || e.keyCode === 23 && document.getElementById('overlayCloseBtn') === document.activeElement) closeOverlay();
 });
 
 function attachMomentClicks() {
   document.querySelectorAll('.moment.morning').forEach(el => {
     el.setAttribute('tabindex', '0');
     el.onclick = () => openOverlay('morning');
-    el.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') openOverlay('morning'); };
+    el.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ' || e.keyCode === 23) openOverlay('morning'); };
   });
   document.querySelectorAll('.moment.afternoon').forEach(el => {
     el.setAttribute('tabindex', '0');
     el.onclick = () => openOverlay('afternoon');
-    el.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') openOverlay('afternoon'); };
+    el.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ' || e.keyCode === 23) openOverlay('afternoon'); };
   });
   document.querySelectorAll('.moment.evening').forEach(el => {
     el.setAttribute('tabindex', '0');
     el.onclick = () => openOverlay('evening');
-    el.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') openOverlay('evening'); };
+    el.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ' || e.keyCode === 23) openOverlay('evening'); };
   });
 }
 

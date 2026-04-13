@@ -246,8 +246,11 @@ h1 span{color:var(--teal);}
     <div style="margin-top:4px;font-size:8px;color:rgba(255,255,255,0.3);text-align:center;">NOAA Station 8729840 · Pensacola ~25mi from Destin</div>
   </div>
 
-  <!-- CENTER: AI Recommendations -->
-  <div class="card" style="gap:14px;display:flex;flex-direction:column;" id="recsCard">
+  <!-- CENTER: Recs + Streaming in separate focus groups -->
+  <div style="display:flex;flex-direction:column;gap:20px;min-width:0;">
+
+  <!-- CENTER TOP: AI Recommendations -->
+  <div class="card" style="gap:14px;display:flex;flex-direction:column;flex:1;" id="recsCard">
     <div class="sec-label" id="recsLabel">Your day · loading...</div>
     <div class="day-grid" id="recsGrid">
       <button class="moment morning" tabindex="0"><div class="loading-recs">Loading morning recommendations...</div></button>
@@ -257,8 +260,11 @@ h1 span{color:var(--teal);}
     <div id="checkoutBanner" style="display:none;" class="checkout-banner">
       <p id="checkoutMsg"></p>
     </div>
-    <!-- STREAMING -->
-    <div class="streaming-row">
+  </div>
+
+  <!-- CENTER BOTTOM: Streaming — separate focus group -->
+  <div class="card" style="padding:16px;" id="streamingCard">
+    <div class="streaming-row" style="margin-top:0;">
       <div class="streaming-title">Watch · Streaming</div>
       <div class="streaming-apps">
         <button class="s-btn" tabindex="0" onclick="launchStreaming('intent://com.netflix.mediaclient#Intent;scheme=netflix;end');"><div class="s-ico" style="background:#E50914;display:flex;align-items:center;justify-content:center;"><span style="font-family:Arial Black,sans-serif;font-size:11px;font-weight:900;color:#fff;letter-spacing:-0.5px;">NETFLIX</span></div><div class="s-inf"><div class="s-name">Netflix</div><div class="s-sub">Movies &amp; series</div></div></button>
@@ -269,7 +275,8 @@ h1 span{color:var(--teal);}
         <button class="s-btn" tabindex="0" onclick="launchStreaming('intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.LEANBACK_LAUNCHER;package=com.hulu.livingroomplus;end');"><div class="s-ico" style="background:#0d0d0d;display:flex;align-items:center;justify-content:center;"><span style="font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#1CE783;letter-spacing:1px;">hulu</span></div><div class="s-inf"><div class="s-name">Hulu</div><div class="s-sub">TV &amp; live sports</div></div></button>
       </div>
     </div>
-  </div>
+  </div><!-- end streaming card -->
+  </div><!-- end center wrapper -->
 
   <!-- RIGHT: Essentials -->
   <div class="card essentials-card">

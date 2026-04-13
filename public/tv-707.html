@@ -250,9 +250,9 @@ h1 span{color:var(--teal);}
   <div class="card" style="gap:14px;display:flex;flex-direction:column;" id="recsCard">
     <div class="sec-label" id="recsLabel">Your day · loading...</div>
     <div class="day-grid" id="recsGrid">
-      <button class="moment morning"><div class="loading-recs">Loading morning recommendations...</div></button>
-      <button class="moment afternoon"><div class="loading-recs">Loading afternoon recommendations...</div></button>
-      <button class="moment evening"><div class="loading-recs">Loading evening recommendations...</div></button>
+      <button class="moment morning" tabindex="0"><div class="loading-recs">Loading morning recommendations...</div></button>
+      <button class="moment afternoon" tabindex="0"><div class="loading-recs">Loading afternoon recommendations...</div></button>
+      <button class="moment evening" tabindex="0"><div class="loading-recs">Loading evening recommendations...</div></button>
     </div>
     <div id="checkoutBanner" style="display:none;" class="checkout-banner">
       <p id="checkoutMsg"></p>
@@ -261,12 +261,12 @@ h1 span{color:var(--teal);}
     <div class="streaming-row">
       <div class="streaming-title">Watch · Streaming</div>
       <div class="streaming-apps">
-        <button class="s-btn" tabindex="0" onclick="window.location.href='intent://com.netflix.mediaclient#Intent;scheme=netflix;end';"><div class="s-ico" style="background:#E50914;display:flex;align-items:center;justify-content:center;"><span style="font-family:Arial Black,sans-serif;font-size:11px;font-weight:900;color:#fff;letter-spacing:-0.5px;">NETFLIX</span></div><div class="s-inf"><div class="s-name">Netflix</div><div class="s-sub">Movies &amp; series</div></div></button>
-        <button class="s-btn" tabindex="0" onclick="window.location.href='intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.LEANBACK_LAUNCHER;package=com.amazon.avod.thirdpartyclient;end';"><div class="s-ico" style="background:linear-gradient(160deg,#1c6fc5,#0d4fa8);display:flex;align-items:center;justify-content:center;flex-direction:column;"><span style="font-family:Arial,sans-serif;font-size:9px;color:#fff;line-height:1.2;text-align:center;">prime<br>video</span></div><div class="s-inf"><div class="s-name">Prime Video</div><div class="s-sub">Amazon originals</div></div></button>
-        <button class="s-btn" tabindex="0" onclick="window.location.href='intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.LEANBACK_LAUNCHER;package=com.google.android.youtube.tv;end';"><div class="s-ico" style="background:#FF0000;display:flex;align-items:center;justify-content:center;"><svg width="40" height="28" viewBox="0 0 40 28"><rect x="4" y="2" width="32" height="20" rx="6" fill="#FF0000"/><polygon points="14,6 14,18 28,12" fill="white"/></svg></div><div class="s-inf"><div class="s-name">YouTube</div><div class="s-sub">Videos &amp; music</div></div></button>
-        <button class="s-btn" tabindex="0" onclick="window.location.href='intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.LEANBACK_LAUNCHER;package=com.disney.disneyplus;end';"><div class="s-ico" style="background:linear-gradient(160deg,#04173a,#0d2f7a);display:flex;align-items:center;justify-content:center;"><span style="font-family:Georgia,serif;font-size:12px;font-style:italic;color:#fff;">Disney<b style="font-style:normal;">+</b></span></div><div class="s-inf"><div class="s-name">Disney+</div><div class="s-sub">Marvel · Star Wars</div></div></button>
-        <button class="s-btn" tabindex="0" onclick="window.location.href='intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.LEANBACK_LAUNCHER;package=com.apple.atve.androidtv.appletv;end';"><div class="s-ico" style="background:#141414;display:flex;align-items:center;justify-content:center;"><span style="font-family:Helvetica,sans-serif;font-size:13px;font-weight:300;color:#fff;">&#xF8FF; tv</span></div><div class="s-inf"><div class="s-name">Apple TV+</div><div class="s-sub">Apple originals</div></div></button>
-        <button class="s-btn" tabindex="0" onclick="window.location.href='intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.LEANBACK_LAUNCHER;package=com.hulu.livingroomplus;end';"><div class="s-ico" style="background:#0d0d0d;display:flex;align-items:center;justify-content:center;"><span style="font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#1CE783;letter-spacing:1px;">hulu</span></div><div class="s-inf"><div class="s-name">Hulu</div><div class="s-sub">TV &amp; live sports</div></div></button>
+        <button class="s-btn" tabindex="0" onclick="launchStreaming('intent://com.netflix.mediaclient#Intent;scheme=netflix;end');"><div class="s-ico" style="background:#E50914;display:flex;align-items:center;justify-content:center;"><span style="font-family:Arial Black,sans-serif;font-size:11px;font-weight:900;color:#fff;letter-spacing:-0.5px;">NETFLIX</span></div><div class="s-inf"><div class="s-name">Netflix</div><div class="s-sub">Movies &amp; series</div></div></button>
+        <button class="s-btn" tabindex="0" onclick="launchStreaming('intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.LEANBACK_LAUNCHER;package=com.amazon.avod.thirdpartyclient;end');"><div class="s-ico" style="background:linear-gradient(160deg,#1c6fc5,#0d4fa8);display:flex;align-items:center;justify-content:center;flex-direction:column;"><span style="font-family:Arial,sans-serif;font-size:9px;color:#fff;line-height:1.2;text-align:center;">prime<br>video</span></div><div class="s-inf"><div class="s-name">Prime Video</div><div class="s-sub">Amazon originals</div></div></button>
+        <button class="s-btn" tabindex="0" onclick="launchStreaming('intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.LEANBACK_LAUNCHER;package=com.google.android.youtube.tv;end');"><div class="s-ico" style="background:#FF0000;display:flex;align-items:center;justify-content:center;"><svg width="40" height="28" viewBox="0 0 40 28"><rect x="4" y="2" width="32" height="20" rx="6" fill="#FF0000"/><polygon points="14,6 14,18 28,12" fill="white"/></svg></div><div class="s-inf"><div class="s-name">YouTube</div><div class="s-sub">Videos &amp; music</div></div></button>
+        <button class="s-btn" tabindex="0" onclick="launchStreaming('intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.LEANBACK_LAUNCHER;package=com.disney.disneyplus;end');"><div class="s-ico" style="background:linear-gradient(160deg,#04173a,#0d2f7a);display:flex;align-items:center;justify-content:center;"><span style="font-family:Georgia,serif;font-size:12px;font-style:italic;color:#fff;">Disney<b style="font-style:normal;">+</b></span></div><div class="s-inf"><div class="s-name">Disney+</div><div class="s-sub">Marvel · Star Wars</div></div></button>
+        <button class="s-btn" tabindex="0" onclick="launchStreaming('intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.LEANBACK_LAUNCHER;package=com.apple.atve.androidtv.appletv;end');"><div class="s-ico" style="background:#141414;display:flex;align-items:center;justify-content:center;"><span style="font-family:Helvetica,sans-serif;font-size:13px;font-weight:300;color:#fff;">&#xF8FF; tv</span></div><div class="s-inf"><div class="s-name">Apple TV+</div><div class="s-sub">Apple originals</div></div></button>
+        <button class="s-btn" tabindex="0" onclick="launchStreaming('intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.LEANBACK_LAUNCHER;package=com.hulu.livingroomplus;end');"><div class="s-ico" style="background:#0d0d0d;display:flex;align-items:center;justify-content:center;"><span style="font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#1CE783;letter-spacing:1px;">hulu</span></div><div class="s-inf"><div class="s-name">Hulu</div><div class="s-sub">TV &amp; live sports</div></div></button>
       </div>
     </div>
   </div>
@@ -731,17 +731,17 @@ function renderRecommendations(recs, timeSlot, isCheckoutEve, guestName, today) 
 
   const grid = document.getElementById('recsGrid');
   grid.innerHTML = `
-    <button class="moment morning">
+    <button class="moment morning" tabindex="0">
       <div class="moment-head"><div class="m-icon">🌅</div><div><div class="m-title">Morning</div><div class="m-time">Until noon</div></div></div>
       <div class="split-label">Eat</div>${buildItems(recs.morning?.eat)}
       <div class="split-label">Do</div>${buildItems(recs.morning?.do)}
     </button>
-    <button class="moment afternoon">
+    <button class="moment afternoon" tabindex="0">
       <div class="moment-head"><div class="m-icon">☀️</div><div><div class="m-title">Afternoon</div><div class="m-time">Noon – 5 PM</div></div></div>
       <div class="split-label">Eat</div>${buildItems(recs.afternoon?.eat)}
       <div class="split-label">Do</div>${buildItems(recs.afternoon?.do)}
     </button>
-    <button class="moment evening">
+    <button class="moment evening" tabindex="0">
       <div class="moment-head"><div class="m-icon">🌇</div><div><div class="m-title">Evening</div><div class="m-time">5 PM onwards</div></div></div>
       <div class="split-label">Eat</div>${buildItems(recs.evening?.eat)}
       <div class="split-label">Tonight</div>${buildItems(recs.evening?.tonight)}
@@ -934,9 +934,15 @@ document.addEventListener('click', function(e) {
 function attachMomentClicks() {
   ['morning', 'afternoon', 'evening'].forEach(timeOfDay => {
     document.querySelectorAll('.moment.' + timeOfDay).forEach(el => {
+      el.setAttribute('tabindex', '0');
       el.onclick = () => openOverlay(timeOfDay);
     });
   });
+}
+
+function launchStreaming(intentUrl) {
+  document.getElementById('safeFocus').focus();
+  setTimeout(() => { window.location.href = intentUrl; }, 10);
 }
 
 attachMomentClicks();

@@ -888,8 +888,8 @@ function closeOverlay() {
   document.getElementById('recOverlay').classList.remove('open');
 }
 
-document.getElementById('recOverlay').addEventListener('click', function(e) {
-  if (e.target === this) closeOverlay();
+document.addEventListener('click', function(e) {
+  if (e.target && e.target.id === 'recOverlay') closeOverlay();
 });
 
 document.addEventListener('keyup', function(e) {

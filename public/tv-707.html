@@ -146,14 +146,14 @@ h1 span{color:var(--teal);}
 .streaming-row{margin-top:12px;flex-shrink:0;}
 .streaming-title{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-bottom:8px;}
 .streaming-apps{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
-.s-btn{display:flex;align-items:center;border-radius:14px;cursor:pointer;border:1px solid rgba(255,255,255,0.08);overflow:hidden;background:rgba(255,255,255,0.03);transition:border-color 0.2s,transform 0.15s;}
+.s-btn{display:flex;align-items:center;border-radius:14px;cursor:pointer;border:1px solid rgba(255,255,255,0.08);overflow:hidden;background:rgba(255,255,255,0.03);transition:border-color 0.2s,transform 0.15s;font:inherit;color:inherit;padding:0;text-align:left;width:100%;}
 .s-btn:hover,.s-btn:focus{border-color:#48cae4;transform:scale(1.03);outline:none;box-shadow:0 0 0 3px #48cae4,0 0 20px rgba(72,202,228,0.8),0 0 40px rgba(72,202,228,0.4);}
 .s-ico{width:68px;height:68px;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin:7px;border-radius:12px;overflow:hidden;}
 .s-inf{padding:0 10px 0 6px;}
 .s-name{font-size:15px;font-weight:500;color:#fff;}
 .s-sub{font-size:10px;color:rgba(255,255,255,0.28);}
 
-.moment{cursor:pointer;transition:box-shadow 0.2s,transform 0.15s;}
+.moment{cursor:pointer;transition:box-shadow 0.2s,transform 0.15s;font:inherit;color:inherit;text-align:left;width:100%;}
 .moment.morning:hover,.moment.morning:focus{border-color:#f6c453;transform:scale(1.03);outline:none;box-shadow:0 0 0 3px #f6c453,0 0 20px rgba(246,196,83,0.8),0 0 40px rgba(246,196,83,0.4);}
 .moment.afternoon:hover,.moment.afternoon:focus{border-color:#48cae4;transform:scale(1.03);outline:none;box-shadow:0 0 0 3px #48cae4,0 0 20px rgba(72,202,228,0.8),0 0 40px rgba(72,202,228,0.4);}
 .moment.evening:hover,.moment.evening:focus{border-color:#a78bfa;transform:scale(1.03);outline:none;box-shadow:0 0 0 3px #a78bfa,0 0 20px rgba(167,139,250,0.8),0 0 40px rgba(167,139,250,0.4);}
@@ -249,9 +249,9 @@ h1 span{color:var(--teal);}
   <div class="card" style="gap:14px;display:flex;flex-direction:column;" id="recsCard">
     <div class="sec-label" id="recsLabel">Your day · loading...</div>
     <div class="day-grid" id="recsGrid">
-      <div class="moment morning"><div class="loading-recs">Loading morning recommendations...</div></div>
-      <div class="moment afternoon"><div class="loading-recs">Loading afternoon recommendations...</div></div>
-      <div class="moment evening"><div class="loading-recs">Loading evening recommendations...</div></div>
+      <button class="moment morning"><div class="loading-recs">Loading morning recommendations...</div></button>
+      <button class="moment afternoon"><div class="loading-recs">Loading afternoon recommendations...</div></button>
+      <button class="moment evening"><div class="loading-recs">Loading evening recommendations...</div></button>
     </div>
     <div id="checkoutBanner" style="display:none;" class="checkout-banner">
       <p id="checkoutMsg"></p>
@@ -260,12 +260,12 @@ h1 span{color:var(--teal);}
     <div class="streaming-row">
       <div class="streaming-title">Watch · Streaming</div>
       <div class="streaming-apps">
-        <a class="s-btn" tabindex="0" role="button" href="intent://com.netflix.mediaclient#Intent;scheme=netflix;end" onkeyup="if(event.keyCode==13||event.keyCode==23||event.keyCode==66)window.location.href=this.href;"><div class="s-ico" style="background:#E50914;display:flex;align-items:center;justify-content:center;"><span style="font-family:Arial Black,sans-serif;font-size:11px;font-weight:900;color:#fff;letter-spacing:-0.5px;">NETFLIX</span></div><div class="s-inf"><div class="s-name">Netflix</div><div class="s-sub">Movies &amp; series</div></div></a>
-        <a class="s-btn" tabindex="0" role="button" href="intent://com.amazon.avod.thirdpartyclient#Intent;scheme=primevideo;end" onkeyup="if(event.keyCode==13||event.keyCode==23||event.keyCode==66)window.location.href=this.href;"><div class="s-ico" style="background:linear-gradient(160deg,#1c6fc5,#0d4fa8);display:flex;align-items:center;justify-content:center;flex-direction:column;"><span style="font-family:Arial,sans-serif;font-size:9px;color:#fff;line-height:1.2;text-align:center;">prime<br>video</span></div><div class="s-inf"><div class="s-name">Prime Video</div><div class="s-sub">Amazon originals</div></div></a>
-        <a class="s-btn" tabindex="0" role="button" href="intent://com.google.android.youtube.tv#Intent;scheme=youtube;end" onkeyup="if(event.keyCode==13||event.keyCode==23||event.keyCode==66)window.location.href=this.href;"><div class="s-ico" style="background:#FF0000;display:flex;align-items:center;justify-content:center;"><svg width="40" height="28" viewBox="0 0 40 28"><rect x="4" y="2" width="32" height="20" rx="6" fill="#FF0000"/><polygon points="14,6 14,18 28,12" fill="white"/></svg></div><div class="s-inf"><div class="s-name">YouTube</div><div class="s-sub">Videos &amp; music</div></div></a>
-        <a class="s-btn" tabindex="0" role="button" href="intent://com.disney.disneyplus#Intent;scheme=disneyplus;end" onkeyup="if(event.keyCode==13||event.keyCode==23||event.keyCode==66)window.location.href=this.href;"><div class="s-ico" style="background:linear-gradient(160deg,#04173a,#0d2f7a);display:flex;align-items:center;justify-content:center;"><span style="font-family:Georgia,serif;font-size:12px;font-style:italic;color:#fff;">Disney<b style="font-style:normal;">+</b></span></div><div class="s-inf"><div class="s-name">Disney+</div><div class="s-sub">Marvel · Star Wars</div></div></a>
-        <a class="s-btn" tabindex="0" role="button" href="intent://com.apple.atve.androidtv.appletv#Intent;scheme=appletv;end" onkeyup="if(event.keyCode==13||event.keyCode==23||event.keyCode==66)window.location.href=this.href;"><div class="s-ico" style="background:#141414;display:flex;align-items:center;justify-content:center;"><span style="font-family:Helvetica,sans-serif;font-size:13px;font-weight:300;color:#fff;">&#xF8FF; tv</span></div><div class="s-inf"><div class="s-name">Apple TV+</div><div class="s-sub">Apple originals</div></div></a>
-        <a class="s-btn" tabindex="0" role="button" href="intent://com.hulu.plus#Intent;scheme=hulu;end" onkeyup="if(event.keyCode==13||event.keyCode==23||event.keyCode==66)window.location.href=this.href;"><div class="s-ico" style="background:#0d0d0d;display:flex;align-items:center;justify-content:center;"><span style="font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#1CE783;letter-spacing:1px;">hulu</span></div><div class="s-inf"><div class="s-name">Hulu</div><div class="s-sub">TV &amp; live sports</div></div></a>
+        <button class="s-btn" tabindex="0" onclick="window.location.href='intent://com.netflix.mediaclient#Intent;scheme=netflix;end';"><div class="s-ico" style="background:#E50914;display:flex;align-items:center;justify-content:center;"><span style="font-family:Arial Black,sans-serif;font-size:11px;font-weight:900;color:#fff;letter-spacing:-0.5px;">NETFLIX</span></div><div class="s-inf"><div class="s-name">Netflix</div><div class="s-sub">Movies &amp; series</div></div></button>
+        <button class="s-btn" tabindex="0" onclick="window.location.href='intent://com.amazon.avod.thirdpartyclient#Intent;scheme=primevideo;end';"><div class="s-ico" style="background:linear-gradient(160deg,#1c6fc5,#0d4fa8);display:flex;align-items:center;justify-content:center;flex-direction:column;"><span style="font-family:Arial,sans-serif;font-size:9px;color:#fff;line-height:1.2;text-align:center;">prime<br>video</span></div><div class="s-inf"><div class="s-name">Prime Video</div><div class="s-sub">Amazon originals</div></div></button>
+        <button class="s-btn" tabindex="0" onclick="window.location.href='intent://com.google.android.youtube.tv#Intent;scheme=youtube;end';"><div class="s-ico" style="background:#FF0000;display:flex;align-items:center;justify-content:center;"><svg width="40" height="28" viewBox="0 0 40 28"><rect x="4" y="2" width="32" height="20" rx="6" fill="#FF0000"/><polygon points="14,6 14,18 28,12" fill="white"/></svg></div><div class="s-inf"><div class="s-name">YouTube</div><div class="s-sub">Videos &amp; music</div></div></button>
+        <button class="s-btn" tabindex="0" onclick="window.location.href='intent://com.disney.disneyplus#Intent;scheme=disneyplus;end';"><div class="s-ico" style="background:linear-gradient(160deg,#04173a,#0d2f7a);display:flex;align-items:center;justify-content:center;"><span style="font-family:Georgia,serif;font-size:12px;font-style:italic;color:#fff;">Disney<b style="font-style:normal;">+</b></span></div><div class="s-inf"><div class="s-name">Disney+</div><div class="s-sub">Marvel · Star Wars</div></div></button>
+        <button class="s-btn" tabindex="0" onclick="window.location.href='intent://com.apple.atve.androidtv.appletv#Intent;scheme=appletv;end';"><div class="s-ico" style="background:#141414;display:flex;align-items:center;justify-content:center;"><span style="font-family:Helvetica,sans-serif;font-size:13px;font-weight:300;color:#fff;">&#xF8FF; tv</span></div><div class="s-inf"><div class="s-name">Apple TV+</div><div class="s-sub">Apple originals</div></div></button>
+        <button class="s-btn" tabindex="0" onclick="window.location.href='intent://com.hulu.plus#Intent;scheme=hulu;end';"><div class="s-ico" style="background:#0d0d0d;display:flex;align-items:center;justify-content:center;"><span style="font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#1CE783;letter-spacing:1px;">hulu</span></div><div class="s-inf"><div class="s-name">Hulu</div><div class="s-sub">TV &amp; live sports</div></div></button>
       </div>
     </div>
   </div>
@@ -718,21 +718,21 @@ function renderRecommendations(recs, timeSlot, isCheckoutEve, guestName, today) 
 
   const grid = document.getElementById('recsGrid');
   grid.innerHTML = `
-    <div class="moment morning">
+    <button class="moment morning">
       <div class="moment-head"><div class="m-icon">🌅</div><div><div class="m-title">Morning</div><div class="m-time">Until noon</div></div></div>
       <div class="split-label">Eat</div>${buildItems(recs.morning?.eat)}
       <div class="split-label">Do</div>${buildItems(recs.morning?.do)}
-    </div>
-    <div class="moment afternoon">
+    </button>
+    <button class="moment afternoon">
       <div class="moment-head"><div class="m-icon">☀️</div><div><div class="m-title">Afternoon</div><div class="m-time">Noon – 5 PM</div></div></div>
       <div class="split-label">Eat</div>${buildItems(recs.afternoon?.eat)}
       <div class="split-label">Do</div>${buildItems(recs.afternoon?.do)}
-    </div>
-    <div class="moment evening">
+    </button>
+    <button class="moment evening">
       <div class="moment-head"><div class="m-icon">🌇</div><div><div class="m-title">Evening</div><div class="m-time">5 PM onwards</div></div></div>
       <div class="split-label">Eat</div>${buildItems(recs.evening?.eat)}
       <div class="split-label">Tonight</div>${buildItems(recs.evening?.tonight)}
-    </div>`;
+    </button>`;
 
   // Populate overlay data from live recs
   overlayData.morning = {
@@ -899,29 +899,10 @@ document.addEventListener('keyup', function(e) {
 function attachMomentClicks() {
   ['morning', 'afternoon', 'evening'].forEach(timeOfDay => {
     document.querySelectorAll('.moment.' + timeOfDay).forEach(el => {
-      el.setAttribute('tabindex', '0');
-      el.setAttribute('role', 'button');
       el.onclick = () => openOverlay(timeOfDay);
-      el.onkeyup = e => {
-        if (e.keyCode === 13 || e.keyCode === 23 || e.keyCode === 66) {
-          e.preventDefault();
-          openOverlay(timeOfDay);
-        }
-      };
     });
   });
 }
-
-// Global keyup interceptor — catches OK press regardless of element type
-document.addEventListener('keyup', function(e) {
-  const isOK = (e.keyCode === 13 || e.keyCode === 23 || e.keyCode === 66);
-  if (isOK) {
-    const active = document.activeElement;
-    if (active && active.tagName !== 'BODY') {
-      active.click();
-    }
-  }
-});
 
 attachMomentClicks();
 setTimeout(attachMomentClicks, 1000);

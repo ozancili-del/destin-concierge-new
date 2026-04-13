@@ -887,7 +887,10 @@ document.addEventListener('keyup', function(e) {
     if (now - lastKeyUp < 300) return;
     lastKeyUp = now;
     var el = document.activeElement;
-    if (el && el.tagName !== 'BODY') el.click();
+    if (!el || el.tagName === 'BODY') return;
+    // Skip streaming buttons — they handle onclick natively, don't double-fire
+    if (el.classList.contains('s-btn')) return;
+    el.click();
   }
 });
 

@@ -4,6 +4,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -141,6 +142,36 @@ h1 span{color:var(--teal);}
 .bc-act-status.active{background:rgba(34,197,94,0.3);color:#86efac;}
 .bc-act-status.soon{background:rgba(251,191,36,0.3);color:#fde68a;}
 .bc-act-status.upcoming{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);}
+
+.streaming-row{margin-top:12px;flex-shrink:0;}
+.streaming-title{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-bottom:8px;}
+.streaming-apps{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.s-btn{display:flex;align-items:center;border-radius:14px;cursor:pointer;border:1px solid rgba(255,255,255,0.08);overflow:hidden;background:rgba(255,255,255,0.03);transition:border-color 0.2s,transform 0.15s;}
+.s-btn:hover,.s-btn:focus{border-color:#48cae4;transform:scale(1.03);outline:none;box-shadow:0 0 0 3px #48cae4,0 0 20px rgba(72,202,228,0.8),0 0 40px rgba(72,202,228,0.4);}
+.s-ico{width:68px;height:68px;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin:7px;border-radius:12px;overflow:hidden;}
+.s-inf{padding:0 10px 0 6px;}
+.s-name{font-size:15px;font-weight:500;color:#fff;}
+.s-sub{font-size:10px;color:rgba(255,255,255,0.28);}
+
+.moment{cursor:pointer;transition:box-shadow 0.2s,transform 0.15s;}
+.moment.morning:hover,.moment.morning:focus{border-color:#f6c453;transform:scale(1.03);outline:none;box-shadow:0 0 0 3px #f6c453,0 0 20px rgba(246,196,83,0.8),0 0 40px rgba(246,196,83,0.4);}
+.moment.afternoon:hover,.moment.afternoon:focus{border-color:#48cae4;transform:scale(1.03);outline:none;box-shadow:0 0 0 3px #48cae4,0 0 20px rgba(72,202,228,0.8),0 0 40px rgba(72,202,228,0.4);}
+.moment.evening:hover,.moment.evening:focus{border-color:#a78bfa;transform:scale(1.03);outline:none;box-shadow:0 0 0 3px #a78bfa,0 0 20px rgba(167,139,250,0.8),0 0 40px rgba(167,139,250,0.4);}
+
+#recOverlay{position:fixed;inset:0;background:rgba(4,10,20,0.92);z-index:999;display:none;align-items:center;justify-content:center;}
+#recOverlay.open{display:flex;}
+.rec-overlay-inner{width:1100px;max-height:860px;background:rgba(10,22,40,0.98);border:1px solid rgba(255,255,255,0.1);border-radius:32px;padding:48px 56px;position:relative;overflow:hidden;}
+.rec-overlay-close{position:absolute;top:24px;right:32px;font-size:28px;color:rgba(255,255,255,0.4);cursor:pointer;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:50%;width:48px;height:48px;display:flex;align-items:center;justify-content:center;line-height:1;transition:all 0.2s;}
+.rec-overlay-close:hover,.rec-overlay-close:focus{color:#fff;border-color:#48cae4;box-shadow:0 0 0 3px #48cae4,0 0 20px rgba(72,202,228,0.8),0 0 40px rgba(72,202,228,0.4);outline:none;}
+.rec-overlay-title{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:300;margin-bottom:6px;line-height:1;}
+.rec-overlay-time{font-size:14px;letter-spacing:2px;color:rgba(255,255,255,0.4);text-transform:uppercase;margin-bottom:40px;}
+.rec-overlay-cols{display:grid;grid-template-columns:1fr 1fr;gap:40px;}
+.rec-overlay-section{display:flex;flex-direction:column;gap:18px;}
+.rec-overlay-section-label{font-size:11px;letter-spacing:3px;text-transform:uppercase;margin-bottom:4px;}
+.rec-overlay-item{display:flex;flex-direction:column;gap:4px;}
+.rec-overlay-name{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:400;color:#fff;line-height:1.1;}
+.rec-overlay-meta{font-size:14px;color:rgba(255,255,255,0.45);line-height:1.4;}
+.rec-overlay-hint{position:absolute;bottom:28px;right:40px;font-size:12px;color:rgba(255,255,255,0.2);letter-spacing:1px;}
 </style>
 </head>
 <body>
@@ -205,7 +236,7 @@ h1 span{color:var(--teal);}
     </div>
     <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:14px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:8px;">
       <div style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.85);font-weight:500;">Book Activities & Tours</div>
-      <img src="/tripshock-qr.png" style="width:110px;height:110px;border-radius:8px;background:#fff;padding:6px;" alt="TripShock QR"/>
+      <canvas id="tripshockQR" width="110" height="110" style="border-radius:8px;background:#fff;padding:6px;"></canvas>
       <div style="text-align:center;">
         <div style="font-family:'Cormorant Garamond',serif;font-size:18px;color:#fff;">TripShock Destin</div>
         <div style="font-size:10px;color:rgba(255,255,255,0.65);margin-top:2px;">Dolphin cruises · Crab Island · Fishing · Water sports</div>
@@ -215,7 +246,7 @@ h1 span{color:var(--teal);}
   </div>
 
   <!-- CENTER: AI Recommendations -->
-  <div class="card" style="gap:14px;" id="recsCard">
+  <div class="card" style="gap:14px;display:flex;flex-direction:column;" id="recsCard">
     <div class="sec-label" id="recsLabel">Your day · loading...</div>
     <div class="day-grid" id="recsGrid">
       <div class="moment morning"><div class="loading-recs">Loading morning recommendations...</div></div>
@@ -224,6 +255,18 @@ h1 span{color:var(--teal);}
     </div>
     <div id="checkoutBanner" style="display:none;" class="checkout-banner">
       <p id="checkoutMsg"></p>
+    </div>
+    <!-- STREAMING -->
+    <div class="streaming-row">
+      <div class="streaming-title">Watch · Streaming</div>
+      <div class="streaming-apps">
+        <a class="s-btn" tabindex="0" href="intent://com.netflix.mediaclient#Intent;scheme=netflix;end"><div class="s-ico" style="background:#E50914;display:flex;align-items:center;justify-content:center;"><span style="font-family:Arial Black,sans-serif;font-size:11px;font-weight:900;color:#fff;letter-spacing:-0.5px;">NETFLIX</span></div><div class="s-inf"><div class="s-name">Netflix</div><div class="s-sub">Movies &amp; series</div></div></a>
+        <a class="s-btn" tabindex="0" href="intent://com.amazon.avod.thirdpartyclient#Intent;scheme=primevideo;end"><div class="s-ico" style="background:linear-gradient(160deg,#1c6fc5,#0d4fa8);display:flex;align-items:center;justify-content:center;flex-direction:column;"><span style="font-family:Arial,sans-serif;font-size:9px;color:#fff;line-height:1.2;text-align:center;">prime<br>video</span></div><div class="s-inf"><div class="s-name">Prime Video</div><div class="s-sub">Amazon originals</div></div></a>
+        <a class="s-btn" tabindex="0" href="intent://com.google.android.youtube.tv#Intent;scheme=youtube;end"><div class="s-ico" style="background:#FF0000;display:flex;align-items:center;justify-content:center;"><svg width="40" height="28" viewBox="0 0 40 28"><rect x="4" y="2" width="32" height="20" rx="6" fill="#FF0000"/><polygon points="14,6 14,18 28,12" fill="white"/></svg></div><div class="s-inf"><div class="s-name">YouTube</div><div class="s-sub">Videos &amp; music</div></div></a>
+        <a class="s-btn" tabindex="0" href="intent://com.disney.disneyplus#Intent;scheme=disneyplus;end"><div class="s-ico" style="background:linear-gradient(160deg,#04173a,#0d2f7a);display:flex;align-items:center;justify-content:center;"><span style="font-family:Georgia,serif;font-size:12px;font-style:italic;color:#fff;">Disney<b style="font-style:normal;">+</b></span></div><div class="s-inf"><div class="s-name">Disney+</div><div class="s-sub">Marvel · Star Wars</div></div></a>
+        <a class="s-btn" tabindex="0" href="intent://com.apple.atve.androidtv.appletv#Intent;scheme=appletv;end"><div class="s-ico" style="background:#141414;display:flex;align-items:center;justify-content:center;"><span style="font-family:Helvetica,sans-serif;font-size:13px;font-weight:300;color:#fff;">&#xF8FF; tv</span></div><div class="s-inf"><div class="s-name">Apple TV+</div><div class="s-sub">Apple originals</div></div></a>
+        <a class="s-btn" tabindex="0" href="intent://com.hulu.plus#Intent;scheme=hulu;end"><div class="s-ico" style="background:#0d0d0d;display:flex;align-items:center;justify-content:center;"><span style="font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#1CE783;letter-spacing:1px;">hulu</span></div><div class="s-inf"><div class="s-name">Hulu</div><div class="s-sub">TV &amp; live sports</div></div></a>
+      </div>
     </div>
   </div>
 
@@ -690,6 +733,24 @@ function renderRecommendations(recs, timeSlot, isCheckoutEve, guestName, today) 
       <div class="split-label">Eat</div>${buildItems(recs.evening?.eat)}
       <div class="split-label">Tonight</div>${buildItems(recs.evening?.tonight)}
     </div>`;
+
+  // Populate overlay data from live recs
+  overlayData.morning = {
+    title: 'Morning', time: 'Until noon', color: '#f6c453', doLabel: 'What to do',
+    eat: (recs.morning?.eat || []).map(i => ({ name: i.name, meta: i.tip || '' })),
+    do: (recs.morning?.do || []).map(i => ({ name: i.name, meta: i.tip || '' }))
+  };
+  overlayData.afternoon = {
+    title: 'Afternoon', time: 'Noon – 5 PM', color: '#48cae4', doLabel: 'What to do',
+    eat: (recs.afternoon?.eat || []).map(i => ({ name: i.name, meta: i.tip || '' })),
+    do: (recs.afternoon?.do || []).map(i => ({ name: i.name, meta: i.tip || '' }))
+  };
+  overlayData.evening = {
+    title: 'Evening', time: '5 PM onwards', color: '#a78bfa', doLabel: 'Tonight',
+    eat: (recs.evening?.eat || []).map(i => ({ name: i.name, meta: i.tip || '' })),
+    do: (recs.evening?.tonight || []).map(i => ({ name: i.name, meta: i.tip || '' }))
+  };
+  attachMomentClicks();
 }
 
 // ── Beach Conditions (NOAA + Open-Meteo direct) ───────────────────
@@ -789,6 +850,82 @@ setInterval(()=>{if(bcCachedTides.length)bcUpdateActivities(bcCachedTides);},60*
 // loadLiveData runs every 30 min and handles all state transitions + time slot switching
 loadLiveData();
 setInterval(loadLiveData, 30 * 60 * 1000);
+
+// ── TripShock QR ──────────────────────────────────────────────────
+if (typeof QRCode !== 'undefined') {
+  QRCode.toCanvas(document.getElementById('tripshockQR'),
+    'https://www.tripshock.com/?aff=destindreamcondo',
+    { width: 110, margin: 1, color: { dark: '#000000', light: '#ffffff' } },
+    err => { if (err) console.error('TripShock QR error:', err); }
+  );
+}
+
+// ── Overlay data (mirrors renderRecommendations output) ───────────
+// overlayData is populated dynamically from the live recs after render
+let overlayData = { morning: null, afternoon: null, evening: null };
+
+function openOverlay(period) {
+  const d = overlayData[period];
+  if (!d) return;
+  document.getElementById('overlayTitle').textContent = d.title;
+  document.getElementById('overlayTitle').style.color = d.color;
+  document.getElementById('overlayTime').textContent = d.time;
+  const cols = document.getElementById('overlayCols');
+  cols.innerHTML =
+    '<div class="rec-overlay-section">' +
+      '<div class="rec-overlay-section-label" style="color:' + d.color + '">Where to eat</div>' +
+      d.eat.map(i => '<div class="rec-overlay-item"><div class="rec-overlay-name">' + i.name + '</div><div class="rec-overlay-meta">' + i.meta + '</div></div>').join('') +
+    '</div>' +
+    '<div class="rec-overlay-section">' +
+      '<div class="rec-overlay-section-label" style="color:' + d.color + '">' + d.doLabel + '</div>' +
+      d.do.map(i => '<div class="rec-overlay-item"><div class="rec-overlay-name">' + i.name + '</div><div class="rec-overlay-meta">' + i.meta + '</div></div>').join('') +
+    '</div>';
+  document.getElementById('recOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('overlayCloseBtn').focus(), 50);
+}
+
+function closeOverlay() {
+  document.getElementById('recOverlay').classList.remove('open');
+}
+
+document.getElementById('recOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeOverlay();
+});
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' || e.key === 'Backspace') closeOverlay();
+});
+
+function attachMomentClicks() {
+  document.querySelectorAll('.moment.morning').forEach(el => {
+    el.setAttribute('tabindex', '0');
+    el.onclick = () => openOverlay('morning');
+    el.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') openOverlay('morning'); };
+  });
+  document.querySelectorAll('.moment.afternoon').forEach(el => {
+    el.setAttribute('tabindex', '0');
+    el.onclick = () => openOverlay('afternoon');
+    el.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') openOverlay('afternoon'); };
+  });
+  document.querySelectorAll('.moment.evening').forEach(el => {
+    el.setAttribute('tabindex', '0');
+    el.onclick = () => openOverlay('evening');
+    el.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') openOverlay('evening'); };
+  });
+}
+
+attachMomentClicks();
+setTimeout(attachMomentClicks, 1000);
+
 </script>
+<div id="recOverlay">
+  <div class="rec-overlay-inner" id="recOverlayInner">
+    <button class="rec-overlay-close" id="overlayCloseBtn" tabindex="0" onclick="closeOverlay()">✕</button>
+    <div class="rec-overlay-title" id="overlayTitle"></div>
+    <div class="rec-overlay-time" id="overlayTime"></div>
+    <div class="rec-overlay-cols" id="overlayCols"></div>
+    <div class="rec-overlay-hint">D-pad to ✕ then OK · or press Back</div>
+  </div>
+</div>
 </body>
 </html>

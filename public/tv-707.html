@@ -327,6 +327,8 @@ h1 span{color:var(--teal);}
   </div>
 </div>
 
+<div id="safeFocus" tabindex="0" style="position:absolute;opacity:0;width:1px;height:1px;overflow:hidden;"></div>
+
 <script>
 const BASE = 'https://destin-concierge-new.vercel.app';
 const UNIT = '707';
@@ -871,33 +873,29 @@ if (typeof QRCode !== 'undefined') {
 }
 
 // ── Overlay data (mirrors renderRecommendations output) ───────────
-// Global OK button handler — keyCode 13 on Google TV remote
-let lastKeyUp = 0;
-let pageJustRefocused = false;
-document.addEventListener('visibilitychange', function() {
-  if (!document.hidden) {
-    pageJustRefocused = true;
-    if (document.activeElement) document.activeElement.blur();
-    setTimeout(() => { pageJustRefocused = false; }, 1500);
+// Resume protection — works with Fully Kiosk JS Interface or fallback
+let ignoreKeysUntil = 0;
+
+function handleResume() {
+  ignoreKeysUntil = Date.now() + 1200;
+  const active = document.activeElement;
+  if (active && active.classList.contains('moment')) {
+    document.getElementById('safeFocus').focus();
   }
-});
-window.addEventListener('focus', function() {
-  pageJustRefocused = true;
-  if (document.activeElement) document.activeElement.blur();
-  setTimeout(() => { pageJustRefocused = false; }, 1500);
-});
-document.addEventListener('keyup', function(e) {
-  if (e.keyCode === 13) {
-    if (pageJustRefocused) return;
-    const now = Date.now();
-    if (now - lastKeyUp < 300) return;
-    lastKeyUp = now;
-    var el = document.activeElement;
-    if (!el || el.tagName === 'BODY') return;
-    if (el.classList.contains('s-btn')) return;
-    el.click();
-  }
-});
+}
+
+if (typeof fully !== 'undefined') {
+  let wasBackground = true;
+  setInterval(() => {
+    try {
+      const isForeground = fully.isInForeground?.() ?? true;
+      if (isForeground && wasBackground) handleResume();
+      wasBackground = !isForeground;
+    } catch(e) {}
+  }, 400);
+} else {
+  window.addEventListener('focus', () => { ignoreKeysUntil = Date.now() + 1500; });
+}
 
 // Close overlay on back/escape
 document.addEventListener('keyup', function(e) {

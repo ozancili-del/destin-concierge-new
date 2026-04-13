@@ -878,10 +878,7 @@ let ignoreKeysUntil = 0;
 
 function handleResume() {
   ignoreKeysUntil = Date.now() + 1200;
-  const active = document.activeElement;
-  if (active && active.classList.contains('moment')) {
-    document.getElementById('safeFocus').focus();
-  }
+  setTimeout(() => { document.getElementById('safeFocus').focus(); }, 50);
 }
 
 if (typeof fully !== 'undefined') {
@@ -894,7 +891,8 @@ if (typeof fully !== 'undefined') {
     } catch(e) {}
   }, 400);
 } else {
-  window.addEventListener('focus', () => { ignoreKeysUntil = Date.now() + 1500; });
+  window.addEventListener('focus', () => handleResume());
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) handleResume(); });
 }
 
 // Close overlay on back/escape

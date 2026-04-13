@@ -907,7 +907,10 @@ let overlayData = {
   }
 };
 
+let lastFocused = null;
+
 function openOverlay(period) {
+  lastFocused = document.activeElement;
   const d = overlayData[period];
   if (!d) return;
   document.getElementById('overlayTitle').textContent = d.title;
@@ -929,6 +932,7 @@ function openOverlay(period) {
 
 function closeOverlay() {
   document.getElementById('recOverlay').classList.remove('open');
+  if (lastFocused) lastFocused.focus();
 }
 
 document.addEventListener('click', function(e) {

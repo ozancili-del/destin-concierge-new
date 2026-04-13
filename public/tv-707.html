@@ -873,8 +873,16 @@ if (typeof QRCode !== 'undefined') {
 // ── Overlay data (mirrors renderRecommendations output) ───────────
 // Global OK button handler — keyCode 13 on Google TV remote
 let lastKeyUp = 0;
+let pageJustRefocused = false;
+document.addEventListener('visibilitychange', function() {
+  if (!document.hidden) {
+    pageJustRefocused = true;
+    setTimeout(() => { pageJustRefocused = false; }, 1000);
+  }
+});
 document.addEventListener('keyup', function(e) {
   if (e.keyCode === 13) {
+    if (pageJustRefocused) return;
     const now = Date.now();
     if (now - lastKeyUp < 300) return;
     lastKeyUp = now;

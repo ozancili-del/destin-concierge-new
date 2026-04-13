@@ -317,6 +317,16 @@ h1 span{color:var(--teal);}
 
 </div>
 
+<div id="recOverlay">
+  <div class="rec-overlay-inner" id="recOverlayInner">
+    <button class="rec-overlay-close" id="overlayCloseBtn" tabindex="0" onclick="closeOverlay()">✕</button>
+    <div class="rec-overlay-title" id="overlayTitle"></div>
+    <div class="rec-overlay-time" id="overlayTime"></div>
+    <div class="rec-overlay-cols" id="overlayCols"></div>
+    <div class="rec-overlay-hint">D-pad to ✕ then OK · or press Back</div>
+  </div>
+</div>
+
 <script>
 const BASE = 'https://destin-concierge-new.vercel.app';
 const UNIT = '707';
@@ -907,15 +917,13 @@ function attachMomentClicks() {
 attachMomentClicks();
 setTimeout(attachMomentClicks, 1000);
 
+// Also wire on DOMContentLoaded in case script runs before DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', attachMomentClicks);
+} else {
+  attachMomentClicks();
+}
+
 </script>
-<div id="recOverlay">
-  <div class="rec-overlay-inner" id="recOverlayInner">
-    <button class="rec-overlay-close" id="overlayCloseBtn" tabindex="0" onclick="closeOverlay()">✕</button>
-    <div class="rec-overlay-title" id="overlayTitle"></div>
-    <div class="rec-overlay-time" id="overlayTime"></div>
-    <div class="rec-overlay-cols" id="overlayCols"></div>
-    <div class="rec-overlay-hint">D-pad to ✕ then OK · or press Back</div>
-  </div>
-</div>
 </body>
 </html>

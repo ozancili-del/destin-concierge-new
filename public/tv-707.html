@@ -932,7 +932,8 @@ function openOverlay(period) {
 
 function closeOverlay() {
   document.getElementById('recOverlay').classList.remove('open');
-  if (lastFocused) lastFocused.focus();
+  lastKeyUp = 0;
+  if (lastFocused) setTimeout(() => lastFocused.focus(), 100);
 }
 
 document.addEventListener('click', function(e) {

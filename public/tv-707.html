@@ -872,11 +872,20 @@ if (typeof QRCode !== 'undefined') {
 
 // ── Overlay data (mirrors renderRecommendations output) ───────────
 // Global OK button handler — keyCode 13 on Google TV remote
+let lastKeyUp = 0;
 document.addEventListener('keyup', function(e) {
   if (e.keyCode === 13) {
+    const now = Date.now();
+    if (now - lastKeyUp < 500) return;
+    lastKeyUp = now;
     var el = document.activeElement;
     if (el && el.tagName !== 'BODY') el.click();
   }
+});
+
+// Close overlay on back/escape
+document.addEventListener('keyup', function(e) {
+  if (e.key === 'Escape' || e.keyCode === 8) closeOverlay();
 });
 
 // overlayData — fallback static until AI recs load
@@ -924,10 +933,6 @@ function closeOverlay() {
 
 document.addEventListener('click', function(e) {
   if (e.target && e.target.id === 'recOverlay') closeOverlay();
-});
-
-document.addEventListener('keyup', function(e) {
-  if (e.key === 'Escape' || e.keyCode === 8 || (e.keyCode === 13 || e.keyCode === 23 || e.keyCode === 66) && document.activeElement && document.activeElement.id === 'overlayCloseBtn') closeOverlay();
 });
 
 function attachMomentClicks() {

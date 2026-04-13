@@ -871,8 +871,32 @@ if (typeof QRCode !== 'undefined') {
 }
 
 // ── Overlay data (mirrors renderRecommendations output) ───────────
-// overlayData is populated dynamically from the live recs after render
-let overlayData = { morning: null, afternoon: null, evening: null };
+// Global OK button handler — keyCode 13 on Google TV remote
+document.addEventListener('keyup', function(e) {
+  if (e.keyCode === 13) {
+    var el = document.activeElement;
+    if (el && el.tagName !== 'BODY') el.click();
+  }
+});
+
+// overlayData — fallback static until AI recs load
+let overlayData = {
+  morning: {
+    title: 'Morning', time: 'Until noon', color: '#f6c453', doLabel: 'What to do',
+    eat: [{name:'Crackings',meta:'Crab cake benedict is legendary'},{name:'Another Broken Egg',meta:'Great Gulf-view breakfast spot'},{name:'Donut Hole Bakery',meta:'Destin classic, worth the stop'}],
+    do: [{name:'Paddleboarding at Crab Island',meta:'Calm morning waters'},{name:'Henderson Beach State Park',meta:'Best beach in Destin'},{name:'Destin Harbor Boardwalk',meta:'Watch the fishing boats come in'}]
+  },
+  afternoon: {
+    title: 'Afternoon', time: 'Noon – 5 PM', color: '#48cae4', doLabel: 'What to do',
+    eat: [{name:'AJs Seafood and Oyster Bar',meta:'Fresh Gulf oysters on the deck'},{name:'Dewey Destins Seafood',meta:'Grouper sandwich — what locals order'},{name:'Boshamps',meta:'Waterfront, great covered deck'}],
+    do: [{name:'Dolphin Watching Cruise',meta:'Departs from HarborWalk Village'},{name:'Destin Commons',meta:'Outdoor mall, great for a stroll'},{name:'Deep Sea Fishing Charter',meta:'Half day charters available'}]
+  },
+  evening: {
+    title: 'Evening', time: '5 PM onwards', color: '#a78bfa', doLabel: 'Tonight',
+    eat: [{name:'The Back Porch',meta:'Beachfront — arrive early for best table'},{name:'Louisiana Lagniappe',meta:'Authentic Creole, cozy atmosphere'},{name:'Pazzo Italiano',meta:"Wood-fired pizza, Ozan's personal favorite"}],
+    do: [{name:'Sunset from your balcony',meta:'7th floor Gulf front row seat'},{name:'HarborWalk Village Stroll',meta:'Evening lights on the water'},{name:'Moonlight Beach Walk',meta:'Clear skies most nights'}]
+  }
+};
 
 function openOverlay(period) {
   const d = overlayData[period];

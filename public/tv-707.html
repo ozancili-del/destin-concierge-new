@@ -147,13 +147,13 @@ h1 span{color:var(--teal);}
 
 .streaming-row{margin-top:12px;flex-shrink:0;}
 .streaming-title{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-bottom:8px;}
-.streaming-apps{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.streaming-apps{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
 .s-btn{display:flex;align-items:center;border-radius:14px;cursor:pointer;border:1px solid rgba(255,255,255,0.08);overflow:hidden;background:rgba(255,255,255,0.03);transition:border-color 0.2s,transform 0.15s;font:inherit;color:inherit;padding:0;text-align:left;width:100%;}
 .s-btn:hover,.s-btn:focus{border-color:#48cae4;transform:scale(1.03);outline:none;box-shadow:0 0 0 3px #48cae4,0 0 20px rgba(72,202,228,0.8),0 0 40px rgba(72,202,228,0.4);}
-.s-ico{width:68px;height:68px;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin:7px;border-radius:12px;overflow:hidden;}
-.s-inf{padding:0 10px 0 6px;}
-.s-name{font-size:15px;font-weight:500;color:#fff;}
-.s-sub{font-size:10px;color:rgba(255,255,255,0.28);}
+.s-ico{width:52px;height:52px;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin:6px;border-radius:10px;overflow:hidden;}
+.s-inf{padding:0 8px 0 4px;}
+.s-name{font-size:13px;font-weight:500;color:#fff;}
+.s-sub{font-size:9px;color:rgba(255,255,255,0.28);}
 
 .moment{cursor:pointer;transition:box-shadow 0.2s,transform 0.15s;font:inherit;color:inherit;text-align:left;width:100%;}
 .moment.morning:hover,.moment.morning:focus{border-color:#f6c453;transform:scale(1.03);outline:none;box-shadow:0 0 0 3px #f6c453,0 0 20px rgba(246,196,83,0.8),0 0 40px rgba(246,196,83,0.4);}
@@ -276,12 +276,14 @@ h1 span{color:var(--teal);}
     <div class="streaming-row" style="margin-top:0;">
       <div class="streaming-title">Watch · Streaming</div>
       <div class="streaming-apps">
-        <button class="s-btn" tabindex="0" onclick="launchStreaming('intent:#Intent;action=android.intent.action.MAIN;component=com.netflix.ninja/.MainActivity;end', this);"><div class="s-ico" style="background:#E50914;display:flex;align-items:center;justify-content:center;"><span style="font-family:Arial Black,sans-serif;font-size:11px;font-weight:900;color:#fff;letter-spacing:-0.5px;">NETFLIX</span></div><div class="s-inf"><div class="s-name">Netflix</div><div class="s-sub">Movies &amp; series</div></div></button>
-        <button class="s-btn" tabindex="0" onclick="launchStreaming('intent:#Intent;action=android.intent.action.MAIN;component=com.amazon.amazonvideo.livingroom/com.amazon.ignition.IgnitionActivity;end', this);"><div class="s-ico" style="background:linear-gradient(160deg,#1c6fc5,#0d4fa8);display:flex;align-items:center;justify-content:center;flex-direction:column;"><span style="font-family:Arial,sans-serif;font-size:9px;color:#fff;line-height:1.2;text-align:center;">prime<br>video</span></div><div class="s-inf"><div class="s-name">Prime Video</div><div class="s-sub">Amazon originals</div></div></button>
-        <button class="s-btn" tabindex="0" onclick="launchStreaming('intent:#Intent;action=android.intent.action.MAIN;component=com.google.android.youtube.tv/com.google.android.apps.youtube.tv.activity.ShellActivity;end', this);"><div class="s-ico" style="background:#FF0000;display:flex;align-items:center;justify-content:center;"><svg width="40" height="28" viewBox="0 0 40 28"><rect x="4" y="2" width="32" height="20" rx="6" fill="#FF0000"/><polygon points="14,6 14,18 28,12" fill="white"/></svg></div><div class="s-inf"><div class="s-name">YouTube</div><div class="s-sub">Videos &amp; music</div></div></button>
-        <button class="s-btn" tabindex="0" onclick="launchStreaming('intent:#Intent;action=android.intent.action.MAIN;component=com.disney.disneyplus/com.bamtechmedia.dominguez.main.MainActivity;end', this);"><div class="s-ico" style="background:linear-gradient(160deg,#04173a,#0d2f7a);display:flex;align-items:center;justify-content:center;"><span style="font-family:Georgia,serif;font-size:12px;font-style:italic;color:#fff;">Disney<b style="font-style:normal;">+</b></span></div><div class="s-inf"><div class="s-name">Disney+</div><div class="s-sub">Marvel · Star Wars</div></div></button>
-        <button class="s-btn" tabindex="0" onclick="launchStreaming('intent:#Intent;action=android.intent.action.MAIN;component=com.hulu.livingroomplus/.WKFactivity;end', this);"><div class="s-ico" style="background:#0d0d0d;display:flex;align-items:center;justify-content:center;"><span style="font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#1CE783;letter-spacing:1px;">hulu</span></div><div class="s-inf"><div class="s-name">Hulu</div><div class="s-sub">TV &amp; live sports</div></div></button>
-        <button class="s-btn" tabindex="0" onclick="launchStreaming('intent:#Intent;action=android.intent.action.MAIN;component=com.apple.atve.androidtv.appletv/.MainActivity;end', this);"><div class="s-ico" style="background:#141414;display:flex;align-items:center;justify-content:center;"><span style="font-family:Helvetica,sans-serif;font-size:13px;font-weight:300;color:#fff;">&#xF8FF; tv</span></div><div class="s-inf"><div class="s-name">Apple TV+</div><div class="s-sub">Apple originals</div></div></button>
+        <button class="s-btn" tabindex="0" onclick="launchStreaming('intent:#Intent;action=android.intent.action.MAIN;component=com.netflix.ninja/.MainActivity;end', this);"><div class="s-ico" style="background:#E50914;display:flex;align-items:center;justify-content:center;"><span style="font-family:Arial Black,sans-serif;font-size:10px;font-weight:900;color:#fff;letter-spacing:-0.5px;">NETFLIX</span></div><div class="s-inf"><div class="s-name">Netflix</div><div class="s-sub">Movies &amp; series</div></div></button>
+        <button class="s-btn" tabindex="0" onclick="launchStreaming('intent:#Intent;action=android.intent.action.MAIN;component=com.amazon.amazonvideo.livingroom/com.amazon.ignition.IgnitionActivity;end', this);"><div class="s-ico" style="background:linear-gradient(160deg,#1c6fc5,#0d4fa8);display:flex;align-items:center;justify-content:center;flex-direction:column;"><span style="font-family:Arial,sans-serif;font-size:8px;color:#fff;line-height:1.2;text-align:center;">prime<br>video</span></div><div class="s-inf"><div class="s-name">Prime Video</div><div class="s-sub">Amazon originals</div></div></button>
+        <button class="s-btn" tabindex="0" onclick="launchStreaming('intent:#Intent;action=android.intent.action.MAIN;component=com.google.android.youtube.tv/com.google.android.apps.youtube.tv.activity.ShellActivity;end', this);"><div class="s-ico" style="background:#FF0000;display:flex;align-items:center;justify-content:center;"><svg width="32" height="22" viewBox="0 0 40 28"><rect x="4" y="2" width="32" height="20" rx="6" fill="#FF0000"/><polygon points="14,6 14,18 28,12" fill="white"/></svg></div><div class="s-inf"><div class="s-name">YouTube</div><div class="s-sub">Videos &amp; music</div></div></button>
+        <button class="s-btn" tabindex="0" onclick="launchStreaming('intent:#Intent;action=android.intent.action.MAIN;component=com.disney.disneyplus/com.bamtechmedia.dominguez.main.MainActivity;end', this);"><div class="s-ico" style="background:linear-gradient(160deg,#04173a,#0d2f7a);display:flex;align-items:center;justify-content:center;"><span style="font-family:Georgia,serif;font-size:11px;font-style:italic;color:#fff;">Disney<b style="font-style:normal;">+</b></span></div><div class="s-inf"><div class="s-name">Disney+</div><div class="s-sub">Marvel · Star Wars</div></div></button>
+        <button class="s-btn" tabindex="0" onclick="launchStreaming('intent:#Intent;action=android.intent.action.MAIN;component=com.hulu.livingroomplus/.WKFactivity;end', this);"><div class="s-ico" style="background:#0d0d0d;display:flex;align-items:center;justify-content:center;"><span style="font-family:Arial,sans-serif;font-size:13px;font-weight:700;color:#1CE783;letter-spacing:1px;">hulu</span></div><div class="s-inf"><div class="s-name">Hulu</div><div class="s-sub">TV &amp; live sports</div></div></button>
+        <button class="s-btn" tabindex="0" onclick="launchStreaming('intent:#Intent;action=android.intent.action.MAIN;component=com.apple.atve.androidtv.appletv/.MainActivity;end', this);"><div class="s-ico" style="background:#141414;display:flex;align-items:center;justify-content:center;"><span style="font-family:Helvetica,sans-serif;font-size:12px;font-weight:300;color:#fff;">&#xF8FF; tv</span></div><div class="s-inf"><div class="s-name">Apple TV+</div><div class="s-sub">Apple originals</div></div></button>
+        <button class="s-btn" tabindex="0" onclick="openInfoOverlay('cox');"><div class="s-ico" style="background:linear-gradient(160deg,#003da5,#0053cc);display:flex;align-items:center;justify-content:center;"><span style="font-family:Arial Black,sans-serif;font-size:11px;font-weight:900;color:#fff;">COX</span></div><div class="s-inf"><div class="s-name">Cox Cable</div><div class="s-sub">Live TV &amp; channels</div></div></button>
+        <button class="s-btn" tabindex="0" onclick="launchStreaming('intent:#Intent;action=android.intent.action.MAIN;component=com.tubitv/.activities.SplashActivity;end', this);"><div class="s-ico" style="background:#FA3B20;display:flex;align-items:center;justify-content:center;"><span style="font-family:Arial Black,sans-serif;font-size:11px;font-weight:900;color:#fff;">tubi</span></div><div class="s-inf"><div class="s-name">Tubi</div><div class="s-sub">Free movies &amp; TV</div></div></button>
       </div>
     </div>
   </div><!-- end streaming card -->
@@ -926,6 +928,16 @@ function openInfoOverlay(type) {
       <div class="info-overlay-main">Pelican-guest.encowifi.com</div>
       <div class="info-overlay-sub">Password: 54541884</div>
       <div class="info-overlay-meta">Connect via Settings → Wi-Fi on your device</div>`;
+  } else if (type === 'cox') {
+    title.textContent = '📺 Cox Cable TV';
+    title.style.color = '#003da5';
+    content.innerHTML = `
+      <div style="font-size:24px;color:#fff;line-height:1.8;font-family:'DM Sans',sans-serif;">
+        <div style="margin-bottom:16px;">1. Press the <span style="background:rgba(255,255,255,0.15);padding:4px 12px;border-radius:8px;font-weight:600;">INPUT</span> or <span style="background:rgba(255,255,255,0.15);padding:4px 12px;border-radius:8px;font-weight:600;">SOURCE</span> button on the TV remote</div>
+        <div style="margin-bottom:16px;">2. Select <span style="color:#48cae4;font-weight:600;">HDMI 2</span> from the input list</div>
+        <div style="margin-bottom:16px;">3. The Cox cable box is connected to <span style="color:#48cae4;font-weight:600;">HDMI 2</span></div>
+        <div style="color:rgba(255,255,255,0.5);font-size:18px;">To return to this dashboard — press INPUT/SOURCE again and select HDMI 1</div>
+      </div>`;
   } else {
     const noticeText = document.getElementById('buildingNoticeText')?.textContent || 'No current announcements';
     title.textContent = '📢 Building Notice';

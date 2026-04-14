@@ -6,6 +6,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -249,21 +250,8 @@ h1 span{color:var(--teal);}
   <!-- CENTER: Recs + Streaming in separate focus groups -->
   <div style="display:flex;flex-direction:column;gap:20px;min-width:0;">
 
-  <!-- CENTER TOP: AI Recommendations -->
-  <div class="card" style="gap:14px;display:flex;flex-direction:column;flex:1;" id="recsCard">
-    <div class="sec-label" id="recsLabel">Your day · loading...</div>
-    <div class="day-grid" id="recsGrid">
-      <button class="moment morning" tabindex="0"><div class="loading-recs">Loading morning recommendations...</div></button>
-      <button class="moment afternoon" tabindex="0"><div class="loading-recs">Loading afternoon recommendations...</div></button>
-      <button class="moment evening" tabindex="0"><div class="loading-recs">Loading evening recommendations...</div></button>
-    </div>
-    <div id="checkoutBanner" style="display:none;" class="checkout-banner">
-      <p id="checkoutMsg"></p>
-    </div>
-  </div>
-
-  <!-- CENTER BOTTOM: Streaming — separate focus group -->
-  <div class="card" style="padding:16px;" id="streamingCard">
+  <!-- CENTER TOP (DOM first = OS focus snaps here on resume): Streaming -->
+  <div class="card" style="padding:16px;order:2;" id="streamingCard">
     <div class="streaming-row" style="margin-top:0;">
       <div class="streaming-title">Watch · Streaming</div>
       <div class="streaming-apps">
@@ -276,6 +264,20 @@ h1 span{color:var(--teal);}
       </div>
     </div>
   </div><!-- end streaming card -->
+
+  <!-- CENTER BOTTOM (DOM second, visually first via order:1): AI Recommendations -->
+  <div class="card" style="gap:14px;display:flex;flex-direction:column;flex:1;order:1;" id="recsCard">
+    <div class="sec-label" id="recsLabel">Your day · loading...</div>
+    <div class="day-grid" id="recsGrid">
+      <button class="moment morning" tabindex="0"><div class="loading-recs">Loading morning recommendations...</div></button>
+      <button class="moment afternoon" tabindex="0"><div class="loading-recs">Loading afternoon recommendations...</div></button>
+      <button class="moment evening" tabindex="0"><div class="loading-recs">Loading evening recommendations...</div></button>
+    </div>
+    <div id="checkoutBanner" style="display:none;" class="checkout-banner">
+      <p id="checkoutMsg"></p>
+    </div>
+  </div>
+
   </div><!-- end center wrapper -->
 
   <!-- RIGHT: Essentials -->

@@ -955,6 +955,24 @@ function launchStreaming(intentUrl, btn) {
   setTimeout(() => { window.location.href = intentUrl; }, 10);
 }
 
+// Reflow trick — clears stuck :focus/:active CSS pseudo-states on resume
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    document.querySelectorAll('.s-btn').forEach(btn => {
+      btn.style.transition = 'none';
+      const prevDisplay = btn.style.display;
+      btn.style.display = 'none';
+      void btn.offsetHeight;
+      btn.style.display = prevDisplay;
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          btn.style.transition = '';
+        });
+      });
+    });
+  }
+});
+
 attachMomentClicks();
 setTimeout(attachMomentClicks, 1000);
 

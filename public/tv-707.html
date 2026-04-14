@@ -403,7 +403,7 @@ function showGoodbyeScreen(name) {
   document.getElementById('guestName').textContent = name;
   document.getElementById('welcomeMsg').textContent = `Safe travels, ${name}! We hope this stay was everything you dreamed of. Check-out is 10 AM — door locks automatically behind you. We'd love to have you back! 🌊`;
   document.getElementById('checkoutDate').textContent = 'Today · 10:00 AM';
-  QRCode.toCanvas(document.getElementById('destinyQR'), 'https://www.destincondogetaways.com/ai-concierge-574036277', { width: 92, margin: 1, color: { dark: '#000000', light: '#ffffff' } }, function(err){});
+  setTimeout(() => { QRCode.toCanvas(document.getElementById('destinyQR'), 'https://www.destincondogetaways.com/ai-concierge-574036277', { width: 92, margin: 1, color: { dark: '#000000', light: '#ffffff' } }, function(err){}); }, 500);
   // Clear all cached recs — fresh start for next guest
   Object.keys(localStorage).filter(k => k.startsWith('tv707_recs_')).forEach(k => localStorage.removeItem(k));
 }
@@ -412,7 +412,7 @@ function showGenericScreen() {
   resetScreenElements();
   document.getElementById('guestName').textContent = 'Unit 707';
   document.getElementById('welcomeMsg').textContent = 'Welcome to Pelican Beach Resort. Check-in begins at 4 PM. WiFi details are in the panel below.';
-  QRCode.toCanvas(document.getElementById('destinyQR'), 'https://www.destincondogetaways.com/ai-concierge-574036277', { width: 92, margin: 1, color: { dark: '#000000', light: '#ffffff' } }, function(err){});
+  setTimeout(() => { QRCode.toCanvas(document.getElementById('destinyQR'), 'https://www.destincondogetaways.com/ai-concierge-574036277', { width: 92, margin: 1, color: { dark: '#000000', light: '#ffffff' } }, function(err){}); }, 500);
   // Fix checkout card to show check-in time — target by ID not class selector
   document.getElementById('checkoutDate').textContent = '4:00 PM';
   const checkoutEl = document.getElementById('checkoutDate');

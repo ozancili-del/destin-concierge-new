@@ -950,6 +950,7 @@ function attachMomentClicks() {
 }
 
 function launchStreaming(intentUrl) {
+  if (document.activeElement) document.activeElement.blur();
   document.getElementById('safeFocus').focus();
   setTimeout(() => { window.location.href = intentUrl; }, 10);
 }

@@ -174,6 +174,27 @@ h1 span{color:var(--teal);}
 .rec-overlay-name{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:400;color:#fff;line-height:1.1;}
 .rec-overlay-meta{font-size:14px;color:rgba(255,255,255,0.45);line-height:1.4;}
 .rec-overlay-hint{position:absolute;bottom:28px;right:40px;font-size:12px;color:rgba(255,255,255,0.2);letter-spacing:1px;}
+
+/* Clickable essential cards */
+.essential-btn{background:none;border:none;padding:0;width:100%;text-align:left;cursor:pointer;font:inherit;color:inherit;border-radius:14px;transition:transform 0.15s,box-shadow 0.2s;}
+.essential-btn.blue{background:rgba(72,202,228,0.08);border:1px solid rgba(72,202,228,0.2);}
+.essential-btn.amber{background:rgba(246,196,83,0.03);border:1px solid rgba(246,196,83,0.12);}
+.essential-btn.blue:hover,.essential-btn.blue:focus{transform:scale(1.03);outline:none;box-shadow:0 0 0 3px #48cae4,0 0 20px rgba(72,202,228,0.8),0 0 40px rgba(72,202,228,0.4);}
+.essential-btn.amber:hover,.essential-btn.amber:focus{transform:scale(1.03);outline:none;box-shadow:0 0 0 3px #f6c453,0 0 20px rgba(246,196,83,0.8),0 0 40px rgba(246,196,83,0.4);}
+.essential-btn .e-label{font-size:10px;text-transform:uppercase;letter-spacing:3px;color:var(--soft);margin-bottom:6px;padding:14px 14px 0;}
+.essential-btn .e-network{font-size:17px;font-weight:400;color:#fff;margin-bottom:3px;padding:0 14px;}
+.essential-btn .e-password{font-size:13px;color:var(--teal);padding:0 14px 14px;}
+.essential-btn .notice-label{font-size:10px;text-transform:uppercase;letter-spacing:3px;color:rgba(246,196,83,0.3);margin-bottom:4px;padding:14px 14px 0;}
+.essential-btn .notice-text{font-size:12px;color:rgba(255,255,255,0.25);font-style:italic;padding:0 14px 14px;}
+
+/* Info overlays */
+#infoOverlay{position:fixed;inset:0;background:rgba(4,10,20,0.92);z-index:999;display:none;align-items:center;justify-content:center;}
+#infoOverlay.open{display:flex;}
+.info-overlay-inner{width:800px;background:rgba(10,22,40,0.98);border:1px solid rgba(255,255,255,0.1);border-radius:32px;padding:56px 64px;position:relative;}
+.info-overlay-title{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:300;margin-bottom:32px;line-height:1;}
+.info-overlay-main{font-size:72px;font-weight:600;color:#fff;letter-spacing:2px;margin-bottom:12px;line-height:1;}
+.info-overlay-sub{font-size:32px;color:var(--teal);letter-spacing:4px;margin-bottom:8px;}
+.info-overlay-meta{font-size:16px;color:rgba(255,255,255,0.4);margin-top:8px;}
 </style>
 </head>
 <body>
@@ -283,19 +304,19 @@ h1 span{color:var(--teal);}
   <!-- RIGHT: Essentials -->
   <div class="card essentials-card">
     <div class="sec-label">Unit Essentials</div>
-    <div class="essential blue">
+    <button class="essential-btn blue" tabindex="0" onclick="openInfoOverlay('wifi')">
       <div class="e-label">📶 Wi-Fi</div>
       <div class="e-network">Pelican-guest.encowifi.com</div>
       <div class="e-password">54541884</div>
-    </div>
+    </button>
     <div class="essential green">
       <div class="e-label">🕐 Check-out</div>
       <div class="e-checkout" id="checkoutDate">—</div>
     </div>
-    <div id="buildingNoticeCard" style="background:rgba(246,196,83,0.03);border:1px solid rgba(246,196,83,0.12);border-radius:14px;padding:12px 14px;">
-      <div id="buildingNoticeLabel" style="font-size:10px;text-transform:uppercase;letter-spacing:3px;color:rgba(246,196,83,0.3);margin-bottom:4px;">📢 Building Notice</div>
-      <div id="buildingNoticeText" style="font-size:12px;color:rgba(255,255,255,0.25);font-style:italic;">No current announcements</div>
-    </div>
+    <button class="essential-btn amber" id="buildingNoticeCard" tabindex="0" onclick="openInfoOverlay('notice')">
+      <div class="notice-label" id="buildingNoticeLabel">📢 Building Notice</div>
+      <div class="notice-text" id="buildingNoticeText">No current announcements</div>
+    </button>
 
     <div class="divider"></div>
     <div class="qr-single">
@@ -891,9 +912,36 @@ if (typeof QRCode !== 'undefined') {
 }
 
 // ── Overlay data (mirrors renderRecommendations output) ───────────
-// Close overlay on back/escape
+// ── Info Overlays (WiFi + Building Notice) ────────────────────────
+function openInfoOverlay(type) {
+  const title = document.getElementById('infoOverlayTitle');
+  const content = document.getElementById('infoOverlayContent');
+  if (type === 'wifi') {
+    title.textContent = '📶 Wi-Fi';
+    title.style.color = '#48cae4';
+    content.innerHTML = `
+      <div class="info-overlay-main">Pelican-guest.encowifi.com</div>
+      <div class="info-overlay-sub">Password: 54541884</div>
+      <div class="info-overlay-meta">Connect via Settings → Wi-Fi on your device</div>`;
+  } else {
+    const noticeText = document.getElementById('buildingNoticeText')?.textContent || 'No current announcements';
+    title.textContent = '📢 Building Notice';
+    title.style.color = '#f6c453';
+    content.innerHTML = `<div style="font-size:36px;color:#fff;line-height:1.5;font-family:'Cormorant Garamond',serif;font-weight:300;">${noticeText}</div>`;
+  }
+  document.getElementById('infoOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('infoOverlayCloseBtn').focus(), 50);
+}
+
+function closeInfoOverlay() {
+  document.getElementById('infoOverlay').classList.remove('open');
+}
+
+document.getElementById('infoOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeInfoOverlay();
+});
 document.addEventListener('keyup', function(e) {
-  if (e.key === 'Escape' || e.keyCode === 8) closeOverlay();
+  if (e.key === 'Escape' || e.keyCode === 8) { closeOverlay(); closeInfoOverlay(); }
 });
 
 // overlayData — fallback static until AI recs load
@@ -993,5 +1041,13 @@ if (document.readyState === 'loading') {
 }
 
 </script>
+<div id="infoOverlay">
+  <div class="info-overlay-inner">
+    <button class="rec-overlay-close" id="infoOverlayCloseBtn" tabindex="0" onclick="closeInfoOverlay()">✕</button>
+    <div class="info-overlay-title" id="infoOverlayTitle"></div>
+    <div id="infoOverlayContent"></div>
+    <div class="rec-overlay-hint">D-pad to ✕ then OK · or press Back</div>
+  </div>
+</div>
 </body>
 </html>

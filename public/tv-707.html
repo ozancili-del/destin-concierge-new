@@ -527,9 +527,11 @@ async function loadLiveData() {
       const bid = d.booking.ref || d.booking.id || '';
       const fname = d.booking.guestFirstName || '';
       const bookingUrl = `https://www.destincondogetaways.com/ai-concierge-574036277?fname=${encodeURIComponent(fname)}&bid=${bid}`;
-      QRCode.toCanvas(document.getElementById('destinyQR'), bookingUrl, {
-        width: 92, margin: 1, color: { dark: '#000000', light: '#ffffff' }
-      }, err => { if(err) console.error('QR error:', err); });
+      setTimeout(() => {
+        QRCode.toCanvas(document.getElementById('destinyQR'), bookingUrl, {
+          width: 92, margin: 1, color: { dark: '#000000', light: '#ffffff' }
+        }, err => { if(err) console.error('QR error:', err); });
+      }, 500);
     }
 
     // Load AI recommendations — cache key includes booking ref to prevent bleed-through between guests
@@ -879,6 +881,12 @@ if (typeof QRCode !== 'undefined') {
     'https://www.tripshock.com/?aff=destindreamcondo',
     { width: 110, margin: 1, color: { dark: '#000000', light: '#ffffff' } },
     err => { if (err) console.error('TripShock QR error:', err); }
+  );
+  // Destiny Blue fallback QR — replaced by dynamic booking QR when loadLiveData completes
+  QRCode.toCanvas(document.getElementById('destinyQR'),
+    'https://www.destincondogetaways.com/ai-concierge-574036277',
+    { width: 92, margin: 1, color: { dark: '#000000', light: '#ffffff' } },
+    err => { if (err) console.error('Destiny QR error:', err); }
   );
 }
 

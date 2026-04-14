@@ -913,7 +913,10 @@ if (typeof QRCode !== 'undefined') {
 
 // ── Overlay data (mirrors renderRecommendations output) ───────────
 // ── Info Overlays (WiFi + Building Notice) ────────────────────────
+let infoLastFocused = null;
+
 function openInfoOverlay(type) {
+  infoLastFocused = document.activeElement;
   const title = document.getElementById('infoOverlayTitle');
   const content = document.getElementById('infoOverlayContent');
   if (type === 'wifi') {
@@ -935,6 +938,7 @@ function openInfoOverlay(type) {
 
 function closeInfoOverlay() {
   document.getElementById('infoOverlay').classList.remove('open');
+  if (infoLastFocused) setTimeout(() => infoLastFocused.focus(), 100);
 }
 
 document.addEventListener('click', function(e) {

@@ -337,7 +337,7 @@ h1 span{color:var(--teal);}
   </div>
 </div>
 
-<div id="safeFocus" tabindex="0" style="position:absolute;opacity:0;width:1px;height:1px;overflow:hidden;"></div>
+<div id="safeFocus" tabindex="-1" style="position:absolute;opacity:0;width:1px;height:1px;overflow:hidden;"></div>
 
 <script>
 const BASE = 'https://destin-concierge-new.vercel.app';
@@ -950,7 +950,7 @@ function attachMomentClicks() {
 }
 
 function launchStreaming(intentUrl) {
-  if (document.activeElement) document.activeElement.blur();
+  document.querySelectorAll('.s-btn').forEach(b => b.blur());
   document.getElementById('safeFocus').focus();
   setTimeout(() => { window.location.href = intentUrl; }, 10);
 }

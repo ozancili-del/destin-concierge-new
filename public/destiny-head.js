@@ -109,25 +109,3 @@ function dbX(){document.getElementById('db-overlay').classList.remove('show');lS
 function dbGo(){sessionStorage.setItem('db_source','popup');lS.setItem('dbx','1');sessionStorage.removeItem('db_history');history=[];dbX();if(!isOpen)btn.click();setTimeout(function(){isTyping=false;send.disabled=false;if(msgs)msgs.innerHTML='';var i=document.getElementById('db-input');if(i){i.value='__popup_open__';sendMsg();}},500);}
 setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw_banner','1');lS.setItem('db_saw_banner','1');document.getElementById('db-overlay').classList.add('show');},3000);
 });
-
-// Mobile fix — clone banner above booking widget on mobile only
-(function() {
-  var s = document.createElement('style');
-  s.textContent =
-    '#discount-banner-mobile { display: none; }' +
-    '@media (max-width: 991px) {' +
-      '#discount-banner { display: none !important; }' +
-      '#discount-banner-mobile { display: block !important; }' +
-    '}';
-  document.head.appendChild(s);
-
-  window.addEventListener('load', function() {
-    var banner = document.getElementById('discount-banner');
-    var row = document.querySelector('.col-md-4.pull-right-md');
-    if (banner && row) {
-      var clone = banner.cloneNode(true);
-      clone.id = 'discount-banner-mobile';
-      row.parentNode.insertBefore(clone, row);
-    }
-  });
-})();

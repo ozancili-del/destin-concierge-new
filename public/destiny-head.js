@@ -114,9 +114,9 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
 if (window.innerWidth < 992) {
   window.addEventListener('load', function() {
     var banner = document.getElementById('discount-banner');
-    var widgetCol = document.querySelector('.col-md-4.pull-right-md');
-    if (banner && widgetCol) {
-      widgetCol.parentNode.insertBefore(banner, widgetCol);
+    var row = document.querySelector('.col-md-4.pull-right-md') && document.querySelector('.col-md-4.pull-right-md').parentNode;
+    if (banner && row) {
+      row.insertBefore(banner, row.firstChild);
     }
   });
 }

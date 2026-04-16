@@ -1,5 +1,3 @@
-<meta name="google-site-verification" content="p6BjtVEdGbH1bDdR5ie_97pFM4M-Hdz45q2JFXtAlQI" />
-<script>
 document.addEventListener('DOMContentLoaded',function(){const lS=localStorage;
 if(window.location.pathname.toLowerCase().includes('concierge'))return;
 const API='https://destin-concierge-new.vercel.app/api/chat';
@@ -111,4 +109,3 @@ function dbX(){document.getElementById('db-overlay').classList.remove('show');lS
 function dbGo(){sessionStorage.setItem('db_source','popup');lS.setItem('dbx','1');sessionStorage.removeItem('db_history');history=[];dbX();if(!isOpen)btn.click();setTimeout(function(){isTyping=false;send.disabled=false;if(msgs)msgs.innerHTML='';var i=document.getElementById('db-input');if(i){i.value='__popup_open__';sendMsg();}},500);}
 setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw_banner','1');lS.setItem('db_saw_banner','1');document.getElementById('db-overlay').classList.add('show');},3000);
 });
-</script>

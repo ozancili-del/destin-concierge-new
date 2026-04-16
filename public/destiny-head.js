@@ -110,13 +110,19 @@ function dbGo(){sessionStorage.setItem('db_source','popup');lS.setItem('dbx','1'
 setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw_banner','1');lS.setItem('db_saw_banner','1');document.getElementById('db-overlay').classList.add('show');},3000);
 });
 
-// Mobile fix — move purple banner above booking widget
-if (window.innerWidth < 992) {
+// Mobile fix — show banner above booking widget on mobile only
+(function() {
+  var s = document.createElement('style');
+  s.textContent =
+    '#discount-banner { display: none !important; }' +
+    '@media (max-width: 991px) { #discount-banner { display: block !important; } }';
+  document.head.appendChild(s);
+
   window.addEventListener('load', function() {
     var banner = document.getElementById('discount-banner');
-    var row = document.querySelector('.col-md-4.pull-right-md') && document.querySelector('.col-md-4.pull-right-md').parentNode;
+    var row = document.querySelector('.col-md-4.pull-right-md');
     if (banner && row) {
-      row.insertBefore(banner, row.firstChild);
+      row.parentNode.insertBefore(banner, row);
     }
   });
-}
+})();

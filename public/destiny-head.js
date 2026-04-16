@@ -110,13 +110,13 @@ function dbGo(){sessionStorage.setItem('db_source','popup');lS.setItem('dbx','1'
 setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw_banner','1');lS.setItem('db_saw_banner','1');document.getElementById('db-overlay').classList.add('show');},3000);
 });
 
-// Mobile layout fix — show content before booking widget on small screens
-(function(){
-  var s = document.createElement('style');
-  s.textContent = '@media (max-width: 991px) {' +
-    '.row:has(.col-md-4.pull-right-md) { display: flex; flex-direction: column; }' +
-    '.col-md-4.pull-right-md { order: 2; }' +
-    '.col-md-8 { order: 1; }' +
-  '}';
-  document.head.appendChild(s);
-})();
+// Mobile fix — move purple banner above booking widget
+if (window.innerWidth < 992) {
+  window.addEventListener('load', function() {
+    var banner = document.getElementById('discount-banner');
+    var widgetCol = document.querySelector('.col-md-4.pull-right-md');
+    if (banner && widgetCol) {
+      widgetCol.parentNode.insertBefore(banner, widgetCol);
+    }
+  });
+}

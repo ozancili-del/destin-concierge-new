@@ -91,7 +91,7 @@ document.getElementById('db-mobile-close').addEventListener('click',toggle);
 function addB(text){rmTyping();const el=document.createElement('div');el.className='db-msg bot';
 el.innerHTML=text
   .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
-  .replace(/🔗\s*/g,'')
+  .replace(/🔗\s*/g,'').replace(/Unit\s*\d+\s*(?:\([^)]*\))?\s*:\s*(?=https?:\/\/)/g,'')
   .replace(/https?:\/\/[^\s<>"]+/g,u=>{
     const m=u.match(/pelican-beach-resort-unit-(\d+)[^?]*\?([^"'\s]*)/);
     if(m){

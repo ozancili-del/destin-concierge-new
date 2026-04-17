@@ -95,8 +95,8 @@ el.innerHTML=text
     const m=u.match(/pelican-beach-resort-unit-(\d+)[^?]*\?([^"'\s]*)/);
     if(m){
       const unit=m[1];
-      const label=unit==='707'?'Book Unit 707 — Classic Coastal':'Book Unit 1006 — Fresh Coastal';
-      return `<a href="${u}" target="_blank" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;margin:6px 0;background:#fff;border:1.5px solid #00B4D8;border-radius:10px;text-decoration:none;color:#00B4D8;font-size:13px;font-weight:600;box-shadow:0 0 8px rgba(0,180,216,0.4);">${label}<span style="margin-left:8px;">→</span></a>`;
+      const label=unit==='707'?'Unit 707 — Classic Coastal':'Unit 1006 — Fresh Coastal';
+      return `<a href="${u}" target="_blank" style="display:flex;align-items:center;justify-content:space-between;padding:11px 16px;margin:6px 0;background:linear-gradient(135deg,#00B4D8,#0096c7);border:none;border-radius:10px;text-decoration:none;color:#fff;font-size:13px;font-weight:700;box-shadow:0 4px 12px rgba(0,150,200,0.5),0 1px 3px rgba(0,0,0,0.15);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Book ${label} &nbsp;→</a>`;
     }
     return `<a href="${u}" target="_blank" style="color:#00B4D8;word-break:break-word;">${u}</a>`;
   });

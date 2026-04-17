@@ -3380,7 +3380,7 @@ Your 10% direct booking discount is already applied! 🎉 Let me know if you hav
 ${link707}
 ${link1006}
 
-Your 10% direct booking discount is already applied on both! 🎉${priceDropContext ? " " + priceDropContext.replace("💰 PRICE DROP SIGNAL: ","").split(".")[0] + " 😊" : ""} Want me to tell you more about the differences? 😊${activityPS}`;
+Your 10% direct booking discount is already applied on both! 🎉${priceDropContext ? " By the way, " + (() => { const m = priceDropContext.match(/Unit (\d+): down (\d+)% over the last (\d+) days \([^)]+\$(\d+)[^$]+\$(\d+)/); return m ? `Unit ${m[1]} dropped ${m[2]}% in the last ${m[3]} days — was $${m[4]}/night, now $${m[5]}. Good timing to lock it in! 😊` : ""; })() : ""} Want me to tell you more about the differences? 😊${activityPS}`;
 
       } else if (availabilityStatus.includes("707:BOOKED") && availabilityStatus.includes("1006:BOOKED")) {
         bookingReply = `I'm sorry — both units are booked for ${dates.arrival} to ${dates.departure}. You can browse other open dates at https://www.destincondogetaways.com/availability or contact Ozan at (972) 357-4262 — he may have options not listed online!`;
@@ -3530,6 +3530,14 @@ Your 10% direct booking discount is already applied! 🎉 Unit 707 availability 
     // Strip trailing punctuation glued to URLs
     reply = reply.replace(/(https?:\/\/[^\s"'<>)]+)[.,!?;:)]+(\ |$)/g, '$1$2');
     reply = reply.replace(/(https?:\/\/[^\s"'<>)]+)[.,!?;:)]+$/, '$1');
+
+    // Append price drop to GPT reply if not already mentioned
+    if (priceDropContext && reply && !reply.includes("dropped") && !reply.includes("drop") && !bookingLinksSent) {
+      const m = priceDropContext.match(/Unit (\d+): down (\d+)% over the last (\d+) days [^$]+\$(\d+)[^$]+\$(\d+)/);
+      if (m) {
+        reply = reply.trimEnd() + ` By the way, Unit ${m[1]} dropped ${m[2]}% in the last ${m[3]} days — was $${m[4]}/night, now $${m[5]}. Good timing to lock it in! 😊`;
+      }
+    }
 
     // Store openIssues JSON in col G — gate on isMaintenanceReport OR detectedIntent
     // so issues detected by regex always get saved even if GPT said INFO

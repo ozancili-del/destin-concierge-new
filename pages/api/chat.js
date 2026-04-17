@@ -21,7 +21,7 @@ function isNonEnglish(text) {
     /\b(adultos?|ni[ñn]os?|ni[ñn]as?|personas?|cuantos?|entrada|salida|sabado|domingo|lunes|martes|miercoles|jueves|viernes|enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre|adultes?|enfants?|personnes?|adultos?|crian[çc]as?)\b/i.test(text);
 }
 
-async function extractStructuredData(lastUser, allUserText) {
+async function extractStructuredData(lastUser, allUserText, today) {
   if (!isNonEnglish(lastUser) && !isNonEnglish(allUserText)) return null;
 
   try {
@@ -1247,7 +1247,7 @@ export default async function handler(req, res) {
     // ── NON-ENGLISH EXTRACTION — GPT extractor for multilingual guests ────────
     // Only fires when non-English detected. English = zero overhead.
     // Output overrides regex-extracted adults/children/dates downstream.
-    const langExtracted = await extractStructuredData(lastUser, allUserText);
+    const langExtracted = await extractStructuredData(lastUser, allUserText, today);
     const detectedLanguage = langExtracted?.language || "en";
     const isNonEnglishConvo = detectedLanguage !== "en";
     // These will override regex results below if non-null
@@ -1345,9 +1345,9 @@ export default async function handler(req, res) {
     const hasGuestCountEarly = /(\d+)\s*(adult|kid|child|children|guest|person|people|ppl|pax|infant|baby|toddler)/i.test(allUserText) || (langAdults != null);
     // langIntent from GPT extractor catches non-English availability signals (cuanto cuesta, precio, etc.)
     const langWantsAvailability = langIntent === "availability";
-    const wantsAvailability = hasAccommodation ? false : (langWantsAvailability || (detectedBlogTopic
-      ? (detectAvailabilityIntent(lastUser) && (hasGuestCountEarly || isExplicitBooking))
-      : detectAvailabilityIntent(lastUser)));
+    const wantsAvailability = hasAccommodation ? false : (detectedBlogTopic
+      ? ((langWantsAvailability || detectAvailabilityIntent(lastUser)) && (hasGuestCountEarly || isExplicitBooking))
+      : (langWantsAvailability || detectAvailabilityIntent(lastUser)));
     // Pets detector — when mentioned, skip booking intercept and let GPT apply no-pets policy
     const mentionsPets = /\d+\s*pets?|\bwith.*pets?\b|\bdogs?\b|\bcats?\b|\bpuppies\b|\bkittens?\b|\bbirds?\b|\bparrots?\b|\brabbits?\b|\bhamsters?\b|\bferrets?\b|\bfish\b|\bsnakes?\b|\bturtles?\b|\banimals?\b|bring.*(?:my|our|the)\s+\w+.*(?:pet|dog|cat|bird|animal)|pet.*friendly|emotional support animal|\besa\b|\bservice animal\b/i.test(allUserText);
 
@@ -2613,6 +2613,20 @@ You sound like a knowledgeable local friend — warm, genuine, never robotic.
 When a guest asks how they can trust you as an AI: be honest and humble. Say something like: "I do my best to give you accurate information — but for anything you want to double-check, Ozan is always available and better to cross-reference with him directly at (972) 357-4262 or ozan@destincondogetaways.com." Never claim your responses are "verified" or "guaranteed accurate."
 Today is ${today}. Current time in Destin: ${currentTime} CST.
 ${existingGuestContext}
+
+CRITICAL — PRICING AND AVAILABILITY BEHAVIOR:
+You NEVER say you don't have access to real-time prices or availability. You DO have live access via the booking system.
+
+MODE 1 — If you are missing any of the following: check-in date, check-out date, number of adults, number of children:
+→ Warmly ask for the missing piece only. Never blame lack of access.
+→ Example: "I'd love to check that for you! Could you share your check-in and check-out dates, and how many adults and children will be staying?"
+
+MODE 2 — If ALL of the above are already provided AND booking links have already been shared:
+→ NEVER ask for info again
+→ NEVER say you lack access
+→ NEVER give a generic fallback
+→ Calmly direct the guest to the booking link: "The exact total including all fees and your 10% discount is shown live in the booking link I sent — it updates in real time based on your dates 😊"
+→ If the guest repeats a price question after a link was already provided, do NOT change strategy — reinforce the link confidently.
 
 ⛔ CRITICAL URL RULE — NO EXCEPTIONS:
 NEVER invent, generate, guess, or modify booking URLs. The ONLY valid booking URLs are pre-built by the system and provided to you in the context below (they contain "or_arrival=" and "or_departure="). If no pre-built URL is provided, do NOT send any booking link — ask for missing info instead.

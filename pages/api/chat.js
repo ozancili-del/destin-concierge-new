@@ -2585,7 +2585,7 @@ WEATHER DATA UNAVAILABLE: Real-time weather could not be fetched. Do NOT guess o
           }
         }
         if (drops.length > 0) {
-          priceDropContext = `💰 PRICE DROP SIGNAL: ${drops.join(' | ')}. Mention this naturally ONCE with the exact numbers — e.g. "By the way, [Unit X] has dropped [X]% in the last [N] days — was $[from]/night, now $[to]/night. Good timing to lock it in! 😊" — use the actual figures above, don't round or vague it up.`;
+          priceDropContext = `💰 PRICE DROP SIGNAL: ${drops.join(' | ')}. Mention this naturally ONCE with the exact numbers — e.g. "By the way, [Unit X] has dropped [X]% in the last [N] days — was $[from]/night, now $[to]/night (exludes fees & Tax). Good timing to lock it in! 😊" — use the actual figures above, don't round or vague it up.`;
           console.log('[PRICE DROP]', priceDropContext);
         }
       } catch (e) {

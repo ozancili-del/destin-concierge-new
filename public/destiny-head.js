@@ -96,7 +96,7 @@ el.innerHTML=text
     if(m){
       const unit=m[1];
       const label=unit==='707'?'Book Unit 707 — Classic Coastal':'Book Unit 1006 — Fresh Coastal';
-      return `<a href="${u}" target="_blank" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;margin:6px 0;background:rgba(0,180,216,0.08);border:1px solid rgba(0,180,216,0.3);border-radius:10px;text-decoration:none;color:#00B4D8;font-size:13px;font-weight:600;">${label}<span style="margin-left:8px;">→</span></a>`;
+      return `<a href="${u}" target="_blank" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;margin:6px 0;background:#fff;border:1.5px solid #00B4D8;border-radius:10px;text-decoration:none;color:#00B4D8;font-size:13px;font-weight:600;box-shadow:0 0 8px rgba(0,180,216,0.4);">${label}<span style="margin-left:8px;">→</span></a>`;
     }
     return `<a href="${u}" target="_blank" style="color:#00B4D8;word-break:break-word;">${u}</a>`;
   });

@@ -3410,7 +3410,7 @@ Your 10% direct booking discount is already applied! 🎉 Unit 707 availability 
         // Append price drop deterministically — single place for ALL paths
         if (priceDropContext) {
           const raw = priceDropContext.match(/Unit (\d+): down (\d+)% over the last (\d+) days \(\$(\d+)[^\d]+(\d+)/);
-          if (raw) bookingReply = bookingReply.trimEnd() + ` By the way, Unit ${raw[1]} dropped ${raw[2]}% in the last ${raw[3]} days — was $${raw[4]}/night, now $${raw[5]} avg/night before fees. Good timing to lock it in! 😊`;
+          if (raw) bookingReply = bookingReply.trimEnd() + ` By the way, Unit ${raw[1]} dropped ${raw[2]}% in the last ${raw[3]} days — was $${raw[4]}/night, now $${raw[5]} avg/night before fees & Taxes. Good timing to lock it in! 😊`;
         }
         // Popup guest: append 5% email offer if email not yet captured
         if (isPopupSource || sawBanner || pageSource) {
@@ -3547,7 +3547,7 @@ Your 10% direct booking discount is already applied! 🎉 Unit 707 availability 
     // Append price drop for GPT path — single deterministic place
     if (priceDropContext && reply) {
       const raw = priceDropContext.match(/Unit (\d+): down (\d+)% over the last (\d+) days \(\$(\d+)[^\d]+(\d+)/);
-      if (raw) reply = reply.trimEnd() + ` By the way, Unit ${raw[1]} dropped ${raw[2]}% in the last ${raw[3]} days — was $${raw[4]}/night, now $${raw[5]} avg/night before fees. Good timing to lock it in! 😊`;
+      if (raw) reply = reply.trimEnd() + ` By the way, Unit ${raw[1]} dropped ${raw[2]}% in the last ${raw[3]} days — was $${raw[4]}/night, now $${raw[5]} avg/night before fees & Taxes. Good timing to lock it in! 😊`;
     }
 
     await logToSheets(

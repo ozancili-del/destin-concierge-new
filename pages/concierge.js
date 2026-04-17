@@ -196,7 +196,18 @@ export default function Concierge() {
   }
 
   const linkify = (t) =>
-    t.replace(/(https?:\/\/[^\s]+)/g, (u) => `<a href="${u}" target="_blank" rel="noopener noreferrer" style="color:#2563eb;">${u}</a>`)
+    t.replace(/Unit\s*\d+\s*(?:\([^)]*\))?\s*:\s*(?=https?:\/\/)/g, '')
+     .replace(/🔗\s*/g, '')
+     .replace(/(https?:\/\/[^\s]+)/g, (u) => {
+       const m = u.match(/pelican-beach-resort-unit-(\d+)[^?]*\?/);
+       if (m) {
+         const unit = m[1];
+         const label = unit === '707' ? 'Book Unit 707 — Classic Coastal' : 'Book Unit 1006 — Fresh Coastal';
+         return `<a href="${u}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;justify-content:space-between;padding:11px 16px;margin:6px 0;background:linear-gradient(135deg,#00B4D8,#0096c7);border:none;border-radius:10px;text-decoration:none;color:#fff;font-size:13px;font-weight:700;box-shadow:0 4px 12px rgba(0,150,200,0.5),0 1px 3px rgba(0,0,0,0.15);white-space:nowrap;">${label} &nbsp;→</a>`;
+       }
+       return `<a href="${u}" target="_blank" rel="noopener noreferrer" style="color:#2563eb;word-break:break-word;">${u}</a>`;
+     })
+     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
      .replace(/\n/g, "<br/>");
 
   const styles = {

@@ -195,6 +195,37 @@ export default function Concierge() {
     }
   }
 
+const LINK_BUTTONS={
+  'tripshock.com':          {label:'🐬 Book Activities in Destin',  bg:'linear-gradient(135deg,#00B4D8,#0096c7)', shadow:'rgba(0,150,200,0.5)'},
+  'best-restaurants-destin-local-guide': {label:'🍽️ Local Restaurants Guide',   bg:'linear-gradient(135deg,#E95A2A,#c44a20)', shadow:'rgba(200,80,40,0.4)'},
+  'best-restaurants-destin':{label:'🍽️ Best Restaurants Guide',    bg:'linear-gradient(135deg,#E95A2A,#c44a20)', shadow:'rgba(200,80,40,0.4)'},
+  'best-beaches-destin':    {label:'🏖️ Best Beaches Guide',         bg:'linear-gradient(135deg,#378ADD,#185FA5)', shadow:'rgba(55,138,221,0.4)'},
+  'destinweather':          {label:'⛅ Destin Weather Guide',        bg:'linear-gradient(135deg,#BA7517,#854F0B)', shadow:'rgba(186,117,23,0.4)'},
+  'destin-events-2026':     {label:'🎉 Destin Events 2026',          bg:'linear-gradient(135deg,#7F77DD,#534AB7)', shadow:'rgba(127,119,221,0.4)'},
+  'destinairport':          {label:'✈️ Airport & Getting Here',      bg:'linear-gradient(135deg,#888780,#5F5E5A)', shadow:'rgba(136,135,128,0.4)'},
+  'destincar':              {label:'🚗 Car Rental Guide',            bg:'linear-gradient(135deg,#639922,#3B6D11)', shadow:'rgba(100,153,34,0.4)'},
+  'destinspa':              {label:'💆 Spa & Wellness Guide',        bg:'linear-gradient(135deg,#D4537E,#993556)', shadow:'rgba(212,83,126,0.4)'},
+  'destin-live-music-2026': {label:'🎵 Live Music Guide',            bg:'linear-gradient(135deg,#7F77DD,#534AB7)', shadow:'rgba(127,119,221,0.4)'},
+  'destin-fireworks-2026':  {label:'🎆 Fireworks Guide',             bg:'linear-gradient(135deg,#D85A30,#993C1D)', shadow:'rgba(216,90,48,0.4)'},
+  'destinkids':             {label:'👨‍👩‍👧 Destin With Kids Guide',     bg:'linear-gradient(135deg,#378ADD,#185FA5)', shadow:'rgba(55,138,221,0.4)'},
+  'destinromance':          {label:'💑 Romantic Destin Guide',       bg:'linear-gradient(135deg,#D4537E,#993556)', shadow:'rgba(212,83,126,0.4)'},
+  'destinocen':             {label:'🎯 Activities Guide',            bg:'linear-gradient(135deg,#00B4D8,#0096c7)', shadow:'rgba(0,150,200,0.5)'},
+  'destinsupermarkets':     {label:'🛒 Supermarkets Guide',          bg:'linear-gradient(135deg,#639922,#3B6D11)', shadow:'rgba(100,153,34,0.4)'},
+  'destinexplore':          {label:'🗺️ Explore Destin Guide',        bg:'linear-gradient(135deg,#1D9E75,#0F6E56)', shadow:'rgba(29,158,117,0.4)'},
+  'destinessentials':       {label:'📋 Destin Essentials Guide',     bg:'linear-gradient(135deg,#888780,#5F5E5A)', shadow:'rgba(136,135,128,0.4)'},
+  'destindiversehistory':   {label:'🏛️ Destin History Guide',        bg:'linear-gradient(135deg,#7F77DD,#534AB7)', shadow:'rgba(127,119,221,0.4)'},
+  'best-time-to-visit':     {label:'📅 Best Time to Visit Guide',    bg:'linear-gradient(135deg,#1D9E75,#0F6E56)', shadow:'rgba(29,158,117,0.4)'},
+  'destin-vacation-itinerary-planner':{label:'🗺️ Plan My Destin Trip',bg:'linear-gradient(135deg,#1D9E75,#0F6E56)', shadow:'rgba(29,158,117,0.4)'},
+  'destincondogetaways.com/availability':{label:'📅 Check Availability',bg:'linear-gradient(135deg,#1D9E75,#0F6E56)', shadow:'rgba(29,158,117,0.4)'},
+};
+function getLinkButton(u){
+  for(const[key,btn] of Object.entries(LINK_BUTTONS)){
+    if(u.includes(key)){
+      return `<a href="${u}" target="_blank" style="display:flex;align-items:center;gap:10px;padding:10px 14px;margin:5px 0;background:${btn.bg};border:none;border-radius:10px;text-decoration:none;color:#fff;font-size:13px;font-weight:700;box-shadow:0 4px 12px ${btn.shadow},0 1px 3px rgba(0,0,0,0.15);">${btn.label} &nbsp;→</a>`;
+    }
+  }
+  return null;
+}
   const linkify = (t) =>
     t.replace(/Unit\s*\d+\s*(?:\([^)]*\))?\s*:\s*(?=https?:\/\/)/g, '')
      .replace(/🔗\s*/g, '')
@@ -202,9 +233,11 @@ export default function Concierge() {
        const m = u.match(/pelican-beach-resort-unit-(\d+)[^?]*\?/);
        if (m) {
          const unit = m[1];
-         const label = unit === '707' ? 'Book Unit 707 — Classic Coastal' : 'Book Unit 1006 — Fresh Coastal';
-         return `<a href="${u}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;justify-content:space-between;padding:11px 16px;margin:6px 0;background:linear-gradient(135deg,#00B4D8,#0096c7);border:none;border-radius:10px;text-decoration:none;color:#fff;font-size:13px;font-weight:700;box-shadow:0 4px 12px rgba(0,150,200,0.5),0 1px 3px rgba(0,0,0,0.15);white-space:nowrap;">${label} &nbsp;→</a>`;
+         const label = unit === '707' ? 'Unit 707 — Classic Coastal' : 'Unit 1006 — Fresh Coastal';
+         return `<a href="${u}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;justify-content:space-between;padding:11px 16px;margin:6px 0;background:linear-gradient(135deg,#00B4D8,#0096c7);border:none;border-radius:10px;text-decoration:none;color:#fff;font-size:13px;font-weight:700;box-shadow:0 4px 12px rgba(0,150,200,0.5),0 1px 3px rgba(0,0,0,0.15);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${'Book '+label} &nbsp;→</a>`;
        }
+       const lb = getLinkButton(u);
+       if (lb) return lb;
        return `<a href="${u}" target="_blank" rel="noopener noreferrer" style="color:#2563eb;word-break:break-word;">${u}</a>`;
      })
      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')

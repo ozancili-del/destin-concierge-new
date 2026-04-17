@@ -9,6 +9,62 @@ const openai = new OpenAI({
 });
 
 const OWNERREZ_USER = "ozan@destincondogetaways.com";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Non-English GPT extractor — fires only when non-English detected
+// Returns structured JSON: { language, adults, children, arrival, departure, intent }
+// English conversations skip this entirely — zero overhead
+// ─────────────────────────────────────────────────────────────────────────────
+function isNonEnglish(text) {
+  // Non-ASCII chars (accented, CJK, Arabic, etc.) OR common non-English guest words
+  return /[^\x00-\x7F]/.test(text) ||
+    /\b(adultos?|ni[ñn]os?|ni[ñn]as?|personas?|cuantos?|entrada|salida|sabado|domingo|lunes|martes|miercoles|jueves|viernes|enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre|adultes?|enfants?|personnes?|adultos?|crian[çc]as?)\b/i.test(text);
+}
+
+async function extractStructuredData(lastUser, allUserText) {
+  if (!isNonEnglish(lastUser) && !isNonEnglish(allUserText)) return null;
+
+  try {
+    const extraction = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      max_tokens: 200,
+      temperature: 0,
+      messages: [{
+        role: "system",
+        content: `You are a data extractor for a vacation rental chatbot. Extract booking data from guest messages.
+Return ONLY valid JSON, nothing else:
+{
+  "language": "ISO 639-1 code e.g. es, fr, pt, de, zh",
+  "adults": null or integer,
+  "children": null or integer,
+  "arrival": null or "YYYY-MM-DD",
+  "departure": null or "YYYY-MM-DD",
+  "intent": "availability" or "info" or "maintenance" or "emergency" or "lockout" or "other"
+}
+Rules:
+- Extract from the FULL conversation history provided, not just the last message
+- If arrival month/day given but no year, assume 2026
+- If only arrival given, departure is null
+- intent=availability if asking about booking, dates, prices, availability
+- intent=maintenance if reporting something broken, not working, no water/power
+- intent=emergency if urgent safety issue
+- intent=lockout if can't get in, door code not working
+- intent=info for general questions`
+      }, {
+        role: "user",
+        content: `Last message: "${lastUser}"\nFull conversation: "${allUserText.slice(-500)}"`
+      }]
+    });
+
+    const raw = extraction.choices[0]?.message?.content?.trim();
+    const parsed = JSON.parse(raw);
+    console.log(`[LANG EXTRACTOR] language=${parsed.language} adults=${parsed.adults} children=${parsed.children} arrival=${parsed.arrival} departure=${parsed.departure} intent=${parsed.intent}`);
+    return parsed;
+  } catch (e) {
+    console.error("[LANG EXTRACTOR] Failed:", e.message);
+    return null;
+  }
+}
 const UNIT_707_PROPERTY_ID = "293722";
 const UNIT_1006_PROPERTY_ID = "410894";
 
@@ -1187,6 +1243,22 @@ export default async function handler(req, res) {
     const allConvoText = [...messages].reverse().map((m) => m.content).join(" ");
     const isPopupSource = pageSource === "popup";
 
+    // ── NON-ENGLISH EXTRACTION — GPT extractor for multilingual guests ────────
+    // Only fires when non-English detected. English = zero overhead.
+    // Output overrides regex-extracted adults/children/dates downstream.
+    const langExtracted = await extractStructuredData(lastUser, allUserText);
+    const detectedLanguage = langExtracted?.language || "en";
+    const isNonEnglishConvo = detectedLanguage !== "en";
+    // These will override regex results below if non-null
+    const langAdults = langExtracted?.adults != null ? String(langExtracted.adults) : null;
+    const langChildren = langExtracted?.children != null ? String(langExtracted.children) : null;
+    const langArrival = langExtracted?.arrival || null;
+    const langDeparture = langExtracted?.departure || null;
+    const langIntent = langExtracted?.intent || null;
+    if (isNonEnglishConvo) {
+      console.log(`[NON-EN] lang=${detectedLanguage} adults=${langAdults} children=${langChildren} arrival=${langArrival} departure=${langDeparture} intent=${langIntent}`);
+    }
+
     // Extract guest first name for popup sessions — look for first user message after greeting
     // that looks like a name (single capitalized word, not a date/number/question)
     let popupGuestName = "";
@@ -1308,6 +1380,13 @@ export default async function handler(req, res) {
 
     // Final dates: adjusted > explicit > holiday > null (confirmation may override below after lastBotMsg)
     let dates = adjustedDates || rawDates || (holidayDates ? { arrival: holidayDates.arrival, departure: holidayDates.departure } : null);
+    // NON-ENGLISH OVERRIDE — use GPT extractor dates when regex found nothing
+    if (!dates && langArrival) {
+      dates = { arrival: langArrival, departure: langDeparture || null };
+      console.log(`[LANG DATE OVERRIDE] arrival=${langArrival} departure=${langDeparture}`);
+    } else if (dates && !dates.departure && langDeparture) {
+      dates.departure = langDeparture;
+    }
 
     // ── CHECKOUT REPLY: bot asked for checkout, guest replied with a single date ──
     // e.g. bot: "when would you like to check out?" → guest: "12th of march" or "the 12th"
@@ -1414,6 +1493,9 @@ export default async function handler(req, res) {
     // not 2 — so "me and 4 kids" = 1 adult + 4 kids, correctly triggering HOA check
     let adults = adultsMatchOuter ? adultsMatchOuter[1] : (guestBooking ? String(guestBooking.adults || 2) : (childrenMatchOuter ? "1" : "2"));
     const children = childrenMatchOuter ? childrenMatchOuter[1] : (guestBooking ? String(guestBooking.children || 0) : "0");
+    // NON-ENGLISH OVERRIDE — use GPT extractor results when available
+    if (langAdults != null) { adults = langAdults; }
+    const childrenResolved = langChildren != null ? langChildren : children;
 
     // HOA resolution override: if bot previously asked "how many adults total" and guest replied with a number
     // HOA resolution: if bot previously asked HOA question and adults still parsing as 1
@@ -2520,6 +2602,8 @@ EMAIL GATE:
 - NEVER reveal BLUE code before a valid email is given — this is the only hard rule
 ` : "";
 
+    const languageInstruction = isNonEnglishConvo ? `\nCRITICAL: The guest is communicating in language code "${detectedLanguage}". You MUST respond in that same language throughout the entire conversation. Never switch to English.` : "";
+
     const SYSTEM_PROMPT = `You are Destiny Blue, a warm and caring AI concierge for Destin Condo Getaways.
 You help guests discover and book beachfront condos at Pelican Beach Resort in Destin, Florida.
 You sound like a knowledgeable local friend — warm, genuine, never robotic.
@@ -3139,7 +3223,17 @@ NO REPETITION RULE: Review all your previous responses in this conversation befo
 
     // ── NEEDS_GUEST_COUNT INTERCEPT — hardcoded, GPT cannot hallucinate links here ──
     if (!guestBooking && availabilityStatus === "NEEDS_GUEST_COUNT" && dates && !lastBotWasIntercept) {
-      const guestCountReply = `Perfect — I've got your dates (${dates.arrival} to ${dates.departure})! Just need one more thing: how many adults and children will be staying? I'll check live availability right away 😊`;
+      const guestCountReply = isNonEnglishConvo
+        ? await (async () => {
+            try {
+              const r = await openai.chat.completions.create({
+                model: "gpt-4o-mini", max_tokens: 100, temperature: 0.3,
+                messages: [{ role: "user", content: `In ${detectedLanguage} language, tell the guest you have their dates (${dates.arrival} to ${dates.departure}) and ask how many adults and children will be staying. Keep it warm and brief with an emoji.` }]
+              });
+              return r.choices[0]?.message?.content || `Perfect — I've got your dates! Just need one more thing: how many adults and children will be staying? 😊`;
+            } catch(e) { return `Perfect — I've got your dates (${dates.arrival} to ${dates.departure})! Just need one more thing: how many adults and children will be staying? I'll check live availability right away 😊`; }
+          })()
+        : `Perfect — I've got your dates (${dates.arrival} to ${dates.departure})! Just need one more thing: how many adults and children will be staying? I'll check live availability right away 😊`;
       await logToSheets(sessionId, lastUser, guestCountReply, `${dates.arrival} to ${dates.departure}`, "NEEDS_GUEST_COUNT", "");
       return res.status(200).json({ reply: guestCountReply, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
     }
@@ -3275,7 +3369,7 @@ Your 10% direct booking discount is already applied! 🎉 For Unit 707 questions
     }
 
     const openAIMessages = [
-      { role: "system", content: SYSTEM_PROMPT + sessionNote },
+      { role: "system", content: SYSTEM_PROMPT + sessionNote + languageInstruction },
       // Inject previous session history BEFORE current conversation
       ...sessionHistory,
       ...messages.map((m) => ({ role: m.role, content: m.content })),

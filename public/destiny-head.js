@@ -88,7 +88,19 @@ if(window.innerWidth>=1024)setTimeout(()=>{if(!isOpen)toggle();},15000);
 function toggle(){isOpen=!isOpen;btn.classList.toggle('open',isOpen);win.classList.toggle('open',isOpen);if(isOpen){tooltip.classList.add('hide');clearTimeout(tTimer);if(msgs.children.length===0){if(history.length>0)history.forEach(m=>{if(m.role==='user')addU(m.content);else addB(m.content);});else{const openers=["Hi! I'm Destiny Blue 🌊 AI concierge for Destin beachfront condos. Live availability, instant booking links. What can I help you with?"];addB(openers[Math.floor(Math.random()*openers.length)]);}}setTimeout(()=>input.focus(),300);}else{setTimeout(()=>{tooltip.classList.remove('hide');tTimer=setTimeout(cycleTip,4000);},500);}}
 btn.addEventListener('click',toggle);
 document.getElementById('db-mobile-close').addEventListener('click',toggle);
-function addB(text){rmTyping();const el=document.createElement('div');el.className='db-msg bot';el.innerHTML=text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/https?:\/\/[^\s<>"]+/g,u=>`<a href="${u}" target="_blank" style="word-break:break-all;">${u}</a>`);msgs.appendChild(el);msgs.scrollTop=msgs.scrollHeight;}
+function addB(text){rmTyping();const el=document.createElement('div');el.className='db-msg bot';
+el.innerHTML=text
+  .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+  .replace(/https?:\/\/[^\s<>"]+/g,u=>{
+    const m=u.match(/pelican-beach-resort-unit-(\d+)[^?]*\?([^"'\s]*)/);
+    if(m){
+      const unit=m[1];
+      const label=unit==='707'?'Book Unit 707 — Classic Coastal':'Book Unit 1006 — Fresh Coastal';
+      return `<a href="${u}" target="_blank" style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;margin:6px 0;background:rgba(0,180,216,0.08);border:1px solid rgba(0,180,216,0.3);border-radius:10px;text-decoration:none;color:#00B4D8;font-size:13px;font-weight:600;">${label}<span style="margin-left:8px;">→</span></a>`;
+    }
+    return `<a href="${u}" target="_blank" style="color:#00B4D8;word-break:break-word;">${u}</a>`;
+  });
+msgs.appendChild(el);msgs.scrollTop=msgs.scrollHeight;}
 function addU(text){const el=document.createElement('div');el.className='db-msg user';el.textContent=text;msgs.appendChild(el);msgs.scrollTop=msgs.scrollHeight;}
 function addOzan(text){rmTyping();const w=document.createElement('div');w.style.cssText='display:flex;flex-direction:column;align-self:flex-start;max-width:82%';const l=document.createElement('div');l.style.cssText='font-size:10px;font-weight:600;color:#0284c7;margin-bottom:3px';l.textContent='Ozan';const el=document.createElement('div');el.className='db-msg ozan';el.textContent=text;w.appendChild(l);w.appendChild(el);msgs.appendChild(w);msgs.scrollTop=msgs.scrollHeight;}
 function addNote(text){const el=document.createElement('div');el.className='db-msg snote';el.textContent=text;msgs.appendChild(el);msgs.scrollTop=msgs.scrollHeight;}

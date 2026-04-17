@@ -43,9 +43,10 @@ Return ONLY valid JSON, nothing else:
 }
 Rules:
 - Extract from the FULL conversation history provided, not just the last message
+- Today is ${today}. If only a day number is given with no month (e.g. "el 18"), find the next upcoming calendar date with that day number from today
 - If arrival month/day given but no year, assume 2026
 - If only arrival given, departure is null
-- intent=availability if asking about booking, dates, prices, availability
+- intent=availability if asking about booking, dates, prices, availability, cost, how much
 - intent=maintenance if reporting something broken, not working, no water/power
 - intent=emergency if urgent safety issue
 - intent=lockout if can't get in, door code not working

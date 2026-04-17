@@ -2585,7 +2585,7 @@ WEATHER DATA UNAVAILABLE: Real-time weather could not be fetched. Do NOT guess o
           }
         }
         if (drops.length > 0) {
-          priceDropContext = `💰 PRICE DROP SIGNAL: ${drops.join(' | ')}. Mention this naturally ONCE with the exact numbers — e.g. "By the way, [Unit X] has dropped [X]% in the last [N] days — was $[from]/night, now $[to]/night. Good timing to lock it in! 😊" — use the actual figures above, don't round or vague it up.`;
+          priceDropContext = `💰 PRICE DROP SIGNAL: ${drops.join(' | ')}. DO NOT mention this in your response — the system will append the price drop message automatically after your reply.`;
           console.log('[PRICE DROP]', priceDropContext);
         }
       } catch (e) {
@@ -3532,7 +3532,7 @@ Your 10% direct booking discount is already applied! 🎉 Unit 707 availability 
     reply = reply.replace(/(https?:\/\/[^\s"'<>)]+)[.,!?;:)]+$/, '$1');
 
     // Append price drop to GPT reply if not already mentioned
-    if (priceDropContext && reply && !reply.includes("dropped") && !reply.includes("drop") && !bookingLinksSent) {
+    if (priceDropContext && reply && !bookingLinksSent) {
       const raw = priceDropContext.match(/Unit (\d+): down (\d+)% over the last (\d+) days \(\$(\d+)[^\d]+(\d+)/);
       if (raw) {
         reply = reply.trimEnd() + ` By the way, Unit ${raw[1]} dropped ${raw[2]}% in the last ${raw[3]} days — was $${raw[4]}/night, now $${raw[5]} avg/night before fees. Good timing to lock it in! 😊`;

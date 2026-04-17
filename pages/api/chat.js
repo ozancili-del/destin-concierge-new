@@ -3418,7 +3418,7 @@ Your 10% direct booking discount is already applied! 🎉 Unit 707 availability 
             m.role === "user" && /\b[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}\b/.test(m.content)
           );
           if (!emailAlreadyGiven) {
-            bookingReply += `\n\nBy the way — I can unlock an extra 5% on top of your automatic 10% for you. Just drop your email and it's yours! 😊`;
+            bookingReply += `\n\nOne more thing — drop your email and I'll unlock an extra 5% on top of your automatic 10%. Yours instantly! 😊`;
           }
         }
         await logToSheets(sessionId, lastUser, bookingReply,

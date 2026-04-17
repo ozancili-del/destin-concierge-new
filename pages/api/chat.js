@@ -3360,7 +3360,7 @@ NO REPETITION RULE: Review all your previous responses in this conversation befo
         const link = buildLink("707", dates.arrival, dates.departure, adults, children);
         bookingReply = `${pick(only707Openers)} Unit 1006 is already booked for that period, so grab Unit 707 before it goes too!
 
-🔗 **Book Unit 707:** ${link}
+${link}
 
 Your 10% direct booking discount is already applied! 🎉 Let me know if you have any questions 😊${activityPS}`;
 
@@ -3368,7 +3368,7 @@ Your 10% direct booking discount is already applied! 🎉 Let me know if you hav
         const link = buildLink("1006", dates.arrival, dates.departure, adults, children);
         bookingReply = `${pick(only1006Openers)} Unit 707 is already booked for that period, so grab Unit 1006 before it goes too!
 
-🔗 **Book Unit 1006:** ${link}
+${link}
 
 Your 10% direct booking discount is already applied! 🎉 Let me know if you have any questions 😊${activityPS}`;
 
@@ -3377,10 +3377,10 @@ Your 10% direct booking discount is already applied! 🎉 Let me know if you hav
         const link1006 = buildLink("1006", dates.arrival, dates.departure, adults, children);
         bookingReply = `${pick(bothAvailOpeners)}
 
-🔗 **Unit 707** (7th floor, Classic Coastal): ${link707}
-🔗 **Unit 1006** (10th floor, Fresh Coastal): ${link1006}
+${link707}
+${link1006}
 
-Your 10% direct booking discount is already applied on both! 🎉 Want me to tell you more about the differences? 😊${activityPS}`;
+Your 10% direct booking discount is already applied on both! 🎉${priceDropContext ? " " + priceDropContext.replace("💰 PRICE DROP SIGNAL: ","").split(".")[0] + " 😊" : ""} Want me to tell you more about the differences? 😊${activityPS}`;
 
       } else if (availabilityStatus.includes("707:BOOKED") && availabilityStatus.includes("1006:BOOKED")) {
         bookingReply = `I'm sorry — both units are booked for ${dates.arrival} to ${dates.departure}. You can browse other open dates at https://www.destincondogetaways.com/availability or contact Ozan at (972) 357-4262 — he may have options not listed online!`;
@@ -3390,20 +3390,20 @@ Your 10% direct booking discount is already applied on both! 🎉 Want me to tel
         const link1006 = buildLink("1006", dates.arrival, dates.departure, adults, children);
         bookingReply = `Unit 707 is available for your dates! 🎉 I wasn't able to confirm Unit 1006's status right now.
 
-🔗 **Book Unit 707:** ${link707}
-🔗 **Unit 1006 (unconfirmed):** ${link1006}
+${link707}
+${link1006}
 
-Your 10% direct booking discount is already applied! 🎉 For Unit 1006 questions contact Ozan at (972) 357-4262 😊${activityPS}`;
+Your 10% direct booking discount is already applied! 🎉 Unit 1006 availability unconfirmed — contact Ozan at (972) 357-4262 if needed 😊${activityPS}`;
 
       } else if (availabilityStatus.includes("707:UNKNOWN") && availabilityStatus.includes("1006:AVAILABLE")) {
         const link707 = buildLink("707", dates.arrival, dates.departure, adults, children);
         const link1006 = buildLink("1006", dates.arrival, dates.departure, adults, children);
         bookingReply = `Unit 1006 is available for your dates! 🎉 I wasn't able to confirm Unit 707's status right now.
 
-🔗 **Book Unit 1006:** ${link1006}
-🔗 **Unit 707 (unconfirmed):** ${link707}
+${link1006}
+${link707}
 
-Your 10% direct booking discount is already applied! 🎉 For Unit 707 questions contact Ozan at (972) 357-4262 😊`;
+Your 10% direct booking discount is already applied! 🎉 Unit 707 availability unconfirmed — contact Ozan at (972) 357-4262 if needed 😊`;
       }
 
       if (bookingReply) {

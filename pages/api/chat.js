@@ -1341,10 +1341,12 @@ export default async function handler(req, res) {
     const detectedBlogTopic = detectBlogTopic(lastUser);
     const hasAccommodation = /already.*book|already.*stay|have.*accommodat|not.*look.*book|have.*place|staying.*elsewhere|booked.*already|have.*reservat|not.*need.*book|don't need.*book|dont need.*book/i.test(lastUser);
     const isExplicitBooking = /\bbook|reserv|availab|price|cost|how much|per night|stay.*night|check.?in|check.?out\b/i.test(lastUser);
-    const hasGuestCountEarly = /(\d+)\s*(adult|kid|child|children|guest|person|people|ppl|pax|infant|baby|toddler)/i.test(allUserText);
-    const wantsAvailability = hasAccommodation ? false : (detectedBlogTopic
+    const hasGuestCountEarly = /(\d+)\s*(adult|kid|child|children|guest|person|people|ppl|pax|infant|baby|toddler)/i.test(allUserText) || (langAdults != null);
+    // langIntent from GPT extractor catches non-English availability signals (cuanto cuesta, precio, etc.)
+    const langWantsAvailability = langIntent === "availability";
+    const wantsAvailability = hasAccommodation ? false : (langWantsAvailability || (detectedBlogTopic
       ? (detectAvailabilityIntent(lastUser) && (hasGuestCountEarly || isExplicitBooking))
-      : detectAvailabilityIntent(lastUser));
+      : detectAvailabilityIntent(lastUser)));
     // Pets detector — when mentioned, skip booking intercept and let GPT apply no-pets policy
     const mentionsPets = /\d+\s*pets?|\bwith.*pets?\b|\bdogs?\b|\bcats?\b|\bpuppies\b|\bkittens?\b|\bbirds?\b|\bparrots?\b|\brabbits?\b|\bhamsters?\b|\bferrets?\b|\bfish\b|\bsnakes?\b|\bturtles?\b|\banimals?\b|bring.*(?:my|our|the)\s+\w+.*(?:pet|dog|cat|bird|animal)|pet.*friendly|emotional support animal|\besa\b|\bservice animal\b/i.test(allUserText);
 
@@ -1492,10 +1494,10 @@ export default async function handler(req, res) {
     // Bug 1 fix: when children are mentioned but no adult count stated, default to 1 (the "me")
     // not 2 — so "me and 4 kids" = 1 adult + 4 kids, correctly triggering HOA check
     let adults = adultsMatchOuter ? adultsMatchOuter[1] : (guestBooking ? String(guestBooking.adults || 2) : (childrenMatchOuter ? "1" : "2"));
-    const children = childrenMatchOuter ? childrenMatchOuter[1] : (guestBooking ? String(guestBooking.children || 0) : "0");
+    let children = childrenMatchOuter ? childrenMatchOuter[1] : (guestBooking ? String(guestBooking.children || 0) : "0");
     // NON-ENGLISH OVERRIDE — use GPT extractor results when available
     if (langAdults != null) { adults = langAdults; }
-    const childrenResolved = langChildren != null ? langChildren : children;
+    if (langChildren != null) { children = langChildren; }
 
     // HOA resolution override: if bot previously asked "how many adults total" and guest replied with a number
     // HOA resolution: if bot previously asked HOA question and adults still parsing as 1

@@ -1892,6 +1892,23 @@ Example tone (do NOT copy verbatim — vary naturally):
       alertWasFired = true;
     }
 
+    // ── SECRET OWNER TRIGGER — "lets go mf" forces fresh price snapshot ────────
+    if (/lets\s+go\s+mf/i.test(lastUser)) {
+      try {
+        const snapRes = await fetch(`https://destin-concierge-new.vercel.app/api/price-snapshot`, {
+          method: 'GET',
+          headers: { 'x-cron-secret': process.env.CRON_SECRET }
+        });
+        const snapData = await snapRes.json();
+        const snapReply = snapData.success
+          ? `✅ Price snapshot complete — saved ${snapData.saved} rows for ${snapData.captured_date}. Both units locked in. 💾`
+          : `⚠️ Snapshot ran but something felt off: ${snapData.error || 'unknown error'}`;
+        return res.status(200).json({ reply: snapReply, alertSent: false, pendingRelay: false, ozanAcked: false, ozanAckType: null, detectedIntent: 'INFO' });
+      } catch (e) {
+        return res.status(200).json({ reply: `⚠️ Snapshot failed: ${e.message}`, alertSent: false, pendingRelay: false, ozanAcked: false, ozanAckType: null, detectedIntent: 'INFO' });
+      }
+    }
+
     // ── @ozan — guest wants direct chat with Ozan ─────────────────────────────
     // Check sesssing if Ozan was already invited for this session
     const ozanAlreadyInvited = ozanActiveState === "TRUE" || ozanActiveState === "PENDING" || sessState?.ozanAcked === false && priorAlertSent;
@@ -2548,6 +2565,30 @@ WEATHER DATA UNAVAILABLE: Real-time weather could not be fetched. Do NOT guess o
       }
     }
 
+    // ── PRICE DROP LOOKUP — fire in background when dates are known ─────────────
+    let priceDropContext = "";
+    if (dates?.arrival && dates?.departure && !guestBooking) {
+      try {
+        const dropRes = await fetch(
+          `https://destin-concierge-new.vercel.app/api/price-drops?arrival=${dates.arrival}&departure=${dates.departure}`
+        );
+        const dropData = await dropRes.json();
+        const drops = [];
+        for (const unit of ['707', '1006']) {
+          if (dropData[unit]?.dropPct >= 5) {
+            const d = dropData[unit];
+            drops.push(`Unit ${unit}: down ${d.dropPct}% over the last ${d.windowDays} days ($${d.fromPrice} → $${d.toPrice}/night avg)`);
+          }
+        }
+        if (drops.length > 0) {
+          priceDropContext = `💰 PRICE DROP SIGNAL: ${drops.join(' | ')}. Mention this naturally ONCE with the exact numbers — e.g. "By the way, [Unit X] has dropped [X]% in the last [N] days — was $[from]/night, now $[to]/night. Good timing to lock it in! 😊" — use the actual figures above, don't round or vague it up.`;
+          console.log('[PRICE DROP]', priceDropContext);
+        }
+      } catch (e) {
+        console.log('[PRICE DROP] Lookup failed silently:', e.message);
+      }
+    }
+
     // ── BUILD SYSTEM PROMPT ─────────────────────────────────────────────────
     // AI Concierge page opening message
     const isConciergePage = pageSource === "ai-concierge";
@@ -2665,7 +2706,7 @@ The guest may be following up or anxious. Your job now:
 - Remind them Ozan is handling it and they should expect direct contact soon
 - Keep it to 1-2 sentences max. Do not ask follow-up questions.
 - Example good responses: "Ozan is on it — you should hear from him or the team very shortly 🙏" / "He's already been notified and is handling this — just hang tight a little longer 🙏"
-\n\n` : ""}${isChildSafetyQuestion ? "👶 CHILD/TODDLER SAFETY QUESTION DETECTED — Follow CHILD / TODDLER / FAMILY SAFETY PRIORITY OVERRIDE exactly. Answer the specific safety question FIRST. No excitement opener. No smart lock pivot. Give portable solutions immediately.\n\n" : ""}${isAccidentalDamage ? "⚠️ ACCIDENTAL DAMAGE SCENARIO: Guest has broken something (plates, glasses etc). Follow the ACCIDENTAL DAMAGE RULE exactly. Do NOT say you notified Ozan. Do NOT offer to relay. Empathy first, then direct to Ozan at (972) 357-4262.\n\n" : ""}${alertWasFired ? "🚨 ALERT SENT THIS SESSION: An emergency Discord alert was automatically sent to Ozan during this conversation. If guest asks if you contacted Ozan or sent a message — say YES, an urgent alert was already sent to him. Do not say you will send it — it is already done.\n\n" : ""}${bookingLinksContext ? bookingLinksContext + "\n\n" : ""}${petsContext ? petsContext + "\n\n" : ""}${holidayContext ? holidayContext + "\n\n" : ""}${dateAdjustContext ? dateAdjustContext + "\n\n" : ""}${competitorContext ? competitorContext + "\n\n" : ""}${conciergePageContext}${sawBannerContext}${conciergeEmailContext}${popupContext}${discountContext ? discountContext + "\n\n" : ""}${externalDisturbanceContext ? externalDisturbanceContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
+\n\n` : ""}${isChildSafetyQuestion ? "👶 CHILD/TODDLER SAFETY QUESTION DETECTED — Follow CHILD / TODDLER / FAMILY SAFETY PRIORITY OVERRIDE exactly. Answer the specific safety question FIRST. No excitement opener. No smart lock pivot. Give portable solutions immediately.\n\n" : ""}${isAccidentalDamage ? "⚠️ ACCIDENTAL DAMAGE SCENARIO: Guest has broken something (plates, glasses etc). Follow the ACCIDENTAL DAMAGE RULE exactly. Do NOT say you notified Ozan. Do NOT offer to relay. Empathy first, then direct to Ozan at (972) 357-4262.\n\n" : ""}${alertWasFired ? "🚨 ALERT SENT THIS SESSION: An emergency Discord alert was automatically sent to Ozan during this conversation. If guest asks if you contacted Ozan or sent a message — say YES, an urgent alert was already sent to him. Do not say you will send it — it is already done.\n\n" : ""}${bookingLinksContext ? bookingLinksContext + "\n\n" : ""}${petsContext ? petsContext + "\n\n" : ""}${holidayContext ? holidayContext + "\n\n" : ""}${dateAdjustContext ? dateAdjustContext + "\n\n" : ""}${competitorContext ? competitorContext + "\n\n" : ""}${conciergePageContext}${sawBannerContext}${conciergeEmailContext}${popupContext}${discountContext ? discountContext + "\n\n" : ""}${externalDisturbanceContext ? externalDisturbanceContext + "\n\n" : ""}${lockedOutContext ? lockedOutContext + "\n\n" : ""}${unitComparisonContext ? unitComparisonContext + "\n\n" : ""}${escalationContext ? escalationContext + "\n\n" : ""}${priceDropContext ? priceDropContext + "\n\n" : ""}${availabilityContext ? "⚡ " + availabilityContext + "\n\nIMPORTANT: Use ONLY these live results. Never offer booked units. Always include exact booking link(s).\n\n" : ""}${blogContext}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 PROPERTIES

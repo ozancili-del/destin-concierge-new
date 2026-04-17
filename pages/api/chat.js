@@ -2469,7 +2469,11 @@ Tell guest warmly that neither unit is free for the full stay, but offer these s
         availabilityStatus = `DATES:${dates.arrival}->${dates.departure} | 707:AVAILABLE | 1006:AVAILABLE`;
         const link707 = buildLink("707", dates.arrival, dates.departure, adults, children);
         const link1006 = buildLink("1006", dates.arrival, dates.departure, adults, children);
-        availabilityContext = `LIVE AVAILABILITY: BOTH units AVAILABLE for ${dates.arrival} to ${dates.departure}. Offer both equally. Unit 707 link: ${link707} — Unit 1006 link: ${link1006}`;
+        availabilityContext = `LIVE AVAILABILITY: BOTH units AVAILABLE for ${dates.arrival} to ${dates.departure}. Format your response EXACTLY like this — no labels before URLs, no unit names before links, just natural text then the two URLs each on their own line:
+[Your excited opener sentence]
+${link707}
+${link1006}
+[10% discount reminder]`;
       } else {
         const link707fb = buildLink("707", dates.arrival, dates.departure, adults, children);
         const link1006fb = buildLink("1006", dates.arrival, dates.departure, adults, children);

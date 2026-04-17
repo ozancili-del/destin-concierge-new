@@ -3380,7 +3380,7 @@ Your 10% direct booking discount is already applied! 🎉 Let me know if you hav
 ${link707}
 ${link1006}
 
-Your 10% direct booking discount is already applied on both! 🎉${priceDropContext ? " By the way, " + (() => { const raw = priceDropContext.match(/Unit (\d+): down (\d+)% over the last (\d+) days \(\$(\d+)[^\d]+(\d+)/); return raw ? `Unit ${raw[1]} dropped ${raw[2]}% in the last ${raw[3]} days — was $${raw[4]}/night, now $${raw[5]} avg/night before fees. Good timing to lock it in! 😊` : ""; })() : ""} Want me to tell you more about the differences? 😊${activityPS}`;
+Your 10% direct booking discount is already applied on both! 🎉Want me to tell you more about the differences? 😊${activityPS}`;
 
       } else if (availabilityStatus.includes("707:BOOKED") && availabilityStatus.includes("1006:BOOKED")) {
         bookingReply = `I'm sorry — both units are booked for ${dates.arrival} to ${dates.departure}. You can browse other open dates at https://www.destincondogetaways.com/availability or contact Ozan at (972) 357-4262 — he may have options not listed online!`;
@@ -3407,6 +3407,11 @@ Your 10% direct booking discount is already applied! 🎉 Unit 707 availability 
       }
 
       if (bookingReply) {
+        // Append price drop deterministically — single place for ALL paths
+        if (priceDropContext) {
+          const raw = priceDropContext.match(/Unit (\d+): down (\d+)% over the last (\d+) days \(\$(\d+)[^\d]+(\d+)/);
+          if (raw) bookingReply = bookingReply.trimEnd() + ` By the way, Unit ${raw[1]} dropped ${raw[2]}% in the last ${raw[3]} days — was $${raw[4]}/night, now $${raw[5]} avg/night before fees. Good timing to lock it in! 😊`;
+        }
         // Popup guest: append 5% email offer if email not yet captured
         if (isPopupSource || sawBanner || pageSource) {
           const emailAlreadyGiven = messages.some(m =>
@@ -3531,20 +3536,18 @@ Your 10% direct booking discount is already applied! 🎉 Unit 707 availability 
     reply = reply.replace(/(https?:\/\/[^\s"'<>)]+)[.,!?;:)]+(\ |$)/g, '$1$2');
     reply = reply.replace(/(https?:\/\/[^\s"'<>)]+)[.,!?;:)]+$/, '$1');
 
-    // Append price drop to GPT reply if not already mentioned
-    if (priceDropContext && reply && !bookingLinksSent) {
-      const raw = priceDropContext.match(/Unit (\d+): down (\d+)% over the last (\d+) days \(\$(\d+)[^\d]+(\d+)/);
-      if (raw) {
-        reply = reply.trimEnd() + ` By the way, Unit ${raw[1]} dropped ${raw[2]}% in the last ${raw[3]} days — was $${raw[4]}/night, now $${raw[5]} avg/night before fees. Good timing to lock it in! 😊`;
-      }
-    }
-
     // Store openIssues JSON in col G — gate on isMaintenanceReport OR detectedIntent
     // so issues detected by regex always get saved even if GPT said INFO
     let finalAlertSummary = alertSummary;
     if (alertWasFired && (isMaintenanceReport || detectedIntent === "MAINTENANCE" || detectedIntent === "EMERGENCY") && openIssues.length > 0) {
       const cst = new Date().toLocaleString("en-US", { timeZone: "America/Chicago", hour: "2-digit", minute: "2-digit" });
       finalAlertSummary = JSON.stringify({ issues: openIssues, ts: cst });
+    }
+
+    // Append price drop for GPT path — single deterministic place
+    if (priceDropContext && reply) {
+      const raw = priceDropContext.match(/Unit (\d+): down (\d+)% over the last (\d+) days \(\$(\d+)[^\d]+(\d+)/);
+      if (raw) reply = reply.trimEnd() + ` By the way, Unit ${raw[1]} dropped ${raw[2]}% in the last ${raw[3]} days — was $${raw[4]}/night, now $${raw[5]} avg/night before fees. Good timing to lock it in! 😊`;
     }
 
     await logToSheets(

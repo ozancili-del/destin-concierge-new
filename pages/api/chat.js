@@ -2585,7 +2585,7 @@ WEATHER DATA UNAVAILABLE: Real-time weather could not be fetched. Do NOT guess o
           }
         }
         if (drops.length > 0) {
-          priceDropContext = `💰 PRICE DROP SIGNAL: ${drops.join(' | ')}. Mention this naturally ONCE with the exact numbers — e.g. "By the way, [Unit X] has dropped [X]% in the last [N] days — was $[from]/night, now $[to]/night (exludes fees & Tax). Good timing to lock it in! 😊" — use the actual figures above, don't round or vague it up.`;
+          priceDropContext = `💰 PRICE DROP SIGNAL: ${drops.join(' | ')}. Mention this naturally ONCE with the exact numbers — e.g. "By the way, [Unit X] has dropped [X]% in the last [N] days — was $[from]/night, now $[to]/night. Good timing to lock it in! 😊" — use the actual figures above, don't round or vague it up.`;
           console.log('[PRICE DROP]', priceDropContext);
         }
       } catch (e) {
@@ -3380,7 +3380,7 @@ Your 10% direct booking discount is already applied! 🎉 Let me know if you hav
 ${link707}
 ${link1006}
 
-Your 10% direct booking discount is already applied on both! 🎉${priceDropContext ? " By the way, " + (() => { const raw = priceDropContext.match(/Unit (\d+): down (\d+)% over the last (\d+) days \(\$(\d+)[^\d]+(\d+)/); return raw ? `Unit ${raw[1]} dropped ${raw[2]}% in the last ${raw[3]} days — was $${raw[4]}/night, now $${raw[5]}. Good timing to lock it in! 😊` : ""; })() : ""} Want me to tell you more about the differences? 😊${activityPS}`;
+Your 10% direct booking discount is already applied on both! 🎉${priceDropContext ? " By the way, " + (() => { const raw = priceDropContext.match(/Unit (\d+): down (\d+)% over the last (\d+) days \(\$(\d+)[^\d]+(\d+)/); return raw ? `Unit ${raw[1]} dropped ${raw[2]}% in the last ${raw[3]} days — was $${raw[4]}/night, now $${raw[5]} avg/night before fees. Good timing to lock it in! 😊` : ""; })() : ""} Want me to tell you more about the differences? 😊${activityPS}`;
 
       } else if (availabilityStatus.includes("707:BOOKED") && availabilityStatus.includes("1006:BOOKED")) {
         bookingReply = `I'm sorry — both units are booked for ${dates.arrival} to ${dates.departure}. You can browse other open dates at https://www.destincondogetaways.com/availability or contact Ozan at (972) 357-4262 — he may have options not listed online!`;
@@ -3535,7 +3535,7 @@ Your 10% direct booking discount is already applied! 🎉 Unit 707 availability 
     if (priceDropContext && reply && !reply.includes("dropped") && !reply.includes("drop") && !bookingLinksSent) {
       const raw = priceDropContext.match(/Unit (\d+): down (\d+)% over the last (\d+) days \(\$(\d+)[^\d]+(\d+)/);
       if (raw) {
-        reply = reply.trimEnd() + ` By the way, Unit ${raw[1]} dropped ${raw[2]}% in the last ${raw[3]} days — was $${raw[4]}/night, now $${raw[5]}. Good timing to lock it in! 😊`;
+        reply = reply.trimEnd() + ` By the way, Unit ${raw[1]} dropped ${raw[2]}% in the last ${raw[3]} days — was $${raw[4]}/night, now $${raw[5]} avg/night before fees. Good timing to lock it in! 😊`;
       }
     }
 

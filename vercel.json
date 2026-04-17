@@ -22,5 +22,11 @@
   "rewrites": [
     {"source": "/tv-707.html", "destination": "/tv-707.html"},
     {"source": "/tv-1006.html", "destination": "/tv-1006.html"}
+  ],
+  "crons": [
+    {
+      "path": "/api/price-snapshot",
+      "schedule": "0 6 * * *"
+    }
   ]
 }

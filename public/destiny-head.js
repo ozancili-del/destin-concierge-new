@@ -278,15 +278,67 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
 
   function animateTicker(inner){
     let pos = 0;
-    const half = inner.scrollWidth / 2;
+    const half = () => inner.scrollWidth / 2;
     const speed = 0.4;
+    let paused = false;
+    let dragStart = null;
+    let dragPos = null;
+    let raf;
+
     function step(){
-      pos += speed;
-      if(pos >= half) pos = 0;
-      inner.style.transform = `translateX(-${pos}px)`;
-      requestAnimationFrame(step);
+      if(!paused){
+        pos += speed;
+        if(pos >= half()) pos = 0;
+        inner.style.transform = `translateX(-${pos}px)`;
+      }
+      raf = requestAnimationFrame(step);
     }
-    requestAnimationFrame(step);
+
+    // Touch support
+    inner.parentElement.addEventListener('touchstart', e => {
+      paused = true;
+      dragStart = e.touches[0].clientX;
+      dragPos = pos;
+    }, {passive:true});
+
+    inner.parentElement.addEventListener('touchmove', e => {
+      if(dragStart === null) return;
+      const dx = dragStart - e.touches[0].clientX;
+      pos = dragPos + dx;
+      if(pos < 0) pos = 0;
+      if(pos >= half()) pos = half() - 1;
+      inner.style.transform = `translateX(-${pos}px)`;
+    }, {passive:true});
+
+    inner.parentElement.addEventListener('touchend', () => {
+      dragStart = null;
+      // Resume auto-scroll after 1.5s
+      setTimeout(() => { paused = false; }, 1500);
+    }, {passive:true});
+
+    // Mouse drag support (desktop)
+    inner.parentElement.addEventListener('mousedown', e => {
+      paused = true;
+      dragStart = e.clientX;
+      dragPos = pos;
+      inner.parentElement.style.cursor = 'grabbing';
+    });
+    window.addEventListener('mousemove', e => {
+      if(dragStart === null) return;
+      const dx = dragStart - e.clientX;
+      pos = dragPos + dx;
+      if(pos < 0) pos = 0;
+      if(pos >= half()) pos = half() - 1;
+      inner.style.transform = `translateX(-${pos}px)`;
+    });
+    window.addEventListener('mouseup', () => {
+      if(dragStart === null) return;
+      dragStart = null;
+      inner.parentElement.style.cursor = '';
+      setTimeout(() => { paused = false; }, 1500);
+    });
+
+    raf = requestAnimationFrame(step);
   }
 
   async function initTicker(){

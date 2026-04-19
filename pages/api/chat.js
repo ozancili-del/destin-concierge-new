@@ -3410,9 +3410,10 @@ Your 10% direct booking discount is already applied! 🎉 Unit 707 availability 
         // Append price drop deterministically — skip if ticker source (guest already saw the drop)
         if (priceDropContext && !bookingReply.includes("dropped") && pageSource !== "ticker") {
           // Only mention drop for the unit actually in the booking reply
-          const has707 = bookingReply.includes('unit-707') || bookingReply.includes('Unit 707');
-          const has1006 = bookingReply.includes('unit-1006') || bookingReply.includes('Unit 1006');
-          const unitFilter = has707 && !has1006 ? '707' : has1006 && !has707 ? '1006' : null;
+          // Use URL slug to detect unit — avoids false positives from "Unit 707 is already booked" text
+          const hasUrl707 = bookingReply.includes('unit-707-orp');
+          const hasUrl1006 = bookingReply.includes('unit-1006-orp');
+          const unitFilter = hasUrl707 && !hasUrl1006 ? '707' : hasUrl1006 && !hasUrl707 ? '1006' : null;
           const dropPattern = unitFilter ? new RegExp(`Unit ${unitFilter}: down (\\d+)% over the last (\\d+) days \\(\\$(\\d+)[^\\d]+(\\d+)`) : /Unit (\d+): down (\d+)% over the last (\d+) days \(\$(\d+)[^\d]+(\d+)/;
           const raw = priceDropContext.match(dropPattern);
           if (raw) {
@@ -3564,9 +3565,10 @@ Your 10% direct booking discount is already applied! 🎉 Unit 707 availability 
 
     // Append price drop for GPT path — single deterministic place
     if (priceDropContext && reply && !reply.includes("dropped") && reply.includes("pelican-beach-resort-unit-") && pageSource !== "ticker") {
-      const has707 = reply.includes('unit-707') || reply.includes('Unit 707');
-      const has1006 = reply.includes('unit-1006') || reply.includes('Unit 1006');
-      const unitFilter = has707 && !has1006 ? '707' : has1006 && !has707 ? '1006' : null;
+      // Use URL slug to detect unit — avoids false positives from "Unit 707 is already booked" text
+      const hasUrl707 = reply.includes('unit-707-orp');
+      const hasUrl1006 = reply.includes('unit-1006-orp');
+      const unitFilter = hasUrl707 && !hasUrl1006 ? '707' : hasUrl1006 && !hasUrl707 ? '1006' : null;
       const dropPattern = unitFilter ? new RegExp(`Unit ${unitFilter}: down (\\d+)% over the last (\\d+) days \\(\\$(\\d+)[^\\d]+(\\d+)`) : /Unit (\d+): down (\d+)% over the last (\d+) days \(\$(\d+)[^\d]+(\d+)/;
       const raw = priceDropContext.match(dropPattern);
       if (raw) {

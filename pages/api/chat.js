@@ -3407,8 +3407,8 @@ Your 10% direct booking discount is already applied! 🎉 Unit 707 availability 
       }
 
       if (bookingReply) {
-        // Append price drop deterministically — single place for ALL paths
-        if (priceDropContext && !bookingReply.includes("dropped")) {
+        // Append price drop deterministically — skip if ticker source (guest already saw the drop)
+        if (priceDropContext && !bookingReply.includes("dropped") && pageSource !== "ticker") {
           // Only mention drop for the unit actually in the booking reply
           const has707 = bookingReply.includes('unit-707') || bookingReply.includes('Unit 707');
           const has1006 = bookingReply.includes('unit-1006') || bookingReply.includes('Unit 1006');
@@ -3563,7 +3563,7 @@ Your 10% direct booking discount is already applied! 🎉 Unit 707 availability 
     }
 
     // Append price drop for GPT path — single deterministic place
-    if (priceDropContext && reply && !reply.includes("dropped") && reply.includes("pelican-beach-resort-unit-")) {
+    if (priceDropContext && reply && !reply.includes("dropped") && reply.includes("pelican-beach-resort-unit-") && pageSource !== "ticker") {
       const has707 = reply.includes('unit-707') || reply.includes('Unit 707');
       const has1006 = reply.includes('unit-1006') || reply.includes('Unit 1006');
       const unitFilter = has707 && !has1006 ? '707' : has1006 && !has707 ? '1006' : null;

@@ -252,7 +252,7 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
     bar.style.cssText = 'background:#07141f;border-bottom:2px solid rgba(45,219,180,0.25);height:44px;display:flex;align-items:center;overflow:hidden;position:relative;z-index:999;';
     const label = document.createElement('div');
     label.style.cssText = 'background:linear-gradient(135deg,#0d9e8a,#1ac7a8);color:#fff;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:0 16px;height:100%;display:flex;align-items:center;white-space:nowrap;flex-shrink:0;';
-    label.textContent = '🔥 Rate Drops';
+    label.textContent = '🌊 Live Beach Deals';
     const track = document.createElement('div');
     track.style.cssText = 'flex:1;overflow:hidden;height:100%;position:relative;';
     const inner = document.createElement('div');
@@ -260,10 +260,10 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
     inner.style.cssText = 'display:flex;align-items:center;height:100%;white-space:nowrap;will-change:transform;';
     items.forEach((drop, i) => {
       const item = document.createElement('span');
-      item.style.cssText = 'display:inline-flex;align-items:center;padding:0 32px;font-size:14px;color:rgba(255,255,255,0.9);border-right:1px solid rgba(255,255,255,0.08);height:100%;font-family:system-ui,sans-serif;cursor:pointer;transition:background .2s;';
+      item.style.cssText = 'display:inline-flex;align-items:center;padding:0 32px;font-size:14px;color:rgba(255,255,255,0.9);border-right:1px solid rgba(255,255,255,0.08);height:100%;font-family:system-ui,sans-serif;cursor:pointer;transition:background .15s,transform .15s;position:relative;';
       item.innerHTML = drop.html;
-      item.onmouseenter = () => item.style.background = 'rgba(45,219,180,0.08)';
-      item.onmouseleave = () => item.style.background = '';
+      item.onmouseenter = () => { item.style.background='rgba(45,219,180,0.22)'; item.style.transform='scale(1.05)'; item.style.zIndex='2'; };
+      item.onmouseleave = () => { item.style.background=''; item.style.transform=''; item.style.zIndex=''; };
       item.onclick = () => openDestinyWithDates(drops[i % drops.length]);
       inner.appendChild(item);
     });

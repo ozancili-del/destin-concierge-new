@@ -158,21 +158,29 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
 
 // ── RATE DROP TICKER ─────────────────────────────────────────────────────────
 (function(){
-  const TICKER_DATES = [
-    ['2026-04-20','2026-04-25'],['2026-04-25','2026-04-30'],
-    ['2026-05-01','2026-05-06'],['2026-05-07','2026-05-12'],
-    ['2026-05-10','2026-05-15'],['2026-05-15','2026-05-20'],
-    ['2026-05-22','2026-05-27'],['2026-05-28','2026-06-02'],
-    ['2026-06-05','2026-06-10'],['2026-06-10','2026-06-15'],
-    ['2026-06-20','2026-06-25'],['2026-07-01','2026-07-06'],
-    ['2026-07-10','2026-07-15'],['2026-07-20','2026-07-25'],
-    ['2026-08-01','2026-08-06'],['2026-08-15','2026-08-20'],
-  ];
   const BASE = 'https://destin-concierge-new.vercel.app/api/price-drops';
+
+  // Generate dynamic date windows from today — rolling, never stale
+  function buildDateWindows(){
+    const today = new Date();
+    today.setHours(12,0,0,0);
+    const fmt = d => d.toISOString().split('T')[0];
+    const addDays = (d,n) => { const r=new Date(d); r.setDate(r.getDate()+n); return r; };
+    const windows = [];
+    // Offsets: 1,6,11,16,21,26,31,36,41,46,56,66,76,86,96,106 days out
+    const offsets = [1,6,11,16,21,26,31,36,41,46,56,66,76,86,96,106];
+    for(const offset of offsets){
+      const a = addDays(today, offset);
+      const d = addDays(a, 5);
+      windows.push([fmt(a), fmt(d)]);
+    }
+    return windows;
+  }
 
   async function fetchDrops(){
     const drops = [];
-    await Promise.all(TICKER_DATES.map(async ([a,d])=>{
+    const windows = buildDateWindows();
+    await Promise.all(windows.map(async ([a,d])=>{
       try{
         const r = await fetch(`${BASE}?arrival=${a}&departure=${d}`);
         const data = await r.json();
@@ -182,17 +190,63 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
             const label = unit==='707'?'Unit 707':'Unit 1006';
             const aDate = new Date(a+'T12:00:00');
             const dDate = new Date(d+'T12:00:00');
-            const fmt = dt => dt.toLocaleDateString('en-US',{month:'short',day:'numeric'});
-            drops.push(`🔥 <strong style="color:#fac755">${label}</strong> <span style="color:#2ddbb4;font-weight:700">↓${dr.dropPct}%</span> &nbsp;<span style="color:rgba(255,255,255,0.5)">${fmt(aDate)}–${fmt(dDate)}</span> &nbsp;<span style="text-decoration:line-through;color:rgba(255,255,255,0.35)">$${dr.fromPrice}</span> → <span style="font-weight:700">$${dr.toPrice}/night</span> <span style="color:rgba(255,255,255,0.85);font-size:11px">(excl. fees & Taxes)</span>`);
+            const fmtDisplay = dt => dt.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+            drops.push({
+              html: `🔥 <strong style="color:#fac755">${label}</strong> <span style="color:#2ddbb4;font-weight:700">↓${dr.dropPct}%</span> &nbsp;<span style="color:rgba(255,255,255,0.5)">${fmtDisplay(aDate)}–${fmtDisplay(dDate)}</span> &nbsp;<span style="text-decoration:line-through;color:rgba(255,255,255,0.35)">$${dr.fromPrice}</span> → <span style="font-weight:700">$${dr.toPrice}/night</span> <span style="color:rgba(255,255,255,0.85);font-size:11px">(excl. fees & Taxes)</span>`,
+              arrival: a,
+              departure: d,
+              unit,
+              dropPct: dr.dropPct,
+              fromPrice: dr.fromPrice,
+              toPrice: dr.toPrice
+            });
           }
         }
       }catch(e){}
     }));
-    return drops;
+    // Deduplicate — keep best drop per unit
+    const best = {};
+    for(const drop of drops){
+      const key = drop.unit;
+      if(!best[key] || drop.dropPct > best[key].dropPct) best[key] = drop;
+    }
+    return Object.values(best).concat(drops.filter(d => !Object.values(best).includes(d))).slice(0,8);
+  }
+
+  function openDestinyWithDates(drop){
+    // Store ticker context for Destiny Blue to pick up
+    sessionStorage.setItem('db_ticker', JSON.stringify({
+      arrival: drop.arrival,
+      departure: drop.departure,
+      unit: drop.unit,
+      dropPct: drop.dropPct,
+      fromPrice: drop.fromPrice,
+      toPrice: drop.toPrice
+    }));
+    sessionStorage.setItem('db_source', 'ticker');
+    // Clear history so fresh conversation starts
+    sessionStorage.removeItem('db_history');
+    // Open Destiny Blue
+    const chatBtn = document.getElementById('db-btn');
+    if(chatBtn && !document.getElementById('db-win')?.classList.contains('open')){
+      chatBtn.click();
+    }
+    // Send pre-seeded message after short delay
+    setTimeout(()=>{
+      const input = document.getElementById('db-input');
+      const send = document.getElementById('db-send');
+      if(input && send){
+        const aDate = new Date(drop.arrival+'T12:00:00');
+        const dDate = new Date(drop.departure+'T12:00:00');
+        const fmt = dt => dt.toLocaleDateString('en-US',{month:'long',day:'numeric'});
+        input.value = `I'm interested in ${drop.unit==='707'?'Unit 707':'Unit 1006'} for ${fmt(aDate)} to ${fmt(dDate)}`;
+        send.click();
+      }
+    }, 600);
   }
 
   function buildTicker(drops){
-    const items = [...drops, ...drops]; // duplicate for seamless loop
+    const items = [...drops, ...drops];
     const bar = document.createElement('div');
     bar.id = 'db-rate-ticker';
     bar.style.cssText = 'background:#07141f;border-bottom:2px solid rgba(45,219,180,0.25);height:44px;display:flex;align-items:center;overflow:hidden;position:relative;z-index:999;';
@@ -204,11 +258,13 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
     const inner = document.createElement('div');
     inner.id = 'db-ticker-inner';
     inner.style.cssText = 'display:flex;align-items:center;height:100%;white-space:nowrap;will-change:transform;';
-    items.forEach(html => {
+    items.forEach((drop, i) => {
       const item = document.createElement('span');
-      item.style.cssText = 'display:inline-flex;align-items:center;padding:0 32px;font-size:14px;color:rgba(255,255,255,0.9);border-right:1px solid rgba(255,255,255,0.08);height:100%;font-family:system-ui,sans-serif;cursor:pointer;';
-      item.innerHTML = html;
-      item.onclick = () => { if(typeof btn!=='undefined') btn.click(); };
+      item.style.cssText = 'display:inline-flex;align-items:center;padding:0 32px;font-size:14px;color:rgba(255,255,255,0.9);border-right:1px solid rgba(255,255,255,0.08);height:100%;font-family:system-ui,sans-serif;cursor:pointer;transition:background .2s;';
+      item.innerHTML = drop.html;
+      item.onmouseenter = () => item.style.background = 'rgba(45,219,180,0.08)';
+      item.onmouseleave = () => item.style.background = '';
+      item.onclick = () => openDestinyWithDates(drops[i % drops.length]);
       inner.appendChild(item);
     });
     track.appendChild(inner);
@@ -220,7 +276,7 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
   function animateTicker(inner){
     let pos = 0;
     const half = inner.scrollWidth / 2;
-    const speed = 0.4; // px per frame
+    const speed = 0.4;
     function step(){
       pos += speed;
       if(pos >= half) pos = 0;
@@ -232,13 +288,11 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
 
   async function initTicker(){
     const drops = await fetchDrops();
-    if(!drops.length) return; // hide if no drops
+    if(!drops.length) return;
     const bar = buildTicker(drops);
-    // Inject after header bar
     const header = document.getElementById('header-bar');
     if(header) header.insertAdjacentElement('afterend', bar);
     else document.body.prepend(bar);
-    // Adjust page padding to account for ticker height
     const bodyPad = parseInt(document.body.style.paddingTop)||0;
     document.body.style.paddingTop = (bodyPad + 44) + 'px';
     animateTicker(document.getElementById('db-ticker-inner'));

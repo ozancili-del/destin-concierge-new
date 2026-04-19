@@ -3409,8 +3409,17 @@ Your 10% direct booking discount is already applied! 🎉 Unit 707 availability 
       if (bookingReply) {
         // Append price drop deterministically — single place for ALL paths
         if (priceDropContext && !bookingReply.includes("dropped")) {
-          const raw = priceDropContext.match(/Unit (\d+): down (\d+)% over the last (\d+) days \(\$(\d+)[^\d]+(\d+)/);
-          if (raw) bookingReply = bookingReply.trimEnd() + ` By the way, Unit ${raw[1]} dropped ${raw[2]}% in the last ${raw[3]} days — was $${raw[4]}/night, now $${raw[5]} avg/night before fees & Taxes. Good timing to lock it in! 😊`;
+          // Only mention drop for the unit actually in the booking reply
+          const has707 = bookingReply.includes('unit-707') || bookingReply.includes('Unit 707');
+          const has1006 = bookingReply.includes('unit-1006') || bookingReply.includes('Unit 1006');
+          const unitFilter = has707 && !has1006 ? '707' : has1006 && !has707 ? '1006' : null;
+          const dropPattern = unitFilter ? new RegExp(`Unit ${unitFilter}: down (\\d+)% over the last (\\d+) days \\(\\$(\\d+)[^\\d]+(\\d+)`) : /Unit (\d+): down (\d+)% over the last (\d+) days \(\$(\d+)[^\d]+(\d+)/;
+          const raw = priceDropContext.match(dropPattern);
+          if (raw) {
+            const u = unitFilter || raw[1];
+            const [,pct,days,from,to] = unitFilter ? [null,raw[1],raw[2],raw[3],raw[4]] : raw;
+            bookingReply = bookingReply.trimEnd() + ` By the way, Unit ${u} dropped ${pct}% in the last ${days} days — was $${from}/night, now $${to} avg/night before fees & Taxes. Good timing to lock it in! 😊`;
+          }
         }
         // Popup guest: append 5% email offer if email not yet captured
         if (isPopupSource || sawBanner || pageSource) {
@@ -3546,8 +3555,16 @@ Your 10% direct booking discount is already applied! 🎉 Unit 707 availability 
 
     // Append price drop for GPT path — single deterministic place
     if (priceDropContext && reply && !reply.includes("dropped") && reply.includes("pelican-beach-resort-unit-")) {
-      const raw = priceDropContext.match(/Unit (\d+): down (\d+)% over the last (\d+) days \(\$(\d+)[^\d]+(\d+)/);
-      if (raw) reply = reply.trimEnd() + ` By the way, Unit ${raw[1]} dropped ${raw[2]}% in the last ${raw[3]} days — was $${raw[4]}/night, now $${raw[5]} avg/night before fees & Taxes. Good timing to lock it in! 😊`;
+      const has707 = reply.includes('unit-707') || reply.includes('Unit 707');
+      const has1006 = reply.includes('unit-1006') || reply.includes('Unit 1006');
+      const unitFilter = has707 && !has1006 ? '707' : has1006 && !has707 ? '1006' : null;
+      const dropPattern = unitFilter ? new RegExp(`Unit ${unitFilter}: down (\\d+)% over the last (\\d+) days \\(\\$(\\d+)[^\\d]+(\\d+)`) : /Unit (\d+): down (\d+)% over the last (\d+) days \(\$(\d+)[^\d]+(\d+)/;
+      const raw = priceDropContext.match(dropPattern);
+      if (raw) {
+        const u = unitFilter || raw[1];
+        const [,pct,days,from,to] = unitFilter ? [null,raw[1],raw[2],raw[3],raw[4]] : raw;
+        reply = reply.trimEnd() + ` By the way, Unit ${u} dropped ${pct}% in the last ${days} days — was $${from}/night, now $${to} avg/night before fees & Taxes. Good timing to lock it in! 😊`;
+      }
     }
 
     await logToSheets(

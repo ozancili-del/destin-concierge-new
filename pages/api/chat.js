@@ -3416,9 +3416,18 @@ Your 10% direct booking discount is already applied! 🎉 Unit 707 availability 
           const dropPattern = unitFilter ? new RegExp(`Unit ${unitFilter}: down (\\d+)% over the last (\\d+) days \\(\\$(\\d+)[^\\d]+(\\d+)`) : /Unit (\d+): down (\d+)% over the last (\d+) days \(\$(\d+)[^\d]+(\d+)/;
           const raw = priceDropContext.match(dropPattern);
           if (raw) {
-            const u = unitFilter || raw[1];
-            const [,pct,days,from,to] = unitFilter ? [null,raw[1],raw[2],raw[3],raw[4]] : raw;
-            bookingReply = bookingReply.trimEnd() + ` By the way, Unit ${u} dropped ${pct}% in the last ${days} days — was $${from}/night, now $${to} avg/night before fees & Taxes. Good timing to lock it in! 😊`;
+    let u, pct, days, from, to;
+    if (unitFilter) {
+      u = unitFilter;
+      pct = Number(raw[1]); days = Number(raw[2]); from = Number(raw[3]); to = Number(raw[4]);
+    } else {
+      u = raw[1];
+      pct = Number(raw[2]); days = Number(raw[3]); from = Number(raw[4]); to = Number(raw[5]);
+    }
+    const validDrop = ['707','1006'].includes(String(u)) && Number.isFinite(pct) && Number.isFinite(days) && Number.isFinite(from) && Number.isFinite(to) && pct >= 5 && pct <= 60 && days >= 1 && days <= 60 && from > to;
+    if (validDrop) {
+              bookingReply = bookingReply.trimEnd() + ` By the way, Unit ${u} dropped ${pct}% in the last ${days} days — was $${from}/night, now $${to} avg/night before fees & Taxes. Good timing to lock it in! 😊`;
+            }
           }
         }
         // Popup guest: append 5% email offer if email not yet captured
@@ -3561,9 +3570,18 @@ Your 10% direct booking discount is already applied! 🎉 Unit 707 availability 
       const dropPattern = unitFilter ? new RegExp(`Unit ${unitFilter}: down (\\d+)% over the last (\\d+) days \\(\\$(\\d+)[^\\d]+(\\d+)`) : /Unit (\d+): down (\d+)% over the last (\d+) days \(\$(\d+)[^\d]+(\d+)/;
       const raw = priceDropContext.match(dropPattern);
       if (raw) {
-        const u = unitFilter || raw[1];
-        const [,pct,days,from,to] = unitFilter ? [null,raw[1],raw[2],raw[3],raw[4]] : raw;
-        reply = reply.trimEnd() + ` By the way, Unit ${u} dropped ${pct}% in the last ${days} days — was $${from}/night, now $${to} avg/night before fees & Taxes. Good timing to lock it in! 😊`;
+    let u, pct, days, from, to;
+    if (unitFilter) {
+      u = unitFilter;
+      pct = Number(raw[1]); days = Number(raw[2]); from = Number(raw[3]); to = Number(raw[4]);
+    } else {
+      u = raw[1];
+      pct = Number(raw[2]); days = Number(raw[3]); from = Number(raw[4]); to = Number(raw[5]);
+    }
+    const validDrop = ['707','1006'].includes(String(u)) && Number.isFinite(pct) && Number.isFinite(days) && Number.isFinite(from) && Number.isFinite(to) && pct >= 5 && pct <= 60 && days >= 1 && days <= 60 && from > to;
+    if (validDrop) {
+          reply = reply.trimEnd() + ` By the way, Unit ${u} dropped ${pct}% in the last ${days} days — was $${from}/night, now $${to} avg/night before fees & Taxes. Good timing to lock it in! 😊`;
+        }
       }
     }
 

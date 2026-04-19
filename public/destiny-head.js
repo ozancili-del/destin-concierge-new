@@ -246,7 +246,7 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
       const input = document.getElementById('db-input');
       const send = document.getElementById('db-send');
       if (input && send) {
-        input.value = `I'm looking to book ${fmt(aDate)} to ${fmt(dDate)} for 2 adults`;
+        input.value = `I'm looking to book ${fmt(aDate)} to ${fmt(dDate)}`;
         send.click();
       }
     }, 600);

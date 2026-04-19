@@ -3418,6 +3418,10 @@ Your 10% direct booking discount is already applied! 🎉 Unit 707 availability 
       }
 
       if (bookingReply) {
+        // If guest count was defaulted (not explicitly stated), append adjustment reminder
+        if (!hasGuestCount && !guestBooking) {
+          bookingReply = bookingReply.trimEnd() + ` Just a heads up — I've assumed 2 adults. Please adjust the number of adults and children at checkout if needed! 😊`;
+        }
         // Append price drop deterministically — skip if ticker source (guest already saw the drop)
         if (priceDropContext && !bookingReply.includes("dropped") && pageSource !== "ticker") {
           // Only mention drop for the unit actually in the booking reply

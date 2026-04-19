@@ -145,7 +145,7 @@ function startPoll(){if(pollTimer)return;pollTimer=setInterval(async()=>{try{con
 async function sendMsg(){const text=input.value.trim();if(!text||isTyping)return;input.value='';lS.setItem('dbx','1');if(text!=='__popup_open__')addU(text);
 if(ozanIsActive||ozanInvited){try{await fetch(SAPI,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId,text,t:ozanToken||'pending',role:'guest'})});}catch(e){}return;}
 if(text!=='__popup_open__')history.push({role:'user',content:text});sessionStorage.setItem('db_history',JSON.stringify(history));lS.setItem('db_history',JSON.stringify(history));isTyping=true;send.disabled=true;showTyping();
-try{const res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:history.slice(-20),sessionId,pageSource:sessionStorage.getItem('db_source')||null,sawBanner:sessionStorage.getItem('db_saw_banner')||null})});const data=await res.json();const reply=data.reply||data.message||"I'm having a little trouble right now — please try again!";
+try{const res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:history.slice(-20),sessionId,pageSource:sessionStorage.getItem('db_source')||null,sawBanner:sessionStorage.getItem('db_saw_banner')||null,tickerUnit:(()=>{try{const t=sessionStorage.getItem('db_ticker');return t?JSON.parse(t).unit||null:null;}catch(e){return null;}})()} )});const data=await res.json();const reply=data.reply||data.message||"I'm having a little trouble right now — please try again!";
 if(data.ozanInvited){ozanInvited=true;if(data.ozanToken)ozanToken=data.ozanToken;startPoll();}
 if(!reply){isTyping=false;send.disabled=false;return;}
 history.push({role:'assistant',content:reply});sessionStorage.setItem('db_history',JSON.stringify(history));lS.setItem('db_history',JSON.stringify(history));addB(reply);}catch{addB("Sorry, I couldn't connect. Please try again or reach Ozan at (972) 357-4262.");}
@@ -193,6 +193,9 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
             const aDate = new Date(a+'T12:00:00');
             const dDate = new Date(d+'T12:00:00');
             const fmtDisplay = dt => dt.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+            const pct_ = dr.dropPct, from_ = dr.fromPrice, to_ = dr.toPrice;
+            const validTicker = Number.isFinite(pct_) && Number.isFinite(from_) && Number.isFinite(to_) && pct_ >= 5 && pct_ <= 60 && from_ > to_;
+            if(!validTicker) continue;
             drops.push({
               html: `🔥 <strong style="color:#fac755">${label}</strong> <span style="color:#2ddbb4;font-weight:700">↓${dr.dropPct}%</span> &nbsp;<span style="color:rgba(255,255,255,0.5)">${fmtDisplay(aDate)}–${fmtDisplay(dDate)}</span> &nbsp;<span style="text-decoration:line-through;color:rgba(255,255,255,0.35)">$${dr.fromPrice}</span> → <span style="font-weight:700">$${dr.toPrice}/night</span> <span style="color:rgba(255,255,255,0.85);font-size:11px">(excl. fees & Taxes)</span>`,
               arrival: a,

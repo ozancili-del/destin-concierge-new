@@ -239,7 +239,7 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
         const aDate = new Date(drop.arrival+'T12:00:00');
         const dDate = new Date(drop.departure+'T12:00:00');
         const fmt = dt => dt.toLocaleDateString('en-US',{month:'long',day:'numeric'});
-        input.value = `I'm interested in ${drop.unit==='707'?'Unit 707':'Unit 1006'} for ${fmt(aDate)} to ${fmt(dDate)}`;
+        input.value = `I'm looking to book ${fmt(aDate)} to ${fmt(dDate)}`;
         send.click();
       }
     }, 600);

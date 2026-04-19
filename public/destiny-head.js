@@ -155,3 +155,95 @@ function dbX(){document.getElementById('db-overlay').classList.remove('show');lS
 function dbGo(){sessionStorage.setItem('db_source','popup');lS.setItem('dbx','1');sessionStorage.removeItem('db_history');history=[];dbX();if(!isOpen)btn.click();setTimeout(function(){isTyping=false;send.disabled=false;if(msgs)msgs.innerHTML='';var i=document.getElementById('db-input');if(i){i.value='__popup_open__';sendMsg();}},500);}
 setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw_banner','1');lS.setItem('db_saw_banner','1');document.getElementById('db-overlay').classList.add('show');},3000);
 });
+
+// ── RATE DROP TICKER ─────────────────────────────────────────────────────────
+(function(){
+  const TICKER_DATES = [
+    ['2026-04-20','2026-04-25'],['2026-04-25','2026-04-30'],
+    ['2026-05-01','2026-05-06'],['2026-05-07','2026-05-12'],
+    ['2026-05-10','2026-05-15'],['2026-05-15','2026-05-20'],
+    ['2026-05-22','2026-05-27'],['2026-05-28','2026-06-02'],
+    ['2026-06-05','2026-06-10'],['2026-06-10','2026-06-15'],
+    ['2026-06-20','2026-06-25'],['2026-07-01','2026-07-06'],
+    ['2026-07-10','2026-07-15'],['2026-07-20','2026-07-25'],
+    ['2026-08-01','2026-08-06'],['2026-08-15','2026-08-20'],
+  ];
+  const BASE = 'https://destin-concierge-new.vercel.app/api/price-drops';
+
+  async function fetchDrops(){
+    const drops = [];
+    await Promise.all(TICKER_DATES.map(async ([a,d])=>{
+      try{
+        const r = await fetch(`${BASE}?arrival=${a}&departure=${d}`);
+        const data = await r.json();
+        for(const unit of ['707','1006']){
+          if(data[unit]?.dropPct >= 5){
+            const dr = data[unit];
+            const label = unit==='707'?'Unit 707':'Unit 1006';
+            const aDate = new Date(a+'T12:00:00');
+            const dDate = new Date(d+'T12:00:00');
+            const fmt = dt => dt.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+            drops.push(`🔥 <strong style="color:#fac755">${label}</strong> <span style="color:#2ddbb4;font-weight:700">↓${dr.dropPct}%</span> &nbsp;<span style="color:rgba(255,255,255,0.5)">${fmt(aDate)}–${fmt(dDate)}</span> &nbsp;<span style="text-decoration:line-through;color:rgba(255,255,255,0.35)">$${dr.fromPrice}</span> → <span style="font-weight:700">$${dr.toPrice}/night</span>`);
+          }
+        }
+      }catch(e){}
+    }));
+    return drops;
+  }
+
+  function buildTicker(drops){
+    const items = [...drops, ...drops]; // duplicate for seamless loop
+    const bar = document.createElement('div');
+    bar.id = 'db-rate-ticker';
+    bar.style.cssText = 'background:#07141f;border-bottom:2px solid rgba(45,219,180,0.25);height:36px;display:flex;align-items:center;overflow:hidden;position:relative;z-index:999;';
+    const label = document.createElement('div');
+    label.style.cssText = 'background:linear-gradient(135deg,#0d9e8a,#1ac7a8);color:#fff;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:0 14px;height:100%;display:flex;align-items:center;white-space:nowrap;flex-shrink:0;';
+    label.textContent = '🔥 Rate Drops';
+    const track = document.createElement('div');
+    track.style.cssText = 'flex:1;overflow:hidden;height:100%;position:relative;';
+    const inner = document.createElement('div');
+    inner.id = 'db-ticker-inner';
+    inner.style.cssText = 'display:flex;align-items:center;height:100%;white-space:nowrap;will-change:transform;';
+    items.forEach(html => {
+      const item = document.createElement('span');
+      item.style.cssText = 'display:inline-flex;align-items:center;padding:0 28px;font-size:12px;color:rgba(255,255,255,0.85);border-right:1px solid rgba(255,255,255,0.08);height:100%;font-family:system-ui,sans-serif;cursor:pointer;';
+      item.innerHTML = html;
+      item.onclick = () => { if(typeof btn!=='undefined') btn.click(); };
+      inner.appendChild(item);
+    });
+    track.appendChild(inner);
+    bar.appendChild(label);
+    bar.appendChild(track);
+    return bar;
+  }
+
+  function animateTicker(inner){
+    let pos = 0;
+    const half = inner.scrollWidth / 2;
+    const speed = 0.4; // px per frame
+    function step(){
+      pos += speed;
+      if(pos >= half) pos = 0;
+      inner.style.transform = `translateX(-${pos}px)`;
+      requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  async function initTicker(){
+    const drops = await fetchDrops();
+    if(!drops.length) return; // hide if no drops
+    const bar = buildTicker(drops);
+    // Inject after header bar
+    const header = document.getElementById('header-bar');
+    if(header) header.insertAdjacentElement('afterend', bar);
+    else document.body.prepend(bar);
+    // Adjust page padding to account for ticker height
+    const bodyPad = parseInt(document.body.style.paddingTop)||0;
+    document.body.style.paddingTop = (bodyPad + 36) + 'px';
+    animateTicker(document.getElementById('db-ticker-inner'));
+  }
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', initTicker);
+  else initTicker();
+})();

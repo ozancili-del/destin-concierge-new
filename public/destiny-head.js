@@ -243,7 +243,7 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
       const input = document.getElementById('db-input');
       const send = document.getElementById('db-send');
       if (input && send) {
-        input.value = `I saw a great deal on the ticker for ${unitLabel}, ${fmt(aDate)} to ${fmt(dDate)}. Can you help me book it?`;
+        input.value = `I'm looking to book ${fmt(aDate)} to ${fmt(dDate)} for 2 adults`;
         send.click();
       }
     }, 600);

@@ -214,7 +214,11 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
   }
 
   function openDestinyWithDates(drop){
-    // Store ticker context for Destiny Blue to pick up
+    const aDate = new Date(drop.arrival + 'T12:00:00');
+    const dDate = new Date(drop.departure + 'T12:00:00');
+    const fmt = dt => dt.toLocaleDateString('en-US', { month:'long', day:'numeric' });
+    const unitLabel = drop.unit === '707' ? 'Unit 707' : 'Unit 1006';
+
     sessionStorage.setItem('db_ticker', JSON.stringify({
       arrival: drop.arrival,
       departure: drop.departure,
@@ -224,22 +228,21 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
       toPrice: drop.toPrice
     }));
     sessionStorage.setItem('db_source', 'ticker');
-    // Clear history so fresh conversation starts
     sessionStorage.removeItem('db_history');
-    // Open Destiny Blue
+    try{ localStorage.removeItem('db_history'); }catch(e){}
+
     const chatBtn = document.getElementById('db-btn');
-    if(chatBtn && !document.getElementById('db-win')?.classList.contains('open')){
+    const chatWin = document.getElementById('db-window');
+
+    if (chatBtn && !chatWin?.classList.contains('open')) {
       chatBtn.click();
     }
-    // Send pre-seeded message after short delay
-    setTimeout(()=>{
+
+    setTimeout(() => {
       const input = document.getElementById('db-input');
       const send = document.getElementById('db-send');
-      if(input && send){
-        const aDate = new Date(drop.arrival+'T12:00:00');
-        const dDate = new Date(drop.departure+'T12:00:00');
-        const fmt = dt => dt.toLocaleDateString('en-US',{month:'long',day:'numeric'});
-        input.value = `I'm looking to book ${fmt(aDate)} to ${fmt(dDate)}`;
+      if (input && send) {
+        input.value = `I clicked the rate drop ticker. I'm interested in ${unitLabel} for ${fmt(aDate)} to ${fmt(dDate)}. Please help me check this deal.`;
         send.click();
       }
     }, 600);

@@ -183,7 +183,7 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
             const aDate = new Date(a+'T12:00:00');
             const dDate = new Date(d+'T12:00:00');
             const fmt = dt => dt.toLocaleDateString('en-US',{month:'short',day:'numeric'});
-            drops.push(`🔥 <strong style="color:#fac755">${label}</strong> <span style="color:#2ddbb4;font-weight:700">↓${dr.dropPct}%</span> &nbsp;<span style="color:rgba(255,255,255,0.5)">${fmt(aDate)}–${fmt(dDate)}</span> &nbsp;<span style="text-decoration:line-through;color:rgba(255,255,255,0.35)">$${dr.fromPrice}</span> → <span style="font-weight:700">$${dr.toPrice}/night</span>`);
+            drops.push(`🔥 <strong style="color:#fac755">${label}</strong> <span style="color:#2ddbb4;font-weight:700">↓${dr.dropPct}%</span> &nbsp;<span style="color:rgba(255,255,255,0.5)">${fmt(aDate)}–${fmt(dDate)}</span> &nbsp;<span style="text-decoration:line-through;color:rgba(255,255,255,0.35)">$${dr.fromPrice}</span> → <span style="font-weight:700">$${dr.toPrice}/night</span> <span style="color:rgba(255,255,255,0.35);font-size:11px">(excl. fees & Taxes)</span>`);
           }
         }
       }catch(e){}
@@ -195,9 +195,9 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
     const items = [...drops, ...drops]; // duplicate for seamless loop
     const bar = document.createElement('div');
     bar.id = 'db-rate-ticker';
-    bar.style.cssText = 'background:#07141f;border-bottom:2px solid rgba(45,219,180,0.25);height:36px;display:flex;align-items:center;overflow:hidden;position:relative;z-index:999;';
+    bar.style.cssText = 'background:#07141f;border-bottom:2px solid rgba(45,219,180,0.25);height:44px;display:flex;align-items:center;overflow:hidden;position:relative;z-index:999;';
     const label = document.createElement('div');
-    label.style.cssText = 'background:linear-gradient(135deg,#0d9e8a,#1ac7a8);color:#fff;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:0 14px;height:100%;display:flex;align-items:center;white-space:nowrap;flex-shrink:0;';
+    label.style.cssText = 'background:linear-gradient(135deg,#0d9e8a,#1ac7a8);color:#fff;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:0 16px;height:100%;display:flex;align-items:center;white-space:nowrap;flex-shrink:0;';
     label.textContent = '🔥 Rate Drops';
     const track = document.createElement('div');
     track.style.cssText = 'flex:1;overflow:hidden;height:100%;position:relative;';
@@ -206,7 +206,7 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
     inner.style.cssText = 'display:flex;align-items:center;height:100%;white-space:nowrap;will-change:transform;';
     items.forEach(html => {
       const item = document.createElement('span');
-      item.style.cssText = 'display:inline-flex;align-items:center;padding:0 28px;font-size:12px;color:rgba(255,255,255,0.85);border-right:1px solid rgba(255,255,255,0.08);height:100%;font-family:system-ui,sans-serif;cursor:pointer;';
+      item.style.cssText = 'display:inline-flex;align-items:center;padding:0 32px;font-size:14px;color:rgba(255,255,255,0.9);border-right:1px solid rgba(255,255,255,0.08);height:100%;font-family:system-ui,sans-serif;cursor:pointer;';
       item.innerHTML = html;
       item.onclick = () => { if(typeof btn!=='undefined') btn.click(); };
       inner.appendChild(item);
@@ -240,7 +240,7 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
     else document.body.prepend(bar);
     // Adjust page padding to account for ticker height
     const bodyPad = parseInt(document.body.style.paddingTop)||0;
-    document.body.style.paddingTop = (bodyPad + 36) + 'px';
+    document.body.style.paddingTop = (bodyPad + 44) + 'px';
     animateTicker(document.getElementById('db-ticker-inner'));
   }
 

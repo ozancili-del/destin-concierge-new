@@ -136,6 +136,7 @@ el.innerHTML=text
   });
 msgs.appendChild(el);msgs.scrollTop=msgs.scrollHeight;}
 function addU(text){const el=document.createElement('div');el.className='db-msg user';el.textContent=text;msgs.appendChild(el);msgs.scrollTop=msgs.scrollHeight;}
+window.__dbResetChat=function(){history=[];sessionStorage.removeItem('db_history');try{localStorage.removeItem('db_history');}catch(e){}if(msgs)msgs.innerHTML='';isTyping=false;if(send)send.disabled=false;};
 function addOzan(text){rmTyping();const w=document.createElement('div');w.style.cssText='display:flex;flex-direction:column;align-self:flex-start;max-width:82%';const l=document.createElement('div');l.style.cssText='font-size:10px;font-weight:600;color:#0284c7;margin-bottom:3px';l.textContent='Ozan';const el=document.createElement('div');el.className='db-msg ozan';el.textContent=text;w.appendChild(l);w.appendChild(el);msgs.appendChild(w);msgs.scrollTop=msgs.scrollHeight;}
 function addNote(text){const el=document.createElement('div');el.className='db-msg snote';el.textContent=text;msgs.appendChild(el);msgs.scrollTop=msgs.scrollHeight;}
 function showTyping(){rmTyping();const el=document.createElement('div');el.className='db-typing';el.id='db-typing';el.innerHTML='<span></span><span></span><span></span>';msgs.appendChild(el);msgs.scrollTop=msgs.scrollHeight;}
@@ -228,8 +229,7 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
       toPrice: drop.toPrice
     }));
     sessionStorage.setItem('db_source', 'ticker');
-    sessionStorage.removeItem('db_history');
-    try{ localStorage.removeItem('db_history'); }catch(e){}
+    if(window.__dbResetChat){ window.__dbResetChat(); } else { sessionStorage.removeItem('db_history'); try{ localStorage.removeItem('db_history'); }catch(e){} }
 
     const chatBtn = document.getElementById('db-btn');
     const chatWin = document.getElementById('db-window');
@@ -261,13 +261,17 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
     const inner = document.createElement('div');
     inner.id = 'db-ticker-inner';
     inner.style.cssText = 'display:flex;align-items:center;height:100%;white-space:nowrap;will-change:transform;';
+    let dbTickerDragged = false;
     items.forEach((drop, i) => {
       const item = document.createElement('span');
       item.style.cssText = 'display:inline-flex;align-items:center;padding:0 32px;font-size:14px;color:rgba(255,255,255,0.9);border-right:1px solid rgba(255,255,255,0.08);height:100%;font-family:system-ui,sans-serif;cursor:pointer;transition:background .15s,transform .15s;position:relative;';
       item.innerHTML = drop.html;
       item.onmouseenter = () => { item.style.background='rgba(45,219,180,0.22)'; item.style.transform='scale(1.05)'; item.style.zIndex='2'; };
       item.onmouseleave = () => { item.style.background=''; item.style.transform=''; item.style.zIndex=''; };
-      item.onclick = () => openDestinyWithDates(drops[i % drops.length]);
+      item.onclick = () => {
+        if(dbTickerDragged){ dbTickerDragged=false; return; }
+        openDestinyWithDates(drops[i % drops.length]);
+      };
       inner.appendChild(item);
     });
     track.appendChild(inner);
@@ -304,6 +308,7 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
     inner.parentElement.addEventListener('touchmove', e => {
       if(dragStart === null) return;
       const dx = dragStart - e.touches[0].clientX;
+      if(Math.abs(dx) > 6) dbTickerDragged = true;
       pos = dragPos + dx;
       if(pos < 0) pos = 0;
       if(pos >= half()) pos = half() - 1;
@@ -326,6 +331,7 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
     window.addEventListener('mousemove', e => {
       if(dragStart === null) return;
       const dx = dragStart - e.clientX;
+      if(Math.abs(dx) > 6) dbTickerDragged = true;
       pos = dragPos + dx;
       if(pos < 0) pos = 0;
       if(pos >= half()) pos = half() - 1;

@@ -183,7 +183,7 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
             const aDate = new Date(a+'T12:00:00');
             const dDate = new Date(d+'T12:00:00');
             const fmt = dt => dt.toLocaleDateString('en-US',{month:'short',day:'numeric'});
-            drops.push(`🔥 <strong style="color:#fac755">${label}</strong> <span style="color:#2ddbb4;font-weight:700">↓${dr.dropPct}%</span> &nbsp;<span style="color:rgba(255,255,255,0.5)">${fmt(aDate)}–${fmt(dDate)}</span> &nbsp;<span style="text-decoration:line-through;color:rgba(255,255,255,0.35)">$${dr.fromPrice}</span> → <span style="font-weight:700">$${dr.toPrice}/night</span> <span style="color:rgba(255,255,255,0.35);font-size:11px">(excl. fees & Taxes)</span>`);
+            drops.push(`🔥 <strong style="color:#fac755">${label}</strong> <span style="color:#2ddbb4;font-weight:700">↓${dr.dropPct}%</span> &nbsp;<span style="color:rgba(255,255,255,0.5)">${fmt(aDate)}–${fmt(dDate)}</span> &nbsp;<span style="text-decoration:line-through;color:rgba(255,255,255,0.35)">$${dr.fromPrice}</span> → <span style="font-weight:700">$${dr.toPrice}/night</span> <span style="color:rgba(255,255,255,0.85);font-size:11px">(excl. fees & Taxes)</span>`);
           }
         }
       }catch(e){}

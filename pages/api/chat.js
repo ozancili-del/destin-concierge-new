@@ -3360,7 +3360,11 @@ NO REPETITION RULE: Review all your previous responses in this conversation befo
 
       if (availabilityStatus.includes("707:AVAILABLE") && availabilityStatus.includes("1006:BOOKED")) {
         const link = buildLink("707", dates.arrival, dates.departure, adults, children);
-        bookingReply = `${pick(only707Openers)} Unit 1006 is already booked for that period, so grab Unit 707 before it goes too!
+        // Ticker: if guest clicked 1006 but it's booked, acknowledge the deal is gone
+        const opener1006booked = (pageSource === "ticker" && tickerUnit === "1006")
+          ? `Ah, that specific Unit 1006 deal is gone for those dates — it just got booked! But Unit 707 is available and looks like a great option too! 🎉`
+          : `${pick(only707Openers)} Unit 1006 is already booked for that period, so grab Unit 707 before it goes too!`;
+        bookingReply = `${opener1006booked}
 
 ${link}
 
@@ -3368,7 +3372,11 @@ Your 10% direct booking discount is already applied! 🎉 Let me know if you hav
 
       } else if (availabilityStatus.includes("707:BOOKED") && availabilityStatus.includes("1006:AVAILABLE")) {
         const link = buildLink("1006", dates.arrival, dates.departure, adults, children);
-        bookingReply = `${pick(only1006Openers)} Unit 707 is already booked for that period, so grab Unit 1006 before it goes too!
+        // Ticker: if guest clicked 707 but it's booked, acknowledge the deal is gone
+        const opener707booked = (pageSource === "ticker" && tickerUnit === "707")
+          ? `Ah, that specific Unit 707 deal is gone for those dates — it just got booked! But Unit 1006 is available and looks like a great option too! 🎉`
+          : `${pick(only1006Openers)} Unit 707 is already booked for that period, so grab Unit 1006 before it goes too!`;
+        bookingReply = `${opener707booked}
 
 ${link}
 
@@ -3420,28 +3428,30 @@ Your 10% direct booking discount is already applied! 🎉 Unit 707 availability 
       }
 
       if (bookingReply) {
-        // Append price drop deterministically — skip if ticker source (guest already saw the drop)
-        if (priceDropContext && !bookingReply.includes("dropped") && pageSource !== "ticker") {
-          // Only mention drop for the unit actually in the booking reply
-          // Use URL slug to detect unit — avoids false positives from "Unit 707 is already booked" text
+        // Append price drop — skip if ticker source (guest already saw the drop)
+        // Skip drop if ticker AND clicked unit is the one being shown (guest saw it); allow if fallback unit
+        const isTickerFallback = pageSource === "ticker" && tickerUnit && !bookingReply.includes(`unit-${tickerUnit}-orp`);
+        if (priceDropContext && !bookingReply.includes("dropped") && (pageSource !== "ticker" || isTickerFallback)) {
+          // Use URL slugs to find which units are actually linked
           const hasUrl707 = bookingReply.includes('unit-707-orp');
           const hasUrl1006 = bookingReply.includes('unit-1006-orp');
-          const unitFilter = hasUrl707 && !hasUrl1006 ? '707' : hasUrl1006 && !hasUrl707 ? '1006' : null;
-          const dropPattern = unitFilter ? new RegExp(`Unit ${unitFilter}: down (\\d+)% over the last (\\d+) days \\(\\$(\\d+)[^\\d]+(\\d+)`) : /Unit (\d+): down (\d+)% over the last (\d+) days \(\$(\d+)[^\d]+(\d+)/;
-          const raw = priceDropContext.match(dropPattern);
-          if (raw) {
-    let u, pct, days, from, to;
-    if (unitFilter) {
-      u = unitFilter;
-      pct = Number(raw[1]); days = Number(raw[2]); from = Number(raw[3]); to = Number(raw[4]);
-    } else {
-      u = raw[1];
-      pct = Number(raw[2]); days = Number(raw[3]); from = Number(raw[4]); to = Number(raw[5]);
-    }
-    const validDrop = ['707','1006'].includes(String(u)) && Number.isFinite(pct) && Number.isFinite(days) && Number.isFinite(from) && Number.isFinite(to) && pct >= 5 && pct <= 60 && days >= 1 && days <= 60 && from > to;
-    if (validDrop) {
-              bookingReply = bookingReply.trimEnd() + ` By the way, Unit ${u} dropped ${pct}% in the last ${days} days — was $${from}/night, now $${to} avg/night before fees & Taxes. Good timing to lock it in! 😊`;
-            }
+          // Extract drop data for each linked unit, pick the BEST valid drop
+          function extractDrop(unit) {
+            const pat = new RegExp(`Unit ${unit}: down (\\d+)% over the last (\\d+) days \\(\\$(\\d+)[^\\d]+(\\d+)`);
+            const m = priceDropContext.match(pat);
+            if (!m) return null;
+            const pct=Number(m[1]),days=Number(m[2]),from=Number(m[3]),to=Number(m[4]);
+            const valid = ['707','1006'].includes(unit) && Number.isFinite(pct) && Number.isFinite(days) && Number.isFinite(from) && Number.isFinite(to) && pct>=5 && pct<=60 && days>=1 && days<=60 && from>to;
+            return valid ? {unit, pct, days, from, to} : null;
+          }
+          const candidates = [];
+          if (hasUrl707) { const d=extractDrop('707'); if(d) candidates.push(d); }
+          if (hasUrl1006) { const d=extractDrop('1006'); if(d) candidates.push(d); }
+          if (candidates.length > 0) {
+            // Pick best: highest pct, tiebreak by biggest dollar saving, then lower current price
+            candidates.sort((a,b) => b.pct-a.pct || (b.from-b.to)-(a.from-a.to) || a.to-b.to);
+            const best = candidates[0];
+            bookingReply = bookingReply.trimEnd() + ` By the way, Unit ${best.unit} dropped ${best.pct}% in the last ${best.days} days — was $${best.from}/night, now $${best.to} avg/night before fees & Taxes. Good timing to lock it in! 😊`;
           }
         }
         // Popup guest: append 5% email offer if email not yet captured

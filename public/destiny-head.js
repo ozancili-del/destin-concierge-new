@@ -243,7 +243,7 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
       const input = document.getElementById('db-input');
       const send = document.getElementById('db-send');
       if (input && send) {
-        input.value = `I clicked the Live Beach Deals ticker. I'm interested in ${unitLabel} for ${fmt(aDate)} to ${fmt(dDate)}. It showed a ${drop.dropPct}% drop from $${drop.fromPrice} to $${drop.toPrice}/night before fees & Taxes. Please help me check this deal.`;
+        input.value = `I saw a great deal on the ticker for ${unitLabel}, ${fmt(aDate)} to ${fmt(dDate)}. Can you help me book it?`;
         send.click();
       }
     }, 600);

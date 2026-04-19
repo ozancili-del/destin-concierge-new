@@ -160,6 +160,7 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
 // ── RATE DROP TICKER ─────────────────────────────────────────────────────────
 (function(){
   const BASE = 'https://destin-concierge-new.vercel.app/api/price-drops';
+  let dbTickerDragged = false;
 
   // Generate dynamic date windows from today — rolling, never stale
   function buildDateWindows(){
@@ -242,7 +243,7 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
       const input = document.getElementById('db-input');
       const send = document.getElementById('db-send');
       if (input && send) {
-        input.value = `I clicked the rate drop ticker. I'm interested in ${unitLabel} for ${fmt(aDate)} to ${fmt(dDate)}. Please help me check this deal.`;
+        input.value = `I clicked the Live Beach Deals ticker. I'm interested in ${unitLabel} for ${fmt(aDate)} to ${fmt(dDate)}. It showed a ${drop.dropPct}% drop from $${drop.fromPrice} to $${drop.toPrice}/night before fees & Taxes. Please help me check this deal.`;
         send.click();
       }
     }, 600);
@@ -261,7 +262,6 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
     const inner = document.createElement('div');
     inner.id = 'db-ticker-inner';
     inner.style.cssText = 'display:flex;align-items:center;height:100%;white-space:nowrap;will-change:transform;';
-    let dbTickerDragged = false;
     items.forEach((drop, i) => {
       const item = document.createElement('span');
       item.style.cssText = 'display:inline-flex;align-items:center;padding:0 32px;font-size:14px;color:rgba(255,255,255,0.9);border-right:1px solid rgba(255,255,255,0.08);height:100%;font-family:system-ui,sans-serif;cursor:pointer;transition:background .15s,transform .15s;position:relative;';
@@ -300,6 +300,7 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
 
     // Touch support
     inner.parentElement.addEventListener('touchstart', e => {
+      dbTickerDragged = false;
       paused = true;
       dragStart = e.touches[0].clientX;
       dragPos = pos;
@@ -323,6 +324,7 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
 
     // Mouse drag support (desktop)
     inner.parentElement.addEventListener('mousedown', e => {
+      dbTickerDragged = false;
       paused = true;
       dragStart = e.clientX;
       dragPos = pos;

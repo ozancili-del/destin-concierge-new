@@ -3298,7 +3298,9 @@ NO REPETITION RULE: Review all your previous responses in this conversation befo
               return r.choices[0]?.message?.content || `Perfect — I've got your dates! Just need one more thing: how many adults and children will be staying? 😊`;
             } catch(e) { return `Perfect — I've got your dates (${dates.arrival} to ${dates.departure})! Just need one more thing: how many adults and children will be staying? I'll check live availability right away 😊`; }
           })()
-        : `Perfect — I've got your dates (${dates.arrival} to ${dates.departure})! Just need one more thing: how many adults and children will be staying? I'll check live availability right away 😊`;
+        : (pageSource === 'ticker' && tickerUnit
+          ? `Great deal you spotted! 🎉 Just need one thing — how many adults and children will be staying? I'll lock in that Unit ${tickerUnit} availability for you right away! 😊`
+          : `Perfect — I've got your dates (${dates.arrival} to ${dates.departure})! Just need one more thing: how many adults and children will be staying? I'll check live availability right away 😊`);
       await logToSheets(sessionId, lastUser, guestCountReply, `${dates.arrival} to ${dates.departure}`, "NEEDS_GUEST_COUNT", "");
       return res.status(200).json({ reply: guestCountReply, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
     }
@@ -3418,10 +3420,6 @@ Your 10% direct booking discount is already applied! 🎉 Unit 707 availability 
       }
 
       if (bookingReply) {
-        // If guest count was defaulted (not explicitly stated), append adjustment reminder
-        if (!hasGuestCount && !guestBooking) {
-          bookingReply = bookingReply.trimEnd() + ` Just a heads up — I've assumed 2 adults. Please adjust the number of adults and children at checkout if needed! 😊`;
-        }
         // Append price drop deterministically — skip if ticker source (guest already saw the drop)
         if (priceDropContext && !bookingReply.includes("dropped") && pageSource !== "ticker") {
           // Only mention drop for the unit actually in the booking reply

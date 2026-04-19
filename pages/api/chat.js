@@ -3362,7 +3362,12 @@ NO REPETITION RULE: Review all your previous responses in this conversation befo
         const link = buildLink("707", dates.arrival, dates.departure, adults, children);
         // Ticker: if guest clicked 1006 but it's booked, acknowledge the deal is gone
         const opener1006booked = (pageSource === "ticker" && tickerUnit === "1006")
-          ? `Ah, that specific Unit 1006 deal is gone for those dates — it just got booked! But Unit 707 is available and looks like a great option too! 🎉`
+          ? [
+              `Ah, that Unit 1006 deal moved fast — it just got booked! Good news though, Unit 707 is open for those dates 🎉`,
+              `Unit 1006 just got snapped up for those dates! But Unit 707 is still available — and honestly just as good 😊`,
+              `Looks like someone beat you to Unit 1006! No worries, Unit 707 is available and it's a great pick 🌊`,
+              `That Unit 1006 deal is gone — but Unit 707 is still up for grabs for those dates! 🎉`,
+            ][Math.floor(Math.random()*4)]
           : `${pick(only707Openers)} Unit 1006 is already booked for that period, so grab Unit 707 before it goes too!`;
         bookingReply = `${opener1006booked}
 
@@ -3374,7 +3379,12 @@ Your 10% direct booking discount is already applied! 🎉 Let me know if you hav
         const link = buildLink("1006", dates.arrival, dates.departure, adults, children);
         // Ticker: if guest clicked 707 but it's booked, acknowledge the deal is gone
         const opener707booked = (pageSource === "ticker" && tickerUnit === "707")
-          ? `Ah, that specific Unit 707 deal is gone for those dates — it just got booked! But Unit 1006 is available and looks like a great option too! 🎉`
+          ? [
+              `Ah, that Unit 707 deal moved fast — it just got booked! Good news though, Unit 1006 is open for those dates 🎉`,
+              `Unit 707 just got snapped up for those dates! But Unit 1006 is still available — and honestly just as good 😊`,
+              `Looks like someone beat you to Unit 707! No worries, Unit 1006 is available and it's a great pick 🌊`,
+              `That Unit 707 deal is gone — but Unit 1006 is still up for grabs for those dates! 🎉`,
+            ][Math.floor(Math.random()*4)]
           : `${pick(only1006Openers)} Unit 707 is already booked for that period, so grab Unit 1006 before it goes too!`;
         bookingReply = `${opener707booked}
 
@@ -3389,7 +3399,13 @@ Your 10% direct booking discount is already applied! 🎉 Let me know if you hav
         if (pageSource === "ticker" && tickerUnit) {
           const tickerLink = tickerUnit === "707" ? link707 : link1006;
           const tickerLabel = tickerUnit === "707" ? "Unit 707 — Classic Coastal" : "Unit 1006 — Fresh Coastal";
-          bookingReply = `Great timing — the ${tickerLabel} deal you clicked is still available! 🎉
+          const tickerOpeners = [
+              `Great news — the ${tickerLabel} deal you spotted is still available! 🎉`,
+              `You got here just in time — ${tickerLabel} is open for those dates! 🌊`,
+              `That ${tickerLabel} deal is yours to grab — still available! 🎉`,
+              `${tickerLabel} is available for those dates — let's lock it in! 😊`,
+            ];
+          bookingReply = `${tickerOpeners[Math.floor(Math.random()*tickerOpeners.length)]}
 
 ${tickerLink}
 

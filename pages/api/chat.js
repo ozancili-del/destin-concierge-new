@@ -1152,7 +1152,7 @@ export default async function handler(req, res) {
   try {
     // pageSource: frontend bubble should send pageSource: "ai-concierge" when on /ai-concierge page
     // In concierge.js fetch body add: pageSource: window.location.pathname.includes("ai-concierge") ? "ai-concierge" : null
-    const { messages = [], sessionId = null, alertSent: priorAlertSent = false, pendingRelay: priorPendingRelay = false, ozanAcked: priorOzanAcked = false, ozanAckType: priorOzanAckType = null, pageSource = null, guestBid = null, guestBooking = null, sawBanner = null } = req.body || {};
+    const { messages = [], sessionId = null, alertSent: priorAlertSent = false, pendingRelay: priorPendingRelay = false, ozanAcked: priorOzanAcked = false, ozanAckType: priorOzanAckType = null, pageSource = null, guestBid = null, guestBooking = null, sawBanner = null, tickerUnit = null } = req.body || {};
     const lastUser = [...messages].reverse().find((m) => m.role === "user")?.content || "";
     console.log(`[REQUEST] pageSource=${pageSource} | lastUser="${lastUser.slice(0,40)}" | sawBanner=${sawBanner}`);
 
@@ -3375,12 +3375,23 @@ Your 10% direct booking discount is already applied! 🎉 Let me know if you hav
       } else if (availabilityStatus.includes("707:AVAILABLE") && availabilityStatus.includes("1006:AVAILABLE")) {
         const link707 = buildLink("707", dates.arrival, dates.departure, adults, children);
         const link1006 = buildLink("1006", dates.arrival, dates.departure, adults, children);
-        bookingReply = `${pick(bothAvailOpeners)}
+        // Ticker path: guest chose a specific unit — show only that unit
+        if (pageSource === "ticker" && tickerUnit) {
+          const tickerLink = tickerUnit === "707" ? link707 : link1006;
+          const tickerLabel = tickerUnit === "707" ? "Unit 707 — Classic Coastal" : "Unit 1006 — Fresh Coastal";
+          bookingReply = `Great timing — the ${tickerLabel} deal you clicked is still available! 🎉
+
+${tickerLink}
+
+Your 10% direct booking discount is already applied! 🎉 Let me know if you have any questions 😊${activityPS}`;
+        } else {
+          bookingReply = `${pick(bothAvailOpeners)}
 
 ${link707}
 ${link1006}
 
 Your 10% direct booking discount is already applied on both! 🎉Want me to tell you more about the differences? 😊${activityPS}`;
+        }
 
       } else if (availabilityStatus.includes("707:BOOKED") && availabilityStatus.includes("1006:BOOKED")) {
         bookingReply = `I'm sorry — both units are booked for ${dates.arrival} to ${dates.departure}. You can browse other open dates at https://www.destincondogetaways.com/availability or contact Ozan at (972) 357-4262 — he may have options not listed online!`;

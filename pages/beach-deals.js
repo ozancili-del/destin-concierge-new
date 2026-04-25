@@ -371,8 +371,20 @@ function DealCard({ deal, index }) {
   const meta      = UNIT_META[deal.unit];
   const url       = bookingUrl(deal.unit, deal.arrival, deal.departure);
   const dateLabel = `${deal.arrivalFriendly} – ${deal.departureFriendly} · ${deal.nights} nights`;
+  const [hovered, setHovered] = useState(false);
   return (
-    <div className="deal-card">
+    <div
+      className="deal-card"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        transform: hovered ? "translateY(-8px) scale(1.04)" : "translateY(0) scale(1)",
+        boxShadow: hovered ? "0 24px 60px rgba(0,0,0,0.8), 0 0 36px rgba(0,212,200,0.35)" : "0 8px 32px rgba(0,0,0,0.5)",
+        borderColor: hovered ? "rgba(0,212,200,0.9)" : "rgba(0,212,200,0.35)",
+        transition: "transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease",
+        zIndex: hovered ? 10 : 1,
+      }}
+    >
       <div className="card-photo-wrap">
         <div style={{ position: "relative" }}>
           <Carousel unit={deal.unit} index={index} />

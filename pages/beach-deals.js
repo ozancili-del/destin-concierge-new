@@ -209,6 +209,7 @@ function buildSchema(deals) {
           "floorLevel": deal.unit === "707" ? "7" : "10",
           "occupancy": {
             "@type": "QuantitativeValue",
+            "value": 6,
             "minValue": 1,
             "maxValue": 6
           },

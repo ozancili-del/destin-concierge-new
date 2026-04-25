@@ -161,8 +161,10 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
   // Only inject on homepage
   if(window.location.pathname !== '/' && window.location.pathname !== '') return;
 
-  // Target: the form with action="/properties" (the "2 properties" section)
-  var propertiesForm = document.querySelector('form[action="/properties"]');
+  // Target: h2 containing property-count span (the "2 properties" heading)
+  var propertyCount = document.querySelector('.property-count');
+  if(!propertyCount) return;
+  var propertiesForm = propertyCount.closest('form');
   if(!propertiesForm) return;
 
   // Inject disco CSS if not already loaded

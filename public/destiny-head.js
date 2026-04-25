@@ -158,8 +158,7 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
 
 // ── DEALS TEASER BANNER ──────────────────────────────────────────────────────
 (function injectDealsBanner(){
-  if(window.location.pathname !== '/' && window.location.pathname !== '') return;
-
+  // Only show if properties form exists (homepage check)
   if(!document.getElementById('db-disco-css')){
     var link = document.createElement('link');
     link.id = 'db-disco-css';

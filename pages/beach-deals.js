@@ -455,8 +455,8 @@ export default function BeachDeals({ deals }) {
   return (
     <>
       <Head>
-        <title>Featured Beach Deals — Destin Condo Getaways</title>
-        <meta name="description" content="Current beachfront vacation rental price drops at Pelican Beach Resort, Destin FL. Direct booking savings on Unit 707 (Classic Coastal) and Unit 1006 (Fresh Coastal). No OTA fees." />
+        <title>Pelican Beach Resort Condos — Destin Beach Florida Price Drops</title>
+        <meta name="description" content="Live price drops on beachfront condos at Pelican Beach Resort, Destin Beach Florida. Book Unit 707 or Unit 1006 direct — no OTA fees, instant confirmation, owner direct." />
         <meta property="og:title" content="Featured Beach Deals — Destin Condo Getaways" />
         <meta property="og:description" content="Beachfront condo price drops in Destin, FL. Book direct and save up to 10% instantly." />
         <meta property="og:image" content={IMAGES["707"][0]} />
@@ -497,6 +497,11 @@ export default function BeachDeals({ deals }) {
         </div>
 
         <div className="section-label">Current Featured Drops</div>
+
+        {/* SEO intro — visible text for Google */}
+        <div className="seo-intro">
+          <p>These are real-time price drops on our two <strong>beachfront condos at Pelican Beach Resort, Destin FL</strong> — Unit 707 (7th floor, Classic Coastal) and Unit 1006 (10th floor, Fresh Coastal). Both <strong>Pelican Beach Resort condos</strong> sleep up to 6 guests with 1 bedroom, 2 bathrooms, a private Gulf-view balcony, and full kitchen. Minutes from Destin HarborWalk Village, Big Kahuna&apos;s Water Park, and Henderson Beach State Park. When you book direct through <a href="https://www.destincondogetaways.com" style={{color:"var(--teal)"}}>destincondogetaways.com</a>, you skip the 14–20% platform fees charged by Airbnb and VRBO. Prices are tracked daily — drops are calculated against the highest recently recorded rate for each date window.</p>
+        </div>
 
         {/* Deals or no deals */}
         {hasDeals ? (
@@ -553,6 +558,32 @@ export default function BeachDeals({ deals }) {
           </div>
         </div>
 
+        {/* Visible FAQ for SEO */}
+        <div className="seo-faq">
+          <h2 className="seo-faq-title">Frequently Asked Questions</h2>
+          <div className="seo-faq-item"><h3>How are price drops calculated?</h3><p>Drop percentages are calculated against the highest recently recorded price for those dates in our pricing system. Prices update daily based on live market data.</p></div>
+          <div className="seo-faq-item"><h3>Do I need a promo code to get the discount?</h3><p>No promo code needed. A 10% direct booking discount is automatically applied when you book through destincondogetaways.com. Use code BLUE for an additional 5% off.</p></div>
+          <div className="seo-faq-item"><h3>Are these direct booking prices?</h3><p>Yes — all prices are direct booking rates with no OTA platform fees. Guests who book direct save $200–$400 compared to booking the same unit through Airbnb or VRBO.</p></div>
+          <div className="seo-faq-item"><h3>Where are the condos located?</h3><p>Both Unit 707 and Unit 1006 are at Pelican Beach Resort, 1002 US-98 East, Destin FL 32541 — directly on the Gulf of Mexico. The resort features three pools, hot tubs, a beachside Tiki bar, tennis courts, and free parking with EV chargers.</p></div>
+          <div className="seo-faq-item"><h3>What is the cancellation policy?</h3><p>A 20% non-refundable deposit is due upon booking. Balance due 30 days before check-in. Cancellations within 30 days of check-in are non-refundable. Travel insurance offered at checkout.</p></div>
+          <div className="seo-faq-item"><h3>How often do deals update?</h3><p>Deals refresh every 10 minutes based on live pricing data, scanning the next 180 days across 3, 4, and 5-night stay windows.</p></div>
+        </div>
+
+        {/* About section */}
+        <div className="seo-about">
+          <h2>Pelican Beach Resort Condos in Destin, FL — Book Direct &amp; Save</h2>
+          <p>Destin Condo Getaways offers two fully renovated <strong>beachfront condos at Pelican Beach Resort</strong> on the Emerald Coast of Florida. With over 400 five-star stays and 1,000+ guests hosted, we are one of the highest-rated direct-booking <strong>Destin beach Florida</strong> vacation rentals. Unit 707 on the 7th floor offers an intimate beach feel with unobstructed Gulf views, while Unit 1006 on the 10th floor provides panoramic views of the emerald green Gulf of Mexico. Both <strong>Pelican Beach Resort condos</strong> feature a private balcony, full kitchen, Smart TV, high-speed WiFi, and two beach chairs, umbrella and cooler waiting on arrival.</p>
+          <p>Pelican Beach Resort sits at 1002 US Highway 98, <strong>Destin Beach Florida</strong> 32541 — steps from the sugar-white sand beaches the Emerald Coast is famous for. The resort offers three pools including an indoor heated pool open year-round, two hot tubs, a fitness center, tennis and pickleball courts, and a beachside Tiki bar. No road to cross — just take the elevator straight to the beach.</p>
+          <p>Minutes from Destin HarborWalk Village, Big Kahuna&apos;s Water Park, and the best seafood restaurants on the Gulf Coast. Henderson Beach State Park is a short drive away. The location puts you at the center of everything Destin has to offer while keeping you steps from the private beach.</p>
+          <div className="host-profile">
+            <div className="host-avatar">OC</div>
+            <div className="host-info">
+              <strong>Ozan Cili — Owner &amp; Host</strong>
+              <p>I have been hosting guests at Pelican Beach Resort for several years and personally manage both units. I respond directly to all inquiries — no call centers, no middlemen. My goal is simple: give every guest the best possible Destin experience at the best direct price. Have questions before you book? <a href="https://www.destincondogetaways.com/ai-concierge-574036277" style={{color:"var(--teal)"}}>Destiny Blue</a>, our AI concierge, is available 24/7 on every page.</p>
+            </div>
+          </div>
+        </div>
+
       </main>
 
       <style jsx global>{`
@@ -605,6 +636,22 @@ export default function BeachDeals({ deals }) {
         .btn-main:hover { transform:translateY(-2px); box-shadow:0 8px 32px rgba(57,255,20,0.55); }
         .btn-load-more { background: transparent; border: 1.5px solid var(--teal); color: var(--teal); font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:700; letter-spacing:1px; text-transform:uppercase; padding:12px 36px; border-radius:10px; cursor:pointer; transition:background 0.2s,transform 0.15s; }
         .btn-load-more:hover { background:rgba(0,212,200,0.1); transform:translateY(-1px); }
+        .seo-intro { margin-bottom:24px; padding:16px 20px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:12px; font-size:14px; color:rgba(255,255,255,0.55); line-height:1.7; }
+        .seo-intro strong { color:rgba(255,255,255,0.8); }
+        .seo-faq { margin-top:48px; border-top:1px solid rgba(255,255,255,0.08); padding-top:36px; }
+        .seo-faq-title { font-family:'Barlow Condensed',sans-serif; font-size:28px; font-weight:800; text-transform:uppercase; color:var(--white); margin-bottom:24px; }
+        .seo-faq-item { margin-bottom:20px; padding-bottom:20px; border-bottom:1px solid rgba(255,255,255,0.06); }
+        .seo-faq-item:last-child { border-bottom:none; }
+        .seo-faq-item h3 { font-size:15px; font-weight:600; color:var(--teal); margin-bottom:8px; }
+        .seo-faq-item p { font-size:14px; color:rgba(255,255,255,0.55); line-height:1.7; }
+        .seo-about { margin-top:48px; padding:28px 24px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:12px; }
+        .seo-about h2 { font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:800; text-transform:uppercase; color:var(--white); margin-bottom:16px; line-height:1.2; }
+        .seo-about p { font-size:14px; color:rgba(255,255,255,0.55); line-height:1.7; margin-bottom:12px; }
+        .seo-about p:last-child { margin-bottom:0; }
+        .host-profile { display:flex; align-items:flex-start; gap:16px; margin-top:20px; padding-top:20px; border-top:1px solid rgba(255,255,255,0.08); }
+        .host-avatar { width:48px; height:48px; border-radius:50%; background:linear-gradient(135deg,var(--teal),#0a6e60); display:flex; align-items:center; justify-content:center; font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:800; color:#fff; flex-shrink:0; }
+        .host-info strong { display:block; font-size:14px; font-weight:700; color:rgba(255,255,255,0.85); margin-bottom:6px; }
+        .host-info p { font-size:13px; color:rgba(255,255,255,0.5); line-height:1.6; margin:0; }
         .no-deals { text-align:center; padding:60px 20px; animation:fadeUp 0.5s ease both; }
         .no-deals-icon { font-size:48px; margin-bottom:16px; }
         .no-deals-title { font-family:'Barlow Condensed',sans-serif; font-size:32px; font-weight:800; text-transform:uppercase; margin-bottom:12px; color:var(--white); }

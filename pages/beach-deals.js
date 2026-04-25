@@ -340,15 +340,24 @@ function Carousel({ unit, index }) {
 
   return (
     <div style={{ position: "relative", height: "200px", overflow: "hidden" }}>
-      <div style={{ display: "flex", height: "100%", transform: `translateX(-${current * 100}%)`, transition: "transform 0.6s cubic-bezier(0.4,0,0.2,1)", willChange: "transform" }}>
-        {images.current.map((src, i) => (
-          <div key={i} style={{ minWidth: "100%", height: "100%", flexShrink: 0 }}>
-            <img src={src} alt={i === 0 ? `${UNIT_META[unit].name} beachfront condo at Pelican Beach Resort Destin` : ""} loading={i === 0 ? "eager" : "lazy"} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 30%", display: "block" }} />
-          </div>
-        ))}
-      </div>
-      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 40%, rgba(2,18,40,0.65) 72%, rgba(2,18,40,0.95) 100%)", pointerEvents: "none", zIndex: 1 }} />
-      <div style={{ position: "absolute", bottom: 14, right: 10, display: "flex", flexDirection: "column", gap: 4, zIndex: 2 }}>
+      {/* Fade carousel — all images stacked, only current is visible */}
+      {images.current.map((src, i) => (
+        <div key={i} style={{
+          position: "absolute", inset: 0,
+          opacity: i === current ? 1 : 0,
+          transition: "opacity 0.8s ease",
+          zIndex: i === current ? 1 : 0,
+        }}>
+          <img
+            src={src}
+            alt={i === 0 ? `${UNIT_META[unit].name} beachfront condo at Pelican Beach Resort Destin` : ""}
+            loading={i === 0 ? "eager" : "lazy"}
+            style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 30%", display: "block" }}
+          />
+        </div>
+      ))}
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, transparent 40%, rgba(2,18,40,0.65) 72%, rgba(2,18,40,0.95) 100%)", pointerEvents: "none", zIndex: 3 }} />
+      <div style={{ position: "absolute", bottom: 14, right: 10, display: "flex", flexDirection: "column", gap: 4, zIndex: 4 }}>
         {images.current.map((_, i) => (
           <div key={i} onClick={e => { e.preventDefault(); goTo(i); resetTimer(); }} style={{ width: 5, height: 5, borderRadius: "50%", cursor: "pointer", background: i === current ? "#00d4c8" : "rgba(255,255,255,0.3)", boxShadow: i === current ? "0 0 6px #00d4c8" : "none", transition: "background 0.3s, box-shadow 0.3s" }} />
         ))}

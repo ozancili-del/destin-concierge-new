@@ -2,15 +2,15 @@ import { useState, useEffect, useRef } from "react";
 import Head from "next/head";
 import { createClient } from "@supabase/supabase-js";
 
-// ── Supabase ──────────────────────────────────────────────────────────────────
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_GUESTVIEW_SUPABASE_URL,
-  process.env.GUESTVIEW_SUPABASE_SERVICE_ROLE_KEY
-);
-
 // ── ISR — runs at build time + revalidates every 10 mins ─────────────────────
 export async function getStaticProps() {
   try {
+    // Supabase client inside getStaticProps — never leaks to client bundle
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_GUESTVIEW_SUPABASE_URL,
+      process.env.GUESTVIEW_SUPABASE_SERVICE_ROLE_KEY
+    );
+
     const SCAN_DAYS   = 180;
     const STAY_NIGHTS = [3, 4, 5];
     const WINDOWS     = [7, 14, 30];
@@ -36,7 +36,8 @@ export async function getStaticProps() {
       .from("price_snapshots")
       .select("unit_id, date, price, captured_date")
       .in("date", allDates)
-      .in("captured_date", capturedDates);
+      .in("captured_date", capturedDates)
+      .limit(5000);
 
     if (error || !snapshots?.length) {
       return { props: { deals: [] }, revalidate: 600 };
@@ -181,7 +182,7 @@ function buildSchema(deals) {
     "@type": "ItemList",
     "name": "Featured Destin Beachfront Price Drops",
     "description": "Current vacation rental price drops at Pelican Beach Resort, Destin FL. Direct booking savings on Unit 707 and Unit 1006.",
-    "url": "https://www.destincondogetaways.com/beach-deals",
+    "url": "https://deals.destincondogetaways.com/beach-deals",
     "numberOfItems": deals.length,
     "itemListElement": deals.map((deal, i) => ({
       "@type": "ListItem",
@@ -252,7 +253,7 @@ function buildSchema(deals) {
     "@type": "BreadcrumbList",
     "itemListElement": [
       { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.destincondogetaways.com" },
-      { "@type": "ListItem", "position": 2, "name": "Beach Deals", "item": "https://www.destincondogetaways.com/beach-deals" }
+      { "@type": "ListItem", "position": 2, "name": "Beach Deals", "item": "https://deals.destincondogetaways.com/beach-deals" }
     ]
   };
 
@@ -265,7 +266,7 @@ function buildSchema(deals) {
         "name": "How are the price drops calculated?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Price drop percentages are calculated against the highest price ever recorded for those dates in our pricing system. This reflects the maximum rate that was available for booking."
+          "text": "Price drop percentages are calculated against the highest recently recorded price for those dates in our pricing system. Final rates confirmed at checkout."
         }
       },
       {
@@ -463,11 +464,8 @@ export default function BeachDeals({ deals }) {
         <meta property="og:type" content="website" />
         <link rel="canonical" href="https://deals.destincondogetaways.com/beach-deals" />
         <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
-        {/* GTM */}
+        {/* GTM only — GA4 fired via GTM, no direct gtag to avoid double counting */}
         <script dangerouslySetInnerHTML={{ __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-PQSF8S6D');` }} />
-        {/* GA4 */}
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-3SGXCQ4FTC" />
-        <script dangerouslySetInnerHTML={{ __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-3SGXCQ4FTC',{send_page_view:true});` }} />
         {schemas.map((schema, i) => (
           <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
         ))}
@@ -551,7 +549,7 @@ export default function BeachDeals({ deals }) {
           </div>
           <div className="fine-print-row">
             <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-            Price drop percentages are calculated against the highest price recorded for those dates in our pricing system. Final rates confirmed at checkout.
+            Price drop percentages are calculated against the highest recently recorded price for those dates in our pricing system. Final rates confirmed at checkout.
           </div>
         </div>
 

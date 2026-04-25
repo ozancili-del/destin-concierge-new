@@ -435,10 +435,15 @@ export default function BeachDeals({ deals }) {
         <meta property="og:title" content="Featured Beach Deals — Destin Condo Getaways" />
         <meta property="og:description" content="Beachfront condo price drops in Destin, FL. Book direct and save up to 10% instantly." />
         <meta property="og:image" content={IMAGES["707"][0]} />
-        <meta property="og:url" content="https://www.destincondogetaways.com/beach-deals" />
+        <meta property="og:url" content="https://deals.destincondogetaways.com/beach-deals" />
         <meta property="og:type" content="website" />
-        <link rel="canonical" href="https://www.destincondogetaways.com/beach-deals" />
+        <link rel="canonical" href="https://deals.destincondogetaways.com/beach-deals" />
         <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
+        {/* GTM */}
+        <script dangerouslySetInnerHTML={{ __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-PQSF8S6D');` }} />
+        {/* GA4 */}
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-3SGXCQ4FTC" />
+        <script dangerouslySetInnerHTML={{ __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-3SGXCQ4FTC',{send_page_view:true});` }} />
         {schemas.map((schema, i) => (
           <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
         ))}

@@ -583,7 +583,7 @@ export default function BeachDeals({ deals }) {
         .deals-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; overflow:visible; }
         .deal-card { background:var(--card-bg); border:1.5px solid var(--card-border); border-radius:16px; backdrop-filter:blur(12px); box-shadow:0 8px 32px rgba(0,0,0,0.5); transition:transform 0.25s ease,box-shadow 0.25s ease,border-color 0.25s ease; animation:fadeUp 0.5s ease both; position:relative; }
         .deal-card .card-photo-wrap { overflow:hidden; border-radius:16px 16px 0 0; }
-        .deal-card:hover { transform:translateY(-8px) scale(1.04) !important; box-shadow:0 24px 60px rgba(0,0,0,0.8),0 0 36px rgba(0,212,200,0.35) !important; border-color:rgba(0,212,200,0.9) !important; z-index:10 !important; }
+        .deal-card:hover { transform:translateY(-12px) scale(1.06) !important; box-shadow:0 32px 80px rgba(0,0,0,0.9),0 0 48px rgba(0,212,200,0.5) !important; border-color:rgba(0,212,200,1) !important; z-index:10 !important; }
         .drop-badge { position:absolute; top:12px; right:12px; background:var(--green); color:#000; font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:900; line-height:1; padding:6px 10px; border-radius:10px; box-shadow:0 0 16px rgba(57,255,20,0.6); z-index:2; }
         .unit-overlay { position:absolute; bottom:12px; left:14px; z-index:2; }
         .unit-name { font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:800; color:var(--white); text-transform:uppercase; letter-spacing:0.5px; text-shadow:0 1px 6px rgba(0,0,0,0.8); }

@@ -155,6 +155,41 @@ input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventD
 function dbX(){document.getElementById('db-overlay').classList.remove('show');lS.setItem('dbx','1');}
 function dbGo(){sessionStorage.setItem('db_source','popup');lS.setItem('dbx','1');sessionStorage.removeItem('db_history');history=[];dbX();if(!isOpen)btn.click();setTimeout(function(){isTyping=false;send.disabled=false;if(msgs)msgs.innerHTML='';var i=document.getElementById('db-input');if(i){i.value='__popup_open__';sendMsg();}},500);}
 setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw_banner','1');lS.setItem('db_saw_banner','1');document.getElementById('db-overlay').classList.add('show');},3000);
+
+// ── DEALS TEASER BANNER ──────────────────────────────────────────────────────
+(function injectDealsBanner(){
+  // Only inject on homepage
+  if(window.location.pathname !== '/' && window.location.pathname !== '') return;
+
+  // Target: the form with action="/properties" (the "2 properties" section)
+  var propertiesForm = document.querySelector('form[action="/properties"]');
+  if(!propertiesForm) return;
+
+  // Inject disco CSS if not already loaded
+  if(!document.getElementById('db-disco-css')){
+    var link = document.createElement('link');
+    link.id = 'db-disco-css';
+    link.rel = 'stylesheet';
+    link.href = 'https://destin-concierge-new.vercel.app/disco.css';
+    document.head.appendChild(link);
+  }
+
+  // Build banner
+  var banner = document.createElement('a');
+  banner.href = 'https://deals.destincondogetaways.com/beach-deals';
+  banner.title = 'See current Destin beachfront price drops';
+  banner.className = 'hub-banner';
+  banner.style.cssText = 'display:block;text-decoration:none;margin:0 0 32px;';
+  banner.innerHTML = [
+    '<p style="margin:0 0 8px;font-size:12px;font-family:Arial,sans-serif;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:rgba(45,219,180,0.9);">&#128176; Live Price Tracking</p>',
+    '<p style="margin:0 0 8px;font-size:22px;font-family:Arial,sans-serif;font-weight:bold;color:#ffffff;line-height:1.3;">Flexible on dates? Some nights just got cheaper.</p>',
+    '<p style="margin:0 0 20px;font-size:14px;font-family:Arial,sans-serif;color:rgba(255,255,255,0.6);line-height:1.5;">We track pricing daily &mdash; right now certain dates have dropped significantly. Takes 10 seconds to check.</p>',
+    '<span class="hub-banner-btn">See Today\'s Price Drops &rarr;</span>'
+  ].join('');
+
+  // Insert before the properties form
+  propertiesForm.parentNode.insertBefore(banner, propertiesForm);
+})();
 });
 
 // ── RATE DROP TICKER ─────────────────────────────────────────────────────────

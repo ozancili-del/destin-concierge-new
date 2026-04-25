@@ -189,8 +189,27 @@ function buildSchema(deals) {
       "item": {
         "@type": "VacationRental",
         "name": UNIT_META[deal.unit].fullName,
+        "identifier": `pelican-beach-resort-unit-${deal.unit}`,
+        "description": `Beachfront vacation rental at Pelican Beach Resort, Destin FL. ${UNIT_META[deal.unit].fullName}. Sleeps 6. Direct booking savings available.`,
         "url": bookingUrl(deal.unit, deal.arrival, deal.departure),
-        "image": IMAGES[deal.unit][0],
+        "image": IMAGES[deal.unit],
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": 30.3865467,
+          "longitude": -86.4733424
+        },
+        "containsPlace": {
+          "@type": "Accommodation",
+          "name": UNIT_META[deal.unit].fullName,
+          "numberOfRooms": 2,
+          "floorLevel": deal.unit === "707" ? "7" : "10",
+          "amenityFeature": [
+            { "@type": "LocationFeatureSpecification", "name": "Free Parking", "value": true },
+            { "@type": "LocationFeatureSpecification", "name": "Beachfront", "value": true },
+            { "@type": "LocationFeatureSpecification", "name": "Gulf View", "value": true },
+            { "@type": "LocationFeatureSpecification", "name": "EV Charger", "value": true }
+          ]
+        },
         "address": {
           "@type": "PostalAddress",
           "streetAddress": "1002 US-98 East",

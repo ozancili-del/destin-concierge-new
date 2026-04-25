@@ -9,7 +9,7 @@
     {
       "source": "/",
       "destination": "/destin-hub.html",
-      "permanent": false,
+      "permanent": true,
       "has": [{"type": "host", "value": "explore.destincondogetaways.com"}]
     },
     {

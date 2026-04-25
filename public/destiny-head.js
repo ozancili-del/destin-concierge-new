@@ -158,14 +158,7 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
 
 // ── DEALS TEASER BANNER ──────────────────────────────────────────────────────
 (function injectDealsBanner(){
-  // Only inject on homepage
   if(window.location.pathname !== '/' && window.location.pathname !== '') return;
-
-  // Target: h2 containing property-count span (the "2 properties" heading)
-  var propertyCount = document.querySelector('.property-count');
-  if(!propertyCount) return;
-  var propertiesForm = propertyCount.closest('form');
-  if(!propertiesForm) return;
 
   // Inject disco CSS if not already loaded
   if(!document.getElementById('db-disco-css')){
@@ -189,8 +182,19 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
     '<span class="hub-banner-btn">See Today\'s Price Drops &rarr;</span>'
   ].join('');
 
-  // Insert before the properties form
-  propertiesForm.parentNode.insertBefore(banner, propertiesForm);
+  // On desktop: inject before .property-count form (between blue box and "2 properties")
+  // On mobile: inject before form[action="/properties"] (which lands after hero on mobile)
+  var anchor = null;
+  var propertyCount = document.querySelector('.property-count');
+  if(propertyCount){
+    anchor = propertyCount.closest('form');
+  }
+  // Fallback to any form with /properties action
+  if(!anchor){
+    anchor = document.querySelector('form[action="/properties"]');
+  }
+  if(!anchor) return;
+  anchor.parentNode.insertBefore(banner, anchor);
 })();
 });
 

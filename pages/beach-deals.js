@@ -11,11 +11,11 @@ const supabase = createClient(
 // ── ISR — runs at build time + revalidates every 10 mins ─────────────────────
 export async function getStaticProps() {
   try {
-    const SCAN_DAYS   = 90;
+    const SCAN_DAYS   = 180;
     const STAY_NIGHTS = [3, 4, 5];
     const WINDOWS     = [7, 14, 30];
     const MIN_DROP    = 5;
-    const MAX_DEALS   = 10;
+    const MAX_DEALS   = 20;
 
     function fmt(d) { return d.toISOString().split("T")[0]; }
     function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate() + n); return r; }
@@ -426,6 +426,7 @@ function NoDeals() {
 export default function BeachDeals({ deals }) {
   const schemas    = buildSchema(deals);
   const hasDeals   = deals && deals.length > 0;
+  const [visible, setVisible] = useState(10);
 
   return (
     <>
@@ -478,9 +479,21 @@ export default function BeachDeals({ deals }) {
 
         {/* Deals or no deals */}
         {hasDeals ? (
-          <div className="deals-grid">
-            {deals.map((deal, i) => <DealCard key={`${deal.unit}-${deal.arrival}`} deal={deal} index={i} />)}
-          </div>
+          <>
+            <div className="deals-grid">
+              {deals.slice(0, visible).map((deal, i) => <DealCard key={`${deal.unit}-${deal.arrival}`} deal={deal} index={i} />)}
+            </div>
+            {visible < deals.length && (
+              <div style={{ textAlign: "center", marginTop: 24 }}>
+                <button
+                  onClick={() => setVisible(v => v + 10)}
+                  className="btn-load-more"
+                >
+                  Show More Deals ↓
+                </button>
+              </div>
+            )}
+          </>
         ) : (
           <NoDeals />
         )}
@@ -568,6 +581,8 @@ export default function BeachDeals({ deals }) {
         .bottom-cta-text span { font-size:13px; color:rgba(255,255,255,0.55); }
         .btn-main { display:inline-flex; align-items:center; background:linear-gradient(135deg,var(--green),var(--green-dark)); color:#000; font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:800; letter-spacing:1px; text-transform:uppercase; text-decoration:none; padding:14px 28px; border-radius:12px; white-space:nowrap; box-shadow:0 4px 20px rgba(57,255,20,0.4); transition:transform 0.15s,box-shadow 0.2s; }
         .btn-main:hover { transform:translateY(-2px); box-shadow:0 8px 32px rgba(57,255,20,0.55); }
+        .btn-load-more { background: transparent; border: 1.5px solid var(--teal); color: var(--teal); font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:700; letter-spacing:1px; text-transform:uppercase; padding:12px 36px; border-radius:10px; cursor:pointer; transition:background 0.2s,transform 0.15s; }
+        .btn-load-more:hover { background:rgba(0,212,200,0.1); transform:translateY(-1px); }
         .no-deals { text-align:center; padding:60px 20px; animation:fadeUp 0.5s ease both; }
         .no-deals-icon { font-size:48px; margin-bottom:16px; }
         .no-deals-title { font-family:'Barlow Condensed',sans-serif; font-size:32px; font-weight:800; text-transform:uppercase; margin-bottom:12px; color:var(--white); }

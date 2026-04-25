@@ -563,7 +563,7 @@ export default function BeachDeals({ deals }) {
         body { font-family:'Barlow',sans-serif; background:var(--navy); color:var(--white); min-height:100vh; overflow-x:hidden; }
         .bg-wrap { position:fixed; inset:0; z-index:0; }
         .bg-overlay { position:absolute; inset:0; background:linear-gradient(to bottom,rgba(2,11,24,0.55) 0%,rgba(2,11,24,0.3) 40%,rgba(2,11,24,0.75) 100%); }
-        .page { position:relative; z-index:1; max-width:960px; margin:0 auto; padding:32px 20px 60px; }
+        .page { position:relative; z-index:1; max-width:960px; margin:0 auto; padding:32px 20px 60px; overflow:visible; }
         .header { text-align:center; margin-bottom:32px; animation:fadeDown 0.6s ease both; }
         .logo-wrap { margin-bottom:16px; }
         .logo-wrap img { height:56px; filter:drop-shadow(0 0 12px rgba(0,212,200,0.5)); }
@@ -580,7 +580,7 @@ export default function BeachDeals({ deals }) {
         .stat-label { font-size:11px; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:1px; margin-top:2px; }
         .stat-divider { width:1px; background:rgba(255,255,255,0.15); align-self:stretch; }
         .section-label { font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:rgba(255,255,255,0.4); text-align:center; margin-bottom:20px; }
-        .deals-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+        .deals-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; overflow:visible; }
         .deal-card { background:var(--card-bg); border:1.5px solid var(--card-border); border-radius:16px; backdrop-filter:blur(12px); box-shadow:0 8px 32px rgba(0,0,0,0.5); transition:transform 0.25s ease,box-shadow 0.25s ease,border-color 0.25s ease; animation:fadeUp 0.5s ease both; position:relative; }
         .deal-card .card-photo-wrap { overflow:hidden; border-radius:16px 16px 0 0; }
         .deal-card:hover { transform:translateY(-6px) scale(1.03); box-shadow:0 20px 60px rgba(0,0,0,0.7),0 0 32px rgba(0,212,200,0.25); border-color:rgba(0,212,200,0.8); z-index:10; }

@@ -265,6 +265,22 @@ function buildSchema(deals) {
           "@type": "Answer",
           "text": "Check-in is at 4:00 PM and check-out is at 10:00 AM (CST). Free parking is included. Paid EV chargers are available on property."
         }
+      },
+      {
+        "@type": "Question",
+        "name": "How often do these deals update?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Deals are refreshed automatically every 10 minutes based on live pricing data from our system. Prices reflect the most recent rates available at the time of your visit."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Are these direct booking prices?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. All prices shown are direct booking rates at destincondogetaways.com, which include a 10% direct booking discount automatically applied. You save the OTA service fees that platforms like Airbnb or VRBO would charge."
+        }
       }
     ]
   };

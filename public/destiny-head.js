@@ -158,7 +158,16 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
 
 // ── DEALS TEASER BANNER ──────────────────────────────────────────────────────
 (function injectDealsBanner(){
-  // Only show if properties form exists (homepage check)
+  // Only inject on homepage
+  if(window.location.pathname !== '/' && window.location.pathname !== '') return;
+
+  // Target: h2 containing property-count span (the "2 properties" heading)
+  var propertyCount = document.querySelector('.property-count');
+  if(!propertyCount) return;
+  var propertiesForm = propertyCount.closest('form');
+  if(!propertiesForm) return;
+
+  // Inject disco CSS if not already loaded
   if(!document.getElementById('db-disco-css')){
     var link = document.createElement('link');
     link.id = 'db-disco-css';
@@ -167,19 +176,21 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
     document.head.appendChild(link);
   }
 
+  // Build banner
   var banner = document.createElement('a');
   banner.href = 'https://deals.destincondogetaways.com/beach-deals';
   banner.title = 'See current Destin beachfront price drops';
   banner.className = 'hub-banner';
   banner.style.cssText = 'display:block;text-decoration:none;margin:0 0 32px;';
-  banner.innerHTML = '<p style="margin:0 0 8px;font-size:12px;font-family:Arial,sans-serif;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:rgba(45,219,180,0.9);">&#128176; Live Price Tracking</p><p style="margin:0 0 8px;font-size:22px;font-family:Arial,sans-serif;font-weight:bold;color:#ffffff;line-height:1.3;">Flexible on dates? Some nights just got cheaper.</p><p style="margin:0 0 20px;font-size:14px;font-family:Arial,sans-serif;color:rgba(255,255,255,0.6);line-height:1.5;">We track pricing daily &mdash; right now certain dates have dropped significantly. Takes 10 seconds to check.</p><span class="hub-banner-btn">See Today's Price Drops &rarr;</span>';
+  banner.innerHTML = [
+    '<p style="margin:0 0 8px;font-size:12px;font-family:Arial,sans-serif;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:rgba(45,219,180,0.9);">&#128176; Live Price Tracking</p>',
+    '<p style="margin:0 0 8px;font-size:22px;font-family:Arial,sans-serif;font-weight:bold;color:#ffffff;line-height:1.3;">Flexible on dates? Some nights just got cheaper.</p>',
+    '<p style="margin:0 0 20px;font-size:14px;font-family:Arial,sans-serif;color:rgba(255,255,255,0.6);line-height:1.5;">We track pricing daily &mdash; right now certain dates have dropped significantly. Takes 10 seconds to check.</p>',
+    '<span class="hub-banner-btn">See Today\'s Price Drops &rarr;</span>'
+  ].join('');
 
-  // Find the form inside #content (not the hero search bar)
-  var contentEl = document.getElementById('content');
-  if(!contentEl) return;
-  var form = contentEl.querySelector('form[action="/properties"]');
-  if(!form) return;
-  form.parentNode.insertBefore(banner, form);
+  // Insert before the properties form
+  propertiesForm.parentNode.insertBefore(banner, propertiesForm);
 })();
 });
 

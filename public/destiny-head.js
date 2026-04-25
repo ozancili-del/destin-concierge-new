@@ -168,35 +168,19 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
     document.head.appendChild(link);
   }
 
-  function buildBanner() {
-    var b = document.createElement('a');
-    b.href = 'https://deals.destincondogetaways.com/beach-deals';
-    b.title = 'See current Destin beachfront price drops';
-    b.className = 'hub-banner';
-    b.style.cssText = 'display:block;text-decoration:none;margin:0 0 32px;';
-    b.innerHTML = '<p style="margin:0 0 8px;font-size:12px;font-family:Arial,sans-serif;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:rgba(45,219,180,0.9);">&#128176; Live Price Tracking</p><p style="margin:0 0 8px;font-size:22px;font-family:Arial,sans-serif;font-weight:bold;color:#ffffff;line-height:1.3;">Flexible on dates? Some nights just got cheaper.</p><p style="margin:0 0 20px;font-size:14px;font-family:Arial,sans-serif;color:rgba(255,255,255,0.6);line-height:1.5;">We track pricing daily &mdash; right now certain dates have dropped significantly. Takes 10 seconds to check.</p><span class="hub-banner-btn">See Today's Price Drops &rarr;</span>';
-    return b;
-  }
+  var banner = document.createElement('a');
+  banner.href = 'https://deals.destincondogetaways.com/beach-deals';
+  banner.title = 'See current Destin beachfront price drops';
+  banner.className = 'hub-banner';
+  banner.style.cssText = 'display:block;text-decoration:none;margin:0 0 32px;';
+  banner.innerHTML = '<p style="margin:0 0 8px;font-size:12px;font-family:Arial,sans-serif;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:rgba(45,219,180,0.9);">&#128176; Live Price Tracking</p><p style="margin:0 0 8px;font-size:22px;font-family:Arial,sans-serif;font-weight:bold;color:#ffffff;line-height:1.3;">Flexible on dates? Some nights just got cheaper.</p><p style="margin:0 0 20px;font-size:14px;font-family:Arial,sans-serif;color:rgba(255,255,255,0.6);line-height:1.5;">We track pricing daily &mdash; right now certain dates have dropped significantly. Takes 10 seconds to check.</p><span class="hub-banner-btn">See Today's Price Drops &rarr;</span>';
 
-  // MOBILE (xs/sm): after .incarousel-search-bar — below hero, above "Why Destin"
-  var searchBar = document.querySelector('.incarousel-search-bar');
-  if(searchBar) {
-    var mb = buildBanner();
-    mb.classList.add('visible-xs','visible-sm');
-    searchBar.parentNode.insertBefore(mb, searchBar.nextSibling);
-  }
-
-  // DESKTOP (md/lg): before the Georgia/860px "Beachfront Condos" div
-  var allDivs = document.querySelectorAll('#content > div');
-  for(var i = 0; i < allDivs.length; i++){
-    var s = allDivs[i].getAttribute('style') || '';
-    if(s.indexOf('860px') !== -1 && s.indexOf('Georgia') !== -1){
-      var db = buildBanner();
-      db.classList.add('hidden-xs','hidden-sm');
-      allDivs[i].parentNode.insertBefore(db, allDivs[i]);
-      break;
-    }
-  }
+  // Find the form inside #content (not the hero search bar)
+  var contentEl = document.getElementById('content');
+  if(!contentEl) return;
+  var form = contentEl.querySelector('form[action="/properties"]');
+  if(!form) return;
+  form.parentNode.insertBefore(banner, form);
 })();
 });
 

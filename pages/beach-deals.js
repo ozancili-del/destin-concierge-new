@@ -339,7 +339,7 @@ function Carousel({ unit, index }) {
   }, []);
 
   return (
-    <div style={{ position: "relative", height: "200px", overflow: "hidden" }}>
+    <div style={{ position: "relative", height: "200px" }}>
       {/* Fade carousel — all images stacked, only current is visible */}
       {images.current.map((src, i) => (
         <div key={i} style={{

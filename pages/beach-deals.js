@@ -190,6 +190,8 @@ function buildSchema(deals) {
         "@type": "VacationRental",
         "name": UNIT_META[deal.unit].fullName,
         "identifier": `pelican-beach-resort-unit-${deal.unit}`,
+        "telephone": "+19723574262",
+        "priceRange": "$200 - $600",
         "description": `Beachfront vacation rental at Pelican Beach Resort, Destin FL. ${UNIT_META[deal.unit].fullName}. Sleeps 6. Direct booking savings available.`,
         "url": bookingUrl(deal.unit, deal.arrival, deal.departure),
         "image": IMAGES[deal.unit],
@@ -202,7 +204,19 @@ function buildSchema(deals) {
           "@type": "Accommodation",
           "name": UNIT_META[deal.unit].fullName,
           "numberOfRooms": 2,
+          "numberOfBedrooms": 1,
+          "numberOfBathroomsTotal": 2,
           "floorLevel": deal.unit === "707" ? "7" : "10",
+          "occupancy": {
+            "@type": "QuantitativeValue",
+            "minValue": 1,
+            "maxValue": 6
+          },
+          "bed": [
+            { "@type": "BedDetails", "typeOfBed": "King", "numberOfBeds": 1 },
+            { "@type": "BedDetails", "typeOfBed": "Sofa Bed", "numberOfBeds": 1 },
+            { "@type": "BedDetails", "typeOfBed": "Bunk Bed", "numberOfBeds": 1 }
+          ],
           "amenityFeature": [
             { "@type": "LocationFeatureSpecification", "name": "Free Parking", "value": true },
             { "@type": "LocationFeatureSpecification", "name": "Beachfront", "value": true },

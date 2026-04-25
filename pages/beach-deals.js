@@ -130,7 +130,7 @@ function Carousel({ unit, index }) {
 function DealCard({ deal, index }) {
   const meta = UNIT_META[deal.unit];
   const url  = bookingUrl(deal.unit, deal.arrival, deal.departure);
-  const dateLabel = `${fmtDate(deal.arrival)} – ${fmtDate(deal.departure)} · ${deal.nights} nights`;
+  const dateLabel = `${deal.arrivalFriendly} – ${deal.departureFriendly} · ${deal.nights} nights`;
 
   return (
     <div className="deal-card">
@@ -155,9 +155,9 @@ function DealCard({ deal, index }) {
           {dateLabel}
         </div>
         <div className="price-row">
-          <span className="price-was">${deal.priceBefore}</span>
+          <span className="price-was">${deal.fromPrice}</span>
           <span className="price-arrow">→</span>
-          <span className="price-now"><sup>$</sup>{deal.priceNow}<span className="price-night">/night</span></span>
+          <span className="price-now"><sup>$</sup>{deal.toPrice}<span className="price-night">/night</span></span>
         </div>
         <a className="btn-book" href={url}>Check Live Price →</a>
       </div>

@@ -309,6 +309,10 @@ export default function BeachDeals() {
             <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
             20% non-refundable deposit due upon booking. Balance due 30 days before check-in. Cancellations within 30 days of check-in are non-refundable. Travel insurance offered at checkout.
           </div>
+          <div className="fine-print-row">
+            <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            Price drop percentages are calculated against the highest price recorded for those dates in our pricing system. Final rates confirmed at checkout.
+          </div>
         </div>
 
       </main>

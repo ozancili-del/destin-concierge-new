@@ -373,8 +373,28 @@ function DealCard({ deal, index }) {
   const url       = bookingUrl(deal.unit, deal.arrival, deal.departure);
   const dateLabel = `${deal.arrivalFriendly} – ${deal.departureFriendly} · ${deal.nights} nights`;
   const [hovered, setHovered] = useState(false);
+  const [copied, setCopied]   = useState(false);
+  const cardId = `${deal.unit}-${deal.arrival}`;
+
+  function handleShare() {
+    const shareUrl = `https://deals.destincondogetaways.com/beach-deals#${cardId}`;
+    const shareText = `${meta.name} — ${deal.dropPct}% off in Destin! ${deal.nights} nights, $${deal.toPrice}/night (was $${deal.fromPrice}). Book direct:`;
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      navigator.share({
+        title: `${meta.name} — ${deal.dropPct}% off at Pelican Beach Resort Destin`,
+        text: shareText,
+        url: shareUrl,
+      }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  }
+
   return (
     <div
+      id={cardId}
       className="deal-card"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -406,7 +426,16 @@ function DealCard({ deal, index }) {
           <span className="price-arrow">→</span>
           <span className="price-now"><sup>$</sup>{deal.toPrice}<span className="price-night">/night</span></span>
         </div>
-        <a className="btn-book" href={url}>Check Live Price →</a>
+        <div className="btn-row">
+          <a className="btn-book" href={url}>Check Live Price →</a>
+          <button className="btn-share" onClick={handleShare} title="Share this deal">
+            {copied ? (
+              <span style={{fontSize:11,fontFamily:'Arial',fontWeight:700,color:'var(--teal)'}}>✓</span>
+            ) : (
+              <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -564,12 +593,12 @@ export default function BeachDeals({ deals }) {
           <div className="amenity-item"><div className="amenity-icon">♨️</div><span className="amenity-text">2 hot tubs</span></div>
         </div>
 
+        <div className="section-label">Current Featured Drops</div>
+
         {/* SEO intro — visible text for Google */}
         <div className="seo-intro">
           <p>These are real-time price drops on our two <strong>beachfront condos at Pelican Beach Resort, Destin FL</strong> — Unit 707 (7th floor, Classic Coastal) and Unit 1006 (10th floor, Fresh Coastal). Both <strong>Pelican Beach Resort condos</strong> sleep up to 6 guests with 1 bedroom, 2 bathrooms, a private Gulf-view balcony, and full kitchen. Minutes from Destin HarborWalk Village, Big Kahuna&apos;s Water Park, and Henderson Beach State Park. When you book direct through <a href="https://www.destincondogetaways.com" style={{color:"var(--teal)"}}>destincondogetaways.com</a>, you skip the 14–20% platform fees charged by Airbnb and VRBO. Prices are tracked daily — drops are calculated against the highest recently recorded rate for each date window.</p>
         </div>
-
-        <div className="section-label">Current Featured Drops</div>
 
         {/* Deals or no deals */}
         {hasDeals ? (
@@ -630,6 +659,20 @@ export default function BeachDeals({ deals }) {
         </div>
 
         {/* Amenities grid */}
+        <div className="amenities-grid">
+          <div className="amenity-item"><div className="amenity-icon">🧑‍🤝‍🧑</div><span className="amenity-text">Sleeps 6</span></div>
+          <div className="amenity-item"><div className="amenity-icon">🛌</div><span className="amenity-text">King · Bunk · Queen sofa</span></div>
+          <div className="amenity-item"><div className="amenity-icon">🚿</div><span className="amenity-text">2 Bathrooms</span></div>
+          <div className="amenity-item"><div className="amenity-icon">🍳</div><span className="amenity-text">Full kitchen</span></div>
+          <div className="amenity-item"><div className="amenity-icon">👕</div><span className="amenity-text">Laundromat</span></div>
+          <div className="amenity-item"><div className="amenity-icon">📶</div><span className="amenity-text">High-speed WiFi</span></div>
+          <div className="amenity-item"><div className="amenity-icon">📺</div><span className="amenity-text">2 Smart TVs</span></div>
+          <div className="amenity-item"><div className="amenity-icon">💪</div><span className="amenity-text">Fitness · sauna · steam</span></div>
+          <div className="amenity-item"><div className="amenity-icon">🏄</div><span className="amenity-text">Beachfront · No road</span></div>
+          <div className="amenity-item"><div className="amenity-icon">🌅</div><span className="amenity-text">Oceanview balcony</span></div>
+          <div className="amenity-item"><div className="amenity-icon">🏊</div><span className="amenity-text">3 outdoor · 1 indoor pool</span></div>
+          <div className="amenity-item"><div className="amenity-icon">♨️</div><span className="amenity-text">2 hot tubs</span></div>
+        </div>
 
         {/* Visible FAQ for SEO */}
         <div className="seo-faq">
@@ -704,6 +747,14 @@ export default function BeachDeals({ deals }) {
         .deal-card { background:var(--card-bg); border:1.5px solid var(--card-border); border-radius:16px; backdrop-filter:blur(12px); box-shadow:0 8px 32px rgba(0,0,0,0.5); transition:transform 0.25s ease,box-shadow 0.25s ease,border-color 0.25s ease; animation:fadeUp 0.5s ease both; position:relative; }
         .deal-card .card-photo-wrap { overflow:hidden; border-radius:16px 16px 0 0; }
         .deal-card:hover { transform:translateY(-12px) scale(1.06) !important; box-shadow:0 32px 80px rgba(0,0,0,0.9),0 0 48px rgba(0,212,200,0.5) !important; border-color:rgba(0,212,200,1) !important; z-index:10 !important; }
+        .deal-card:target { border-color:rgba(0,212,200,1) !important; scroll-margin-top:80px; animation:highlight-pulse 2s ease-out; }
+        @keyframes highlight-pulse { 0%{box-shadow:0 0 0 0 rgba(0,212,200,0.6)} 70%{box-shadow:0 0 0 20px rgba(0,212,200,0)} 100%{box-shadow:0 0 0 0 rgba(0,212,200,0)} }
+        .btn-row { display:flex; gap:8px; }
+        .btn-book { flex:1; display:block; padding:12px; background:linear-gradient(135deg,#00c4b4,#00a89a); color:#fff; font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; text-align:center; text-decoration:none; border-radius:10px; box-shadow:0 4px 16px rgba(0,196,180,0.35); transition:background 0.2s,transform 0.15s; }
+        .btn-book:hover { background:linear-gradient(135deg,#00d4c8,#00b8aa); transform:translateY(-1px); }
+        .btn-share { width:42px; height:42px; background:rgba(255,255,255,0.07); border:1.5px solid rgba(255,255,255,0.15); border-radius:10px; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; transition:background 0.2s,border-color 0.2s; }
+        .btn-share:hover { background:rgba(255,255,255,0.15); border-color:rgba(255,255,255,0.3); }
+        .btn-share svg { stroke:rgba(255,255,255,0.65); }
         .drop-badge { position:absolute; top:12px; right:12px; background:var(--green); color:#000; font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:900; line-height:1; padding:6px 10px; border-radius:10px; box-shadow:0 0 16px rgba(57,255,20,0.6); z-index:2; }
         .unit-overlay { position:absolute; bottom:12px; left:14px; z-index:2; }
         .unit-name { font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:800; color:var(--white); text-transform:uppercase; letter-spacing:0.5px; text-shadow:0 1px 6px rgba(0,0,0,0.8); }
@@ -716,8 +767,6 @@ export default function BeachDeals({ deals }) {
         .price-now { font-family:'Barlow Condensed',sans-serif; font-size:30px; font-weight:800; color:var(--white); line-height:1; }
         .price-now sup { font-size:14px; font-weight:600; vertical-align:super; margin-right:1px; }
         .price-night { font-size:12px; color:rgba(255,255,255,0.45); margin-left:2px; font-weight:400; }
-        .btn-book { display:block; width:100%; padding:12px; background:linear-gradient(135deg,#00c4b4,#00a89a); color:#fff; font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; text-align:center; text-decoration:none; border-radius:10px; box-shadow:0 4px 16px rgba(0,196,180,0.35); transition:background 0.2s,transform 0.15s; }
-        .btn-book:hover { background:linear-gradient(135deg,#00d4c8,#00b8aa); transform:translateY(-1px); }
         .bottom-cta { margin-top:36px; background:rgba(255,255,255,0.06); border:1.5px solid rgba(0,212,200,0.3); border-radius:18px; padding:24px 32px; display:flex; align-items:center; justify-content:space-between; gap:20px; backdrop-filter:blur(8px); animation:fadeUp 0.6s 0.4s ease both; }
         .bottom-cta-left { display:flex; align-items:center; gap:16px; }
         .bottom-cta-left img { height:48px; filter:drop-shadow(0 0 8px rgba(0,212,200,0.4)); }

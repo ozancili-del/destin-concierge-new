@@ -382,7 +382,8 @@ function DealCard({ deal, index }) {
     if (typeof navigator !== 'undefined' && navigator.share) {
       navigator.share({
         title: `Pelican Beach Resort Deal — ${meta.name}`,
-        text: shareText,
+        text: `Hey, check out this deal at Pelican Beach Resort Destin:`,
+        url: shareUrl,
       }).catch(() => {});
     } else {
       navigator.clipboard.writeText(shareText);

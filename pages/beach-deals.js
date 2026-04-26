@@ -430,9 +430,12 @@ function DealCard({ deal, index }) {
           <a className="btn-book" href={url}>Check Live Price →</a>
           <button className="btn-share" onClick={handleShare} title="Share this deal">
             {copied ? (
-              <span style={{fontSize:11,fontFamily:'Arial',fontWeight:700,color:'var(--teal)'}}>✓</span>
+              <span style={{fontSize:11,fontFamily:'Arial',fontWeight:700,color:'var(--teal)'}}>✓ Copied</span>
             ) : (
-              <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+              <>
+                <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+                <span className="share-label">Share</span>
+              </>
             )}
           </button>
         </div>
@@ -752,9 +755,16 @@ export default function BeachDeals({ deals }) {
         .btn-row { display:flex; gap:8px; }
         .btn-book { flex:1; display:block; padding:12px; background:linear-gradient(135deg,#00c4b4,#00a89a); color:#fff; font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; text-align:center; text-decoration:none; border-radius:10px; box-shadow:0 4px 16px rgba(0,196,180,0.35); transition:background 0.2s,transform 0.15s; }
         .btn-book:hover { background:linear-gradient(135deg,#00d4c8,#00b8aa); transform:translateY(-1px); }
-        .btn-share { width:42px; height:42px; background:rgba(255,255,255,0.07); border:1.5px solid rgba(255,255,255,0.15); border-radius:10px; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; transition:background 0.2s,border-color 0.2s; }
-        .btn-share:hover { background:rgba(255,255,255,0.15); border-color:rgba(255,255,255,0.3); }
-        .btn-share svg { stroke:rgba(255,255,255,0.65); }
+        .btn-share { width:42px; height:42px; background:rgba(0,212,200,0.1); border:1.5px solid rgba(0,212,200,0.5); border-radius:10px; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; transition:background 0.2s,border-color 0.2s; }
+        .btn-share:hover { background:rgba(0,212,200,0.2); border-color:var(--teal); }
+        .btn-share svg { stroke:var(--teal); }
+        .share-label { font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--teal); margin-left:6px; display:none; }
+        @media (max-width:600px) {
+          .btn-row { flex-direction:column; gap:8px; }
+          .btn-share { width:100%; height:36px; }
+          .btn-share svg { width:14px; height:14px; }
+          .share-label { display:inline; }
+        }
         .drop-badge { position:absolute; top:12px; right:12px; background:var(--green); color:#000; font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:900; line-height:1; padding:6px 10px; border-radius:10px; box-shadow:0 0 16px rgba(57,255,20,0.6); z-index:2; }
         .unit-overlay { position:absolute; bottom:12px; left:14px; z-index:2; }
         .unit-name { font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:800; color:var(--white); text-transform:uppercase; letter-spacing:0.5px; text-shadow:0 1px 6px rgba(0,0,0,0.8); }

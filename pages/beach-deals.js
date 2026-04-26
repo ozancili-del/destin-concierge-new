@@ -639,6 +639,19 @@ export default function BeachDeals({ deals }) {
           </div>
         </div>
 
+        {/* Plan Your Trip links */}
+        <div className="plan-trip">
+          <div className="plan-trip-title">Plan Your Destin Trip</div>
+          <div className="plan-trip-links">
+            <a href="https://www.destincondogetaways.com/blog/best-beaches-destin" className="plan-trip-pill">🏖️ Best Beaches</a>
+            <a href="https://www.destincondogetaways.com/blog/destinweather" className="plan-trip-pill">🌤️ Weather Guide</a>
+            <a href="https://www.destincondogetaways.com/blog/destinairport" className="plan-trip-pill">✈️ Which Airport</a>
+            <a href="https://www.destincondogetaways.com/blog/how-to-find-cheaper-flights-and-car-rentals" className="plan-trip-pill">🚗 Flights & Car Rentals</a>
+            <a href="https://www.destincondogetaways.com/blog/destin-fireworks-2026" className="plan-trip-pill">🎆 Fireworks 2026</a>
+            <a href="https://www.destincondogetaways.com/blog/destin-events-2026" className="plan-trip-pill">📅 Events 2026</a>
+          </div>
+        </div>
+
       </main>
 
       <style jsx global>{`
@@ -730,6 +743,11 @@ export default function BeachDeals({ deals }) {
           .btn-book { font-size:12px; padding:10px; letter-spacing:0.5px; }
           .bottom-cta { flex-direction:column; text-align:center; padding:20px; }
         }
+        .plan-trip { margin-top:48px; text-align:center; }
+        .plan-trip-title { font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:rgba(255,255,255,0.35); margin-bottom:16px; }
+        .plan-trip-links { display:flex; flex-wrap:wrap; gap:10px; justify-content:center; }
+        .plan-trip-pill { display:inline-block; padding:8px 16px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:30px; font-size:13px; color:rgba(255,255,255,0.55); text-decoration:none; transition:background 0.2s,border-color 0.2s,color 0.2s; }
+        .plan-trip-pill:hover { background:rgba(0,212,200,0.1); border-color:rgba(0,212,200,0.4); color:var(--teal); }
         @keyframes fadeDown { from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)} }
         @keyframes fadeUp   { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
         @keyframes pulse    { 0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.85)} }

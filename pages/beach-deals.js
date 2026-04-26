@@ -548,6 +548,22 @@ export default function BeachDeals({ deals }) {
           <div className="stat"><div className="stat-num">10%</div><div className="stat-label">Direct Booking Savings</div></div>
         </div>
 
+        {/* Amenities grid */}
+        <div className="amenities-grid">
+          <div className="amenity-item"><div className="amenity-icon">🧑‍🤝‍🧑</div><span className="amenity-text">Sleeps 6</span></div>
+          <div className="amenity-item"><div className="amenity-icon">🛌</div><span className="amenity-text">King · Bunk · Queen sofa</span></div>
+          <div className="amenity-item"><div className="amenity-icon">🚿</div><span className="amenity-text">2 Bathrooms</span></div>
+          <div className="amenity-item"><div className="amenity-icon">🍳</div><span className="amenity-text">Full kitchen</span></div>
+          <div className="amenity-item"><div className="amenity-icon">👕</div><span className="amenity-text">Laundromat</span></div>
+          <div className="amenity-item"><div className="amenity-icon">📶</div><span className="amenity-text">High-speed WiFi</span></div>
+          <div className="amenity-item"><div className="amenity-icon">📺</div><span className="amenity-text">2 Smart TVs</span></div>
+          <div className="amenity-item"><div className="amenity-icon">💪</div><span className="amenity-text">Fitness · sauna · steam</span></div>
+          <div className="amenity-item"><div className="amenity-icon">🏄</div><span className="amenity-text">Beachfront · No road</span></div>
+          <div className="amenity-item"><div className="amenity-icon">🌅</div><span className="amenity-text">Oceanview balcony</span></div>
+          <div className="amenity-item"><div className="amenity-icon">🏊</div><span className="amenity-text">3 outdoor · 1 indoor pool</span></div>
+          <div className="amenity-item"><div className="amenity-icon">♨️</div><span className="amenity-text">2 hot tubs</span></div>
+        </div>
+
         <div className="section-label">Current Featured Drops</div>
 
         {/* SEO intro — visible text for Google */}
@@ -613,6 +629,22 @@ export default function BeachDeals({ deals }) {
           </div>
         </div>
 
+        {/* Amenities grid */}
+        <div className="amenities-grid">
+          <div className="amenity-item"><div className="amenity-icon">🧑‍🤝‍🧑</div><span className="amenity-text">Sleeps 6</span></div>
+          <div className="amenity-item"><div className="amenity-icon">🛌</div><span className="amenity-text">King · Bunk · Queen sofa</span></div>
+          <div className="amenity-item"><div className="amenity-icon">🚿</div><span className="amenity-text">2 Bathrooms</span></div>
+          <div className="amenity-item"><div className="amenity-icon">🍳</div><span className="amenity-text">Full kitchen</span></div>
+          <div className="amenity-item"><div className="amenity-icon">👕</div><span className="amenity-text">Laundromat</span></div>
+          <div className="amenity-item"><div className="amenity-icon">📶</div><span className="amenity-text">High-speed WiFi</span></div>
+          <div className="amenity-item"><div className="amenity-icon">📺</div><span className="amenity-text">2 Smart TVs</span></div>
+          <div className="amenity-item"><div className="amenity-icon">💪</div><span className="amenity-text">Fitness · sauna · steam</span></div>
+          <div className="amenity-item"><div className="amenity-icon">🏄</div><span className="amenity-text">Beachfront · No road</span></div>
+          <div className="amenity-item"><div className="amenity-icon">🌅</div><span className="amenity-text">Oceanview balcony</span></div>
+          <div className="amenity-item"><div className="amenity-icon">🏊</div><span className="amenity-text">3 outdoor · 1 indoor pool</span></div>
+          <div className="amenity-item"><div className="amenity-icon">♨️</div><span className="amenity-text">2 hot tubs</span></div>
+        </div>
+
         {/* Visible FAQ for SEO */}
         <div className="seo-faq">
           <h2 className="seo-faq-title">Frequently Asked Questions</h2>
@@ -676,6 +708,11 @@ export default function BeachDeals({ deals }) {
         .stat-num { font-family:'Barlow Condensed',sans-serif; font-size:28px; font-weight:800; color:var(--teal); line-height:1; }
         .stat-label { font-size:11px; color:rgba(255,255,255,0.5); text-transform:uppercase; letter-spacing:1px; margin-top:2px; }
         .stat-divider { width:1px; background:rgba(255,255,255,0.15); align-self:stretch; }
+        .amenities-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:32px; }
+        .amenity-item { display:flex; align-items:center; gap:10px; }
+        .amenity-icon { width:34px; height:34px; border-radius:8px; background:rgba(0,212,200,0.12); border:1px solid rgba(0,212,200,0.25); display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
+        .amenity-text { font-size:12px; color:rgba(255,255,255,0.65); line-height:1.3; }
+        @media (max-width:600px) { .amenities-grid { grid-template-columns:repeat(2,1fr); } }
         .section-label { font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:rgba(255,255,255,0.4); text-align:center; margin-bottom:20px; }
         .deals-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; overflow:visible; }
         .deal-card { background:var(--card-bg); border:1.5px solid var(--card-border); border-radius:16px; backdrop-filter:blur(12px); box-shadow:0 8px 32px rgba(0,0,0,0.5); transition:transform 0.25s ease,box-shadow 0.25s ease,border-color 0.25s ease; animation:fadeUp 0.5s ease both; position:relative; }

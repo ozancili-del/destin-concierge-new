@@ -630,20 +630,6 @@ export default function BeachDeals({ deals }) {
         </div>
 
         {/* Amenities grid */}
-        <div className="amenities-grid">
-          <div className="amenity-item"><div className="amenity-icon">🧑‍🤝‍🧑</div><span className="amenity-text">Sleeps 6</span></div>
-          <div className="amenity-item"><div className="amenity-icon">🛌</div><span className="amenity-text">King · Bunk · Queen sofa</span></div>
-          <div className="amenity-item"><div className="amenity-icon">🚿</div><span className="amenity-text">2 Bathrooms</span></div>
-          <div className="amenity-item"><div className="amenity-icon">🍳</div><span className="amenity-text">Full kitchen</span></div>
-          <div className="amenity-item"><div className="amenity-icon">👕</div><span className="amenity-text">Laundromat</span></div>
-          <div className="amenity-item"><div className="amenity-icon">📶</div><span className="amenity-text">High-speed WiFi</span></div>
-          <div className="amenity-item"><div className="amenity-icon">📺</div><span className="amenity-text">2 Smart TVs</span></div>
-          <div className="amenity-item"><div className="amenity-icon">💪</div><span className="amenity-text">Fitness · sauna · steam</span></div>
-          <div className="amenity-item"><div className="amenity-icon">🏄</div><span className="amenity-text">Beachfront · No road</span></div>
-          <div className="amenity-item"><div className="amenity-icon">🌅</div><span className="amenity-text">Oceanview balcony</span></div>
-          <div className="amenity-item"><div className="amenity-icon">🏊</div><span className="amenity-text">3 outdoor · 1 indoor pool</span></div>
-          <div className="amenity-item"><div className="amenity-icon">♨️</div><span className="amenity-text">2 hot tubs</span></div>
-        </div>
 
         {/* Visible FAQ for SEO */}
         <div className="seo-faq">

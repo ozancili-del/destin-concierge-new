@@ -564,12 +564,12 @@ export default function BeachDeals({ deals }) {
           <div className="amenity-item"><div className="amenity-icon">♨️</div><span className="amenity-text">2 hot tubs</span></div>
         </div>
 
-        <div className="section-label">Current Featured Drops</div>
-
         {/* SEO intro — visible text for Google */}
         <div className="seo-intro">
           <p>These are real-time price drops on our two <strong>beachfront condos at Pelican Beach Resort, Destin FL</strong> — Unit 707 (7th floor, Classic Coastal) and Unit 1006 (10th floor, Fresh Coastal). Both <strong>Pelican Beach Resort condos</strong> sleep up to 6 guests with 1 bedroom, 2 bathrooms, a private Gulf-view balcony, and full kitchen. Minutes from Destin HarborWalk Village, Big Kahuna&apos;s Water Park, and Henderson Beach State Park. When you book direct through <a href="https://www.destincondogetaways.com" style={{color:"var(--teal)"}}>destincondogetaways.com</a>, you skip the 14–20% platform fees charged by Airbnb and VRBO. Prices are tracked daily — drops are calculated against the highest recently recorded rate for each date window.</p>
         </div>
+
+        <div className="section-label">Current Featured Drops</div>
 
         {/* Deals or no deals */}
         {hasDeals ? (

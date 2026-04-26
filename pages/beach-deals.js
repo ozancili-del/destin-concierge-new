@@ -130,28 +130,28 @@ export async function getStaticProps() {
 // ── Static data ───────────────────────────────────────────────────────────────
 const IMAGES = {
   "707": [
-    "https://uc.orez.io/f/242b1d12dd544f7a9debe10583aca308",
-    "https://uc.orez.io/i/abaefcc22f0749b49d73dc232abc5430-MediumOriginal",
-    "https://uc.orez.io/i/4a4320ef00a54d15bccf6767418be83b-MediumOriginal",
-    "https://uc.orez.io/i/3b9692e52bb241aa827c5297abdb0bce-MediumOriginal",
-    "https://uc.orez.io/i/399beafa83584661899e9500cb390d6e-MediumOriginal",
-    "https://uc.orez.io/i/6007c9a799d44643ae47934f3554808b-MediumOriginal",
-    "https://uc.orez.io/f/44060a8a29ca4a998586d849184d288f",
-    "https://uc.orez.io/f/e1e624f8d4c14ed2a8f3d05e169252e0",
-    "https://uc.orez.io/i/5cd8d28c33e14711a68e723ec300ca2a-MediumOriginal",
-    "https://uc.orez.io/i/7da337c1e9334be9a992ff9f666cd8b7-MediumOriginal",
+    { src: "https://uc.orez.io/f/242b1d12dd544f7a9debe10583aca308", alt: "Pelican Beach Resort Unit 707 beachfront balcony view in Destin Florida" },
+    { src: "https://uc.orez.io/i/abaefcc22f0749b49d73dc232abc5430-MediumOriginal", alt: "Unit 707 Classic Coastal living room with Gulf views at Pelican Beach Resort Destin" },
+    { src: "https://uc.orez.io/i/4a4320ef00a54d15bccf6767418be83b-MediumOriginal", alt: "Destin beachfront condo bedroom Unit 707 Pelican Beach Resort" },
+    { src: "https://uc.orez.io/i/3b9692e52bb241aa827c5297abdb0bce-MediumOriginal", alt: "Unit 707 kitchen and dining area at Pelican Beach Resort Destin FL" },
+    { src: "https://uc.orez.io/i/399beafa83584661899e9500cb390d6e-MediumOriginal", alt: "Emerald Gulf of Mexico view from Unit 707 balcony Pelican Beach Resort" },
+    { src: "https://uc.orez.io/i/6007c9a799d44643ae47934f3554808b-MediumOriginal", alt: "Unit 707 bathroom at Pelican Beach Resort Destin Florida" },
+    { src: "https://uc.orez.io/f/44060a8a29ca4a998586d849184d288f", alt: "Pelican Beach Resort pool and beach access from Unit 707 Destin FL" },
+    { src: "https://uc.orez.io/f/e1e624f8d4c14ed2a8f3d05e169252e0", alt: "Unit 707 Classic Coastal condo interior Pelican Beach Resort Destin" },
+    { src: "https://uc.orez.io/i/5cd8d28c33e14711a68e723ec300ca2a-MediumOriginal", alt: "Sunset Gulf view from Unit 707 7th floor Pelican Beach Resort Destin" },
+    { src: "https://uc.orez.io/i/7da337c1e9334be9a992ff9f666cd8b7-MediumOriginal", alt: "Direct beach access from Pelican Beach Resort Unit 707 Destin Florida" },
   ],
   "1006": [
-    "https://uc.orez.io/i/f20eceb9b43142b48e1f20ac457e7232-MediumOriginal",
-    "https://uc.orez.io/f/e5af88bfe30c4243ba03fe79ee2f8229",
-    "https://uc.orez.io/i/6108b609ed6046c8bd828f4b5ba19fda-MediumOriginal",
-    "https://uc.orez.io/i/4e32883598f649e2869f5d4bb1e1d16f-MediumOriginal",
-    "https://uc.orez.io/f/2e389c31f39b43ad97002f607e7c4aef",
-    "https://uc.orez.io/f/79bdfd24ee36463396ae08a12e478975",
-    "https://uc.orez.io/f/e5038191e8884d3b9c0cb1a40ba2766f",
-    "https://uc.orez.io/f/17399809efc54824944e7af6bb55472e",
-    "https://uc.orez.io/f/e604a649be3a4d07b58b6f5f07ca92c7",
-    "https://uc.orez.io/i/a98c17bc10814f3aa27da0cdbbf81af4-MediumOriginal",
+    { src: "https://uc.orez.io/i/f20eceb9b43142b48e1f20ac457e7232-MediumOriginal", alt: "Pelican Beach Resort Unit 1006 panoramic Gulf view from 10th floor Destin Florida" },
+    { src: "https://uc.orez.io/f/e5af88bfe30c4243ba03fe79ee2f8229", alt: "Unit 1006 Fresh Coastal living room with Gulf of Mexico view Pelican Beach Resort" },
+    { src: "https://uc.orez.io/i/6108b609ed6046c8bd828f4b5ba19fda-MediumOriginal", alt: "Destin beachfront condo bedroom Unit 1006 Pelican Beach Resort FL" },
+    { src: "https://uc.orez.io/i/4e32883598f649e2869f5d4bb1e1d16f-MediumOriginal", alt: "Unit 1006 kitchen and dining at Pelican Beach Resort Destin Florida" },
+    { src: "https://uc.orez.io/f/2e389c31f39b43ad97002f607e7c4aef", alt: "Emerald Coast view from Unit 1006 private balcony Pelican Beach Resort" },
+    { src: "https://uc.orez.io/f/79bdfd24ee36463396ae08a12e478975", alt: "Unit 1006 bathroom at Pelican Beach Resort Destin FL" },
+    { src: "https://uc.orez.io/f/e5038191e8884d3b9c0cb1a40ba2766f", alt: "Pelican Beach Resort pool and beachfront from Unit 1006 Destin" },
+    { src: "https://uc.orez.io/f/17399809efc54824944e7af6bb55472e", alt: "Unit 1006 Fresh Coastal condo interior 10th floor Pelican Beach Resort Destin" },
+    { src: "https://uc.orez.io/f/e604a649be3a4d07b58b6f5f07ca92c7", alt: "Gulf sunset panoramic view Unit 1006 Pelican Beach Resort Destin Florida" },
+    { src: "https://uc.orez.io/i/a98c17bc10814f3aa27da0cdbbf81af4-MediumOriginal", alt: "Direct beachfront access Pelican Beach Resort Unit 1006 Destin FL" },
   ],
 };
 
@@ -195,7 +195,7 @@ function buildSchema(deals) {
         "priceRange": "$200 - $600",
         "description": `Beachfront vacation rental at Pelican Beach Resort, Destin FL. ${UNIT_META[deal.unit].fullName}. Sleeps 6. Direct booking savings available.`,
         "url": bookingUrl(deal.unit, deal.arrival, deal.departure),
-        "image": IMAGES[deal.unit],
+        "image": IMAGES[deal.unit].map(img => img.src),
         "geo": {
           "@type": "GeoCoordinates",
           "latitude": 30.3865467,
@@ -342,7 +342,7 @@ function Carousel({ unit, index }) {
   return (
     <div style={{ position: "relative", height: "200px" }}>
       {/* Fade carousel — all images stacked, only current is visible */}
-      {images.current.map((src, i) => (
+      {images.current.map((img, i) => (
         <div key={i} style={{
           position: "absolute", inset: 0,
           opacity: i === current ? 1 : 0,
@@ -350,8 +350,8 @@ function Carousel({ unit, index }) {
           zIndex: i === current ? 1 : 0,
         }}>
           <img
-            src={src}
-            alt={i === 0 ? `${UNIT_META[unit].name} beachfront condo at Pelican Beach Resort Destin` : ""}
+            src={img.src}
+            alt={img.alt}
             loading={i === 0 ? "eager" : "lazy"}
             style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 30%", display: "block" }}
           />
@@ -510,7 +510,7 @@ export default function BeachDeals({ deals }) {
         <meta name="description" content="Live price drops on beachfront condos at Pelican Beach Resort, Destin Beach Florida. Book Unit 707 or Unit 1006 direct — no OTA fees, instant confirmation, owner direct." />
         <meta property="og:title" content="Featured Beach Deals — Destin Condo Getaways" />
         <meta property="og:description" content="Beachfront condo price drops in Destin, FL. Book direct and save up to 10% instantly." />
-        <meta property="og:image" content={IMAGES["707"][0]} />
+        <meta property="og:image" content={IMAGES["707"][0].src} />
         <meta property="og:url" content="https://deals.destincondogetaways.com/beach-deals" />
         <meta property="og:type" content="website" />
         <link rel="canonical" href="https://deals.destincondogetaways.com/beach-deals" />

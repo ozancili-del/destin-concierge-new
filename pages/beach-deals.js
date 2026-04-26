@@ -764,8 +764,8 @@ export default function BeachDeals({ deals }) {
         .btn-share svg { stroke:var(--teal); }
         @media (max-width:600px) {
           .btn-row { flex-direction:column; gap:8px; }
-          .btn-share { width:100%; height:40px; justify-content:center; border-radius:10px; padding:0 16px; }
-          .share-icon-circle { display:none; }
+          .btn-share { width:100%; height:42px; justify-content:space-between; border-radius:30px; padding:0 0 0 16px; }
+          .share-icon-circle { display:flex; }
         }
         .drop-badge { position:absolute; top:12px; right:12px; background:var(--green); color:#000; font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:900; line-height:1; padding:6px 10px; border-radius:10px; box-shadow:0 0 16px rgba(57,255,20,0.6); z-index:2; }
         .unit-overlay { position:absolute; bottom:12px; left:14px; z-index:2; }

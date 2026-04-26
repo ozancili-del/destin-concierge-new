@@ -412,6 +412,57 @@ function DealCard({ deal, index }) {
   );
 }
 
+// ── Email capture ─────────────────────────────────────────────────────────────
+function EmailCapture() {
+  const [email, setEmail]   = useState('');
+  const [status, setStatus] = useState('idle');
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    if (!email || !email.includes('@')) return;
+    setStatus('loading');
+    try {
+      const res = await fetch('/api/deals-subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      setStatus(res.ok ? 'success' : 'error');
+    } catch { setStatus('error'); }
+  }
+
+  if (status === 'success') return (
+    <div className="email-capture">
+      <div className="email-capture-success">
+        <span style={{fontSize:28}}>🎉</span>
+        <div>
+          <strong>You&apos;re on the list!</strong>
+          <p>We&apos;ll notify you when prices drop at Pelican Beach Resort.</p>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="email-capture">
+      <div className="email-capture-inner">
+        <div className="email-capture-text">
+          <div className="email-capture-eyebrow">📬 Free Price Drop Alerts</div>
+          <strong>Be the first to know when prices drop.</strong>
+          <p>We&apos;ll email you when Unit 707 or 1006 drops in price. No spam, unsubscribe anytime.</p>
+        </div>
+        <form className="email-capture-form" onSubmit={handleSubmit}>
+          <input type="email" placeholder="Your email address" value={email} onChange={e => setEmail(e.target.value)} className="email-input" required />
+          <button type="submit" className="email-btn" disabled={status === 'loading'}>
+            {status === 'loading' ? 'Subscribing...' : 'Notify Me →'}
+          </button>
+        </form>
+        {status === 'error' && <p style={{color:'var(--strike)',fontSize:12,marginTop:8}}>Something went wrong — please try again.</p>}
+      </div>
+    </div>
+  );
+}
+
 // ── Skeleton ──────────────────────────────────────────────────────────────────
 function SkeletonCard() {
   return (
@@ -524,6 +575,9 @@ export default function BeachDeals({ deals }) {
         ) : (
           <NoDeals />
         )}
+
+        {/* Email capture */}
+        {hasDeals && <EmailCapture />}
 
         {/* Bottom CTA */}
         {hasDeals && (
@@ -679,6 +733,22 @@ export default function BeachDeals({ deals }) {
         @keyframes fadeDown { from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)} }
         @keyframes fadeUp   { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
         @keyframes pulse    { 0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.85)} }
+        .email-capture { margin-top:32px; background:linear-gradient(135deg,rgba(0,212,200,0.08),rgba(0,212,200,0.03)); border:1.5px solid rgba(0,212,200,0.3); border-radius:18px; padding:28px 32px; animation:fadeUp 0.6s 0.3s ease both; }
+        .email-capture-inner { display:flex; align-items:center; justify-content:space-between; gap:24px; flex-wrap:wrap; }
+        .email-capture-eyebrow { font-size:12px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--teal); margin-bottom:6px; }
+        .email-capture-text strong { display:block; font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:800; text-transform:uppercase; color:var(--white); margin-bottom:4px; }
+        .email-capture-text p { font-size:13px; color:rgba(255,255,255,0.5); line-height:1.5; margin:0; }
+        .email-capture-form { display:flex; gap:10px; flex-wrap:wrap; }
+        .email-input { background:rgba(255,255,255,0.07); border:1.5px solid rgba(255,255,255,0.15); border-radius:10px; padding:12px 16px; font-size:14px; color:var(--white); outline:none; min-width:240px; transition:border-color 0.2s; }
+        .email-input::placeholder { color:rgba(255,255,255,0.35); }
+        .email-input:focus { border-color:var(--teal); }
+        .email-btn { background:linear-gradient(135deg,var(--teal),#00a89a); color:#fff; font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:700; letter-spacing:1px; text-transform:uppercase; padding:12px 24px; border-radius:10px; border:none; cursor:pointer; white-space:nowrap; box-shadow:0 4px 16px rgba(0,196,180,0.35); transition:transform 0.15s,box-shadow 0.2s; }
+        .email-btn:hover { transform:translateY(-1px); box-shadow:0 6px 24px rgba(0,212,200,0.5); }
+        .email-btn:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
+        .email-capture-success { display:flex; align-items:center; gap:16px; }
+        .email-capture-success strong { display:block; font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:800; text-transform:uppercase; color:var(--white); }
+        .email-capture-success p { font-size:13px; color:rgba(255,255,255,0.55); margin:4px 0 0; }
+        @media (max-width:600px) { .email-capture{padding:20px 16px;} .email-input{min-width:100%;} .email-capture-form{width:100%;} .email-btn{width:100%;} }
       `}</style>
     </>
   );

@@ -742,8 +742,8 @@ export default function BeachDeals({ deals }) {
         .email-input { background:rgba(255,255,255,0.07); border:1.5px solid rgba(255,255,255,0.15); border-radius:10px; padding:12px 16px; font-size:14px; color:var(--white); outline:none; min-width:240px; transition:border-color 0.2s; }
         .email-input::placeholder { color:rgba(255,255,255,0.35); }
         .email-input:focus { border-color:var(--teal); }
-        .email-btn { background:linear-gradient(135deg,var(--teal),#00a89a); color:#fff; font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:700; letter-spacing:1px; text-transform:uppercase; padding:12px 24px; border-radius:10px; border:none; cursor:pointer; white-space:nowrap; box-shadow:0 4px 16px rgba(0,196,180,0.35); transition:transform 0.15s,box-shadow 0.2s; }
-        .email-btn:hover { transform:translateY(-1px); box-shadow:0 6px 24px rgba(0,212,200,0.5); }
+        .email-btn { background:linear-gradient(135deg,#ff8c00,#e8341a); color:#fff; font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:700; letter-spacing:1px; text-transform:uppercase; padding:12px 24px; border-radius:10px; border:none; cursor:pointer; white-space:nowrap; box-shadow:0 4px 20px rgba(255,140,0,0.5); transition:transform 0.15s,box-shadow 0.2s; }
+        .email-btn:hover { transform:translateY(-1px); box-shadow:0 6px 28px rgba(255,140,0,0.7); }
         .email-btn:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
         .email-capture-success { display:flex; align-items:center; gap:16px; }
         .email-capture-success strong { display:block; font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:800; text-transform:uppercase; color:var(--white); }

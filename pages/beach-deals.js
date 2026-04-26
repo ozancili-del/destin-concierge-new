@@ -378,15 +378,14 @@ function DealCard({ deal, index }) {
 
   function handleShare() {
     const shareUrl = `https://deals.destincondogetaways.com/beach-deals#${cardId}`;
-    const shareText = `${meta.name} — ${deal.dropPct}% off in Destin! ${deal.nights} nights, $${deal.toPrice}/night (was $${deal.fromPrice}). Book direct:`;
+    const shareText = `Hey, check out this deal at Pelican Beach Resort Destin: ${shareUrl}`;
     if (typeof navigator !== 'undefined' && navigator.share) {
       navigator.share({
-        title: `${meta.name} — ${deal.dropPct}% off at Pelican Beach Resort Destin`,
+        title: `Pelican Beach Resort Deal — ${meta.name}`,
         text: shareText,
-        url: shareUrl,
       }).catch(() => {});
     } else {
-      navigator.clipboard.writeText(shareUrl);
+      navigator.clipboard.writeText(shareText);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }

@@ -11,15 +11,11 @@ export async function getStaticProps() {
       process.env.GUESTVIEW_SUPABASE_SERVICE_ROLE_KEY
     );
 
-    const SCAN_DAYS         = 180;
-    const STAY_NIGHTS       = [3, 4, 5];
-    const WINDOWS_RECENT    = [1, 3, 5, 7, 14, 30]; // Engine 1 — matches ribbon
-    const WINDOWS_HIST      = [7, 14, 30];           // Engine 2 — historical max
-    const MIN_DROP          = 5;
-    const MAX_DEALS         = 20;
-
-    // Query all possible captured dates — more history = more deals
-    const ALL_WINDOWS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 14, 20, 30];
+    const SCAN_DAYS   = 180;
+    const STAY_NIGHTS = [3, 4, 5];
+    const WINDOWS     = [7, 14, 30];
+    const MIN_DROP    = 5;
+    const MAX_DEALS   = 20;
 
     function fmt(d) { return d.toISOString().split("T")[0]; }
     function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate() + n); return r; }
@@ -34,7 +30,7 @@ export async function getStaticProps() {
     const allDates = [];
     for (let i = 1; i <= SCAN_DAYS + 5; i++) allDates.push(fmt(addDays(today, i)));
 
-    const capturedDates = [todayStr, ...ALL_WINDOWS.map(w => fmt(addDays(today, -w)))];
+    const capturedDates = [todayStr, ...WINDOWS.map(w => fmt(addDays(today, -w)))];
 
     const { data: snapshots, error } = await supabase
       .from("price_snapshots")
@@ -62,8 +58,8 @@ export async function getStaticProps() {
       if (!maxPrice[key] || row.price > maxPrice[key]) maxPrice[key] = row.price;
     }
 
-    // ── Engine 1: Recent-window deals (primary — matches ribbon logic) ────────
-    const recentWindowDeals = [];
+    const candidates = [];
+
     for (const unit of ["707", "1006"]) {
       const unitData = byUnit[unit];
       if (!unitData?.[todayStr]) continue;
@@ -81,103 +77,116 @@ export async function getStaticProps() {
 
           const todayPrices = windowDates.map(d => unitData[todayStr]?.[d]).filter(v => v != null);
           if (todayPrices.length < nights) continue;
+
           const avgToday = todayPrices.reduce((s, v) => s + v, 0) / todayPrices.length;
 
-          // Compare against recent windows — pick best drop
-          let bestDrop = null;
-          for (const w of WINDOWS_RECENT) {
-            const pastKey = fmt(addDays(today, -w));
-            if (!unitData[pastKey]) continue;
-            const pastPrices = windowDates.map(d => unitData[pastKey]?.[d]).filter(v => v != null);
-            if (pastPrices.length < nights) continue;
-            const avgPast = pastPrices.reduce((s, v) => s + v, 0) / pastPrices.length;
-            const dropPct = ((avgPast - avgToday) / avgPast) * 100;
-            if (dropPct >= MIN_DROP && dropPct <= 60 && avgPast > avgToday) {
-              if (!bestDrop || dropPct > bestDrop.dropPct) {
-                bestDrop = { dropPct: Math.round(dropPct), fromPrice: Math.round(avgPast), toPrice: Math.round(avgToday), windowDays: w };
-              }
-            }
-          }
-          if (!bestDrop) continue;
-
-          recentWindowDeals.push({
-            unit, arrival: arrivalStr, departure: departureStr,
-            arrivalFriendly: friendly(arrivalStr), departureFriendly: friendly(departureStr),
-            nights, dropPct: bestDrop.dropPct, fromPrice: bestDrop.fromPrice, toPrice: bestDrop.toPrice,
-            windowDays: bestDrop.windowDays,
-            totalSavings: Math.round((bestDrop.fromPrice - bestDrop.toPrice) * nights),
-            source: "recent-window",
-          });
-        }
-      }
-    }
-
-    // ── Engine 2: Historical-max deals (secondary filler) ────────────────────
-    const historicalMaxDeals = [];
-    for (const unit of ["707", "1006"]) {
-      const unitData = byUnit[unit];
-      if (!unitData?.[todayStr]) continue;
-
-      for (let i = 1; i <= SCAN_DAYS; i++) {
-        const arrival    = addDays(today, i);
-        const arrivalStr = fmt(arrival);
-
-        for (const nights of STAY_NIGHTS) {
-          const departure    = addDays(arrival, nights);
-          const departureStr = fmt(departure);
-
-          const windowDates = [];
-          for (let j = 0; j < nights; j++) windowDates.push(fmt(addDays(arrival, j)));
-
-          const todayPrices = windowDates.map(d => unitData[todayStr]?.[d]).filter(v => v != null);
-          if (todayPrices.length < nights) continue;
-          const avgToday = todayPrices.reduce((s, v) => s + v, 0) / todayPrices.length;
-
+          // Use MAX historical price as baseline
           const maxPrices = windowDates.map(d => maxPrice[`${unit}::${d}`]).filter(v => v != null);
           if (maxPrices.length < nights) continue;
+
           const avgMax  = maxPrices.reduce((s, v) => s + v, 0) / maxPrices.length;
           const dropPct = ((avgMax - avgToday) / avgMax) * 100;
 
           if (dropPct < MIN_DROP || dropPct > 60 || avgMax <= avgToday) continue;
 
-          historicalMaxDeals.push({
-            unit, arrival: arrivalStr, departure: departureStr,
-            arrivalFriendly: friendly(arrivalStr), departureFriendly: friendly(departureStr),
-            nights, dropPct: Math.round(dropPct), fromPrice: Math.round(avgMax), toPrice: Math.round(avgToday),
+          candidates.push({
+            unit,
+            arrival:           arrivalStr,
+            departure:         departureStr,
+            arrivalFriendly:   friendly(arrivalStr),
+            departureFriendly: friendly(departureStr),
+            nights,
+            dropPct:    Math.round(dropPct),
+            fromPrice:  Math.round(avgMax),
+            toPrice:    Math.round(avgToday),
             totalSavings: Math.round((avgMax - avgToday) * nights),
-            source: "historical-max",
           });
         }
       }
     }
 
-    // ── Merge + deduplicate ───────────────────────────────────────────────────
-    const dealMap = new Map();
-    for (const deal of [...recentWindowDeals, ...historicalMaxDeals]) {
-      const key = `${deal.unit}-${deal.arrival}-${deal.departure}`;
-      const existing = dealMap.get(key);
-      if (
-        !existing ||
-        deal.dropPct > existing.dropPct ||
-        (deal.dropPct === existing.dropPct && deal.totalSavings > existing.totalSavings)
-      ) {
-        dealMap.set(key, deal);
+    candidates.sort((a, b) => b.dropPct - a.dropPct || b.totalSavings - a.totalSavings);
+
+    // ── Engine 2: Ribbon-style recent-window deals (additional source) ────────
+    // Uses same windows as price-drops.js / ribbon: [1,3,5,7,14,30]
+    const ribbonCapturedDates = [todayStr, ...[1,3,5,7,14,30].map(w => fmt(addDays(today, -w)))];
+    const { data: ribbonSnaps } = await supabase
+      .from("price_snapshots")
+      .select("unit_id, date, price, captured_date")
+      .in("date", allDates)
+      .in("captured_date", ribbonCapturedDates)
+      .limit(5000);
+
+    if (ribbonSnaps?.length) {
+      const rByUnit = {};
+      for (const row of ribbonSnaps) {
+        if (!rByUnit[row.unit_id]) rByUnit[row.unit_id] = {};
+        if (!rByUnit[row.unit_id][row.captured_date]) rByUnit[row.unit_id][row.captured_date] = {};
+        rByUnit[row.unit_id][row.captured_date][row.date] = row.price;
+      }
+
+      for (const unit of ["707", "1006"]) {
+        const unitData = rByUnit[unit];
+        if (!unitData?.[todayStr]) continue;
+
+        for (let i = 1; i <= SCAN_DAYS; i++) {
+          const arrival    = addDays(today, i);
+          const arrivalStr = fmt(arrival);
+
+          for (const nights of STAY_NIGHTS) {
+            const departure    = addDays(arrival, nights);
+            const departureStr = fmt(departure);
+
+            const windowDates = [];
+            for (let j = 0; j < nights; j++) windowDates.push(fmt(addDays(arrival, j)));
+
+            const todayPrices = windowDates.map(d => unitData[todayStr]?.[d]).filter(v => v != null);
+            if (todayPrices.length < nights) continue;
+            const avgToday = todayPrices.reduce((s, v) => s + v, 0) / todayPrices.length;
+
+            let bestDrop = null;
+            for (const w of [1,3,5,7,14,30]) {
+              const pastKey = fmt(addDays(today, -w));
+              if (!unitData[pastKey]) continue;
+              const pastPrices = windowDates.map(d => unitData[pastKey]?.[d]).filter(v => v != null);
+              if (pastPrices.length < nights) continue;
+              const avgPast = pastPrices.reduce((s, v) => s + v, 0) / pastPrices.length;
+              const dropPct = ((avgPast - avgToday) / avgPast) * 100;
+              if (dropPct >= MIN_DROP && dropPct <= 60 && avgPast > avgToday) {
+                if (!bestDrop || dropPct > bestDrop.dropPct) {
+                  bestDrop = { dropPct: Math.round(dropPct), fromPrice: Math.round(avgPast), toPrice: Math.round(avgToday) };
+                }
+              }
+            }
+            if (!bestDrop) continue;
+
+            candidates.push({
+              unit, arrival: arrivalStr, departure: departureStr,
+              arrivalFriendly: friendly(arrivalStr), departureFriendly: friendly(departureStr),
+              nights, dropPct: bestDrop.dropPct, fromPrice: bestDrop.fromPrice, toPrice: bestDrop.toPrice,
+              totalSavings: Math.round((bestDrop.fromPrice - bestDrop.toPrice) * nights),
+            });
+          }
+        }
       }
     }
 
-    const candidates = Array.from(dealMap.values());
+    // ── Deduplicate by unit+arrival+departure, keep best dropPct ─────────────
+    const dealMap = new Map();
+    for (const deal of candidates) {
+      const key = `${deal.unit}-${deal.arrival}-${deal.departure}`;
+      const existing = dealMap.get(key);
+      if (!existing || deal.dropPct > existing.dropPct ||
+         (deal.dropPct === existing.dropPct && deal.totalSavings > existing.totalSavings)) {
+        dealMap.set(key, deal);
+      }
+    }
+    const merged = Array.from(dealMap.values());
+    merged.sort((a, b) => b.dropPct - a.dropPct || b.totalSavings - a.totalSavings);
 
-    // Sort: biggest drop → biggest savings → earliest arrival
-    candidates.sort((a, b) =>
-      b.dropPct - a.dropPct ||
-      b.totalSavings - a.totalSavings ||
-      a.arrival.localeCompare(b.arrival)
-    );
-
-    // ── Overlap protection ────────────────────────────────────────────────────
     const finalDeals = [];
     const usedRanges = { "707": [], "1006": [] };
-    for (const deal of candidates) {
+    for (const deal of merged) {
       const used     = usedRanges[deal.unit];
       const overlaps = used.some(r => deal.arrival < r.departure && deal.departure > r.arrival);
       if (!overlaps) {
@@ -188,7 +197,6 @@ export async function getStaticProps() {
     }
 
     return { props: { deals: finalDeals }, revalidate: 600 };
-
 
   } catch (err) {
     console.error("[BEACH-DEALS ISR]", err.message);

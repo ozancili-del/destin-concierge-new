@@ -1,23 +1,25 @@
 // pages/sitemap-vercel.xml.js
-// Serves at: destincondogetaways.com/sitemap-vercel.xml
-// Submit this URL in Google Search Console as a second sitemap
+// Serves at: deals.destincondogetaways.com/sitemap-vercel.xml
+// Submit this URL in Google Search Console
 
 export default function Sitemap() { return null; }
 
 export async function getServerSideProps({ res }) {
-  const baseUrl  = "https://www.destincondogetaways.com";
-  const today    = new Date().toISOString().split("T")[0];
+  const today = new Date().toISOString().split("T")[0];
 
   const pages = [
-    { url: "/beach-deals",      changefreq: "daily",   priority: "0.9" },
-    { url: "/ai-concierge",     changefreq: "monthly",  priority: "0.7" },
-    { url: "/destin-hub",       changefreq: "monthly",  priority: "0.7" },
+    { url: "https://deals.destincondogetaways.com/beach-deals",          changefreq: "daily",   priority: "0.9" },
+    { url: "https://explore.destincondogetaways.com/",                   changefreq: "weekly",  priority: "0.8" },
+    { url: "https://explore.destincondogetaways.com/destin-hub.html",    changefreq: "weekly",  priority: "0.8" },
+    { url: "https://explore.destincondogetaways.com/destin-car-rental.html", changefreq: "monthly", priority: "0.6" },
+    { url: "https://explore.destincondogetaways.com/destin-tripshock.html",  changefreq: "monthly", priority: "0.6" },
+    { url: "https://guestview.destincondogetaways.com/",                 changefreq: "monthly", priority: "0.5" },
   ];
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${pages.map(p => `  <url>
-    <loc>${baseUrl}${p.url}</loc>
+    <loc>${p.url}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>${p.changefreq}</changefreq>
     <priority>${p.priority}</priority>

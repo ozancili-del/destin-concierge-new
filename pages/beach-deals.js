@@ -18,8 +18,8 @@ export async function getStaticProps() {
     const MIN_DROP          = 5;
     const MAX_DEALS         = 20;
 
-    // capturedDates needs all windows from both engines
-    const WINDOWS = [...new Set([...WINDOWS_RECENT, ...WINDOWS_HIST])];
+    // Query all possible captured dates — more history = more deals
+    const ALL_WINDOWS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 14, 20, 30];
 
     function fmt(d) { return d.toISOString().split("T")[0]; }
     function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate() + n); return r; }
@@ -34,7 +34,7 @@ export async function getStaticProps() {
     const allDates = [];
     for (let i = 1; i <= SCAN_DAYS + 5; i++) allDates.push(fmt(addDays(today, i)));
 
-    const capturedDates = [todayStr, ...WINDOWS.map(w => fmt(addDays(today, -w)))];
+    const capturedDates = [todayStr, ...ALL_WINDOWS.map(w => fmt(addDays(today, -w)))];
 
     const { data: snapshots, error } = await supabase
       .from("price_snapshots")

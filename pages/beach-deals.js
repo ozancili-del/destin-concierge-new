@@ -13,7 +13,7 @@ export async function getStaticProps() {
 
     const SCAN_DAYS   = 180;
     const STAY_NIGHTS = [3, 4, 5];
-    const WINDOWS     = [7, 14, 30];
+    const WINDOWS     = [1, 3, 5, 7, 14, 30];
     const MIN_DROP    = 5;
     const MAX_DEALS   = 20;
 

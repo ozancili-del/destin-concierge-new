@@ -11,11 +11,15 @@ export async function getStaticProps() {
       process.env.GUESTVIEW_SUPABASE_SERVICE_ROLE_KEY
     );
 
-    const SCAN_DAYS   = 180;
-    const STAY_NIGHTS = [3, 4, 5];
-    const WINDOWS     = [1, 3, 5, 7, 14, 30];
-    const MIN_DROP    = 5;
-    const MAX_DEALS   = 20;
+    const SCAN_DAYS         = 180;
+    const STAY_NIGHTS       = [3, 4, 5];
+    const WINDOWS_RECENT    = [1, 3, 5, 7, 14, 30]; // Engine 1 — matches ribbon
+    const WINDOWS_HIST      = [7, 14, 30];           // Engine 2 — historical max
+    const MIN_DROP          = 5;
+    const MAX_DEALS         = 20;
+
+    // capturedDates needs all windows from both engines
+    const WINDOWS = [...new Set([...WINDOWS_RECENT, ...WINDOWS_HIST])];
 
     function fmt(d) { return d.toISOString().split("T")[0]; }
     function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate() + n); return r; }
@@ -79,9 +83,9 @@ export async function getStaticProps() {
           if (todayPrices.length < nights) continue;
           const avgToday = todayPrices.reduce((s, v) => s + v, 0) / todayPrices.length;
 
-          // Compare against 7, 14, 30 day windows — pick best drop
+          // Compare against recent windows — pick best drop
           let bestDrop = null;
-          for (const w of WINDOWS) {
+          for (const w of WINDOWS_RECENT) {
             const pastKey = fmt(addDays(today, -w));
             if (!unitData[pastKey]) continue;
             const pastPrices = windowDates.map(d => unitData[pastKey]?.[d]).filter(v => v != null);

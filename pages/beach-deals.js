@@ -427,7 +427,7 @@ function DealCard({ deal, index }) {
           <span className="price-now"><sup>$</sup>{deal.toPrice}<span className="price-night">/night</span></span>
         </div>
         <div className="btn-row">
-          <a className="btn-book" href={url}>Book This Deal  →</a>
+          <a className="btn-book" href={url}>Secure This Deal  →</a>
           <button className="btn-share" onClick={handleShare} title="Share this deal">
             {copied ? (
               <span style={{fontSize:11,fontFamily:'Arial',fontWeight:700,color:'var(--teal)'}}>✓ Copied</span>

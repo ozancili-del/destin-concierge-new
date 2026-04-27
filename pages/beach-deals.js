@@ -30,7 +30,9 @@ export async function getStaticProps() {
     const allDates = [];
     for (let i = 1; i <= SCAN_DAYS + 5; i++) allDates.push(fmt(addDays(today, i)));
 
-    const capturedDates = [todayStr, ...WINDOWS.map(w => fmt(addDays(today, -w)))];
+    // Fetch all captured dates from last 30 days — gets every available snapshot
+    const capturedDates = [todayStr];
+    for (let w = 1; w <= 30; w++) capturedDates.push(fmt(addDays(today, -w)));
 
     const { data: snapshots, error } = await supabase
       .from("price_snapshots")
@@ -107,66 +109,49 @@ export async function getStaticProps() {
 
     candidates.sort((a, b) => b.dropPct - a.dropPct || b.totalSavings - a.totalSavings);
 
-    // ── Engine 2: Ribbon-style recent-window deals (additional source) ────────
-    // Uses same windows as price-drops.js / ribbon: [1,3,5,7,14,30]
-    const ribbonCapturedDates = [todayStr, ...[1,3,5,7,14,30].map(w => fmt(addDays(today, -w)))];
-    const { data: ribbonSnaps } = await supabase
-      .from("price_snapshots")
-      .select("unit_id, date, price, captured_date")
-      .in("date", allDates)
-      .in("captured_date", ribbonCapturedDates)
-      .limit(5000);
+    // ── Engine 2: Ribbon-style recent-window deals ────────────────────────────
+    // Uses same byUnit data already fetched, wider window set [1,3,5,7,14,30]
+    for (const unit of ["707", "1006"]) {
+      const unitData = byUnit[unit];
+      if (!unitData?.[todayStr]) continue;
 
-    if (ribbonSnaps?.length) {
-      const rByUnit = {};
-      for (const row of ribbonSnaps) {
-        if (!rByUnit[row.unit_id]) rByUnit[row.unit_id] = {};
-        if (!rByUnit[row.unit_id][row.captured_date]) rByUnit[row.unit_id][row.captured_date] = {};
-        rByUnit[row.unit_id][row.captured_date][row.date] = row.price;
-      }
+      for (let i = 1; i <= SCAN_DAYS; i++) {
+        const arrival    = addDays(today, i);
+        const arrivalStr = fmt(arrival);
 
-      for (const unit of ["707", "1006"]) {
-        const unitData = rByUnit[unit];
-        if (!unitData?.[todayStr]) continue;
+        for (const nights of STAY_NIGHTS) {
+          const departure    = addDays(arrival, nights);
+          const departureStr = fmt(departure);
 
-        for (let i = 1; i <= SCAN_DAYS; i++) {
-          const arrival    = addDays(today, i);
-          const arrivalStr = fmt(arrival);
+          const windowDates = [];
+          for (let j = 0; j < nights; j++) windowDates.push(fmt(addDays(arrival, j)));
 
-          for (const nights of STAY_NIGHTS) {
-            const departure    = addDays(arrival, nights);
-            const departureStr = fmt(departure);
+          const todayPrices = windowDates.map(d => unitData[todayStr]?.[d]).filter(v => v != null);
+          if (todayPrices.length < nights) continue;
+          const avgToday = todayPrices.reduce((s, v) => s + v, 0) / todayPrices.length;
 
-            const windowDates = [];
-            for (let j = 0; j < nights; j++) windowDates.push(fmt(addDays(arrival, j)));
-
-            const todayPrices = windowDates.map(d => unitData[todayStr]?.[d]).filter(v => v != null);
-            if (todayPrices.length < nights) continue;
-            const avgToday = todayPrices.reduce((s, v) => s + v, 0) / todayPrices.length;
-
-            let bestDrop = null;
-            for (const w of [1,3,5,7,14,30]) {
-              const pastKey = fmt(addDays(today, -w));
-              if (!unitData[pastKey]) continue;
-              const pastPrices = windowDates.map(d => unitData[pastKey]?.[d]).filter(v => v != null);
-              if (pastPrices.length < nights) continue;
-              const avgPast = pastPrices.reduce((s, v) => s + v, 0) / pastPrices.length;
-              const dropPct = ((avgPast - avgToday) / avgPast) * 100;
-              if (dropPct >= MIN_DROP && dropPct <= 60 && avgPast > avgToday) {
-                if (!bestDrop || dropPct > bestDrop.dropPct) {
-                  bestDrop = { dropPct: Math.round(dropPct), fromPrice: Math.round(avgPast), toPrice: Math.round(avgToday) };
-                }
+          let bestDrop = null;
+          for (const w of [1,2,3,4,5,6,7,8,9,10,14,20,30]) {
+            const pastKey = fmt(addDays(today, -w));
+            if (!unitData[pastKey]) continue;
+            const pastPrices = windowDates.map(d => unitData[pastKey]?.[d]).filter(v => v != null);
+            if (pastPrices.length < nights) continue;
+            const avgPast = pastPrices.reduce((s, v) => s + v, 0) / pastPrices.length;
+            const dropPct = ((avgPast - avgToday) / avgPast) * 100;
+            if (dropPct >= MIN_DROP && dropPct <= 60 && avgPast > avgToday) {
+              if (!bestDrop || dropPct > bestDrop.dropPct) {
+                bestDrop = { dropPct: Math.round(dropPct), fromPrice: Math.round(avgPast), toPrice: Math.round(avgToday) };
               }
             }
-            if (!bestDrop) continue;
-
-            candidates.push({
-              unit, arrival: arrivalStr, departure: departureStr,
-              arrivalFriendly: friendly(arrivalStr), departureFriendly: friendly(departureStr),
-              nights, dropPct: bestDrop.dropPct, fromPrice: bestDrop.fromPrice, toPrice: bestDrop.toPrice,
-              totalSavings: Math.round((bestDrop.fromPrice - bestDrop.toPrice) * nights),
-            });
           }
+          if (!bestDrop) continue;
+
+          candidates.push({
+            unit, arrival: arrivalStr, departure: departureStr,
+            arrivalFriendly: friendly(arrivalStr), departureFriendly: friendly(departureStr),
+            nights, dropPct: bestDrop.dropPct, fromPrice: bestDrop.fromPrice, toPrice: bestDrop.toPrice,
+            totalSavings: Math.round((bestDrop.fromPrice - bestDrop.toPrice) * nights),
+          });
         }
       }
     }

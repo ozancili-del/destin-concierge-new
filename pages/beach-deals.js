@@ -58,8 +58,8 @@ export async function getStaticProps() {
       if (!maxPrice[key] || row.price > maxPrice[key]) maxPrice[key] = row.price;
     }
 
-    const candidates = [];
-
+    // ── Engine 1: Recent-window deals (primary — matches ribbon logic) ────────
+    const recentWindowDeals = [];
     for (const unit of ["707", "1006"]) {
       const unitData = byUnit[unit];
       if (!unitData?.[todayStr]) continue;
@@ -77,36 +77,100 @@ export async function getStaticProps() {
 
           const todayPrices = windowDates.map(d => unitData[todayStr]?.[d]).filter(v => v != null);
           if (todayPrices.length < nights) continue;
-
           const avgToday = todayPrices.reduce((s, v) => s + v, 0) / todayPrices.length;
 
-          // Use MAX historical price as baseline
-          const maxPrices = windowDates.map(d => maxPrice[`${unit}::${d}`]).filter(v => v != null);
-          if (maxPrices.length < nights) continue;
+          // Compare against 7, 14, 30 day windows — pick best drop
+          let bestDrop = null;
+          for (const w of WINDOWS) {
+            const pastKey = fmt(addDays(today, -w));
+            if (!unitData[pastKey]) continue;
+            const pastPrices = windowDates.map(d => unitData[pastKey]?.[d]).filter(v => v != null);
+            if (pastPrices.length < nights) continue;
+            const avgPast = pastPrices.reduce((s, v) => s + v, 0) / pastPrices.length;
+            const dropPct = ((avgPast - avgToday) / avgPast) * 100;
+            if (dropPct >= MIN_DROP && dropPct <= 60 && avgPast > avgToday) {
+              if (!bestDrop || dropPct > bestDrop.dropPct) {
+                bestDrop = { dropPct: Math.round(dropPct), fromPrice: Math.round(avgPast), toPrice: Math.round(avgToday), windowDays: w };
+              }
+            }
+          }
+          if (!bestDrop) continue;
 
-          const avgMax  = maxPrices.reduce((s, v) => s + v, 0) / maxPrices.length;
-          const dropPct = ((avgMax - avgToday) / avgMax) * 100;
-
-          if (dropPct < MIN_DROP || dropPct > 60 || avgMax <= avgToday) continue;
-
-          candidates.push({
-            unit,
-            arrival:           arrivalStr,
-            departure:         departureStr,
-            arrivalFriendly:   friendly(arrivalStr),
-            departureFriendly: friendly(departureStr),
-            nights,
-            dropPct:    Math.round(dropPct),
-            fromPrice:  Math.round(avgMax),
-            toPrice:    Math.round(avgToday),
-            totalSavings: Math.round((avgMax - avgToday) * nights),
+          recentWindowDeals.push({
+            unit, arrival: arrivalStr, departure: departureStr,
+            arrivalFriendly: friendly(arrivalStr), departureFriendly: friendly(departureStr),
+            nights, dropPct: bestDrop.dropPct, fromPrice: bestDrop.fromPrice, toPrice: bestDrop.toPrice,
+            windowDays: bestDrop.windowDays,
+            totalSavings: Math.round((bestDrop.fromPrice - bestDrop.toPrice) * nights),
+            source: "recent-window",
           });
         }
       }
     }
 
-    candidates.sort((a, b) => b.dropPct - a.dropPct || b.totalSavings - a.totalSavings);
+    // ── Engine 2: Historical-max deals (secondary filler) ────────────────────
+    const historicalMaxDeals = [];
+    for (const unit of ["707", "1006"]) {
+      const unitData = byUnit[unit];
+      if (!unitData?.[todayStr]) continue;
 
+      for (let i = 1; i <= SCAN_DAYS; i++) {
+        const arrival    = addDays(today, i);
+        const arrivalStr = fmt(arrival);
+
+        for (const nights of STAY_NIGHTS) {
+          const departure    = addDays(arrival, nights);
+          const departureStr = fmt(departure);
+
+          const windowDates = [];
+          for (let j = 0; j < nights; j++) windowDates.push(fmt(addDays(arrival, j)));
+
+          const todayPrices = windowDates.map(d => unitData[todayStr]?.[d]).filter(v => v != null);
+          if (todayPrices.length < nights) continue;
+          const avgToday = todayPrices.reduce((s, v) => s + v, 0) / todayPrices.length;
+
+          const maxPrices = windowDates.map(d => maxPrice[`${unit}::${d}`]).filter(v => v != null);
+          if (maxPrices.length < nights) continue;
+          const avgMax  = maxPrices.reduce((s, v) => s + v, 0) / maxPrices.length;
+          const dropPct = ((avgMax - avgToday) / avgMax) * 100;
+
+          if (dropPct < MIN_DROP || dropPct > 60 || avgMax <= avgToday) continue;
+
+          historicalMaxDeals.push({
+            unit, arrival: arrivalStr, departure: departureStr,
+            arrivalFriendly: friendly(arrivalStr), departureFriendly: friendly(departureStr),
+            nights, dropPct: Math.round(dropPct), fromPrice: Math.round(avgMax), toPrice: Math.round(avgToday),
+            totalSavings: Math.round((avgMax - avgToday) * nights),
+            source: "historical-max",
+          });
+        }
+      }
+    }
+
+    // ── Merge + deduplicate ───────────────────────────────────────────────────
+    const dealMap = new Map();
+    for (const deal of [...recentWindowDeals, ...historicalMaxDeals]) {
+      const key = `${deal.unit}-${deal.arrival}-${deal.departure}`;
+      const existing = dealMap.get(key);
+      if (
+        !existing ||
+        deal.dropPct > existing.dropPct ||
+        (deal.dropPct === existing.dropPct && deal.totalSavings > existing.totalSavings)
+      ) {
+        dealMap.set(key, deal);
+      }
+    }
+
+    const candidates = Array.from(dealMap.values());
+
+    // Sort: biggest drop → biggest savings → earliest arrival
+    candidates.sort((a, b) =>
+      b.dropPct - a.dropPct ||
+      b.totalSavings - a.totalSavings ||
+      a.arrival.localeCompare(b.arrival)
+    );
+
+    // ── Overlap protection ────────────────────────────────────────────────────
     const finalDeals = [];
     const usedRanges = { "707": [], "1006": [] };
     for (const deal of candidates) {
@@ -120,6 +184,7 @@ export async function getStaticProps() {
     }
 
     return { props: { deals: finalDeals }, revalidate: 600 };
+
 
   } catch (err) {
     console.error("[BEACH-DEALS ISR]", err.message);

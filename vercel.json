@@ -8,18 +8,17 @@
     },
     {
       "source": "/",
-      "destination": "/destin-hub.html",
-      "permanent": true,
-      "has": [{"type": "host", "value": "explore.destincondogetaways.com"}]
-    },
-    {
-      "source": "/",
       "destination": "/guestview",
       "permanent": false,
       "has": [{"type": "host", "value": "guestview.destincondogetaways.com"}]
     }
   ],
   "rewrites": [
+    {
+      "source": "/",
+      "destination": "/destin-hub.html",
+      "has": [{"type": "host", "value": "explore.destincondogetaways.com"}]
+    },
     {"source": "/tv-707.html", "destination": "/tv-707.html"},
     {"source": "/tv-1006.html", "destination": "/tv-1006.html"}
   ],

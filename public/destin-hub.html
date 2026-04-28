@@ -223,7 +223,7 @@
 :root{--teal:#0d9e8a;--bg:#07141f;--card:#0d1f2e;--border:rgba(255,255,255,0.07);--text:#e8f4ff;--muted:rgba(255,255,255,0.4);}
 html,body{width:100%;overflow-x:hidden;}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
-body::before{content:'';position:fixed;inset:0;background-image:url('https://uc.orez.io/f/d6016c9e0a064e528087ef01caa56955');background-size:cover;background-position:center 40%;filter:brightness(0.25) saturate(0.7);z-index:-1;}
+body::before{content:'';position:fixed;inset:0;background-image:url('https://uc.orez.io/f/d6016c9e0a064e528087ef01caa56955');background-size:cover;background-position:center 40%;filter:brightness(0.18) saturate(0.7);z-index:-1;}
 
 .hero{position:relative;padding:48px 20px 52px;overflow:hidden;background:transparent;text-align:center;}
 .hero>*{position:relative;z-index:2;}
@@ -241,7 +241,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url('https://uc.
 .hero-btns{display:flex;justify-content:center;gap:10px;margin-top:20px;flex-wrap:wrap;}
 .hero-btn{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.85);font-size:12px;font-weight:600;padding:8px 18px;border-radius:20px;text-decoration:none;backdrop-filter:blur(4px);}
 .hero-btn-teal{background:rgba(45,219,180,0.15);border-color:rgba(45,219,180,0.35);color:#7de8d4;}
-.hero-tag{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:5px 14px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,0.5);margin-bottom:16px;}
+.hero-tag{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#0a3d6b,#0d5c8a);border:1.5px solid #2ddbb4;border-radius:30px;padding:6px 18px;font-family:"Barlow Condensed",sans-serif;font-size:15px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#fff;margin-bottom:14px;box-shadow:0 0 20px rgba(0,212,200,0.3);}
 .hero-dot{width:6px;height:6px;border-radius:50%;background:#2ddbb4;animation:blink 2s infinite;}
 @keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
 .hero h1{font-family:'Playfair Display',serif;font-size:clamp(28px,6vw,48px);font-weight:700;color:white;line-height:1.1;margin-bottom:8px;}
@@ -359,8 +359,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url('https://uc.
   <div class="logo-wrap"><img src="https://uc.orez.io/f/2ffb66c0d31e4a6a8d9549b45e0db5dc" alt="Destin Condo Getaways"/></div>
   <div class="hero-tag"><span class="hero-dot"></span>Destin, Florida · Your Local Guide</div>
   <h1><span class="line1">Your Destin</span><span class="line2">Local Guide 2026</span></h1>
-  <p class="hero-sub">Beaches · Weather · Restaurants · Airports · Events · Live Price Drops</p>
-  <p style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:6px;letter-spacing:1px;">Last updated: April 2026</p>
+
   <div class="hero-stats">
     <div class="hero-stat"><div class="hero-stat-num">400+</div><div class="hero-stat-lbl">Five-Star Stays</div></div>
     <div class="hero-stat-div"></div>

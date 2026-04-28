@@ -260,8 +260,10 @@ function buildSchema(deals) {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.destincondogetaways.com" },
-      { "@type": "ListItem", "position": 2, "name": "Beach Deals", "item": "https://deals.destincondogetaways.com/beach-deals" }
+      { "@type": "ListItem", "position": 1, "name": "Destin Florida Vacation Rentals", "item": "https://www.destincondogetaways.com" },
+      { "@type": "ListItem", "position": 2, "name": "Pelican Beach Resort Condos", "item": "https://www.destincondogetaways.com/pelican-beach-resort-destin-574048693" },
+      { "@type": "ListItem", "position": 3, "name": "Destin Beachfront Condo Rentals", "item": "https://www.destincondogetaways.com/properties" },
+      { "@type": "ListItem", "position": 4, "name": "Destin Condo Price Drops — Book Direct & Save", "item": "https://deals.destincondogetaways.com/beach-deals" }
     ]
   };
 

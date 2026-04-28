@@ -227,7 +227,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url('https://uc.
 
 .hero{position:relative;padding:48px 20px 52px;overflow:hidden;background:transparent;text-align:center;width:100%;box-sizing:border-box;}
 .hero>*{position:relative;z-index:2;}
-.hero h1{font-family:'Barlow Condensed',sans-serif;font-size:72px;font-weight:900;line-height:0.95;text-transform:uppercase;letter-spacing:-2px;margin:16px 0 8px;}
+.hero h1{font-family:'Barlow Condensed',sans-serif;font-size:clamp(48px,8vw,80px);font-weight:900;line-height:0.95;text-transform:uppercase;letter-spacing:-1px;margin:16px 0 8px;}
 .hero h1 .line1{color:#fff;display:block;}
 .hero h1 .line2{display:block;background:linear-gradient(90deg,#2ddbb4,#7fffff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 .hero-sub{font-size:14px;color:rgba(255,255,255,0.6);margin-top:8px;line-height:1.5;}
@@ -244,7 +244,6 @@ body::before{content:'';position:fixed;inset:0;background-image:url('https://uc.
 .hero-tag{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#0a3d6b,#0d5c8a);border:1.5px solid #2ddbb4;border-radius:30px;padding:6px 18px;font-family:"Barlow Condensed",sans-serif;font-size:15px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#fff;margin-bottom:14px;box-shadow:0 0 20px rgba(0,212,200,0.3);}
 .hero-dot{width:6px;height:6px;border-radius:50%;background:#2ddbb4;animation:blink 2s infinite;}
 @keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
-.hero h1{font-family:'Playfair Display',serif;font-size:clamp(28px,6vw,48px);font-weight:700;color:white;line-height:1.1;margin-bottom:8px;}
 .hero h1 em{color:#7de8d4;font-style:italic;}
 .hero p{color:rgba(255,255,255,0.45);font-size:14px;}
 
@@ -358,7 +357,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url('https://uc.
 <div class="hero">
   <div class="logo-wrap"><img src="https://uc.orez.io/f/2ffb66c0d31e4a6a8d9549b45e0db5dc" alt="Destin Condo Getaways"/></div>
   <div class="hero-tag"><span class="hero-dot"></span>Destin, Florida · Your Local Guide</div>
-  <h1><span class="line1">Your Destin</span><span class="line2">Local Guide 2026</span></h1>
+  <h1><span class="line1">Destin</span><span class="line2">Local Guide 2026</span></h1>
 
   <div class="hero-stats">
     <div class="hero-stat"><div class="hero-stat-num">400+</div><div class="hero-stat-lbl">Five-Star Stays</div></div>

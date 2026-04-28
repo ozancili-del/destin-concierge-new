@@ -30,18 +30,28 @@ export async function getStaticProps() {
     const allDates = [];
     for (let i = 1; i <= SCAN_DAYS + 5; i++) allDates.push(fmt(addDays(today, i)));
 
-    const capturedDates = [todayStr, ...WINDOWS.map(w => fmt(addDays(today, -w)))];
+    // Fetch last 5 days of captured dates to handle UTC/CST timezone mismatch
+    // The cron runs at 6AM UTC (1AM CST) so "today" in UTC may not exist yet
+    const capturedDates = [];
+    for (let w = 0; w <= 4; w++) capturedDates.push(fmt(addDays(today, -w)));
+    // Also add standard comparison windows
+    for (const w of WINDOWS) capturedDates.push(fmt(addDays(today, -w)));
+    const uniqueCapturedDates = [...new Set(capturedDates)];
 
     const { data: snapshots, error } = await supabase
       .from("price_snapshots")
       .select("unit_id, date, price, captured_date")
       .in("date", allDates)
-      .in("captured_date", capturedDates)
+      .in("captured_date", uniqueCapturedDates)
       .limit(5000);
 
     if (error || !snapshots?.length) {
       return { props: { deals: [] }, revalidate: 600 };
     }
+
+    // Find the most recent captured_date that actually has data
+    const availableCaptured = [...new Set(snapshots.map(r => r.captured_date))].sort().reverse();
+    const latestCaptured = availableCaptured[0]; // most recent available snapshot
 
     // Organise: byUnit[unit][captured_date][date] = price
     const byUnit = {};
@@ -62,7 +72,7 @@ export async function getStaticProps() {
 
     for (const unit of ["707", "1006"]) {
       const unitData = byUnit[unit];
-      if (!unitData?.[todayStr]) continue;
+      if (!unitData?.[latestCaptured]) continue;
 
       for (let i = 1; i <= SCAN_DAYS; i++) {
         const arrival    = addDays(today, i);
@@ -75,7 +85,7 @@ export async function getStaticProps() {
           const windowDates = [];
           for (let j = 0; j < nights; j++) windowDates.push(fmt(addDays(arrival, j)));
 
-          const todayPrices = windowDates.map(d => unitData[todayStr]?.[d]).filter(v => v != null);
+          const todayPrices = windowDates.map(d => unitData[latestCaptured]?.[d]).filter(v => v != null);
           if (todayPrices.length < nights) continue;
 
           const avgToday = todayPrices.reduce((s, v) => s + v, 0) / todayPrices.length;

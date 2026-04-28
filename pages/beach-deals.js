@@ -15,7 +15,7 @@ export async function getStaticProps() {
     const STAY_NIGHTS = [2, 3, 4, 5];
     const WINDOWS     = [7, 14, 30];
     const MIN_DROP    = 5;
-    const MAX_DEALS   = 20;
+    const MAX_DEALS   = 30;
 
     function fmt(d) { return d.toISOString().split("T")[0]; }
     function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate() + n); return r; }

@@ -30,28 +30,18 @@ export async function getStaticProps() {
     const allDates = [];
     for (let i = 1; i <= SCAN_DAYS + 5; i++) allDates.push(fmt(addDays(today, i)));
 
-    // Fetch last 5 days of captured dates to handle UTC/CST timezone mismatch
-    // The cron runs at 6AM UTC (1AM CST) so "today" in UTC may not exist yet
-    const capturedDates = [];
-    for (let w = 0; w <= 4; w++) capturedDates.push(fmt(addDays(today, -w)));
-    // Also add standard comparison windows
-    for (const w of WINDOWS) capturedDates.push(fmt(addDays(today, -w)));
-    const uniqueCapturedDates = [...new Set(capturedDates)];
+    const capturedDates = [todayStr, ...WINDOWS.map(w => fmt(addDays(today, -w)))];
 
     const { data: snapshots, error } = await supabase
       .from("price_snapshots")
       .select("unit_id, date, price, captured_date")
       .in("date", allDates)
-      .in("captured_date", uniqueCapturedDates)
+      .in("captured_date", capturedDates)
       .limit(5000);
 
     if (error || !snapshots?.length) {
       return { props: { deals: [] }, revalidate: 600 };
     }
-
-    // Find the most recent captured_date that actually has data
-    const availableCaptured = [...new Set(snapshots.map(r => r.captured_date))].sort().reverse();
-    const latestCaptured = availableCaptured[0]; // most recent available snapshot
 
     // Organise: byUnit[unit][captured_date][date] = price
     const byUnit = {};
@@ -61,9 +51,17 @@ export async function getStaticProps() {
       byUnit[row.unit_id][row.captured_date][row.date] = row.price;
     }
 
-    // Max price ever seen per unit per date (across ALL captured_dates)
+    // Fetch ALL historical prices for future dates — no captured_date filter
+    // This ensures maxPrice reflects the true highest price ever seen
+    const { data: allSnapshots } = await supabase
+      .from('price_snapshots')
+      .select('unit_id, date, price')
+      .in('date', allDates)
+      .limit(10000);
+
+    // Build maxPrice from ALL historical data
     const maxPrice = {};
-    for (const row of snapshots) {
+    for (const row of (allSnapshots || [])) {
       const key = `${row.unit_id}::${row.date}`;
       if (!maxPrice[key] || row.price > maxPrice[key]) maxPrice[key] = row.price;
     }
@@ -72,7 +70,7 @@ export async function getStaticProps() {
 
     for (const unit of ["707", "1006"]) {
       const unitData = byUnit[unit];
-      if (!unitData?.[latestCaptured]) continue;
+      if (!unitData?.[todayStr]) continue;
 
       for (let i = 1; i <= SCAN_DAYS; i++) {
         const arrival    = addDays(today, i);
@@ -85,7 +83,7 @@ export async function getStaticProps() {
           const windowDates = [];
           for (let j = 0; j < nights; j++) windowDates.push(fmt(addDays(arrival, j)));
 
-          const todayPrices = windowDates.map(d => unitData[latestCaptured]?.[d]).filter(v => v != null);
+          const todayPrices = windowDates.map(d => unitData[todayStr]?.[d]).filter(v => v != null);
           if (todayPrices.length < nights) continue;
 
           const avgToday = todayPrices.reduce((s, v) => s + v, 0) / todayPrices.length;

@@ -560,8 +560,11 @@ export default function BeachDeals({ deals }) {
         <link rel="canonical" href="https://deals.destincondogetaways.com/beach-deals" />
         <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
         <meta name="msvalidate.01" content="179AF5BF43378717C4812675F6233C2B" />
-        {/* GTM only — GA4 fired via GTM, no direct gtag to avoid double counting */}
+        {/* GTM — fires Clarity only. GA4 fires direct below (GTM has no GA4 tag inside it) */}
         <script dangerouslySetInnerHTML={{ __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-PQSF8S6D');` }} />
+        {/* Direct GA4 — same pattern as destin-hub.html */}
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-3SGXCQ4FTC" />
+        <script dangerouslySetInnerHTML={{ __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-3SGXCQ4FTC');` }} />
         {schemas.map((schema, i) => (
           <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
         ))}

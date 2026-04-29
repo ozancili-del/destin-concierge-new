@@ -11,7 +11,7 @@
   "destination": "/destin-hub.html",
   "permanent": true,
   "has": [{"type": "host", "value": "explore.destincondogetaways.com"}]
-}
+  },
     {
       "source": "/",
       "destination": "/guestview",

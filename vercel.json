@@ -8,7 +8,7 @@
     },
     {
       "source": "/",
-      "destination": "/destin-hub.html",
+      "destination": "/destin-hub",
       "permanent": true,
       "has": [{"type": "host", "value": "explore.destincondogetaways.com"}]
     },
@@ -21,7 +21,8 @@
   ],
   "rewrites": [
     {"source": "/tv-707.html", "destination": "/tv-707.html"},
-    {"source": "/tv-1006.html", "destination": "/tv-1006.html"}
+    {"source": "/tv-1006.html", "destination": "/tv-1006.html"},
+    {"source": "/destin-hub.html", "destination": "/destin-hub"}
   ],
   "crons": [
     {

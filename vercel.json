@@ -4,30 +4,58 @@
       "source": "/",
       "destination": "/rate-finder.html",
       "permanent": false,
-      "has": [{"type": "host", "value": "deals.destincondogetaways.com"}]
+      "has": [
+        {
+          "type": "host",
+          "value": "deals.destincondogetaways.com"
+        }
+      ]
     },
     {
       "source": "/",
       "destination": "/destin-hub",
       "permanent": true,
-      "has": [{"type": "host", "value": "explore.destincondogetaways.com"}]
+      "has": [
+        {
+          "type": "host",
+          "value": "explore.destincondogetaways.com"
+        }
+      ]
     },
     {
       "source": "/",
       "destination": "/guestview",
       "permanent": false,
-      "has": [{"type": "host", "value": "guestview.destincondogetaways.com"}]
+      "has": [
+        {
+          "type": "host",
+          "value": "guestview.destincondogetaways.com"
+        }
+      ]
     }
   ],
   "rewrites": [
-    {"source": "/tv-707.html", "destination": "/tv-707.html"},
-    {"source": "/tv-1006.html", "destination": "/tv-1006.html"},
-    {"source": "/destin-hub.html", "destination": "/destin-hub"}
+    {
+      "source": "/tv-707.html",
+      "destination": "/tv-707.html"
+    },
+    {
+      "source": "/tv-1006.html",
+      "destination": "/tv-1006.html"
+    },
+    {
+      "source": "/destin-hub.html",
+      "destination": "/destin-hub"
+    }
   ],
   "crons": [
     {
       "path": "/api/price-snapshot",
       "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/thermostat",
+      "schedule": "0 12 * * *"
     }
   ]
 }

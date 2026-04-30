@@ -1626,6 +1626,24 @@ The guest is now in follow-up conversation mode. Answer their questions naturall
       console.log(`Other unit check: using guest dates ${dates.arrival} -> ${dates.departure}`);
     }
     const nightsMatch = lastUser.match(/(\d+)\s*nights?/i);
+
+    // 🔧 NIGHTS CORRECTION — guest says "X nights" or "X days" after dates already extracted
+    // e.g. guest said "May 11-16" (5 nights) then says "3 days" → correct the departure
+    // Only fires when: nights stated, dates already known, stated nights differ from extracted nights
+    const daysMatch = !nightsMatch && lastUser.match(/(\d+)\s*days?/i);
+    const nightsCorrectionMatch = nightsMatch || daysMatch;
+    if (nightsCorrectionMatch && dates && dates.arrival && dates.departure) {
+      const statedNights = parseInt(nightsCorrectionMatch[1]);
+      const existingNights = Math.round((new Date(dates.departure + "T12:00:00Z") - new Date(dates.arrival + "T12:00:00Z")) / (1000 * 60 * 60 * 24));
+      if (statedNights !== existingNights && statedNights >= 1 && statedNights <= 30) {
+        const newDep = new Date(dates.arrival + "T12:00:00Z");
+        newDep.setUTCDate(newDep.getUTCDate() + statedNights);
+        const pad = n => String(n).padStart(2,"0");
+        dates = { arrival: dates.arrival, departure: `${newDep.getUTCFullYear()}-${pad(newDep.getUTCMonth()+1)}-${pad(newDep.getUTCDate())}` };
+        console.log(`Nights correction: guest said ${statedNights} nights, was ${existingNights} → new departure ${dates.departure}`);
+      }
+    }
+
     if (!dates && singleCheckinDate) {
       if (nightsMatch) {
         // Check-in + nights → compute checkout automatically
@@ -2061,6 +2079,25 @@ RULES — no exceptions:
       const reply = `Hmm, the calendar seems a little confused by those dates — ${dates.departure} actually comes before ${dates.arrival}! 😄 Can you double-check and confirm? Just want to make sure I find you the perfect dates 🌊`;
       await logToSheets(sessionId, lastUser, reply, `${dates.arrival} to ${dates.departure}`, "INVALID_DATES", "");
       return res.status(200).json({ reply, alertSent: false, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
+    }
+
+    // 🟢 PAST DATE CHECK — arrival date is in the past (skip for existing guests)
+    if (dates && dates.arrival && !guestBooking) {
+      const todayCT = new Date().toLocaleDateString("en-CA", { timeZone: "America/Chicago" });
+      if (dates.arrival < todayCT) {
+        // Suggest same dates next month as a helpful nudge
+        const arrDate = new Date(dates.arrival + "T12:00:00Z");
+        const depDate = new Date(dates.departure + "T12:00:00Z");
+        arrDate.setUTCMonth(arrDate.getUTCMonth() + 1);
+        depDate.setUTCMonth(depDate.getUTCMonth() + 1);
+        const pad = n => String(n).padStart(2, "0");
+        const suggestArr = `${arrDate.getUTCFullYear()}-${pad(arrDate.getUTCMonth()+1)}-${pad(arrDate.getUTCDate())}`;
+        const suggestDep = `${depDate.getUTCFullYear()}-${pad(depDate.getUTCMonth()+1)}-${pad(depDate.getUTCDate())}`;
+        const fmtDate = iso => new Date(iso + "T12:00:00Z").toLocaleDateString("en-US", { month: "long", day: "numeric" });
+        const reply = `Those dates (${fmtDate(dates.arrival)}–${fmtDate(dates.departure)}) have already passed! 😊 Did you mean ${fmtDate(suggestArr)}–${fmtDate(suggestDep)} (same dates next month)? Just confirm and I'll check availability right away! 🌊`;
+        await logToSheets(sessionId, lastUser, reply, `${dates.arrival} to ${dates.departure}`, "PAST_DATES", "");
+        return res.status(200).json({ reply, alertSent: false, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
+      }
     }
 
     // 🟢 AVAILABILITY CONTEXT

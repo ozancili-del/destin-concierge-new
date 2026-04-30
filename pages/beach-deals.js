@@ -407,6 +407,7 @@ function DealCard({ deal, index }) {
   const cardId = `${deal.unit}-${deal.arrival}`;
 
   const hasCounted = useRef(false);
+  const [showTooltip, setShowTooltip] = useState(false);
 
   function trackView() {
     if (hasCounted.current) return;
@@ -475,16 +476,16 @@ function DealCard({ deal, index }) {
         <div style={{ position: "relative" }}>
           <Carousel unit={deal.unit} index={index} />
           <div className="drop-badge">{deal.dropPct}%</div>
-          {views > 0 && (
-            <div className="views-badge-wrap">
+          <div className="views-badge-wrap" onClick={e => { e.stopPropagation(); setShowTooltip(t => !t); }}>
               <div className="views-badge">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="white" stroke="white" strokeWidth="0"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3" fill="#cc0000"/></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="white" stroke="white" strokeWidth="0"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3" fill="#aa0000"/></svg>
                 <span className="views-label">Views</span>
                 <span className="views-count">{views}</span>
               </div>
-              <div className="views-tooltip">This property has been viewed {views} times in 72 hours</div>
+              <div className={`views-tooltip${showTooltip ? " views-tooltip-visible" : ""}`}>
+                This property has been viewed {views} times in 72 hours
+              </div>
             </div>
-          )}
           <div className="unit-overlay">
             <div className="unit-name">{meta.name}</div>
             <div className="unit-sub">{meta.sub}</div>
@@ -831,12 +832,13 @@ export default function BeachDeals({ deals }) {
           .btn-share { width:100%; height:42px; justify-content:space-between; border-radius:30px; padding:0 0 0 16px; }
           .share-icon-circle { display:flex; }
         }
-        .views-badge-wrap { position:absolute; top:12px; left:12px; z-index:2; }
-        .views-badge { display:flex; align-items:center; gap:6px; background:#cc0000; border-radius:4px; padding:5px 10px; cursor:default; }
+        .views-badge-wrap { position:absolute; top:12px; left:12px; z-index:2; cursor:pointer; }
+        .views-badge { display:flex; align-items:center; gap:6px; background:#cc0000; border-radius:4px; padding:5px 10px; box-shadow:0 2px 8px rgba(0,0,0,0.4); }
         .views-label { font-family:Arial,sans-serif; font-size:12px; font-weight:700; color:white; letter-spacing:0.5px; }
         .views-count { font-family:Arial,sans-serif; font-size:14px; font-weight:900; color:white; background:#aa0000; border-radius:50%; width:24px; height:24px; display:flex; align-items:center; justify-content:center; }
-        .views-tooltip { display:none; position:absolute; top:calc(100% + 6px); left:0; background:rgba(10,30,60,0.95); color:white; font-family:Arial,sans-serif; font-size:12px; font-weight:500; padding:8px 12px; border-radius:6px; white-space:nowrap; box-shadow:0 4px 16px rgba(0,0,0,0.4); z-index:10; }
+        .views-tooltip { display:none; position:absolute; top:calc(100% + 8px); left:0; background:rgba(10,30,60,0.97); color:white; font-family:Arial,sans-serif; font-size:13px; font-weight:500; padding:10px 14px; border-radius:8px; white-space:nowrap; box-shadow:0 4px 20px rgba(0,0,0,0.6); z-index:20; border:1px solid rgba(255,255,255,0.1); line-height:1.4; }
         .views-badge-wrap:hover .views-tooltip { display:block; }
+        .views-tooltip-visible { display:block !important; }
         .drop-badge { position:absolute; top:12px; right:12px; background:var(--green); color:#000; font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:900; line-height:1; padding:6px 10px; border-radius:10px; box-shadow:0 0 16px rgba(57,255,20,0.6); z-index:2; }
         .unit-overlay { position:absolute; bottom:12px; left:14px; z-index:2; }
         .unit-name { font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:800; color:var(--white); text-transform:uppercase; letter-spacing:0.5px; text-shadow:0 1px 6px rgba(0,0,0,0.8); }

@@ -32,6 +32,17 @@
           "value": "guestview.destincondogetaways.com"
         }
       ]
+    },
+    {
+      "source": "/",
+      "destination": "/app",
+      "permanent": false,
+      "has": [
+        {
+          "type": "host",
+          "value": "app.destincondogetaways.com"
+        }
+      ]
     }
   ],
   "rewrites": [

@@ -1,6 +1,5 @@
 // pages/api/deal-view.js
-// Increments view count for a specific deal (unit + arrival + departure)
-// Called client-side when a deal card mounts in beach-deals.js
+// Tracks a view event and returns the 72-hour view count for that deal
 
 import { createClient } from "@supabase/supabase-js";
 
@@ -17,17 +16,22 @@ export default async function handler(req, res) {
     process.env.GUESTVIEW_SUPABASE_SERVICE_ROLE_KEY
   );
 
-  // Upsert — insert if new, increment if exists
-  const { data, error } = await supabase.rpc("increment_deal_view", {
-    p_unit:      unit,
-    p_arrival:   arrival,
-    p_departure: departure,
+  // Insert view event
+  await supabase.from("deal_view_events").insert({
+    unit,
+    arrival,
+    departure,
   });
 
-  if (error) {
-    console.error("[deal-view]", error.message);
-    return res.status(500).json({ error: error.message });
-  }
+  // Count views in last 72 hours
+  const cutoff = new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString();
+  const { count } = await supabase
+    .from("deal_view_events")
+    .select("*", { count: "exact", head: true })
+    .eq("unit", unit)
+    .eq("arrival", arrival)
+    .eq("departure", departure)
+    .gte("viewed_at", cutoff);
 
-  return res.status(200).json({ views: data });
+  return res.status(200).json({ views: count || 1 });
 }

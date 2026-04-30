@@ -8,7 +8,7 @@ const UNIT_707_ID    = "293722";
 const UNIT_1006_ID   = "410894";
 
 // ── Temp setpoints (°F) ──────────────────────────────────────────────────────
-const SUMMER_MONTHS = [5, 6, 7, 8, 9]; // May–September (month is 1-indexed here)
+const SUMMER_MONTHS = [4,5, 6, 7, 8, 9]; // April–September (month is 1-indexed here)
 
 const TEMP = {
   summer: {

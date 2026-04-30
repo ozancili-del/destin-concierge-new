@@ -403,8 +403,11 @@ function DealCard({ deal, index }) {
   const [views, setViews]     = useState(deal.views || 0);
   const cardId = `${deal.unit}-${deal.arrival}`;
 
-  // Track view on mount
-  useEffect(() => {
+  const hasCounted = useRef(false);
+
+  function trackView() {
+    if (hasCounted.current) return;
+    hasCounted.current = true;
     fetch('/api/deal-view', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -413,7 +416,26 @@ function DealCard({ deal, index }) {
       .then(r => r.json())
       .then(d => { if (d.views) setViews(d.views); })
       .catch(() => {});
-  }, []);
+  }
+
+  function trackAction() {
+    // Always +1 for secure/share regardless of hasCounted
+    fetch('/api/deal-view', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ unit: deal.unit, arrival: deal.arrival, departure: deal.departure }),
+    })
+      .then(r => r.json())
+      .then(d => { if (d.views) setViews(d.views); })
+      .catch(() => {});
+  }
+
+  function handleCardClick() {
+    // Mobile only — tap on card counts as view
+    if (typeof window !== 'undefined' && window.matchMedia('(hover: none)').matches) {
+      trackView();
+    }
+  }
 
   function handleShare() {
     const shareUrl = `https://deals.destincondogetaways.com/beach-deals#${cardId}`;
@@ -435,8 +457,9 @@ function DealCard({ deal, index }) {
     <div
       id={cardId}
       className="deal-card"
-      onMouseEnter={() => setHovered(true)}
+      onMouseEnter={() => { setHovered(true); trackView(); }}
       onMouseLeave={() => setHovered(false)}
+      onClick={handleCardClick}
       style={{
         transform: hovered ? "translateY(-8px) scale(1.04)" : "translateY(0) scale(1)",
         boxShadow: hovered ? "0 24px 60px rgba(0,0,0,0.8), 0 0 36px rgba(0,212,200,0.35)" : "0 8px 32px rgba(0,0,0,0.5)",
@@ -478,8 +501,8 @@ function DealCard({ deal, index }) {
           <span className="price-now"><sup>$</sup>{deal.toPrice}<span className="price-night">/night</span></span>
         </div>
         <div className="btn-row">
-          <a className="btn-book" href={url}>Secure This Deal  →</a>
-          <button className="btn-share" onClick={handleShare} title="Share this deal">
+          <a className="btn-book" href={url} onClick={trackAction}>Secure This Deal  →</a>
+          <button className="btn-share" onClick={() => { handleShare(); trackAction(); }} title="Share this deal">
             {copied ? (
               <span style={{fontSize:11,fontFamily:'Arial',fontWeight:700,color:'var(--teal)'}}>✓ Copied</span>
             ) : (

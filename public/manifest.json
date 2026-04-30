@@ -2,7 +2,7 @@
   "name": "Destin Condo Getaways",
   "short_name": "Destin Getaways",
   "description": "Your Destin vacation companion — local guide, AI concierge, and trip planner.",
-  "start_url": "/app",
+  "start_url": "https://app.destincondogetaways.com/",
   "display": "standalone",
   "background_color": "#0a3d62",
   "theme_color": "#0a3d62",

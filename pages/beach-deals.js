@@ -127,7 +127,23 @@ export async function getStaticProps() {
       if (finalDeals.length >= MAX_DEALS) break;
     }
 
-    return { props: { deals: finalDeals }, revalidate: 600 };
+    // Fetch view counts for all current deals
+    const { data: viewRows } = await supabase
+      .from("deal_views")
+      .select("unit, arrival, departure, views")
+      .in("unit", ["707", "1006"]);
+
+    const viewMap = {};
+    for (const row of (viewRows || [])) {
+      viewMap[`${row.unit}::${row.arrival}::${row.departure}`] = row.views;
+    }
+
+    const dealsWithViews = finalDeals.map(d => ({
+      ...d,
+      views: viewMap[`${d.unit}::${d.arrival}::${d.departure}`] || 0,
+    }));
+
+    return { props: { deals: dealsWithViews }, revalidate: 600 };
 
   } catch (err) {
     console.error("[BEACH-DEALS ISR]", err.message);
@@ -384,7 +400,20 @@ function DealCard({ deal, index }) {
   const dateLabel = `${deal.arrivalFriendly} – ${deal.departureFriendly} · ${deal.nights} nights`;
   const [hovered, setHovered] = useState(false);
   const [copied, setCopied]   = useState(false);
+  const [views, setViews]     = useState(deal.views || 0);
   const cardId = `${deal.unit}-${deal.arrival}`;
+
+  // Track view on mount
+  useEffect(() => {
+    fetch('/api/deal-view', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ unit: deal.unit, arrival: deal.arrival, departure: deal.departure }),
+    })
+      .then(r => r.json())
+      .then(d => { if (d.views) setViews(d.views); })
+      .catch(() => {});
+  }, []);
 
   function handleShare() {
     const shareUrl = `https://deals.destincondogetaways.com/beach-deals#${cardId}`;
@@ -420,6 +449,18 @@ function DealCard({ deal, index }) {
         <div style={{ position: "relative" }}>
           <Carousel unit={deal.unit} index={index} />
           <div className="drop-badge">{deal.dropPct}%</div>
+          {views > 0 && (
+            <div style={{
+              position:"absolute",top:12,left:12,zIndex:2,
+              background:"rgba(0,0,0,0.72)",backdropFilter:"blur(4px)",
+              border:"1px solid rgba(255,255,255,0.15)",
+              borderRadius:20,padding:"4px 10px",
+              display:"flex",alignItems:"center",gap:5,
+            }}>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              <span style={{fontSize:11,fontWeight:700,color:"rgba(255,255,255,0.85)",fontFamily:"Arial"}}>{views}</span>
+            </div>
+          )}
           <div className="unit-overlay">
             <div className="unit-name">{meta.name}</div>
             <div className="unit-sub">{meta.sub}</div>

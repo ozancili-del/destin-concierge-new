@@ -51,6 +51,14 @@ export async function getStaticProps() {
       byUnit[row.unit_id][row.captured_date][row.date] = row.price;
     }
 
+    // Use the most recent captured_date actually in the data
+    // Fixes 8PM disappearing deals — todayStr is UTC which drifts ahead of Central time
+    const allCapturedDates = new Set();
+    for (const unit of Object.keys(byUnit)) {
+      for (const cd of Object.keys(byUnit[unit])) allCapturedDates.add(cd);
+    }
+    const latestCaptured = [...allCapturedDates].sort().pop() || todayStr;
+
     // Fetch ALL historical prices for future dates — no captured_date filter
     // This ensures maxPrice reflects the true highest price ever seen
     const { data: allSnapshots } = await supabase
@@ -70,7 +78,7 @@ export async function getStaticProps() {
 
     for (const unit of ["707", "1006"]) {
       const unitData = byUnit[unit];
-      if (!unitData?.[todayStr]) continue;
+      if (!unitData?.[latestCaptured]) continue;
 
       for (let i = 1; i <= SCAN_DAYS; i++) {
         const arrival    = addDays(today, i);
@@ -83,7 +91,7 @@ export async function getStaticProps() {
           const windowDates = [];
           for (let j = 0; j < nights; j++) windowDates.push(fmt(addDays(arrival, j)));
 
-          const todayPrices = windowDates.map(d => unitData[todayStr]?.[d]).filter(v => v != null);
+          const todayPrices = windowDates.map(d => unitData[latestCaptured]?.[d]).filter(v => v != null);
           if (todayPrices.length < nights) continue;
 
           const avgToday = todayPrices.reduce((s, v) => s + v, 0) / todayPrices.length;

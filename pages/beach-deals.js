@@ -135,26 +135,7 @@ export async function getStaticProps() {
       if (finalDeals.length >= MAX_DEALS) break;
     }
 
-    // Fetch 72h view counts for all current deals
-    const cutoff = new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString();
-    const { data: viewRows } = await supabase
-      .from("deal_view_events")
-      .select("unit, arrival, departure")
-      .gte("viewed_at", cutoff)
-      .in("unit", ["707", "1006"]);
-
-    const viewMap = {};
-    for (const row of (viewRows || [])) {
-      const key = `${row.unit}::${row.arrival}::${row.departure}`;
-      viewMap[key] = (viewMap[key] || 0) + 1;
-    }
-
-    const dealsWithViews = finalDeals.map(d => ({
-      ...d,
-      views: viewMap[`${d.unit}::${d.arrival}::${d.departure}`] || 0,
-    }));
-
-    return { props: { deals: dealsWithViews }, revalidate: 600 };
+    return { props: { deals: finalDeals }, revalidate: 600 };
 
   } catch (err) {
     console.error("[BEACH-DEALS ISR]", err.message);
@@ -405,13 +386,15 @@ function Carousel({ unit, index }) {
 }
 
 // ── Deal card ─────────────────────────────────────────────────────────────────
-function DealCard({ deal, index }) {
+function DealCard({ deal, index, initialViews = 0 }) {
   const meta      = UNIT_META[deal.unit];
   const url       = bookingUrl(deal.unit, deal.arrival, deal.departure);
   const dateLabel = `${deal.arrivalFriendly} – ${deal.departureFriendly} · ${deal.nights} nights`;
   const [hovered, setHovered] = useState(false);
   const [copied, setCopied]   = useState(false);
-  const [views, setViews]     = useState(deal.views || 0);
+  const [views, setViews]     = useState(initialViews);
+  // Sync when parent fetches live counts
+  useEffect(() => { setViews(initialViews); }, [initialViews]);
   const cardId = `${deal.unit}-${deal.arrival}`;
 
   const hasCounted = useRef(false);
@@ -622,6 +605,21 @@ export default function BeachDeals({ deals }) {
   const schemas    = buildSchema(deals);
   const hasDeals   = deals && deals.length > 0;
   const [visible, setVisible] = useState(10);
+  const [viewCounts, setViewCounts] = useState({});
+
+  // Fetch live 72h view counts on every page load — always fresh, never stale
+  useEffect(() => {
+    fetch("/api/deal-views-bulk", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        deals: deals.map(d => ({ unit: d.unit, arrival: d.arrival, departure: d.departure }))
+      }),
+    })
+      .then(r => r.json())
+      .then(data => { if (data.viewCounts) setViewCounts(data.viewCounts); })
+      .catch(() => {});
+  }, []);
 
   return (
     <>
@@ -698,7 +696,7 @@ export default function BeachDeals({ deals }) {
         {hasDeals ? (
           <>
             <div className="deals-grid">
-              {deals.slice(0, visible).map((deal, i) => <DealCard key={`${deal.unit}-${deal.arrival}`} deal={deal} index={i} />)}
+              {deals.slice(0, visible).map((deal, i) => <DealCard key={`${deal.unit}-${deal.arrival}`} deal={deal} index={i} initialViews={viewCounts[`${deal.unit}::${deal.arrival}::${deal.departure}`] || 0} />)}
             </div>
             {visible < deals.length && (
               <div style={{ textAlign: "center", marginTop: 24 }}>

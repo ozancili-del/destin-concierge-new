@@ -2,6 +2,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -175,6 +176,147 @@ body{font-family:'DM Sans',sans-serif;background:linear-gradient(135deg,rgba(0,4
     <a class="cta-btn" href="https://www.tripshock.com/?aff=destindreamcondo" target="_blank" rel="nofollow sponsored" style="margin-top:16px;">
       See All Tours & Prices →
     </a>
+
+  <!-- Activity Filter Grid -->
+  <div class="info-card" style="padding:18px;">
+    <div class="info-title">Browse by Activity Type</div>
+
+    <!-- Filter tabs -->
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;" id="act-tabs">
+      <button onclick="filterAct('all')" id="act-all" style="padding:6px 14px;border-radius:20px;border:1px solid #0077b6;background:#0077b6;color:white;cursor:pointer;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;">All</button>
+      <button onclick="filterAct('water')" id="act-water" style="padding:6px 14px;border-radius:20px;border:1px solid rgba(10,61,92,0.15);background:transparent;color:#0a3d5c;cursor:pointer;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;">🌊 Water</button>
+      <button onclick="filterAct('wildlife')" id="act-wildlife" style="padding:6px 14px;border-radius:20px;border:1px solid rgba(10,61,92,0.15);background:transparent;color:#0a3d5c;cursor:pointer;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;">🐬 Wildlife</button>
+      <button onclick="filterAct('fishing')" id="act-fishing" style="padding:6px 14px;border-radius:20px;border:1px solid rgba(10,61,92,0.15);background:transparent;color:#0a3d5c;cursor:pointer;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;">🎣 Fishing</button>
+      <button onclick="filterAct('crabisland')" id="act-crabisland" style="padding:6px 14px;border-radius:20px;border:1px solid rgba(10,61,92,0.15);background:transparent;color:#0a3d5c;cursor:pointer;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;">🏝️ Crab Island</button>
+      <button onclick="filterAct('family')" id="act-family" style="padding:6px 14px;border-radius:20px;border:1px solid rgba(10,61,92,0.15);background:transparent;color:#0a3d5c;cursor:pointer;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;">👨‍👩‍👧 Family</button>
+      <button onclick="filterAct('experiences')" id="act-experiences" style="padding:6px 14px;border-radius:20px;border:1px solid rgba(10,61,92,0.15);background:transparent;color:#0a3d5c;cursor:pointer;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;">🌅 Experiences</button>
+    </div>
+
+    <!-- Cards grid -->
+    <div id="act-cards" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+
+      <div class="act-card" data-cat="water family" style="background:#f0ebe0;border:1px solid rgba(10,61,92,0.08);border-radius:12px;padding:12px;">
+        <div style="font-size:20px;margin-bottom:6px;">🛥️</div>
+        <div style="font-size:13px;font-weight:600;color:#0d1f2d;margin-bottom:2px;">Boat Rentals</div>
+        <div style="font-size:11px;color:#5a7a8a;margin-bottom:8px;">Pontoons & more · Self-drive</div>
+        <a href="https://tripshock.com/destination/fl/destin/things-to-do/boat-rentals?aff=destindreamcondo" target="_blank" rel="nofollow sponsored" style="display:block;background:#0077b6;color:white;text-align:center;padding:7px;border-radius:8px;text-decoration:none;font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif;">Book on TripShock →</a>
+      </div>
+
+      <div class="act-card" data-cat="crabisland family water" style="background:#f0ebe0;border:1px solid rgba(10,61,92,0.08);border-radius:12px;padding:12px;">
+        <div style="font-size:20px;margin-bottom:6px;">🦀</div>
+        <div style="font-size:13px;font-weight:600;color:#0d1f2d;margin-bottom:2px;">Crab Island Tours</div>
+        <div style="font-size:11px;color:#5a7a8a;margin-bottom:8px;">#1 Destin experience</div>
+        <a href="https://tripshock.com/destination/fl/destin/things-to-do/crab-island-tours-and-activities?aff=destindreamcondo" target="_blank" rel="nofollow sponsored" style="display:block;background:#0077b6;color:white;text-align:center;padding:7px;border-radius:8px;text-decoration:none;font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif;">Book on TripShock →</a>
+      </div>
+
+      <div class="act-card" data-cat="wildlife family" style="background:#f0ebe0;border:1px solid rgba(10,61,92,0.08);border-radius:12px;padding:12px;">
+        <div style="font-size:20px;margin-bottom:6px;">🐬</div>
+        <div style="font-size:13px;font-weight:600;color:#0d1f2d;margin-bottom:2px;">Dolphin Cruises</div>
+        <div style="font-size:11px;color:#5a7a8a;margin-bottom:8px;">Sunset & daytime tours</div>
+        <a href="https://tripshock.com/destination/fl/destin/things-to-do/dolphin-cruises-and-tours?aff=destindreamcondo" target="_blank" rel="nofollow sponsored" style="display:block;background:#0077b6;color:white;text-align:center;padding:7px;border-radius:8px;text-decoration:none;font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif;">Book on TripShock →</a>
+      </div>
+
+      <div class="act-card" data-cat="fishing" style="background:#f0ebe0;border:1px solid rgba(10,61,92,0.08);border-radius:12px;padding:12px;">
+        <div style="font-size:20px;margin-bottom:6px;">🎣</div>
+        <div style="font-size:13px;font-weight:600;color:#0d1f2d;margin-bottom:2px;">Fishing Charters</div>
+        <div style="font-size:11px;color:#5a7a8a;margin-bottom:8px;">Half & full day offshore</div>
+        <a href="https://tripshock.com/destination/fl/destin/things-to-do/fishing-charters?aff=destindreamcondo" target="_blank" rel="nofollow sponsored" style="display:block;background:#0077b6;color:white;text-align:center;padding:7px;border-radius:8px;text-decoration:none;font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif;">Book on TripShock →</a>
+      </div>
+
+      <div class="act-card" data-cat="water" style="background:#f0ebe0;border:1px solid rgba(10,61,92,0.08);border-radius:12px;padding:12px;">
+        <div style="font-size:20px;margin-bottom:6px;">🏄</div>
+        <div style="font-size:13px;font-weight:600;color:#0d1f2d;margin-bottom:2px;">Jet Ski Rentals</div>
+        <div style="font-size:11px;color:#5a7a8a;margin-bottom:8px;">On the beach · No license needed</div>
+        <a href="https://tripshock.com/destination/fl/destin/things-to-do/jet-ski-rentals-tours?aff=destindreamcondo" target="_blank" rel="nofollow sponsored" style="display:block;background:#0077b6;color:white;text-align:center;padding:7px;border-radius:8px;text-decoration:none;font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif;">Book on TripShock →</a>
+      </div>
+
+      <div class="act-card" data-cat="water" style="background:#f0ebe0;border:1px solid rgba(10,61,92,0.08);border-radius:12px;padding:12px;">
+        <div style="font-size:20px;margin-bottom:6px;">🪂</div>
+        <div style="font-size:13px;font-weight:600;color:#0d1f2d;margin-bottom:2px;">Parasailing</div>
+        <div style="font-size:11px;color:#5a7a8a;margin-bottom:8px;">Views of the Emerald Coast</div>
+        <a href="https://tripshock.com/destination/fl/destin/things-to-do/parasailing?aff=destindreamcondo" target="_blank" rel="nofollow sponsored" style="display:block;background:#0077b6;color:white;text-align:center;padding:7px;border-radius:8px;text-decoration:none;font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif;">Book on TripShock →</a>
+      </div>
+
+      <div class="act-card" data-cat="wildlife experiences" style="background:#f0ebe0;border:1px solid rgba(10,61,92,0.08);border-radius:12px;padding:12px;">
+        <div style="font-size:20px;margin-bottom:6px;">🌅</div>
+        <div style="font-size:13px;font-weight:600;color:#0d1f2d;margin-bottom:2px;">Sunset Cruises</div>
+        <div style="font-size:11px;color:#5a7a8a;margin-bottom:8px;">Catamaran & sailboat tours</div>
+        <a href="https://tripshock.com/destination/fl/destin/things-to-do/sunset-cruises-tours?aff=destindreamcondo" target="_blank" rel="nofollow sponsored" style="display:block;background:#0077b6;color:white;text-align:center;padding:7px;border-radius:8px;text-decoration:none;font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif;">Book on TripShock →</a>
+      </div>
+
+      <div class="act-card" data-cat="fishing" style="background:#f0ebe0;border:1px solid rgba(10,61,92,0.08);border-radius:12px;padding:12px;">
+        <div style="font-size:20px;margin-bottom:6px;">⚓</div>
+        <div style="font-size:13px;font-weight:600;color:#0d1f2d;margin-bottom:2px;">Private Charters</div>
+        <div style="font-size:11px;color:#5a7a8a;margin-bottom:8px;">Custom fishing & tours</div>
+        <a href="https://tripshock.com/destination/fl/destin/things-to-do/private-captained-charters?aff=destindreamcondo" target="_blank" rel="nofollow sponsored" style="display:block;background:#0077b6;color:white;text-align:center;padding:7px;border-radius:8px;text-decoration:none;font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif;">Book on TripShock →</a>
+      </div>
+
+      <div class="act-card" data-cat="family wildlife experiences" style="background:#f0ebe0;border:1px solid rgba(10,61,92,0.08);border-radius:12px;padding:12px;">
+        <div style="font-size:20px;margin-bottom:6px;">🏴‍☠️</div>
+        <div style="font-size:13px;font-weight:600;color:#0d1f2d;margin-bottom:2px;">Pirate Cruises</div>
+        <div style="font-size:11px;color:#5a7a8a;margin-bottom:8px;">Kids love it · Interactive</div>
+        <a href="https://tripshock.com/destination/fl/destin/things-to-do/pirate-cruises?aff=destindreamcondo" target="_blank" rel="nofollow sponsored" style="display:block;background:#0077b6;color:white;text-align:center;padding:7px;border-radius:8px;text-decoration:none;font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif;">Book on TripShock →</a>
+      </div>
+
+      <div class="act-card" data-cat="experiences water" style="background:#f0ebe0;border:1px solid rgba(10,61,92,0.08);border-radius:12px;padding:12px;">
+        <div style="font-size:20px;margin-bottom:6px;">🎆</div>
+        <div style="font-size:13px;font-weight:600;color:#0d1f2d;margin-bottom:2px;">Fireworks Cruises</div>
+        <div style="font-size:11px;color:#5a7a8a;margin-bottom:8px;">Watch from the water</div>
+        <a href="https://tripshock.com/destination/fl/destin/things-to-do/fireworks-cruises?aff=destindreamcondo" target="_blank" rel="nofollow sponsored" style="display:block;background:#0077b6;color:white;text-align:center;padding:7px;border-radius:8px;text-decoration:none;font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif;">Book on TripShock →</a>
+      </div>
+
+      <div class="act-card" data-cat="fishing water" style="background:#f0ebe0;border:1px solid rgba(10,61,92,0.08);border-radius:12px;padding:12px;">
+        <div style="font-size:20px;margin-bottom:6px;">🤿</div>
+        <div style="font-size:13px;font-weight:600;color:#0d1f2d;margin-bottom:2px;">Scuba Diving</div>
+        <div style="font-size:11px;color:#5a7a8a;margin-bottom:8px;">Gulf reefs & wrecks</div>
+        <a href="https://tripshock.com/destination/fl/destin/things-to-do/scuba-diving-tours?aff=destindreamcondo" target="_blank" rel="nofollow sponsored" style="display:block;background:#0077b6;color:white;text-align:center;padding:7px;border-radius:8px;text-decoration:none;font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif;">Book on TripShock →</a>
+      </div>
+
+      <div class="act-card" data-cat="experiences water family" style="background:#f0ebe0;border:1px solid rgba(10,61,92,0.08);border-radius:12px;padding:12px;">
+        <div style="font-size:20px;margin-bottom:6px;">🍹</div>
+        <div style="font-size:13px;font-weight:600;color:#0d1f2d;margin-bottom:2px;">Tiki Boats</div>
+        <div style="font-size:11px;color:#5a7a8a;margin-bottom:8px;">Float the harbor in style</div>
+        <a href="https://tripshock.com/destination/fl/destin/things-to-do/tiki-boats?aff=destindreamcondo" target="_blank" rel="nofollow sponsored" style="display:block;background:#0077b6;color:white;text-align:center;padding:7px;border-radius:8px;text-decoration:none;font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif;">Book on TripShock →</a>
+      </div>
+
+      <div class="act-card" data-cat="experiences family" style="background:#f0ebe0;border:1px solid rgba(10,61,92,0.08);border-radius:12px;padding:12px;">
+        <div style="font-size:20px;margin-bottom:6px;">🛺</div>
+        <div style="font-size:13px;font-weight:600;color:#0d1f2d;margin-bottom:2px;">Golf Cart Rentals</div>
+        <div style="font-size:11px;color:#5a7a8a;margin-bottom:8px;">Explore the area in style</div>
+        <a href="https://tripshock.com/destination/fl/destin/things-to-do/golf-cart-rental?aff=destindreamcondo" target="_blank" rel="nofollow sponsored" style="display:block;background:#0077b6;color:white;text-align:center;padding:7px;border-radius:8px;text-decoration:none;font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif;">Book on TripShock →</a>
+      </div>
+
+      <div class="act-card" data-cat="experiences" style="background:#f0ebe0;border:1px solid rgba(10,61,92,0.08);border-radius:12px;padding:12px;">
+        <div style="font-size:20px;margin-bottom:6px;">📸</div>
+        <div style="font-size:13px;font-weight:600;color:#0d1f2d;margin-bottom:2px;">Beach Photography</div>
+        <div style="font-size:11px;color:#5a7a8a;margin-bottom:8px;">Pro shots on the beach</div>
+        <a href="https://tripshock.com/destination/fl/destin/things-to-do/beach-photographers?aff=destindreamcondo" target="_blank" rel="nofollow sponsored" style="display:block;background:#0077b6;color:white;text-align:center;padding:7px;border-radius:8px;text-decoration:none;font-size:11px;font-weight:600;font-family:'DM Sans',sans-serif;">Book on TripShock →</a>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+  function filterAct(cat) {
+    document.querySelectorAll('.act-card').forEach(function(card) {
+      card.style.display = (cat === 'all' || card.dataset.cat.includes(cat)) ? 'block' : 'none';
+    });
+    ['all','water','wildlife','fishing','crabisland','family','experiences'].forEach(function(s) {
+      var btn = document.getElementById('act-' + s);
+      if (!btn) return;
+      if (s === cat) {
+        btn.style.background = '#0077b6';
+        btn.style.color = 'white';
+        btn.style.borderColor = '#0077b6';
+      } else {
+        btn.style.background = 'transparent';
+        btn.style.color = '#0a3d5c';
+        btn.style.borderColor = 'rgba(10,61,92,0.15)';
+      }
+    });
+  }
+  </script>
+
     <a class="cta-btn" href="https://www.destincondogetaways.com" style="margin-top:10px;background:linear-gradient(90deg,#0a3d62,#1a6a8a);">
       ← Back to Destin Condo Getaways
     </a>

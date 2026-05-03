@@ -34,7 +34,7 @@ export async function getStaticProps() {
 
     const { data: snapshots, error } = await supabase
       .from("price_snapshots")
-      .select("unit_id, date, price, captured_date")
+      .select("unit_id, date, price, demand_desc, captured_date")
       .in("date", allDates)
       .in("captured_date", capturedDates)
       .limit(5000);
@@ -48,7 +48,7 @@ export async function getStaticProps() {
     for (const row of snapshots) {
       if (!byUnit[row.unit_id]) byUnit[row.unit_id] = {};
       if (!byUnit[row.unit_id][row.captured_date]) byUnit[row.unit_id][row.captured_date] = {};
-      byUnit[row.unit_id][row.captured_date][row.date] = row.price;
+      byUnit[row.unit_id][row.captured_date][row.date] = { price: row.price, demand_desc: row.demand_desc };
     }
 
     // Use the most recent captured_date actually in the data
@@ -91,7 +91,9 @@ export async function getStaticProps() {
           const windowDates = [];
           for (let j = 0; j < nights; j++) windowDates.push(fmt(addDays(arrival, j)));
 
-          const todayPrices = windowDates.map(d => unitData[latestCaptured]?.[d]).filter(v => v != null);
+          const rows = windowDates.map(d => unitData[latestCaptured]?.[d]);
+          const purchased = rows.some(r => String(r?.demand_desc || '').trim().toLowerCase() === 'unavailable');
+          const todayPrices = rows.map(r => r?.price).filter(v => v != null);
           if (todayPrices.length < nights) continue;
 
           const avgToday = todayPrices.reduce((s, v) => s + v, 0) / todayPrices.length;
@@ -116,26 +118,38 @@ export async function getStaticProps() {
             fromPrice:  Math.round(avgMax),
             toPrice:    Math.round(avgToday),
             totalSavings: Math.round((avgMax - avgToday) * nights),
+            purchased,
           });
         }
       }
     }
 
-    candidates.sort((a, b) => b.dropPct - a.dropPct || b.totalSavings - a.totalSavings);
+    // Split active vs purchased — active deals get priority, purchased are social proof
+    const activeCandidates    = candidates.filter(d => !d.purchased);
+    const purchasedCandidates = candidates.filter(d =>  d.purchased);
 
-    const finalDeals = [];
-    const usedRanges = { "707": [], "1006": [] };
-    for (const deal of candidates) {
-      const used     = usedRanges[deal.unit];
-      const overlaps = used.some(r => deal.arrival < r.departure && deal.departure > r.arrival);
-      if (!overlaps) {
-        finalDeals.push(deal);
-        usedRanges[deal.unit].push({ arrival: deal.arrival, departure: deal.departure });
+    activeCandidates.sort((a, b) => b.dropPct - a.dropPct || b.totalSavings - a.totalSavings);
+    purchasedCandidates.sort((a, b) => b.dropPct - a.dropPct || b.totalSavings - a.totalSavings);
+
+    function pickNonOverlapping(pool, cap) {
+      const result = [];
+      const usedRanges = { "707": [], "1006": [] };
+      for (const deal of pool) {
+        const used     = usedRanges[deal.unit];
+        const overlaps = used.some(r => deal.arrival < r.departure && deal.departure > r.arrival);
+        if (!overlaps) {
+          result.push(deal);
+          usedRanges[deal.unit].push({ arrival: deal.arrival, departure: deal.departure });
+        }
+        if (result.length >= cap) break;
       }
-      if (finalDeals.length >= MAX_DEALS) break;
+      return result;
     }
 
-    return { props: { deals: finalDeals }, revalidate: 600 };
+    const activeDeals    = pickNonOverlapping(activeCandidates, MAX_DEALS);
+    const purchasedDeals = pickNonOverlapping(purchasedCandidates, 10);
+
+    return { props: { deals: [...activeDeals, ...purchasedDeals] }, revalidate: 600 };
 
   } catch (err) {
     console.error("[BEACH-DEALS ISR]", err.message);
@@ -282,7 +296,7 @@ function buildSchema(deals) {
           "@type": "Offer",
           "price": deal.toPrice,
           "priceCurrency": "USD",
-          "availability": "https://schema.org/InStock",
+          "availability": deal.purchased ? "https://schema.org/SoldOut" : "https://schema.org/InStock",
           "validFrom": deal.arrival,
           "validThrough": deal.departure,
           "description": `${deal.dropPct}% off — ${deal.arrivalFriendly} to ${deal.departureFriendly}, ${deal.nights} nights at $${deal.toPrice}/night (was $${deal.fromPrice})`,
@@ -524,7 +538,11 @@ function DealCard({ deal, index, initialViews = 0 }) {
           <span className="price-now"><sup>$</sup>{deal.toPrice}<span className="price-night">/night</span></span>
         </div>
         <div className="btn-row">
-          <a className="btn-book" href={url} onClick={trackAction}>Secure This Deal  →</a>
+          {deal.purchased ? (
+            <div className="deal-purchased-stamp">DEAL PURCHASED</div>
+          ) : (
+            <a className="btn-book" href={url} onClick={trackAction}>Secure This Deal  →</a>
+          )}
           <button className="btn-share" onClick={() => { handleShare(); trackAction(); }} title="Share this deal">
             {copied ? (
               <span style={{fontSize:11,fontFamily:'Arial',fontWeight:700,color:'var(--teal)'}}>✓ Copied</span>
@@ -677,6 +695,16 @@ export default function BeachDeals({ deals }) {
         <img src="https://uc.orez.io/i/0f604abce3284748ba8d2150b7646863-MediumOriginal" alt="" aria-hidden="true" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 40%", filter: "brightness(0.35) saturate(0.8)" }} />
         <div className="bg-overlay" />
       </div>
+
+      {/* Hidden SVG filter for distressed stamp effect */}
+      <svg style={{position:'absolute',width:0,height:0}} aria-hidden="true">
+        <defs>
+          <filter id="stamp-roughen" x="-5%" y="-5%" width="110%" height="110%">
+            <feTurbulence type="turbulence" baseFrequency="0.065" numOctaves="3" seed="2" result="noise"/>
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="2.5" xChannelSelector="R" yChannelSelector="G"/>
+          </filter>
+        </defs>
+      </svg>
 
       <main className="page">
 
@@ -857,6 +885,8 @@ export default function BeachDeals({ deals }) {
         @keyframes highlight-pulse { 0%{box-shadow:0 0 0 0 rgba(0,212,200,0.6)} 70%{box-shadow:0 0 0 20px rgba(0,212,200,0)} 100%{box-shadow:0 0 0 0 rgba(0,212,200,0)} }
         .btn-row { display:flex; gap:8px; }
         .btn-book { flex:1; display:block; padding:12px; background:linear-gradient(135deg,#00c4b4,#00a89a); color:#fff; font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; text-align:center; text-decoration:none; border-radius:10px; box-shadow:0 4px 16px rgba(0,196,180,0.35); transition:background 0.2s,transform 0.15s; }
+        .deal-purchased-stamp { flex:1; position:relative; display:flex; align-items:center; justify-content:center; padding:11px 8px; border:4px solid #cc0000; border-radius:4px; color:#cc0000; font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:900; letter-spacing:4px; text-transform:uppercase; transform:rotate(-2deg); background:rgba(204,0,0,0.06); filter:url(#stamp-roughen); }
+        .deal-purchased-stamp::before { content:''; position:absolute; inset:0; border-radius:4px; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(204,0,0,0.04) 2px,rgba(204,0,0,0.04) 3px); pointer-events:none; }
         .btn-book:hover { background:linear-gradient(135deg,#00d4c8,#00b8aa); transform:translateY(-1px); }
         .btn-share { display:inline-flex; align-items:center; gap:0; background:rgba(0,212,200,0.1); border:1.5px solid rgba(0,212,200,0.5); border-radius:30px; padding:0 0 0 14px; cursor:pointer; height:42px; overflow:hidden; transition:background 0.2s; flex-shrink:0; }
         .btn-share:hover { background:rgba(0,212,200,0.2); }

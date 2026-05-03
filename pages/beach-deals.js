@@ -958,7 +958,7 @@ export default function BeachDeals({ deals }) {
         .views-count { font-family:Arial,sans-serif; font-size:14px; font-weight:900; color:white; background:#aa0000; border-radius:50%; width:24px; height:24px; display:flex; align-items:center; justify-content:center; }
         .hot-pill { display:flex; align-items:center; gap:4px; background:#ff5500; border-radius:4px; padding:5px 10px; box-shadow:0 2px 12px rgba(255,85,0,0.7),0 0 18px rgba(255,85,0,0.4); }
         .hot-label { font-family:Arial,sans-serif; font-size:12px; font-weight:900; color:white; letter-spacing:1px; }
-        .sbux-tag-img { position:absolute; bottom:44px; right:8px; z-index:3; width:clamp(75px,20%,90px); pointer-events:none; filter:drop-shadow(0 6px 14px rgba(0,0,0,0.6)); }
+        .sbux-tag-img { position:absolute; bottom:16px; right:12px; z-index:3; width:clamp(110px,28%,160px); pointer-events:none; filter:drop-shadow(0 6px 14px rgba(0,0,0,0.6)); }
 
         .drop-badge { position:absolute; top:12px; right:12px; background:var(--green); color:#000; font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:900; line-height:1; padding:6px 10px; border-radius:10px; box-shadow:0 0 16px rgba(57,255,20,0.6); z-index:2; }
         .unit-overlay { position:absolute; bottom:12px; left:14px; z-index:2; }

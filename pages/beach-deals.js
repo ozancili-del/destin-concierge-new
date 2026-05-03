@@ -455,7 +455,9 @@ function DealCard({ deal, index, initialViews = 0 }) {
   const meta      = UNIT_META[deal.unit];
   const url       = bookingUrl(deal.unit, deal.arrival, deal.departure);
   const dateLabel = `${deal.arrivalFriendly} – ${deal.departureFriendly} · ${deal.nights} nights`;
-  const isHot     = !deal.purchased && (() => { const d = new Date(deal.arrival + 'T12:00:00'); const today = new Date(); today.setHours(12,0,0,0); return (d - today) / 86400000 <= 14; })();
+  const daysLeft  = (() => { const d = new Date(deal.arrival + 'T12:00:00'); const today = new Date(); today.setHours(12,0,0,0); return Math.ceil((d - today) / 86400000); })();
+  const isHot     = !deal.purchased && daysLeft <= 14;
+  const showTag   = !deal.purchased && daysLeft <= 7;
   const [hovered, setHovered] = useState(false);
   const [copied, setCopied]   = useState(false);
   const [views, setViews]     = useState(initialViews);
@@ -546,6 +548,10 @@ function DealCard({ deal, index, initialViews = 0 }) {
               )}
             </div>
           )}
+          {showTag && (
+            <img src="/starbucks-tag.png" alt="$10 Starbucks Gift Card" className="sbux-tag-img" />
+          )}
+
           <div className="unit-overlay">
             <div className="unit-name">{meta.name}</div>
             <div className="unit-sub">{meta.sub}</div>
@@ -922,6 +928,8 @@ export default function BeachDeals({ deals }) {
         .views-count { font-family:Arial,sans-serif; font-size:14px; font-weight:900; color:white; background:#aa0000; border-radius:50%; width:24px; height:24px; display:flex; align-items:center; justify-content:center; }
         .hot-pill { display:flex; align-items:center; gap:4px; background:#ff5500; border-radius:4px; padding:5px 10px; box-shadow:0 2px 12px rgba(255,85,0,0.7),0 0 18px rgba(255,85,0,0.4); }
         .hot-label { font-family:Arial,sans-serif; font-size:12px; font-weight:900; color:white; letter-spacing:1px; }
+        .sbux-tag-img { position:absolute; bottom:40px; right:8px; z-index:5; width:clamp(70px,16%,100px); filter:drop-shadow(0 4px 12px rgba(0,0,0,0.5)); pointer-events:none; }
+
         .drop-badge { position:absolute; top:12px; right:12px; background:var(--green); color:#000; font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:900; line-height:1; padding:6px 10px; border-radius:10px; box-shadow:0 0 16px rgba(57,255,20,0.6); z-index:2; }
         .unit-overlay { position:absolute; bottom:12px; left:14px; z-index:2; }
         .unit-name { font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:800; color:var(--white); text-transform:uppercase; letter-spacing:0.5px; text-shadow:0 1px 6px rgba(0,0,0,0.8); }

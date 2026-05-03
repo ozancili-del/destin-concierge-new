@@ -1021,7 +1021,7 @@ export default function BeachDeals({ deals }) {
           .deal-purchased-wrap { width:100%; min-height:44px; }
           .deal-purchased-stamp { min-height:44px; font-size:clamp(14px,5vw,20px); letter-spacing:0.05em; white-space:nowrap; }
           .sbux-tag-img { width:clamp(55px,13%,75px); bottom:30px; }
-          .sbux-tag-img { width:44px; bottom:40px; right:4px; }
+          .views-badge-wrap { flex-direction:column; align-items:flex-start; gap:5px; }
           .bottom-cta { flex-direction:column; text-align:center; padding:20px; }
         }
         .plan-trip { margin-top:48px; text-align:center; }

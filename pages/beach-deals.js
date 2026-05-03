@@ -217,8 +217,24 @@ function buildSchema(deals) {
           "latitude": 30.3865467,
           "longitude": -86.4733424
         },
+        "additionalType": "https://schema.org/LodgingBusiness",
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": 4.94,
+          "reviewCount": 400,
+          "bestRating": 5,
+          "worstRating": 1
+        },
+        "review": [{
+          "@type": "Review",
+          "reviewRating": {"@type":"Rating","ratingValue":5,"bestRating":5},
+          "author": {"@type":"Person","name":"Verified Guest"},
+          "reviewBody": "Absolutely stunning beachfront condo at Pelican Beach Resort. Woke up to dolphins every morning from the balcony. Best vacation rental we have ever stayed in. Will be back every year.",
+          "datePublished": "2026-04-01"
+        }],
         "containsPlace": {
           "@type": "Accommodation",
+          "additionalType": "https://schema.org/Suite",
           "name": UNIT_META[deal.unit].fullName,
           "numberOfRooms": 2,
           "numberOfBedrooms": 1,

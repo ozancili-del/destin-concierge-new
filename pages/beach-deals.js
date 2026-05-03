@@ -15,7 +15,7 @@ export async function getStaticProps() {
     const STAY_NIGHTS = [2, 3, 4, 5];
     const WINDOWS     = [7, 14, 30];
     const MIN_DROP    = 4;
-    const MAX_DEALS   = 30;
+    const MAX_DEALS   = 50;
 
     function fmt(d) { return d.toISOString().split("T")[0]; }
     function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate() + n); return r; }
@@ -149,7 +149,19 @@ export async function getStaticProps() {
     const activeDeals    = pickNonOverlapping(activeCandidates, MAX_DEALS);
     const purchasedDeals = pickNonOverlapping(purchasedCandidates, 10);
 
-    return { props: { deals: [...activeDeals, ...purchasedDeals] }, revalidate: 600 };
+    // Interleave purchased every 3rd slot for urgency
+    const interleaved = [];
+    let pi = 0;
+    for (let i = 0; i < activeDeals.length; i++) {
+      interleaved.push(activeDeals[i]);
+      if ((i + 1) % 3 === 0 && pi < purchasedDeals.length) {
+        interleaved.push(purchasedDeals[pi++]);
+      }
+    }
+    // Append any remaining purchased at end
+    while (pi < purchasedDeals.length) interleaved.push(purchasedDeals[pi++]);
+
+    return { props: { deals: interleaved }, revalidate: 600 };
 
   } catch (err) {
     console.error("[BEACH-DEALS ISR]", err.message);

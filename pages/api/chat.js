@@ -1918,8 +1918,19 @@ Example tone (do NOT copy verbatim — vary naturally):
           headers: { 'x-cron-secret': process.env.CRON_SECRET }
         });
         const snapData = await snapRes.json();
+        // Force immediate ISR rebuild of beach-deals so stamps appear right away
+        if (snapData.success) {
+          try {
+            await fetch(`https://deals.destincondogetaways.com/api/revalidate-deals`, {
+              method: 'POST',
+              headers: { 'x-revalidate-secret': process.env.CRON_SECRET }
+            });
+          } catch (e) {
+            console.error('[REVALIDATE] beach-deals revalidation failed:', e.message);
+          }
+        }
         const snapReply = snapData.success
-          ? `✅ Price snapshot complete — saved ${snapData.saved} rows for ${snapData.captured_date}. Both units locked in. 💾`
+          ? `✅ Price snapshot complete — saved ${snapData.saved} rows for ${snapData.captured_date}. Beach deals page refreshed. 💾`
           : `⚠️ Snapshot ran but something felt off: ${snapData.error || 'unknown error'}`;
         return res.status(200).json({ reply: snapReply, alertSent: false, pendingRelay: false, ozanAcked: false, ozanAckType: null, detectedIntent: 'INFO' });
       } catch (e) {

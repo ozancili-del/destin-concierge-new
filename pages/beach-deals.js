@@ -455,7 +455,7 @@ function DealCard({ deal, index, initialViews = 0 }) {
   const meta      = UNIT_META[deal.unit];
   const url       = bookingUrl(deal.unit, deal.arrival, deal.departure);
   const dateLabel = `${deal.arrivalFriendly} – ${deal.departureFriendly} · ${deal.nights} nights`;
-  const isHot     = !deal.purchased && (() => { const d = new Date(deal.arrival + 'T12:00:00'); const today = new Date(); today.setHours(12,0,0,0); return (d - today) / 86400000 <= 7; })();
+  const isHot     = !deal.purchased && (() => { const d = new Date(deal.arrival + 'T12:00:00'); const today = new Date(); today.setHours(12,0,0,0); return (d - today) / 86400000 <= 14; })();
   const [hovered, setHovered] = useState(false);
   const [copied, setCopied]   = useState(false);
   const [views, setViews]     = useState(initialViews);

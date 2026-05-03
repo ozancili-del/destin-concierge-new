@@ -549,7 +549,37 @@ function DealCard({ deal, index, initialViews = 0 }) {
             </div>
           )}
           {showTag && (
-            <img src="/starbucks-tag.png" alt="$10 Starbucks Gift Card" className="sbux-tag-img" />
+            <div className="sbux-tag-img" aria-label="$10 Starbucks Gift Card included">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 200" style={{width:'100%',height:'100%',overflow:'visible'}}>
+                {/* Rope */}
+                <path d="M60 0 C55 8 52 14 54 22" stroke="#c8a06e" strokeWidth="3.5" fill="none" strokeLinecap="round"/>
+                <path d="M60 0 C65 8 68 14 66 22" stroke="#c8a06e" strokeWidth="3.5" fill="none" strokeLinecap="round"/>
+                <path d="M54 22 C50 30 50 38 54 42" stroke="#b8904e" strokeWidth="3" fill="none" strokeLinecap="round"/>
+                <path d="M66 22 C70 30 70 38 66 42" stroke="#b8904e" strokeWidth="3" fill="none" strokeLinecap="round"/>
+                {/* Tag body */}
+                <path d="M10 55 L10 185 Q10 195 20 195 L100 195 Q110 195 110 185 L110 55 L80 30 Q70 22 60 22 Q50 22 40 30 Z" fill="#e8512a"/>
+                {/* Hole */}
+                <circle cx="60" cy="44" r="7" fill="#07192e"/>
+                <circle cx="60" cy="44" r="5" fill="#e8512a" opacity="0.3"/>
+                {/* Inner cream card */}
+                <rect x="18" y="62" width="84" height="118" rx="6" fill="#fdf3e3"/>
+                {/* Inner border */}
+                <rect x="22" y="66" width="76" height="110" rx="4" fill="none" stroke="#e8512a" strokeWidth="1.2" strokeDasharray="0"/>
+                {/* Coffee cup */}
+                <g transform="translate(60,88)">
+                  <rect x="-13" y="-14" width="26" height="22" rx="3" fill="none" stroke="#3d1f00" strokeWidth="1.8"/>
+                  <rect x="-13" y="-14" width="26" height="6" rx="2" fill="#3d1f00"/>
+                  <circle cx="0" cy="4" r="5" fill="#1a6b3a"/>
+                  <path d="M-4 -22 Q-2 -26 0 -22" stroke="#3d1f00" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+                  <path d="M2 -24 Q4 -28 6 -24" stroke="#3d1f00" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+                </g>
+                {/* $10 */}
+                <text x="60" y="130" textAnchor="middle" fill="#e8512a" fontFamily="'Barlow Condensed',Arial,sans-serif" fontSize="34" fontWeight="900">$10</text>
+                {/* Starbucks Gift Card */}
+                <text x="60" y="152" textAnchor="middle" fill="#3d1f00" fontFamily="Arial,sans-serif" fontSize="12" fontWeight="700">Starbucks</text>
+                <text x="60" y="168" textAnchor="middle" fill="#3d1f00" fontFamily="Arial,sans-serif" fontSize="12" fontWeight="700">Gift Card</text>
+              </svg>
+            </div>
           )}
 
           <div className="unit-overlay">
@@ -928,7 +958,7 @@ export default function BeachDeals({ deals }) {
         .views-count { font-family:Arial,sans-serif; font-size:14px; font-weight:900; color:white; background:#aa0000; border-radius:50%; width:24px; height:24px; display:flex; align-items:center; justify-content:center; }
         .hot-pill { display:flex; align-items:center; gap:4px; background:#ff5500; border-radius:4px; padding:5px 10px; box-shadow:0 2px 12px rgba(255,85,0,0.7),0 0 18px rgba(255,85,0,0.4); }
         .hot-label { font-family:Arial,sans-serif; font-size:12px; font-weight:900; color:white; letter-spacing:1px; }
-        .sbux-tag-img { position:absolute; bottom:40px; right:8px; z-index:5; width:clamp(70px,16%,100px); filter:drop-shadow(0 4px 12px rgba(0,0,0,0.5)); pointer-events:none; }
+        .sbux-tag-img { position:absolute; bottom:36px; right:6px; z-index:5; width:clamp(68px,16%,95px); pointer-events:none; filter:drop-shadow(0 6px 14px rgba(0,0,0,0.6)); }
 
         .drop-badge { position:absolute; top:12px; right:12px; background:var(--green); color:#000; font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:900; line-height:1; padding:6px 10px; border-radius:10px; box-shadow:0 0 16px rgba(57,255,20,0.6); z-index:2; }
         .unit-overlay { position:absolute; bottom:12px; left:14px; z-index:2; }

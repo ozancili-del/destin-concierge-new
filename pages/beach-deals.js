@@ -12,8 +12,8 @@ export async function getStaticProps() {
     );
 
     const SCAN_DAYS   = 180;
-    const STAY_NIGHTS = [2, 3, 4, 5, 6];
-    const WINDOWS     = [7, 14, 21, 30];
+    const STAY_NIGHTS = [2, 3, 4, 5];
+    const WINDOWS     = [7, 14, 30];
     const MIN_DROP    = 4;
     const MAX_DEALS   = 50;
 
@@ -1020,7 +1020,7 @@ export default function BeachDeals({ deals }) {
           .btn-book { font-size:12px; padding:10px; letter-spacing:0.5px; }
           .deal-purchased-wrap { width:100%; min-height:44px; }
           .deal-purchased-stamp { min-height:44px; font-size:clamp(14px,5vw,20px); letter-spacing:0.05em; white-space:nowrap; }
-          .sbux-tag-img { width:clamp(55px,13%,75px); bottom:30px; }
+          .sbux-tag-img { width:clamp(55px,13%,75px); bottom:30px; right:6px; }
           .views-badge-wrap { flex-direction:column; align-items:flex-start; gap:5px; }
           .bottom-cta { flex-direction:column; text-align:center; padding:20px; }
         }

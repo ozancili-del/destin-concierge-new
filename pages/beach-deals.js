@@ -430,8 +430,10 @@ function Carousel({ unit, index }) {
 // ── Deal purchased stamp ─────────────────────────────────────────────────────
 function DealPurchasedStamp() {
   return (
-    <div className="deal-purchased-stamp" aria-label="Deal purchased">
-      <div className="deal-purchased-stamp-inner">DEAL PURCHASED</div>
+    <div className="deal-purchased-wrap" aria-label="Deal purchased">
+      <div className="deal-purchased-stamp">
+        <span>DEAL PURCHASED</span>
+      </div>
     </div>
   );
 }
@@ -705,17 +707,6 @@ export default function BeachDeals({ deals }) {
         <div className="bg-overlay" />
       </div>
 
-      {/* Hidden SVG filter for distressed stamp effect */}
-      <svg style={{position:'absolute',width:0,height:0}} aria-hidden="true">
-        <defs>
-          <filter id="stamp-erode" x="-8%" y="-8%" width="116%" height="116%" color-interpolation-filters="sRGB">
-            <feTurbulence type="fractalNoise" baseFrequency="0.055" numOctaves="4" seed="8" result="noise"/>
-            <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -3 -3 -3 8 -1" in="noise" result="mask"/>
-            <feComposite in="SourceGraphic" in2="mask" operator="in"/>
-          </filter>
-        </defs>
-      </svg>
-
       <main className="page">
 
         {/* Header */}
@@ -895,8 +886,11 @@ export default function BeachDeals({ deals }) {
         @keyframes highlight-pulse { 0%{box-shadow:0 0 0 0 rgba(0,212,200,0.6)} 70%{box-shadow:0 0 0 20px rgba(0,212,200,0)} 100%{box-shadow:0 0 0 0 rgba(0,212,200,0)} }
         .btn-row { display:flex; gap:8px; }
         .btn-book { flex:1; display:block; padding:12px; background:linear-gradient(135deg,#00c4b4,#00a89a); color:#fff; font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; text-align:center; text-decoration:none; border-radius:10px; box-shadow:0 4px 16px rgba(0,196,180,0.35); transition:background 0.2s,transform 0.15s; }
-        .deal-purchased-stamp { position:relative; flex:1; min-height:54px; display:flex; align-items:center; justify-content:center; font-family:'Barlow Condensed','Arial Narrow',Impact,sans-serif; font-size:clamp(22px,5vw,38px); font-weight:900; letter-spacing:0.1em; text-transform:uppercase; line-height:1; transform:rotate(-3deg); overflow:visible; }
-        .deal-purchased-stamp-inner { display:inline-flex; align-items:center; justify-content:center; width:100%; padding:10px 8px; border:5px solid #cc1a1a; border-radius:6px; color:#cc1a1a; box-shadow:inset 0 0 0 3px rgba(204,26,26,0.35); filter:url(#stamp-erode); }
+        .deal-purchased-wrap { flex:1; min-height:54px; display:flex; align-items:center; justify-content:center; transform:rotate(-4deg); pointer-events:none; padding:2px 0; }
+        .deal-purchased-stamp { position:relative; width:100%; min-height:54px; display:flex; align-items:center; justify-content:center; color:#e01818; border:4px solid #e01818; border-radius:7px; font-family:'Barlow Condensed','Arial Narrow',Impact,sans-serif; font-size:clamp(24px,4.8vw,40px); font-weight:900; letter-spacing:0.075em; line-height:0.88; text-transform:uppercase; text-align:center; background:radial-gradient(circle at 12% 18%,rgba(224,24,24,0.22) 0 1px,transparent 2px),radial-gradient(circle at 38% 72%,rgba(224,24,24,0.18) 0 1px,transparent 2px),radial-gradient(circle at 78% 34%,rgba(224,24,24,0.18) 0 1px,transparent 2px),radial-gradient(circle at 88% 82%,rgba(224,24,24,0.12) 0 1px,transparent 2px),repeating-linear-gradient(-12deg,rgba(224,24,24,0.05) 0 2px,transparent 3px 8px); box-shadow:inset 0 0 0 2px rgba(224,24,24,0.45),0 8px 18px rgba(0,0,0,0.28); opacity:0.96; text-shadow:1px 1px 0 rgba(255,255,255,0.08),-1px -1px 0 rgba(0,0,0,0.10); overflow:hidden; }
+        .deal-purchased-stamp::before { content:''; position:absolute; inset:6px; border:2px solid rgba(224,24,24,0.72); border-radius:3px; pointer-events:none; }
+        .deal-purchased-stamp::after { content:''; position:absolute; inset:-22%; background:radial-gradient(circle at 10% 20%,transparent 0 3px,rgba(255,255,255,0.18) 4px 5px,transparent 6px),radial-gradient(circle at 28% 68%,transparent 0 2px,rgba(255,255,255,0.18) 3px 4px,transparent 5px),radial-gradient(circle at 62% 38%,transparent 0 3px,rgba(255,255,255,0.16) 4px 5px,transparent 6px),radial-gradient(circle at 88% 74%,transparent 0 2px,rgba(255,255,255,0.16) 3px 4px,transparent 5px),repeating-linear-gradient(100deg,transparent 0 7px,rgba(255,255,255,0.22) 8px 10px,transparent 11px 18px); mix-blend-mode:screen; opacity:0.55; pointer-events:none; }
+        .deal-purchased-stamp span { position:relative; z-index:2; display:block; }
         .btn-book:hover { background:linear-gradient(135deg,#00d4c8,#00b8aa); transform:translateY(-1px); }
         .btn-share { display:inline-flex; align-items:center; gap:0; background:rgba(0,212,200,0.1); border:1.5px solid rgba(0,212,200,0.5); border-radius:30px; padding:0 0 0 14px; cursor:pointer; height:42px; overflow:hidden; transition:background 0.2s; flex-shrink:0; }
         .btn-share:hover { background:rgba(0,212,200,0.2); }
@@ -973,6 +967,8 @@ export default function BeachDeals({ deals }) {
           .price-now { font-size:22px; }
           .drop-badge { font-size:17px; padding:4px 8px; top:8px; right:8px; }
           .btn-book { font-size:12px; padding:10px; letter-spacing:0.5px; }
+          .deal-purchased-wrap { width:100%; min-height:58px; }
+          .deal-purchased-stamp { min-height:58px; font-size:clamp(28px,10vw,42px); }
           .bottom-cta { flex-direction:column; text-align:center; padding:20px; }
         }
         .plan-trip { margin-top:48px; text-align:center; }

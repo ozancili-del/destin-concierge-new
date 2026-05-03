@@ -436,15 +436,6 @@ function DealPurchasedStamp() {
   );
 }
 
-// ── Deal purchased stamp ─────────────────────────────────────────────────────
-function DealPurchasedStamp() {
-  return (
-    <div className="deal-purchased-stamp" aria-label="Deal purchased">
-      DEAL PURCHASED
-    </div>
-  );
-}
-
 // ── Deal card ─────────────────────────────────────────────────────────────────
 function DealCard({ deal, index, initialViews = 0 }) {
   const meta      = UNIT_META[deal.unit];

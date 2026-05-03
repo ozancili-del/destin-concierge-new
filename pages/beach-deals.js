@@ -455,6 +455,7 @@ function DealCard({ deal, index, initialViews = 0 }) {
   const meta      = UNIT_META[deal.unit];
   const url       = bookingUrl(deal.unit, deal.arrival, deal.departure);
   const dateLabel = `${deal.arrivalFriendly} – ${deal.departureFriendly} · ${deal.nights} nights`;
+  const isHot     = !deal.purchased && (() => { const d = new Date(deal.arrival + 'T12:00:00'); const today = new Date(); today.setHours(12,0,0,0); return (d - today) / 86400000 <= 7; })();
   const [hovered, setHovered] = useState(false);
   const [copied, setCopied]   = useState(false);
   const [views, setViews]     = useState(initialViews);
@@ -463,8 +464,6 @@ function DealCard({ deal, index, initialViews = 0 }) {
   const cardId = `${deal.unit}-${deal.arrival}`;
 
   const hasCounted = useRef(false);
-  const [showTooltip, setShowTooltip] = useState(false);
-
   function trackView() {
     if (hasCounted.current) return;
     hasCounted.current = true;
@@ -533,15 +532,18 @@ function DealCard({ deal, index, initialViews = 0 }) {
           <Carousel unit={deal.unit} index={index} />
           <div className="drop-badge">{deal.dropPct}%</div>
           {views > 0 && (
-            <div className="views-badge-wrap" onClick={e => { e.stopPropagation(); setShowTooltip(t => !t); }}>
+            <div className="views-badge-wrap">
               <div className="views-badge">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="white" stroke="white" strokeWidth="0"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3" fill="#aa0000"/></svg>
                 <span className="views-label">Views</span>
                 <span className="views-count">{views}</span>
               </div>
-              <div className={`views-tooltip${showTooltip ? " views-tooltip-visible" : ""}`}>
-                This property has been viewed {views} times in 72 hours
-              </div>
+              {isHot && (
+                <div className="hot-pill">
+                  <svg width="12" height="14" viewBox="0 0 24 24" fill="#fff"><path d="M12 2C8 6 6 9 8 13c-2-1-3-3-3-5C3 13 4 18 8 20c-1-1-1-2-1-3 2 2 4 3 5 5 1-2 0-4-1-5 3 1 5 4 4 7 4-3 5-8 3-12 1 1 2 3 1 5 2-2 3-6 1-9z"/></svg>
+                  <span className="hot-label">HOT</span>
+                </div>
+              )}
             </div>
           )}
           <div className="unit-overlay">
@@ -914,13 +916,12 @@ export default function BeachDeals({ deals }) {
           .btn-share { width:100%; height:42px; justify-content:space-between; border-radius:30px; padding:0 0 0 16px; }
           .share-icon-circle { display:flex; }
         }
-        .views-badge-wrap { position:absolute; top:12px; left:12px; z-index:2; cursor:pointer; }
+        .views-badge-wrap { position:absolute; top:12px; left:12px; z-index:2; display:flex; flex-direction:column; gap:5px; }
         .views-badge { display:flex; align-items:center; gap:6px; background:#cc0000; border-radius:4px; padding:5px 10px; box-shadow:0 2px 8px rgba(0,0,0,0.4); }
         .views-label { font-family:Arial,sans-serif; font-size:12px; font-weight:700; color:white; letter-spacing:0.5px; }
         .views-count { font-family:Arial,sans-serif; font-size:14px; font-weight:900; color:white; background:#aa0000; border-radius:50%; width:24px; height:24px; display:flex; align-items:center; justify-content:center; }
-        .views-tooltip { display:none; position:absolute; top:calc(100% + 8px); left:0; background:rgba(10,30,60,0.97); color:white; font-family:Arial,sans-serif; font-size:12px; font-weight:500; padding:9px 12px; border-radius:8px; white-space:normal; word-wrap:break-word; max-width:160px; box-shadow:0 4px 20px rgba(0,0,0,0.6); z-index:20; border:1px solid rgba(255,255,255,0.1); line-height:1.5; }
-        .views-badge-wrap:hover .views-tooltip { display:block; }
-        .views-tooltip-visible { display:block !important; }
+        .hot-pill { display:flex; align-items:center; gap:4px; background:#e05500; border-radius:4px; padding:4px 8px; box-shadow:0 2px 8px rgba(0,0,0,0.4); }
+        .hot-label { font-family:Arial,sans-serif; font-size:12px; font-weight:900; color:white; letter-spacing:1px; }
         .drop-badge { position:absolute; top:12px; right:12px; background:var(--green); color:#000; font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:900; line-height:1; padding:6px 10px; border-radius:10px; box-shadow:0 0 16px rgba(57,255,20,0.6); z-index:2; }
         .unit-overlay { position:absolute; bottom:12px; left:14px; z-index:2; }
         .unit-name { font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:800; color:var(--white); text-transform:uppercase; letter-spacing:0.5px; text-shadow:0 1px 6px rgba(0,0,0,0.8); }

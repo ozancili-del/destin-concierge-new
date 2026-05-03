@@ -541,7 +541,7 @@ function DealCard({ deal, index, initialViews = 0 }) {
               {isHot && (
                 <div className="hot-pill">
                   <svg width="12" height="14" viewBox="0 0 24 24" fill="#fff"><path d="M12 2C8 6 6 9 8 13c-2-1-3-3-3-5C3 13 4 18 8 20c-1-1-1-2-1-3 2 2 4 3 5 5 1-2 0-4-1-5 3 1 5 4 4 7 4-3 5-8 3-12 1 1 2 3 1 5 2-2 3-6 1-9z"/></svg>
-                  <span className="hot-label">HOT</span>
+                  <span className="hot-label">HOT DEAL</span>
                 </div>
               )}
             </div>
@@ -916,11 +916,11 @@ export default function BeachDeals({ deals }) {
           .btn-share { width:100%; height:42px; justify-content:space-between; border-radius:30px; padding:0 0 0 16px; }
           .share-icon-circle { display:flex; }
         }
-        .views-badge-wrap { position:absolute; top:12px; left:12px; z-index:2; display:flex; flex-direction:column; gap:5px; }
+        .views-badge-wrap { position:absolute; top:12px; left:12px; z-index:2; display:flex; flex-direction:row; align-items:center; gap:6px; }
         .views-badge { display:flex; align-items:center; gap:6px; background:#cc0000; border-radius:4px; padding:5px 10px; box-shadow:0 2px 8px rgba(0,0,0,0.4); }
         .views-label { font-family:Arial,sans-serif; font-size:12px; font-weight:700; color:white; letter-spacing:0.5px; }
         .views-count { font-family:Arial,sans-serif; font-size:14px; font-weight:900; color:white; background:#aa0000; border-radius:50%; width:24px; height:24px; display:flex; align-items:center; justify-content:center; }
-        .hot-pill { display:flex; align-items:center; gap:4px; background:#e05500; border-radius:4px; padding:4px 8px; box-shadow:0 2px 8px rgba(0,0,0,0.4); }
+        .hot-pill { display:flex; align-items:center; gap:4px; background:#ff5500; border-radius:4px; padding:5px 10px; box-shadow:0 2px 12px rgba(255,85,0,0.7),0 0 18px rgba(255,85,0,0.4); }
         .hot-label { font-family:Arial,sans-serif; font-size:12px; font-weight:900; color:white; letter-spacing:1px; }
         .drop-badge { position:absolute; top:12px; right:12px; background:var(--green); color:#000; font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:900; line-height:1; padding:6px 10px; border-radius:10px; box-shadow:0 0 16px rgba(57,255,20,0.6); z-index:2; }
         .unit-overlay { position:absolute; bottom:12px; left:14px; z-index:2; }

@@ -234,7 +234,7 @@ function buildSchema(deals) {
         }],
         "containsPlace": {
           "@type": "Accommodation",
-          "additionalType": "https://schema.org/Suite",
+          "additionalType": "https://schema.org/EntirePlace",
           "name": UNIT_META[deal.unit].fullName,
           "numberOfRooms": 2,
           "numberOfBedrooms": 1,

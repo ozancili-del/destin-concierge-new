@@ -218,6 +218,18 @@ function buildSchema(deals) {
           "longitude": -86.4733424
         },
         "additionalType": "https://schema.org/LodgingBusiness",
+        "amenityFeature": [
+          { "@type": "LocationFeatureSpecification", "name": "Beachfront", "value": true },
+          { "@type": "LocationFeatureSpecification", "name": "Gulf View", "value": true },
+          { "@type": "LocationFeatureSpecification", "name": "Free Parking", "value": true },
+          { "@type": "LocationFeatureSpecification", "name": "Private Balcony", "value": true },
+          { "@type": "LocationFeatureSpecification", "name": "Full Kitchen", "value": true },
+          { "@type": "LocationFeatureSpecification", "name": "Pool", "value": true },
+          { "@type": "LocationFeatureSpecification", "name": "Hot Tub", "value": true },
+          { "@type": "LocationFeatureSpecification", "name": "Air Conditioning", "value": true },
+          { "@type": "LocationFeatureSpecification", "name": "Free WiFi", "value": true },
+          { "@type": "LocationFeatureSpecification", "name": "EV Charger", "value": true }
+        ],
         "aggregateRating": {
           "@type": "AggregateRating",
           "ratingValue": 4.94,

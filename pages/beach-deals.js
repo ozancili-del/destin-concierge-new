@@ -427,6 +427,24 @@ function Carousel({ unit, index }) {
   );
 }
 
+// ── Deal purchased stamp ─────────────────────────────────────────────────────
+function DealPurchasedStamp() {
+  return (
+    <div className="deal-purchased-stamp" aria-label="Deal purchased">
+      DEAL PURCHASED
+    </div>
+  );
+}
+
+// ── Deal purchased stamp ─────────────────────────────────────────────────────
+function DealPurchasedStamp() {
+  return (
+    <div className="deal-purchased-stamp" aria-label="Deal purchased">
+      DEAL PURCHASED
+    </div>
+  );
+}
+
 // ── Deal card ─────────────────────────────────────────────────────────────────
 function DealCard({ deal, index, initialViews = 0 }) {
   const meta      = UNIT_META[deal.unit];
@@ -539,7 +557,7 @@ function DealCard({ deal, index, initialViews = 0 }) {
         </div>
         <div className="btn-row">
           {deal.purchased ? (
-            <div className="deal-purchased-stamp">DEAL PURCHASED</div>
+            <DealPurchasedStamp />
           ) : (
             <a className="btn-book" href={url} onClick={trackAction}>Secure This Deal  →</a>
           )}
@@ -885,8 +903,9 @@ export default function BeachDeals({ deals }) {
         @keyframes highlight-pulse { 0%{box-shadow:0 0 0 0 rgba(0,212,200,0.6)} 70%{box-shadow:0 0 0 20px rgba(0,212,200,0)} 100%{box-shadow:0 0 0 0 rgba(0,212,200,0)} }
         .btn-row { display:flex; gap:8px; }
         .btn-book { flex:1; display:block; padding:12px; background:linear-gradient(135deg,#00c4b4,#00a89a); color:#fff; font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; text-align:center; text-decoration:none; border-radius:10px; box-shadow:0 4px 16px rgba(0,196,180,0.35); transition:background 0.2s,transform 0.15s; }
-        .deal-purchased-stamp { flex:1; position:relative; display:flex; align-items:center; justify-content:center; padding:11px 8px; border:4px solid #cc0000; border-radius:4px; color:#cc0000; font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:900; letter-spacing:4px; text-transform:uppercase; transform:rotate(-2deg); background:rgba(204,0,0,0.06); filter:url(#stamp-roughen); }
-        .deal-purchased-stamp::before { content:''; position:absolute; inset:0; border-radius:4px; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(204,0,0,0.04) 2px,rgba(204,0,0,0.04) 3px); pointer-events:none; }
+        .deal-purchased-stamp { position:relative; flex:1; min-height:54px; display:flex; align-items:center; justify-content:center; border:4px solid #e02020; border-radius:8px; color:#e02020; background:radial-gradient(circle at 12% 20%,rgba(224,32,32,0.16) 0 2px,transparent 3px),radial-gradient(circle at 72% 36%,rgba(224,32,32,0.14) 0 2px,transparent 3px),radial-gradient(circle at 44% 78%,rgba(224,32,32,0.12) 0 2px,transparent 3px),rgba(224,32,32,0.035); font-family:'Barlow Condensed','Arial Narrow',Impact,sans-serif; font-size:clamp(25px,5vw,42px); font-weight:900; letter-spacing:0.08em; text-transform:uppercase; line-height:1; transform:rotate(-4deg); box-shadow:0 0 0 2px rgba(224,32,32,0.12),0 8px 20px rgba(0,0,0,0.22); opacity:0.96; overflow:hidden; }
+        .deal-purchased-stamp::before,.deal-purchased-stamp::after { content:''; position:absolute; inset:6px; border:2px solid rgba(224,32,32,0.75); border-radius:4px; pointer-events:none; }
+        .deal-purchased-stamp::after { inset:0; border:0; background:repeating-linear-gradient(115deg,transparent 0 6px,rgba(255,255,255,0.16) 7px 9px,transparent 10px 18px),radial-gradient(circle at 22% 44%,rgba(0,0,0,0.18) 0 1px,transparent 2px),radial-gradient(circle at 68% 62%,rgba(0,0,0,0.14) 0 1px,transparent 2px); mix-blend-mode:screen; opacity:0.5; }
         .btn-book:hover { background:linear-gradient(135deg,#00d4c8,#00b8aa); transform:translateY(-1px); }
         .btn-share { display:inline-flex; align-items:center; gap:0; background:rgba(0,212,200,0.1); border:1.5px solid rgba(0,212,200,0.5); border-radius:30px; padding:0 0 0 14px; cursor:pointer; height:42px; overflow:hidden; transition:background 0.2s; flex-shrink:0; }
         .btn-share:hover { background:rgba(0,212,200,0.2); }

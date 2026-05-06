@@ -59,7 +59,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url('https://uc.
 /* HERO */
 .hero{position:relative;min-height:400px;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;}
 .hero-bg{display:none;}
-.hero-content{position:relative;z-index:2;padding:0 18px 30px;}
+.hero-content{position:relative;z-index:3;padding:0 18px 30px;}
 .hero-badge{display:inline-block;background:rgba(0,196,180,0.15);border:1px solid rgba(0,196,180,0.4);color:#00c4b4;font-size:10px;font-weight:700;letter-spacing:2px;padding:5px 14px;border-radius:20px;margin-bottom:14px;text-transform:uppercase;}
 .hero h1{font-size:clamp(30px,7vw,44px);font-weight:900;line-height:1.08;margin-bottom:8px;}
 .hero h1 span{color:#00c4b4;}

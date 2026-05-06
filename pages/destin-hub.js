@@ -15,11 +15,9 @@ export default function DestinHub() {
         <meta property="og:description" content="Your complete Destin Florida guide — beaches, seafood, live music, fireworks, events, airports, car rental and AI concierge." />
         <meta property="og:url" content={CANONICAL} />
         <meta property="og:type" content="website" />
-        <meta property="og:image" content="https://uc.orez.io/f/0f604abce3284748ba8d2150b7646863-MediumOriginal" />
-        <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow:wght@400;500;600&family=Playfair+Display:ital,wght@0,700;1,700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
-        {/* GTM — fires Clarity only */}
+        <meta property="og:image" content="https://explore.destincondogetaways.com/hub-hero.png" />
+        <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet" />
         <script dangerouslySetInnerHTML={{ __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-PQSF8S6D');` }} />
-        {/* Direct GA4 */}
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-3SGXCQ4FTC" />
         <script dangerouslySetInnerHTML={{ __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-3SGXCQ4FTC');` }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
@@ -48,72 +46,79 @@ export default function DestinHub() {
           "includesAttraction":[
             {"@type":"TouristAttraction","name":"Pelican Beach Resort","address":{"@type":"PostalAddress","streetAddress":"1002 US-98 East","addressLocality":"Destin","addressRegion":"FL"}},
             {"@type":"TouristAttraction","name":"Henderson Beach State Park"},
-            {"@type":"TouristAttraction","name":"Destin HarborWalk Village"},
-            {"@type":"TouristAttraction","name":"Big Kahuna's Water Park"},
-            {"@type":"TouristAttraction","name":"Crystal Beach"}
-          ]
-        })}} />
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
-          "@context":"https://schema.org","@type":"FAQPage",
-          "mainEntity":[
-            {"@type":"Question","name":"What are the best beaches in Destin FL?","acceptedAnswer":{"@type":"Answer","text":"Destin's top beaches include Henderson Beach State Park, Crystal Beach, and James Lee Park. All feature the famous white quartz sand and emerald green Gulf waters the Emerald Coast is known for."}},
-            {"@type":"Question","name":"What airport do you fly into for Destin Florida?","acceptedAnswer":{"@type":"Answer","text":"The closest airport to Destin is Destin-Fort Walton Beach Airport (VPS), about 15 minutes away. Panama City Beach Airport (ECP) and Pensacola International Airport (PNS) are also popular options within 1 hour."}},
-            {"@type":"Question","name":"What is the best time to visit Destin Florida?","acceptedAnswer":{"@type":"Answer","text":"The best time to visit Destin is May through October for warm water and sunny weather. June through August is peak season. Spring and fall offer lower prices and fewer crowds with still-pleasant temperatures."}},
-            {"@type":"Question","name":"Do you need a car in Destin Florida?","acceptedAnswer":{"@type":"Answer","text":"A car is recommended in Destin as public transportation is limited. Most attractions, restaurants, and beaches are spread along US-98. Renting a car at VPS airport is the most convenient option."}},
-            {"@type":"Question","name":"What are the best restaurants in Destin Florida?","acceptedAnswer":{"@type":"Answer","text":"Destin is known for fresh seafood. Top restaurants include AJ's Seafood & Oyster Bar, Boshamps Seafood, Pompano Joe's, and The Back Porch. HarborWalk Village has numerous waterfront dining options."}},
-            {"@type":"Question","name":"How do I find cheap flights to Destin Florida?","acceptedAnswer":{"@type":"Answer","text":"To find cheap flights to Destin, compare fares to VPS (Destin-Fort Walton Beach), ECP (Panama City Beach), and PNS (Pensacola). Booking 6-8 weeks in advance and flying midweek typically yields the best prices."}}
+            {"@type":"TouristAttraction","name":"HarborWalk Village"},
+            {"@type":"TouristAttraction","name":"Crab Island"}
           ]
         })}} />
         <style>{`
-*{margin:0;padding:0;box-sizing:border-box;}
-:root{--teal:#0d9e8a;--bg:#07141f;--card:#0d1f2e;--border:rgba(255,255,255,0.07);--text:#e8f4ff;--muted:rgba(255,255,255,0.4);}
-html,body{width:100%;overflow-x:hidden;}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
-body::before{content:'';position:fixed;inset:0;background-image:url('https://uc.orez.io/f/d6016c9e0a064e528087ef01caa56955');background-size:cover;background-position:center 40%;filter:brightness(0.18) saturate(0.7);z-index:-1;}
-.hero{position:relative;padding:48px 20px 52px;overflow:hidden;background:transparent;text-align:center;width:100%;box-sizing:border-box;}
-.hero>*{position:relative;z-index:2;}
-.hero h1{font-family:'Barlow Condensed',sans-serif;font-size:clamp(48px,8vw,80px);font-weight:900;line-height:0.95;text-transform:uppercase;letter-spacing:-1px;margin:16px 0 8px;}
-.hero h1 .line1{color:#fff;display:block;}
-.hero h1 .line2{display:block;background:linear-gradient(90deg,#2ddbb4,#7fffff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.hero-sub{font-size:14px;color:rgba(255,255,255,0.6);margin-top:8px;line-height:1.5;}
-.logo-wrap{margin-bottom:16px;}
-.logo-wrap img{height:56px;filter:drop-shadow(0 0 12px rgba(0,212,200,0.5));}
-.hero-stats{display:flex;justify-content:center;gap:28px;margin:24px auto 20px;max-width:400px;}
-.hero-stat{text-align:center;}
-.hero-stat-num{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:800;color:#2ddbb4;line-height:1;}
-.hero-stat-lbl{font-size:10px;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:1px;margin-top:2px;}
-.hero-stat-div{width:1px;background:rgba(255,255,255,0.15);align-self:stretch;}
-.hero-btns{display:flex;justify-content:center;gap:10px;margin-top:20px;flex-wrap:wrap;}
-.hero-btn{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.85);font-size:12px;font-weight:600;padding:8px 18px;border-radius:20px;text-decoration:none;backdrop-filter:blur(4px);}
-.hero-btn-teal{background:rgba(45,219,180,0.15);border-color:rgba(45,219,180,0.35);color:#7de8d4;}
-.hero-tag{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,#0a3d6b,#0d5c8a);border:1.5px solid #2ddbb4;border-radius:30px;padding:6px 18px;font-family:"Barlow Condensed",sans-serif;font-size:15px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#fff;margin-bottom:14px;box-shadow:0 0 20px rgba(0,212,200,0.3);}
-.hero-dot{width:6px;height:6px;border-radius:50%;background:#2ddbb4;animation:blink 2s infinite;}
-@keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
-.hero h1 em{color:#7de8d4;font-style:italic;}
-.hero p{color:rgba(255,255,255,0.45);font-size:14px;}
-.main{max-width:680px;margin:0 auto;padding:20px 12px 48px;}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
-.card{background:linear-gradient(145deg,#0e2030,#0a1a27);border-radius:18px;padding:14px 8px 12px;border:2px solid rgba(45,219,180,0.3);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;-webkit-tap-highlight-color:transparent;animation:cardGlow 3s ease-in-out infinite;text-align:center;}
-@keyframes cardGlow{0%,100%{box-shadow:0 0 8px rgba(45,219,180,0.08);}50%{box-shadow:0 0 18px rgba(45,219,180,0.22);}}
-.card:active{transform:scale(0.94);animation:none;}
-.card:hover{border-color:rgba(45,219,180,0.65);animation:none;box-shadow:0 0 24px rgba(45,219,180,0.3);}
-.card-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
-.ic-teal{background:rgba(13,158,138,0.2);border:1px solid rgba(13,158,138,0.25);}
-.ic-ocean{background:rgba(10,107,138,0.25);border:1px solid rgba(10,107,138,0.3);}
-.ic-coral{background:rgba(232,99,74,0.2);border:1px solid rgba(232,99,74,0.25);}
-.ic-amber{background:rgba(201,149,42,0.2);border:1px solid rgba(201,149,42,0.25);}
-.ic-purple{background:rgba(124,92,191,0.2);border:1px solid rgba(124,92,191,0.25);}
-.ic-gold{background:rgba(232,160,32,0.2);border:1px solid rgba(232,160,32,0.25);}
-.ic-navy{background:rgba(26,58,138,0.3);border:1px solid rgba(26,58,138,0.35);}
-.ic-green{background:rgba(42,158,92,0.2);border:1px solid rgba(42,158,92,0.25);}
-.ic-pink{background:rgba(232,52,180,0.2);border:1px solid rgba(232,52,180,0.25);}
-.ic-blue{background:rgba(45,130,219,0.2);border:1px solid rgba(45,130,219,0.25);}
-.card-title{font-size:11px;font-weight:500;color:rgba(255,255,255,0.85);line-height:1.3;}
-.card-snippet{font-size:10px;color:rgba(255,255,255,0.4);line-height:1.4;margin:5px 0 0;text-align:center;padding:0 2px;}
-.book-banner{background:linear-gradient(135deg,#071e2e,#0a3d5c);border:1px solid rgba(13,158,138,0.2);border-radius:20px;padding:22px 20px;text-align:center;margin-top:4px;}
-.book-banner-title{font-family:'Playfair Display',serif;font-size:20px;color:white;margin-bottom:4px;}
-.book-banner-sub{font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:14px;}
-.book-btn{display:inline-block;background:linear-gradient(90deg,#0d9e8a,#1ac7a8);color:white;font-weight:600;font-size:14px;padding:12px 28px;border-radius:20px;text-decoration:none;}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#040d1a;color:#fff;font-family:'Outfit',sans-serif;-webkit-font-smoothing:antialiased;}
+
+/* HERO */
+.hero{position:relative;min-height:400px;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;}
+.hero-bg{position:absolute;inset:0;background-image:url('/hub-hero.png');background-size:cover;background-position:center top;}
+.hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(4,13,26,0.25) 0%,rgba(4,13,26,0.55) 45%,rgba(4,13,26,0.97) 100%);}
+.hero-content{position:relative;z-index:2;padding:0 18px 30px;}
+.hero-badge{display:inline-block;background:rgba(0,196,180,0.15);border:1px solid rgba(0,196,180,0.4);color:#00c4b4;font-size:10px;font-weight:700;letter-spacing:2px;padding:5px 14px;border-radius:20px;margin-bottom:14px;text-transform:uppercase;}
+.hero h1{font-size:clamp(30px,7vw,44px);font-weight:900;line-height:1.08;margin-bottom:8px;}
+.hero h1 span{color:#00c4b4;}
+.hero-sub{font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:22px;max-width:320px;line-height:1.6;}
+.hero-sub strong{color:#00c4b4;font-weight:700;}
+.hero-btns{display:flex;gap:8px;flex-wrap:wrap;}
+.hbtn{display:inline-flex;align-items:center;gap:7px;padding:10px 16px;border-radius:12px;font-size:12px;font-weight:700;letter-spacing:0.5px;text-decoration:none;cursor:pointer;border:none;font-family:'Outfit',sans-serif;transition:transform 0.15s,filter 0.15s;}
+.hbtn:hover{transform:translateY(-2px);filter:brightness(1.1);}
+.hbtn-gold{background:linear-gradient(135deg,#c8851a,#f5a623);color:#000;}
+.hbtn-teal{background:linear-gradient(135deg,#007a74,#00c4b4);color:#000;}
+.hbtn-blue{background:rgba(0,100,200,0.25);color:#5ab4ff;border:1px solid rgba(90,180,255,0.25);}
+
+/* FEATURED */
+.featured{margin:16px;border-radius:18px;overflow:hidden;border:1px solid rgba(245,166,35,0.25);background:#0d1520;}
+.feat-img-wrap{position:relative;height:165px;overflow:hidden;}
+.feat-img-wrap img{width:100%;height:100%;object-fit:cover;object-position:center;}
+.feat-overlay{position:absolute;inset:0;background:linear-gradient(to right,rgba(0,0,0,0.78) 0%,rgba(0,0,0,0.2) 55%,transparent 100%);display:flex;flex-direction:column;justify-content:center;padding:18px 20px;}
+.feat-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(245,166,35,0.92);color:#000;font-size:10px;font-weight:800;padding:4px 10px;border-radius:20px;margin-bottom:8px;width:fit-content;text-transform:uppercase;letter-spacing:0.5px;}
+.feat-title{font-size:22px;font-weight:900;color:#fff;margin-bottom:4px;}
+.feat-sub{font-size:11px;color:rgba(255,255,255,0.65);}
+.feat-pills{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+.feat-pill{display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.8);font-size:10px;font-weight:600;padding:4px 9px;border-radius:20px;}
+.feat-foot{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.feat-foot-txt{font-size:12px;color:rgba(255,255,255,0.45);line-height:1.4;}
+.feat-cta{background:linear-gradient(135deg,#c8851a,#f5a623);color:#000;border:none;font-family:'Outfit',sans-serif;font-size:12px;font-weight:800;padding:10px 18px;border-radius:10px;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:transform 0.15s;}
+.feat-cta:hover{transform:scale(1.04);}
+
+/* SECTION LABEL */
+.sec-lbl{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.3);padding:20px 18px 12px;}
+
+/* CARD GRID */
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 16px;}
+.card{background:#071628;border:1px solid rgba(255,255,255,0.07);border-radius:16px;overflow:hidden;cursor:pointer;transition:transform 0.2s,border-color 0.2s;text-decoration:none;display:block;}
+.card:hover{transform:translateY(-4px);border-color:rgba(0,196,180,0.4);}
+.card:active{transform:scale(0.97);}
+.card-img{width:100%;height:82px;object-fit:cover;object-position:center;display:block;background:#0a1e30;}
+.card-body{padding:10px 10px 13px;}
+.card-title{font-size:13px;font-weight:700;color:#fff;margin-bottom:3px;line-height:1.2;}
+.card-desc{font-size:10px;color:rgba(255,255,255,0.42);line-height:1.4;margin-bottom:8px;}
+.card-cta{font-size:10px;color:#00c4b4;font-weight:700;display:flex;align-items:center;gap:3px;}
+
+/* AI STRIP */
+.ai-strip{margin:20px 16px 0;background:linear-gradient(135deg,#040f20,#071628);border:1px solid rgba(0,120,220,0.2);border-radius:18px;padding:16px;display:flex;align-items:center;gap:14px;}
+.ai-avatar{width:50px;height:50px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid rgba(0,196,180,0.3);}
+.ai-text h3{font-size:15px;font-weight:700;margin-bottom:3px;}
+.ai-text p{font-size:11px;color:rgba(255,255,255,0.5);line-height:1.4;}
+.ai-btn{background:rgba(0,196,180,0.12);border:1px solid rgba(0,196,180,0.35);color:#00c4b4;font-family:'Outfit',sans-serif;font-size:11px;font-weight:700;padding:9px 15px;border-radius:10px;white-space:nowrap;cursor:pointer;flex-shrink:0;transition:background 0.15s;}
+.ai-btn:hover{background:rgba(0,196,180,0.22);}
+
+/* FOOTER BAR */
+.footer-bar{margin:20px 16px 0;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+.fi{text-align:center;padding:12px 6px;}
+.fi-icon{font-size:20px;margin-bottom:5px;}
+.fi-lbl{font-size:9px;font-weight:700;color:rgba(255,255,255,0.5);line-height:1.3;text-transform:uppercase;letter-spacing:0.5px;}
+.fi-sub{font-size:8px;color:rgba(255,255,255,0.3);line-height:1.3;margin-top:2px;}
+
+/* SEO CONTENT */
+.content{padding:24px 18px 0;}
+
+/* MODAL */
 .modal-overlay{position:fixed;inset:0;background:rgba(3,13,20,0.85);z-index:1000;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .25s;}
 .modal-overlay.open{opacity:1;pointer-events:all;}
 @media(min-width:600px){.modal-overlay{align-items:center;justify-content:center;}.modal-sheet{width:90%!important;max-width:860px!important;border-radius:20px!important;transform:scale(0.95)!important;}.modal-overlay.open .modal-sheet{transform:scale(1)!important;}}
@@ -141,54 +146,188 @@ body::before{content:'';position:fixed;inset:0;background-image:url('https://uc.
         `}</style>
       </Head>
 
+      {/* HERO */}
       <div className="hero">
-        <div className="logo-wrap"><img src="https://uc.orez.io/f/2ffb66c0d31e4a6a8d9549b45e0db5dc" alt="Destin Condo Getaways" /></div>
-        <div className="hero-tag"><span className="hero-dot"></span>Destin, Florida · Your Local Guide</div>
-        <h1><span className="line1">Destin</span><span className="line2">Local Guide 2026</span></h1>
-        <div className="hero-stats">
-          <div className="hero-stat"><div className="hero-stat-num">400+</div><div className="hero-stat-lbl">Five-Star Stays</div></div>
-          <div className="hero-stat-div"></div>
-          <div className="hero-stat"><div className="hero-stat-num">13</div><div className="hero-stat-lbl">Local Guides</div></div>
-          <div className="hero-stat-div"></div>
-          <div className="hero-stat"><div className="hero-stat-num">2</div><div className="hero-stat-lbl">Beachfront Units</div></div>
-        </div>
-        <div className="hero-btns">
-          <a href="https://www.destincondogetaways.com" className="hero-btn">🏠 Home</a>
-          <a href="https://www.destincondogetaways.com/availability" className="hero-btn">📅 Check Availability</a>
-          <a href="https://www.destincondogetaways.com/ai-concierge-574036277" className="hero-btn">💬 AI Concierge</a>
-          <a href="https://deals.destincondogetaways.com/beach-deals" className="hero-btn hero-btn-teal">🏷️ Live Deals</a>
+        <div className="hero-bg"></div>
+        <div className="hero-content">
+          <div className="hero-badge">✦ Everything for your Destin trip</div>
+          <h1>Plan Your<br /><span>Destin Trip</span></h1>
+          <p className="hero-sub">Unlock the best deals, compare flights, discover activities, get beach info, and let <strong>Destiny Blue</strong> help every step.</p>
+          <div className="hero-btns">
+            <button className="hbtn hbtn-gold" onClick={() => openModal('deals')}>🏷️ Best Deals</button>
+            <button className="hbtn hbtn-teal" onClick={() => openModal('gettinghere')}>✈️ Flights &amp; Cars</button>
+            <button className="hbtn hbtn-blue" onClick={() => openModal('activities')}>🐬 Activities</button>
+          </div>
         </div>
       </div>
 
-      <div className="main">
-        <div className="grid">
-          <div className="card" id="beaches" onClick={() => openModal('beaches')}><div className="card-icon ic-teal">🏖️</div><div className="card-title">Beaches</div><p className="card-snippet">Henderson Beach State Park is the top pick. Crystal Beach is best for families. All have sugar-white sand.</p></div>
-          <div className="card" id="weather" onClick={() => openModal('weather')}><div className="card-icon ic-ocean">🌊</div><div className="card-title">Water & Weather</div><p className="card-snippet">Peak season Jun–Aug with water up to 84°F. May–Oct best for swimming. Mild winters.</p></div>
-          <div className="card" onClick={() => openModal('cams')}><div className="card-icon ic-ocean">📷</div><div className="card-title">Beach Cams</div><p className="card-snippet">Live Gulf of Mexico cams showing current conditions at Pelican Beach Resort and Destin beaches.</p></div>
-          <div className="card" id="seafood" onClick={() => openModal('seafood')}><div className="card-icon ic-coral">🦞</div><div className="card-title">Seafood</div><p className="card-snippet">AJ's Seafood & Oyster Bar for waterfront dining. Boshamps for the best harbor sunset view.</p></div>
-          <div className="card" onClick={() => openModal('localeats')}><div className="card-icon ic-coral">🍝</div><div className="card-title">Local Eats</div><p className="card-snippet">Beyond seafood — tacos, pizza, breakfast spots and hidden gems locals actually eat at.</p></div>
-          <div className="card" onClick={() => openModal('spas')}><div className="card-icon ic-pink">💆</div><div className="card-title">Spas</div><p className="card-snippet">Top-rated day spas and resort treatments near Pelican Beach Resort in Destin.</p></div>
-          <div className="card" onClick={() => openModal('music')}><div className="card-icon ic-purple">🎵</div><div className="card-title">Live Music</div><p className="card-snippet">HarborWalk Village has live music nightly in season. AJ's and Crab Island Cantina are top spots.</p></div>
-          <div className="card" id="fireworks" onClick={() => openModal('fireworks')}><div className="card-icon ic-gold">🎆</div><div className="card-title">Fireworks</div><p className="card-snippet">4th of July fireworks over Destin Harbor are spectacular. Best viewed from HarborWalk or your balcony.</p></div>
-          <div className="card" id="events" onClick={() => openModal('events')}><div className="card-icon ic-amber">📅</div><div className="card-title">Events 2026</div><p className="card-snippet">Destin Fishing Rodeo in October, Blue Marlin Classic in June, beach music festivals all summer.</p></div>
-          <div className="card" id="airports" onClick={() => openModal('airports')}><div className="card-icon ic-navy">✈️</div><div className="card-title">Airports</div><p className="card-snippet">VPS is 15 mins away. ECP (45 min) has more flights. PNS (1 hr) has the best fares.</p></div>
-          <div className="card" id="flights-cars" onClick={() => openModal('gettinghere')}><div className="card-icon ic-blue">🚗✈️</div><div className="card-title">Flights & Cars</div><p className="card-snippet">Compare fares to VPS, ECP and PNS. Car rental is essential — Destin has no public transit.</p></div>
-          <div className="card" id="deals" onClick={() => openModal('deals')} style={{borderColor:'rgba(250,180,0,0.5)'}}><div className="card-icon" style={{background:'rgba(250,180,0,0.12)',border:'1px solid rgba(250,180,0,0.25)'}}>🏷️</div><div className="card-title" style={{color:'#fac755'}}>Best Deals</div><p className="card-snippet">Live price drops on Unit 707 & 1006. Book direct and save vs Airbnb or VRBO.</p></div>
-          <div className="card" id="groceries" onClick={() => openModal('grocery')}><div className="card-icon ic-green">🛒</div><div className="card-title">Groceries</div><p className="card-snippet">Publix, Walmart and Winn-Dixie all within 10 mins of Pelican Beach Resort.</p></div>
-          <div className="card" id="trip-planner" onClick={() => openModal('planner')}><div className="card-icon ic-purple">🗺️</div><div className="card-title">Trip Planner</div><p className="card-snippet">Build your perfect Destin itinerary — day-by-day activities, beaches, dining and events.</p></div>
-          <div className="card" id="activities" onClick={() => openModal('activities')} style={{borderColor:'rgba(240,120,60,0.5)'}}><div className="card-icon" style={{background:'rgba(240,120,60,0.12)',border:'1px solid rgba(240,120,60,0.25)'}}>🐬</div><div className="card-title" style={{color:'#f0997b'}}>Activities & Tours</div><p className="card-snippet">Dolphin cruises, snorkeling, jet ski rentals, parasailing and more.</p></div>
-          <div className="card" id="ai-concierge" onClick={() => openModal('destiny')} style={{borderColor:'rgba(45,219,180,0.5)'}}><div className="card-icon" style={{background:'rgba(45,219,180,0.12)',border:'1px solid rgba(45,219,180,0.25)'}}>💬</div><div className="card-title" style={{color:'#7de8d4'}}>AI Concierge</div><p className="card-snippet">Ask Destiny Blue anything about your Destin trip — availability, local tips, booking help, 24/7.</p></div>
+      {/* FEATURED DEALS */}
+      <div className="featured">
+        <div className="feat-img-wrap">
+          <img src="/hub-deals.png" alt="Best Deals — Destin Condo Getaways" loading="lazy" />
+          <div className="feat-overlay">
+            <div className="feat-badge">⭐ Featured</div>
+            <div className="feat-title">Best Deals</div>
+            <div className="feat-sub">Live price drops on beachfront condos</div>
+            <div className="feat-pills">
+              <span className="feat-pill">🏷️ Exclusive Discounts</span>
+              <span className="feat-pill">🔔 Price Drop Alerts</span>
+              <span className="feat-pill">✅ Verified Deals</span>
+            </div>
+          </div>
         </div>
-
-        <div className="book-banner">
-          <div style={{fontSize:'10px',letterSpacing:'.1em',textTransform:'uppercase',color:'rgba(255,255,255,0.3)',marginBottom:'6px'}}>Pelican Beach Resort · Destin FL</div>
-          <div className="book-banner-title">Stay with us</div>
-          <div className="book-banner-sub">Beachfront condos · Units 707 & 1006 · Best rates direct</div>
-          <a className="book-btn" href="https://deals.destincondogetaways.com/beach-deals" target="_blank" rel="noreferrer">🏷️ See Today's Price Drops →</a>
+        <div className="feat-foot">
+          <div className="feat-foot-txt">Direct rates · No platform fees · Save up to 30%</div>
+          <button className="feat-cta" onClick={() => openModal('deals')}>View Deals →</button>
         </div>
+      </div>
 
-        {/* SEO Content Block */}
-        <div style={{marginTop:'32px',padding:'24px 20px',background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:'16px'}}>
+      {/* CARD GRID */}
+      <div className="sec-lbl">Explore Destin</div>
+      <div className="grid">
+        <div className="card" onClick={() => openModal('beaches')}>
+          <img className="card-img" src="/hub-beaches.png" alt="Beaches" loading="lazy" />
+          <div className="card-body">
+            <div className="card-title">Beaches</div>
+            <div className="card-desc">Best spots for families, sunsets and relaxation.</div>
+            <div className="card-cta">Explore →</div>
+          </div>
+        </div>
+        <div className="card" onClick={() => openModal('weather')}>
+          <img className="card-img" src="/hub-weather.png" alt="Water & Weather" loading="lazy" />
+          <div className="card-body">
+            <div className="card-title">Water &amp; Weather</div>
+            <div className="card-desc">Forecasts &amp; conditions to plan the perfect beach day.</div>
+            <div className="card-cta">Explore →</div>
+          </div>
+        </div>
+        <div className="card" onClick={() => openModal('cams')}>
+          <img className="card-img" src="/hub-beachcam.png" alt="Beach Cams" loading="lazy" />
+          <div className="card-body">
+            <div className="card-title">Beach Cams</div>
+            <div className="card-desc">Live views of Destin's beaches and the Emerald Coast.</div>
+            <div className="card-cta">Watch Now →</div>
+          </div>
+        </div>
+        <div className="card" onClick={() => openModal('seafood')}>
+          <img className="card-img" src="/hub-seafood.png" alt="Seafood" loading="lazy" />
+          <div className="card-body">
+            <div className="card-title">Seafood</div>
+            <div className="card-desc">Waterfront dining &amp; fresh catches you'll love.</div>
+            <div className="card-cta">Explore →</div>
+          </div>
+        </div>
+        <div className="card" onClick={() => openModal('localeats')}>
+          <img className="card-img" src="/hub-eats.png" alt="Local Eats" loading="lazy" />
+          <div className="card-body">
+            <div className="card-title">Local Eats</div>
+            <div className="card-desc">Tacos, pizza, hidden gems and local favorites.</div>
+            <div className="card-cta">Explore →</div>
+          </div>
+        </div>
+        <div className="card" onClick={() => openModal('spas')}>
+          <img className="card-img" src="/hub-spa.png" alt="Spas" loading="lazy" />
+          <div className="card-body">
+            <div className="card-title">Spas</div>
+            <div className="card-desc">Top-rated resort treatments to relax and recharge.</div>
+            <div className="card-cta">Explore →</div>
+          </div>
+        </div>
+        <div className="card" onClick={() => openModal('music')}>
+          <img className="card-img" src="/hub-music.png" alt="Live Music" loading="lazy" />
+          <div className="card-body">
+            <div className="card-title">Live Music</div>
+            <div className="card-desc">Nightly live music at top spots across Destin.</div>
+            <div className="card-cta">Explore →</div>
+          </div>
+        </div>
+        <div className="card" onClick={() => openModal('fireworks')}>
+          <img className="card-img" src="/hub-fireworks.png" alt="Fireworks" loading="lazy" />
+          <div className="card-body">
+            <div className="card-title">Fireworks</div>
+            <div className="card-desc">Catch dazzling fireworks over the harbor.</div>
+            <div className="card-cta">Explore →</div>
+          </div>
+        </div>
+        <div className="card" onClick={() => openModal('events')}>
+          <img className="card-img" src="/hub-events.png" alt="Events 2026" loading="lazy" />
+          <div className="card-body">
+            <div className="card-title">Events 2026</div>
+            <div className="card-desc">Concerts, fishing rodeos, festivals &amp; more all year long.</div>
+            <div className="card-cta">Explore →</div>
+          </div>
+        </div>
+        <div className="card" onClick={() => openModal('airports')}>
+          <img className="card-img" src="/hub-airports.png" alt="Airports" loading="lazy" />
+          <div className="card-body">
+            <div className="card-title">Airports</div>
+            <div className="card-desc">VPS is 15 mins away. Check wait times, tips &amp; more.</div>
+            <div className="card-cta">Explore →</div>
+          </div>
+        </div>
+        <div className="card" onClick={() => openModal('gettinghere')}>
+          <img className="card-img" src="/hub-flights-cars.png" alt="Flights & Cars" loading="lazy" />
+          <div className="card-body">
+            <div className="card-title">Flights &amp; Cars</div>
+            <div className="card-desc">Compare fares to VPS, ECP and PNS. Best rental prices.</div>
+            <div className="card-cta">Compare →</div>
+          </div>
+        </div>
+        <div className="card" onClick={() => openModal('deals')} style={{borderColor:'rgba(245,166,35,0.35)'}}>
+          <img className="card-img" src="/hub-deals.png" alt="Best Deals" loading="lazy" />
+          <div className="card-body">
+            <div className="card-title" style={{color:'#f5a623'}}>Best Deals</div>
+            <div className="card-desc">Live price drops on condos, activities and more.</div>
+            <div className="card-cta" style={{color:'#f5a623'}}>View Deals →</div>
+          </div>
+        </div>
+        <div className="card" onClick={() => openModal('grocery')}>
+          <img className="card-img" src="/hub-groceries.png" alt="Groceries" loading="lazy" />
+          <div className="card-body">
+            <div className="card-title">Groceries</div>
+            <div className="card-desc">Publix, Walmart &amp; Winn-Dixie all within 10 mins.</div>
+            <div className="card-cta">Explore →</div>
+          </div>
+        </div>
+        <div className="card" onClick={() => openModal('planner')}>
+          <img className="card-img" src="/hub-planner.png" alt="Trip Planner" loading="lazy" />
+          <div className="card-body">
+            <div className="card-title">Trip Planner</div>
+            <div className="card-desc">Build your perfect itinerary in minutes.</div>
+            <div className="card-cta">Plan Now →</div>
+          </div>
+        </div>
+        <div className="card" onClick={() => openModal('activities')} style={{borderColor:'rgba(240,120,60,0.35)'}}>
+          <img className="card-img" src="/hub-activities.png" alt="Activities & Tours" loading="lazy" />
+          <div className="card-body">
+            <div className="card-title" style={{color:'#f0997b'}}>Activities &amp; Tours</div>
+            <div className="card-desc">Dolphin cruises, snorkeling, jet ski rentals, parasailing.</div>
+            <div className="card-cta" style={{color:'#f0997b'}}>Explore →</div>
+          </div>
+        </div>
+      </div>
+
+      {/* AI CONCIERGE STRIP */}
+      <div className="ai-strip">
+        <img className="ai-avatar" src="/destiny_hero.jpg" alt="Destiny Blue AI Concierge" />
+        <div className="ai-text">
+          <h3>AI Concierge</h3>
+          <p>Ask Destiny Blue anything about your Destin trip — availability, local tips, booking help, 24/7.</p>
+        </div>
+        <button className="ai-btn" onClick={() => openModal('destiny')}>Chat Now →</button>
+      </div>
+
+      {/* FOOTER BAR */}
+      <div className="footer-bar">
+        <div className="fi"><div className="fi-icon">📍</div><div className="fi-lbl">Local Insights</div><div className="fi-sub">From locals who know Destin best.</div></div>
+        <div className="fi"><div className="fi-icon">💰</div><div className="fi-lbl">Save More</div><div className="fi-sub">Exclusive deals &amp; price drop alerts.</div></div>
+        <div className="fi"><div className="fi-icon">🌊</div><div className="fi-lbl">All In One Place</div><div className="fi-sub">Flights, stays, activities and more.</div></div>
+        <div className="fi"><div className="fi-icon">✨</div><div className="fi-lbl">AI-Powered</div><div className="fi-sub">Destiny Blue personalizes your perfect trip.</div></div>
+      </div>
+
+      {/* SEO CONTENT — preserved from original */}
+      <div className="content">
+        <div style={{marginTop:'8px',padding:'24px 20px',background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:'16px'}}>
           <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:'20px',color:'white',margin:'0 0 12px',lineHeight:'1.3'}}>Everything You Need for a Destin Trip — In One Place</h2>
           <p style={{fontSize:'14px',color:'rgba(255,255,255,0.55)',lineHeight:'1.8',margin:'0 0 12px'}}>We built this guide after hosting over 400 groups of guests at <strong style={{color:'rgba(255,255,255,0.8)'}}>Pelican Beach Resort, Destin FL</strong>. Every question they asked — where to eat, which beach, what airport, how to find deals — is answered here.</p>
           <p style={{fontSize:'14px',color:'rgba(255,255,255,0.55)',lineHeight:'1.8',margin:'0 0 24px'}}><strong style={{color:'rgba(255,255,255,0.8)'}}>Destin, Florida</strong> sits on the Emerald Coast — named for the emerald green Gulf of Mexico waters and sugar-white quartz sand beaches. It is consistently ranked among the best beach destinations in the United States.</p>
@@ -204,62 +343,13 @@ body::before{content:'';position:fixed;inset:0;background-image:url('https://uc.
             <span style={{fontSize:'11px',letterSpacing:'1px',textTransform:'uppercase',color:'rgba(0,212,200,0.7)',fontFamily:'Arial'}}>💡 Local Insight</span>
             <p style={{fontSize:'13px',color:'rgba(255,255,255,0.5)',margin:'4px 0 0',lineHeight:'1.6'}}>Avoid the main boardwalk crowds — head to James Lee Park before 9 AM for free parking. Henderson Beach is worth the entry fee for the quiet and the nature trail.</p>
           </div>
-          <div style={{overflowX:'auto',marginBottom:'12px'}}>
-            <table style={{width:'100%',borderCollapse:'collapse',fontSize:'12px',fontFamily:'Arial'}}>
-              <thead><tr style={{background:'rgba(0,212,200,0.1)'}}>
-                <th style={{padding:'8px 10px',textAlign:'left',color:'rgba(255,255,255,0.8)',borderBottom:'1px solid rgba(255,255,255,0.1)'}}>Beach</th>
-                <th style={{padding:'8px 10px',textAlign:'left',color:'rgba(255,255,255,0.8)',borderBottom:'1px solid rgba(255,255,255,0.1)'}}>Parking</th>
-                <th style={{padding:'8px 10px',textAlign:'left',color:'rgba(255,255,255,0.8)',borderBottom:'1px solid rgba(255,255,255,0.1)'}}>Restrooms</th>
-                <th style={{padding:'8px 10px',textAlign:'left',color:'rgba(255,255,255,0.8)',borderBottom:'1px solid rgba(255,255,255,0.1)'}}>Vibe</th>
-              </tr></thead>
-              <tbody>
-                <tr><td style={{padding:'7px 10px',color:'rgba(255,255,255,0.6)',borderBottom:'1px solid rgba(255,255,255,0.04)'}}>Henderson Beach SP</td><td style={{padding:'7px 10px',color:'rgba(255,255,255,0.6)',borderBottom:'1px solid rgba(255,255,255,0.04)'}}>$4/vehicle</td><td style={{padding:'7px 10px',color:'rgba(255,255,255,0.6)',borderBottom:'1px solid rgba(255,255,255,0.04)'}}>✅</td><td style={{padding:'7px 10px',color:'rgba(255,255,255,0.6)',borderBottom:'1px solid rgba(255,255,255,0.04)'}}>Quiet, natural, uncrowded</td></tr>
-                <tr style={{background:'rgba(255,255,255,0.02)'}}><td style={{padding:'7px 10px',color:'rgba(255,255,255,0.6)',borderBottom:'1px solid rgba(255,255,255,0.04)'}}>Crystal Beach</td><td style={{padding:'7px 10px',color:'rgba(255,255,255,0.6)',borderBottom:'1px solid rgba(255,255,255,0.04)'}}>Free (street)</td><td style={{padding:'7px 10px',color:'rgba(255,255,255,0.6)',borderBottom:'1px solid rgba(255,255,255,0.04)'}}>✅</td><td style={{padding:'7px 10px',color:'rgba(255,255,255,0.6)',borderBottom:'1px solid rgba(255,255,255,0.04)'}}>Calm, shallow, family</td></tr>
-                <tr><td style={{padding:'7px 10px',color:'rgba(255,255,255,0.6)',borderBottom:'1px solid rgba(255,255,255,0.04)'}}>James Lee Park</td><td style={{padding:'7px 10px',color:'rgba(255,255,255,0.6)',borderBottom:'1px solid rgba(255,255,255,0.04)'}}>Free</td><td style={{padding:'7px 10px',color:'rgba(255,255,255,0.6)',borderBottom:'1px solid rgba(255,255,255,0.04)'}}>✅</td><td style={{padding:'7px 10px',color:'rgba(255,255,255,0.6)',borderBottom:'1px solid rgba(255,255,255,0.04)'}}>Full service, lifeguards</td></tr>
-                <tr style={{background:'rgba(255,255,255,0.02)'}}><td style={{padding:'7px 10px',color:'rgba(255,255,255,0.6)'}}>Pelican Beach Resort</td><td style={{padding:'7px 10px',color:'rgba(255,255,255,0.6)'}}>Free (guests)</td><td style={{padding:'7px 10px',color:'rgba(255,255,255,0.6)'}}>✅</td><td style={{padding:'7px 10px',color:'rgba(255,255,255,0.6)'}}>Private, direct access</td></tr>
-              </tbody>
-            </table>
-          </div>
           <p style={{fontSize:'14px',color:'rgba(255,255,255,0.55)',lineHeight:'1.8',margin:'0 0 20px'}}><a href="https://www.destincondogetaways.com/blog/best-beaches-destin" style={{color:'rgba(0,212,200,0.8)',textDecoration:'none',fontWeight:'600'}}>Read our full Destin beaches guide →</a></p>
 
           <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:'17px',color:'rgba(255,255,255,0.85)',margin:'0 0 10px'}}>✈️ Destin Travel Logistics: Airports & Getting Here</h2>
           <p style={{fontSize:'14px',color:'rgba(255,255,255,0.55)',lineHeight:'1.8',margin:'0 0 12px'}}>Three airports serve the Destin area. VPS is the closest but has limited routes. ECP has more flights and is often cheaper. PNS is the largest hub with the most airline options. <a href="https://www.destincondogetaways.com/blog/destinairport" style={{color:'rgba(0,212,200,0.8)',textDecoration:'none',fontWeight:'600'}}>See our full airport comparison →</a></p>
-          <div style={{overflowX:'auto',marginBottom:'20px'}}>
-            <table style={{width:'100%',borderCollapse:'collapse',fontSize:'13px',fontFamily:'Arial'}}>
-              <thead><tr style={{background:'rgba(0,212,200,0.1)'}}>
-                <th style={{padding:'10px 12px',textAlign:'left',color:'rgba(255,255,255,0.8)',borderBottom:'1px solid rgba(255,255,255,0.1)'}}>Airport</th>
-                <th style={{padding:'10px 12px',textAlign:'left',color:'rgba(255,255,255,0.8)',borderBottom:'1px solid rgba(255,255,255,0.1)'}}>Code</th>
-                <th style={{padding:'10px 12px',textAlign:'left',color:'rgba(255,255,255,0.8)',borderBottom:'1px solid rgba(255,255,255,0.1)'}}>Drive to Destin</th>
-                <th style={{padding:'10px 12px',textAlign:'left',color:'rgba(255,255,255,0.8)',borderBottom:'1px solid rgba(255,255,255,0.1)'}}>Best for</th>
-              </tr></thead>
-              <tbody>
-                <tr><td style={{padding:'9px 12px',color:'rgba(255,255,255,0.6)',borderBottom:'1px solid rgba(255,255,255,0.05)'}}>Destin-Fort Walton Beach</td><td style={{padding:'9px 12px',color:'rgba(0,212,200,0.8)',borderBottom:'1px solid rgba(255,255,255,0.05)'}}>VPS</td><td style={{padding:'9px 12px',color:'rgba(255,255,255,0.6)',borderBottom:'1px solid rgba(255,255,255,0.05)'}}>~15 min</td><td style={{padding:'9px 12px',color:'rgba(255,255,255,0.6)',borderBottom:'1px solid rgba(255,255,255,0.05)'}}>Closest, fewest routes</td></tr>
-                <tr style={{background:'rgba(255,255,255,0.02)'}}><td style={{padding:'9px 12px',color:'rgba(255,255,255,0.6)',borderBottom:'1px solid rgba(255,255,255,0.05)'}}>Panama City Beach</td><td style={{padding:'9px 12px',color:'rgba(0,212,200,0.8)',borderBottom:'1px solid rgba(255,255,255,0.05)'}}>ECP</td><td style={{padding:'9px 12px',color:'rgba(255,255,255,0.6)',borderBottom:'1px solid rgba(255,255,255,0.05)'}}>~45 min</td><td style={{padding:'9px 12px',color:'rgba(255,255,255,0.6)',borderBottom:'1px solid rgba(255,255,255,0.05)'}}>Best price/route balance</td></tr>
-                <tr><td style={{padding:'9px 12px',color:'rgba(255,255,255,0.6)'}}>Pensacola International</td><td style={{padding:'9px 12px',color:'rgba(0,212,200,0.8)'}}>PNS</td><td style={{padding:'9px 12px',color:'rgba(255,255,255,0.6)'}}>~1 hr</td><td style={{padding:'9px 12px',color:'rgba(255,255,255,0.6)'}}>Most airlines, best fares</td></tr>
-              </tbody>
-            </table>
-          </div>
 
           <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:'17px',color:'rgba(255,255,255,0.85)',margin:'0 0 10px'}}>🌤 Destin Weather & Best Time to Visit</h2>
           <p style={{fontSize:'14px',color:'rgba(255,255,255,0.55)',lineHeight:'1.8',margin:'0 0 12px'}}>Destin has warm weather year-round. Peak season is June–August with water temps reaching 84°F. Spring and fall offer fewer crowds with still-pleasant conditions. <a href="https://www.destincondogetaways.com/blog/destinweather" style={{color:'rgba(0,212,200,0.8)',textDecoration:'none',fontWeight:'600'}}>Read our full Destin weather guide →</a></p>
-          <div style={{overflowX:'auto',marginBottom:'20px'}}>
-            <table style={{width:'100%',borderCollapse:'collapse',fontSize:'12px',fontFamily:'Arial'}}>
-              <thead><tr style={{background:'rgba(0,212,200,0.1)'}}>
-                <th style={{padding:'8px 10px',textAlign:'left',color:'rgba(255,255,255,0.8)',borderBottom:'1px solid rgba(255,255,255,0.1)'}}>Month</th>
-                <th style={{padding:'8px 10px',textAlign:'left',color:'rgba(255,255,255,0.8)',borderBottom:'1px solid rgba(255,255,255,0.1)'}}>Air Temp</th>
-                <th style={{padding:'8px 10px',textAlign:'left',color:'rgba(255,255,255,0.8)',borderBottom:'1px solid rgba(255,255,255,0.1)'}}>Water Temp</th>
-                <th style={{padding:'8px 10px',textAlign:'left',color:'rgba(255,255,255,0.8)',borderBottom:'1px solid rgba(255,255,255,0.1)'}}>Crowds</th>
-              </tr></thead>
-              <tbody>
-                <tr><td style={{padding:'7px 10px',color:'rgba(255,255,255,0.6)',borderBottom:'1px solid rgba(255,255,255,0.04)'}}>Jan–Feb</td><td style={{padding:'7px 10px',color:'rgba(255,255,255,0.6)',borderBottom:'1px solid rgba(255,255,255,0.04)'}}>58–65°F</td><td style={{padding:'7px 10px',color:'rgba(255,255,255,0.6)',borderBottom:'1px solid rgba(255,255,255,0.04)'}}>58–62°F</td><td style={{padding:'7px 10px',color:'rgba(255,255,255,0.6)',borderBottom:'1px solid rgba(255,255,255,0.04)'}}>Low</td></tr>
-                <tr style={{background:'rgba(255,255,255,0.02)'}}><td style={{padding:'7px 10px',color:'rgba(255,255,255,0.6)',borderBottom:'1px solid rgba(255,255,255,0.04)'}}>Mar–Apr</td><td style={{padding:'7px 10px',color:'rgba(255,255,255,0.6)',borderBottom:'1px solid rgba(255,255,255,0.04)'}}>68–76°F</td><td style={{padding:'7px 10px',color:'rgba(255,255,255,0.6)',borderBottom:'1px solid rgba(255,255,255,0.04)'}}>65–72°F</td><td style={{padding:'7px 10px',color:'rgba(255,255,255,0.6)',borderBottom:'1px solid rgba(255,255,255,0.04)'}}>Medium</td></tr>
-                <tr><td style={{padding:'7px 10px',color:'rgba(255,255,255,0.6)',borderBottom:'1px solid rgba(255,255,255,0.04)'}}>May–Jun</td><td style={{padding:'7px 10px',color:'rgba(255,255,255,0.6)',borderBottom:'1px solid rgba(255,255,255,0.04)'}}>80–88°F</td><td style={{padding:'7px 10px',color:'rgba(255,255,255,0.6)',borderBottom:'1px solid rgba(255,255,255,0.04)'}}>76–82°F</td><td style={{padding:'7px 10px',color:'rgba(255,255,255,0.6)',borderBottom:'1px solid rgba(255,255,255,0.04)'}}>High</td></tr>
-                <tr style={{background:'rgba(255,255,255,0.02)'}}><td style={{padding:'7px 10px',color:'rgba(255,255,255,0.6)',borderBottom:'1px solid rgba(255,255,255,0.04)'}}>Jul–Aug</td><td style={{padding:'7px 10px',color:'rgba(255,255,255,0.6)',borderBottom:'1px solid rgba(255,255,255,0.04)'}}>88–92°F</td><td style={{padding:'7px 10px',color:'rgba(255,255,255,0.6)',borderBottom:'1px solid rgba(255,255,255,0.04)'}}>82–84°F</td><td style={{padding:'7px 10px',color:'rgba(255,255,255,0.6)',borderBottom:'1px solid rgba(255,255,255,0.04)'}}>Peak</td></tr>
-                <tr><td style={{padding:'7px 10px',color:'rgba(255,255,255,0.6)',borderBottom:'1px solid rgba(255,255,255,0.04)'}}>Sep–Oct</td><td style={{padding:'7px 10px',color:'rgba(255,255,255,0.6)',borderBottom:'1px solid rgba(255,255,255,0.04)'}}>78–85°F</td><td style={{padding:'7px 10px',color:'rgba(255,255,255,0.6)',borderBottom:'1px solid rgba(255,255,255,0.04)'}}>76–80°F</td><td style={{padding:'7px 10px',color:'rgba(255,255,255,0.6)',borderBottom:'1px solid rgba(255,255,255,0.04)'}}>Medium</td></tr>
-                <tr style={{background:'rgba(255,255,255,0.02)'}}><td style={{padding:'7px 10px',color:'rgba(255,255,255,0.6)'}}>Nov–Dec</td><td style={{padding:'7px 10px',color:'rgba(255,255,255,0.6)'}}>62–72°F</td><td style={{padding:'7px 10px',color:'rgba(255,255,255,0.6)'}}>65–70°F</td><td style={{padding:'7px 10px',color:'rgba(255,255,255,0.6)'}}>Low</td></tr>
-              </tbody>
-            </table>
-          </div>
 
           <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:'17px',color:'rgba(255,255,255,0.85)',margin:'0 0 10px'}}>🦞 Best Restaurants in Destin</h2>
           <ul style={{fontSize:'14px',color:'rgba(255,255,255,0.55)',lineHeight:'1.8',margin:'0 0 12px',paddingLeft:'20px'}}>
@@ -269,10 +359,6 @@ body::before{content:'';position:fixed;inset:0;background-image:url('https://uc.
             <li><strong style={{color:'rgba(255,255,255,0.75)'}}>The Back Porch</strong> — oldest beach bar in Destin, open deck over the Gulf.</li>
             <li><strong style={{color:'rgba(255,255,255,0.75)'}}>Dewey Destin's</strong> — locals' favorite for fresh-off-the-boat fish at the harbor.</li>
           </ul>
-          <div style={{background:'rgba(0,212,200,0.06)',borderLeft:'3px solid rgba(0,212,200,0.4)',padding:'10px 14px',borderRadius:'0 8px 8px 0',marginBottom:'20px'}}>
-            <span style={{fontSize:'11px',letterSpacing:'1px',textTransform:'uppercase',color:'rgba(0,212,200,0.7)',fontFamily:'Arial'}}>💡 Local Insight</span>
-            <p style={{fontSize:'13px',color:'rgba(255,255,255,0.5)',margin:'4px 0 0',lineHeight:'1.6'}}>AJ's is famous but always packed. Boshamps next door has the better harbor sunset view and shorter waits. Dewey Destin's at the harbor is where locals eat — no frills, just the freshest fish.</p>
-          </div>
           <p style={{fontSize:'14px',color:'rgba(255,255,255,0.55)',lineHeight:'1.8',margin:'0 0 20px'}}><a href="https://www.destincondogetaways.com/blog/best-restaurants-destin" style={{color:'rgba(0,212,200,0.8)',textDecoration:'none',fontWeight:'600'}}>Read our full restaurant guide →</a></p>
 
           <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:'17px',color:'rgba(255,255,255,0.85)',margin:'0 0 10px'}}>🎆 Seasonal Events & Fireworks 2026</h2>
@@ -282,15 +368,10 @@ body::before{content:'';position:fixed;inset:0;background-image:url('https://uc.
             <li><strong style={{color:'rgba(255,255,255,0.75)'}}>Emerald Coast Blue Marlin Classic</strong> — June, world-class offshore fishing tournament.</li>
             <li><strong style={{color:'rgba(255,255,255,0.75)'}}>HarborWalk Village Events</strong> — live music, boat shows, and festivals throughout summer.</li>
           </ul>
-          <div style={{background:'rgba(0,212,200,0.06)',borderLeft:'3px solid rgba(0,212,200,0.4)',padding:'10px 14px',borderRadius:'0 8px 8px 0',marginBottom:'12px'}}>
-            <span style={{fontSize:'11px',letterSpacing:'1px',textTransform:'uppercase',color:'rgba(0,212,200,0.7)',fontFamily:'Arial'}}>💡 Local Insight</span>
-            <p style={{fontSize:'13px',color:'rgba(255,255,255,0.5)',margin:'4px 0 0',lineHeight:'1.6'}}>The 4th of July fireworks are best watched from a balcony at Pelican Beach Resort — you get an unobstructed Gulf view without the HarborWalk crowds.</p>
-          </div>
           <p style={{fontSize:'14px',color:'rgba(255,255,255,0.55)',lineHeight:'1.8',margin:'0 0 20px'}}><a href="https://www.destincondogetaways.com/blog/destin-fireworks-2026" style={{color:'rgba(0,212,200,0.8)',textDecoration:'none',fontWeight:'600'}}>Fireworks guide</a> · <a href="https://www.destincondogetaways.com/blog/destin-events-2026" style={{color:'rgba(0,212,200,0.8)',textDecoration:'none',fontWeight:'600'}}>Events 2026 →</a></p>
-          <p style={{fontSize:'14px',color:'rgba(255,255,255,0.55)',lineHeight:'1.8',margin:'0'}}>Whether you are planning your first visit or your tenth, this hub covers beaches, weather, restaurants, live music, fireworks, events, airports, car rentals, and direct booking deals — all curated from real local experience at Pelican Beach Resort.</p>
         </div>
 
-        {/* Deals + Book Direct */}
+        {/* DEALS CTA */}
         <div style={{marginTop:'24px',padding:'24px 20px',background:'linear-gradient(135deg,rgba(0,212,200,0.08),rgba(0,212,200,0.03))',border:'1.5px solid rgba(0,212,200,0.3)',borderRadius:'16px',textAlign:'center'}}>
           <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:'18px',color:'white',margin:'0 0 10px'}}>🏷️ Live Price Drops — Book Direct & Save</h2>
           <p style={{fontSize:'14px',color:'rgba(255,255,255,0.55)',lineHeight:'1.7',margin:'0 0 16px'}}>We track daily price changes on Unit 707 and Unit 1006 at Pelican Beach Resort. When prices drop we surface them here — no Airbnb fees, no VRBO markup, direct from the owner.</p>
@@ -299,14 +380,14 @@ body::before{content:'';position:fixed;inset:0;background-image:url('https://uc.
         </div>
 
         {/* FAQ */}
-        <div style={{marginTop:'24px',padding:'24px 20px',background:'rgba(255,255,255,0.02)',border:'1px solid rgba(255,255,255,0.06)',borderRadius:'16px'}}>
+        <div style={{marginTop:'24px',padding:'24px 20px',background:'rgba(255,255,255,0.02)',border:'1px solid rgba(255,255,255,0.06)',borderRadius:'16px',marginBottom:'32px'}}>
           <div style={{fontSize:'11px',letterSpacing:'2px',textTransform:'uppercase',color:'rgba(255,255,255,0.3)',marginBottom:'20px',fontFamily:'Arial'}}>Frequently Asked Questions</div>
           {[
             {q:'What are the best beaches in Destin FL?',a:'Henderson Beach State Park, Crystal Beach, and James Lee Park are the top picks. All feature white quartz sand and emerald green Gulf waters the Emerald Coast is known for.'},
             {q:'What airport do you fly into for Destin Florida?',a:'VPS (Destin-Fort Walton Beach) is closest at 15 minutes. ECP (Panama City Beach) is 45 minutes with more flight options. PNS (Pensacola) is 1 hour with the most airlines.'},
             {q:'What is the best time to visit Destin Florida?',a:'May through October for warm water and beach weather. June–August is peak season. Spring and fall offer lower prices with still-pleasant temperatures and fewer crowds.'},
             {q:'Do you need a car in Destin Florida?',a:'Yes — public transportation is limited. Most attractions are spread along US-98. Renting a car at VPS, ECP, or PNS is recommended.'},
-            {q:'What are the best restaurants in Destin Florida?',a:"AJ's Seafood & Oyster Bar, Boshamps Seafood, Pompano Joe's, and The Back Porch. HarborWalk Village has numerous waterfront dining options within walking distance."},
+            {q:"What are the best restaurants in Destin Florida?",a:"AJ's Seafood & Oyster Bar, Boshamps Seafood, Pompano Joe's, and The Back Porch. HarborWalk Village has numerous waterfront dining options within walking distance."},
             {q:'How do I find cheap flights to Destin Florida?',a:'Compare fares to VPS, ECP, and PNS. Booking 6–8 weeks ahead and flying midweek yields the best prices. ECP and PNS typically have more competitive fares than VPS.'},
           ].map((item, i, arr) => (
             <div key={i} style={{marginBottom: i < arr.length-1 ? '16px' : '0', paddingBottom: i < arr.length-1 ? '16px' : '0', borderBottom: i < arr.length-1 ? '1px solid rgba(255,255,255,0.06)' : 'none'}}>
@@ -314,43 +395,6 @@ body::before{content:'';position:fixed;inset:0;background-image:url('https://uc.
               <p style={{fontSize:'13px',color:'rgba(255,255,255,0.5)',lineHeight:'1.6',margin:'0'}}>{item.a}</p>
             </div>
           ))}
-        </div>
-
-        {/* Common Questions */}
-        <div style={{marginTop:'24px',padding:'24px 20px',background:'rgba(255,255,255,0.02)',border:'1px solid rgba(255,255,255,0.06)',borderRadius:'16px'}}>
-          <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:'18px',color:'white',margin:'0 0 20px'}}>Common Destin Travel Questions</h2>
-          {[
-            {q:'What are the best seafood restaurants in Destin for 2026?',a:"AJ's Seafood & Oyster Bar remains the most popular for waterfront dining on HarborWalk. For the best harbor sunset view, Boshamps is the local pick. Dewey Destin's at the harbor is where locals go for the freshest catch at the best price."},
-            {q:'Where can I see fireworks in Destin in 2026?',a:'The 4th of July fireworks over Destin Harbor are the biggest event. Best viewing spots are HarborWalk Village and from a Gulf-facing balcony at Pelican Beach Resort on US-98. The show typically starts at 9 PM and is visible for miles along the beach.'},
-            {q:"Is Henderson Beach State Park worth the entry fee?",a:'Yes — at $4 per vehicle it is one of the best value beaches in Florida. The park has less than half the crowd of public beaches, pristine white sand, nature trails, and clean facilities. Arrive before 10 AM in peak season to guarantee a spot.'},
-            {q:'What is the cheapest way to get to Destin Florida?',a:'Fly into Pensacola (PNS) or Panama City Beach (ECP) for the best fares — both are within 45–60 minutes of Destin. VPS is closest but has fewer routes and higher prices. Book 6–8 weeks ahead and fly midweek for the biggest savings.'},
-            {q:'How do I book a condo at Pelican Beach Resort directly?',a:null},
-          ].map((item, i) => (
-            <div key={i}>
-              <h3 style={{fontSize:'14px',fontWeight:'600',color:'rgba(0,212,200,0.9)',margin:'0 0 6px',fontFamily:'Arial'}}>{item.q}</h3>
-              {item.a ? <p style={{fontSize:'13px',color:'rgba(255,255,255,0.5)',lineHeight:'1.6',margin:'0 0 16px'}}>{item.a}</p>
-              : <p style={{fontSize:'13px',color:'rgba(255,255,255,0.5)',lineHeight:'1.6',margin:'0'}}>Book directly at <a href="https://www.destincondogetaways.com" style={{color:'rgba(0,212,200,0.7)'}}>destincondogetaways.com</a> to skip the 14–20% Airbnb and VRBO fees. Unit 707 (7th floor) and Unit 1006 (10th floor) are both available for direct booking with instant confirmation. Check current price drops at our <a href="https://deals.destincondogetaways.com/beach-deals" style={{color:'rgba(0,212,200,0.7)'}}>live deals page</a>.</p>}
-            </div>
-          ))}
-        </div>
-
-        {/* Blog links */}
-        <div style={{marginTop:'24px',padding:'20px',background:'rgba(255,255,255,0.02)',border:'1px solid rgba(255,255,255,0.06)',borderRadius:'16px'}}>
-          <div style={{fontSize:'11px',letterSpacing:'2px',textTransform:'uppercase',color:'rgba(255,255,255,0.3)',marginBottom:'16px',fontFamily:'Arial'}}>Destin Travel Guides</div>
-          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'10px'}}>
-            {[
-              {href:'https://www.destincondogetaways.com/blog/best-beaches-destin',label:'🏖 Best Beaches in Destin'},
-              {href:'https://www.destincondogetaways.com/blog/destinweather',label:'🌤 Destin Weather Guide'},
-              {href:'https://www.destincondogetaways.com/blog/destin-events-2026',label:'📅 Destin Events 2026'},
-              {href:'https://www.destincondogetaways.com/blog/destin-fireworks-2026',label:'🎆 Destin Fireworks 2026'},
-              {href:'https://www.destincondogetaways.com/blog/destinairport',label:'✈️ Which Airport for Destin'},
-              {href:'https://www.destincondogetaways.com/blog/how-to-find-cheaper-flights-and-car-rentals',label:'🚗 Cheap Flights & Car Rentals'},
-              {href:'https://www.destincondogetaways.com/blog/best-restaurants-destin',label:'🦞 Best Restaurants in Destin'},
-            ].map((link,i) => (
-              <a key={i} href={link.href} style={{display:'flex',alignItems:'center',gap:'8px',padding:'10px 12px',background:'rgba(255,255,255,0.04)',border:'1px solid rgba(255,255,255,0.08)',borderRadius:'10px',textDecoration:'none',color:'rgba(255,255,255,0.6)',fontSize:'13px',fontFamily:'Arial'}}>{link.label}</a>
-            ))}
-            <a href="https://deals.destincondogetaways.com/beach-deals" style={{display:'flex',alignItems:'center',gap:'8px',padding:'10px 12px',background:'rgba(0,212,200,0.08)',border:'1px solid rgba(0,212,200,0.25)',borderRadius:'10px',textDecoration:'none',color:'rgba(0,212,200,0.9)',fontSize:'13px',fontFamily:'Arial',fontWeight:'bold'}}>🏷️ Live Price Drops</a>
-          </div>
         </div>
       </div>
 
@@ -383,22 +427,22 @@ body::before{content:'';position:fixed;inset:0;background-image:url('https://uc.
 
       <script dangerouslySetInnerHTML={{ __html: `
 const TILES={
-  beaches:   {eyebrow:'Explore',         title:'🏖️ Beaches',         url:'https://www.destincondogetaways.com/blog/best-beaches-destin',blog:null},
-  weather:   {eyebrow:'Live Conditions', title:'🌊 Water & Weather',  url:'https://destin-concierge-new.vercel.app/destin-beach-conditions.html',blog:'https://www.destincondogetaways.com/blog/destinweather'},
-  cams:      {eyebrow:'Live',            title:'📷 Beach Cams',       url:'https://www.destincondogetaways.com/destin-live-beach-cam-574002656',blog:null},
-  seafood:   {eyebrow:'Food & Drink',    title:'🦞 Seafood',          url:'https://www.destincondogetaways.com/blog/best-restaurants-destin',blog:null},
-  localeats: {eyebrow:'Food & Drink',    title:'🍝 Local Eats',       url:'https://www.destincondogetaways.com/blog/best-restaurants-destin-local-guide',blog:null},
-  spas:      {eyebrow:'Relax',           title:'💆 Spas',             url:'https://www.destincondogetaways.com/blog/destinspa',blog:null},
-  music:     {eyebrow:'Nightlife',       title:'🎵 Live Music',       url:'https://destin-concierge-new.vercel.app/destin-music-calendar.html',blog:'https://www.destincondogetaways.com/blog/destin-live-music-2026'},
-  fireworks: {eyebrow:'Events',          title:'🎆 Fireworks',        url:'https://www.destincondogetaways.com/blog/destin-fireworks-2026',blog:null},
-  events:    {eyebrow:'Events',          title:'📅 Events 2026',      url:'https://www.destincondogetaways.com/blog/destin-events-2026',blog:null},
-  airports:  {eyebrow:'Flights & Cars',  title:'✈️ Airports',         url:'https://www.destincondogetaways.com/blog/destinairport',blog:null},
-  gettinghere:{eyebrow:'Flights & Cars', title:'🚗✈️ Flights & Cars',  url:'https://destin-concierge-new.vercel.app/destin-car-rental.html',blog:'https://www.destincondogetaways.com/blog/how-to-find-cheaper-flights-and-car-rentals',blog2:'https://www.destincondogetaways.com/blog/destincar'},
-  deals:     {eyebrow:'Direct Booking',  title:'🏷️ Best Deals',       url:'https://deals.destincondogetaways.com/beach-deals',blog:'https://deals.destincondogetaways.com/beach-deals'},
-  grocery:   {eyebrow:'Essentials',      title:'🛒 Groceries',        url:'https://destin-concierge-new.vercel.app/supermarket-map.html',blog:'https://www.destincondogetaways.com/blog/destinsupermarkets'},
-  planner:   {eyebrow:'Plan Your Stay',  title:'🗺️ Trip Planner',     url:'https://destin-concierge-new.vercel.app/destin-itinerary-planner.html',blog:null},
-  activities:{eyebrow:'Things To Do',    title:'🐬 Activities & Tours',url:'https://destin-concierge-new.vercel.app/destin-tripshock.html',blog:null},
-  destiny:   {eyebrow:'AI Concierge',    title:'💬 Destiny Blue',     url:'https://destin-concierge-new.vercel.app/concierge',blog:null},
+  beaches:   {eyebrow:'Explore',         title:'🏖️ Beaches',           url:'https://www.destincondogetaways.com/blog/best-beaches-destin',blog:null},
+  weather:   {eyebrow:'Live Conditions', title:'🌊 Water & Weather',    url:'https://destin-concierge-new.vercel.app/destin-beach-conditions.html',blog:'https://www.destincondogetaways.com/blog/destinweather'},
+  cams:      {eyebrow:'Live',            title:'📷 Beach Cams',         url:'https://www.destincondogetaways.com/destin-live-beach-cam-574002656',blog:null},
+  seafood:   {eyebrow:'Food & Drink',    title:'🦞 Seafood',            url:'https://www.destincondogetaways.com/blog/best-restaurants-destin',blog:null},
+  localeats: {eyebrow:'Food & Drink',    title:'🍝 Local Eats',         url:'https://www.destincondogetaways.com/blog/best-restaurants-destin-local-guide',blog:null},
+  spas:      {eyebrow:'Relax',           title:'💆 Spas',               url:'https://www.destincondogetaways.com/blog/destinspa',blog:null},
+  music:     {eyebrow:'Nightlife',       title:'🎵 Live Music',         url:'https://destin-concierge-new.vercel.app/destin-music-calendar.html',blog:'https://www.destincondogetaways.com/blog/destin-live-music-2026'},
+  fireworks: {eyebrow:'Events',          title:'🎆 Fireworks',          url:'https://www.destincondogetaways.com/blog/destin-fireworks-2026',blog:null},
+  events:    {eyebrow:'Events',          title:'📅 Events 2026',        url:'https://www.destincondogetaways.com/blog/destin-events-2026',blog:null},
+  airports:  {eyebrow:'Flights & Cars',  title:'✈️ Airports',           url:'https://www.destincondogetaways.com/blog/destinairport',blog:null},
+  gettinghere:{eyebrow:'Flights & Cars', title:'🚗✈️ Flights & Cars',   url:'https://destin-concierge-new.vercel.app/destin-car-rental.html',blog:'https://www.destincondogetaways.com/blog/how-to-find-cheaper-flights-and-car-rentals',blog2:'https://www.destincondogetaways.com/blog/destincar'},
+  deals:     {eyebrow:'Direct Booking',  title:'🏷️ Best Deals',         url:'https://deals.destincondogetaways.com/beach-deals',blog:'https://deals.destincondogetaways.com/beach-deals'},
+  grocery:   {eyebrow:'Essentials',      title:'🛒 Groceries',          url:'https://destin-concierge-new.vercel.app/supermarket-map.html',blog:'https://www.destincondogetaways.com/blog/destinsupermarkets'},
+  planner:   {eyebrow:'Plan Your Stay',  title:'🗺️ Trip Planner',       url:'https://destin-concierge-new.vercel.app/destin-itinerary-planner.html',blog:null},
+  activities:{eyebrow:'Things To Do',    title:'🐬 Activities & Tours', url:'https://destin-concierge-new.vercel.app/destin-tripshock.html',blog:null},
+  destiny:   {eyebrow:'AI Concierge',    title:'💬 Destiny Blue',       url:'https://destin-concierge-new.vercel.app/concierge',blog:null},
 };
 var currentTile=null,showingBlog=false;
 function openModal(key){

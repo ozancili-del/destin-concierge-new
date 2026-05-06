@@ -84,6 +84,48 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 }
 
 
+
+/* MOBILE HUB NAV */
+.hub-mobile-nav{display:none}
+
+@media(max-width:899px){
+  .hub-mobile-nav{
+    width:calc(100% - 20px);
+    max-width:480px;
+    margin:12px auto 12px;
+    padding:10px;
+    display:flex!important;
+    gap:8px;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    background:rgba(4,16,29,.92);
+    border:1px solid rgba(71,226,208,.22);
+    border-radius:16px;
+    backdrop-filter:blur(12px);
+    scrollbar-width:none;
+    position:relative;
+    z-index:50;
+  }
+  .hub-mobile-nav::-webkit-scrollbar{display:none;}
+  .hub-mobile-nav a{
+    flex:0 0 auto;
+    color:rgba(255,255,255,.84);
+    text-decoration:none;
+    font-size:13px;
+    font-weight:900;
+    padding:9px 12px;
+    border-radius:999px;
+    background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.10);
+    white-space:nowrap;
+  }
+  .hub-mobile-nav a.active{
+    color:#061018;
+    background:#47e2d0;
+    border-color:transparent;
+  }
+}
+
 /* HERO */
 .hero{
   min-height:590px;display:grid;align-items:center;
@@ -415,14 +457,21 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
         </a>
         <nav className="hub-nav">
           <a className="active" href="https://explore.destincondogetaways.com/destin-hub">Destin Hub</a>
-          <a href="https://www.destincondogetaways.com/blog/best-beaches-destin">Beaches</a>
+          <a href="https://explore.destincondogetaways.com/destin-tripshock.html">Activities</a>
           <a href="https://www.destincondogetaways.com">Condos</a>
           <a href="https://deals.destincondogetaways.com/beach-deals">Deals</a>
-          <a href="https://explore.destincondogetaways.com/destin-tripshock.html">Things To Do</a>
-          <a href="https://destin-concierge-new.vercel.app/destin-itinerary-planner.html">Plan Your Trip</a>
+          <a href="https://explore.destincondogetaways.com/destin-car-rental.html">Flights & Cars</a>
         </nav>
         <a className="hub-book" href="https://www.destincondogetaways.com" target="_blank" rel="noopener">🏖️ Book Your Stay</a>
       </header>
+
+      <nav className="hub-mobile-nav" aria-label="Mobile navigation">
+        <a className="active" href="https://explore.destincondogetaways.com/destin-hub">Destin Hub</a>
+        <a href="https://explore.destincondogetaways.com/destin-tripshock.html">Activities</a>
+        <a href="https://www.destincondogetaways.com">Condos</a>
+        <a href="https://deals.destincondogetaways.com/beach-deals">Deals</a>
+        <a href="https://explore.destincondogetaways.com/destin-car-rental.html">Flights & Cars</a>
+      </nav>
 
       <div className="page-wrap">
       {/* HERO */}

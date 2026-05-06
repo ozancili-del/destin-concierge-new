@@ -57,7 +57,7 @@ html,body{background:#040d1a;color:#fff;font-family:'Outfit',sans-serif;-webkit-
 
 /* HERO */
 .hero{position:relative;min-height:400px;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;}
-.hero-bg{position:absolute;inset:0;background-image:url('/hub-hero.png');background-size:cover;background-position:center top;}
+.hero-bg{position:absolute;inset:0;background-size:cover;background-position:center top;}
 .hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(4,13,26,0.25) 0%,rgba(4,13,26,0.55) 45%,rgba(4,13,26,0.97) 100%);}
 .hero-content{position:relative;z-index:2;padding:0 18px 30px;}
 .hero-badge{display:inline-block;background:rgba(0,196,180,0.15);border:1px solid rgba(0,196,180,0.4);color:#00c4b4;font-size:10px;font-weight:700;letter-spacing:2px;padding:5px 14px;border-radius:20px;margin-bottom:14px;text-transform:uppercase;}
@@ -150,7 +150,7 @@ html,body{background:#040d1a;color:#fff;font-family:'Outfit',sans-serif;-webkit-
       <div className="page-wrap">
       {/* HERO */}
       <div className="hero">
-        <div className="hero-bg"></div>
+        <div className="hero-bg" style={{backgroundImage:"url('/hub-hero.png')"}}></div>
         <div className="hero-content">
           <div className="hero-badge">✦ Everything for your Destin trip</div>
           <h1>Plan Your<br /><span>Destin Trip</span></h1>

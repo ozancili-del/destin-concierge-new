@@ -58,7 +58,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 @media(min-width:900px){
   body::before{
     background-image:
-      linear-gradient(rgba(4,13,26,0.58),rgba(4,13,26,0.78)),
+      linear-gradient(rgba(4,13,26,0.54),rgba(4,13,26,0.76)),
       url('/hub-bg-golden.jpg');
     background-size:cover;
     background-position:center center;
@@ -153,6 +153,217 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 /* SEO CONTENT */
 .content{padding:24px 18px 0;}
 
+
+/* DESKTOP HUB UPGRADE — Activities-style wide layout */
+.hub-topbar{display:none}
+
+@media(min-width:900px){
+  .hub-topbar{
+    width:min(1180px,calc(100% - 44px));
+    margin:22px auto 18px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:28px;
+    position:relative;
+    z-index:2;
+  }
+  .hub-brand{
+    line-height:1;
+    text-decoration:none;
+    display:flex;
+    flex-direction:column;
+    gap:3px;
+  }
+  .hub-brand b{
+    font-size:24px;
+    letter-spacing:.13em;
+    color:#58fff3;
+    font-weight:900;
+  }
+  .hub-brand span{
+    font-size:11px;
+    letter-spacing:.18em;
+    color:rgba(255,255,255,.76);
+    font-weight:800;
+  }
+  .hub-nav{
+    display:flex;
+    align-items:center;
+    gap:28px;
+    font-size:14px;
+    font-weight:900;
+    color:rgba(255,255,255,.88);
+  }
+  .hub-nav a{
+    color:inherit;
+    text-decoration:none;
+    position:relative;
+    white-space:nowrap;
+  }
+  .hub-nav a.active{
+    color:#58fff3;
+  }
+  .hub-nav a.active::after{
+    content:'';
+    position:absolute;
+    left:0;
+    right:0;
+    bottom:-9px;
+    height:2px;
+    border-radius:99px;
+    background:#58fff3;
+    box-shadow:0 0 14px rgba(88,255,243,.65);
+  }
+  .hub-book{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    text-decoration:none;
+    border:1px solid rgba(245,166,35,.60);
+    background:linear-gradient(135deg,rgba(245,166,35,.20),rgba(245,166,35,.06));
+    color:#ffd98a;
+    padding:13px 20px;
+    border-radius:14px;
+    font-size:14px;
+    font-weight:900;
+    white-space:nowrap;
+    box-shadow:0 12px 26px rgba(0,0,0,.18);
+  }
+
+  .page-wrap{
+    max-width:1180px;
+    width:min(1180px,calc(100% - 44px));
+    margin:0 auto 44px;
+    border-radius:30px;
+    overflow:hidden;
+    background:rgba(4,13,26,.16);
+    border:1px solid rgba(255,255,255,.08);
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.025),
+      0 34px 100px rgba(0,0,0,0.38);
+    backdrop-filter:blur(1px);
+  }
+
+  .hero{
+    min-height:520px;
+    border-radius:30px 30px 0 0;
+    margin:0;
+    border-bottom:1px solid rgba(255,255,255,.08);
+    background-position:center center;
+  }
+  .hero::after{
+    background:
+      linear-gradient(90deg,rgba(4,13,26,.94) 0%,rgba(4,13,26,.72) 42%,rgba(4,13,26,.24) 100%),
+      linear-gradient(to bottom,rgba(4,13,26,.05),rgba(4,13,26,.18) 45%,rgba(4,13,26,.70) 100%);
+  }
+  .hero-content{
+    min-height:520px;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 520px;
+    grid-template-rows:auto auto auto;
+    column-gap:64px;
+    align-content:center;
+    padding:54px 48px 58px;
+  }
+  .hero-badge{grid-column:1;grid-row:1;width:max-content;font-size:12px;padding:10px 18px;margin-bottom:22px}
+  .hero h1{grid-column:1;grid-row:2;font-size:clamp(58px,5vw,82px);line-height:.95;letter-spacing:-3px;margin-bottom:22px}
+  .hero-sub{grid-column:1;grid-row:3;font-size:18px;max-width:610px;color:rgba(255,255,255,.82);margin-bottom:0}
+  .hero-btns{
+    grid-column:2;
+    grid-row:1 / span 3;
+    align-self:center;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+    max-width:none;
+  }
+  .hbtn{
+    min-height:104px;
+    border-radius:18px;
+    font-size:20px;
+    justify-content:flex-start;
+    padding:22px 26px;
+    background:rgba(255,255,255,.11);
+    border:1px solid rgba(255,255,255,.20);
+    box-shadow:0 18px 45px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.10);
+  }
+  .hbtn-gold{background:linear-gradient(135deg,rgba(217,144,31,.95),rgba(255,184,61,.84));border:1px solid rgba(255,209,110,.64)}
+  .hbtn-teal{background:linear-gradient(135deg,rgba(11,149,140,.92),rgba(63,230,216,.78));border:1px solid rgba(94,255,244,.54)}
+  .hbtn-blue{background:rgba(25,98,178,.42);border:1px solid rgba(111,188,255,.42);color:#a7d8ff}
+
+  .featured{
+    margin:28px 48px 22px;
+    border-radius:24px;
+    display:grid;
+    grid-template-columns:1fr;
+    box-shadow:0 24px 62px rgba(0,0,0,.26);
+  }
+  .feat-img-wrap{height:220px}
+  .feat-overlay{padding:26px 30px}
+  .feat-title{font-size:34px}
+  .feat-sub{font-size:15px}
+  .feat-foot{padding:18px 30px}
+  .feat-foot-txt{font-size:17px}
+  .feat-cta{font-size:17px;padding:16px 28px;border-radius:16px}
+
+  .sec-lbl{
+    padding:4px 48px 14px;
+    font-size:13px;
+    letter-spacing:3.2px;
+    color:#72fff5;
+  }
+  .grid{
+    grid-template-columns:repeat(5,minmax(0,1fr));
+    gap:14px;
+    padding:0 48px;
+  }
+  .card{border-radius:18px}
+  .card-img{height:120px}
+  .card-body{padding:14px 14px 16px}
+  .card-title{font-size:18px}
+  .card-desc{font-size:13px;min-height:54px}
+  .card-cta{font-size:13px}
+
+  .ai-strip{
+    margin:24px 48px 0;
+    padding:20px 24px;
+  }
+  .ai-avatar{width:60px;height:60px}
+  .ai-text h3{font-size:20px}
+  .ai-text p{font-size:14px}
+  .ai-btn{font-size:14px;padding:12px 18px;border-radius:14px}
+
+  .footer-bar{
+    margin:22px 48px 0;
+    padding:2px 0 10px;
+    border-radius:18px;
+    background:rgba(255,255,255,.03);
+    border:1px solid rgba(255,255,255,.08);
+  }
+  .fi-icon{font-size:22px}
+  .fi-lbl{font-size:11px;color:rgba(255,255,255,.74)}
+  .fi-sub{font-size:10px;color:rgba(255,255,255,.44)}
+
+  .content{
+    max-width:980px;
+    margin:0 auto;
+    padding:30px 0 0;
+  }
+}
+
+@media(min-width:900px) and (max-width:1080px){
+  .hub-topbar{width:min(960px,calc(100% - 30px));gap:16px}
+  .hub-nav{gap:16px;font-size:13px}
+  .page-wrap{width:min(960px,calc(100% - 30px))}
+  .hero-content{grid-template-columns:1fr 420px;column-gap:34px;padding-left:36px;padding-right:36px}
+  .hbtn{font-size:17px;padding:18px}
+  .grid{grid-template-columns:repeat(4,1fr);padding-left:36px;padding-right:36px}
+  .featured,.ai-strip,.footer-bar{margin-left:36px;margin-right:36px}
+  .sec-lbl{padding-left:36px}
+}
+
 /* MODAL */
 .modal-overlay{position:fixed;inset:0;background:rgba(3,13,20,0.85);z-index:1000;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .25s;}
 .modal-overlay.open{opacity:1;pointer-events:all;}
@@ -180,6 +391,23 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .back-to-top.visible{display:flex;}
         `}</style>
       </Head>
+
+
+      <header className="hub-topbar">
+        <a className="hub-brand" href="https://www.destincondogetaways.com">
+          <b>DESTIN</b>
+          <span>CONDO GETAWAYS</span>
+        </a>
+        <nav className="hub-nav">
+          <a className="active" href="https://explore.destincondogetaways.com/destin-hub">Destin Hub</a>
+          <a href="https://www.destincondogetaways.com/blog/best-beaches-destin">Beaches</a>
+          <a href="https://www.destincondogetaways.com">Condos</a>
+          <a href="https://deals.destincondogetaways.com/beach-deals">Deals</a>
+          <a href="https://explore.destincondogetaways.com/destin-tripshock.html">Things To Do</a>
+          <a href="https://destin-concierge-new.vercel.app/destin-itinerary-planner.html">Plan Your Trip</a>
+        </nav>
+        <a className="hub-book" href="https://www.destincondogetaways.com" target="_blank" rel="noopener">🏖️ Book Your Stay</a>
+      </header>
 
       <div className="page-wrap">
       {/* HERO */}

@@ -55,6 +55,23 @@ export default function DestinHub() {
 html,body{background:#040d1a;color:#fff;font-family:'Outfit',sans-serif;-webkit-font-smoothing:antialiased;}
 .page-wrap{max-width:480px;margin:0 auto;background:transparent;min-height:100vh;position:relative;z-index:0;}
 body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(4,13,26,0.72),rgba(4,13,26,0.88)),url('https://uc.orez.io/f/d6016c9e0a064e528087ef01caa56955');background-size:cover;background-position:center 40%;filter:saturate(0.85);z-index:-1;}
+@media(min-width:900px){
+  body::before{
+    background-image:
+      radial-gradient(circle at center,rgba(0,196,180,0.08),transparent 46%),
+      linear-gradient(rgba(4,13,26,0.52),rgba(4,13,26,0.74)),
+      url('https://uc.orez.io/f/d6016c9e0a064e528087ef01caa56955');
+    background-size:cover;
+    background-position:center 42%;
+    filter:saturate(0.98) contrast(1.04);
+  }
+  .page-wrap{
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.025),
+      0 30px 95px rgba(0,0,0,0.38);
+  }
+}
+
 
 /* HERO */
 .hero{position:relative;min-height:400px;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;background-image:url('/hub-hero.png');background-size:cover;background-position:center top;}

@@ -159,6 +159,7 @@ html,body{background:#040d1a;color:#fff;font-family:'Outfit',sans-serif;-webkit-
             <button className="hbtn hbtn-gold" onClick={() => openModal('deals')}>🏷️ Best Deals</button>
             <button className="hbtn hbtn-teal" onClick={() => openModal('gettinghere')}>✈️ Flights &amp; Cars</button>
             <button className="hbtn hbtn-blue" onClick={() => openModal('activities')}>🐬 Activities</button>
+            <a className="hbtn" href="https://www.destincondogetaways.com" target="_blank" rel="noopener" style={{background:'rgba(255,255,255,0.1)',color:'#fff',border:'1px solid rgba(255,255,255,0.2)'}}>🏠 Home</a>
           </div>
         </div>
       </div>
@@ -427,7 +428,10 @@ html,body{background:#040d1a;color:#fff;font-family:'Outfit',sans-serif;-webkit-
         </div>
       </div>
 
-      <button className="back-to-top" id="backToTop" onClick={() => window.scrollTo({top:0,behavior:'smooth'})}>↑</button>
+      <div id="backToTop" style={{position:'fixed',bottom:'24px',right:'16px',display:'none',flexDirection:'column',gap:'8px',zIndex:999}}>
+        <a href="https://www.destincondogetaways.com" target="_blank" rel="noopener" style={{width:'44px',height:'44px',borderRadius:'50%',background:'rgba(255,255,255,0.15)',border:'1px solid rgba(255,255,255,0.25)',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'18px',textDecoration:'none'}}>🏠</a>
+        <button onClick={() => window.scrollTo({top:0,behavior:'smooth'})} style={{width:'44px',height:'44px',borderRadius:'50%',background:'rgba(45,219,180,0.9)',color:'#000',border:'none',fontSize:'18px',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'0 4px 16px rgba(0,212,200,0.4)'}}>↑</button>
+      </div>
 
       <script dangerouslySetInnerHTML={{ __html: `
 const TILES={
@@ -488,7 +492,7 @@ var touchStartY=0,sheet=document.getElementById('modalSheet');
 sheet.addEventListener('touchstart',function(e){touchStartY=e.touches[0].clientY;},{passive:true});
 sheet.addEventListener('touchmove',function(e){var dy=e.touches[0].clientY-touchStartY;if(dy>0)sheet.style.transform='translateY('+dy+'px)';},{passive:true});
 sheet.addEventListener('touchend',function(e){var dy=e.changedTouches[0].clientY-touchStartY;if(dy>80){closeModal();}else{sheet.style.transition='transform 0.3s ease';sheet.style.transform='';}});
-window.addEventListener('scroll',function(){document.getElementById('backToTop').classList.toggle('visible',window.scrollY>300);});
+window.addEventListener('scroll',function(){var el=document.getElementById('backToTop');if(el){el.style.display=window.scrollY>300?'flex':'none';}});
       `}} />
     </>
   );

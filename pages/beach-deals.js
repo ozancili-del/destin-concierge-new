@@ -642,7 +642,7 @@ function EmailCapture() {
   }
 
   if (status === 'success') return (
-    <div className="email-capture">
+    <div id="alerts" className="email-capture">
       <div className="email-capture-success">
         <span style={{fontSize:28}}>🎉</span>
         <div>
@@ -757,14 +757,45 @@ export default function BeachDeals({ deals }) {
         <div className="bg-overlay" />
       </div>
 
+
+        <header className="deals-topbar">
+          <a className="deals-brand" href="https://www.destincondogetaways.com">
+            <b>DESTIN</b>
+            <span>CONDO GETAWAYS</span>
+          </a>
+          <nav className="deals-nav">
+            <a href="https://explore.destincondogetaways.com/destin-hub">Destin Hub</a>
+            <a href="https://www.destincondogetaways.com/blog/best-beaches-destin">Beaches</a>
+            <a href="https://www.destincondogetaways.com">Condos</a>
+            <a className="active" href="https://deals.destincondogetaways.com/beach-deals">Deals</a>
+            <a href="https://explore.destincondogetaways.com/destin-tripshock.html">Things To Do</a>
+            <a href="https://explore.destincondogetaways.com/destin-car-rental.html">Flights & Cars</a>
+          </nav>
+          <a className="deals-book" href="https://www.destincondogetaways.com" target="_blank" rel="noopener">🏖️ Book Your Stay</a>
+        </header>
+
       <main className="page">
 
-        {/* Header */}
-        <header className="header">
-          <div className="logo-wrap"><img src="/logo.png" alt="Destin Condo Getaways" /></div>
-          <div className="live-badge"><span className="live-dot" />Featured Beach Deals</div>
-          <h1><span className="line1">Destin Beachfront</span><span className="line2">Price Drops</span></h1>
-          <p className="subtitle">Featured open dates with recent pricing drops — <span>final rates confirmed at checkout.</span></p>
+        {/* Hero */}
+        <header className="hero">
+          <div className="hero-inner">
+            <div className="eyebrow"><span className="live-dot" /> Featured Beach Deals</div>
+            <h1>Destin Beachfront <span>Price Drops</span></h1>
+            <p className="hero-copy">Featured open dates with recent pricing drops at Pelican Beach Resort — final rates confirmed at checkout.</p>
+
+            <div className="hero-actions">
+              <a className="hero-btn hero-btn-gold" href="#current-drops">🏷️ View Current Drops</a>
+              <a className="hero-btn hero-btn-teal" href="https://www.destincondogetaways.com" target="_blank" rel="noopener">🏖️ Check Availability</a>
+              <a className="hero-btn hero-btn-blue" href="#alerts">📬 Price Drop Alerts</a>
+              <a className="hero-btn hero-btn-glass" href="https://explore.destincondogetaways.com/destin-hub">🌊 Destin Hub</a>
+            </div>
+
+            <div className="proof">
+              <span>⭐ 400+ Five-Star Stays</span>
+              <span>🏢 2 Beachfront Units</span>
+              <span>💸 10% Direct Booking Savings</span>
+            </div>
+          </div>
         </header>
 
         {/* Stats */}
@@ -792,7 +823,7 @@ export default function BeachDeals({ deals }) {
           <div className="amenity-item"><div className="amenity-icon">♨️</div><span className="amenity-text">2 hot tubs</span></div>
         </div>
 
-        <div className="section-label">Current Featured Drops</div>
+        <div id="current-drops" className="section-label">Current Featured Drops</div>
 
         {/* SEO intro — visible text for Google */}
         <div className="seo-intro">
@@ -902,6 +933,132 @@ export default function BeachDeals({ deals }) {
 
       <style jsx global>{`
         :root { --green:#39ff14; --green-dark:#2bcc0f; --teal:#00d4c8; --navy:#020b18; --card-bg:rgba(2,18,40,0.82); --card-border:rgba(0,212,200,0.35); --white:#ffffff; --gold:#ffd166; --strike:#ff6b6b; }
+
+        :root { --hub-teal:#47e2d0; --hub-gold:#f3aa34; --hub-blue:#67bfff; --hub-card:rgba(5,22,36,.84); --hub-line:rgba(255,255,255,.12); }
+        body { font-family:'Outfit','Barlow',sans-serif; background:#04101d; color:#f7fbff; }
+        .bg-wrap img { filter:brightness(0.48) saturate(0.95) contrast(1.04) !important; object-position:center 42% !important; }
+        .bg-overlay {
+          background:
+            radial-gradient(circle at 50% 18%,rgba(71,226,208,.10),transparent 36%),
+            linear-gradient(180deg,rgba(3,12,22,.32),rgba(3,12,22,.82) 58%,rgba(3,12,22,.96)),
+            linear-gradient(90deg,rgba(3,12,22,.76) 0%,rgba(3,12,22,.18) 30%,rgba(3,12,22,.18) 70%,rgba(3,12,22,.76) 100%) !important;
+        }
+
+        .deals-topbar{
+          width:min(1180px,calc(100% - 44px));
+          margin:22px auto 24px;
+          display:flex;
+          align-items:center;
+          justify-content:space-between;
+          gap:18px;
+          position:relative;
+          z-index:3;
+          color:white;
+        }
+        .deals-brand{
+          line-height:1;text-decoration:none;display:flex;flex-direction:column;gap:2px;white-space:nowrap;
+        }
+        .deals-brand b{font-size:23px;letter-spacing:.12em;color:#47e2d0;font-weight:900;}
+        .deals-brand span{font-size:11px;letter-spacing:.16em;color:rgba(255,255,255,.72);font-weight:800;}
+        .deals-nav{display:flex;gap:28px;align-items:center;font-size:14px;font-weight:800;color:rgba(255,255,255,.86);}
+        .deals-nav a{text-decoration:none;color:inherit;white-space:nowrap;position:relative;}
+        .deals-nav a.active{color:#47e2d0;}
+        .deals-nav a.active::after{content:"";position:absolute;left:0;right:0;bottom:-8px;height:2px;background:#47e2d0;box-shadow:0 0 14px rgba(71,226,208,.7);}
+        .deals-book{
+          display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(243,170,52,.55);
+          color:#ffd58a;text-decoration:none;border-radius:12px;padding:12px 18px;font-weight:900;
+          background:rgba(243,170,52,.08);white-space:nowrap;
+        }
+
+        .page { max-width:1180px; width:min(1180px,calc(100% - 44px)); padding:0 0 60px; }
+        .hero{
+          min-height:590px;display:grid;align-items:center;
+          border-radius:30px;overflow:hidden;position:relative;margin-bottom:26px;
+          background:
+            linear-gradient(90deg,rgba(4,16,29,.94),rgba(4,16,29,.55) 48%,rgba(4,16,29,.06)),
+            url('https://uc.orez.io/i/0f604abce3284748ba8d2150b7646863-MediumOriginal') center/cover;
+          border:1px solid rgba(255,255,255,.13);
+          box-shadow:0 32px 90px rgba(0,0,0,.35);
+          text-align:left;
+          animation:fadeDown 0.6s ease both;
+        }
+        .hero-inner{padding:48px;max-width:730px;position:relative;z-index:2;}
+        .eyebrow{
+          display:inline-flex;align-items:center;gap:9px;padding:10px 16px;border-radius:999px;
+          border:1px solid rgba(71,226,208,.55);background:rgba(71,226,208,.10);
+          color:#84fff4;font-size:12px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;margin-bottom:22px;
+        }
+        .hero h1{
+          font-family:'Outfit','Barlow Condensed',sans-serif;
+          font-size:clamp(48px,6vw,82px);line-height:.95;letter-spacing:-3px;margin:0 0 20px;font-weight:900;text-transform:none;
+        }
+        .hero h1 span{color:#47e2d0;display:inline;background:none;-webkit-text-fill-color:initial;}
+        .hero-copy{font-size:18px;line-height:1.55;color:rgba(255,255,255,.82);max-width:660px;margin-bottom:26px;}
+        .hero-actions{display:grid;grid-template-columns:repeat(2,minmax(0,240px));gap:14px;margin-bottom:28px;}
+        .hero-btn{
+          display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:16px;padding:16px 18px;
+          text-decoration:none;font-weight:900;border:1px solid rgba(255,255,255,.12);transition:.18s ease;cursor:pointer;
+          font-family:'Outfit',sans-serif;font-size:16px;text-align:center;
+        }
+        .hero-btn:hover{transform:translateY(-2px);filter:brightness(1.06);}
+        .hero-btn-gold{background:linear-gradient(135deg,#e89a20,#ffc04b);color:#161006;border:none;}
+        .hero-btn-teal{background:linear-gradient(135deg,#159d97,#5de8d9);color:#061018;border:none;}
+        .hero-btn-blue{background:rgba(35,112,196,.24);border-color:rgba(94,178,255,.35);color:#99d2ff;}
+        .hero-btn-glass{background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.20);color:white;}
+        .proof{display:flex;flex-wrap:wrap;gap:22px;color:rgba(255,255,255,.84);font-weight:700;font-size:14px;}
+        .proof span{display:flex;align-items:center;gap:8px;}
+
+        .stats-bar{
+          border-radius:26px;background:rgba(5,22,36,.84);border:1px solid rgba(255,255,255,.12);
+          box-shadow:0 24px 70px rgba(0,0,0,.28);backdrop-filter:blur(14px);
+          padding:22px 28px;margin:0 0 24px;
+        }
+        .stat-num{font-family:'Outfit',sans-serif;color:#47e2d0;}
+        .amenities-grid{
+          border-radius:26px;background:rgba(5,22,36,.70);border:1px solid rgba(255,255,255,.12);
+          box-shadow:0 24px 70px rgba(0,0,0,.22);backdrop-filter:blur(14px);
+          padding:22px;margin-bottom:28px;
+        }
+        .amenity-icon{background:rgba(71,226,208,.12);border:1px solid rgba(71,226,208,.28);}
+        .section-label{
+          text-align:left;
+          padding:4px 0 14px;
+          font-family:'Outfit',sans-serif;
+          color:#72fff5;
+          font-size:13px;
+          letter-spacing:3.2px;
+        }
+        .seo-intro,.email-capture,.bottom-cta,.seo-faq,.seo-about,.plan-trip,.fine-print{
+          border-radius:24px !important;
+          background:rgba(5,22,36,.82) !important;
+          border:1px solid rgba(255,255,255,.12) !important;
+          box-shadow:0 24px 70px rgba(0,0,0,.22) !important;
+          backdrop-filter:blur(14px) !important;
+        }
+        .seo-intro p,.fine-print-row,.seo-faq p,.seo-about p,.host-info p{color:rgba(255,255,255,.70) !important;}
+        .seo-faq-title,.seo-about h2,.plan-trip-title,.seo-faq-item h3,.host-info strong{color:#fff !important;}
+        .plan-trip-pill{background:rgba(255,255,255,.08) !important;border:1px solid rgba(255,255,255,.12) !important;color:rgba(255,255,255,.82) !important;}
+        .deals-grid{grid-template-columns:repeat(3,1fr);gap:16px;}
+        .deal-card{border-radius:18px;background:rgba(5,19,33,.92);border:1px solid rgba(255,255,255,.12);}
+        .deal-card .card-photo-wrap{border-radius:18px 18px 0 0;}
+        .card-body{padding:16px !important;}
+        .btn-load-more,.btn-main,.email-btn{
+          font-family:'Outfit',sans-serif !important;
+          background:linear-gradient(135deg,#e89a20,#ffc04b) !important;
+          color:#161006 !important;
+          border:none !important;
+          font-weight:900 !important;
+          border-radius:16px !important;
+        }
+        .btn-book{
+          font-family:'Outfit',sans-serif !important;
+          background:linear-gradient(135deg,#159d97,#5de8d9) !important;
+          color:#061018 !important;
+          border-radius:14px !important;
+          font-weight:900 !important;
+        }
+        .logo-wrap{display:none;}
+
         * { margin:0; padding:0; box-sizing:border-box; }
         body { font-family:'Barlow',sans-serif; background:var(--navy); color:var(--white); min-height:100vh; overflow-x:hidden; }
         .bg-wrap { position:fixed; inset:0; z-index:0; }
@@ -1048,6 +1205,34 @@ export default function BeachDeals({ deals }) {
         .email-capture-success strong { display:block; font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:800; text-transform:uppercase; color:var(--white); }
         .email-capture-success p { font-size:13px; color:rgba(255,255,255,0.55); margin:4px 0 0; }
         @media (max-width:600px) { .email-capture{padding:20px 16px;} .email-input{min-width:100%;} .email-capture-form{width:100%;} .email-btn{width:100%;} }
+
+        @media(max-width:900px){
+          .deals-topbar{display:none;}
+          .page{width:100%;max-width:480px;padding:12px 10px 44px;}
+          .hero{
+            min-height:560px;border-radius:24px;margin-bottom:18px;background:
+              linear-gradient(180deg,rgba(4,16,29,.45),rgba(4,16,29,.94)),
+              url('https://uc.orez.io/i/0f604abce3284748ba8d2150b7646863-MediumOriginal') center/cover;
+          }
+          .hero-inner{padding:26px 18px;}
+          .hero h1{font-size:48px;letter-spacing:-2px;}
+          .hero-copy{font-size:15px;}
+          .hero-actions{grid-template-columns:1fr 1fr;gap:10px;}
+          .hero-btn{font-size:13px;padding:13px 10px;border-radius:14px;}
+          .proof{font-size:12px;gap:12px;}
+          .stats-bar{margin:0 6px 18px;padding:18px;}
+          .amenities-grid{margin-left:6px;margin-right:6px;padding:16px;}
+          .deals-grid{grid-template-columns:1fr 1fr;gap:12px;}
+          .section-label{padding-left:6px;}
+        }
+        @media(max-width:600px){
+          .deals-grid{grid-template-columns:1fr;}
+        }
+        @media(max-width:420px){
+          .hero h1{font-size:42px;}
+          .hero-actions{grid-template-columns:1fr;}
+        }
+
       `}</style>
     </>
   );

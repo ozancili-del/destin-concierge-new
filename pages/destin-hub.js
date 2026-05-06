@@ -54,10 +54,11 @@ export default function DestinHub() {
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:#040d1a;color:#fff;font-family:'Outfit',sans-serif;-webkit-font-smoothing:antialiased;}
 .page-wrap{max-width:480px;margin:0 auto;background:transparent;min-height:100vh;position:relative;z-index:0;}
-body::before{content:'';position:fixed;inset:0;background-image:url('https://uc.orez.io/f/d6016c9e0a064e528087ef01caa56955');background-size:cover;background-position:center 40%;filter:brightness(0.18) saturate(0.7);z-index:-1;}
+body::before{content:'';position:fixed;inset:0;background-image:url('https://uc.orez.io/f/d6016c9e0a064e528087ef01caa56955');background-size:cover;background-position:center 40%;filter:brightness(0.15) saturate(0.7);z-index:-1;}
 
 /* HERO */
-.hero{position:relative;min-height:400px;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;}
+.hero{position:relative;min-height:400px;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;background-image:url('/hub-hero.png');background-size:cover;background-position:center top;}
+.hero::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(4,13,26,0.1) 0%,rgba(4,13,26,0.45) 50%,rgba(4,13,26,0.96) 100%);z-index:1;}
 .hero-bg{display:none;}
 .hero-content{position:relative;z-index:3;padding:0 18px 30px;}
 .hero-badge{display:inline-block;background:rgba(0,196,180,0.15);border:1px solid rgba(0,196,180,0.4);color:#00c4b4;font-size:10px;font-weight:700;letter-spacing:2px;padding:5px 14px;border-radius:20px;margin-bottom:14px;text-transform:uppercase;}

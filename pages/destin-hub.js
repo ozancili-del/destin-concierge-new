@@ -54,23 +54,23 @@ export default function DestinHub() {
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:transparent;color:#fff;font-family:'Outfit',sans-serif;-webkit-font-smoothing:antialiased;min-height:100%;}
 .page-wrap{max-width:480px;margin:0 auto;background:transparent;min-height:100vh;position:relative;z-index:1;}
-body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(4,13,26,0.72),rgba(4,13,26,0.88)),url('https://uc.orez.io/f/d6016c9e0a064e528087ef01caa56955');background-size:cover;background-position:center 40%;filter:saturate(0.85);z-index:0;pointer-events:none;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(4,13,26,0.74),rgba(4,13,26,0.90)),url('/hub-bg-golden.jpg');background-size:cover;background-position:center center;filter:saturate(0.95);z-index:0;pointer-events:none;}
 @media(min-width:900px){
   body::before{
     background-image:
-      linear-gradient(rgba(4,13,26,0.46),rgba(4,13,26,0.68)),
-      url('https://uc.orez.io/f/d6016c9e0a064e528087ef01caa56955');
+      linear-gradient(rgba(4,13,26,0.58),rgba(4,13,26,0.78)),
+      url('/hub-bg-golden.jpg');
     background-size:cover;
-    background-position:center 42%;
-    filter:saturate(1.05) contrast(1.04);
+    background-position:center center;
+    filter:saturate(1.04) contrast(1.03);
   }
   body::after{
     content:'';
     position:fixed;
     inset:0;
     background:
-      radial-gradient(circle at center,rgba(0,196,180,0.10),transparent 42%),
-      linear-gradient(90deg,rgba(4,13,26,0.78) 0%,rgba(4,13,26,0.22) 35%,rgba(4,13,26,0.22) 65%,rgba(4,13,26,0.78) 100%);
+      radial-gradient(circle at center,rgba(0,196,180,0.08),transparent 42%),
+      linear-gradient(90deg,rgba(4,13,26,0.52) 0%,rgba(4,13,26,0.10) 35%,rgba(4,13,26,0.10) 65%,rgba(4,13,26,0.52) 100%);
     z-index:0;
     pointer-events:none;
   }

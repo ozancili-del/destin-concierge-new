@@ -302,22 +302,22 @@ body::before{content:'';position:fixed;inset:0;background-image:url('https://uc.
 .site-mobile-nav{
   display:none;
   position:relative;
-  z-index:5;
+  z-index:50;
 }
 
 @media(max-width:900px){
-  .site-topbar{display:none;}
+  .site-topbar{display:none!important;}
   .site-mobile-nav{
     width:calc(100% - 20px);
     max-width:680px;
-    margin:12px auto 0;
+    margin:12px auto 10px;
     padding:10px;
-    display:flex;
+    display:flex!important;
     gap:8px;
     overflow-x:auto;
     -webkit-overflow-scrolling:touch;
-    background:rgba(4,16,29,.76);
-    border:1px solid rgba(255,255,255,.10);
+    background:rgba(4,16,29,.92);
+    border:1px solid rgba(71,226,208,.22);
     border-radius:16px;
     backdrop-filter:blur(12px);
     scrollbar-width:none;

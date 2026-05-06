@@ -714,6 +714,17 @@ export default function BeachDeals({ deals }) {
   const [visible, setVisible] = useState(10);
   const [viewCounts, setViewCounts] = useState({});
 
+
+  useEffect(() => {
+    function handleScroll() {
+      const el = document.getElementById('floatingHomeTop');
+      if (el) el.classList.toggle('visible', window.scrollY > 300);
+    }
+    window.addEventListener('scroll', handleScroll);
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   // Fetch live 72h view counts on every page load — always fresh, never stale
   useEffect(() => {
     fetch("/api/deal-views-bulk", {
@@ -936,6 +947,12 @@ export default function BeachDeals({ deals }) {
             <a href="https://www.destincondogetaways.com/blog/destin-fireworks-2026" className="plan-trip-pill">🎆 Fireworks 2026</a>
             <a href="https://www.destincondogetaways.com/blog/destin-events-2026" className="plan-trip-pill">📅 Events 2026</a>
           </div>
+        </div>
+
+
+        <div id="floatingHomeTop" className="floating-home-top">
+          <a href="https://www.destincondogetaways.com" target="_blank" rel="noopener" aria-label="Home">🏠</a>
+          <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Back to top">↑</button>
         </div>
 
       </main>
@@ -1282,6 +1299,42 @@ export default function BeachDeals({ deals }) {
           .hero h1{font-size:42px;}
           .hero-actions{grid-template-columns:1fr;}
         }
+
+
+        .floating-home-top{
+          position:fixed;
+          bottom:24px;
+          right:16px;
+          display:none;
+          flex-direction:column;
+          gap:8px;
+          z-index:999;
+        }
+        .floating-home-top a,
+        .floating-home-top button{
+          width:44px;
+          height:44px;
+          border-radius:50%;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          font-size:18px;
+          cursor:pointer;
+          text-decoration:none;
+          backdrop-filter:blur(8px);
+        }
+        .floating-home-top a{
+          background:rgba(255,255,255,0.15);
+          border:1px solid rgba(255,255,255,0.25);
+          color:#fff;
+        }
+        .floating-home-top button{
+          background:rgba(45,219,180,0.9);
+          color:#000;
+          border:none;
+          box-shadow:0 4px 16px rgba(0,212,200,0.4);
+        }
+        .floating-home-top.visible{display:flex;}
 
       `}</style>
     </>

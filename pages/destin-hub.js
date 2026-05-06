@@ -110,12 +110,13 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .hbtn{
   display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:16px;padding:16px 18px;
   text-decoration:none;font-weight:900;border:1px solid rgba(255,255,255,.12);transition:.18s ease;cursor:pointer;
-  font-family:'Outfit',sans-serif;font-size:14px;min-height:0;white-space:nowrap;
+  font-family:'Outfit',sans-serif;font-size:16px;min-height:0;white-space:nowrap;
 }
 .hbtn:hover{transform:translateY(-2px);filter:brightness(1.06);}
 .hbtn-gold{background:linear-gradient(135deg,#e89a20,#ffc04b);color:#161006;border:none;}
 .hbtn-teal{background:linear-gradient(135deg,#159d97,#5de8d9);color:#061018;border:none;}
 .hbtn-blue{background:rgba(35,112,196,.24);border-color:rgba(94,178,255,.35);color:#99d2ff;}
+.hbtn-glass{background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.20);color:white;}
 
 @media(max-width:680px){
   .hero{min-height:480px;}
@@ -294,7 +295,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   .hbtn{
     min-height:auto;
     border-radius:16px;
-    font-size:14px;
+    font-size:16px;
     justify-content:center;
     padding:16px 18px;
     background:rgba(255,255,255,.10);
@@ -304,6 +305,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   .hbtn-gold{background:linear-gradient(135deg,#e89a20,#ffc04b);border:none}
   .hbtn-teal{background:linear-gradient(135deg,#159d97,#5de8d9);border:none}
   .hbtn-blue{background:rgba(35,112,196,.24);border:1px solid rgba(94,178,255,.35);color:#99d2ff}
+  .hbtn-glass{background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.20);color:white}
 
   .featured{
     margin:28px 48px 22px;
@@ -371,7 +373,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   .page-wrap{width:min(960px,calc(100% - 30px))}
   .hero-content{padding:38px 36px}
   .hero-btns{max-width:440px;gap:12px}
-  .hbtn{font-size:13px;padding:15px 16px}
+  .hbtn{font-size:14px;padding:15px 16px}
   .grid{grid-template-columns:repeat(4,1fr);padding-left:36px;padding-right:36px}
   .featured,.ai-strip,.footer-bar{margin-left:36px;margin-right:36px}
   .sec-lbl{padding-left:36px}
@@ -434,7 +436,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
             <button className="hbtn hbtn-gold" onClick={() => openModal('deals')}>🏷️ Best Deals</button>
             <button className="hbtn hbtn-teal" onClick={() => openModal('gettinghere')}>✈️ Flights & Cars</button>
             <button className="hbtn hbtn-blue" onClick={() => openModal('activities')}>🐬 Activities</button>
-            <a className="hbtn" href="https://www.destincondogetaways.com" target="_blank" rel="noopener" style={{background:'rgba(255,255,255,0.12)',color:'#fff',border:'1px solid rgba(255,255,255,0.24)'}}>🏠 Condos</a>
+            <a className="hbtn hbtn-glass" href="https://www.destincondogetaways.com" target="_blank" rel="noopener">🏠 Condos</a>
           </div>
         </div>
       </div>

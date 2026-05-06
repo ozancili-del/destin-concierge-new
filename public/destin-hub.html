@@ -226,6 +226,122 @@ html,body{width:100%;overflow-x:hidden;}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
 body::before{content:'';position:fixed;inset:0;background-image:url('https://uc.orez.io/f/d6016c9e0a064e528087ef01caa56955');background-size:cover;background-position:center 40%;filter:brightness(0.18) saturate(0.7);z-index:-1;}
 
+
+/* Shared Hub / Activities navigation */
+.site-topbar{
+  width:min(1180px,calc(100% - 44px));
+  margin:22px auto 18px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  position:relative;
+  z-index:5;
+  color:white;
+}
+.site-brand{
+  line-height:1;
+  text-decoration:none;
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+  white-space:nowrap;
+}
+.site-brand b{
+  font-size:23px;
+  letter-spacing:.12em;
+  color:#47e2d0;
+  font-weight:900;
+}
+.site-brand span{
+  font-size:11px;
+  letter-spacing:.16em;
+  color:rgba(255,255,255,.72);
+  font-weight:800;
+}
+.site-nav{
+  display:flex;
+  gap:28px;
+  align-items:center;
+  font-size:14px;
+  font-weight:800;
+  color:rgba(255,255,255,.86);
+}
+.site-nav a{
+  color:inherit;
+  text-decoration:none;
+  white-space:nowrap;
+  position:relative;
+}
+.site-nav a.active{
+  color:#47e2d0;
+}
+.site-nav a.active::after{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:-8px;
+  height:2px;
+  background:#47e2d0;
+  box-shadow:0 0 14px rgba(71,226,208,.7);
+}
+.site-book{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  border:1px solid rgba(243,170,52,.55);
+  color:#ffd58a;
+  text-decoration:none;
+  border-radius:12px;
+  padding:12px 18px;
+  font-weight:900;
+  background:rgba(243,170,52,.08);
+  white-space:nowrap;
+}
+.site-mobile-nav{
+  display:none;
+  position:relative;
+  z-index:5;
+}
+
+@media(max-width:900px){
+  .site-topbar{display:none;}
+  .site-mobile-nav{
+    width:calc(100% - 20px);
+    max-width:680px;
+    margin:12px auto 0;
+    padding:10px;
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    background:rgba(4,16,29,.76);
+    border:1px solid rgba(255,255,255,.10);
+    border-radius:16px;
+    backdrop-filter:blur(12px);
+    scrollbar-width:none;
+  }
+  .site-mobile-nav::-webkit-scrollbar{display:none;}
+  .site-mobile-nav a{
+    flex:0 0 auto;
+    color:rgba(255,255,255,.84);
+    text-decoration:none;
+    font-size:13px;
+    font-weight:900;
+    padding:9px 12px;
+    border-radius:999px;
+    background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.10);
+    white-space:nowrap;
+  }
+  .site-mobile-nav a.active{
+    color:#061018;
+    background:#47e2d0;
+    border-color:transparent;
+  }
+}
+
 .hero{position:relative;padding:48px 20px 52px;overflow:hidden;background:transparent;text-align:center;width:100%;box-sizing:border-box;}
 .hero>*{position:relative;z-index:2;}
 .hero h1{font-family:'Barlow Condensed',sans-serif;font-size:clamp(48px,8vw,80px);font-weight:900;line-height:0.95;text-transform:uppercase;letter-spacing:-1px;margin:16px 0 8px;}
@@ -357,6 +473,32 @@ body::before{content:'';position:fixed;inset:0;background-image:url('https://uc.
 
 </head>
 <body>
+
+<header class="site-topbar">
+  <a class="site-brand" href="https://www.destincondogetaways.com">
+    <b>DESTIN</b>
+    <span>CONDO GETAWAYS</span>
+  </a>
+  <nav class="site-nav" aria-label="Main navigation">
+    <a class="active" href="https://explore.destincondogetaways.com/destin-hub">Destin Hub</a>
+    <a href="https://explore.destincondogetaways.com/destin-tripshock.html">Activities</a>
+    <a href="https://www.destincondogetaways.com">Condos</a>
+    <a href="https://deals.destincondogetaways.com/beach-deals">Deals</a>
+    <a href="https://explore.destincondogetaways.com/destin-car-rental.html">Flights & Cars</a>
+    <a href="https://destin-concierge-new.vercel.app/destin-itinerary-planner.html">Plan Your Trip</a>
+  </nav>
+  <a class="site-book" href="https://www.destincondogetaways.com" target="_blank" rel="noopener">🏖️ Book Your Stay</a>
+</header>
+
+<nav class="site-mobile-nav" aria-label="Mobile navigation">
+  <a class="active" href="https://explore.destincondogetaways.com/destin-hub">Destin Hub</a>
+  <a href="https://explore.destincondogetaways.com/destin-tripshock.html">Activities</a>
+  <a href="https://www.destincondogetaways.com">Condos</a>
+  <a href="https://deals.destincondogetaways.com/beach-deals">Deals</a>
+  <a href="https://explore.destincondogetaways.com/destin-car-rental.html">Flights & Cars</a>
+  <a href="https://destin-concierge-new.vercel.app/destin-itinerary-planner.html">Plan Your Trip</a>
+</nav>
+
 
 <div class="hero">
   <div class="logo-wrap"><img src="https://uc.orez.io/f/2ffb66c0d31e4a6a8d9549b45e0db5dc" alt="Destin Condo Getaways"/></div>

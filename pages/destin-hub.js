@@ -54,19 +54,19 @@ export default function DestinHub() {
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:#040d1a;color:#fff;font-family:'Outfit',sans-serif;-webkit-font-smoothing:antialiased;}
 .page-wrap{max-width:480px;margin:0 auto;background:#040d1a;min-height:100vh;}
+.page-wrap::before{content:'';position:fixed;inset:0;background-image:url('https://uc.orez.io/f/d6016c9e0a064e528087ef01caa56955');background-size:cover;background-position:center 40%;filter:brightness(0.18) saturate(0.7);z-index:-1;}
 
 /* HERO */
 .hero{position:relative;min-height:400px;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;}
-.hero-bg{position:absolute;inset:0;background-size:cover;background-position:center top;}
-.hero-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(4,13,26,0.25) 0%,rgba(4,13,26,0.55) 45%,rgba(4,13,26,0.97) 100%);}
+.hero-bg{display:none;}
 .hero-content{position:relative;z-index:2;padding:0 18px 30px;}
 .hero-badge{display:inline-block;background:rgba(0,196,180,0.15);border:1px solid rgba(0,196,180,0.4);color:#00c4b4;font-size:10px;font-weight:700;letter-spacing:2px;padding:5px 14px;border-radius:20px;margin-bottom:14px;text-transform:uppercase;}
 .hero h1{font-size:clamp(30px,7vw,44px);font-weight:900;line-height:1.08;margin-bottom:8px;}
 .hero h1 span{color:#00c4b4;}
 .hero-sub{font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:22px;max-width:320px;line-height:1.6;}
 .hero-sub strong{color:#00c4b4;font-weight:700;}
-.hero-btns{display:flex;gap:8px;flex-wrap:wrap;}
-.hbtn{display:inline-flex;align-items:center;gap:7px;padding:10px 16px;border-radius:12px;font-size:12px;font-weight:700;letter-spacing:0.5px;text-decoration:none;cursor:pointer;border:none;font-family:'Outfit',sans-serif;transition:transform 0.15s,filter 0.15s;}
+.hero-btns{display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px;}
+.hbtn{display:inline-flex;align-items:center;gap:5px;padding:9px 12px;border-radius:12px;font-size:11px;font-weight:700;letter-spacing:0.3px;text-decoration:none;cursor:pointer;border:none;font-family:'Outfit',sans-serif;transition:transform 0.15s,filter 0.15s;white-space:nowrap;}
 .hbtn:hover{transform:translateY(-2px);filter:brightness(1.1);}
 .hbtn-gold{background:linear-gradient(135deg,#c8851a,#f5a623);color:#000;}
 .hbtn-teal{background:linear-gradient(135deg,#007a74,#00c4b4);color:#000;}
@@ -156,8 +156,8 @@ html,body{background:#040d1a;color:#fff;font-family:'Outfit',sans-serif;-webkit-
           <h1>Plan Your<br /><span>Destin Trip</span></h1>
           <p className="hero-sub">Unlock the best deals, compare flights, discover activities, get beach info, and let <strong>Destiny Blue</strong> help every step.</p>
           <div className="hero-btns">
-            <button className="hbtn hbtn-gold" onClick={() => openModal('deals')}>🏷️ Best Deals</button>
-            <button className="hbtn hbtn-teal" onClick={() => openModal('gettinghere')}>✈️ Flights &amp; Cars</button>
+            <button className="hbtn hbtn-gold" onClick={() => openModal('deals')}>🏷️ Deals</button>
+            <button className="hbtn hbtn-teal" onClick={() => openModal('gettinghere')}>✈️ Flights</button>
             <button className="hbtn hbtn-blue" onClick={() => openModal('activities')}>🐬 Activities</button>
             <a className="hbtn" href="https://www.destincondogetaways.com" target="_blank" rel="noopener" style={{background:'rgba(255,255,255,0.1)',color:'#fff',border:'1px solid rgba(255,255,255,0.2)'}}>🏠 Home</a>
           </div>

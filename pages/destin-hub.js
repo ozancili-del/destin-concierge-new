@@ -53,6 +53,7 @@ export default function DestinHub() {
         <style>{`
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:#040d1a;color:#fff;font-family:'Outfit',sans-serif;-webkit-font-smoothing:antialiased;}
+.page-wrap{max-width:480px;margin:0 auto;background:#040d1a;min-height:100vh;}
 
 /* HERO */
 .hero{position:relative;min-height:400px;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;}
@@ -146,6 +147,7 @@ html,body{background:#040d1a;color:#fff;font-family:'Outfit',sans-serif;-webkit-
         `}</style>
       </Head>
 
+      <div className="page-wrap">
       {/* HERO */}
       <div className="hero">
         <div className="hero-bg"></div>
@@ -397,6 +399,8 @@ html,body{background:#040d1a;color:#fff;font-family:'Outfit',sans-serif;-webkit-
           ))}
         </div>
       </div>
+
+      </div>{/* /page-wrap */}
 
       {/* MODAL */}
       <div className="modal-overlay" id="modalOverlay" onClick={(e) => { if(e.target===document.getElementById('modalOverlay')) closeModal(); }}>

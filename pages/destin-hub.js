@@ -66,12 +66,17 @@ body::before{content:'';position:fixed;inset:0;background-image:url('https://uc.
 .hero h1 span{color:#00c4b4;}
 .hero-sub{font-size:14px;color:rgba(255,255,255,0.76);margin-bottom:24px;max-width:340px;line-height:1.62;}
 .hero-sub strong{color:#00c4b4;font-weight:700;}
-.hero-btns{display:flex;gap:8px;flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px;align-items:center;}
-.hbtn{display:inline-flex;align-items:center;gap:7px;padding:11px 17px;border-radius:14px;font-size:12.5px;font-weight:800;letter-spacing:0.25px;text-decoration:none;cursor:pointer;border:none;font-family:'Outfit',sans-serif;transition:transform 0.15s,filter 0.15s,box-shadow 0.15s;white-space:nowrap;box-shadow:0 10px 24px rgba(0,0,0,0.18);}
+.hero-btns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;max-width:382px;overflow:visible;padding-bottom:0;align-items:stretch;}
+.hbtn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:12px 14px;border-radius:14px;font-size:12.5px;font-weight:800;letter-spacing:0.25px;text-decoration:none;cursor:pointer;border:none;font-family:'Outfit',sans-serif;transition:transform 0.15s,filter 0.15s,box-shadow 0.15s;white-space:nowrap;box-shadow:0 10px 24px rgba(0,0,0,0.18);min-width:0;}
 .hbtn:hover{transform:translateY(-2px);filter:brightness(1.1);}
 .hbtn-gold{background:linear-gradient(135deg,#d9901f,#ffb83d);color:#000;}
 .hbtn-teal{background:linear-gradient(135deg,#0b958c,#3fe6d8);color:#001310;}
 .hbtn-blue{background:rgba(0,100,200,0.30);color:#72c2ff;border:1px solid rgba(90,180,255,0.34);}
+
+@media(max-width:370px){
+  .hero-btns{grid-template-columns:1fr;max-width:260px;}
+  .hbtn{padding:11px 13px;}
+}
 
 /* FEATURED */
 .featured{margin:20px 16px 18px;border-radius:20px;overflow:hidden;border:1px solid rgba(245,166,35,0.38);background:#0d1520;box-shadow:0 18px 45px rgba(0,0,0,0.28);}

@@ -261,9 +261,9 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   .hero-content{
     min-height:520px;
     display:grid;
-    grid-template-columns:minmax(0,1fr) 520px;
+    grid-template-columns:minmax(0,1fr) 430px;
     grid-template-rows:auto auto auto;
-    column-gap:64px;
+    column-gap:42px;
     align-content:center;
     padding:54px 48px 58px;
   }
@@ -274,20 +274,23 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     grid-column:2;
     grid-row:1 / span 3;
     align-self:center;
+    justify-self:end;
     display:grid;
     grid-template-columns:1fr 1fr;
-    gap:16px;
-    max-width:none;
+    gap:14px;
+    width:100%;
+    max-width:430px;
   }
   .hbtn{
-    min-height:104px;
-    border-radius:18px;
-    font-size:20px;
+    min-height:78px;
+    border-radius:16px;
+    font-size:14px;
+    font-weight:900;
     justify-content:flex-start;
-    padding:22px 26px;
-    background:rgba(255,255,255,.11);
-    border:1px solid rgba(255,255,255,.20);
-    box-shadow:0 18px 45px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.10);
+    padding:18px 20px;
+    background:rgba(255,255,255,.10);
+    border:1px solid rgba(255,255,255,.18);
+    box-shadow:0 12px 28px rgba(0,0,0,.20), inset 0 1px 0 rgba(255,255,255,.08);
   }
   .hbtn-gold{background:linear-gradient(135deg,rgba(217,144,31,.95),rgba(255,184,61,.84));border:1px solid rgba(255,209,110,.64)}
   .hbtn-teal{background:linear-gradient(135deg,rgba(11,149,140,.92),rgba(63,230,216,.78));border:1px solid rgba(94,255,244,.54)}
@@ -357,8 +360,9 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   .hub-topbar{width:min(960px,calc(100% - 30px));gap:16px}
   .hub-nav{gap:16px;font-size:13px}
   .page-wrap{width:min(960px,calc(100% - 30px))}
-  .hero-content{grid-template-columns:1fr 420px;column-gap:34px;padding-left:36px;padding-right:36px}
-  .hbtn{font-size:17px;padding:18px}
+  .hero-content{grid-template-columns:1fr 360px;column-gap:28px;padding-left:36px;padding-right:36px}
+  .hero-btns{max-width:360px;gap:12px}
+  .hbtn{font-size:13px;padding:16px 16px;min-height:70px}
   .grid{grid-template-columns:repeat(4,1fr);padding-left:36px;padding-right:36px}
   .featured,.ai-strip,.footer-bar{margin-left:36px;margin-right:36px}
   .sec-lbl{padding-left:36px}

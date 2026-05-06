@@ -642,7 +642,7 @@ function EmailCapture() {
   }
 
   if (status === 'success') return (
-    <div id="alerts" className="email-capture">
+    <div className="email-capture">
       <div className="email-capture-success">
         <span style={{fontSize:28}}>🎉</span>
         <div>
@@ -765,14 +765,23 @@ export default function BeachDeals({ deals }) {
           </a>
           <nav className="deals-nav">
             <a href="https://explore.destincondogetaways.com/destin-hub">Destin Hub</a>
-            <a href="https://www.destincondogetaways.com/blog/best-beaches-destin">Beaches</a>
+            <a href="https://explore.destincondogetaways.com/destin-tripshock.html">Activities</a>
             <a href="https://www.destincondogetaways.com">Condos</a>
             <a className="active" href="https://deals.destincondogetaways.com/beach-deals">Deals</a>
-            <a href="https://explore.destincondogetaways.com/destin-tripshock.html">Things To Do</a>
             <a href="https://explore.destincondogetaways.com/destin-car-rental.html">Flights & Cars</a>
+            <a href="https://destin-concierge-new.vercel.app/destin-itinerary-planner.html">Plan Your Trip</a>
           </nav>
           <a className="deals-book" href="https://www.destincondogetaways.com" target="_blank" rel="noopener">🏖️ Book Your Stay</a>
         </header>
+
+        <nav className="deals-mobile-nav" aria-label="Beach deals mobile navigation">
+          <a href="https://explore.destincondogetaways.com/destin-hub">Destin Hub</a>
+          <a href="https://explore.destincondogetaways.com/destin-tripshock.html">Activities</a>
+          <a href="https://www.destincondogetaways.com">Condos</a>
+          <a className="active" href="https://deals.destincondogetaways.com/beach-deals">Deals</a>
+          <a href="https://explore.destincondogetaways.com/destin-car-rental.html">Flights & Cars</a>
+          <a href="https://destin-concierge-new.vercel.app/destin-itinerary-planner.html">Plan Your Trip</a>
+        </nav>
 
       <main className="page">
 
@@ -852,7 +861,7 @@ export default function BeachDeals({ deals }) {
         )}
 
         {/* Email capture */}
-        {hasDeals && <EmailCapture />}
+        {hasDeals && <div id="alerts" className="alerts-anchor"><EmailCapture /></div>}
 
         {/* Bottom CTA */}
         {hasDeals && (
@@ -968,6 +977,14 @@ export default function BeachDeals({ deals }) {
           display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(243,170,52,.55);
           color:#ffd58a;text-decoration:none;border-radius:12px;padding:12px 18px;font-weight:900;
           background:rgba(243,170,52,.08);white-space:nowrap;
+        }
+        .deals-mobile-nav{
+          display:none;
+          position:relative;
+          z-index:3;
+        }
+        .alerts-anchor{
+          scroll-margin-top:28px;
         }
 
         .page { max-width:1180px; width:min(1180px,calc(100% - 44px)); padding:0 0 60px; }
@@ -1208,7 +1225,40 @@ export default function BeachDeals({ deals }) {
 
         @media(max-width:900px){
           .deals-topbar{display:none;}
-          .page{width:100%;max-width:480px;padding:12px 10px 44px;}
+          .deals-mobile-nav{
+            width:100%;
+            max-width:480px;
+            margin:0 auto 12px;
+            padding:10px 10px;
+            display:flex;
+            gap:8px;
+            overflow-x:auto;
+            -webkit-overflow-scrolling:touch;
+            background:rgba(4,16,29,.76);
+            border:1px solid rgba(255,255,255,.10);
+            border-radius:16px;
+            backdrop-filter:blur(12px);
+            scrollbar-width:none;
+          }
+          .deals-mobile-nav::-webkit-scrollbar{display:none;}
+          .deals-mobile-nav a{
+            flex:0 0 auto;
+            color:rgba(255,255,255,.84);
+            text-decoration:none;
+            font-size:13px;
+            font-weight:900;
+            padding:9px 12px;
+            border-radius:999px;
+            background:rgba(255,255,255,.06);
+            border:1px solid rgba(255,255,255,.10);
+            white-space:nowrap;
+          }
+          .deals-mobile-nav a.active{
+            color:#061018;
+            background:#47e2d0;
+            border-color:transparent;
+          }
+          .page{width:100%;max-width:480px;padding:0 10px 44px;}
           .hero{
             min-height:560px;border-radius:24px;margin-bottom:18px;background:
               linear-gradient(180deg,rgba(4,16,29,.45),rgba(4,16,29,.94)),

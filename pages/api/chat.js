@@ -2473,7 +2473,7 @@ Tell guest warmly that neither unit is free for the full stay, but offer these s
               const w = u707.longestWindow;
               const link = buildLink("707", w.from, w.to, adults, children);
               availabilityStatus = `DATES:${dates.arrival}->${dates.departure} | 707:PARTIAL`;
-              const earlier707 = u707.earlierArrival ? (() => {
+              const earlier707 = (u707.earlierArrival && u707.earlierArrival >= dates.arrival) ? (() => {
                 const daysEarlier = Math.round((new Date(dates.arrival) - new Date(u707.earlierArrival)) / 86400000);
                 const nowLocal = new Date().toLocaleDateString("en-CA", { timeZone: "America/Chicago" });
                 const earlierLink707 = buildLink("707", u707.earlierArrival, w.to, adults, children);
@@ -2486,7 +2486,7 @@ Tell guest warmly that neither unit is free for the full stay, but offer these s
               const w = u1006.longestWindow;
               const link = buildLink("1006", w.from, w.to, adults, children);
               availabilityStatus = `DATES:${dates.arrival}->${dates.departure} | 1006:PARTIAL`;
-              const earlier1006 = u1006.earlierArrival ? (() => {
+              const earlier1006 = (u1006.earlierArrival && u1006.earlierArrival >= dates.arrival) ? (() => {
                 const daysEarlier = Math.round((new Date(dates.arrival) - new Date(u1006.earlierArrival)) / 86400000);
                 const nowLocal = new Date().toLocaleDateString("en-CA", { timeZone: "America/Chicago" });
                 const earlierLink1006 = buildLink("1006", u1006.earlierArrival, w.to, adults, children);

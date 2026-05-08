@@ -549,7 +549,7 @@ function DealCard({ deal, index, initialViews = 0 }) {
             </div>
           )}
           {showTag && (
-            <div className="sbux-tag-img" aria-label="$10 Starbucks Gift Card included">
+            <div className="sbux-tag-img" aria-label="$25 Starbucks Gift Card included">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 200" style={{width:'100%',height:'100%',overflow:'visible'}}>
                 {/* Rope */}
                 <path d="M60 0 C55 8 52 14 54 22" stroke="#c8a06e" strokeWidth="3.5" fill="none" strokeLinecap="round"/>
@@ -574,7 +574,7 @@ function DealCard({ deal, index, initialViews = 0 }) {
                   <path d="M2 -24 Q4 -28 6 -24" stroke="#3d1f00" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
                 </g>
                 {/* $10 */}
-                <text x="60" y="130" textAnchor="middle" fill="#e8512a" fontFamily="'Barlow Condensed',Arial,sans-serif" fontSize="34" fontWeight="900">$10</text>
+                <text x="60" y="130" textAnchor="middle" fill="#e8512a" fontFamily="'Barlow Condensed',Arial,sans-serif" fontSize="34" fontWeight="900">$25</text>
                 {/* Starbucks Gift Card */}
                 <text x="60" y="152" textAnchor="middle" fill="#3d1f00" fontFamily="Arial,sans-serif" fontSize="12" fontWeight="700">Starbucks</text>
                 <text x="60" y="168" textAnchor="middle" fill="#3d1f00" fontFamily="Arial,sans-serif" fontSize="12" fontWeight="700">Gift Card</text>

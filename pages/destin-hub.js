@@ -458,17 +458,17 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
         <nav className="hub-nav">
           <a className="active" href="https://explore.destincondogetaways.com/destin-hub">Destin Hub</a>
           <a href="https://explore.destincondogetaways.com/destin-tripshock.html">Activities</a>
-          <a href="https://www.destincondogetaways.com">Condos</a>
+          <a href="https://www.destincondogetaways.com/properties">Condos</a>
           <a href="https://deals.destincondogetaways.com/beach-deals">Deals</a>
           <a href="https://explore.destincondogetaways.com/destin-car-rental.html">Flights & Cars</a>
         </nav>
-        <a className="hub-book" href="https://www.destincondogetaways.com" target="_blank" rel="noopener">🏖️ Book Your Stay</a>
+        <a className="hub-book" href="https://www.destincondogetaways.com/properties" target="_blank" rel="noopener">🏖️ Book Your Stay</a>
       </header>
 
       <nav className="hub-mobile-nav" aria-label="Mobile navigation">
         <a className="active" href="https://explore.destincondogetaways.com/destin-hub">Destin Hub</a>
         <a href="https://explore.destincondogetaways.com/destin-tripshock.html">Activities</a>
-        <a href="https://www.destincondogetaways.com">Condos</a>
+        <a href="https://www.destincondogetaways.com/properties">Condos</a>
         <a href="https://deals.destincondogetaways.com/beach-deals">Deals</a>
         <a href="https://explore.destincondogetaways.com/destin-car-rental.html">Flights & Cars</a>
       </nav>
@@ -485,7 +485,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
             <button className="hbtn hbtn-gold" onClick={() => openModal('deals')}>🏷️ Best Deals</button>
             <button className="hbtn hbtn-teal" onClick={() => openModal('gettinghere')}>✈️ Flights & Cars</button>
             <button className="hbtn hbtn-blue" onClick={() => openModal('activities')}>🐬 Activities</button>
-            <a className="hbtn hbtn-glass" href="https://www.destincondogetaways.com" target="_blank" rel="noopener">🏠 Condos</a>
+            <a className="hbtn hbtn-glass" href="https://www.destincondogetaways.com/properties" target="_blank" rel="noopener">🏠 Condos</a>
           </div>
         </div>
       </div>
@@ -705,7 +705,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
           <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:'18px',color:'white',margin:'0 0 10px'}}>🏷️ Live Price Drops — Book Direct & Save</h2>
           <p style={{fontSize:'14px',color:'rgba(255,255,255,0.55)',lineHeight:'1.7',margin:'0 0 16px'}}>We track daily price changes on Unit 707 and Unit 1006 at Pelican Beach Resort. When prices drop we surface them here — no Airbnb fees, no VRBO markup, direct from the owner.</p>
           <a href="https://deals.destincondogetaways.com/beach-deals" style={{display:'inline-block',padding:'13px 28px',background:'linear-gradient(135deg,#00c4b4,#00a89a)',color:'#fff',fontFamily:'Arial',fontSize:'14px',fontWeight:'bold',borderRadius:'10px',textDecoration:'none',boxShadow:'0 4px 16px rgba(0,196,180,0.4)',marginRight:'10px'}}>See Today's Price Drops →</a>
-          <a href="https://www.destincondogetaways.com" style={{display:'inline-block',padding:'13px 28px',background:'rgba(255,255,255,0.08)',color:'rgba(255,255,255,0.7)',fontFamily:'Arial',fontSize:'14px',fontWeight:'bold',borderRadius:'10px',textDecoration:'none',border:'1px solid rgba(255,255,255,0.2)'}}>Book Direct →</a>
+          <a href="https://www.destincondogetaways.com/properties" style={{display:'inline-block',padding:'13px 28px',background:'rgba(255,255,255,0.08)',color:'rgba(255,255,255,0.7)',fontFamily:'Arial',fontSize:'14px',fontWeight:'bold',borderRadius:'10px',textDecoration:'none',border:'1px solid rgba(255,255,255,0.2)'}}>Book Direct →</a>
         </div>
 
         {/* FAQ */}

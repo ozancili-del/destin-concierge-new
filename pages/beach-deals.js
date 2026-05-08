@@ -698,7 +698,7 @@ function NoDeals() {
         If you have specific dates in mind, reach out to Ozan. He may be able to work something out.
       </p>
       <div className="no-deals-btns">
-        <a className="btn-main" href="https://www.destincondogetaways.com">Check Availability</a>
+        <a className="btn-main" href="https://www.destincondogetaways.com/availability">Check Availability</a>
         <a className="btn-inquiry" href="mailto:ozan@destincondogetaways.com?subject=Inquiry%20for%20specific%20dates&body=Hi%20Ozan%2C%20I%20am%20interested%20in%20booking%20for%20the%20following%20dates%3A%0A%0AUnit%3A%0AArrival%3A%0ADeparture%3A%0AGuests%3A%0A%0AThank%20you!">
           Message Ozan
         </a>
@@ -805,7 +805,7 @@ export default function BeachDeals({ deals }) {
 
             <div className="hero-actions">
               <a className="hero-btn hero-btn-gold" href="#current-drops">🏷️ View Current Drops</a>
-              <a className="hero-btn hero-btn-teal" href="https://www.destincondogetaways.com" target="_blank" rel="noopener">🏖️ Check Availability</a>
+              <a className="hero-btn hero-btn-teal" href="https://www.destincondogetaways.com/availability" target="_blank" rel="noopener">🏖️ Check Availability</a>
               <a className="hero-btn hero-btn-blue" href="#alerts">📬 Price Drop Alerts</a>
               <a className="hero-btn hero-btn-glass" href="https://explore.destincondogetaways.com/destin-hub">🌊 Destin Hub</a>
             </div>

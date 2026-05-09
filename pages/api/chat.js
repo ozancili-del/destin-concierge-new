@@ -828,6 +828,26 @@ function extractDates(text) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Build Aviasales flight deep link (affiliate tracked)
+// ─────────────────────────────────────────────────────────────────────────────
+function buildFlightLink(origin, departure, returnDate, adults = 1, children = 0, infants = 0) {
+  if (!origin || !departure || !returnDate) return null;
+  try {
+    const dep = new Date(departure);
+    const ret = new Date(returnDate);
+    const dd = String(dep.getDate()).padStart(2, "0");
+    const dm = String(dep.getMonth() + 1).padStart(2, "0");
+    const rd = String(ret.getDate()).padStart(2, "0");
+    const rm = String(ret.getMonth() + 1).padStart(2, "0");
+    const pax = parseInt(adults) + parseInt(children) + parseInt(infants);
+    const base = `https://www.aviasales.com/search/${origin.toUpperCase()}${dd}${dm}VPS${rd}${rm}${pax}`;
+    return `${base}?adults=${adults}&children=${children}&infants=${infants}&marker=709191`;
+  } catch (e) {
+    return null;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Build booking link
 // ─────────────────────────────────────────────────────────────────────────────
 function buildLink(unit, arrival, departure, adults, children) {
@@ -1585,7 +1605,18 @@ Examples:
     let competitorContext = "";
     let holidayContext = "";
     let dateAdjustContext = "";
+    // Build flight deep link if we have dates and guest count
+    const flightLink = (dates && dates.arrival && dates.departure && adults)
+      ? buildFlightLink(null, dates.arrival, dates.departure, adults, children || 0, 0)
+      : null;
+
     let bookingLinksContext = bookingLinksSent ? `📎 BOOKING LINKS ALREADY SENT: You already sent booking links earlier in this conversation. DO NOT send links again unless the guest explicitly asks for them again. CRITICAL: NEVER construct or generate new booking URLs yourself — if new links are needed, the system will provide them. If no pre-built links are in the context, do NOT send any booking URL.
+
+✈️ FLIGHT LINK OFFER (do this ONCE, naturally, after booking links):
+${flightLink
+  ? `You have the guest's dates and passenger count. Ask where they're flying from — something warm like: "By the way — if you let me know where you're flying from, I can build you a direct flight search link for VPS airport with your exact dates and passengers already filled in! 😊" Then wait for their origin city. Once they give it, replace ORIGIN in this template and send it: https://www.aviasales.com/search/ORIGIN${String(new Date(dates && dates.arrival).getDate()).padStart(2,"0")}${String(new Date(dates && dates.arrival).getMonth()+1).padStart(2,"0")}VPS${String(new Date(dates && dates.departure).getDate()).padStart(2,"0")}${String(new Date(dates && dates.departure).getMonth()+1).padStart(2,"0")}${parseInt(adults)+(parseInt(children)||0)}?adults=${adults}&children=${children||0}&infants=0&marker=709191 — present it warmly as "Here's your VPS flight search link with everything pre-filled!" — if they want ECP or PNS too, offer to build those as well.`
+  : `Do NOT offer flight links — dates or guest count not yet known.`}
+
 The guest is now in follow-up conversation mode. Answer their questions naturally and conversationally:
 - If they ask about price/cost → explain the link shows total pricing with 10% discount already applied
 - If they ask for a price match → direct them warmly to the Comments/Questions box on the booking page

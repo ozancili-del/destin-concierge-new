@@ -1604,7 +1604,7 @@ Examples:
     let holidayContext = "";
     let dateAdjustContext = "";
     // Build flight deep link template if we have dates and guest count
-    const flightOffered = messages.some(m => m.role === "assistant" && m.content && m.content.includes("flying from"));
+    const flightOffered = messages.some(m => m.role === "assistant" && m.content && (m.content.includes("flying from") || m.content.includes("aviasales.com") || m.content.includes("Search Flights")));
     const flightLink = (dates && dates.arrival && dates.departure && adults) ? true : false;
 
     // Extract [ORIGIN:XXX] and [DEST:XXX] tags GPT embeds in its previous response
@@ -3666,24 +3666,32 @@ Your 10% direct booking discount is already applied! 🎉 Unit 707 availability 
     reply = reply.replace(/\[ORIGIN:[A-Z]{3}\]/g, "").replace(/\[DEST:(VPS|PNS|ECP)\]/g, "").trim();
 
     // Strip any raw Aviasales URLs GPT wrote directly — we build the button ourselves
-    reply = reply.replace(/https:\/\/www\.aviasales\.com\/search\/[^\s)>]+/g, "").trim();
+    reply = reply.replace(/\s*https?:\/\/(?:www\.)?aviasales\.com\/search\/[^\s)>\n]+/g, "").trim();
 
     // Build and append flight button if flight was offered and we can detect origin
     if (flightOffered && dates && dates.arrival && dates.departure && adults) {
       const cityIataMap = { denver:"DEN", dallas:"DFW", "dallas fort worth":"DFW", chicago:"ORD", "o'hare":"ORD", atlanta:"ATL", nashville:"BNA", houston:"IAH", "new york":"JFK", nyc:"JFK", "los angeles":"LAX", miami:"MIA", orlando:"MCO", charlotte:"CLT", boston:"BOS", seattle:"SEA", phoenix:"PHX", philadelphia:"PHL", detroit:"DTW", minneapolis:"MSP", cleveland:"CLE", cincinnati:"CVG", columbus:"CMH", indianapolis:"IND", memphis:"MEM", "kansas city":"MCI", "st louis":"STL", pittsburgh:"PIT", raleigh:"RDU", tampa:"TPA", jacksonville:"JAX", austin:"AUS", "san antonio":"SAT", "oklahoma city":"OKC", tulsa:"TUL", "new orleans":"MSY", birmingham:"BHM", richmond:"RIC", lexington:"LEX", knoxville:"TYS", "baton rouge":"BTR", "little rock":"LIT", newark:"EWR", laguardia:"LGA", dulles:"IAD", midway:"MDW", "love field":"DAL" };
-      const lastUserLower = lastUser.toLowerCase();
-      let resolvedOrigin = null;
-      // Check 3-letter uppercase code first
-      const iataMatch = lastUser.match(/\b([A-Z]{3})\b/);
-      if (iataMatch) resolvedOrigin = iataMatch[1];
-      // Then check city names
-      if (!resolvedOrigin) {
+
+      const extractOrigin = (text) => {
+        const iataMatch = text.match(/\b([A-Z]{3})\b/);
+        if (iataMatch) return iataMatch[1];
+        const lower = text.toLowerCase();
         for (const [city, code] of Object.entries(cityIataMap)) {
-          if (lastUserLower.includes(city)) { resolvedOrigin = code; break; }
+          if (lower.includes(city)) return code;
         }
+        return null;
+      };
+
+      // Try lastUser first, then scan back through conversation history
+      let resolvedOrigin = extractOrigin(lastUser);
+      if (!resolvedOrigin) {
+        const allUserMessages = [...messages].filter(m => m.role === "user").map(m => m.content).join(" ");
+        resolvedOrigin = extractOrigin(allUserMessages);
       }
-      // Destination — VPS always unless explicitly asked for PNS or ECP
+
+      // Destination — VPS always unless explicitly asked for PNS or ECP in lastUser
       const dest = /\becp\b|panama city/i.test(lastUser) ? "ECP" : /\bpns\b|pensacola/i.test(lastUser) ? "PNS" : "VPS";
+
       if (resolvedOrigin) {
         const fLink = buildFlightLink(resolvedOrigin, dates.arrival, dates.departure, adults, children || 0, 0, dest);
         if (fLink) {

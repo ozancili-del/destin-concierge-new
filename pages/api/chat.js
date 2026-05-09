@@ -3665,14 +3665,17 @@ Your 10% direct booking discount is already applied! 🎉 Unit 707 availability 
     // Strip any [ORIGIN:XXX] or [DEST:XXX] tags GPT may have embedded
     reply = reply.replace(/\[ORIGIN:[A-Z]{3}\]/g, "").replace(/\[DEST:(VPS|PNS|ECP)\]/g, "").trim();
 
-    // If GPT wrote a raw Aviasales URL, extract origin/dest and reformat as markdown button
-    const aviasalesRawMatch = rawReply.match(/aviasales\.com\/search\/([A-Z]{3})(\d{4})([A-Z]{3})(\d{4})(\d+)/);
+    // If GPT wrote a raw Aviasales URL, intercept it and reformat as markdown button
+    const aviasalesRawMatch = rawReply.match(/https?:\/\/(?:www\.)?aviasales\.com\/search\/([A-Z]{3}\d{4}[A-Z]{3}\d{4}\d+[^\s)>\n]*)/);
     if (aviasalesRawMatch) {
-      const [, rOrigin, , rDest, , rPax] = aviasalesRawMatch;
+      const fullPath = aviasalesRawMatch[1];
+      const parts = fullPath.match(/^([A-Z]{3})\d{4}([A-Z]{3})/);
+      const rOrigin = parts ? parts[1] : "?";
+      const rDest = parts ? parts[2] : "VPS";
       const destLabel = rDest === "VPS" ? "VPS · Destin (35 min)" : rDest === "PNS" ? "PNS · Pensacola (1h 20min)" : rDest === "ECP" ? "ECP · Panama City (1h 10min)" : rDest;
-      const fLink = buildFlightLink(rOrigin, dates?.arrival, dates?.departure, adults || rPax, children || 0, 0, rDest);
+      const cleanUrl = `https://www.aviasales.com/search/${fullPath}`;
       reply = reply.replace(/\s*https?:\/\/(?:www\.)?aviasales\.com\/search\/[^\s)>\n]+/g, "").trim();
-      if (fLink) reply += `\n\n[✈️ Search Flights ${rOrigin} → ${destLabel}](${fLink})`;
+      reply += `\n\n[✈️ Search Flights ${rOrigin} → ${destLabel}](${cleanUrl})`;
     } else {
       // Strip any raw Aviasales URLs GPT wrote directly
       reply = reply.replace(/\s*https?:\/\/(?:www\.)?aviasales\.com\/search\/[^\s)>\n]+/g, "").trim();

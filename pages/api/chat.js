@@ -848,8 +848,67 @@ function buildFlightLink(origin, departure, returnDate, adults = 1, children = 0
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Build booking link
+// Common US city → IATA lookup for flight deep links
 // ─────────────────────────────────────────────────────────────────────────────
+const CITY_TO_IATA = {
+  "dallas": "DFW", "dfw": "DFW", "dallas fort worth": "DFW", "fort worth": "DFW",
+  "dal": "DAL", "love field": "DAL",
+  "chicago": "ORD", "ord": "ORD", "o'hare": "ORD", "ohare": "ORD",
+  "mdw": "MDW", "midway": "MDW",
+  "atlanta": "ATL", "atl": "ATL",
+  "nashville": "BNA", "bna": "BNA",
+  "houston": "IAH", "iah": "IAH", "bush": "IAH",
+  "hou": "HOU", "hobby": "HOU",
+  "new york": "JFK", "jfk": "JFK", "nyc": "JFK",
+  "lga": "LGA", "laguardia": "LGA",
+  "ewr": "EWR", "newark": "EWR",
+  "los angeles": "LAX", "lax": "LAX",
+  "miami": "MIA", "mia": "MIA",
+  "orlando": "MCO", "mco": "MCO",
+  "charlotte": "CLT", "clt": "CLT",
+  "washington": "DCA", "dca": "DCA", "reagan": "DCA",
+  "iad": "IAD", "dulles": "IAD",
+  "denver": "DEN", "den": "DEN",
+  "phoenix": "PHX", "phx": "PHX",
+  "seattle": "SEA", "sea": "SEA",
+  "san francisco": "SFO", "sfo": "SFO",
+  "boston": "BOS", "bos": "BOS",
+  "minneapolis": "MSP", "msp": "MSP",
+  "detroit": "DTW", "dtw": "DTW",
+  "memphis": "MEM", "mem": "MEM",
+  "st louis": "STL", "stl": "STL",
+  "kansas city": "MCI", "mci": "MCI",
+  "cincinnati": "CVG", "cvg": "CVG",
+  "cleveland": "CLE", "cle": "CLE",
+  "columbus": "CMH", "cmh": "CMH",
+  "indianapolis": "IND", "ind": "IND",
+  "louisville": "SDF", "sdf": "SDF",
+  "birmingham": "BHM", "bhm": "BHM",
+  "jackson": "JAN", "jan": "JAN",
+  "new orleans": "MSY", "msy": "MSY",
+  "baton rouge": "BTR", "btr": "BTR",
+  "san antonio": "SAT", "sat": "SAT",
+  "austin": "AUS", "aus": "AUS",
+  "oklahoma city": "OKC", "okc": "OKC",
+  "tulsa": "TUL", "tul": "TUL",
+  "little rock": "LIT", "lit": "LIT",
+  "lexington": "LEX", "lex": "LEX",
+  "knoxville": "TYS", "tys": "TYS",
+  "jacksonville": "JAX", "jax": "JAX",
+  "tampa": "TPA", "tpa": "TPA",
+  "raleigh": "RDU", "rdu": "RDU",
+  "richmond": "RIC", "ric": "RIC",
+  "pittsburgh": "PIT", "pit": "PIT",
+  "philadelphia": "PHL", "phl": "PHL",
+};
+
+function cityToIata(input) {
+  if (!input) return null;
+  const clean = input.trim().toLowerCase();
+  return CITY_TO_IATA[clean] || (clean.length === 3 ? clean.toUpperCase() : null);
+}
+
+
 function buildLink(unit, arrival, departure, adults, children) {
   const base = unit === "707"
     ? "https://www.destincondogetaways.com/pelican-beach-resort-unit-707-orp5b47b5ax"
@@ -1610,12 +1669,22 @@ Examples:
       ? buildFlightLink(null, dates.arrival, dates.departure, adults, children || 0, 0)
       : null;
 
+    // Detect if guest is responding to the flight offer with their origin city
+    const flightOffered = conversationHistory.some(m => m.role === "assistant" && m.content && m.content.includes("flying from"));
+    const detectedOriginIata = flightOffered ? cityToIata(lastUser.trim()) : null;
+    const builtFlightLink = (detectedOriginIata && dates && dates.arrival && dates.departure && adults)
+      ? buildFlightLink(detectedOriginIata, dates.arrival, dates.departure, adults, children || 0, 0)
+      : null;
+
     let bookingLinksContext = bookingLinksSent ? `📎 BOOKING LINKS ALREADY SENT: You already sent booking links earlier in this conversation. DO NOT send links again unless the guest explicitly asks for them again. CRITICAL: NEVER construct or generate new booking URLs yourself — if new links are needed, the system will provide them. If no pre-built links are in the context, do NOT send any booking URL.
 
 ✈️ FLIGHT LINK OFFER (do this ONCE, naturally, after booking links):
-${flightLink
+${builtFlightLink
+  ? `Guest just gave their origin city (${detectedOriginIata}). Send this pre-built VPS flight search link warmly: ${builtFlightLink} — say something like "Here's your VPS flight search link with everything pre-filled! 🛫" — then offer ECP and PNS if they want to compare.`
+  : flightLink
   ? `You have the guest's dates and passenger count. Ask where they're flying from — something warm like: "By the way — if you let me know where you're flying from, I can build you a direct flight search link for VPS airport with your exact dates and passengers already filled in! 😊" Then wait for their origin city. Once they give it, replace ORIGIN in this template and send it: https://www.aviasales.com/search/ORIGIN${String(new Date(dates && dates.arrival).getDate()).padStart(2,"0")}${String(new Date(dates && dates.arrival).getMonth()+1).padStart(2,"0")}VPS${String(new Date(dates && dates.departure).getDate()).padStart(2,"0")}${String(new Date(dates && dates.departure).getMonth()+1).padStart(2,"0")}${parseInt(adults)+(parseInt(children)||0)}?adults=${adults}&children=${children||0}&infants=0&marker=709191 — present it warmly as "Here's your VPS flight search link with everything pre-filled!" — if they want ECP or PNS too, offer to build those as well.`
   : `Do NOT offer flight links — dates or guest count not yet known.`}
+
 
 The guest is now in follow-up conversation mode. Answer their questions naturally and conversationally:
 - If they ask about price/cost → explain the link shows total pricing with 10% discount already applied
@@ -3437,6 +3506,10 @@ NO REPETITION RULE: Review all your previous responses in this conversation befo
         ? `\n\nP.S. For ${tsActivityCategory ? tsActivityCategory.replace(/([a-z])([A-Z])/g, '$1 $2') + ' tours' : 'activities'} during your stay, you can browse and book here: ${tsActivityLink} 🐬`
         : "";
 
+      const flightPS = (dates && dates.arrival && dates.departure && adults && !guestBooking)
+        ? `\n\n✈️ By the way — if you let me know where you're flying from, I can build you a direct flight search link for VPS airport with your exact dates and ${parseInt(adults)+(parseInt(children)||0)} passenger${(parseInt(adults)+(parseInt(children)||0))>1?'s':''} already filled in! 😊`
+        : "";
+
       if (availabilityStatus.includes("707:AVAILABLE") && availabilityStatus.includes("1006:BOOKED")) {
         const link = buildLink("707", dates.arrival, dates.departure, adults, children);
         // Ticker: if guest clicked 1006 but it's booked, acknowledge the deal is gone
@@ -3452,7 +3525,7 @@ NO REPETITION RULE: Review all your previous responses in this conversation befo
 
 ${link}
 
-Your 10% direct booking discount is already applied! 🎉 Let me know if you have any questions 😊${activityPS}`;
+Your 10% direct booking discount is already applied! 🎉 Let me know if you have any questions 😊${activityPS}${flightPS}`;
 
       } else if (availabilityStatus.includes("707:BOOKED") && availabilityStatus.includes("1006:AVAILABLE")) {
         const link = buildLink("1006", dates.arrival, dates.departure, adults, children);
@@ -3469,7 +3542,7 @@ Your 10% direct booking discount is already applied! 🎉 Let me know if you hav
 
 ${link}
 
-Your 10% direct booking discount is already applied! 🎉 Let me know if you have any questions 😊${activityPS}`;
+Your 10% direct booking discount is already applied! 🎉 Let me know if you have any questions 😊${activityPS}${flightPS}`;
 
       } else if (availabilityStatus.includes("707:AVAILABLE") && availabilityStatus.includes("1006:AVAILABLE")) {
         const link707 = buildLink("707", dates.arrival, dates.departure, adults, children);
@@ -3488,14 +3561,14 @@ Your 10% direct booking discount is already applied! 🎉 Let me know if you hav
 
 ${tickerLink}
 
-Your 10% direct booking discount is already applied! 🎉 Let me know if you have any questions 😊${activityPS}`;
+Your 10% direct booking discount is already applied! 🎉 Let me know if you have any questions 😊${activityPS}${flightPS}`;
         } else {
           bookingReply = `${pick(bothAvailOpeners)}
 
 ${link707}
 ${link1006}
 
-Your 10% direct booking discount is already applied on both! 🎉Want me to tell you more about the differences? 😊${activityPS}`;
+Your 10% direct booking discount is already applied on both! 🎉Want me to tell you more about the differences? 😊${activityPS}${flightPS}`;
         }
 
       } else if (availabilityStatus.includes("707:BOOKED") && availabilityStatus.includes("1006:BOOKED")) {

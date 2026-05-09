@@ -1671,7 +1671,19 @@ Examples:
 
     // Detect if guest is responding to the flight offer with their origin city
     const flightOffered = messages.some(m => m.role === "assistant" && m.content && m.content.includes("flying from"));
-    const detectedOriginIata = flightOffered ? cityToIata(lastUser.trim()) : null;
+    const extractOriginFromMessage = (text) => {
+      const lower = text.toLowerCase();
+      // Try exact IATA first (3-letter code)
+      const iataMatch = text.match(/\b([A-Z]{3})\b/);
+      if (iataMatch && CITY_TO_IATA[iataMatch[1].toLowerCase()]) return CITY_TO_IATA[iataMatch[1].toLowerCase()];
+      if (iataMatch && iataMatch[1].length === 3) return iataMatch[1];
+      // Try city name
+      for (const [city, code] of Object.entries(CITY_TO_IATA)) {
+        if (lower.includes(city)) return code;
+      }
+      return null;
+    };
+    const detectedOriginIata = flightOffered ? extractOriginFromMessage(lastUser) : null;
     const builtFlightLink = (detectedOriginIata && dates && dates.arrival && dates.departure && adults)
       ? buildFlightLink(detectedOriginIata, dates.arrival, dates.departure, adults, children || 0, 0)
       : null;
@@ -3653,6 +3665,8 @@ Your 10% direct booking discount is already applied! 🎉 Unit 707 availability 
       // Inject previous session history BEFORE current conversation
       ...sessionHistory,
       ...messages.map((m) => ({ role: m.role, content: m.content })),
+      // Inject built flight link if origin was just detected
+      ...(builtFlightLink ? [{ role: "system", content: `✈️ FLIGHT LINK READY: Guest just told you they're flying from ${detectedOriginIata}. Send this pre-built Aviasales flight search link warmly — even if you're also giving them the BLUE code in this same message: ${builtFlightLink} — say something like "And here's your VPS flight search link with your exact dates and passengers already filled in! 🛫" Keep it brief, natural, after the BLUE code if applicable.` }] : []),
     ];
 
     const completion = await openai.chat.completions.create({

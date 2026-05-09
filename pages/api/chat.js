@@ -1626,14 +1626,7 @@ Examples:
 - NEVER volunteer ECP unprompted
 
 ${flightLink
-  ? `You have the guest's dates and passenger count. Ask where they're flying from — something warm and brief like: "By the way — where are you flying from? I can build you a direct flight search link for VPS with your exact dates and passengers already filled in! 😊"
-
-CRITICAL — WHEN GUEST GIVES THEIR CITY/AIRPORT: You must embed TWO hidden tags in your response (invisible to guest, used by the system to build the link):
-- [ORIGIN:XXX] where XXX is the IATA code you extracted from what the guest said. If the city has multiple airports (e.g. New York → JFK/LGA/EWR, Chicago → ORD/MDW), ask which airport first before embedding the tag.
-- [DEST:VPS] (or PNS or ECP based on what they asked for)
-
-Example: Guest says "Dallas" → embed [ORIGIN:DFW][DEST:VPS] anywhere in your response. Guest says "any alternatives?" → embed [ORIGIN:DFW][DEST:PNS].
-The system strips these tags before displaying to the guest and builds the flight button automatically.`
+  ? `You have the guest's dates and passenger count. Ask where they're flying from — something warm and brief like: "By the way — where are you flying from? I can build you a direct flight search link for VPS with your exact dates and passengers already filled in! 😊" If the city they give has multiple airports (e.g. New York, Chicago, Washington DC), ask which airport before confirming. The system will automatically build and append the flight button — you do NOT need to construct or include any URL yourself.`
   : `Do NOT offer flight links — dates or guest count not yet known.`}
 
 
@@ -3605,7 +3598,7 @@ Your 10% direct booking discount is already applied! 🎉 Unit 707 availability 
       ...sessionHistory,
       ...messages.map((m) => ({ role: m.role, content: m.content })),
       // Inject built flight link if origin was just detected
-      ...(builtFlightLink ? [{ role: "system", content: `✈️ FLIGHT LINK READY: You already extracted [ORIGIN:${detectedOriginIata}][DEST:${detectedDestIata}] from the guest's message. The system has built this flight search link: ${builtFlightLink} — present it as a markdown button like this: [✈️ Search Flights ${detectedOriginIata} → ${detectedDestIata}](${builtFlightLink}) — warm and brief. If DEST is VPS mention it's the closest airport (35 min). If PNS mention it's 1h 20min but sometimes cheaper. After sending, offer the other airport if they want to compare.` }] : []),
+      ...(builtFlightLink ? [{ role: "system", content: `✈️ The system has already built and will append the flight button to your response automatically. Do NOT include any Aviasales URL yourself. Just respond naturally to the guest — the flight button will appear below your message.` }] : []),
     ];
 
     const completion = await openai.chat.completions.create({
@@ -3669,18 +3662,34 @@ Your 10% direct booking discount is already applied! 🎉 Unit 707 availability 
 
     let reply = rawReply;
 
-    // Strip [ORIGIN:XXX] and [DEST:XXX] tags GPT embeds — invisible to guest, used by system
-    // If tags found in THIS reply AND we have a built link, append the flight button
-    const replyOriginMatch = reply.match(/\[ORIGIN:([A-Z]{3})\]/);
-    const replyDestMatch = reply.match(/\[DEST:(VPS|PNS|ECP)\]/);
+    // Strip any [ORIGIN:XXX] or [DEST:XXX] tags GPT may have embedded
     reply = reply.replace(/\[ORIGIN:[A-Z]{3}\]/g, "").replace(/\[DEST:(VPS|PNS|ECP)\]/g, "").trim();
-    if (replyOriginMatch && dates && dates.arrival && dates.departure && adults) {
-      const rOrigin = replyOriginMatch[1];
-      const rDest = replyDestMatch ? replyDestMatch[1] : "VPS";
-      const rLink = buildFlightLink(rOrigin, dates.arrival, dates.departure, adults, children || 0, 0, rDest);
-      if (rLink) {
-        const destLabel = rDest === "VPS" ? "VPS — Destin (closest, 35 min)" : rDest === "PNS" ? "PNS — Pensacola (1h 20min)" : "ECP — Panama City Beach (1h 10min)";
-        reply += `\n\n[✈️ Search Flights ${rOrigin} → ${rDest} · ${destLabel}](${rLink})`;
+
+    // Strip any raw Aviasales URLs GPT wrote directly — we build the button ourselves
+    reply = reply.replace(/https:\/\/www\.aviasales\.com\/search\/[^\s)>]+/g, "").trim();
+
+    // Build and append flight button if flight was offered and we can detect origin
+    if (flightOffered && dates && dates.arrival && dates.departure && adults) {
+      const cityIataMap = { denver:"DEN", dallas:"DFW", "dallas fort worth":"DFW", chicago:"ORD", "o'hare":"ORD", atlanta:"ATL", nashville:"BNA", houston:"IAH", "new york":"JFK", nyc:"JFK", "los angeles":"LAX", miami:"MIA", orlando:"MCO", charlotte:"CLT", boston:"BOS", seattle:"SEA", phoenix:"PHX", philadelphia:"PHL", detroit:"DTW", minneapolis:"MSP", cleveland:"CLE", cincinnati:"CVG", columbus:"CMH", indianapolis:"IND", memphis:"MEM", "kansas city":"MCI", "st louis":"STL", pittsburgh:"PIT", raleigh:"RDU", tampa:"TPA", jacksonville:"JAX", austin:"AUS", "san antonio":"SAT", "oklahoma city":"OKC", tulsa:"TUL", "new orleans":"MSY", birmingham:"BHM", richmond:"RIC", lexington:"LEX", knoxville:"TYS", "baton rouge":"BTR", "little rock":"LIT", newark:"EWR", laguardia:"LGA", dulles:"IAD", midway:"MDW", "love field":"DAL" };
+      const lastUserLower = lastUser.toLowerCase();
+      let resolvedOrigin = null;
+      // Check 3-letter uppercase code first
+      const iataMatch = lastUser.match(/\b([A-Z]{3})\b/);
+      if (iataMatch) resolvedOrigin = iataMatch[1];
+      // Then check city names
+      if (!resolvedOrigin) {
+        for (const [city, code] of Object.entries(cityIataMap)) {
+          if (lastUserLower.includes(city)) { resolvedOrigin = code; break; }
+        }
+      }
+      // Destination — VPS always unless explicitly asked for PNS or ECP
+      const dest = /\becp\b|panama city/i.test(lastUser) ? "ECP" : /\bpns\b|pensacola/i.test(lastUser) ? "PNS" : "VPS";
+      if (resolvedOrigin) {
+        const fLink = buildFlightLink(resolvedOrigin, dates.arrival, dates.departure, adults, children || 0, 0, dest);
+        if (fLink) {
+          const destLabel = dest === "VPS" ? "VPS · Destin (35 min)" : dest === "PNS" ? "PNS · Pensacola (1h 20min)" : "ECP · Panama City (1h 10min)";
+          reply += `\n\n[✈️ Search Flights ${resolvedOrigin} → ${destLabel}](${fLink})`;
+        }
       }
     }
 

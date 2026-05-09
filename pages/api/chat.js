@@ -830,7 +830,7 @@ function extractDates(text) {
 // ─────────────────────────────────────────────────────────────────────────────
 // Build Aviasales flight deep link (affiliate tracked)
 // ─────────────────────────────────────────────────────────────────────────────
-function buildFlightLink(origin, departure, returnDate, adults = 1, children = 0, infants = 0) {
+function buildFlightLink(origin, departure, returnDate, adults = 1, children = 0, infants = 0, destination = "VPS") {
   if (!origin || !departure || !returnDate) return null;
   try {
     const dep = new Date(departure);
@@ -840,72 +840,11 @@ function buildFlightLink(origin, departure, returnDate, adults = 1, children = 0
     const rd = String(ret.getDate()).padStart(2, "0");
     const rm = String(ret.getMonth() + 1).padStart(2, "0");
     const pax = parseInt(adults) + parseInt(children) + parseInt(infants);
-    const base = `https://www.aviasales.com/search/${origin.toUpperCase()}${dd}${dm}VPS${rd}${rm}${pax}`;
+    const base = `https://www.aviasales.com/search/${origin.toUpperCase()}${dd}${dm}${destination}${rd}${rm}${pax}`;
     return `${base}?adults=${adults}&children=${children}&infants=${infants}&marker=709191`;
   } catch (e) {
     return null;
   }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Common US city → IATA lookup for flight deep links
-// ─────────────────────────────────────────────────────────────────────────────
-const CITY_TO_IATA = {
-  "dallas": "DFW", "dfw": "DFW", "dallas fort worth": "DFW", "fort worth": "DFW",
-  "dal": "DAL", "love field": "DAL",
-  "chicago": "ORD", "ord": "ORD", "o'hare": "ORD", "ohare": "ORD",
-  "mdw": "MDW", "midway": "MDW",
-  "atlanta": "ATL", "atl": "ATL",
-  "nashville": "BNA", "bna": "BNA",
-  "houston": "IAH", "iah": "IAH", "bush": "IAH",
-  "hou": "HOU", "hobby": "HOU",
-  "new york": "JFK", "jfk": "JFK", "nyc": "JFK",
-  "lga": "LGA", "laguardia": "LGA",
-  "ewr": "EWR", "newark": "EWR",
-  "los angeles": "LAX", "lax": "LAX",
-  "miami": "MIA", "mia": "MIA",
-  "orlando": "MCO", "mco": "MCO",
-  "charlotte": "CLT", "clt": "CLT",
-  "washington": "DCA", "dca": "DCA", "reagan": "DCA",
-  "iad": "IAD", "dulles": "IAD",
-  "denver": "DEN", "den": "DEN",
-  "phoenix": "PHX", "phx": "PHX",
-  "seattle": "SEA", "sea": "SEA",
-  "san francisco": "SFO", "sfo": "SFO",
-  "boston": "BOS", "bos": "BOS",
-  "minneapolis": "MSP", "msp": "MSP",
-  "detroit": "DTW", "dtw": "DTW",
-  "memphis": "MEM", "mem": "MEM",
-  "st louis": "STL", "stl": "STL",
-  "kansas city": "MCI", "mci": "MCI",
-  "cincinnati": "CVG", "cvg": "CVG",
-  "cleveland": "CLE", "cle": "CLE",
-  "columbus": "CMH", "cmh": "CMH",
-  "indianapolis": "IND", "ind": "IND",
-  "louisville": "SDF", "sdf": "SDF",
-  "birmingham": "BHM", "bhm": "BHM",
-  "jackson": "JAN", "jan": "JAN",
-  "new orleans": "MSY", "msy": "MSY",
-  "baton rouge": "BTR", "btr": "BTR",
-  "san antonio": "SAT", "sat": "SAT",
-  "austin": "AUS", "aus": "AUS",
-  "oklahoma city": "OKC", "okc": "OKC",
-  "tulsa": "TUL", "tul": "TUL",
-  "little rock": "LIT", "lit": "LIT",
-  "lexington": "LEX", "lex": "LEX",
-  "knoxville": "TYS", "tys": "TYS",
-  "jacksonville": "JAX", "jax": "JAX",
-  "tampa": "TPA", "tpa": "TPA",
-  "raleigh": "RDU", "rdu": "RDU",
-  "richmond": "RIC", "ric": "RIC",
-  "pittsburgh": "PIT", "pit": "PIT",
-  "philadelphia": "PHL", "phl": "PHL",
-};
-
-function cityToIata(input) {
-  if (!input) return null;
-  const clean = input.trim().toLowerCase();
-  return CITY_TO_IATA[clean] || (clean.length === 3 ? clean.toUpperCase() : null);
 }
 
 
@@ -1664,37 +1603,37 @@ Examples:
     let competitorContext = "";
     let holidayContext = "";
     let dateAdjustContext = "";
-    // Build flight deep link if we have dates and guest count
-    const flightLink = (dates && dates.arrival && dates.departure && adults)
-      ? buildFlightLink(null, dates.arrival, dates.departure, adults, children || 0, 0)
-      : null;
-
-    // Detect if guest is responding to the flight offer with their origin city
+    // Build flight deep link template if we have dates and guest count
     const flightOffered = messages.some(m => m.role === "assistant" && m.content && m.content.includes("flying from"));
-    const extractOriginFromMessage = (text) => {
-      const lower = text.toLowerCase();
-      // Try exact IATA first (3-letter code)
-      const iataMatch = text.match(/\b([A-Z]{3})\b/);
-      if (iataMatch && CITY_TO_IATA[iataMatch[1].toLowerCase()]) return CITY_TO_IATA[iataMatch[1].toLowerCase()];
-      if (iataMatch && iataMatch[1].length === 3) return iataMatch[1];
-      // Try city name
-      for (const [city, code] of Object.entries(CITY_TO_IATA)) {
-        if (lower.includes(city)) return code;
-      }
-      return null;
-    };
-    const detectedOriginIata = flightOffered ? extractOriginFromMessage(lastUser) : null;
+    const flightLink = (dates && dates.arrival && dates.departure && adults) ? true : false;
+
+    // Extract [ORIGIN:XXX] and [DEST:XXX] tags GPT embeds in its previous response
+    const lastAssistantContent = [...messages].reverse().find(m => m.role === "assistant")?.content || "";
+    const originTagMatch = lastAssistantContent.match(/\[ORIGIN:([A-Z]{3})\]/);
+    const destTagMatch = lastAssistantContent.match(/\[DEST:(VPS|PNS|ECP)\]/);
+    const detectedOriginIata = originTagMatch ? originTagMatch[1] : null;
+    const detectedDestIata = destTagMatch ? destTagMatch[1] : "VPS";
     const builtFlightLink = (detectedOriginIata && dates && dates.arrival && dates.departure && adults)
-      ? buildFlightLink(detectedOriginIata, dates.arrival, dates.departure, adults, children || 0, 0)
+      ? buildFlightLink(detectedOriginIata, dates.arrival, dates.departure, adults, children || 0, 0, detectedDestIata)
       : null;
 
     let bookingLinksContext = bookingLinksSent ? `📎 BOOKING LINKS ALREADY SENT: You already sent booking links earlier in this conversation. DO NOT send links again unless the guest explicitly asks for them again. CRITICAL: NEVER construct or generate new booking URLs yourself — if new links are needed, the system will provide them. If no pre-built links are in the context, do NOT send any booking URL.
 
-✈️ FLIGHT LINK OFFER (do this ONCE, naturally, after booking links):
-${builtFlightLink
-  ? `Guest just gave their origin city (${detectedOriginIata}). Send this pre-built VPS flight search link warmly: ${builtFlightLink} — say something like "Here's your VPS flight search link with everything pre-filled! 🛫" — then offer ECP and PNS if they want to compare.`
-  : flightLink
-  ? `You have the guest's dates and passenger count. Ask where they're flying from — something warm like: "By the way — if you let me know where you're flying from, I can build you a direct flight search link for VPS airport with your exact dates and passengers already filled in! 😊" Then wait for their origin city. Once they give it, replace ORIGIN in this template and send it: https://www.aviasales.com/search/ORIGIN${String(new Date(dates && dates.arrival).getDate()).padStart(2,"0")}${String(new Date(dates && dates.arrival).getMonth()+1).padStart(2,"0")}VPS${String(new Date(dates && dates.departure).getDate()).padStart(2,"0")}${String(new Date(dates && dates.departure).getMonth()+1).padStart(2,"0")}${parseInt(adults)+(parseInt(children)||0)}?adults=${adults}&children=${children||0}&infants=0&marker=709191 — present it warmly as "Here's your VPS flight search link with everything pre-filled!" — if they want ECP or PNS too, offer to build those as well.`
+✈️ FLIGHT LINK OFFER — AIRPORT RULES:
+- Default destination is always VPS (Destin-Fort Walton Beach, 35 min from Pelican Beach)
+- If guest asks for alternatives: suggest PNS (Pensacola, 1h 20min)
+- If guest pushes for a third option or specifically asks for Panama City: then ECP (1h 10min)
+- NEVER volunteer ECP unprompted
+
+${flightLink
+  ? `You have the guest's dates and passenger count. Ask where they're flying from — something warm and brief like: "By the way — where are you flying from? I can build you a direct flight search link for VPS with your exact dates and passengers already filled in! 😊"
+
+CRITICAL — WHEN GUEST GIVES THEIR CITY/AIRPORT: You must embed TWO hidden tags in your response (invisible to guest, used by the system to build the link):
+- [ORIGIN:XXX] where XXX is the IATA code you extracted from what the guest said. If the city has multiple airports (e.g. New York → JFK/LGA/EWR, Chicago → ORD/MDW), ask which airport first before embedding the tag.
+- [DEST:VPS] (or PNS or ECP based on what they asked for)
+
+Example: Guest says "Dallas" → embed [ORIGIN:DFW][DEST:VPS] anywhere in your response. Guest says "any alternatives?" → embed [ORIGIN:DFW][DEST:PNS].
+The system strips these tags before displaying to the guest and builds the flight button automatically.`
   : `Do NOT offer flight links — dates or guest count not yet known.`}
 
 
@@ -3666,7 +3605,7 @@ Your 10% direct booking discount is already applied! 🎉 Unit 707 availability 
       ...sessionHistory,
       ...messages.map((m) => ({ role: m.role, content: m.content })),
       // Inject built flight link if origin was just detected
-      ...(builtFlightLink ? [{ role: "system", content: `✈️ FLIGHT LINK READY: Guest just told you they're flying from ${detectedOriginIata}. Send this pre-built Aviasales flight search link as a markdown button — even if you're also giving them the BLUE code in this same message. Format it exactly like this: [✈️ Search Flights to VPS from ${detectedOriginIata} →](${builtFlightLink}) — say something like "And here's your VPS flight search with your exact dates and passengers already filled in! 🛫" Keep it brief and natural, after the BLUE code if applicable.` }] : []),
+      ...(builtFlightLink ? [{ role: "system", content: `✈️ FLIGHT LINK READY: You already extracted [ORIGIN:${detectedOriginIata}][DEST:${detectedDestIata}] from the guest's message. The system has built this flight search link: ${builtFlightLink} — present it as a markdown button like this: [✈️ Search Flights ${detectedOriginIata} → ${detectedDestIata}](${builtFlightLink}) — warm and brief. If DEST is VPS mention it's the closest airport (35 min). If PNS mention it's 1h 20min but sometimes cheaper. After sending, offer the other airport if they want to compare.` }] : []),
     ];
 
     const completion = await openai.chat.completions.create({
@@ -3730,7 +3669,22 @@ Your 10% direct booking discount is already applied! 🎉 Unit 707 availability 
 
     let reply = rawReply;
 
-    // Bug 4 fix: strip hallucinated destincondogetaways.com booking URLs
+    // Strip [ORIGIN:XXX] and [DEST:XXX] tags GPT embeds — invisible to guest, used by system
+    // If tags found in THIS reply AND we have a built link, append the flight button
+    const replyOriginMatch = reply.match(/\[ORIGIN:([A-Z]{3})\]/);
+    const replyDestMatch = reply.match(/\[DEST:(VPS|PNS|ECP)\]/);
+    reply = reply.replace(/\[ORIGIN:[A-Z]{3}\]/g, "").replace(/\[DEST:(VPS|PNS|ECP)\]/g, "").trim();
+    if (replyOriginMatch && dates && dates.arrival && dates.departure && adults) {
+      const rOrigin = replyOriginMatch[1];
+      const rDest = replyDestMatch ? replyDestMatch[1] : "VPS";
+      const rLink = buildFlightLink(rOrigin, dates.arrival, dates.departure, adults, children || 0, 0, rDest);
+      if (rLink) {
+        const destLabel = rDest === "VPS" ? "VPS — Destin (closest, 35 min)" : rDest === "PNS" ? "PNS — Pensacola (1h 20min)" : "ECP — Panama City Beach (1h 10min)";
+        reply += `\n\n[✈️ Search Flights ${rOrigin} → ${rDest} · ${destLabel}](${rLink})`;
+      }
+    }
+
+
     // Real system-built URLs always use the full property slug format:
     //   /pelican-beach-resort-unit-707-orp5b47b5ax?or_arrival=...
     //   /pelican-beach-resort-unit-1006-orp5b6450ex?or_arrival=...

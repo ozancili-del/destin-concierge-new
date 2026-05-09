@@ -1626,7 +1626,7 @@ Examples:
 - NEVER volunteer ECP unprompted
 
 ${flightLink
-  ? `You have the guest's dates and passenger count. Ask where they're flying from — something warm and brief like: "By the way — where are you flying from? I can build you a direct flight search link for VPS with your exact dates and passengers already filled in! 😊" If the city they give has multiple airports (e.g. New York, Chicago, Washington DC), ask which airport before confirming. The system will automatically build and append the flight button — you do NOT need to construct or include any URL yourself.`
+  ? `You have the guest's dates and passenger count. Ask where they're flying from — something warm and brief like: "By the way — where are you flying from? I can build you a direct flight search link for VPS with your exact dates and passengers already filled in! 😊" If the city they give has multiple airports (e.g. New York, Chicago, Washington DC), ask which airport before confirming. The system will automatically build and append the flight button — you do NOT need to construct or include any URL yourself. NEVER write any aviasales.com URL in your response — the system appends the button automatically.`
   : `Do NOT offer flight links — dates or guest count not yet known.`}
 
 
@@ -3598,7 +3598,7 @@ Your 10% direct booking discount is already applied! 🎉 Unit 707 availability 
       ...sessionHistory,
       ...messages.map((m) => ({ role: m.role, content: m.content })),
       // Inject built flight link if origin was just detected
-      ...(builtFlightLink ? [{ role: "system", content: `✈️ The system has already built and will append the flight button to your response automatically. Do NOT include any Aviasales URL yourself. Just respond naturally to the guest — the flight button will appear below your message.` }] : []),
+      ...(builtFlightLink ? [{ role: "system", content: `✈️ The system has already built and will append the flight button to your response automatically. NEVER write any aviasales.com URL in your message — not even partially. Just respond naturally, the button appears below automatically.` }] : []),
     ];
 
     const completion = await openai.chat.completions.create({
@@ -3669,7 +3669,14 @@ Your 10% direct booking discount is already applied! 🎉 Unit 707 availability 
     reply = reply.replace(/\s*https?:\/\/(?:www\.)?aviasales\.com\/search\/[^\s)>\n]+/g, "").trim();
 
     // Build and append flight button if flight was offered and we can detect origin
-    if (flightOffered && dates && dates.arrival && dates.departure && adults) {
+    // Only fire when: guest just gave their origin city OR asked for a specific airport
+    const guestMentionedAirport = flightOffered && (
+      /\b(denver|dallas|chicago|atlanta|nashville|houston|new york|los angeles|miami|orlando|charlotte|boston|seattle|phoenix|philadelphia|detroit|minneapolis|cleveland|cincinnati|columbus|indianapolis|memphis|kansas city|st louis|pittsburgh|raleigh|tampa|jacksonville|austin|san antonio|oklahoma city|tulsa|new orleans|birmingham|richmond|lexington|knoxville|baton rouge|little rock|newark|laguardia|dulles|midway|love field)\b/i.test(lastUser) ||
+      /\b[A-Z]{3}\b/.test(lastUser) ||
+      /\bpns\b|pensacola|\becp\b|panama city/i.test(lastUser)
+    );
+
+    if (guestMentionedAirport && dates && dates.arrival && dates.departure && adults) {
       const cityIataMap = { denver:"DEN", dallas:"DFW", "dallas fort worth":"DFW", chicago:"ORD", "o'hare":"ORD", atlanta:"ATL", nashville:"BNA", houston:"IAH", "new york":"JFK", nyc:"JFK", "los angeles":"LAX", miami:"MIA", orlando:"MCO", charlotte:"CLT", boston:"BOS", seattle:"SEA", phoenix:"PHX", philadelphia:"PHL", detroit:"DTW", minneapolis:"MSP", cleveland:"CLE", cincinnati:"CVG", columbus:"CMH", indianapolis:"IND", memphis:"MEM", "kansas city":"MCI", "st louis":"STL", pittsburgh:"PIT", raleigh:"RDU", tampa:"TPA", jacksonville:"JAX", austin:"AUS", "san antonio":"SAT", "oklahoma city":"OKC", tulsa:"TUL", "new orleans":"MSY", birmingham:"BHM", richmond:"RIC", lexington:"LEX", knoxville:"TYS", "baton rouge":"BTR", "little rock":"LIT", newark:"EWR", laguardia:"LGA", dulles:"IAD", midway:"MDW", "love field":"DAL" };
 
       const extractOrigin = (text) => {

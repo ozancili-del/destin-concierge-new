@@ -1670,7 +1670,7 @@ Examples:
       : null;
 
     // Detect if guest is responding to the flight offer with their origin city
-    const flightOffered = conversationHistory.some(m => m.role === "assistant" && m.content && m.content.includes("flying from"));
+    const flightOffered = messages.some(m => m.role === "assistant" && m.content && m.content.includes("flying from"));
     const detectedOriginIata = flightOffered ? cityToIata(lastUser.trim()) : null;
     const builtFlightLink = (detectedOriginIata && dates && dates.arrival && dates.departure && adults)
       ? buildFlightLink(detectedOriginIata, dates.arrival, dates.departure, adults, children || 0, 0)

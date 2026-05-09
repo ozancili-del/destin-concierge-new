@@ -3666,7 +3666,7 @@ Your 10% direct booking discount is already applied! 🎉 Unit 707 availability 
       ...sessionHistory,
       ...messages.map((m) => ({ role: m.role, content: m.content })),
       // Inject built flight link if origin was just detected
-      ...(builtFlightLink ? [{ role: "system", content: `✈️ FLIGHT LINK READY: Guest just told you they're flying from ${detectedOriginIata}. Send this pre-built Aviasales flight search link warmly — even if you're also giving them the BLUE code in this same message: ${builtFlightLink} — say something like "And here's your VPS flight search link with your exact dates and passengers already filled in! 🛫" Keep it brief, natural, after the BLUE code if applicable.` }] : []),
+      ...(builtFlightLink ? [{ role: "system", content: `✈️ FLIGHT LINK READY: Guest just told you they're flying from ${detectedOriginIata}. Send this pre-built Aviasales flight search link as a markdown button — even if you're also giving them the BLUE code in this same message. Format it exactly like this: [✈️ Search Flights to VPS from ${detectedOriginIata} →](${builtFlightLink}) — say something like "And here's your VPS flight search with your exact dates and passengers already filled in! 🛫" Keep it brief and natural, after the BLUE code if applicable.` }] : []),
     ];
 
     const completion = await openai.chat.completions.create({

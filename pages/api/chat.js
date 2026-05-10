@@ -3575,6 +3575,19 @@ Your 10% direct booking discount is already applied! 🎉 Unit 707 availability 
             bookingReply += `\n\nOne more thing — drop your email and I'll unlock an extra 5% on top of your automatic 10%. Yours instantly! 😊`;
           }
         }
+        // Apply flight button intercept to bookingReply too
+        const brAviasalesMatch = bookingReply.match(/https?:\/\/(?:www\.)?aviasales\.com\/search\/([A-Z]{3}\d{4}[A-Z]{3}\d{4}\d+[^\s)>\n]*)/);
+        if (brAviasalesMatch) {
+          const brFullPath = brAviasalesMatch[1];
+          const brParts = brFullPath.match(/^([A-Z]{3})\d{4}([A-Z]{3})/);
+          const brOrigin = brParts ? brParts[1] : "?";
+          const brDest = brParts ? brParts[2] : "VPS";
+          const brDestLabel = brDest === "VPS" ? "VPS · Destin (35 min)" : brDest === "PNS" ? "PNS · Pensacola (1h 20min)" : brDest === "ECP" ? "ECP · Panama City (1h 10min)" : brDest;
+          bookingReply = bookingReply.replace(/\s*https?:\/\/(?:www\.)?aviasales\.com\/search\/[^\s)>\n]+/g, "").trim();
+          bookingReply += `\n\n[✈️ Search Flights ${brOrigin} → ${brDestLabel}](https://www.aviasales.com/search/${brFullPath})`;
+        } else {
+          bookingReply = bookingReply.replace(/\s*https?:\/\/(?:www\.)?aviasales\.com\/search\/[^\s)>\n]+/g, "").trim();
+        }
         await logToSheets(sessionId, lastUser, bookingReply,
           dates ? `${dates.arrival} to ${dates.departure}` : "",
           availabilityStatus, "");
@@ -3610,6 +3623,9 @@ Your 10% direct booking discount is already applied! 🎉 Unit 707 availability 
 
     let rawReply = completion.choices[0]?.message?.content ||
       "I'm sorry, I couldn't generate a response. Please try again!";
+
+    console.log(`[FLIGHT DEBUG] rawReply contains aviasales: ${rawReply.includes('aviasales')}`);
+    if (rawReply.includes('aviasales')) console.log(`[FLIGHT DEBUG] aviasales snippet: ${rawReply.substring(rawReply.indexOf('aviasales') - 10, rawReply.indexOf('aviasales') + 100)}`);
 
     // ── Extract INTENT from last line of GPT reply ──
     let detectedIntent = "INFO";

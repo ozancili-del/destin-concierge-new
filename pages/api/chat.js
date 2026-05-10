@@ -3451,7 +3451,7 @@ NO REPETITION RULE: Review all your previous responses in this conversation befo
         : "";
 
       const flightPS = (dates && dates.arrival && dates.departure && adults && !guestBooking)
-        ? `\n\n✈️ By the way — if you let me know where you're flying from, I can build you a direct flight search link for VPS airport with your exact dates and ${parseInt(adults)+(parseInt(children)||0)} passenger${(parseInt(adults)+(parseInt(children)||0))>1?'s':''} already filled in! 😊`
+        ? `\n\n✈️ By the way — if you let me know where you're flying from, I can build you a direct flight search link for VPS airport with your exact dates and ${parseInt(adults)+(parseInt(children)||0)+(parseInt(infants)||0)} passenger${(parseInt(adults)+(parseInt(children)||0)+(parseInt(infants)||0))>1?'s':''} already filled in! 😊`
         : "";
 
       if (availabilityStatus.includes("707:AVAILABLE") && availabilityStatus.includes("1006:BOOKED")) {

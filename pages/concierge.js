@@ -217,6 +217,7 @@ const LINK_BUTTONS={
   'best-time-to-visit':     {label:'📅 Best Time to Visit Guide',    bg:'linear-gradient(135deg,#1D9E75,#0F6E56)', shadow:'rgba(29,158,117,0.4)'},
   'destin-vacation-itinerary-planner':{label:'🗺️ Plan My Destin Trip',bg:'linear-gradient(135deg,#1D9E75,#0F6E56)', shadow:'rgba(29,158,117,0.4)'},
   'destincondogetaways.com/availability':{label:'📅 Check Availability',bg:'linear-gradient(135deg,#1D9E75,#0F6E56)', shadow:'rgba(29,158,117,0.4)'},
+  'aviasales.com/search':   {label:'✈️ Search Flights',               bg:'linear-gradient(135deg,#1a3a6b,#2563eb)', shadow:'rgba(37,99,235,0.4)'},
 };
 function getLinkButton(u){
   for(const[key,btn] of Object.entries(LINK_BUTTONS)){
@@ -229,6 +230,17 @@ function getLinkButton(u){
   const linkify = (t) =>
     t.replace(/Unit\s*\d+\s*(?:\([^)]*\))?\s*:\s*(?=https?:\/\/)/g, '')
      .replace(/🔗\s*/g, '')
+     .replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, (_, label, url) => {
+       const lb = getLinkButton(url);
+       if (lb) return lb.replace(/>.*?→<\/a>/, `>${label} &nbsp;→</a>`);
+       const bm = url.match(/pelican-beach-resort-unit-(\d+)[^?]*\?/);
+       if (bm) {
+         const unit = bm[1];
+         const btnLabel = unit === '707' ? 'Book Unit 707 — Classic Coastal' : 'Book Unit 1006 — Fresh Coastal';
+         return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;justify-content:space-between;padding:11px 16px;margin:6px 0;background:linear-gradient(135deg,#00B4D8,#0096c7);border:none;border-radius:10px;text-decoration:none;color:#fff;font-size:13px;font-weight:700;box-shadow:0 4px 12px rgba(0,150,200,0.5),0 1px 3px rgba(0,0,0,0.15);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${btnLabel} &nbsp;→</a>`;
+       }
+       return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:#2563eb;">${label}</a>`;
+     })
      .replace(/(https?:\/\/[^\s]+)/g, (u) => {
        const m = u.match(/pelican-beach-resort-unit-(\d+)[^?]*\?/);
        if (m) {

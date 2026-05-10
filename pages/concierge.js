@@ -217,9 +217,17 @@ const LINK_BUTTONS={
   'best-time-to-visit':     {label:'📅 Best Time to Visit Guide',    bg:'linear-gradient(135deg,#1D9E75,#0F6E56)', shadow:'rgba(29,158,117,0.4)'},
   'destin-vacation-itinerary-planner':{label:'🗺️ Plan My Destin Trip',bg:'linear-gradient(135deg,#1D9E75,#0F6E56)', shadow:'rgba(29,158,117,0.4)'},
   'destincondogetaways.com/availability':{label:'📅 Check Availability',bg:'linear-gradient(135deg,#1D9E75,#0F6E56)', shadow:'rgba(29,158,117,0.4)'},
-  'aviasales.com/search':   {label:'✈️ Search Flights',               bg:'linear-gradient(135deg,#1a3a6b,#2563eb)', shadow:'rgba(37,99,235,0.4)'},
 };
 function getLinkButton(u){
+  // Aviasales — dynamic label from URL
+  const avMatch = u.match(/aviasales\.com\/search\/([A-Z]{3})\d{4}([A-Z]{3})/);
+  if (avMatch) {
+    const origin = avMatch[1];
+    const dest = avMatch[2];
+    const destLabel = dest === 'VPS' ? 'VPS · Destin' : dest === 'PNS' ? 'PNS · Pensacola' : dest === 'ECP' ? 'ECP · Panama City' : dest;
+    const label = `✈️ Search Flights ${origin} → ${destLabel}`;
+    return `<a href="${u}" target="_blank" style="display:flex;align-items:center;gap:10px;padding:10px 14px;margin:5px 0;background:linear-gradient(135deg,#1a3a6b,#2563eb);border:none;border-radius:10px;text-decoration:none;color:#fff;font-size:13px;font-weight:700;box-shadow:0 4px 12px rgba(37,99,235,0.4),0 1px 3px rgba(0,0,0,0.15);">${label} &nbsp;→</a>`;
+  }
   for(const[key,btn] of Object.entries(LINK_BUTTONS)){
     if(u.includes(key)){
       return `<a href="${u}" target="_blank" style="display:flex;align-items:center;gap:10px;padding:10px 14px;margin:5px 0;background:${btn.bg};border:none;border-radius:10px;text-decoration:none;color:#fff;font-size:13px;font-weight:700;box-shadow:0 4px 12px ${btn.shadow},0 1px 3px rgba(0,0,0,0.15);">${btn.label} &nbsp;→</a>`;

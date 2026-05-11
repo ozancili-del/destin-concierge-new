@@ -22,11 +22,9 @@ function isNonEnglish(text) {
 }
 
 async function extractStructuredData(lastUser, allUserText, today) {
-  if (!isNonEnglish(lastUser) && !isNonEnglish(allUserText)) return null;
-
   try {
     const extraction = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-4o",
       max_tokens: 200,
       temperature: 0,
       messages: [{
@@ -3382,7 +3380,7 @@ NO REPETITION RULE: Review all your previous responses in this conversation befo
     // ── BEDROOM MISMATCH INTERCEPT — guest asked for 2BR/3BR, we only have 1BR ──
     // Only fires when guest is actively trying to book (wantsAvailability) and not an existing guest.
     // Guards: wantsAvailability ensures info-only questions ("do you have 2 bedrooms?") still go to GPT.
-    const hasBdrMismatch = wantsAvailability && !guestBooking &&
+    const hasBdrMismatch = wantsAvailability && !guestBooking && !bookingLinksSent &&
       (detectBedroomMismatch(lastUser) || detectBedroomMismatch(allUserText.slice(-300)));
     if (hasBdrMismatch && !lastBotWasIntercept) {
       const bdrReply = `Just a heads up — both of our units are 1-bedroom, but they sleep up to 6 guests! Each has a king bed, hallway bunk beds, and a queen pull-out sofa, so there's plenty of sleeping space for groups. 😊 Would those dates still work for your group? If so, just let me know how many adults and children and I'll check live availability right away!`;

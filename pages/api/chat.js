@@ -678,6 +678,18 @@ function extractDates(text) {
   text = text.replace(/([a-zA-Z])[.,!?;:]+(\s|$)/g, '$1$2');
   const t = normalizeMonths(text.toLowerCase());
 
+  // "3-8/9 of June" format — day range with slash alternate end date (take first and last number)
+  const slashAltMonthPattern = /(\d{1,2})-(\d{1,2})\/(\d{1,2})\s+of\s+(january|february|march|april|may|june|july|august|september|october|november|december)/i;
+  const slashAltMonthMatch = t.match(slashAltMonthPattern);
+  if (slashAltMonthMatch) {
+    const months2 = {january:'01',february:'02',march:'03',april:'04',may:'05',june:'06',july:'07',august:'08',september:'09',october:'10',november:'11',december:'12'};
+    const m2 = months2[slashAltMonthMatch[4].toLowerCase()];
+    return {
+      arrival:   `${year}-${m2}-${slashAltMonthMatch[1].padStart(2,'0')}`,
+      departure: `${year}-${m2}-${slashAltMonthMatch[3].padStart(2,'0')}`,
+    };
+  }
+
   const isoPattern = /(\d{4}-\d{2}-\d{2})/g;
   const isoMatches = text.match(isoPattern);
   if (isoMatches && isoMatches.length >= 2) {
@@ -3451,7 +3463,7 @@ NO REPETITION RULE: Review all your previous responses in this conversation befo
         : "";
 
       const flightPS = (dates && dates.arrival && dates.departure && adults && !guestBooking)
-        ? `\n\n✈️ By the way — if you let me know where you're flying from, I can build you a direct flight search link for VPS airport with your exact dates and ${parseInt(adults)+(parseInt(children)||0)+(parseInt(infants)||0)} passenger${(parseInt(adults)+(parseInt(children)||0)+(parseInt(infants)||0))>1?'s':''} already filled in! 😊`
+        ? `\n\n✈️ By the way — if you let me know where you're flying from, I can build you a direct flight search link for VPS airport with your exact dates and ${parseInt(adults)+(parseInt(children)||0)} passenger${(parseInt(adults)+(parseInt(children)||0))>1?'s':''} already filled in! 😊`
         : "";
 
       if (availabilityStatus.includes("707:AVAILABLE") && availabilityStatus.includes("1006:BOOKED")) {

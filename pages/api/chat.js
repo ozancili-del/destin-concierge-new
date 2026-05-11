@@ -3383,7 +3383,9 @@ NO REPETITION RULE: Review all your previous responses in this conversation befo
     const hasBdrMismatch = wantsAvailability && !guestBooking &&
       detectBedroomMismatch(lastUser);
     if (hasBdrMismatch && !lastBotWasIntercept) {
-      const bdrReply = `Just a heads up — both of our units are 1-bedroom, but they sleep up to 6 guests! Each has a king bed, hallway bunk beds, and a queen pull-out sofa, so there's plenty of sleeping space for groups. 😊 Would those dates still work for your group? If so, just let me know how many adults and children and I'll check live availability right away!`;
+      const bdrReply = dates
+        ? `Just a heads up — both of our units are 1-bedroom, but they sleep up to 6 guests! Each has a king bed, hallway bunk beds, and a queen pull-out sofa, so there's plenty of sleeping space for groups. 😊 Would those dates still work for your group? If so, just let me know how many adults and children and I'll check live availability right away!`
+        : `Just a heads up — both of our units are 1-bedroom, but they sleep up to 6 guests! Each has a king bed, hallway bunk beds, and a queen pull-out sofa, so there's plenty of sleeping space for groups. 😊 What dates are you looking at, and how many guests will be staying?`;
       await logToSheets(sessionId, lastUser, bdrReply, dates ? `${dates.arrival} to ${dates.departure}` : "", "BDRM_MISMATCH", "");
       return res.status(200).json({ reply: bdrReply, alertSent: alertWasFired, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
     }

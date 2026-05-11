@@ -22,11 +22,9 @@ function isNonEnglish(text) {
 }
 
 async function extractStructuredData(lastUser, allUserText, today) {
-  if (!isNonEnglish(lastUser) && !isNonEnglish(allUserText)) return null;
-
   try {
     const extraction = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-4o",
       max_tokens: 200,
       temperature: 0,
       messages: [{

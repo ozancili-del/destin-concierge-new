@@ -671,7 +671,9 @@ function normalizeMonths(text) {
 }
 
 function extractDates(text) {
-  const year = new Date().getFullYear();
+  // Extract year from text if present (e.g. "2027"), otherwise use current year
+  const yearMatch = text.match(/\b(202[6-9]|203\d)\b/);
+  const year = yearMatch ? parseInt(yearMatch[1]) : new Date().getFullYear();
   // Strip trailing punctuation from words so "march." "march," "march!" all match
   text = text.replace(/([a-zA-Z])[.,!?;:]+(\s|$)/g, '$1$2');
   const t = normalizeMonths(text.toLowerCase());
@@ -2150,18 +2152,24 @@ RULES — no exceptions:
     if (dates && dates.arrival && !guestBooking) {
       const todayCT = new Date().toLocaleDateString("en-CA", { timeZone: "America/Chicago" });
       if (dates.arrival < todayCT) {
-        // Suggest same dates next month as a helpful nudge
-        const arrDate = new Date(dates.arrival + "T12:00:00Z");
-        const depDate = new Date(dates.departure + "T12:00:00Z");
-        arrDate.setUTCMonth(arrDate.getUTCMonth() + 1);
-        depDate.setUTCMonth(depDate.getUTCMonth() + 1);
-        const pad = n => String(n).padStart(2, "0");
-        const suggestArr = `${arrDate.getUTCFullYear()}-${pad(arrDate.getUTCMonth()+1)}-${pad(arrDate.getUTCDate())}`;
-        const suggestDep = `${depDate.getUTCFullYear()}-${pad(depDate.getUTCMonth()+1)}-${pad(depDate.getUTCDate())}`;
-        const fmtDate = iso => new Date(iso + "T12:00:00Z").toLocaleDateString("en-US", { month: "long", day: "numeric" });
-        const reply = `Those dates (${fmtDate(dates.arrival)}–${fmtDate(dates.departure)}) have already passed! 😊 Did you mean ${fmtDate(suggestArr)}–${fmtDate(suggestDep)} (same dates next month)? Just confirm and I'll check availability right away! 🌊`;
-        await logToSheets(sessionId, lastUser, reply, `${dates.arrival} to ${dates.departure}`, "PAST_DATES", "");
-        return res.status(200).json({ reply, alertSent: false, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
+        // Before suggesting next month, check if GPT extracted a future date instead
+        if (langArrival && langArrival >= todayCT) {
+          dates = { arrival: langArrival, departure: langDeparture || dates.departure };
+          console.log(`[YEAR OVERRIDE] GPT has future dates: ${langArrival} → ${langDeparture}, skipping past date suggestion`);
+        } else {
+          // Suggest same dates next month as a helpful nudge
+          const arrDate = new Date(dates.arrival + "T12:00:00Z");
+          const depDate = new Date(dates.departure + "T12:00:00Z");
+          arrDate.setUTCMonth(arrDate.getUTCMonth() + 1);
+          depDate.setUTCMonth(depDate.getUTCMonth() + 1);
+          const pad = n => String(n).padStart(2, "0");
+          const suggestArr = `${arrDate.getUTCFullYear()}-${pad(arrDate.getUTCMonth()+1)}-${pad(arrDate.getUTCDate())}`;
+          const suggestDep = `${depDate.getUTCFullYear()}-${pad(depDate.getUTCMonth()+1)}-${pad(depDate.getUTCDate())}`;
+          const fmtDate = iso => new Date(iso + "T12:00:00Z").toLocaleDateString("en-US", { month: "long", day: "numeric" });
+          const reply = `Those dates (${fmtDate(dates.arrival)}–${fmtDate(dates.departure)}) have already passed! 😊 Did you mean ${fmtDate(suggestArr)}–${fmtDate(suggestDep)} (same dates next month)? Just confirm and I'll check availability right away! 🌊`;
+          await logToSheets(sessionId, lastUser, reply, `${dates.arrival} to ${dates.departure}`, "PAST_DATES", "");
+          return res.status(200).json({ reply, alertSent: false, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
+        }
       }
     }
 

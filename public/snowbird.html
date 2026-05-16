@@ -1,0 +1,726 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Winter Snowbird Stays — Pelican Beach Resort Destin FL</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-3SGXCQ4FTC"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-3SGXCQ4FTC');</script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --ocean:#07141f;
+  --teal:#0d9e8a;
+  --teal-light:#e1f5ee;
+  --teal-dark:#085041;
+  --sand:#f5f0e8;
+  --text:#1a1a1a;
+  --muted:#7a7a7a;
+  --border:#e0dbd0;
+  --card:#ffffff;
+  --selected:#0a3d5c;
+  --snowbird:#1a6b8a;
+}
+html,body{width:100%;min-height:100vh;background:var(--sand);font-family:'DM Sans',sans-serif;color:var(--text);}
+
+.hero{
+  background:var(--ocean);
+  padding:32px 20px 48px;
+  text-align:center;
+  position:relative;
+}
+.hero::after{
+  content:'';position:absolute;bottom:-1px;left:0;right:0;
+  height:28px;background:var(--sand);border-radius:28px 28px 0 0;
+}
+.hero-tag{font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:10px;}
+.hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,6vw,42px);color:white;font-weight:400;line-height:1.2;margin-bottom:6px;}
+.hero h1 em{color:#7de8d4;font-style:italic;}
+.hero p{font-size:13px;color:rgba(255,255,255,0.45);}
+.hero-badge{
+  display:inline-block;margin-top:12px;
+  background:rgba(13,158,138,0.2);border:1px solid rgba(13,158,138,0.4);
+  color:#7de8d4;font-size:11px;font-weight:500;letter-spacing:.08em;
+  padding:5px 14px;border-radius:20px;
+}
+
+.main{max-width:480px;margin:0 auto;padding:20px 16px 60px;}
+
+.card{background:var(--card);border-radius:20px;border:1px solid var(--border);padding:20px;margin-bottom:14px;}
+
+.section-label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+
+.pill-grid{display:grid;gap:7px;}
+.pill-grid.cols-4{grid-template-columns:repeat(4,1fr);}
+.pill-grid.cols-3{grid-template-columns:repeat(3,1fr);}
+.pill-grid.cols-2{grid-template-columns:repeat(2,1fr);}
+
+.pill{
+  padding:9px 6px;font-size:12px;font-weight:500;
+  border-radius:10px;border:1px solid var(--border);
+  background:transparent;color:var(--muted);
+  cursor:pointer;transition:all .15s;text-align:center;
+  font-family:'DM Sans',sans-serif;
+}
+.pill:hover{border-color:#b0a898;color:var(--text);}
+.pill.active{background:var(--selected);color:white;border-color:var(--selected);}
+.pill.snowbird-pill{
+  background:var(--teal);color:white;border-color:var(--teal);
+  font-size:11px;letter-spacing:.02em;
+  animation:snowpulse 1.8s ease-in-out infinite;
+}
+.pill.snowbird-pill.active{
+  background:var(--teal-dark);border-color:var(--teal-dark);
+  animation:none;
+}
+@keyframes snowpulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(13,158,138,0.4);}
+  50%{box-shadow:0 0 0 6px rgba(13,158,138,0);}
+}
+
+.snowbird-note{
+  margin-top:10px;padding:10px 12px;
+  background:var(--teal-light);border-radius:10px;
+  font-size:11px;color:var(--teal-dark);line-height:1.5;
+}
+
+.divider{height:1px;background:var(--border);margin:16px 0;}
+
+.find-btn{
+  width:100%;padding:14px;
+  background:var(--ocean);color:white;
+  font-size:14px;font-weight:500;font-family:'DM Sans',sans-serif;
+  border:none;border-radius:12px;cursor:pointer;
+  transition:background .15s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.find-btn:hover{background:#0a2d45;}
+.find-btn:disabled{background:#b0a898;cursor:not-allowed;}
+.find-btn .spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;display:none;}
+.find-btn.loading .spinner{display:block;}
+.find-btn.loading .btn-text{opacity:0.7;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+.results{display:none;}
+.results.show{display:block;}
+
+.result-best{
+  background:var(--card);border-radius:20px;
+  border:2px solid var(--teal);
+  overflow:hidden;margin-bottom:10px;
+}
+.result-best-header{
+  background:var(--teal-light);
+  padding:10px 16px;
+  display:flex;align-items:center;gap:8px;
+}
+.best-badge{
+  font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--teal-dark);
+}
+.discount-badge{
+  margin-left:auto;
+  background:var(--teal);color:white;
+  font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;
+}
+.result-body{padding:16px;}
+.result-unit{font-size:14px;font-weight:500;margin-bottom:2px;}
+.result-dates{font-size:12px;color:var(--muted);margin-bottom:12px;}
+.result-rate{font-size:22px;font-weight:600;font-family:'Cormorant Garamond',serif;color:var(--ocean);}
+.result-rate-label{font-size:11px;color:var(--muted);}
+
+.fee-breakdown{border-top:1px solid var(--border);padding-top:12px;margin-top:12px;}
+.fee-row{display:flex;justify-content:space-between;margin-bottom:5px;}
+.fee-label{font-size:12px;color:var(--muted);}
+.fee-value{font-size:12px;color:var(--text);}
+.fee-value.discount{color:var(--teal);}
+.fee-total{display:flex;justify-content:space-between;padding-top:10px;border-top:1px solid var(--border);margin-top:8px;}
+.fee-total-label{font-size:13px;font-weight:500;}
+.fee-total-value{font-size:17px;font-weight:600;font-family:'Cormorant Garamond',serif;}
+
+.book-btn{
+  display:block;width:100%;margin-top:14px;
+  padding:13px;text-align:center;
+  background:var(--ocean);color:white;
+  font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;
+  border-radius:12px;text-decoration:none;
+  transition:background .15s;
+}
+@keyframes disco{
+  0%  {background:linear-gradient(90deg,#e8341a,#ff8c00);}
+  25% {background:linear-gradient(90deg,#ff8c00,#ffcc00);}
+  50% {background:linear-gradient(90deg,#0d9e8a,#00cfff);}
+  75% {background:linear-gradient(90deg,#7c5cbf,#ff3399);}
+  100%{background:linear-gradient(90deg,#e8341a,#ff8c00);}
+}
+.book-btn.disco{animation:disco 1.2s ease-in-out infinite!important;}
+.book-btn:hover{background:#0a2d45;animation:none!important;}
+
+.result-alt{
+  background:var(--card);border-radius:16px;
+  border:1px solid var(--border);
+  padding:14px 16px;margin-bottom:10px;
+  display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;
+}
+.alt-info p:first-child{font-size:13px;font-weight:500;}
+.alt-info p:last-child{font-size:11px;color:var(--muted);margin-top:2px;}
+.alt-btn{
+  padding:8px 14px;background:transparent;
+  border:1px solid var(--border);border-radius:10px;
+  font-size:12px;font-weight:500;font-family:'DM Sans',sans-serif;
+  color:var(--text);cursor:pointer;text-decoration:none;
+  transition:border-color .15s;
+}
+.alt-btn:hover{border-color:#b0a898;}
+
+.no-results{
+  background:var(--card);border-radius:16px;border:1px solid var(--border);
+  padding:24px;text-align:center;margin-bottom:14px;
+}
+.no-results p:first-child{font-size:14px;font-weight:500;margin-bottom:6px;}
+.no-results p:last-child{font-size:12px;color:var(--muted);}
+
+.trust-bar{
+  display:flex;align-items:center;gap:8px;
+  padding:12px 16px;
+  background:var(--card);border-radius:14px;border:1px solid var(--border);
+}
+.trust-dot{width:7px;height:7px;border-radius:50%;background:var(--teal);flex-shrink:0;}
+.trust-text{font-size:11px;color:var(--muted);}
+
+.error-msg{
+  background:#fff5f5;border:1px solid #fcc;border-radius:12px;
+  padding:12px 16px;font-size:12px;color:#c00;margin-bottom:14px;display:none;
+}
+
+.msg-form{margin-top:12px;border-top:1px solid var(--border);padding-top:14px;}
+.msg-form p{font-size:12px;color:var(--muted);margin:0 0 10px;}
+.msg-form input,.msg-form textarea{
+  width:100%;margin-bottom:8px;font-size:13px;
+  padding:10px 12px;border-radius:10px;
+  border:1px solid var(--border);
+  font-family:'DM Sans',sans-serif;
+  background:#faf8f5;color:var(--text);
+  outline:none;
+}
+.msg-form textarea{resize:none;}
+.msg-form input:focus,.msg-form textarea:focus{border-color:#0d9e8a;}
+.send-btn{
+  width:100%;padding:11px;font-size:13px;font-weight:500;
+  border-radius:10px;border:1px solid var(--border);
+  background:transparent;cursor:pointer;color:var(--text);
+  font-family:'DM Sans',sans-serif;transition:border-color .15s,background .15s;
+}
+.send-btn:hover{border-color:#0d9e8a;background:#e1f5ee;}
+.send-btn:disabled{opacity:0.5;cursor:not-allowed;}
+.msg-success{font-size:13px;color:var(--teal);font-weight:500;text-align:center;padding:8px 0;}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-tag">Pelican Beach Resort · Destin FL</div>
+  <h1>Escape winter.<br><em>Stay a month.</em></h1>
+  <p>Direct rates · No platform fees · Book direct and save</p>
+  <div class="hero-badge">❄️ Up to 50% off for monthly winter stays</div>
+</div>
+
+<div class="main">
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div class="section-label" style="margin:0">Which month?</div>
+      <div style="display:flex;gap:4px">
+        <button class="pill active" id="yr2026" onclick="setYear(2026)" style="padding:5px 10px;font-size:11px">2026</button>
+        <button class="pill" id="yr2027" onclick="setYear(2027)" style="padding:5px 10px;font-size:11px">2027</button>
+      </div>
+    </div>
+    <div class="pill-grid cols-4" id="monthGrid">
+      <button class="pill" data-val="1">Jan</button>
+      <button class="pill" data-val="2">Feb</button>
+      <button class="pill" data-val="3">Mar</button>
+      <button class="pill" data-val="4">Apr</button>
+      <button class="pill" data-val="5">May</button>
+      <button class="pill" data-val="6">June</button>
+      <button class="pill" data-val="7">July</button>
+      <button class="pill" data-val="8">Aug</button>
+      <button class="pill" data-val="9">Sept</button>
+      <button class="pill" data-val="10">Oct</button>
+      <button class="pill" data-val="11">Nov</button>
+      <button class="pill" data-val="12">Dec</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-label">How long?</div>
+    <div class="pill-grid cols-4" id="nightsGrid">
+      <button class="pill" data-val="2" data-group="nights">2</button>
+      <button class="pill" data-val="3" data-group="nights">3</button>
+      <button class="pill active" data-val="4" data-group="nights">4</button>
+      <button class="pill" data-val="5" data-group="nights">5</button>
+      <button class="pill" data-val="7" data-group="nights">7</button>
+      <button class="pill" data-val="14" data-group="nights">14</button>
+      <button class="pill" data-val="21" data-group="nights">21</button>
+      <button class="pill snowbird-pill" data-val="snowbird" data-group="nights" id="snowbirdBtn">❄️ Full month</button>
+    </div>
+    <div class="snowbird-note" id="snowbirdNote" style="display:none">
+      Full month stay — check-in on the 1st, check-out on the 1st of the next month. <strong>50% off rent</strong> applied automatically for Nov–Feb stays of 28+ nights booked direct.
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <div>
+        <div class="section-label">Adults</div>
+        <div class="pill-grid cols-3">
+          <button class="pill" data-val="1" data-group="adults">1</button>
+          <button class="pill active" data-val="2" data-group="adults">2</button>
+          <button class="pill" data-val="3" data-group="adults">3</button>
+          <button class="pill" data-val="4" data-group="adults">4</button>
+          <button class="pill" data-val="5" data-group="adults">5</button>
+          <button class="pill" data-val="6" data-group="adults">6</button>
+        </div>
+      </div>
+      <div>
+        <div class="section-label">Children <span style="font-size:10px;color:var(--muted);text-transform:none;letter-spacing:0">(incl. infants)</span></div>
+        <div class="pill-grid cols-3">
+          <button class="pill active" data-val="0" data-group="children">0</button>
+          <button class="pill" data-val="1" data-group="children">1</button>
+          <button class="pill" data-val="2" data-group="children">2</button>
+          <button class="pill" data-val="3" data-group="children">3</button>
+          <button class="pill" data-val="4" data-group="children">4</button>
+          <button class="pill" data-val="5" data-group="children">5</button>
+        </div>
+      </div>
+    </div>
+    <p style="font-size:10px;color:var(--muted);margin-top:8px">Max 6 total guests per unit due to fire code.</p>
+    <div id="guestWarning" style="display:none;margin-top:10px;background:#fff5f0;border:1px solid #f0b898;border-radius:10px;padding:12px 14px">
+      <p style="font-size:12px;font-weight:500;color:#7a3010;margin:0 0 4px">Group over 6 guests</p>
+      <p style="font-size:12px;color:#7a3010;margin:0 0 10px">Max 6 guests per unit due to fire code. Send Ozan a message if you need help.</p>
+      <button onclick="toggleGroupInquiry()" style="font-size:12px;font-weight:500;padding:7px 14px;border-radius:8px;border:1px solid #7a3010;background:transparent;color:#7a3010;cursor:pointer;font-family:'DM Sans',sans-serif">Send group inquiry to Ozan →</button>
+    </div>
+    <div id="groupInquiryForm" style="display:none;margin-top:8px;background:#fff5f0;border:1px solid #f0b898;border-radius:10px;padding:12px 14px">
+      <input type="email" id="groupEmail" placeholder="Your email" style="width:100%;margin-bottom:6px;font-size:13px;padding:9px 12px;border-radius:8px;border:1px solid #f0b898;font-family:'DM Sans',sans-serif;background:#fff;color:#1a1a1a"/>
+      <textarea id="groupMsg" rows="2" placeholder="Tell Ozan about your group size and dates" style="width:100%;margin-bottom:8px;font-size:13px;padding:9px 12px;border-radius:8px;border:1px solid #f0b898;font-family:'DM Sans',sans-serif;resize:none;background:#fff;color:#1a1a1a"></textarea>
+      <button id="groupSendBtn" onclick="sendGroupInquiry()" style="font-size:12px;font-weight:500;padding:8px 14px;border-radius:8px;border:none;background:#7a3010;color:white;cursor:pointer;font-family:'DM Sans',sans-serif">Send →</button>
+      <span id="groupOk" style="display:none;font-size:12px;color:#0d9e8a;margin-left:10px;font-weight:500">Sent! Ozan will reply shortly.</span>
+    </div>
+  </div>
+
+  <button class="find-btn" id="findBtn" onclick="findRates()">
+    <div class="spinner" id="spinner"></div>
+    <span class="btn-text">Find best rate →</span>
+  </button>
+
+  <div class="error-msg" id="errorMsg"></div>
+  <div class="results" id="results"></div>
+
+  <div class="trust-bar">
+    <div class="trust-dot"></div>
+    <p class="trust-text">No platform fees · Direct with Ozan · Dynamic pricing — rates may change · 50% discount applies for 28+ nights, Nov 1–Feb 28, booked via this site</p>
+  </div>
+</div>
+
+<div style="text-align:center;padding:20px;margin-top:8px">
+  <a href="https://www.destincondogetaways.com" style="font-size:14px;font-weight:500;color:var(--ocean);text-decoration:none;font-family:'DM Sans',sans-serif;border:1px solid var(--ocean);padding:10px 24px;border-radius:10px;display:inline-block">← Back to main site</a>
+</div>
+
+<script>
+const BASE       = 'https://destin-concierge-new.vercel.app';
+const UNIT_707   = 'https://www.destincondogetaways.com/pelican-beach-resort-unit-707-orp5b47b5ax';
+const UNIT_1006  = 'https://www.destincondogetaways.com/pelican-beach-resort-unit-1006-orp5b6450ex';
+const SUPABASE_URL = 'https://itopaepmlyoytzacjkt.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0b3BhZXBtbHlveXR6YWNqa3QiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTcxMzIxMzIwMiwiZXhwIjoyMDI4Nzg5MjAyfQ.Ds2oBUQNxGkBmf3S-_S8_Rd-QlqS0lCjJeGhvuRilKI';
+
+let sel = { month: null, nights: 4, isSnowbird: false, adults: 2, children: 0, year: 2026 };
+
+function setYear(yr) {
+  sel.year = yr;
+  sel.month = null;
+  document.querySelectorAll('#monthGrid .pill').forEach(x => x.classList.remove('active'));
+  document.getElementById('yr2026').classList.toggle('active', yr === 2026);
+  document.getElementById('yr2027').classList.toggle('active', yr === 2027);
+  updateMonthStates();
+}
+
+function updateMonthStates() {
+  const now = new Date();
+  const curYear = now.getFullYear();
+  const curMonth = now.getMonth() + 1;
+  document.querySelectorAll('#monthGrid .pill').forEach(b => {
+    const m = parseInt(b.dataset.val);
+    const isPast = sel.year < curYear || (sel.year === curYear && m < curMonth);
+    b.disabled = isPast;
+    b.style.opacity = isPast ? '0.35' : '1';
+    b.style.cursor = isPast ? 'not-allowed' : 'pointer';
+  });
+}
+
+document.querySelectorAll('#monthGrid .pill').forEach(b => {
+  b.addEventListener('click', () => {
+    if (b.disabled) return;
+    document.querySelectorAll('#monthGrid .pill').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    sel.month = parseInt(b.dataset.val);
+    // If snowbird selected, update nights to full month
+    if (sel.isSnowbird) updateSnowbirdNights();
+  });
+});
+
+updateMonthStates();
+
+// Nights grid
+document.querySelectorAll('[data-group="nights"]').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('[data-group="nights"]').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    if (b.dataset.val === 'snowbird') {
+      sel.isSnowbird = true;
+      updateSnowbirdNights();
+      document.getElementById('snowbirdNote').style.display = 'block';
+    } else {
+      sel.isSnowbird = false;
+      sel.nights = parseInt(b.dataset.val);
+      document.getElementById('snowbirdNote').style.display = 'none';
+    }
+  });
+});
+
+function updateSnowbirdNights() {
+  if (!sel.month || !sel.year) { sel.nights = 28; return; }
+  // Full month: nights = days in that month
+  const daysInMonth = new Date(sel.year, sel.month, 0).getDate();
+  sel.nights = daysInMonth;
+}
+
+document.querySelectorAll('[data-group="adults"]').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('[data-group="adults"]').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    sel.adults = parseInt(b.dataset.val);
+    checkGuestLimit();
+  });
+});
+
+document.querySelectorAll('[data-group="children"]').forEach(b => {
+  b.addEventListener('click', () => {
+    document.querySelectorAll('[data-group="children"]').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    sel.children = parseInt(b.dataset.val);
+    checkGuestLimit();
+  });
+});
+
+function checkGuestLimit() {
+  document.getElementById('guestWarning').style.display = sel.adults + sel.children > 6 ? 'block' : 'none';
+}
+
+function isMonthlyDiscount() {
+  // 50% discount: Nov 2026 → Feb 2027, >= 28 nights, booked direct
+  if (sel.nights < 28) return false;
+  const yr = sel.year, m = sel.month;
+  return (yr === 2026 && (m === 11 || m === 12)) || (yr === 2027 && (m === 1 || m === 2));
+}
+
+function calcFees(nightlyAvg, nights) {
+  const plRent    = Math.round(nightlyAvg * nights);
+  const discPct   = isMonthlyDiscount() ? 0.50 : 0.125;
+  const discount  = Math.round(plRent * discPct);
+  const mgmt      = 25 * nights;
+  const extraGuests = Math.max(0, (sel.adults + sel.children) - 4);
+  const extraGuestFee = extraGuests * 20 * nights;
+  const rentAfter = plRent - discount + mgmt + extraGuestFee;
+  const cleaning  = 175;
+  const tax       = Math.round((rentAfter + cleaning) * 0.13);
+  const admin     = Math.round((rentAfter + cleaning + tax) * 0.03);
+  const total     = rentAfter + cleaning + tax + admin;
+  return { rent: plRent, discPct, discount, mgmt, extraGuestFee, rentAfter, cleaning, admin, tax, total };
+}
+
+function fmtDate(iso) {
+  return new Date(iso + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+function buildLink(unit, arrival, departure) {
+  const base  = unit === '707' ? UNIT_707 : UNIT_1006;
+  const total = sel.adults + sel.children;
+  return `${base}?or_arrival=${arrival}&or_departure=${departure}&or_adults=${sel.adults}&or_children=${sel.children}&or_guests=${total}`;
+}
+
+function pad(n) { return String(n).padStart(2,'0'); }
+function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate() + n); return r; }
+function fmt(d) { return d.toISOString().split('T')[0]; }
+
+async function findRates() {
+  gtag('event', 'snowbird_find_rate', { month: sel.month, year: sel.year, nights: sel.nights, isSnowbird: sel.isSnowbird });
+
+  if (!sel.month) { showError('Please select a month first.'); return; }
+  if (sel.adults + sel.children > 6) {
+    document.getElementById('guestWarning').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
+  const btn = document.getElementById('findBtn');
+  btn.classList.add('loading');
+  btn.disabled = true;
+  document.getElementById('errorMsg').style.display = 'none';
+  document.getElementById('results').classList.remove('show');
+
+  try {
+    const yr   = sel.year;
+    const m    = pad(sel.month);
+    const lastDay = new Date(yr, sel.month, 0).getDate();
+
+    // Build date range for the month
+    const allDates = [];
+    for (let i = 1; i <= lastDay; i++) allDates.push(`${yr}-${m}-${pad(i)}`);
+
+    const today    = new Date();
+    today.setHours(12,0,0,0);
+    const todayStr = fmt(today);
+    const windows  = [7, 14, 21, 30];
+    const capturedDates = [todayStr, ...windows.map(w => fmt(addDays(today, -w)))];
+
+    // Query Supabase directly — no Vercel function needed
+    const params = new URLSearchParams({
+      select: 'unit_id,date,price,demand_desc,captured_date',
+    });
+    const inDates    = allDates.map(d => `"${d}"`).join(',');
+    const inCaptured = capturedDates.map(d => `"${d}"`).join(',');
+
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/price_snapshots?select=unit_id,date,price,demand_desc,captured_date&date=in.(${allDates.join(',')})&captured_date=in.(${capturedDates.join(',')})&limit=5000`,
+      {
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+        }
+      }
+    );
+
+    if (!res.ok) throw new Error('Could not fetch rates from database');
+    const snapshots = await res.json();
+
+    if (!snapshots || snapshots.length === 0) {
+      showNoResults('No rate data found for this month yet. Try another month or check back soon.');
+      return;
+    }
+
+    // Organise by unit → captured_date → date → {price, demand_desc}
+    const allCaptured = new Set();
+    const byUnit = {};
+    for (const row of snapshots) {
+      if (!byUnit[row.unit_id]) byUnit[row.unit_id] = {};
+      if (!byUnit[row.unit_id][row.captured_date]) byUnit[row.unit_id][row.captured_date] = {};
+      byUnit[row.unit_id][row.captured_date][row.date] = { price: row.price, demand_desc: row.demand_desc };
+      allCaptured.add(row.captured_date);
+    }
+    const latestCaptured = [...allCaptured].sort().pop() || todayStr;
+
+    const windows2 = [];
+
+    for (const unit of ['707', '1006']) {
+      const unitData = byUnit[unit]?.[latestCaptured];
+      if (!unitData) continue;
+
+      if (sel.isSnowbird) {
+        // Full month: arrival = 1st, departure = 1st of next month
+        const arrivalStr   = `${yr}-${m}-01`;
+        const nextM        = sel.month === 12 ? `${yr + 1}-01-01` : `${yr}-${pad(sel.month + 1)}-01`;
+        const departureStr = nextM;
+
+        const days = allDates.map(d => unitData[d]).filter(r => r != null);
+        if (days.length < lastDay * 0.8) continue; // need at least 80% of days
+
+        const hasBooking = days.some(r => r.demand_desc && r.demand_desc !== '' && !r.demand_desc.includes('Check-In') && !r.demand_desc.includes('Check-Out'));
+        if (hasBooking) continue;
+
+        const avg = Math.round(days.reduce((s, r) => s + r.price, 0) / days.length);
+        if (avg <= 0) continue;
+
+        windows2.push({ arr: arrivalStr, dep: departureStr, unit, avg, nights: lastDay });
+
+      } else {
+        // Find cheapest N-night window
+        for (let day = 1; day <= lastDay - sel.nights + 1; day++) {
+          const arr = `${yr}-${m}-${pad(day)}`;
+          const depDay = day + sel.nights;
+          if (depDay > lastDay + 1) continue;
+          const dep = depDay > lastDay ? `${yr}-${pad(sel.month < 12 ? sel.month + 1 : 1)}-01` : `${yr}-${m}-${pad(depDay)}`;
+
+          const windowDates = [];
+          for (let j = 0; j < sel.nights; j++) windowDates.push(`${yr}-${m}-${pad(day + j)}`);
+
+          const rows = windowDates.map(d => unitData[d]);
+          if (rows.some(r => r == null)) continue;
+
+          const hasBooking = rows.some(r => r.demand_desc && r.demand_desc !== '' && !r.demand_desc.includes('Check-In') && !r.demand_desc.includes('Check-Out'));
+          if (hasBooking) continue;
+
+          const avg = Math.round(rows.reduce((s, r) => s + r.price, 0) / rows.length);
+          if (avg <= 0) continue;
+
+          windows2.push({ arr, dep, unit, avg, nights: sel.nights });
+        }
+      }
+    }
+
+    if (windows2.length === 0) {
+      showNoResults('No available windows found for this selection. Try different dates or fewer nights.');
+      return;
+    }
+
+    windows2.sort((a, b) => a.avg - b.avg);
+
+    const best   = windows2[0];
+    const others = windows2.filter((w, i) => i > 0 && w.arr === best.arr).slice(0, 1);
+
+    renderResults(best, others);
+
+  } catch(e) {
+    showError('Error: ' + e.message);
+    console.error(e);
+  } finally {
+    btn.classList.remove('loading');
+    btn.disabled = false;
+  }
+}
+
+function renderResults(best, others) {
+  const discountLabel = isMonthlyDiscount() ? '50% snowbird discount' : 'Direct booking discount (12.5%)';
+  const discBadge     = isMonthlyDiscount() ? '<span class="discount-badge">❄️ 50% off</span>' : '';
+
+  function makeCard(w, id, isBest) {
+    const f     = calcFees(w.avg, w.nights || sel.nights);
+    const l     = buildLink(w.unit, w.arr, w.dep);
+    const uName = w.unit === '707' ? 'Unit 707 — Classic Coastal' : 'Unit 1006 — Fresh Coastal';
+    const floor = w.unit === '707' ? '7th floor' : '10th floor';
+    const nightsDisplay = sel.isSnowbird ? `Full month (${w.nights} nights)` : `${w.nights || sel.nights} nights`;
+    const border = isBest ? '2px solid var(--teal)' : '1px solid var(--border)';
+    const discLine = isMonthlyDiscount()
+      ? `<div class="fee-row"><span class="fee-label">❄️ Snowbird discount (50%)</span><span class="fee-value discount">-$${f.discount}</span></div>`
+      : `<div class="fee-row"><span class="fee-label">Direct booking discount (12.5%)</span><span class="fee-value discount">-$${f.discount}</span></div>`;
+
+    return `
+      <div id="${id}_collapsed" onclick="expandCard('${id}')" style="background:var(--card);border-radius:16px;border:${border};padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;cursor:pointer">
+        <div>
+          <p style="font-size:13px;font-weight:500;margin:0">${uName} · ${fmtDate(w.arr)}–${fmtDate(w.dep)}</p>
+          <p style="font-size:11px;color:var(--muted);margin-top:2px">$${w.avg}/night avg · Total $${f.total}</p>
+        </div>
+        <span style="padding:8px 14px;background:transparent;border:1px solid var(--border);border-radius:10px;font-size:12px;font-weight:500;color:var(--text);${isBest?'border-color:var(--teal);color:var(--teal-dark)':''}">View →</span>
+      </div>
+      <div id="${id}_expanded" style="display:none;background:var(--card);border-radius:20px;border:${border};overflow:hidden;margin-bottom:10px">
+        ${isBest && isMonthlyDiscount() ? `<div style="background:var(--teal-light);padding:10px 16px;display:flex;align-items:center;gap:8px"><span style="font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--teal-dark)">Best rate · ${isMonthlyDiscount()?'❄️ Snowbird 50% off applied':''}</span></div>` : isBest ? `<div style="background:var(--teal-light);padding:10px 16px"><span style="font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--teal-dark)">Best rate</span></div>` : ''}
+        <div style="padding:16px">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+            <div>
+              <p style="font-size:14px;font-weight:500;margin:0">${uName}</p>
+              <p style="font-size:11px;color:var(--muted);margin:2px 0 0">${fmtDate(w.arr)} – ${fmtDate(w.dep)} · ${nightsDisplay} · ${sel.adults + sel.children} guest${(sel.adults+sel.children)>1?'s':''} · ${floor}</p>
+            </div>
+            <div style="text-align:right">
+              <p style="font-size:22px;font-weight:600;font-family:'Cormorant Garamond',serif;color:var(--ocean);margin:0">$${w.avg}</p>
+              <p style="font-size:11px;color:var(--muted);margin:0">/night avg</p>
+            </div>
+          </div>
+          <div style="border-top:1px solid var(--border);padding-top:12px;margin-bottom:12px">
+            <div class="fee-row"><span class="fee-label">Rent (${w.nights || sel.nights} × $${w.avg})</span><span class="fee-value">$${f.rent}</span></div>
+            ${discLine}
+            ${f.extraGuestFee > 0 ? `<div class="fee-row"><span class="fee-label">Extra guest fee</span><span class="fee-value">$${f.extraGuestFee}</span></div>` : ''}
+            <div class="fee-row"><span class="fee-label">Cleaning fee</span><span class="fee-value">$${f.cleaning}</span></div>
+            <div class="fee-row"><span class="fee-label">Tax (13%)</span><span class="fee-value">$${f.tax}</span></div>
+            <div class="fee-row"><span class="fee-label">Administrative fee (3%)</span><span class="fee-value">$${f.admin}</span></div>
+            <div class="fee-total"><span class="fee-total-label">Total</span><span class="fee-total-value">$${f.total}</span></div>
+          </div>
+          <a class="book-btn ${isBest && isMonthlyDiscount() ? 'disco' : ''}" href="${l}" target="_blank" onclick="gtag('event','snowbird_book_click',{unit:'${w.unit}',arrival:'${w.arr}',departure:'${w.dep}',total:${f.total}});event.stopPropagation()">Book direct — save on fees →</a>
+          <p style="font-size:10px;color:var(--muted);text-align:center;margin:8px 0 0;line-height:1.5">Rates are estimates — final total confirmed at checkout. <a href="https://www.destincondogetaways.com/-pelican-beach-resort-condo-rental-574046950" target="_blank" style="color:var(--muted);text-decoration:underline">Booking terms apply.</a></p>
+          <div class="msg-form" onclick="event.stopPropagation()">
+            <p>Questions? Send Ozan a message — he'll get back to you personally</p>
+            <input type="email" id="msgEmail_${id}" placeholder="Your email" />
+            <textarea id="msgText_${id}" rows="3" placeholder="Questions about the unit, dates, or your stay?"></textarea>
+            <button class="send-btn" id="sendBtn_${id}" onclick="sendMsg('${id}','${w.unit}','${w.arr}','${w.dep}')">Send message to Ozan →</button>
+            <div class="msg-success" id="msgOk_${id}" style="display:none">Message sent! Ozan will reply shortly 🌊</div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  let html = makeCard(best, 'best', true);
+  others.forEach((w, i) => { html += makeCard(w, `alt_${i}`, false); });
+
+  document.getElementById('results').innerHTML = html;
+  expandCard('best');
+  document.getElementById('results').classList.add('show');
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function expandCard(id) {
+  ['best','alt_0','alt_1'].forEach(cid => {
+    const c = document.getElementById(cid + '_collapsed');
+    const e = document.getElementById(cid + '_expanded');
+    if (c) c.style.display = cid === id ? 'none' : 'flex';
+    if (e) e.style.display = cid === id ? 'block' : 'none';
+  });
+}
+
+async function sendMsg(id, unit, arr, dep) {
+  const email = document.getElementById('msgEmail_' + id)?.value.trim();
+  const msg   = document.getElementById('msgText_' + id)?.value.trim();
+  if (!email || !email.includes('@')) { alert('Please enter a valid email.'); return; }
+  if (!msg) { alert('Please enter a message.'); return; }
+  const btn = document.getElementById('sendBtn_' + id);
+  btn.disabled = true; btn.textContent = 'Sending...';
+  try {
+    const context = `Snowbird inquiry — Unit ${unit} · ${arr} to ${dep} · ${sel.nights} nights · ${sel.adults + sel.children} guests`;
+    const res = await fetch(`${BASE}/api/rate-inquiry`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, message: msg, context })
+    });
+    if (res.ok) {
+      document.getElementById('msgOk_' + id).style.display = 'block';
+      btn.style.display = 'none';
+      document.getElementById('msgEmail_' + id).style.display = 'none';
+      document.getElementById('msgText_' + id).style.display = 'none';
+    } else { btn.disabled = false; btn.textContent = 'Send message to Ozan →'; }
+  } catch(e) { btn.disabled = false; btn.textContent = 'Send message to Ozan →'; }
+}
+
+function toggleGroupInquiry() {
+  const f = document.getElementById('groupInquiryForm');
+  f.style.display = f.style.display === 'none' ? 'block' : 'none';
+}
+
+async function sendGroupInquiry() {
+  const email = document.getElementById('groupEmail')?.value.trim();
+  const msg   = document.getElementById('groupMsg')?.value.trim();
+  if (!email || !email.includes('@')) { alert('Please enter a valid email.'); return; }
+  if (!msg) { alert('Please describe your group.'); return; }
+  const btn = document.getElementById('groupSendBtn');
+  btn.disabled = true; btn.textContent = 'Sending...';
+  const months = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const context = `Group snowbird inquiry — ${sel.adults} adults + ${sel.children} children · ${months[sel.month]||''} ${sel.year} · ${sel.nights} nights`;
+  try {
+    const res = await fetch(`${BASE}/api/rate-inquiry`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, message: msg, context })
+    });
+    if (res.ok) { document.getElementById('groupOk').style.display = 'inline'; btn.style.display = 'none'; }
+    else throw new Error();
+  } catch(e) { btn.disabled = false; btn.textContent = 'Send →'; }
+}
+
+function showNoResults(msg) {
+  document.getElementById('results').innerHTML = `<div class="no-results"><p>No availability found</p><p>${msg || 'Try a different month or fewer nights.'}</p></div>`;
+  document.getElementById('results').classList.add('show');
+}
+
+function showError(msg) {
+  const el = document.getElementById('errorMsg');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+</script>
+</body>
+</html>

@@ -450,13 +450,17 @@ export default function Snowbird({ dayData }) {
             {MONTHS.map((m, i) => {
               const mNum = i + 1;
               const past = isPastMonth(mNum);
+              const isSnowbirdMonth = (year === 2026 && (mNum === 11 || mNum === 12)) || (year === 2027 && (mNum === 1 || mNum === 2));
               return (
                 <button
                   key={mNum}
                   onClick={() => handleMonth(mNum)}
                   disabled={past}
-                  className={`month-pill${month === mNum ? " active" : ""}${past ? " past" : ""}`}
-                >{m}</button>
+                  className={`month-pill${month === mNum ? " active" : ""}${past ? " past" : ""}${isSnowbirdMonth && !past ? " snowbird-month" : ""}`}
+                >
+                  {m}
+                  {isSnowbirdMonth && !past && <span className="snow-badge">50%</span>}
+                </button>
               );
             })}
           </div>
@@ -664,9 +668,12 @@ export default function Snowbird({ dayData }) {
         .year-btn.active { background:rgba(71,226,208,.15); border-color:rgba(71,226,208,.5); color:#47e2d0; }
 
         .month-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
-        .month-pill { padding:13px 6px; font-size:13px; font-weight:700; border-radius:10px; border:1px solid rgba(255,255,255,.15); background:transparent; color:rgba(255,255,255,.6); cursor:pointer; font-family:'Barlow',sans-serif; }
+        .month-pill { padding:13px 6px; font-size:13px; font-weight:700; border-radius:10px; border:1px solid rgba(255,255,255,.15); background:transparent; color:rgba(255,255,255,.6); cursor:pointer; font-family:'Barlow',sans-serif; position:relative; }
         .month-pill.active { background:rgba(71,226,208,.15); border-color:#47e2d0; color:#47e2d0; }
         .month-pill.past { opacity:.25; cursor:not-allowed; }
+        .month-pill.snowbird-month { border-color:#39ff14; color:#39ff14; }
+        .month-pill.snowbird-month.active { background:rgba(57,255,20,.15); border-color:#39ff14; color:#39ff14; }
+        .month-pill .snow-badge { position:absolute; top:-8px; right:2px; background:#39ff14; color:#020b18; font-size:8px; font-weight:900; padding:1px 6px; border-radius:6px; letter-spacing:.04em; }
 
         .nights-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
         .night-btn { border:1px solid rgba(255,255,255,.15); border-radius:12px; padding:14px 6px; cursor:pointer; text-align:center; background:transparent; display:flex; flex-direction:column; align-items:center; gap:3px; font-family:'Barlow',sans-serif; }

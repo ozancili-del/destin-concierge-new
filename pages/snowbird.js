@@ -275,10 +275,6 @@ export default function Snowbird({ dayData }) {
     const mo  = pad(month);
     const lastDay = new Date(yr, month, 0).getDate();
 
-    console.log('[snowbird] dayData keys 707:', Object.keys(dayData?.['707'] || {}).slice(0,5));
-    console.log('[snowbird] searching:', yr, mo, nights, 'isSnowbird:', isSnowbird);
-    console.log('[snowbird] sample Oct date in 707:', dayData?.['707']?.['2026-10-01']);
-    console.log('[snowbird] total 707 dates:', Object.keys(dayData?.['707'] || {}).length);
 
     for (const unit of ["707", "1006"]) {
       const unitData = dayData?.[unit] || {};
@@ -294,11 +290,9 @@ export default function Snowbird({ dayData }) {
       }
 
       if (monthDays.length === 0) {
-        console.log(`[snowbird] ${unit} ${yr}-${mo}: NO DATA`);
-        continue;
+            continue;
       }
-      console.log(`[snowbird] ${unit} ${yr}-${mo}: ${monthDays.length} days, blocked: ${monthDays.filter(d=>d.blocked).length}`);
-
+  
       if (isSnowbird) {
         const arrival   = `${yr}-${mo}-01`;
         const nextMonth = month === 12 ? `${yr + 1}-01-01` : `${yr}-${pad(month + 1)}-01`;
@@ -308,8 +302,7 @@ export default function Snowbird({ dayData }) {
         if (avg <= 0) continue;
         found.push({ unit, avg, arrival, departure: nextMonth, nights: lastDay });
       } else {
-        console.log(`[snowbird] ${unit} ${yr}-${mo} non-snowbird: monthDays=${monthDays.length}, nights=${nights}, first3prices=${monthDays.slice(0,3).map(d=>d.price)}`);
-        let bestWindow = null;
+            let bestWindow = null;
         for (let i = 0; i <= monthDays.length - nights; i++) {
           const winSlice = monthDays.slice(i, i + nights);
           if (winSlice.length < nights) continue;
@@ -468,18 +461,31 @@ export default function Snowbird({ dayData }) {
 
         {/* Nights selector */}
         <div className="finder-card">
-          <div className="finder-section-label">How long are you staying?</div>
+          <div className="finder-section-label">How long would you like to stay?</div>
           <div className="nights-grid">
-            {NIGHTS_OPTIONS.map(n => (
-              <button key={n} onClick={() => handleNights(n)} className={`night-btn${!isSnowbird && nights === n ? " active" : ""}`}>
-                <span className="night-num">{n}</span>
-                <span className="night-label">nights</span>
-              </button>
-            ))}
+            <button onClick={() => handleNights(7)} className={`night-btn${!isSnowbird && nights === 7 ? " active" : ""}`}>
+              <span className="night-num">7</span>
+              <span className="night-label">nights</span>
+              <span className="night-desc">Short escape</span>
+            </button>
+            <button onClick={() => handleNights(14)} className={`night-btn${!isSnowbird && nights === 14 ? " active" : ""}`}>
+              <span className="night-num">14</span>
+              <span className="night-label">nights</span>
+              <span className="night-desc">Relax & unwind</span>
+            </button>
+            <button onClick={() => handleNights(21)} className={`night-btn${!isSnowbird && nights === 21 ? " active" : ""}`}>
+              <span className="night-num">21</span>
+              <span className="night-label">nights</span>
+              <span className="night-desc">Settle in</span>
+            </button>
             <button onClick={handleSnowbird} className={`night-btn snowbird-btn${isSnowbird ? " active" : ""}`}>
-              <span className="night-num">❄️ Full month</span>
-              <span className="night-badge">50% OFF RENT</span>
-              <span className="night-label">Nov–Feb · 28+ nights</span>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                <span style={{ fontSize: 24, lineHeight: 1 }}>❄️</span>
+                <span className="night-num" style={{ fontSize: 18 }}>Full Month</span>
+                <span className="night-badge">BEST VALUE · 50% OFF RENT</span>
+                <span className="night-label" style={{ color: "rgba(71,226,208,.7)" }}>Check-in 1st → Check-out 1st</span>
+                <span className="night-label" style={{ color: "rgba(71,226,208,.5)" }}>Available Nov–Feb</span>
+              </div>
             </button>
           </div>
         </div>
@@ -675,17 +681,17 @@ export default function Snowbird({ dayData }) {
         .month-pill.snowbird-month.active { background:rgba(57,255,20,.15); border-color:#39ff14; color:#39ff14; }
         .month-pill .snow-badge { position:absolute; top:-8px; right:2px; background:#39ff14; color:#020b18; font-size:8px; font-weight:900; padding:1px 6px; border-radius:6px; letter-spacing:.04em; }
 
-        .nights-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
-        .night-btn { border:1px solid rgba(255,255,255,.15); border-radius:12px; padding:14px 6px; cursor:pointer; text-align:center; background:transparent; display:flex; flex-direction:column; align-items:center; gap:3px; font-family:'Barlow',sans-serif; }
+        .nights-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+        .night-btn { border:1px solid rgba(255,255,255,.15); border-radius:14px; padding:18px 8px; cursor:pointer; text-align:center; background:transparent; display:flex; flex-direction:column; align-items:center; gap:4px; font-family:'Barlow',sans-serif; width:100%; }
         .night-btn.active { background:rgba(71,226,208,.15); border-color:#47e2d0; }
-        .night-num { font-size:22px; font-weight:900; color:#f7fbff; line-height:1; }
-        .night-label { font-size:10px; color:rgba(255,255,255,.4); }
+        .night-num { font-size:28px; font-weight:900; color:#f7fbff; line-height:1; }
+        .night-label { font-size:11px; color:rgba(255,255,255,.4); }
+        .night-desc { font-size:11px; color:rgba(255,255,255,.5); font-weight:600; margin-top:2px; }
         .night-btn.active .night-num { color:#47e2d0; }
-        .snowbird-btn { grid-column:span 4; border-color:rgba(71,226,208,.35); background:rgba(71,226,208,.06); padding:18px; flex-direction:row; gap:12px; justify-content:center; flex-wrap:wrap; animation:snowpulse 2s ease-in-out infinite; }
+        .night-btn.active .night-desc { color:rgba(71,226,208,.8); }
+        .snowbird-btn { grid-column:span 3; border-color:rgba(71,226,208,.35); background:rgba(71,226,208,.06); padding:22px; animation:snowpulse 2s ease-in-out infinite; }
         .snowbird-btn.active { background:rgba(71,226,208,.2); border-color:#47e2d0; animation:none; }
-        .snowbird-btn .night-num { font-size:20px; color:#47e2d0; }
-        .snowbird-btn .night-label { color:rgba(71,226,208,.7); font-size:11px; }
-        .night-badge { background:rgba(71,226,208,.2); border:1px solid rgba(71,226,208,.4); color:#47e2d0; font-size:10px; font-weight:900; padding:3px 10px; border-radius:10px; letter-spacing:.08em; }
+        .night-badge { background:rgba(71,226,208,.2); border:1px solid rgba(71,226,208,.4); color:#47e2d0; font-size:10px; font-weight:900; padding:3px 12px; border-radius:10px; letter-spacing:.08em; }
         @keyframes snowpulse { 0%,100%{box-shadow:0 0 0 0 rgba(71,226,208,.3);}50%{box-shadow:0 0 0 8px rgba(71,226,208,0);} }
 
         .guest-sub-label { font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:rgba(255,255,255,.4); font-weight:700; margin-bottom:8px; }
@@ -735,8 +741,8 @@ export default function Snowbird({ dayData }) {
         @media(max-width:768px) {
           .deals-topbar { display:none; }
           .deals-mobile-nav { display:flex; }
-          .nights-grid { grid-template-columns:repeat(4,1fr); }
-          .snowbird-btn { grid-column:span 4; }
+          .nights-grid { grid-template-columns:repeat(3,1fr); }
+          .snowbird-btn { grid-column:span 3; }
           .amenities-grid { grid-template-columns:repeat(2,1fr); }
           .stats-bar { padding:14px 16px; }
           .stat-num { font-size:22px; }

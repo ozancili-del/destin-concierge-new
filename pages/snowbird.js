@@ -108,12 +108,12 @@ export async function getStaticProps() {
       process.env.GUESTVIEW_SUPABASE_SERVICE_ROLE_KEY
     );
 
-    const today  = new Date();
+    const today = new Date();
     today.setHours(12, 0, 0, 0);
     const WINDOWS = [7, 14, 21, 30];
     const capturedDates = [fmt(today), ...WINDOWS.map(w => fmt(addDays(today, -w)))];
 
-    // Scan next 6 months
+    // Scan next 6 months day by day
     const allDates = [];
     for (let i = 1; i <= 185; i++) allDates.push(fmt(addDays(today, i)));
 
@@ -124,7 +124,7 @@ export async function getStaticProps() {
       .in("captured_date", capturedDates)
       .limit(8000);
 
-    if (error || !snapshots?.length) return { props: { rateData: {} }, revalidate: 600 };
+    if (error || !snapshots?.length) return { props: { byUnit: {} }, revalidate: 600 };
 
     // Organise: byUnit[unit][captured_date][date] = {price, demand_desc}
     const byUnit = {};
@@ -137,33 +137,16 @@ export async function getStaticProps() {
     }
     const latestCaptured = [...allCaptured].sort().pop() || fmt(today);
 
-    // Pre-compute average nightly rates per unit per month
-    // rateData[unit][year-month] = { avgPrice, dates: [{date, price, demand_desc}] }
-    const rateData = {};
+    // Pass full day-by-day data for latest captured date only
+    const dayData = {};
     for (const unit of ["707", "1006"]) {
-      rateData[unit] = {};
-      const unitData = byUnit[unit]?.[latestCaptured] || {};
-      for (const [date, info] of Object.entries(unitData)) {
-        const [yr, mo] = date.split("-");
-        const key = `${yr}-${mo}`;
-        if (!rateData[unit][key]) rateData[unit][key] = { prices: [], blocked: [] };
-        rateData[unit][key].prices.push(info.price);
-        if (info.demand_desc && info.demand_desc !== "" && !info.demand_desc.includes("Check-In") && !info.demand_desc.includes("Check-Out")) {
-          rateData[unit][key].blocked.push(date);
-        }
-      }
-      // Compute avg
-      for (const key of Object.keys(rateData[unit])) {
-        const prices = rateData[unit][key].prices;
-        rateData[unit][key].avgPrice = prices.length ? Math.round(prices.reduce((s, p) => s + p, 0) / prices.length) : 0;
-        rateData[unit][key].count    = prices.length;
-      }
+      dayData[unit] = byUnit[unit]?.[latestCaptured] || {};
     }
 
-    return { props: { rateData }, revalidate: 600 };
+    return { props: { dayData }, revalidate: 600 };
   } catch (e) {
     console.error("[snowbird getStaticProps]", e.message);
-    return { props: { rateData: {} }, revalidate: 600 };
+    return { props: { dayData: {} }, revalidate: 600 };
   }
 }
 
@@ -239,7 +222,7 @@ function ResultCard({ result, adults, children, year, month, nights, isSnowbird 
 }
 
 // ── Main page ─────────────────────────────────────────────────────────────────
-export default function Snowbird({ rateData }) {
+export default function Snowbird({ dayData }) {
   const schemas = buildSchema();
 
   const now         = new Date();
@@ -257,7 +240,7 @@ export default function Snowbird({ rateData }) {
   const [loading,    setLoading]    = useState(false);
 
   const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sept","Oct","Nov","Dec"];
-  const NIGHTS_OPTIONS = [2, 3, 4, 5, 7, 14, 21];
+  const NIGHTS_OPTIONS = [7, 14, 21];
 
   function isPastMonth(m) {
     return year < curYear || (year === curYear && m < curMonth);
@@ -295,35 +278,42 @@ export default function Snowbird({ rateData }) {
     const found = [];
 
     for (const unit of ["707", "1006"]) {
-      const key     = `${yr}-${mo}`;
-      const unitKey = rateData?.[unit]?.[key];
-      if (!unitKey || unitKey.avgPrice <= 0) continue;
+      const unitData = dayData?.[unit] || {};
+
+      // Build day list for this month
+      const monthDays = [];
+      for (let d = 1; d <= lastDay; d++) {
+        const dateStr = `${yr}-${mo}-${pad(d)}`;
+        const info = unitData[dateStr];
+        if (!info) continue;
+        const isBlocked = info.demand_desc && info.demand_desc !== "" && !info.demand_desc.includes("Check-In") && !info.demand_desc.includes("Check-Out");
+        monthDays.push({ date: dateStr, price: info.price, blocked: isBlocked });
+      }
+
+      if (monthDays.length === 0) continue;
 
       if (isSnowbird) {
         const arrival   = `${yr}-${mo}-01`;
         const nextMonth = month === 12 ? `${yr + 1}-01-01` : `${yr}-${pad(month + 1)}-01`;
-        const blocked   = unitKey.blocked || [];
-        if (blocked.length > 0) continue;
-        found.push({ unit, avg: unitKey.avgPrice, arrival, departure: nextMonth, nights: lastDay });
+        const hasBlock  = monthDays.some(d => d.blocked);
+        if (hasBlock) continue;
+        const avg = Math.round(monthDays.reduce((s, d) => s + d.price, 0) / monthDays.length);
+        if (avg <= 0) continue;
+        found.push({ unit, avg, arrival, departure: nextMonth, nights: lastDay });
       } else {
-        // Find cheapest window of N nights in the month
-        const snapKey = `${yr}-${mo}`;
-        const allUnitData = rateData?.[unit];
-        if (!allUnitData?.[snapKey]) continue;
-
+        // Find cheapest available N-night window
         let bestWindow = null;
-        for (let day = 1; day <= lastDay - nights + 1; day++) {
-          const arr = `${yr}-${mo}-${pad(day)}`;
-          const dep = day + nights > lastDay
-            ? (month === 12 ? `${yr + 1}-01-01` : `${yr}-${pad(month + 1)}-01`)
-            : `${yr}-${mo}-${pad(day + nights)}`;
-
-          const blocked = unitKey.blocked || [];
-          const hasBlock = blocked.some(b => b >= arr && b < dep);
-          if (hasBlock) continue;
-
-          if (!bestWindow || unitKey.avgPrice <= bestWindow.avg) {
-            bestWindow = { unit, avg: unitKey.avgPrice, arrival: arr, departure: dep, nights };
+        for (let i = 0; i <= monthDays.length - nights; i++) {
+          const window = monthDays.slice(i, i + nights);
+          if (window.length < nights) continue;
+          if (window.some(d => d.blocked)) continue;
+          const avg = Math.round(window.reduce((s, d) => s + d.price, 0) / window.length);
+          if (avg <= 0) continue;
+          if (!bestWindow || avg < bestWindow.avg) {
+            const dep = i + nights >= lastDay
+              ? (month === 12 ? `${yr + 1}-01-01` : `${yr}-${pad(month + 1)}-01`)
+              : `${yr}-${mo}-${pad(i + nights + 1)}`;
+            bestWindow = { unit, avg, arrival: window[0].date, departure: dep, nights };
           }
         }
         if (bestWindow) found.push(bestWindow);
@@ -366,7 +356,7 @@ export default function Snowbird({ rateData }) {
 
       {/* Background — helicopter aerial */}
       <div className="bg-wrap">
-        <img src="/snowbird-hero.jpg" alt="Aerial view of Pelican Beach Resort Destin Florida" aria-hidden="true" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 40%", filter: "brightness(0.75) saturate(0.9)" }} />
+        <img src="/snowbird-hero.jpg" alt="Aerial view of Pelican Beach Resort Destin Florida" aria-hidden="true" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 40%", filter: "brightness(0.32) saturate(0.9)" }} />
         <div className="bg-overlay" />
       </div>
 
@@ -604,7 +594,7 @@ export default function Snowbird({ rateData }) {
         body { font-family:'Barlow',sans-serif; background:#04101d; color:#f7fbff; }
 
         .bg-wrap { position:fixed; inset:0; z-index:0; pointer-events:none; }
-        .bg-wrap img { width:100%; height:100%; object-fit:cover; object-position:center 35%; filter:brightness(0.75) saturate(0.9); }
+        .bg-wrap img { width:100%; height:100%; object-fit:cover; object-position:center 35%; filter:brightness(0.32) saturate(0.9); }
         .bg-overlay {
           position:absolute; inset:0;
           background:

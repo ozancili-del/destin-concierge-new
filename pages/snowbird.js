@@ -308,16 +308,16 @@ export default function Snowbird({ dayData }) {
         // Find cheapest available N-night window
         let bestWindow = null;
         for (let i = 0; i <= monthDays.length - nights; i++) {
-          const window = monthDays.slice(i, i + nights);
-          if (window.length < nights) continue;
-          if (window.some(d => d.blocked)) continue;
-          const avg = Math.round(window.reduce((s, d) => s + d.price, 0) / window.length);
+          const winSlice = monthDays.slice(i, i + nights);
+          if (winSlice.length < nights) continue;
+          if (winSlice.some(d => d.blocked)) continue;
+          const avg = Math.round(winSlice.reduce((s, d) => s + d.price, 0) / window.length);
           if (avg <= 0) continue;
           if (!bestWindow || avg < bestWindow.avg) {
             const dep = i + nights >= lastDay
               ? (month === 12 ? `${yr + 1}-01-01` : `${yr}-${pad(month + 1)}-01`)
               : `${yr}-${mo}-${pad(i + nights + 1)}`;
-            bestWindow = { unit, avg, arrival: window[0].date, departure: dep, nights };
+            bestWindow = { unit, avg, arrival: winSlice[0].date, departure: dep, nights };
           }
         }
         if (bestWindow) found.push(bestWindow);

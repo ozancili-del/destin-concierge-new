@@ -33,7 +33,7 @@ function getDiscountPct(unit, year, month, nights) {
 
 function calcFees(nightlyAvg, nights, year, month, adults, children, unit) {
   const adjustedAvg = Math.round((nightlyAvg * 0.875) + 25);
-  const rent      = adjustedAvg * nights;
+  const rent      = Math.round(((nightlyAvg * 0.875) + 25) * nights);
   const discPct   = getDiscountPct(unit, year, month, nights);
   const discount  = Math.round(rent * discPct);
   const extraG    = Math.max(0, (adults + children) - 4);

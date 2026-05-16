@@ -311,7 +311,7 @@ export default function Snowbird({ dayData }) {
           const winSlice = monthDays.slice(i, i + nights);
           if (winSlice.length < nights) continue;
           if (winSlice.some(d => d.blocked)) continue;
-          const avg = Math.round(winSlice.reduce((s, d) => s + d.price, 0) / window.length);
+          const avg = Math.round(winSlice.reduce((s, d) => s + d.price, 0) / winSlice.length);
           if (avg <= 0) continue;
           if (!bestWindow || avg < bestWindow.avg) {
             const dep = i + nights >= lastDay

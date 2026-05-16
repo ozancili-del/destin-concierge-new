@@ -32,18 +32,18 @@ function getDiscountPct(unit, year, month, nights) {
 }
 
 function calcFees(nightlyAvg, nights, year, month, adults, children, unit) {
-  const rent      = Math.round(nightlyAvg * nights);
+  const adjustedAvg = Math.round((nightlyAvg * 0.875) + 25);
+  const rent      = adjustedAvg * nights;
   const discPct   = getDiscountPct(unit, year, month, nights);
   const discount  = Math.round(rent * discPct);
-  const mgmt      = 25 * nights;
   const extraG    = Math.max(0, (adults + children) - 4);
   const extraFee  = extraG * 20 * nights;
-  const rentAfter = rent - discount + mgmt + extraFee;
+  const rentAfter = rent - discount + extraFee;
   const cleaning  = 175;
   const tax       = Math.round((rentAfter + cleaning) * 0.13);
   const admin     = Math.round((rentAfter + cleaning + tax) * 0.03);
   const total     = rentAfter + cleaning + tax + admin;
-  return { rent, discPct, discount, mgmt, extraFee, rentAfter, cleaning, tax, admin, total };
+  return { rent, adjustedAvg, discPct, discount, extraFee, rentAfter, cleaning, tax, admin, total };
 }
 
 function buildSchema() {
@@ -185,13 +185,13 @@ function ResultCard({ result, adults, children, year, month, nights, isSnowbird 
               <p style={{ fontSize: 11, color: "rgba(255,255,255,.45)", margin: "3px 0 0" }}>{friendly(result.arrival)} – {friendly(result.departure)} · {adults + children} guest{(adults + children) > 1 ? "s" : ""}</p>
             </div>
             <div style={{ textAlign: "right" }}>
-              <p style={{ fontSize: 26, fontWeight: 900, color: "#ffd166", margin: 0, lineHeight: 1 }}>${result.avg}</p>
+              <p style={{ fontSize: 26, fontWeight: 900, color: "#ffd166", margin: 0, lineHeight: 1 }}>${fees.adjustedAvg}</p>
               <p style={{ fontSize: 10, color: "rgba(255,255,255,.4)", margin: "2px 0 0" }}>/night avg</p>
             </div>
           </div>
           <div style={{ borderTop: "1px solid rgba(255,255,255,.1)", paddingTop: 12 }}>
             {[
-              [`Rent (${nights} × $${result.avg})`, `$${fees.rent}`, false],
+              [`Rent (${nights} × $${fees.adjustedAvg})`, `$${fees.rent}`, false],
               [discLabel, `-$${fees.discount}`, true],
               ...(fees.extraFee > 0 ? [[`Extra guest fee`, `$${fees.extraFee}`, false]] : []),
               ["Cleaning fee", `$${fees.cleaning}`, false],

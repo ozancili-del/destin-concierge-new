@@ -271,6 +271,7 @@ export default function Snowbird({ dayData }) {
 
     setLoading(true);
 
+    const found = [];
     try {
     const yr  = year;
     const mo  = pad(month);
@@ -327,7 +328,10 @@ export default function Snowbird({ dayData }) {
     } catch(e) {
       console.error('[snowbird findRates]', e);
       setError('Something went wrong. Please try again.');
+      setLoading(false);
+      return;
     }
+
     setLoading(false);
 
     if (found.length === 0) {

@@ -290,7 +290,7 @@ export default function Snowbird({ dayData }) {
         const dateStr = `${yr}-${mo}-${pad(d)}`;
         const info = unitData[dateStr];
         if (!info) continue;
-        const isBlocked = info.demand_desc && info.demand_desc !== "" && !info.demand_desc.includes("Check-In") && !info.demand_desc.includes("Check-Out");
+        const isBlocked = info.demand_desc && (info.demand_desc.toLowerCase().includes("unavailable") || info.demand_desc.toLowerCase().includes("booked") || info.demand_desc.toLowerCase().includes("reserved"));
         monthDays.push({ date: dateStr, price: info.price, blocked: isBlocked });
       }
 

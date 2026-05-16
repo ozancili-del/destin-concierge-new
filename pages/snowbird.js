@@ -115,14 +115,14 @@ export async function getStaticProps() {
 
     // Scan next 6 months day by day
     const allDates = [];
-    for (let i = 1; i <= 185; i++) allDates.push(fmt(addDays(today, i)));
+    for (let i = 1; i <= 365; i++) allDates.push(fmt(addDays(today, i)));
 
     const { data: snapshots, error } = await supabase
       .from("price_snapshots")
       .select("unit_id, date, price, demand_desc, captured_date")
       .in("date", allDates)
       .in("captured_date", capturedDates)
-      .limit(8000);
+      .limit(20000);
 
     if (error || !snapshots?.length) return { props: { byUnit: {} }, revalidate: 600 };
 

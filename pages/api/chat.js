@@ -1449,6 +1449,36 @@ export default async function handler(req, res) {
     const monthOnlyMatch = !dates && lastUser.match(/\b(january|february|march|april|may|june|july|august|september|october|november|december)\b/i);
     const mentionedMonth = monthOnlyMatch ? monthOnlyMatch[1].toLowerCase() : null;
 
+    // Full month parser — "one month January 2027", "whole month of January", "entire January 2027"
+    if (!dates && mentionedMonth) {
+      const fullMonthPattern = /\b(?:one\s+month|full\s+month|whole\s+month|entire\s+month|all\s+of|all\s+month|monthly)\b/i;
+      if (fullMonthPattern.test(allUserText)) {
+        const explicitYearMatch = allUserText.match(/\b(202[6-9]|203\d)\b/);
+        // Also check for 2-digit year shorthand like "27" meaning 2027
+        const shortYearMatch = !explicitYearMatch && allUserText.match(/\b(2[6-9]|3\d)\b/);
+        let fullMonthYear;
+        if (explicitYearMatch) {
+          fullMonthYear = parseInt(explicitYearMatch[1]);
+        } else if (shortYearMatch) {
+          fullMonthYear = 2000 + parseInt(shortYearMatch[1]);
+        } else {
+          // No year given — if month is in the past, assume next year
+          const currentYear = new Date().getFullYear();
+          const currentMonth = new Date().getMonth() + 1;
+          const monthNum = parseInt(monthNames[mentionedMonth]);
+          fullMonthYear = monthNum < currentMonth ? currentYear + 1 : currentYear;
+        }
+        const monthNum = monthNames[mentionedMonth];
+        // Last day of the month
+        const lastDay = new Date(fullMonthYear, parseInt(monthNum), 0).getDate();
+        dates = {
+          arrival: `${fullMonthYear}-${monthNum}-01`,
+          departure: `${fullMonthYear}-${monthNum}-${String(lastDay).padStart(2, "0")}`
+        };
+        console.log(`[FULL MONTH] Parsed: ${dates.arrival} → ${dates.departure}`);
+      }
+    }
+
     // Guest count — defined early so discount block can use them
     // Natural language guest count normalizer
     // Converts "just the 2 of us", "me and my wife", "only me" etc → numeric adult count in allUserText

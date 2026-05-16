@@ -113,14 +113,14 @@ export async function getStaticProps() {
     const WINDOWS = [7, 14, 21, 30];
     const capturedDates = [fmt(today), ...WINDOWS.map(w => fmt(addDays(today, -w)))];
 
-    // Scan next 6 months day by day
-    const allDates = [];
-    for (let i = 1; i <= 365; i++) allDates.push(fmt(addDays(today, i)));
+    const startDate = fmt(addDays(today, 1));
+    const endDate   = fmt(addDays(today, 365));
 
     const { data: snapshots, error } = await supabase
       .from("price_snapshots")
       .select("unit_id, date, price, demand_desc, captured_date")
-      .in("date", allDates)
+      .gte("date", startDate)
+      .lte("date", endDate)
       .in("captured_date", capturedDates)
       .limit(20000);
 

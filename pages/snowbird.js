@@ -422,7 +422,7 @@ export default function Snowbird({ dayData }) {
 
         {/* Stats */}
         <div className="stats-bar">
-          <div className="stat"><div className="stat-num">50%</div><div className="stat-label">Off monthly rent</div></div>
+          <div className="stat"><div className="stat-num">50%</div><div className="stat-label">Up to 50% off rent</div></div>
           <div className="stat-divider" />
           <div className="stat"><div className="stat-num">28+</div><div className="stat-label">Night minimum</div></div>
           <div className="stat-divider" />
@@ -431,7 +431,7 @@ export default function Snowbird({ dayData }) {
 
         {/* SEO intro */}
         <div className="seo-intro">
-          <p>These are direct <strong>snowbird rental rates</strong> for our two <strong>beachfront condos at Pelican Beach Resort, Destin FL</strong> — Unit 707 (7th floor, Classic Coastal) and Unit 1006 (10th floor, Fresh Coastal). Both units sleep up to 6 guests with a private Gulf-view balcony, full kitchen, and 2 bathrooms. For stays of 28 nights or more arriving between November 1 and February 28, guests receive <strong>50% off rent automatically</strong> when booked direct through <a href="https://www.destincondogetaways.com" style={{ color: "var(--teal)" }}>destincondogetaways.com</a>. No promo code needed. No platform fees.</p>
+          <p>These are direct <strong>snowbird rental rates</strong> for our two <strong>beachfront condos at Pelican Beach Resort, Destin FL</strong> — Unit 707 (7th floor, Classic Coastal) and Unit 1006 (10th floor, Fresh Coastal). Both units sleep up to 6 guests with a private Gulf-view balcony, full kitchen, and 2 bathrooms. For stays of 28 nights or more arriving between November 1 and February 28, guests receive <strong>up to 50% off rent automatically</strong> when booked direct through <a href="https://www.destincondogetaways.com" style={{ color: "var(--teal)" }}>destincondogetaways.com</a>. No promo code needed. No platform fees.</p>
         </div>
 
         {/* Rate finder */}

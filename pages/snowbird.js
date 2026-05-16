@@ -279,6 +279,7 @@ export default function Snowbird({ dayData }) {
 
     console.log('[snowbird] dayData keys 707:', Object.keys(dayData?.['707'] || {}).slice(0,5));
     console.log('[snowbird] searching:', yr, mo, nights, 'isSnowbird:', isSnowbird);
+    console.log('[snowbird] sample Oct date in 707:', dayData?.['707']?.['2026-10-01']);
 
     const found = [];
 

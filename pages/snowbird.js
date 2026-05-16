@@ -422,7 +422,7 @@ export default function Snowbird({ dayData }) {
 
         {/* Stats */}
         <div className="stats-bar">
-          <div className="stat"><div className="stat-num">50%</div><div className="stat-label">Up to 50% off rent</div></div>
+          <div className="stat"><div className="stat-num" style={{fontSize:18}}>Up to 50% off</div><div className="stat-label">Monthly rent</div></div>
           <div className="stat-divider" />
           <div className="stat"><div className="stat-num">28+</div><div className="stat-label">Night minimum</div></div>
           <div className="stat-divider" />
@@ -489,7 +489,7 @@ export default function Snowbird({ dayData }) {
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
                 <span style={{ fontSize: 24, lineHeight: 1 }}>❄️</span>
                 <span className="night-num" style={{ fontSize: 18 }}>Full Month</span>
-                <span className="night-badge">BEST VALUE · 50% OFF RENT</span>
+                <span className="night-badge">BEST VALUE · UP TO 50% OFF RENT</span>
                 <span className="night-label" style={{ color: "rgba(71,226,208,.7)" }}>Check-in 1st → Check-out 1st</span>
                 <span className="night-label" style={{ color: "rgba(71,226,208,.5)" }}>Available Nov–Feb</span>
               </div>
@@ -605,7 +605,7 @@ export default function Snowbird({ dayData }) {
           </div>
           <div className="fine-print-row">
             <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            50% discount applies for 28+ night stays arriving Nov 1, 2026 – Feb 28, 2027, booked direct via destincondogetaways.com · Check-in 4 PM / Check-out 10 AM · No smoking · No pets · Min. age 25
+            Up to 50% off rent applies for 28+ night stays arriving Nov 1, 2026 – Feb 28, 2027, booked direct via destincondogetaways.com · Check-in 4 PM / Check-out 10 AM · No smoking · No pets · Min. age 25
           </div>
           <div className="fine-print-row">
             <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>

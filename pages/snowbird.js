@@ -26,9 +26,14 @@ function isSnowbirdDiscount(year, month, nights) {
   return (year === 2026 && (month === 11 || month === 12)) || (year === 2027 && (month === 1 || month === 2));
 }
 
-function calcFees(nightlyAvg, nights, year, month, adults, children) {
+function getDiscountPct(unit, year, month, nights) {
+  if (!isSnowbirdDiscount(year, month, nights)) return 0.125;
+  return unit === "707" ? 0.50 : 0.40;
+}
+
+function calcFees(nightlyAvg, nights, year, month, adults, children, unit) {
   const rent      = Math.round(nightlyAvg * nights);
-  const discPct   = isSnowbirdDiscount(year, month, nights) ? 0.50 : 0.125;
+  const discPct   = getDiscountPct(unit, year, month, nights);
   const discount  = Math.round(rent * discPct);
   const mgmt      = 25 * nights;
   const extraG    = Math.max(0, (adults + children) - 4);
@@ -151,10 +156,12 @@ export async function getStaticProps() {
 // ── Result card ───────────────────────────────────────────────────────────────
 function ResultCard({ result, adults, children, year, month, nights, isSnowbird }) {
   const [expanded, setExpanded] = useState(true);
-  const fees = calcFees(result.avg, nights, year, month, adults, children);
+  const fees = calcFees(result.avg, nights, year, month, adults, children, result.unit);
   const url  = bookingUrl(result.unit, result.arrival, result.departure, adults, children);
   const meta = UNIT_META[result.unit];
   const isDisc = isSnowbirdDiscount(year, month, nights);
+  const discPct = getDiscountPct(result.unit, year, month, nights);
+  const discLabel = isDisc ? `❄️ Snowbird discount (${Math.round(discPct * 100)}%)` : "Direct booking discount (12.5%)";
 
   return (
     <div style={{ background: "rgba(2,18,40,.9)", border: `2px solid ${isDisc ? "#47e2d0" : "rgba(71,226,208,.35)"}`, borderRadius: 20, overflow: "hidden", marginBottom: 12 }}>
@@ -168,7 +175,7 @@ function ResultCard({ result, adults, children, year, month, nights, isSnowbird 
           </span>
           <span style={{ fontSize: 11, color: "rgba(255,255,255,.5)", marginLeft: 10 }}>{meta.sub}</span>
         </div>
-        {isDisc && <span style={{ background: "#47e2d0", color: "#020b18", fontSize: 10, fontWeight: 900, padding: "3px 10px", borderRadius: 6 }}>50% OFF</span>}
+        {isDisc && <span style={{ background: "#47e2d0", color: "#020b18", fontSize: 10, fontWeight: 900, padding: "3px 10px", borderRadius: 6 }}>{Math.round(discPct * 100)}% OFF</span>}
       </div>
       {expanded && (
         <div style={{ padding: 16 }}>
@@ -185,7 +192,7 @@ function ResultCard({ result, adults, children, year, month, nights, isSnowbird 
           <div style={{ borderTop: "1px solid rgba(255,255,255,.1)", paddingTop: 12 }}>
             {[
               [`Rent (${nights} × $${result.avg})`, `$${fees.rent}`, false],
-              [isDisc ? "❄️ Snowbird discount (50%)" : "Direct booking discount (12.5%)", `-$${fees.discount}`, true],
+              [discLabel, `-$${fees.discount}`, true],
               ...(fees.extraFee > 0 ? [[`Extra guest fee`, `$${fees.extraFee}`, false]] : []),
               ["Cleaning fee", `$${fees.cleaning}`, false],
               ["Tax (13%)", `$${fees.tax}`, false],

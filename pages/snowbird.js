@@ -31,9 +31,10 @@ function getDiscountPct(unit, year, month, nights) {
   return unit === "707" ? 0.50 : 0.40;
 }
 
-function calcFees(nightlyAvg, nights, year, month, adults, children, unit) {
+function calcFees(nightlyAvg, nights, year, month, adults, children, unit, priceSum) {
+  const exactRent  = priceSum || (nightlyAvg * nights);
   const adjustedAvg = Math.round((nightlyAvg * 0.875) + 25);
-  const rent      = Math.round(((nightlyAvg * 0.875) + 25) * nights);
+  const rent      = Math.round((exactRent * 0.875) + (25 * nights));
   const discPct   = getDiscountPct(unit, year, month, nights);
   const discount  = Math.round(rent * discPct);
   const extraG    = Math.max(0, (adults + children) - 4);
@@ -156,7 +157,7 @@ export async function getStaticProps() {
 // ── Result card ───────────────────────────────────────────────────────────────
 function ResultCard({ result, adults, children, year, month, nights, isSnowbird }) {
   const [expanded, setExpanded] = useState(true);
-  const fees = calcFees(result.avg, nights, year, month, adults, children, result.unit);
+  const fees = calcFees(result.avg, nights, year, month, adults, children, result.unit, result.priceSum);
   const url  = bookingUrl(result.unit, result.arrival, result.departure, adults, children);
   const meta = UNIT_META[result.unit];
   const isDisc = isSnowbirdDiscount(year, month, nights);
@@ -191,7 +192,7 @@ function ResultCard({ result, adults, children, year, month, nights, isSnowbird 
           </div>
           <div style={{ borderTop: "1px solid rgba(255,255,255,.1)", paddingTop: 12 }}>
             {[
-              [`Rent (${nights} × $${fees.adjustedAvg})`, `$${fees.rent}`, false],
+              [`Rent`, `$${fees.rent}`, false],
               [discLabel, `-$${fees.discount}`, true],
               ...(fees.extraFee > 0 ? [[`Extra guest fee`, `$${fees.extraFee}`, false]] : []),
               ["Cleaning fee", `$${fees.cleaning}`, false],
@@ -305,22 +306,24 @@ export default function Snowbird({ dayData }) {
         const nextMonth = month === 12 ? `${yr + 1}-01-01` : `${yr}-${pad(month + 1)}-01`;
         const hasBlock  = monthDays.some(d => d.blocked);
         if (hasBlock) continue;
-        const avg = Math.round(monthDays.reduce((s, d) => s + d.price, 0) / monthDays.length);
+        const priceSum = monthDays.reduce((s, d) => s + d.price, 0);
+        const avg = Math.round(priceSum / monthDays.length);
         if (avg <= 0) continue;
-        found.push({ unit, avg, arrival, departure: nextMonth, nights: lastDay });
+        found.push({ unit, avg, priceSum, arrival, departure: nextMonth, nights: lastDay });
       } else {
             let bestWindow = null;
         for (let i = 0; i <= monthDays.length - nights; i++) {
           const winSlice = monthDays.slice(i, i + nights);
           if (winSlice.length < nights) continue;
           if (winSlice.some(d => d.blocked)) continue;
-          const avg = Math.round(winSlice.reduce((s, d) => s + d.price, 0) / winSlice.length);
+          const winPriceSum = winSlice.reduce((s, d) => s + d.price, 0);
+          const avg = Math.round(winPriceSum / winSlice.length);
           if (avg <= 0) continue;
           if (!bestWindow || avg < bestWindow.avg) {
             const dep = i + nights >= lastDay
               ? (month === 12 ? `${yr + 1}-01-01` : `${yr}-${pad(month + 1)}-01`)
               : `${yr}-${mo}-${pad(i + nights + 1)}`;
-            bestWindow = { unit, avg, arrival: winSlice[0].date, departure: dep, nights };
+            bestWindow = { unit, avg, priceSum: winPriceSum, arrival: winSlice[0].date, departure: dep, nights };
           }
         }
         if (bestWindow) found.push(bestWindow);

@@ -2,6 +2,17 @@
   "redirects": [
     {
       "source": "/",
+      "destination": "/snowbird",
+      "permanent": false,
+      "has": [
+        {
+          "type": "host",
+          "value": "sunbirds.destincondogetaways.com"
+        }
+      ]
+    },
+    {
+      "source": "/",
       "destination": "/rate-finder.html",
       "permanent": false,
       "has": [

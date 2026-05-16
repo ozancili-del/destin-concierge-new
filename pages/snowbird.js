@@ -271,13 +271,13 @@ export default function Snowbird({ dayData }) {
 
     setLoading(true);
 
-    console.log('[snowbird] dayData keys 707:', Object.keys(dayData?.['707'] || {}).slice(0,5));
-    console.log('[snowbird] dayData keys 1006:', Object.keys(dayData?.['1006'] || {}).slice(0,5));
-    console.log('[snowbird] searching:', yr, mo, nights, 'isSnowbird:', isSnowbird);
-
+    try {
     const yr  = year;
     const mo  = pad(month);
     const lastDay = new Date(yr, month, 0).getDate();
+
+    console.log('[snowbird] dayData keys 707:', Object.keys(dayData?.['707'] || {}).slice(0,5));
+    console.log('[snowbird] searching:', yr, mo, nights, 'isSnowbird:', isSnowbird);
 
     const found = [];
 
@@ -324,6 +324,10 @@ export default function Snowbird({ dayData }) {
       }
     }
 
+    } catch(e) {
+      console.error('[snowbird findRates]', e);
+      setError('Something went wrong. Please try again.');
+    }
     setLoading(false);
 
     if (found.length === 0) {

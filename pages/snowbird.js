@@ -280,6 +280,7 @@ export default function Snowbird({ dayData }) {
     console.log('[snowbird] dayData keys 707:', Object.keys(dayData?.['707'] || {}).slice(0,5));
     console.log('[snowbird] searching:', yr, mo, nights, 'isSnowbird:', isSnowbird);
     console.log('[snowbird] sample Oct date in 707:', dayData?.['707']?.['2026-10-01']);
+    console.log('[snowbird] total 707 dates:', Object.keys(dayData?.['707'] || {}).length);
 
     for (const unit of ["707", "1006"]) {
       const unitData = dayData?.[unit] || {};
@@ -294,7 +295,11 @@ export default function Snowbird({ dayData }) {
         monthDays.push({ date: dateStr, price: info.price, blocked: isBlocked });
       }
 
-      if (monthDays.length === 0) continue;
+      if (monthDays.length === 0) {
+        console.log(`[snowbird] ${unit} ${yr}-${mo}: NO DATA`);
+        continue;
+      }
+      console.log(`[snowbird] ${unit} ${yr}-${mo}: ${monthDays.length} days, blocked: ${monthDays.filter(d=>d.blocked).length}`);
 
       if (isSnowbird) {
         const arrival   = `${yr}-${mo}-01`;
@@ -305,7 +310,7 @@ export default function Snowbird({ dayData }) {
         if (avg <= 0) continue;
         found.push({ unit, avg, arrival, departure: nextMonth, nights: lastDay });
       } else {
-        // Find cheapest available N-night window
+        console.log(`[snowbird] ${unit} ${yr}-${mo} non-snowbird: monthDays=${monthDays.length}, nights=${nights}, first3prices=${monthDays.slice(0,3).map(d=>d.price)}`);
         let bestWindow = null;
         for (let i = 0; i <= monthDays.length - nights; i++) {
           const winSlice = monthDays.slice(i, i + nights);

@@ -110,37 +110,35 @@ export async function getStaticProps() {
 
     const today = new Date();
     today.setHours(12, 0, 0, 0);
-    const WINDOWS = [7, 14, 21, 30];
-    const capturedDates = [fmt(today), ...WINDOWS.map(w => fmt(addDays(today, -w)))];
 
     const startDate = fmt(addDays(today, 1));
     const endDate   = fmt(addDays(today, 365));
+
+    // First get the latest captured_date
+    const { data: latestRow } = await supabase
+      .from("price_snapshots")
+      .select("captured_date")
+      .order("captured_date", { ascending: false })
+      .limit(1)
+      .single();
+
+    const latestCaptured = latestRow?.captured_date || fmt(today);
 
     const { data: snapshots, error } = await supabase
       .from("price_snapshots")
       .select("unit_id, date, price, demand_desc, captured_date")
       .gte("date", startDate)
       .lte("date", endDate)
-      .in("captured_date", capturedDates)
+      .eq("captured_date", latestCaptured)
       .limit(20000);
 
-    if (error || !snapshots?.length) return { props: { byUnit: {} }, revalidate: 600 };
+    if (error || !snapshots?.length) return { props: { dayData: {} }, revalidate: 600 };
 
-    // Organise: byUnit[unit][captured_date][date] = {price, demand_desc}
-    const byUnit = {};
-    const allCaptured = new Set();
+    const dayData = { "707": {}, "1006": {} };
     for (const row of snapshots) {
-      if (!byUnit[row.unit_id]) byUnit[row.unit_id] = {};
-      if (!byUnit[row.unit_id][row.captured_date]) byUnit[row.unit_id][row.captured_date] = {};
-      byUnit[row.unit_id][row.captured_date][row.date] = { price: row.price, demand_desc: row.demand_desc };
-      allCaptured.add(row.captured_date);
-    }
-    const latestCaptured = [...allCaptured].sort().pop() || fmt(today);
-
-    // Pass full day-by-day data for latest captured date only
-    const dayData = {};
-    for (const unit of ["707", "1006"]) {
-      dayData[unit] = byUnit[unit]?.[latestCaptured] || {};
+      if (dayData[row.unit_id] !== undefined) {
+        dayData[row.unit_id][row.date] = { price: row.price, demand_desc: row.demand_desc };
+      }
     }
 
     return { props: { dayData }, revalidate: 600 };

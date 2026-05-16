@@ -281,8 +281,6 @@ export default function Snowbird({ dayData }) {
     console.log('[snowbird] searching:', yr, mo, nights, 'isSnowbird:', isSnowbird);
     console.log('[snowbird] sample Oct date in 707:', dayData?.['707']?.['2026-10-01']);
 
-    const found = [];
-
     for (const unit of ["707", "1006"]) {
       const unitData = dayData?.[unit] || {};
 

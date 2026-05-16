@@ -227,17 +227,19 @@ function detectTripShockCategory(text) {
 
 // Extract single date for TripShock activity links (does not affect availability checking)
 function extractSingleDate(text) {
-  const year = new Date().getFullYear();
+  // Extract explicit year from text if present
+  const yearMatch = text.match(/\b(202[6-9]|203\d)\b/);
+  const year = yearMatch ? parseInt(yearMatch[1]) : new Date().getFullYear();
   const months = {
     january:"01",february:"02",march:"03",april:"04",may:"05",june:"06",
     july:"07",august:"08",september:"09",october:"10",november:"11",december:"12"
   };
   const mn = Object.keys(months).join("|");
-  // "March 12th", "March 12", "12th March", "12 March"
-  const m1 = text.match(new RegExp("(" + mn + ")\\s+(\\d{1,2})(?:st|nd|rd|th)?", "i"));
-  if (m1) return `${year}-${months[m1[1].toLowerCase()]}-${m1[2].padStart(2,"0")}`;
-  const m2 = text.match(new RegExp("(\\d{1,2})(?:st|nd|rd|th)?\\s+(?:of\\s+)?(" + mn + ")", "i"));
-  if (m2) return `${year}-${months[m2[2].toLowerCase()]}-${m2[1].padStart(2,"0")}`;
+  // "March 12th", "March 12", "12th March", "12 March" — (?!\d) prevents matching 4-digit years
+  const m1 = text.match(new RegExp("(" + mn + ")\\s+(\\d{1,2})(?:st|nd|rd|th)?(?!\\d)", "i"));
+  if (m1 && m1[2].length <= 2) return `${year}-${months[m1[1].toLowerCase()]}-${m1[2].padStart(2,"0")}`;
+  const m2 = text.match(new RegExp("(\\d{1,2})(?:st|nd|rd|th)?(?!\\d)\\s+(?:of\\s+)?(" + mn + ")", "i"));
+  if (m2 && m2[1].length <= 2) return `${year}-${months[m2[2].toLowerCase()]}-${m2[1].padStart(2,"0")}`;
   // M/D slash format: "3/3", "03/15"
   const m3b = text.match(/\b(\d{1,2})\/(\d{1,2})\b/);
   if (m3b && parseInt(m3b[1]) >= 1 && parseInt(m3b[1]) <= 12 && parseInt(m3b[2]) >= 1 && parseInt(m3b[2]) <= 31) {
@@ -782,7 +784,7 @@ function extractDates(text) {
     };
   }
 
-  const monthDayPattern = new RegExp("(" + mn + ")\\s+(\\d{1,2})(?!\\s*(?:adult|child|kid|guest|person|people|infant|baby|toddler))", "gi");
+  const monthDayPattern = new RegExp("(" + mn + ")\\s+(\\d{1,2})(?:st|nd|rd|th)?(?!\\d)(?!\\s*(?:adult|child|kid|guest|person|people|infant|baby|toddler))", "gi");
   const allMatches = [...text.matchAll(monthDayPattern)];
   if (allMatches.length >= 2) {
     const toISO = (m) => `${year}-${months[m[1].toLowerCase()]}-${m[2].padStart(2,"0")}`;
@@ -2152,23 +2154,38 @@ RULES — no exceptions:
     if (dates && dates.arrival && !guestBooking) {
       const todayCT = new Date().toLocaleDateString("en-CA", { timeZone: "America/Chicago" });
       if (dates.arrival < todayCT) {
-        // Before suggesting next month, check if GPT extracted a future date instead
+        // First: check if GPT extracted a future date instead
         if (langArrival && langArrival >= todayCT) {
           dates = { arrival: langArrival, departure: langDeparture || dates.departure };
           console.log(`[YEAR OVERRIDE] GPT has future dates: ${langArrival} → ${langDeparture}, skipping past date suggestion`);
         } else {
-          // Suggest same dates next month as a helpful nudge
+          const todayDate = new Date(todayCT + "T12:00:00Z");
           const arrDate = new Date(dates.arrival + "T12:00:00Z");
-          const depDate = new Date(dates.departure + "T12:00:00Z");
-          arrDate.setUTCMonth(arrDate.getUTCMonth() + 1);
-          depDate.setUTCMonth(depDate.getUTCMonth() + 1);
-          const pad = n => String(n).padStart(2, "0");
-          const suggestArr = `${arrDate.getUTCFullYear()}-${pad(arrDate.getUTCMonth()+1)}-${pad(arrDate.getUTCDate())}`;
-          const suggestDep = `${depDate.getUTCFullYear()}-${pad(depDate.getUTCMonth()+1)}-${pad(depDate.getUTCDate())}`;
-          const fmtDate = iso => new Date(iso + "T12:00:00Z").toLocaleDateString("en-US", { month: "long", day: "numeric" });
-          const reply = `Those dates (${fmtDate(dates.arrival)}–${fmtDate(dates.departure)}) have already passed! 😊 Did you mean ${fmtDate(suggestArr)}–${fmtDate(suggestDep)} (same dates next month)? Just confirm and I'll check availability right away! 🌊`;
-          await logToSheets(sessionId, lastUser, reply, `${dates.arrival} to ${dates.departure}`, "PAST_DATES", "");
-          return res.status(200).json({ reply, alertSent: false, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
+          const depDate = dates.departure ? new Date(dates.departure + "T12:00:00Z") : null;
+          // Calculate how many months in the past
+          const monthsDiff = (todayDate.getUTCFullYear() - arrDate.getUTCFullYear()) * 12 + (todayDate.getUTCMonth() - arrDate.getUTCMonth());
+          // No explicit year in text AND 2+ months in past AND booking intent → auto assume next year
+          const hasExplicitYear = /\b(202[6-9]|203\d)\b/.test(allUserText);
+          if (!hasExplicitYear && monthsDiff >= 2 && wantsAvailability) {
+            const nextYear = arrDate.getUTCFullYear() + 1;
+            dates = {
+              arrival: dates.arrival.replace(/^\d{4}/, String(nextYear)),
+              departure: dates.departure ? dates.departure.replace(/^\d{4}/, String(depDate.getUTCFullYear() + 1)) : null
+            };
+            console.log(`[YEAR AUTO] ${monthsDiff} months past, no explicit year → auto next year: ${dates.arrival}`);
+          } else {
+            // Same month or 1 month ago, or explicit year given → ask for confirmation
+            const sugArrDate = new Date(arrDate); sugArrDate.setUTCMonth(sugArrDate.getUTCMonth() + 1);
+            const sugDepDate = depDate ? new Date(depDate) : null;
+            if (sugDepDate) sugDepDate.setUTCMonth(sugDepDate.getUTCMonth() + 1);
+            const pad = n => String(n).padStart(2, "0");
+            const suggestArr = `${sugArrDate.getUTCFullYear()}-${pad(sugArrDate.getUTCMonth()+1)}-${pad(sugArrDate.getUTCDate())}`;
+            const suggestDep = sugDepDate ? `${sugDepDate.getUTCFullYear()}-${pad(sugDepDate.getUTCMonth()+1)}-${pad(sugDepDate.getUTCDate())}` : null;
+            const fmtDate = iso => new Date(iso + "T12:00:00Z").toLocaleDateString("en-US", { month: "long", day: "numeric" });
+            const reply = `Those dates (${fmtDate(dates.arrival)}${dates.departure ? `–${fmtDate(dates.departure)}` : ""}) have already passed! 😊 Did you mean ${fmtDate(suggestArr)}${suggestDep ? `–${fmtDate(suggestDep)}` : ""}? Just confirm and I'll check availability right away! 🌊`;
+            await logToSheets(sessionId, lastUser, reply, `${dates.arrival} to ${dates.departure}`, "PAST_DATES", "");
+            return res.status(200).json({ reply, alertSent: false, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
+          }
         }
       }
     }
@@ -2176,7 +2193,8 @@ RULES — no exceptions:
     // 🟢 AVAILABILITY CONTEXT
     if (!dates && !isDiscountRequest && wantsAvailability && mentionedMonth && !extractSingleDate(lastUser)) {
       // 10 overlapping 3-night windows covering the full month
-      const year = new Date().getFullYear();
+      const explicitYearMatch = allUserText.match(/\b(202[6-9]|203\d)\b/);
+      const year = explicitYearMatch ? parseInt(explicitYearMatch[1]) : new Date().getFullYear();
       const monthNum = monthNames[mentionedMonth];
       const windows = [
         { arrival: `${year}-${monthNum}-01`, departure: `${year}-${monthNum}-04` },

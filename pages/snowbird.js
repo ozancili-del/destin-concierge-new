@@ -466,6 +466,8 @@ export default function Snowbird({ dayData }) {
           </div>
         </div>
 
+        <p style={{ fontSize: 11, color: "rgba(255,255,255,.35)", margin: "-8px 0 12px", paddingLeft: 4 }}>* Discount varies by unit — up to 50% off. Final discount shown after selecting your dates.</p>
+
         {/* Nights selector */}
         <div className="finder-card">
           <div className="finder-section-label">How long would you like to stay?</div>

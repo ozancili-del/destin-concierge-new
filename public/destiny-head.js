@@ -195,11 +195,12 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
   var all = document.querySelectorAll('div');
   var target = null;
   for(var i=0;i<all.length;i++){
-    if(all[i].textContent.includes('Book Direct & Save at Pelican Beach Resort') && all[i].style.background && all[i].style.background.includes('0a3d62')){
+    if(all[i].textContent.trim().includes('Book Direct & Save at Pelican Beach Resort')){
       target = all[i]; break;
     }
   }
-  if(!target) return;
+  if(!target){ console.log('[destiny-head] book direct box not found'); return; }
+  console.log('[destiny-head] book direct box found:', target.outerHTML.substring(0,100));
   var banner = document.createElement('a');
   banner.href = 'https://www.destincondogetaways.com/book';
   banner.title = 'Book direct at Pelican Beach Resort Destin FL';

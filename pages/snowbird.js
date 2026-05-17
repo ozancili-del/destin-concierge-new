@@ -435,7 +435,7 @@ export default function Snowbird({ dayData }) {
 
       {/* Background — helicopter aerial */}
       <div className="bg-wrap">
-        <img src="/snowbird-hero.jpg" alt="Aerial view of Pelican Beach Resort Destin Florida" aria-hidden="true" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 40%", filter: "brightness(0.32) saturate(0.9)" }} />
+        <img src="/snowbird-hero.jpg" alt="Aerial view of Pelican Beach Resort Destin Florida" aria-hidden="true" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 40%", filter: "brightness(0.77) saturate(0.9)" }} />
         <div className="bg-overlay" />
       </div>
 
@@ -692,7 +692,7 @@ export default function Snowbird({ dayData }) {
         body { font-family:'Barlow',sans-serif; background:#04101d; color:#f7fbff; }
 
         .bg-wrap { position:fixed; inset:0; z-index:0; pointer-events:none; }
-        .bg-wrap img { width:100%; height:100%; object-fit:cover; object-position:center 35%; filter:brightness(0.32) saturate(0.9); }
+        .bg-wrap img { width:100%; height:100%; object-fit:cover; object-position:center 35%; filter:brightness(0.77) saturate(0.9); }
         .bg-overlay {
           position:absolute; inset:0;
           background:

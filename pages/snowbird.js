@@ -47,16 +47,6 @@ function calcFees(nightlyAvg, nights, year, month, adults, children, unit, price
   const total      = rentAfter + cleaning + tax + admin;
   return { rent, adjustedAvg, discPct, discount, extraFee, rentAfter, cleaning, tax, admin, total };
 }
-  const discount  = Math.round(rent * discPct);
-  const extraG    = Math.max(0, (adults + children) - 4);
-  const extraFee  = extraG * 20 * nights;
-  const rentAfter = rent - discount + extraFee;
-  const cleaning  = 175;
-  const tax       = Math.round((rentAfter + cleaning) * 0.13);
-  const admin     = Math.round((rentAfter + cleaning + tax) * 0.03);
-  const total     = rentAfter + cleaning + tax + admin;
-  return { rent, adjustedAvg, discPct, discount, extraFee, rentAfter, cleaning, tax, admin, total };
-}
 
 function buildSchema() {
   const itemList = {

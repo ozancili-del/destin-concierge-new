@@ -221,7 +221,9 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
 })();
 });
 
-// ── RATE DROP TICKER ─────────────────────────────────────────────────────────
+// -- RATE DROP TICKER --
+// DISABLED -- causes 32 API calls per page load
+/*
 (function(){
   const BASE = 'https://destin-concierge-new.vercel.app/api/price-drops';
   let dbTickerDragged = false;
@@ -431,3 +433,4 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', initTicker);
   else initTicker();
 })();
+*/

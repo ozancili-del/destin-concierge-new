@@ -199,7 +199,16 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
       target = all[i]; break;
     }
   }
-  if(!target){ console.log('[destiny-head] book direct box not found'); return; }
+  if(!target){
+    // Log all divs with 'Book' in text to find the right one
+    var all2 = document.querySelectorAll('div');
+    for(var j=0;j<all2.length;j++){
+      if(all2[j].textContent.trim().includes('Book') && all2[j].children.length < 3){
+        console.log('[destiny-head] candidate:', all2[j].textContent.trim().substring(0,80));
+      }
+    }
+    return;
+  }
   console.log('[destiny-head] book direct box found:', target.outerHTML.substring(0,100));
   var banner = document.createElement('a');
   banner.href = 'https://www.destincondogetaways.com/book';

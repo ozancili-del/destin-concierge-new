@@ -307,6 +307,7 @@ export default function Snowbird({ dayData }) {
     window.addEventListener('scroll', onScroll);
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
+  const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sept","Oct","Nov","Dec"];
   const NIGHTS_OPTIONS = [7, 14, 21];
 
   function isPastMonth(m) {

@@ -156,18 +156,16 @@ function dbX(){document.getElementById('db-overlay').classList.remove('show');lS
 function dbGo(){sessionStorage.setItem('db_source','popup');lS.setItem('dbx','1');sessionStorage.removeItem('db_history');history=[];dbX();if(!isOpen)btn.click();setTimeout(function(){isTyping=false;send.disabled=false;if(msgs)msgs.innerHTML='';var i=document.getElementById('db-input');if(i){i.value='__popup_open__';sendMsg();}},500);}
 setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw_banner','1');lS.setItem('db_saw_banner','1');document.getElementById('db-overlay').classList.add('show');},3000);
 
-// ── DEALS TEASER BANNER ──────────────────────────────────────────────────────
+// -- DEALS TEASER BANNER --
+// DISABLED - replaced by snowbird banner for Nov-Feb season
+// To re-enable: uncomment block below and comment out the snowbird banner
+/*
 (function injectDealsBanner(){
-  // Only inject on homepage
   if(window.location.pathname !== '/' && window.location.pathname !== '') return;
-
-  // Target: h2 containing property-count span (the "2 properties" heading)
   var propertyCount = document.querySelector('.property-count');
   if(!propertyCount) return;
   var propertiesForm = propertyCount.closest('form');
   if(!propertiesForm) return;
-
-  // Inject disco CSS if not already loaded
   if(!document.getElementById('db-disco-css')){
     var link = document.createElement('link');
     link.id = 'db-disco-css';
@@ -175,8 +173,6 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
     link.href = 'https://destin-concierge-new.vercel.app/disco.css';
     document.head.appendChild(link);
   }
-
-  // Build banner
   var banner = document.createElement('a');
   banner.href = 'https://deals.destincondogetaways.com/beach-deals';
   banner.title = 'See current Destin beachfront price drops';
@@ -188,15 +184,44 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
     '<p style="margin:0 0 20px;font-size:14px;font-family:Arial,sans-serif;color:rgba(255,255,255,0.6);line-height:1.5;">We track pricing daily &mdash; right now certain dates have dropped significantly. Takes 10 seconds to check.</p>',
     '<span class="hub-banner-btn">See Today\'s Price Drops &rarr;</span>'
   ].join('');
+  propertiesForm.parentNode.insertBefore(banner, propertiesForm);
+})();
+*/
 
-  // Insert before the properties form
+// -- SNOWBIRD BANNER (active Nov-Feb) --
+// To disable: comment out this block and uncomment the deals banner above
+(function injectSnowbirdBanner(){
+  if(window.location.pathname !== '/' && window.location.pathname !== '') return;
+  var propertyCount = document.querySelector('.property-count');
+  if(!propertyCount) return;
+  var propertiesForm = propertyCount.closest('form');
+  if(!propertiesForm) return;
+  var banner = document.createElement('a');
+  banner.href = 'https://sunbirds.destincondogetaways.com';
+  banner.title = 'Winter snowbird stays at Pelican Beach Resort Destin FL';
+  banner.style.cssText = [
+    'display:block;text-decoration:none;margin:0 0 32px;',
+    'position:relative;overflow:hidden;border-radius:16px;',
+    'min-height:160px;',
+    'background:url(https://destin-concierge-new.vercel.app/snowbird-banner-bg.jpg) center/cover no-repeat;',
+    'border:1.5px solid rgba(255,209,102,0.4);',
+    'box-shadow:0 8px 32px rgba(0,0,0,0.35);'
+  ].join('');
+  banner.innerHTML = [
+    '<div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(4,16,29,0.88) 0%,rgba(4,16,29,0.6) 60%,rgba(4,16,29,0.15) 100%);border-radius:16px;"></div>',
+    '<div style="position:relative;z-index:1;padding:28px 32px;max-width:640px;">',
+      '<p style="margin:0 0 6px;font-size:11px;font-family:Arial,sans-serif;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,209,102,0.85);">&#9728;&#65039; Winter Beach Getaways</p>',
+      '<p style="margin:0 0 8px;font-size:clamp(22px,3.5vw,30px);font-family:Arial,sans-serif;font-weight:900;color:#ffffff;line-height:1.2;">Snowbirds? <span style=\'color:#ffd166;\'>Meet the Sunbirds.</span></p>',
+      '<p style="margin:0 0 6px;font-size:14px;font-family:Arial,sans-serif;color:rgba(255,255,255,0.65);line-height:1.5;">Choose sunshine, Gulf views, beach walks, and slower mornings by the water.</p>',
+      '<p style="margin:0 0 18px;font-size:12px;font-family:Arial,sans-serif;color:rgba(255,255,255,0.4);">Long winter stays at Pelican Beach Resort &bull; Nov&ndash;Feb &bull; 7 nights &bull; 14 nights &bull; 28+ nights</p>',
+      '<span style="display:inline-block;background:#ffd166;color:#0a1628;font-size:14px;font-weight:800;font-family:Arial,sans-serif;padding:12px 24px;border-radius:30px;letter-spacing:.04em;box-shadow:0 4px 16px rgba(255,209,102,0.45);">Explore Sunbird Stays &rarr;</span>',
+    '</div>'
+  ].join('');
   propertiesForm.parentNode.insertBefore(banner, propertiesForm);
 })();
 });
 
 // ── RATE DROP TICKER ─────────────────────────────────────────────────────────
-// DISABLED — was causing 32 API calls per page load (2,400+ invocations/month)
-/*
 (function(){
   const BASE = 'https://destin-concierge-new.vercel.app/api/price-drops';
   let dbTickerDragged = false;
@@ -406,4 +431,3 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', initTicker);
   else initTicker();
 })();
-*/

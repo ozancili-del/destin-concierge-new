@@ -188,21 +188,21 @@ function MsgForm({ unit, arrival, departure, nights }) {
 
   return (
     <div style={{ marginTop: 16, borderTop: "1px solid rgba(255,255,255,.08)", paddingTop: 14 }}>
-      <p style={{ fontSize: 12, color: "rgba(255,255,255,.45)", marginBottom: 10 }}>Or send Ozan a message — he'll get back to you personally</p>
+      <p style={{ fontSize: 13, color: "#f7fbff", fontWeight: 700, marginBottom: 12 }}>Or send Ozan a message — he'll get back to you personally</p>
       <input
         type="email" value={email} onChange={e => setEmail(e.target.value)}
         placeholder="Your email"
-        style={{ width: "100%", marginBottom: 8, fontSize: 13, padding: "10px 12px", borderRadius: 10, border: "1px solid rgba(255,255,255,.25)", background: "rgba(255,255,255,.1)", color: "#f7fbff", fontFamily: "inherit", outline: "none" }}
+        style={{ width: "100%", marginBottom: 8, fontSize: 14, padding: "12px 14px", borderRadius: 10, border: "2px solid rgba(255,255,255,.3)", background: "rgba(255,255,255,.15)", color: "#f7fbff", fontFamily: "inherit", outline: "none" }}
       />
       <textarea
         value={msg} onChange={e => setMsg(e.target.value)}
         rows={3} placeholder="Any questions about the unit, dates, or your stay?"
-        style={{ width: "100%", marginBottom: 8, fontSize: 13, padding: "10px 12px", borderRadius: 10, border: "1px solid rgba(255,255,255,.25)", background: "rgba(255,255,255,.1)", color: "#f7fbff", fontFamily: "inherit", resize: "none", outline: "none" }}
+        style={{ width: "100%", marginBottom: 8, fontSize: 14, padding: "12px 14px", borderRadius: 10, border: "2px solid rgba(255,255,255,.3)", background: "rgba(255,255,255,.15)", color: "#f7fbff", fontFamily: "inherit", resize: "none", outline: "none" }}
       />
       {err && <p style={{ fontSize: 12, color: "#ff6b6b", marginBottom: 8 }}>{err}</p>}
       <button
         onClick={send} disabled={sending}
-        style={{ width: "100%", padding: "11px", fontSize: 13, fontWeight: 600, borderRadius: 10, border: "1px solid rgba(255,255,255,.2)", background: "transparent", color: "rgba(255,255,255,.7)", cursor: "pointer", fontFamily: "inherit" }}
+        style={{ width: "100%", padding: "14px", fontSize: 14, fontWeight: 800, borderRadius: 10, border: "2px solid #47e2d0", background: "rgba(71,226,208,.15)", color: "#47e2d0", cursor: "pointer", fontFamily: "inherit", letterSpacing: ".04em" }}
       >{sending ? "Sending..." : "Send message to Ozan →"}</button>
     </div>
   );

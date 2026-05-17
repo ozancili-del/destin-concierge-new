@@ -33,9 +33,20 @@ function getDiscountPct(unit, year, month, nights) {
 
 function calcFees(nightlyAvg, nights, year, month, adults, children, unit, priceSum) {
   const exactRent  = priceSum || (nightlyAvg * nights);
+  const mgmt       = 25 * nights;
   const adjustedAvg = Math.round((nightlyAvg * 0.875) + 25);
-  const rent      = Math.round((exactRent * 0.875) + (25 * nights));
-  const discPct   = getDiscountPct(unit, year, month, nights);
+  const rent       = Math.round(exactRent * 0.875) + mgmt;
+  const discPct    = getDiscountPct(unit, year, month, nights);
+  const discount   = Math.round(exactRent * discPct);  // discount on PriceLabs rent only
+  const extraG     = Math.max(0, (adults + children) - 4);
+  const extraFee   = extraG * 20 * nights;
+  const rentAfter  = rent - discount + extraFee;
+  const cleaning   = 175;
+  const tax        = Math.round((rentAfter + cleaning) * 0.13);
+  const admin      = Math.round((rentAfter + cleaning + tax) * 0.03);
+  const total      = rentAfter + cleaning + tax + admin;
+  return { rent, adjustedAvg, discPct, discount, extraFee, rentAfter, cleaning, tax, admin, total };
+}
   const discount  = Math.round(rent * discPct);
   const extraG    = Math.max(0, (adults + children) - 4);
   const extraFee  = extraG * 20 * nights;
@@ -52,7 +63,7 @@ function buildSchema() {
     "@context": "https://schema.org",
     "@type": "WebPage",
     "name": "Snowbird Rentals Destin FL — Monthly Winter Condo Stays at Pelican Beach Resort",
-    "description": "Find monthly winter rental rates for beachfront condos in Destin, Florida. Pelican Beach Resort Unit 707 and Unit 1006 — snowbird stays Nov–Feb with up to 50% off rent when booked direct.",
+    "description": "Find monthly winter rental rates for beachfront condos in Destin, Florida. Pelican Beach Resort Unit 707 and Unit 1006 — snowbird stays Nov–Feb with up to 48% off rent when booked direct.",
     "url": CANONICAL,
     "isPartOf": { "@type": "WebSite", "name": "Destin Condo Getaways", "url": "https://www.destincondogetaways.com" },
     "about": { "@type": "Place", "name": "Destin, Florida", "address": { "@type": "PostalAddress", "addressLocality": "Destin", "addressRegion": "FL", "addressCountry": "US" } }
@@ -77,7 +88,7 @@ function buildSchema() {
       { "@type": "Question", "name": "Which months qualify for the snowbird discount?", "acceptedAnswer": { "@type": "Answer", "text": "Arrivals from November 1, 2026 through February 28, 2027 qualify for the 50% off rent snowbird discount when booked direct for 28+ nights." } },
       { "@type": "Question", "name": "Where are the snowbird condos located?", "acceptedAnswer": { "@type": "Answer", "text": "Both units are at Pelican Beach Resort, 1002 US-98 East, Destin FL 32541 — directly on the Gulf of Mexico. No road to cross. Step off the elevator straight onto the beach." } },
       { "@type": "Question", "name": "What is included in a monthly snowbird stay?", "acceptedAnswer": { "@type": "Answer", "text": "Full kitchen, high-speed WiFi, 2 Smart TVs, private Gulf-view balcony, 2 bathrooms, beach chairs, umbrella and cooler on arrival. Resort amenities include 3 pools (1 indoor heated), 2 hot tubs, fitness center, tennis and pickleball courts, sauna, steam room, and beachside Tiki bar." } },
-      { "@type": "Question", "name": "How do I book a monthly snowbird stay?", "acceptedAnswer": { "@type": "Answer", "text": "Use the rate finder above to select your month and number of nights, then click the booking link to complete your reservation directly at destincondogetaways.com. The 50% discount is applied automatically at checkout for qualifying stays." } }
+      { "@type": "Question", "name": "How do I book a monthly snowbird stay?", "acceptedAnswer": { "@type": "Answer", "text": "Use the rate finder above to select your month and number of nights, then click the booking link to complete your reservation directly at destincondogetaways.com. Up to 48% off rent is applied automatically at checkout for qualifying stays." } }
     ]
   };
 
@@ -85,7 +96,7 @@ function buildSchema() {
     "@context": "https://schema.org",
     "@type": "LodgingBusiness",
     "name": "Destin Condo Getaways — Pelican Beach Resort",
-    "description": "Beachfront snowbird condo rentals at Pelican Beach Resort, Destin FL. Monthly winter rates with up to 50% off rent for stays of 28+ nights booked direct.",
+    "description": "Beachfront snowbird condo rentals at Pelican Beach Resort, Destin FL. Monthly winter rates with up to 48% off rent for stays of 28+ nights booked direct.",
     "url": "https://www.destincondogetaways.com",
     "telephone": "+19723574262",
     "address": { "@type": "PostalAddress", "streetAddress": "1002 US-98 East", "addressLocality": "Destin", "addressRegion": "FL", "postalCode": "32541", "addressCountry": "US" },
@@ -162,7 +173,7 @@ function ResultCard({ result, adults, children, year, month, nights, isSnowbird 
   const meta = UNIT_META[result.unit];
   const isDisc = isSnowbirdDiscount(year, month, nights);
   const discPct = getDiscountPct(result.unit, year, month, nights);
-  const discLabel = isDisc ? `❄️ Snowbird discount (${Math.round(discPct * 100)}%)` : "Direct booking discount (12.5%)";
+  const discLabel = isDisc ? `❄️ Snowbird discount` : "Direct booking discount";
 
   return (
     <div style={{ background: "rgba(2,18,40,.9)", border: `2px solid ${isDisc ? "#47e2d0" : "rgba(71,226,208,.35)"}`, borderRadius: 20, overflow: "hidden", marginBottom: 12 }}>
@@ -356,10 +367,10 @@ export default function Snowbird({ dayData }) {
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1.0" />
         <title>Snowbird Rentals Destin FL — Monthly Winter Condo Stays at Pelican Beach Resort</title>
-        <meta name="description" content="Find monthly snowbird rental rates for beachfront condos in Destin, Florida. Pelican Beach Resort Unit 707 and Unit 1006 — winter stays Nov–Feb with up to 50% off rent booked direct. No platform fees." />
+        <meta name="description" content="Find monthly snowbird rental rates for beachfront condos in Destin, Florida. Pelican Beach Resort Unit 707 and Unit 1006 — winter stays Nov–Feb with up to 48% off rent booked direct. No platform fees." />
         <link rel="canonical" href={CANONICAL} />
         <meta property="og:title" content="Snowbird Rentals Destin FL — Monthly Winter Condo Stays" />
-        <meta property="og:description" content="Monthly winter rental rates for beachfront condos in Destin FL. Up to 50% off rent for snowbird stays Nov–Feb. Book direct at Pelican Beach Resort." />
+        <meta property="og:description" content="Monthly winter rental rates for beachfront condos in Destin FL. Up to 48% off rent for snowbird stays Nov–Feb. Book direct at Pelican Beach Resort." />
         <meta property="og:url" content={CANONICAL} />
         <meta property="og:type" content="website" />
         <meta property="og:image" content="https://sunbirds.destincondogetaways.com-hero.jpg" />
@@ -409,7 +420,7 @@ export default function Snowbird({ dayData }) {
           <div className="hero-inner">
             <div className="eyebrow"><span className="live-dot" /> Pelican Beach Resort · Destin FL</div>
             <h1>Escape winter.<br/><span>Stay a month.</span></h1>
-            <p className="hero-copy">Direct beachfront rates · No platform fees · Up to 50% off rent for monthly winter stays</p>
+            <p className="hero-copy">Direct beachfront rates · No platform fees · Up to 48% off rent for monthly winter stays</p>
             <div className="hero-actions">
               <a className="hero-btn hero-btn-teal" href="#finder">❄️ Find My Rate</a>
               <a className="hero-btn hero-btn-gold" href="https://www.destincondogetaways.com/properties" target="_blank" rel="noopener">🏖️ View Condos</a>
@@ -417,7 +428,7 @@ export default function Snowbird({ dayData }) {
             </div>
             <div className="proof">
               <span>⭐ 400+ Five-Star Stays</span>
-              <span>❄️ Up to 50% Off Monthly</span>
+              <span>❄️ Up to 48% Off Monthly</span>
               <span>🏖️ Beachfront · No Road</span>
             </div>
           </div>
@@ -425,7 +436,7 @@ export default function Snowbird({ dayData }) {
 
         {/* Stats */}
         <div className="stats-bar">
-          <div className="stat"><div className="stat-num" style={{fontSize:18}}>Up to 50% off</div><div className="stat-label">Monthly rent</div></div>
+          <div className="stat"><div className="stat-num" style={{fontSize:18}}>Up to 48% off</div><div className="stat-label">Monthly rent</div></div>
           <div className="stat-divider" />
           <div className="stat"><div className="stat-num">28+</div><div className="stat-label">Night minimum</div></div>
           <div className="stat-divider" />
@@ -434,7 +445,7 @@ export default function Snowbird({ dayData }) {
 
         {/* SEO intro */}
         <div className="seo-intro">
-          <p>These are direct <strong>snowbird rental rates</strong> for our two <strong>beachfront condos at Pelican Beach Resort, Destin FL</strong> — Unit 707 (7th floor, Classic Coastal) and Unit 1006 (10th floor, Fresh Coastal). Both units sleep up to 6 guests with a private Gulf-view balcony, full kitchen, and 2 bathrooms. For stays of 28 nights or more arriving between November 1 and February 28, guests receive <strong>up to 50% off rent automatically</strong> when booked direct through <a href="https://www.destincondogetaways.com" style={{ color: "var(--teal)" }}>destincondogetaways.com</a>. No promo code needed. No platform fees.</p>
+          <p>These are direct <strong>snowbird rental rates</strong> for our two <strong>beachfront condos at Pelican Beach Resort, Destin FL</strong> — Unit 707 (7th floor, Classic Coastal) and Unit 1006 (10th floor, Fresh Coastal). Both units sleep up to 6 guests with a private Gulf-view balcony, full kitchen, and 2 bathrooms. For stays of 28 nights or more arriving between November 1 and February 28, guests receive <strong>up to 48% off rent automatically</strong> when booked direct through <a href="https://www.destincondogetaways.com" style={{ color: "var(--teal)" }}>destincondogetaways.com</a>. No promo code needed. No platform fees.</p>
         </div>
 
         {/* Rate finder */}
@@ -462,14 +473,14 @@ export default function Snowbird({ dayData }) {
                   className={`month-pill${month === mNum ? " active" : ""}${past ? " past" : ""}${isSnowbirdMonth && !past ? " snowbird-month" : ""}`}
                 >
                   {m}
-                  {isSnowbirdMonth && !past && <span className="snow-badge">50%</span>}
+                  {isSnowbirdMonth && !past && <span className="snow-badge">48%</span>}
                 </button>
               );
             })}
           </div>
         </div>
 
-        <p style={{ fontSize: 11, color: "rgba(255,255,255,.35)", margin: "-8px 0 12px", paddingLeft: 4 }}>* Discount varies by unit — up to 50% off. Final discount shown after selecting your dates.</p>
+        <p style={{ fontSize: 11, color: "rgba(255,255,255,.35)", margin: "-8px 0 12px", paddingLeft: 4 }}>* Discount varies by unit — up to 48% off. Final discount shown after selecting your dates.</p>
 
         {/* Nights selector */}
         <div className="finder-card">
@@ -494,7 +505,7 @@ export default function Snowbird({ dayData }) {
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
                 <span style={{ fontSize: 24, lineHeight: 1 }}>❄️</span>
                 <span className="night-num" style={{ fontSize: 18 }}>Full Month</span>
-                <span className="night-badge">BEST VALUE · UP TO 50% OFF RENT</span>
+                <span className="night-badge">BEST VALUE · UP TO 48% OFF RENT</span>
                 <span className="night-label" style={{ color: "rgba(71,226,208,.7)" }}>Check-in 1st → Check-out 1st</span>
                 <span className="night-label" style={{ color: "rgba(71,226,208,.5)" }}>Available Nov–Feb</span>
               </div>
@@ -571,7 +582,7 @@ export default function Snowbird({ dayData }) {
           <div className="seo-faq-item"><h3>What months qualify?</h3><p>Arrivals November 1, 2026 through February 28, 2027 with 28 or more nights qualify for the 50% off rent snowbird discount when booked direct.</p></div>
           <div className="seo-faq-item"><h3>What is included?</h3><p>Full kitchen, high-speed WiFi, private balcony with Gulf views, 2 bathrooms, Smart TVs, beach chairs, umbrella and cooler on arrival. Resort amenities include pools, hot tubs, fitness center, sauna, steam room, tennis, pickleball and beachside Tiki bar.</p></div>
           <div className="seo-faq-item"><h3>Where are the condos?</h3><p>Both units are at Pelican Beach Resort, 1002 US-98 East, Destin FL 32541 — directly on the Gulf of Mexico. No road to cross — step off the elevator straight onto the beach.</p></div>
-          <div className="seo-faq-item"><h3>How do I book?</h3><p>Use the rate finder above, select your month and nights, then click the booking link to complete your reservation directly at destincondogetaways.com. The 50% discount is applied automatically at checkout for qualifying stays.</p></div>
+          <div className="seo-faq-item"><h3>How do I book?</h3><p>Use the rate finder above, select your month and nights, then click the booking link to complete your reservation directly at destincondogetaways.com. Up to 48% off rent is applied automatically at checkout for qualifying stays.</p></div>
         </div>
 
         {/* About */}
@@ -610,7 +621,7 @@ export default function Snowbird({ dayData }) {
           </div>
           <div className="fine-print-row">
             <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            Up to 50% off rent applies for 28+ night stays arriving Nov 1, 2026 – Feb 28, 2027, booked direct via destincondogetaways.com · Check-in 4 PM / Check-out 10 AM · No smoking · No pets · Min. age 25
+            Up to 48% off rent applies for 28+ night stays arriving Nov 1, 2026 – Feb 28, 2027, booked direct via destincondogetaways.com · Check-in 4 PM / Check-out 10 AM · No smoking · No pets · Min. age 25
           </div>
           <div className="fine-print-row">
             <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>

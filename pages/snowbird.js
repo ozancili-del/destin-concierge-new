@@ -300,7 +300,13 @@ export default function Snowbird({ dayData }) {
   const [error,      setError]      = useState(null);
   const [loading,    setLoading]    = useState(false);
 
-  const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sept","Oct","Nov","Dec"];
+  const [showFloat, setShowFloat] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setShowFloat(window.scrollY > 400);
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
   const NIGHTS_OPTIONS = [7, 14, 21];
 
   function isPastMonth(m) {
@@ -673,7 +679,7 @@ export default function Snowbird({ dayData }) {
           </div>
         </div>
 
-        <div id="floatingHomeTop" className="floating-home-top">
+        <div id="floatingHomeTop" className={`floating-home-top${showFloat ? " visible" : ""}`}>
           <a href="https://www.destincondogetaways.com" target="_blank" rel="noopener" aria-label="Home">🏠</a>
           <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} aria-label="Back to top">↑</button>
         </div>

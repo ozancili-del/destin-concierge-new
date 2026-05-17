@@ -203,7 +203,7 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
     'display:block;text-decoration:none;margin:0 0 32px;',
     'position:relative;overflow:hidden;border-radius:16px;',
     'min-height:160px;',
-    'background:url(https://destin-concierge-new.vercel.app/snowbird-banner-bg.jpg) center/cover no-repeat;',
+    'background:url(https://destin-concierge-new.vercel.app/snowbird-banner-bg.jpg) 70% center/cover no-repeat;',
     'border:1.5px solid rgba(255,209,102,0.4);',
     'box-shadow:0 8px 32px rgba(0,0,0,0.35);'
   ].join('');

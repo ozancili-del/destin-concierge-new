@@ -188,6 +188,42 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
 })();
 */
 
+// -- BOOK DIRECT BANNER --
+(function injectBookDirectBanner(){
+  if(window.location.pathname !== '/' && window.location.pathname !== '') return;
+  // Find the plain dark blue 'Book Direct & Save' box and replace it
+  var all = document.querySelectorAll('div');
+  var target = null;
+  for(var i=0;i<all.length;i++){
+    if(all[i].textContent.includes('Book Direct & Save at Pelican Beach Resort') && all[i].style.background && all[i].style.background.includes('0a3d62')){
+      target = all[i]; break;
+    }
+  }
+  if(!target) return;
+  var banner = document.createElement('a');
+  banner.href = 'https://www.destincondogetaways.com/book';
+  banner.title = 'Book direct at Pelican Beach Resort Destin FL';
+  banner.style.cssText = [
+    'display:block;text-decoration:none;margin:20px 0;',
+    'position:relative;overflow:hidden;border-radius:16px;',
+    'min-height:160px;',
+    'background:url(https://destin-concierge-new.vercel.app/book-direct-banner-bg.jpg) 60% center/cover no-repeat;',
+    'border:1.5px solid rgba(255,209,102,0.4);',
+    'box-shadow:0 8px 32px rgba(0,0,0,0.35);'
+  ].join('');
+  banner.innerHTML = [
+    '<div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(4,16,29,0.88) 0%,rgba(4,16,29,0.6) 60%,rgba(4,16,29,0.15) 100%);border-radius:16px;"></div>',
+    '<div style="position:relative;z-index:1;padding:28px 32px;max-width:640px;">',
+      '<p style="margin:0 0 6px;font-size:11px;font-family:Arial,sans-serif;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:rgba(255,209,102,0.85);">&#9675; Direct Booking Benefits</p>',
+      '<p style="margin:0 0 8px;font-size:clamp(22px,3.5vw,30px);font-family:Arial,sans-serif;font-weight:900;color:#ffffff;line-height:1.2;">Book Direct &amp; Save<br/><span style=\'color:#ffd166;\'>at Pelican Beach Resort</span></p>',
+      '<p style="margin:0 0 6px;font-size:14px;font-family:Arial,sans-serif;color:rgba(255,255,255,0.65);line-height:1.5;">No platform fees, instant confirmation, owner direct.</p>',
+      '<p style="margin:0 0 18px;font-size:12px;font-family:Arial,sans-serif;color:rgba(255,255,255,0.4);">Beachfront condos &bull; Gulf views &bull; Pelican Beach Resort, Destin</p>',
+      '<span style="display:inline-block;background:#ffd166;color:#0a1628;font-size:14px;font-weight:800;font-family:Arial,sans-serif;padding:12px 24px;border-radius:30px;letter-spacing:.04em;box-shadow:0 4px 16px rgba(255,209,102,0.45);">Book Direct Now &rarr;</span>',
+    '</div>'
+  ].join('');
+  target.parentNode.replaceChild(banner, target);
+})();
+
 // -- SNOWBIRD BANNER (active Nov-Feb) --
 // To disable: comment out this block and uncomment the deals banner above
 (function injectSnowbirdBanner(){

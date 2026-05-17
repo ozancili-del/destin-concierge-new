@@ -192,12 +192,12 @@ function MsgForm({ unit, arrival, departure, nights }) {
       <input
         type="email" value={email} onChange={e => setEmail(e.target.value)}
         placeholder="Your email"
-        style={{ width: "100%", marginBottom: 8, fontSize: 13, padding: "10px 12px", borderRadius: 10, border: "1px solid rgba(255,255,255,.15)", background: "rgba(255,255,255,.05)", color: "#f7fbff", fontFamily: "inherit", outline: "none" }}
+        style={{ width: "100%", marginBottom: 8, fontSize: 13, padding: "10px 12px", borderRadius: 10, border: "1px solid rgba(255,255,255,.25)", background: "rgba(255,255,255,.1)", color: "#f7fbff", fontFamily: "inherit", outline: "none" }}
       />
       <textarea
         value={msg} onChange={e => setMsg(e.target.value)}
         rows={3} placeholder="Any questions about the unit, dates, or your stay?"
-        style={{ width: "100%", marginBottom: 8, fontSize: 13, padding: "10px 12px", borderRadius: 10, border: "1px solid rgba(255,255,255,.15)", background: "rgba(255,255,255,.05)", color: "#f7fbff", fontFamily: "inherit", resize: "none", outline: "none" }}
+        style={{ width: "100%", marginBottom: 8, fontSize: 13, padding: "10px 12px", borderRadius: 10, border: "1px solid rgba(255,255,255,.25)", background: "rgba(255,255,255,.1)", color: "#f7fbff", fontFamily: "inherit", resize: "none", outline: "none" }}
       />
       {err && <p style={{ fontSize: 12, color: "#ff6b6b", marginBottom: 8 }}>{err}</p>}
       <button

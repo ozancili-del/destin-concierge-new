@@ -191,21 +191,15 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
 // -- BOOK DIRECT BANNER --
 (function injectBookDirectBanner(){
   if(window.location.pathname !== '/' && window.location.pathname !== '') return;
-  // Find the plain dark blue 'Book Direct & Save' box and replace it
-  var all = document.querySelectorAll('div');
-  var target = null;
-  for(var i=0;i<all.length;i++){
-    var t=all[i].textContent.trim(); if(t.includes('Book Direct & Save at Pelican Beach Resort') && t.includes('No platform fees') && all[i].querySelectorAll('div').length === 0){
-      target = all[i]; break;
-    }
-  }
-  if(!target){ console.log('[destiny-head] book direct box not found'); return; }
-  console.log('[destiny-head] book direct box found:', target.outerHTML.substring(0,100));
+  var propertyCount = document.querySelector('.property-count');
+  if(!propertyCount) return;
+  var propertiesForm = propertyCount.closest('form');
+  if(!propertiesForm) return;
   var banner = document.createElement('a');
   banner.href = 'https://www.destincondogetaways.com/book';
   banner.title = 'Book direct at Pelican Beach Resort Destin FL';
   banner.style.cssText = [
-    'display:block;text-decoration:none;margin:20px 0;',
+    'display:block;text-decoration:none;margin:0 0 16px;',
     'position:relative;overflow:hidden;border-radius:16px;',
     'min-height:160px;',
     'background:url(https://destin-concierge-new.vercel.app/book-direct-banner-bg.jpg) 60% center/cover no-repeat;',
@@ -222,7 +216,7 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
       '<span style="display:inline-block;background:#ffd166;color:#0a1628;font-size:14px;font-weight:800;font-family:Arial,sans-serif;padding:12px 24px;border-radius:30px;letter-spacing:.04em;box-shadow:0 4px 16px rgba(255,209,102,0.45);">Book Direct Now &rarr;</span>',
     '</div>'
   ].join('');
-  target.parentNode.replaceChild(banner, target);
+  propertiesForm.parentNode.insertBefore(banner, propertiesForm);
 })();
 
 // -- SNOWBIRD BANNER (active Nov-Feb) --

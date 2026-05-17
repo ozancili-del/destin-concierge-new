@@ -156,7 +156,7 @@ export async function getStaticProps() {
 }
 
 // ── Message form ─────────────────────────────────────────────────────────────
-function MsgForm({ unit, arrival, departure, nights }) {
+function MsgForm({ unit, arrival, departure, nights, total }) {
   const [email, setEmail]     = useState("");
   const [msg, setMsg]         = useState("");
   const [sending, setSending] = useState(false);
@@ -168,7 +168,7 @@ function MsgForm({ unit, arrival, departure, nights }) {
     if (!msg.trim()) { setErr("Please enter a message."); return; }
     setErr(""); setSending(true);
     try {
-      const context = `Snowbird inquiry — Unit ${unit} · ${arrival} to ${departure} · ${nights} nights`;
+      const context = `Snowbird inquiry — Unit ${unit} · ${arrival} to ${departure} · ${nights} nights · Est. total $${total}`;
       const res = await fetch("https://destin-concierge-new.vercel.app/api/rate-inquiry", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -275,7 +275,7 @@ function ResultCard({ result, adults, children, year, month, nights, isSnowbird 
             Rates are estimates — final total confirmed at checkout.{" "}
             <a href="https://www.destincondogetaways.com/-pelican-beach-resort-condo-rental-574046950" target="_blank" rel="noopener" style={{ color: "rgba(255,255,255,.3)" }}>Booking terms apply.</a>
           </p>
-          <MsgForm unit={result.unit} arrival={result.arrival} departure={result.departure} nights={nights} />
+          <MsgForm unit={result.unit} arrival={result.arrival} departure={result.departure} nights={nights} total={fees.total} />
         </div>
       )}
     </div>
@@ -428,7 +428,7 @@ export default function Snowbird({ dayData }) {
 
       {/* Background — helicopter aerial */}
       <div className="bg-wrap">
-        <img src="/snowbird-hero.jpg" alt="Aerial view of Pelican Beach Resort Destin Florida" aria-hidden="true" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 40%", filter: "brightness(0.75) saturate(0.9)" }} />
+        <img src="/snowbird-hero.jpg" alt="Aerial view of Pelican Beach Resort Destin Florida" aria-hidden="true" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 40%", filter: "brightness(0.77) saturate(0.9)" }} />
         <div className="bg-overlay" />
       </div>
 
@@ -685,7 +685,7 @@ export default function Snowbird({ dayData }) {
         body { font-family:'Barlow',sans-serif; background:#04101d; color:#f7fbff; }
 
         .bg-wrap { position:fixed; inset:0; z-index:0; pointer-events:none; }
-        .bg-wrap img { width:100%; height:100%; object-fit:cover; object-position:center 35%; filter:brightness(0.75) saturate(0.9); }
+        .bg-wrap img { width:100%; height:100%; object-fit:cover; object-position:center 35%; filter:brightness(0.77) saturate(0.9); }
         .bg-overlay {
           position:absolute; inset:0;
           background:

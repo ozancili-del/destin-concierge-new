@@ -155,6 +155,59 @@ export async function getStaticProps() {
   }
 }
 
+// ── Message form ─────────────────────────────────────────────────────────────
+function MsgForm({ unit, arrival, departure, nights }) {
+  const [email, setEmail]     = useState("");
+  const [msg, setMsg]         = useState("");
+  const [sending, setSending] = useState(false);
+  const [sent, setSent]       = useState(false);
+  const [err, setErr]         = useState("");
+
+  async function send() {
+    if (!email || !email.includes("@")) { setErr("Please enter a valid email."); return; }
+    if (!msg.trim()) { setErr("Please enter a message."); return; }
+    setErr(""); setSending(true);
+    try {
+      const context = `Snowbird inquiry — Unit ${unit} · ${arrival} to ${departure} · ${nights} nights`;
+      const res = await fetch("https://destin-concierge-new.vercel.app/api/rate-inquiry", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, message: msg, context })
+      });
+      if (res.ok) { setSent(true); }
+      else { setErr("Something went wrong. Please try again."); }
+    } catch(e) { setErr("Something went wrong. Please try again."); }
+    setSending(false);
+  }
+
+  if (sent) return (
+    <div style={{ marginTop: 16, borderTop: "1px solid rgba(255,255,255,.08)", paddingTop: 14, textAlign: "center" }}>
+      <p style={{ fontSize: 13, color: "#47e2d0", fontWeight: 700 }}>Message sent! Ozan will reply shortly 🌊</p>
+    </div>
+  );
+
+  return (
+    <div style={{ marginTop: 16, borderTop: "1px solid rgba(255,255,255,.08)", paddingTop: 14 }}>
+      <p style={{ fontSize: 12, color: "rgba(255,255,255,.45)", marginBottom: 10 }}>Or send Ozan a message — he'll get back to you personally</p>
+      <input
+        type="email" value={email} onChange={e => setEmail(e.target.value)}
+        placeholder="Your email"
+        style={{ width: "100%", marginBottom: 8, fontSize: 13, padding: "10px 12px", borderRadius: 10, border: "1px solid rgba(255,255,255,.15)", background: "rgba(255,255,255,.05)", color: "#f7fbff", fontFamily: "inherit", outline: "none" }}
+      />
+      <textarea
+        value={msg} onChange={e => setMsg(e.target.value)}
+        rows={3} placeholder="Any questions about the unit, dates, or your stay?"
+        style={{ width: "100%", marginBottom: 8, fontSize: 13, padding: "10px 12px", borderRadius: 10, border: "1px solid rgba(255,255,255,.15)", background: "rgba(255,255,255,.05)", color: "#f7fbff", fontFamily: "inherit", resize: "none", outline: "none" }}
+      />
+      {err && <p style={{ fontSize: 12, color: "#ff6b6b", marginBottom: 8 }}>{err}</p>}
+      <button
+        onClick={send} disabled={sending}
+        style={{ width: "100%", padding: "11px", fontSize: 13, fontWeight: 600, borderRadius: 10, border: "1px solid rgba(255,255,255,.2)", background: "transparent", color: "rgba(255,255,255,.7)", cursor: "pointer", fontFamily: "inherit" }}
+      >{sending ? "Sending..." : "Send message to Ozan →"}</button>
+    </div>
+  );
+}
+
 // ── Result card ───────────────────────────────────────────────────────────────
 function ResultCard({ result, adults, children, year, month, nights, isSnowbird }) {
   const [expanded, setExpanded] = useState(true);
@@ -177,7 +230,7 @@ function ResultCard({ result, adults, children, year, month, nights, isSnowbird 
           </span>
           <span style={{ fontSize: 11, color: "rgba(255,255,255,.5)", marginLeft: 10 }}>{meta.sub}</span>
         </div>
-        {isDisc && <span style={{ background: "#47e2d0", color: "#020b18", fontSize: 10, fontWeight: 900, padding: "3px 10px", borderRadius: 6 }}>{Math.round(discPct * 100)}% OFF</span>}
+        {isDisc && <span style={{ background: "#47e2d0", color: "#020b18", fontSize: 10, fontWeight: 900, padding: "3px 10px", borderRadius: 6 }}>❄️ SNOWBIRD RATE</span>}
       </div>
       {expanded && (
         <div style={{ padding: 16 }}>
@@ -222,6 +275,7 @@ function ResultCard({ result, adults, children, year, month, nights, isSnowbird 
             Rates are estimates — final total confirmed at checkout.{" "}
             <a href="https://www.destincondogetaways.com/-pelican-beach-resort-condo-rental-574046950" target="_blank" rel="noopener" style={{ color: "rgba(255,255,255,.3)" }}>Booking terms apply.</a>
           </p>
+          <MsgForm unit={result.unit} arrival={result.arrival} departure={result.departure} nights={nights} />
         </div>
       )}
     </div>

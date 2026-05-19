@@ -773,7 +773,7 @@ function extractDates(text) {
     };
   }
 
-  const crossPattern = new RegExp("(" + mn + ")\\s+(\\d{1,2})(?:\\s+(?:to|and|through|until|till|untl|thru|-)\\s+(?:(" + mn + ")\\s+)?(\\d{1,2}))", "i");
+  const crossPattern = new RegExp("(" + mn + ")\\s+(\\d{1,2})(?:\\s+(?:to|and|through|until|till|untl|thru|-)\\s+(?:(" + mn + ")\\s+)?(\\d{1,2}))(?!\\s*(?:adult|child|kid|guest|person|people|ppl|pax|infant|baby|toddler))", "i");
   const crossMatch = text.match(crossPattern);
   if (crossMatch) {
     const month1 = months[crossMatch[1].toLowerCase()];

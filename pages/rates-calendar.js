@@ -176,7 +176,7 @@ function Calendar({ unit, year, month, dayData, arrival, departure, onDayClick, 
             >
               <span style={{ fontSize: 11, color: numColor, lineHeight: 1 }}>{d}</span>
               {price && !past && (
-                <span style={{ fontSize: 12, fontWeight: 700, color: priceColor, lineHeight: 1 }}>${Math.round(price * 0.875) + 25}</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: priceColor, lineHeight: 1 }}>${price + 25}</span>
               )}
               {booked && !past && (
                 <span style={{ fontSize: 9, color: "rgba(255,100,100,.6)", letterSpacing: ".04em" }}>BOOKED</span>
@@ -231,7 +231,7 @@ export default function RatesCalendar({ dayData, today }) {
   for (let d = 1; d <= daysInMonth; d++) {
     const ds = `${year}-${pad(month + 1)}-${pad(d)}`;
     const info = dayData[unit]?.[ds];
-    if (info && !info.booked && info.price > 0) monthPrices.push(Math.round(info.price * 0.875) + 25);
+    if (info && !info.booked && info.price > 0) monthPrices.push(info.price + 25);
   }
   const avgPrice = monthPrices.length ? Math.round(monthPrices.reduce((s, p) => s + p, 0) / monthPrices.length) : null;
   const minPrice = monthPrices.length ? Math.min(...monthPrices) : null;

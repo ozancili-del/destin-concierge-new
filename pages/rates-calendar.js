@@ -2,6 +2,34 @@ import { useState, useEffect, useCallback } from "react";
 import Head from "next/head";
 import { createClient } from "@supabase/supabase-js";
 
+function isSnowbirdDiscount(year, month, nights) {
+  if (nights < 28) return false;
+  return (year === 2026 && (month === 11 || month === 12)) || (year === 2027 && (month === 1 || month === 2));
+}
+function getDiscountPct(unit, year, month, nights) {
+  if (!isSnowbirdDiscount(year, month, nights)) return 0.125;
+  return unit === "707" ? 0.50 : 0.40;
+}
+function calcFees(priceSum, nights, unit, arrivalStr, adults, children) {
+  const d = new Date(arrivalStr + "T12:00:00");
+  const year = d.getFullYear();
+  const month = d.getMonth() + 1;
+  const exactRent = priceSum;
+  const mgmt = 25 * nights;
+  const rent = Math.round(exactRent * 0.875) + mgmt;
+  const discPct = getDiscountPct(unit, year, month, nights);
+  const discount = Math.round(exactRent * discPct);
+  const extraG = Math.max(0, (adults + children) - 4);
+  const extraFee = extraG * 20 * nights;
+  const rentAfter = rent - discount + extraFee;
+  const cleaning = 175;
+  const tax = Math.round((rentAfter + cleaning) * 0.13);
+  const admin = Math.round((rentAfter + cleaning + tax) * 0.03);
+  const total = rentAfter + cleaning + tax + admin;
+  const isSnowbird = isSnowbirdDiscount(year, month, nights);
+  return { rent, discPct, discount, extraFee, rentAfter, cleaning, tax, admin, total, isSnowbird };
+}
+
 const UNIT_META = {
   "707":  { name: "Unit 707", sub: "Classic Coastal · 7th Floor", slug: "pelican-beach-resort-unit-707-orp5b47b5ax" },
   "1006": { name: "Unit 1006", sub: "Fresh Coastal · 10th Floor", slug: "pelican-beach-resort-unit-1006-orp5b6450ex" },
@@ -310,41 +338,43 @@ export default function RatesCalendar({ dayData, today }) {
         </div>
 
         {/* Booking panel */}
-        {arrival && departure && url && (
-          <div style={{ background: "rgba(2,18,40,.9)", border: "2px solid #47e2d0", borderRadius: 20, padding: 20, marginBottom: 16 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
-              <div>
-                <p style={{ fontSize: 14, fontWeight: 700, color: "#f7fbff", margin: 0 }}>{UNIT_META[unit].name}</p>
-                <p style={{ fontSize: 12, color: "rgba(255,255,255,.45)", margin: "3px 0 0" }}>{fmtDate(arrival)} – {fmtDate(departure)} · {nights} nights</p>
+        {arrival && departure && url && totalRent && (() => {
+          const fees = calcFees(totalRent, nights, unit, arrival, 2, 0);
+          const discLabel = fees.isSnowbird ? `❄️ Snowbird discount (${Math.round(fees.discPct * 100)}%)` : "Direct booking discount (12.5%)";
+          return (
+            <div style={{ background: "rgba(2,18,40,.9)", border: "2px solid #47e2d0", borderRadius: 20, padding: 20, marginBottom: 16 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14 }}>
+                <div>
+                  <p style={{ fontSize: 14, fontWeight: 700, color: "#f7fbff", margin: 0 }}>{UNIT_META[unit].name}</p>
+                  <p style={{ fontSize: 12, color: "rgba(255,255,255,.45)", margin: "3px 0 0" }}>{fmtDate(arrival)} – {fmtDate(departure)} · {nights} nights · 2 guests</p>
+                </div>
+                <button onClick={clearSelection} style={{ background: "transparent", border: "none", color: "rgba(255,255,255,.4)", cursor: "pointer", fontSize: 18, lineHeight: 1 }}>×</button>
               </div>
-              <button onClick={clearSelection} style={{ background: "transparent", border: "none", color: "rgba(255,255,255,.4)", cursor: "pointer", fontSize: 18, lineHeight: 1 }}>×</button>
-            </div>
-            {totalRent && (
               <div style={{ borderTop: "1px solid rgba(255,255,255,.1)", paddingTop: 12, marginBottom: 14 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
-                  <span style={{ fontSize: 12, color: "rgba(255,255,255,.45)" }}>Base rent ({nights} nights)</span>
-                  <span style={{ fontSize: 12, color: "#f7fbff" }}>${totalRent}</span>
+                {[
+                  ["Rent", `$${fees.rent}`, false],
+                  [discLabel, `-$${fees.discount}`, true],
+                  ["Cleaning fee", `$${fees.cleaning}`, false],
+                  ["Tax (13%)", `$${fees.tax}`, false],
+                  ["Admin (3%)", `$${fees.admin}`, false],
+                ].map(([label, val, green]) => (
+                  <div key={label} style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
+                    <span style={{ fontSize: 12, color: "rgba(255,255,255,.45)" }}>{label}</span>
+                    <span style={{ fontSize: 12, color: green ? "#47e2d0" : "#f7fbff" }}>{val}</span>
+                  </div>
+                ))}
+                <div style={{ display: "flex", justifyContent: "space-between", paddingTop: 10, borderTop: "1px solid rgba(255,255,255,.1)", marginTop: 8 }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "#f7fbff" }}>Total</span>
+                  <span style={{ fontSize: 18, fontWeight: 900, color: "#ffd166" }}>${fees.total}</span>
                 </div>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
-                  <span style={{ fontSize: 12, color: "rgba(255,255,255,.45)" }}>Direct booking discount (12.5%)</span>
-                  <span style={{ fontSize: 12, color: "#47e2d0" }}>-${Math.round(totalRent * 0.125)}</span>
-                </div>
-                <p style={{ fontSize: 10, color: "rgba(255,255,255,.25)", margin: "8px 0 0" }}>+ cleaning, tax & admin at checkout · estimate only</p>
+                <p style={{ fontSize: 10, color: "rgba(255,255,255,.25)", margin: "8px 0 0" }}>Based on 2 guests · rates are estimates · final confirmed at checkout</p>
               </div>
-            )}
-            <a
-              href={url}
-              target="_blank"
-              rel="noopener"
-              style={{ display: "block", width: "100%", padding: 14, textAlign: "center", background: "#47e2d0", color: "#020b18", fontSize: 14, fontWeight: 900, borderRadius: 12, textDecoration: "none", letterSpacing: ".03em" }}
-            >
-              Book direct — check availability →
-            </a>
-            <p style={{ fontSize: 10, color: "rgba(255,255,255,.25)", textAlign: "center", marginTop: 8 }}>
-              Final pricing confirmed at checkout on destincondogetaways.com
-            </p>
-          </div>
-        )}
+              <a href={url} target="_blank" rel="noopener" style={{ display: "block", width: "100%", padding: 14, textAlign: "center", background: "#47e2d0", color: "#020b18", fontSize: 14, fontWeight: 900, borderRadius: 12, textDecoration: "none", letterSpacing: ".03em" }}>
+                Book direct — check availability →
+              </a>
+            </div>
+          );
+        })()}
 
         {/* Instruction when nothing selected */}
         {!arrival && (

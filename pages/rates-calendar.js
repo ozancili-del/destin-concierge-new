@@ -359,23 +359,21 @@ export default function RatesCalendar({ dayData, today }) {
               <div style={{ borderTop: "1px solid rgba(255,255,255,.1)", paddingTop: 12, marginBottom: 14 }}>
                 {[
                   ["Rent", `$${fees.rent}`, false],
+                  [discLabel, `-$${fees.discount}`, true],
                   ["Cleaning fee", `$${fees.cleaning}`, false],
-                  ["Tax (13%)", `$${fees.taxBase}`, false],
-                  ["Admin (3%)", `$${fees.adminBase}`, false],
+                  ["Tax (13%)", `$${fees.taxDisc}`, false],
+                  ["Admin (3%)", `$${fees.adminDisc}`, false],
                 ].map(([label, val, green]) => (
                   <div key={label} style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
                     <span style={{ fontSize: 12, color: "rgba(255,255,255,.45)" }}>{label}</span>
-                    <span style={{ fontSize: 12, color: "#f7fbff" }}>{val}</span>
+                    <span style={{ fontSize: 12, color: green ? "#47e2d0" : "#f7fbff" }}>{val}</span>
                   </div>
                 ))}
                 <div style={{ display: "flex", justifyContent: "space-between", paddingTop: 10, borderTop: "1px solid rgba(255,255,255,.1)", marginTop: 8 }}>
                   <span style={{ fontSize: 13, fontWeight: 700, color: "#f7fbff" }}>Total</span>
-                  <span style={{ fontSize: 18, fontWeight: 900, color: "#ffd166" }}>${fees.totalBase}</span>
+                  <span style={{ fontSize: 18, fontWeight: 900, color: "#ffd166" }}>${fees.totalDisc}</span>
                 </div>
-                <div style={{ marginTop: 10, padding: "8px 12px", background: "rgba(71,226,208,.08)", borderRadius: 8, border: "1px solid rgba(71,226,208,.2)" }}>
-                  <span style={{ fontSize: 12, color: "#47e2d0" }}>✓ Book direct and save ${fees.discount} — total ${fees.totalDisc} with {discLabel.replace("❄️ ", "")}</span>
-                </div>
-                <p style={{ fontSize: 10, color: "rgba(255,255,255,.25)", margin: "8px 0 0" }}>2 guests · estimates only · final confirmed at checkout</p>
+                <p style={{ fontSize: 10, color: "rgba(255,255,255,.25)", margin: "8px 0 0" }}>2 guests · direct booking discount applied · final confirmed at checkout</p>
               </div>
               <a href={url} target="_blank" rel="noopener" style={{ display: "block", width: "100%", padding: 14, textAlign: "center", background: "#47e2d0", color: "#020b18", fontSize: 14, fontWeight: 900, borderRadius: 12, textDecoration: "none", letterSpacing: ".03em" }}>
                 Book direct — check availability →

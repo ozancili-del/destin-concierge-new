@@ -505,6 +505,7 @@ function DealCard({ deal, index, initialViews = 0, openCardId, setOpenCardId }) 
   const [hovered, setHovered] = useState(false);
   const [copied, setCopied]   = useState(false);
   const [views, setViews]     = useState(initialViews);
+  const cardId = `${deal.unit}-${deal.arrival}`;
   const showMsg = openCardId === cardId;
   const [bookedDates, setBookedDates] = useState(null);
   const [msgArrival, setMsgArrival]   = useState(deal.arrival);
@@ -546,7 +547,6 @@ function DealCard({ deal, index, initialViews = 0, openCardId, setOpenCardId }) 
 
   function isBooked(dateStr) { return bookedDates && bookedDates.includes(dateStr); }
   function fmtDate(str) { return str ? new Date(str + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''; }
-  const cardId = `${deal.unit}-${deal.arrival}`;
 
   const hasCounted = useRef(false);
   function trackView() {

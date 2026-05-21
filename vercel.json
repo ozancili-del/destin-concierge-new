@@ -2,17 +2,6 @@
   "redirects": [
     {
       "source": "/",
-      "destination": "/snowbird",
-      "permanent": false,
-      "has": [
-        {
-          "type": "host",
-          "value": "sunbirds.destincondogetaways.com"
-        }
-      ]
-    },
-    {
-      "source": "/",
       "destination": "/rate-finder.html",
       "permanent": false,
       "has": [
@@ -57,6 +46,16 @@
     }
   ],
   "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/snowbird",
+      "has": [
+        {
+          "type": "host",
+          "value": "sunbirds.destincondogetaways.com"
+        }
+      ]
+    },
     {
       "source": "/tv-707.html",
       "destination": "/tv-707.html"

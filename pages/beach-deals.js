@@ -743,7 +743,7 @@ function DealCard({ deal, index, initialViews = 0, openCardId, setOpenCardId }) 
                     <input className="msg-input" type="text" placeholder="Your name" value={msgName} onChange={e => setMsgName(e.target.value)} />
                     <input className="msg-input" type="email" placeholder="Your email" value={msgEmail} onChange={e => setMsgEmail(e.target.value)} />
                   </div>
-                  <textarea className="msg-textarea" placeholder="Any questions or special requests? (optional)" value={msgNote} onChange={e => setMsgNote(e.target.value)} />
+                  <textarea className="msg-textarea" placeholder="What can we do to make your stay extra special?" value={msgNote} onChange={e => setMsgNote(e.target.value)} />
                 </div>
                 <div className="msg-footer">
                   <span className="msg-footer-note">Ozan replies directly &mdash; usually within the hour</span>

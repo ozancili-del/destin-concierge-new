@@ -1290,11 +1290,11 @@ export default function BeachDeals({ deals }) {
         .mini-cal-head { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; margin-bottom:4px; }
         .mini-cal-dow { font-size:10px; font-weight:700; color:#888; text-align:center; padding:2px 0; }
         .mini-cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; }
-        .mini-cal-day { font-size:12px; text-align:center; padding:6px 2px; border-radius:6px; cursor:pointer; color:#020b18; background:#f5f7fa; transition:background .12s; }
-        .mini-cal-day:hover:not(.cal-disabled) { background:#e8faf9; }
-        .cal-disabled { background:#f0f0f0 !important; color:#bbb !important; cursor:not-allowed; text-decoration:line-through; }
+        .mini-cal-day { font-size:12px; text-align:center; padding:6px 2px; border-radius:6px; cursor:pointer; color:#0a5c3a; background:#d4f5e2; font-weight:600; transition:background .12s; }
+        .mini-cal-day:hover:not(.cal-disabled) { background:#a8ecc4; }
+        .cal-disabled { background:#f0f0f0 !important; color:#bbb !important; cursor:not-allowed; text-decoration:line-through; font-weight:400; }
         .cal-selected { background:#00d4c8 !important; color:#020b18 !important; font-weight:700; }
-        .cal-inrange { background:#e8faf9 !important; color:#0a7c78 !important; }
+        .cal-inrange { background:#b2f0ea !important; color:#0a5c3a !important; }
         .msg-dates-display { display:flex; align-items:center; margin-bottom:12px; font-size:12px; color:#020b18; }
         .msg-date-chip { background:#e8faf9; color:#0a7c78; font-weight:700; padding:4px 10px; border-radius:20px; }
         .msg-fields { display:flex; flex-direction:column; gap:8px; margin-bottom:12px; }

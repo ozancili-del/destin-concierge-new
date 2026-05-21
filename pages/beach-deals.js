@@ -451,6 +451,50 @@ function DealPurchasedStamp() {
 }
 
 // ── Deal card ─────────────────────────────────────────────────────────────────
+function MiniCal({ year, month, arrival, departure, bookedDates, onSelect }) {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const cells = [];
+  for (let i = 0; i < firstDay; i++) cells.push(null);
+  for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+
+  function fmt(d) {
+    const mm = String(month + 1).padStart(2, '0');
+    const dd = String(d).padStart(2, '0');
+    return `${year}-${mm}-${dd}`;
+  }
+
+  return (
+    <div className="mini-cal">
+      <div className="mini-cal-head">
+        {['Su','Mo','Tu','We','Th','Fr','Sa'].map(d => <div key={d} className="mini-cal-dow">{d}</div>)}
+      </div>
+      <div className="mini-cal-grid">
+        {cells.map((d, i) => {
+          if (!d) return <div key={`e${i}`} />;
+          const dateStr = fmt(d);
+          const isPast = new Date(dateStr) < today;
+          const isBooked = bookedDates.includes(dateStr);
+          const isArrival = dateStr === arrival;
+          const isDeparture = dateStr === departure;
+          const isInRange = arrival && departure && dateStr > arrival && dateStr < departure;
+          const disabled = isPast || isBooked;
+          let cls = 'mini-cal-day';
+          if (disabled) cls += ' cal-disabled';
+          else if (isArrival || isDeparture) cls += ' cal-selected';
+          else if (isInRange) cls += ' cal-inrange';
+          return (
+            <div key={dateStr} className={cls} onClick={() => !disabled && onSelect(dateStr)}>
+              {d}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function DealCard({ deal, index, initialViews = 0 }) {
   const meta      = UNIT_META[deal.unit];
   const url       = bookingUrl(deal.unit, deal.arrival, deal.departure);
@@ -461,8 +505,47 @@ function DealCard({ deal, index, initialViews = 0 }) {
   const [hovered, setHovered] = useState(false);
   const [copied, setCopied]   = useState(false);
   const [views, setViews]     = useState(initialViews);
+  const [showMsg, setShowMsg] = useState(false);
+  const [bookedDates, setBookedDates] = useState(null);
+  const [msgArrival, setMsgArrival]   = useState(deal.arrival);
+  const [msgDeparture, setMsgDeparture] = useState(deal.departure);
+  const [msgName, setMsgName]     = useState('');
+  const [msgEmail, setMsgEmail]   = useState('');
+  const [msgNote, setMsgNote]     = useState('');
+  const [msgStatus, setMsgStatus] = useState('idle'); // idle | sending | sent | error
+  const [calMonth, setCalMonth]   = useState(() => { const d = new Date(deal.arrival + 'T12:00:00'); return { year: d.getFullYear(), month: d.getMonth() }; });
+
   // Sync when parent fetches live counts
   useEffect(() => { setViews(initialViews); }, [initialViews]);
+
+  async function openMsgOverlay() {
+    setShowMsg(true);
+    setMsgStatus('idle');
+    if (!bookedDates) {
+      const res = await fetch(`/api/availability?unit=${deal.unit}`).catch(() => null);
+      const data = res ? await res.json().catch(() => null) : null;
+      setBookedDates(data?.booked || []);
+    }
+  }
+
+  function closeMsgOverlay() { setShowMsg(false); setMsgStatus('idle'); }
+
+  async function sendMessage() {
+    if (!msgName.trim() || !msgEmail.trim() || !msgArrival || !msgDeparture) return;
+    setMsgStatus('sending');
+    try {
+      const context = `Unit ${deal.unit} | ${msgArrival} to ${msgDeparture}`;
+      const res = await fetch('/api/rate-inquiry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: msgName, email: msgEmail, message: msgNote, context }),
+      });
+      setMsgStatus(res.ok ? 'sent' : 'error');
+    } catch { setMsgStatus('error'); }
+  }
+
+  function isBooked(dateStr) { return bookedDates && bookedDates.includes(dateStr); }
+  function fmtDate(str) { return str ? new Date(str + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''; }
   const cardId = `${deal.unit}-${deal.arrival}`;
 
   const hasCounted = useRef(false);
@@ -604,20 +687,75 @@ function DealCard({ deal, index, initialViews = 0 }) {
           ) : (
             <a className="btn-book" href={url} onClick={trackAction}>Secure This Deal  →</a>
           )}
-          <button className="btn-share" onClick={() => { handleShare(); trackAction(); }} title="Share this deal">
-            {copied ? (
-              <span style={{fontSize:11,fontFamily:'Arial',fontWeight:700,color:'var(--teal)'}}>✓ Copied</span>
-            ) : (
-              <>
-                <span className="share-label">Share</span>
-                <div className="share-icon-circle">
-                  <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-                </div>
-              </>
-            )}
+          <button className="btn-share" onClick={() => { openMsgOverlay(); trackAction(); }} title="Message Ozan about this deal">
+            <span className="share-label">Message Ozan</span>
+            <div className="share-icon-circle">
+              <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </div>
           </button>
         </div>
       </div>
+
+      {showMsg && (
+        <div className="msg-overlay" onClick={(e) => { if (e.target.classList.contains('msg-overlay')) closeMsgOverlay(); }}>
+          <div className="msg-box">
+            <div className="msg-box-header">
+              <div className="msg-box-title">Message Ozan &mdash; Unit {deal.unit}</div>
+              <button className="msg-close" onClick={closeMsgOverlay} aria-label="Close">&#x2715;</button>
+            </div>
+            {msgStatus === 'sent' ? (
+              <div className="msg-sent">
+                <div style={{fontSize:32,marginBottom:8}}>&#127881;</div>
+                <strong>Message sent!</strong>
+                <p>Ozan will reply directly to your email &mdash; usually within the hour.</p>
+                <button className="msg-btn-send" onClick={closeMsgOverlay}>Close</button>
+              </div>
+            ) : (
+              <>
+                <div className="msg-cal-label">Select your dates &mdash; <span style={{color:'#888',fontWeight:400}}>greyed = booked</span></div>
+                <div className="msg-cal-nav">
+                  <button className="msg-cal-arrow" onClick={() => setCalMonth(m => { const d = new Date(m.year, m.month - 1); return { year: d.getFullYear(), month: d.getMonth() }; })}>&#8249;</button>
+                  <span className="msg-cal-month">{new Date(calMonth.year, calMonth.month).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
+                  <button className="msg-cal-arrow" onClick={() => setCalMonth(m => { const d = new Date(m.year, m.month + 1); return { year: d.getFullYear(), month: d.getMonth() }; })}>&#8250;</button>
+                </div>
+                <MiniCal
+                  year={calMonth.year}
+                  month={calMonth.month}
+                  arrival={msgArrival}
+                  departure={msgDeparture}
+                  bookedDates={bookedDates || []}
+                  onSelect={(date) => {
+                    if (!msgArrival || (msgArrival && msgDeparture)) {
+                      setMsgArrival(date); setMsgDeparture('');
+                    } else {
+                      if (date > msgArrival) setMsgDeparture(date);
+                      else { setMsgArrival(date); setMsgDeparture(''); }
+                    }
+                  }}
+                />
+                <div className="msg-dates-display">
+                  <span className="msg-date-chip">{msgArrival ? fmtDate(msgArrival) : 'Check-in'}</span>
+                  <span style={{color:'#aaa',margin:'0 6px'}}>&#8594;</span>
+                  <span className="msg-date-chip">{msgDeparture ? fmtDate(msgDeparture) : 'Check-out'}</span>
+                </div>
+                <div className="msg-fields">
+                  <div className="msg-field-row">
+                    <input className="msg-input" type="text" placeholder="Your name" value={msgName} onChange={e => setMsgName(e.target.value)} />
+                    <input className="msg-input" type="email" placeholder="Your email" value={msgEmail} onChange={e => setMsgEmail(e.target.value)} />
+                  </div>
+                  <textarea className="msg-textarea" placeholder="Any questions or special requests? (optional)" value={msgNote} onChange={e => setMsgNote(e.target.value)} />
+                </div>
+                <div className="msg-footer">
+                  <span className="msg-footer-note">Ozan replies directly &mdash; usually within the hour</span>
+                  <button className="msg-btn-send" disabled={!msgName.trim() || !msgEmail.trim() || !msgArrival || !msgDeparture || msgStatus === 'sending'} onClick={sendMessage}>
+                    {msgStatus === 'sending' ? 'Sending…' : msgStatus === 'error' ? 'Retry →' : 'Send →'}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -1138,6 +1276,37 @@ export default function BeachDeals({ deals }) {
         .share-label { font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--teal); padding-right:10px; }
         .share-icon-circle { width:40px; height:40px; border-radius:50%; background:rgba(0,212,200,0.2); border-left:1.5px solid rgba(0,212,200,0.4); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
         .btn-share svg { stroke:var(--teal); }
+
+        .msg-overlay { position:fixed; inset:0; background:rgba(2,11,24,.85); z-index:999; display:flex; align-items:center; justify-content:center; padding:16px; }
+        .msg-box { background:#fff; border-radius:16px; width:100%; max-width:420px; max-height:90vh; overflow-y:auto; padding:20px; box-sizing:border-box; }
+        .msg-box-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+        .msg-box-title { font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:800; color:#020b18; letter-spacing:.04em; text-transform:uppercase; }
+        .msg-close { background:#f0f2f5; border:none; border-radius:50%; width:28px; height:28px; font-size:14px; cursor:pointer; color:#555; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .msg-cal-label { font-size:11px; font-weight:700; color:#020b18; margin-bottom:8px; }
+        .msg-cal-nav { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+        .msg-cal-arrow { background:none; border:1px solid #dde2ea; border-radius:6px; width:28px; height:28px; font-size:16px; cursor:pointer; color:#020b18; display:flex; align-items:center; justify-content:center; }
+        .msg-cal-month { font-size:13px; font-weight:700; color:#020b18; }
+        .mini-cal { margin-bottom:10px; }
+        .mini-cal-head { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; margin-bottom:4px; }
+        .mini-cal-dow { font-size:10px; font-weight:700; color:#888; text-align:center; padding:2px 0; }
+        .mini-cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:2px; }
+        .mini-cal-day { font-size:12px; text-align:center; padding:6px 2px; border-radius:6px; cursor:pointer; color:#020b18; background:#f5f7fa; transition:background .12s; }
+        .mini-cal-day:hover:not(.cal-disabled) { background:#e8faf9; }
+        .cal-disabled { background:#f0f0f0 !important; color:#bbb !important; cursor:not-allowed; text-decoration:line-through; }
+        .cal-selected { background:#00d4c8 !important; color:#020b18 !important; font-weight:700; }
+        .cal-inrange { background:#e8faf9 !important; color:#0a7c78 !important; }
+        .msg-dates-display { display:flex; align-items:center; margin-bottom:12px; font-size:12px; color:#020b18; }
+        .msg-date-chip { background:#e8faf9; color:#0a7c78; font-weight:700; padding:4px 10px; border-radius:20px; }
+        .msg-fields { display:flex; flex-direction:column; gap:8px; margin-bottom:12px; }
+        .msg-field-row { display:flex; gap:8px; }
+        .msg-input { background:#f5f7fa; border:1px solid #dde2ea; border-radius:8px; color:#020b18; font-size:12px; padding:8px 10px; flex:1; min-width:0; box-sizing:border-box; }
+        .msg-textarea { background:#f5f7fa; border:1px solid #dde2ea; border-radius:8px; color:#555; font-size:12px; padding:8px 10px; width:100%; box-sizing:border-box; height:54px; resize:none; }
+        .msg-footer { display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; }
+        .msg-footer-note { font-size:10px; color:#888; }
+        .msg-btn-send { background:#00d4c8; color:#020b18; font-size:12px; font-weight:800; padding:9px 20px; border-radius:20px; border:none; cursor:pointer; letter-spacing:.03em; }
+        .msg-btn-send:disabled { opacity:.45; cursor:not-allowed; }
+        .msg-sent { text-align:center; padding:20px 0; color:#020b18; }
+        .msg-sent p { font-size:13px; color:#555; margin:6px 0 16px; }
         @media (max-width:600px) {
           .btn-row { flex-direction:column; gap:8px; }
           .btn-share { width:100%; height:42px; justify-content:space-between; border-radius:30px; padding:0 0 0 16px; }

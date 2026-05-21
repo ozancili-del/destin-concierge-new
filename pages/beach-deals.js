@@ -495,7 +495,7 @@ function MiniCal({ year, month, arrival, departure, bookedDates, onSelect }) {
   );
 }
 
-function DealCard({ deal, index, initialViews = 0 }) {
+function DealCard({ deal, index, initialViews = 0, openCardId, setOpenCardId }) {
   const meta      = UNIT_META[deal.unit];
   const url       = bookingUrl(deal.unit, deal.arrival, deal.departure);
   const dateLabel = `${deal.arrivalFriendly} – ${deal.departureFriendly} · ${deal.nights} nights`;
@@ -505,7 +505,7 @@ function DealCard({ deal, index, initialViews = 0 }) {
   const [hovered, setHovered] = useState(false);
   const [copied, setCopied]   = useState(false);
   const [views, setViews]     = useState(initialViews);
-  const [showMsg, setShowMsg] = useState(false);
+  const showMsg = openCardId === cardId;
   const [bookedDates, setBookedDates] = useState(null);
   const [msgArrival, setMsgArrival]   = useState(deal.arrival);
   const [msgDeparture, setMsgDeparture] = useState(deal.departure);
@@ -519,7 +519,7 @@ function DealCard({ deal, index, initialViews = 0 }) {
   useEffect(() => { setViews(initialViews); }, [initialViews]);
 
   async function openMsgOverlay() {
-    setShowMsg(true);
+    setOpenCardId(cardId);
     setMsgStatus('idle');
     if (!bookedDates) {
       const res = await fetch(`/api/availability?unit=${deal.unit}`).catch(() => null);
@@ -528,7 +528,7 @@ function DealCard({ deal, index, initialViews = 0 }) {
     }
   }
 
-  function closeMsgOverlay() { setShowMsg(false); setMsgStatus('idle'); }
+  function closeMsgOverlay() { setOpenCardId(null); setMsgStatus('idle'); }
 
   async function sendMessage() {
     if (!msgName.trim() || !msgEmail.trim() || !msgArrival || !msgDeparture) return;
@@ -851,6 +851,7 @@ export default function BeachDeals({ deals }) {
   const hasDeals   = deals && deals.length > 0;
   const [visible, setVisible] = useState(10);
   const [viewCounts, setViewCounts] = useState({});
+  const [openCardId, setOpenCardId] = useState(null);
 
 
   useEffect(() => {
@@ -992,7 +993,7 @@ export default function BeachDeals({ deals }) {
         {hasDeals ? (
           <>
             <div className="deals-grid">
-              {deals.slice(0, visible).map((deal, i) => <DealCard key={`${deal.unit}-${deal.arrival}`} deal={deal} index={i} initialViews={viewCounts[`${deal.unit}::${deal.arrival}::${deal.departure}`] || 0} />)}
+              {deals.slice(0, visible).map((deal, i) => <DealCard key={`${deal.unit}-${deal.arrival}`} deal={deal} index={i} initialViews={viewCounts[`${deal.unit}::${deal.arrival}::${deal.departure}`] || 0} openCardId={openCardId} setOpenCardId={setOpenCardId} />)}
             </div>
             {visible < deals.length && (
               <div style={{ textAlign: "center", marginTop: 24 }}>

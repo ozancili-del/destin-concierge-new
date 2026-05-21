@@ -687,8 +687,8 @@ function DealCard({ deal, index, initialViews = 0, openCardId, setOpenCardId }) 
           ) : (
             <a className="btn-book" href={url} onClick={trackAction}>Secure This Deal  →</a>
           )}
-          <button className="btn-share" onClick={() => { openMsgOverlay(); trackAction(); }} title="Message Ozan about this deal">
-            <span className="share-label">Message Ozan</span>
+          <button className="btn-share" onClick={() => { openMsgOverlay(); trackAction(); }} title="Send Inquiry about this deal">
+            <span className="share-label">Send Inquiry</span>
             <div className="share-icon-circle">
               <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             </div>
@@ -700,7 +700,7 @@ function DealCard({ deal, index, initialViews = 0, openCardId, setOpenCardId }) 
         <div className="msg-overlay" onClick={(e) => { if (e.target.classList.contains('msg-overlay')) closeMsgOverlay(); }}>
           <div className="msg-box">
             <div className="msg-box-header">
-              <div className="msg-box-title">Message Ozan &mdash; Unit {deal.unit}</div>
+              <div className="msg-box-title">Send Inquiry &mdash; Unit {deal.unit}</div>
               <button className="msg-close" onClick={closeMsgOverlay} aria-label="Close">&#x2715;</button>
             </div>
             {msgStatus === 'sent' ? (
@@ -833,12 +833,12 @@ function NoDeals() {
       <h2 className="no-deals-title">No Price Drops Right Now</h2>
       <p className="no-deals-text">
         Deals come and go quickly — check back soon, or browse live availability directly.<br />
-        If you have specific dates in mind, reach out to Ozan. He may be able to work something out.
+        If you have specific dates in mind, send an inquiry — the host may be able to work something out.
       </p>
       <div className="no-deals-btns">
         <a className="btn-main" href="https://www.destincondogetaways.com/availability">Check Availability</a>
         <a className="btn-inquiry" href="mailto:ozan@destincondogetaways.com?subject=Inquiry%20for%20specific%20dates&body=Hi%20Ozan%2C%20I%20am%20interested%20in%20booking%20for%20the%20following%20dates%3A%0A%0AUnit%3A%0AArrival%3A%0ADeparture%3A%0AGuests%3A%0A%0AThank%20you!">
-          Message Ozan
+          Send Inquiry
         </a>
       </div>
     </div>

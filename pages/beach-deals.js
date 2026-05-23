@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useLayoutEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import Head from "next/head";
 import { createClient } from "@supabase/supabase-js";
@@ -915,17 +915,142 @@ const AIRPORTS = [
   {iata:"ANC",city:"Anchorage",state:"AK",name:"Ted Stevens Anchorage Intl"},
 ];
 
+const DEST_DEFAULTS = [
+  {iata:"VPS",city:"Destin",state:"FL",name:"Destin-Fort Walton Beach"},
+  {iata:"PNS",city:"Pensacola",state:"FL",name:"Pensacola Intl"},
+  {iata:"ECP",city:"Panama City",state:"FL",name:"Northwest Florida Beaches Intl"},
+];
+
+function useClientReady() {
+  const [ready, setReady] = useState(false);
+  useEffect(() => { setReady(true); }, []);
+  return ready;
+}
+
+function useFloatingDropdown({ open, anchorRef, itemCount }) {
+  const dropdownRef = useRef(null);
+  const [style, setStyle] = useState({ position:"fixed", visibility:"hidden", zIndex:2147483647 });
+
+  const updatePosition = useCallback(() => {
+    if (!open || !anchorRef.current) return;
+    const rect = anchorRef.current.getBoundingClientRect();
+    const gap = 6, margin = 8, maxH = 320, rowH = 48;
+    const vv = window.visualViewport;
+    const vTop = vv?.offsetTop ?? 0, vLeft = vv?.offsetLeft ?? 0;
+    const vW = vv?.width ?? window.innerWidth, vH = vv?.height ?? window.innerHeight;
+    const vBottom = vTop + vH, vRight = vLeft + vW;
+    const spaceBelow = vBottom - rect.bottom - gap - margin;
+    const spaceAbove = rect.top - vTop - gap - margin;
+    const estH = Math.min(maxH, Math.max(80, itemCount * rowH));
+    const realH = dropdownRef.current?.scrollHeight || estH;
+    const openUp = spaceBelow < 180 && spaceAbove > spaceBelow;
+    const avail = openUp ? spaceAbove : spaceBelow;
+    const finalH = Math.max(80, Math.min(maxH, realH, avail));
+    let top = openUp ? Math.max(vTop + margin, rect.top - gap - finalH) : Math.min(rect.bottom + gap, vBottom - margin - finalH);
+    let left = Math.max(vLeft + margin, Math.min(rect.left, vRight - margin - rect.width));
+    const width = Math.min(rect.width, vW - margin * 2);
+    setStyle({ position:"fixed", top:`${Math.round(top)}px`, left:`${Math.round(left)}px`, width:`${Math.round(width)}px`, maxHeight:`${Math.round(finalH)}px`, zIndex:2147483647, visibility:"visible" });
+  }, [open, anchorRef, itemCount]);
+
+  useLayoutEffect(() => {
+    if (!open) return;
+    updatePosition();
+    const raf = requestAnimationFrame(updatePosition);
+    window.addEventListener("resize", updatePosition);
+    window.addEventListener("scroll", updatePosition, true);
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", updatePosition);
+      window.visualViewport.addEventListener("scroll", updatePosition);
+    }
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", updatePosition);
+      window.removeEventListener("scroll", updatePosition, true);
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener("resize", updatePosition);
+        window.visualViewport.removeEventListener("scroll", updatePosition);
+      }
+    };
+  }, [open, updatePosition]);
+
+  return { dropdownRef, floatingStyle: style, updatePosition };
+}
+
+function AirportAutocomplete({ label, placeholder, initialValue = "", options, preferredOptions = [], onPick, formatValue }) {
+  const isClient = useClientReady();
+  const wrapperRef = useRef(null);
+  const [query, setQuery] = useState(initialValue);
+  const [open, setOpen] = useState(false);
+  const [suggestions, setSuggestions] = useState([]);
+  const [activeIndex, setActiveIndex] = useState(-1);
+  const { dropdownRef, floatingStyle, updatePosition } = useFloatingDropdown({ open, anchorRef: wrapperRef, itemCount: suggestions.length });
+
+  function search(text) {
+    const q = text.trim().toLowerCase();
+    if (q.length < 2) return preferredOptions.slice(0, 6);
+    const pref = preferredOptions.filter(a => a.iata.toLowerCase().startsWith(q) || a.city.toLowerCase().includes(q) || a.name.toLowerCase().includes(q));
+    const rest = options.filter(a => a.iata.toLowerCase().startsWith(q) || a.city.toLowerCase().includes(q) || a.name.toLowerCase().includes(q) || a.state.toLowerCase().startsWith(q));
+    return [...pref, ...rest].filter((a,i,arr) => arr.findIndex(x => x.iata===a.iata)===i).slice(0,6);
+  }
+
+  function openWith(text) {
+    const m = search(text);
+    setSuggestions(m); setOpen(m.length > 0); setActiveIndex(-1);
+    requestAnimationFrame(updatePosition);
+  }
+
+  function pick(airport) {
+    const display = formatValue ? formatValue(airport) : `${airport.city}, ${airport.state} (${airport.iata})`;
+    setQuery(display); setOpen(false); setSuggestions([]); setActiveIndex(-1);
+    onPick(airport);
+  }
+
+  function handleKeyDown(e) {
+    if (!open || !suggestions.length) return;
+    if (e.key === "ArrowDown") { e.preventDefault(); setActiveIndex(i => Math.min(i+1, suggestions.length-1)); }
+    if (e.key === "ArrowUp") { e.preventDefault(); setActiveIndex(i => Math.max(i-1, 0)); }
+    if (e.key === "Enter" && activeIndex >= 0) { e.preventDefault(); pick(suggestions[activeIndex]); }
+    if (e.key === "Escape") { setOpen(false); setActiveIndex(-1); }
+  }
+
+  useEffect(() => {
+    function handleDown(e) {
+      if (!wrapperRef.current?.contains(e.target) && !dropdownRef.current?.contains(e.target)) {
+        setOpen(false); setActiveIndex(-1);
+      }
+    }
+    document.addEventListener("pointerdown", handleDown);
+    return () => document.removeEventListener("pointerdown", handleDown);
+  }, []);
+
+  return (
+    <>
+      <div className="fw-field" ref={wrapperRef}>
+        <div className="fw-label">{label}</div>
+        <input className="fw-input" value={query} placeholder={placeholder} autoComplete="off"
+          onChange={e => { setQuery(e.target.value); onPick(null); openWith(e.target.value); }}
+          onFocus={() => openWith(query)}
+          onKeyDown={handleKeyDown} />
+      </div>
+      {isClient && open && suggestions.length > 0 && createPortal(
+        <div ref={dropdownRef} style={{...floatingStyle, background:"#0d1f35", border:"0.5px solid rgba(0,212,200,.35)", borderRadius:12, boxShadow:"0 18px 50px rgba(0,0,0,.85)", overflowY:"auto", overflowX:"hidden", boxSizing:"border-box"}}>
+          {suggestions.map((a, i) => (
+            <button key={a.iata} type="button" onPointerDown={e => { e.preventDefault(); pick(a); }}
+              style={{width:"100%", display:"flex", alignItems:"center", gap:10, padding:"11px 14px", background: i===activeIndex ? "rgba(0,212,200,.1)" : "transparent", border:"none", borderBottom:"0.5px solid rgba(255,255,255,.06)", textAlign:"left", cursor:"pointer"}}>
+              <span style={{fontSize:13, fontWeight:900, color:"#00d4c8", minWidth:36, fontFamily:"'Barlow Condensed',sans-serif"}}>{a.iata}</span>
+              <span style={{fontSize:12, color:"rgba(255,255,255,.72)"}}>{a.city}, {a.state} — {a.name}</span>
+            </button>
+          ))}
+        </div>,
+        document.body
+      )}
+    </>
+  );
+}
+
 function FlightSearch() {
-  const [originQ, setOriginQ] = useState("");
   const [originIata, setOriginIata] = useState(null);
-  const [originSug, setOriginSug] = useState([]);
-  const [showOriginSug, setShowOriginSug] = useState(false);
-
-  const [destQ, setDestQ] = useState("VPS · Destin FL");
   const [destIata, setDestIata] = useState("VPS");
-  const [destSug, setDestSug] = useState([]);
-  const [showDestSug, setShowDestSug] = useState(false);
-
   const [depDate, setDepDate] = useState("");
   const [retDate, setRetDate] = useState("");
   const [adults, setAdults] = useState(2);
@@ -934,54 +1059,11 @@ function FlightSearch() {
   const [cabin, setCabin] = useState("");
   const depRef = useRef(null);
   const retRef = useRef(null);
-  const destFieldRef = useRef(null);
-  const originFieldRef = useRef(null);
-
-  const DEST_DEFAULTS = [
-    {iata:"VPS",city:"Destin",state:"FL",name:"Destin-Fort Walton Beach"},
-    {iata:"PNS",city:"Pensacola",state:"FL",name:"Pensacola Intl"},
-    {iata:"ECP",city:"Panama City",state:"FL",name:"Northwest Florida Beaches Intl"},
-  ];
-
-  function filterAirports(val) {
-    if (val.length < 2) return [];
-    const q = val.toLowerCase();
-    return AIRPORTS.filter(a =>
-      a.iata.toLowerCase().startsWith(q) ||
-      a.city.toLowerCase().includes(q) ||
-      a.name.toLowerCase().includes(q) ||
-      a.state.toLowerCase().startsWith(q)
-    ).slice(0, 6);
-  }
-
-  function handleOriginQ(val) {
-    setOriginQ(val); setOriginIata(null);
-    const m = filterAirports(val);
-    setOriginSug(m); setShowOriginSug(m.length > 0);
-  }
-
-  function pickOrigin(a) {
-    setOriginQ(`${a.city}, ${a.state} (${a.iata})`); setOriginIata(a.iata);
-    setOriginSug([]); setShowOriginSug(false);
-  }
-
-  function handleDestQ(val) {
-    setDestQ(val); setDestIata(null);
-    if (val.length < 2) { setDestSug(DEST_DEFAULTS); setShowDestSug(true); return; }
-    const m = [...DEST_DEFAULTS.filter(a => a.city.toLowerCase().includes(val.toLowerCase()) || a.iata.toLowerCase().startsWith(val.toLowerCase())),
-               ...filterAirports(val).filter(a => !["VPS","PNS","ECP"].includes(a.iata))].slice(0, 6);
-    setDestSug(m); setShowDestSug(m.length > 0);
-  }
-
-  function pickDest(a) {
-    setDestQ(`${a.iata} · ${a.city}`); setDestIata(a.iata);
-    setDestSug([]); setShowDestSug(false);
-  }
 
   function chg(type, delta) {
-    if (type === "adults") setAdults(v => Math.max(1, v + delta));
-    if (type === "children") setChildren(v => Math.max(0, v + delta));
-    if (type === "infants") setInfants(v => Math.max(0, v + delta));
+    if (type==="adults") setAdults(v => Math.max(1,v+delta));
+    if (type==="children") setChildren(v => Math.max(0,v+delta));
+    if (type==="infants") setInfants(v => Math.max(0,v+delta));
   }
 
   function buildLink() {
@@ -989,11 +1071,11 @@ function FlightSearch() {
     const d = new Date(depDate), r = new Date(retDate);
     const dd = String(d.getUTCDate()).padStart(2,"0"), dm = String(d.getUTCMonth()+1).padStart(2,"0");
     const rd = String(r.getUTCDate()).padStart(2,"0"), rm = String(r.getUTCMonth()+1).padStart(2,"0");
-    const total = adults + children + infants;
+    const total = adults+children+infants;
     return `https://www.aviasales.com/search/${originIata}${dd}${dm}${destIata}${rd}${rm}${cabin}${total}?adults=${adults}&children=${children}&infants=${infants}&marker=709191`;
   }
 
-  const cabins = [{ code: "", label: "Economy" }, { code: "w", label: "Comfort+" }, { code: "c", label: "Business" }, { code: "f", label: "First" }];
+  const cabins = [{code:"",label:"Economy"},{code:"w",label:"Comfort+"},{code:"c",label:"Business"},{code:"f",label:"First"}];
   const link = buildLink();
 
   return (
@@ -1003,105 +1085,41 @@ function FlightSearch() {
         <span>Search Flights</span>
         <span className="fw-header-sub">Any destination · All airlines · Best prices</span>
       </div>
-
       <div className="fw-cabin-bar">
         {cabins.map(c => (
-          <button key={c.code} className={`fw-cabin-pill${cabin === c.code ? " active" : ""}`} onClick={() => setCabin(c.code)}>{c.label}</button>
+          <button key={c.code} type="button" className={`fw-cabin-pill${cabin===c.code?" active":""}`} onClick={() => setCabin(c.code)}>{c.label}</button>
         ))}
       </div>
-
       <div className="fw-fields-row">
-        <div className="fw-field" style={{position:"relative"}} ref={originFieldRef}>
-          <div className="fw-label">Flying from</div>
-          <input className="fw-input" placeholder="City or airport code" value={originQ}
-            onChange={e => handleOriginQ(e.target.value)}
-            onFocus={() => originSug.length > 0 && setShowOriginSug(true)}
-            onBlur={() => setTimeout(() => setShowOriginSug(false), 150)}
-            autoComplete="off" />
-          {showOriginSug && originFieldRef.current && typeof document !== "undefined" && createPortal(
-            <div style={{
-              position:"fixed",
-              top: originFieldRef.current.getBoundingClientRect().bottom + 4,
-              left: originFieldRef.current.getBoundingClientRect().left,
-              width: originFieldRef.current.getBoundingClientRect().width,
-              background:"#0d1f35",
-              border:"0.5px solid rgba(0,212,200,.3)",
-              borderRadius:10,
-              zIndex:99999,
-              boxShadow:"0 8px 32px rgba(0,0,0,.8)",
-              overflow:"hidden"
-            }}>
-              {originSug.map(a => (
-                <div key={a.iata} className="fw-sug-item" onMouseDown={() => pickOrigin(a)}>
-                  <span className="fw-sug-iata">{a.iata}</span>
-                  <span className="fw-sug-city">{a.city}, {a.state} — {a.name}</span>
-                </div>
-              ))}
-            </div>,
-            document.body
-          )}
-        </div>
-
-        <div className="fw-field" style={{position:"relative"}} ref={destFieldRef}>
-          <div className="fw-label">Flying to</div>
-          <input className="fw-input" placeholder="City or airport code" value={destQ}
-            onChange={e => handleDestQ(e.target.value)}
-            onFocus={() => { setDestSug(destQ.length < 2 ? DEST_DEFAULTS : filterAirports(destQ).slice(0,6)); setShowDestSug(true); }}
-            onBlur={() => setTimeout(() => setShowDestSug(false), 150)}
-            autoComplete="off" />
-          {showDestSug && destFieldRef.current && typeof document !== "undefined" && createPortal(
-            <div className="fw-suggestions-portal" style={{
-              position:"fixed",
-              top: destFieldRef.current.getBoundingClientRect().bottom + 4,
-              left: destFieldRef.current.getBoundingClientRect().left,
-              width: destFieldRef.current.getBoundingClientRect().width,
-              background:"#0d1f35",
-              border:"0.5px solid rgba(0,212,200,.3)",
-              borderRadius:10,
-              zIndex:99999,
-              boxShadow:"0 8px 32px rgba(0,0,0,.8)",
-              overflow:"hidden"
-            }}>
-              {destSug.map(a => (
-                <div key={a.iata} className="fw-sug-item" onMouseDown={() => pickDest(a)}>
-                  <span className="fw-sug-iata">{a.iata}</span>
-                  <span className="fw-sug-city">{a.city}, {a.state} — {a.name}</span>
-                </div>
-              ))}
-            </div>,
-            document.body
-          )}
-        </div>
+        <AirportAutocomplete label="Flying from" placeholder="City or airport code" initialValue="" options={AIRPORTS} onPick={a => setOriginIata(a?.iata||null)} />
+        <AirportAutocomplete label="Flying to" placeholder="City or airport code" initialValue="VPS · Destin FL" options={AIRPORTS} preferredOptions={DEST_DEFAULTS} onPick={a => setDestIata(a?.iata||null)} formatValue={a => `${a.iata} · ${a.city}`} />
       </div>
-
       <div className="fw-fields-row">
-        <div className="fw-field fw-date-field" onClick={() => depRef.current && depRef.current.showPicker && depRef.current.showPicker()}>
+        <div className="fw-field fw-date-field" onClick={() => depRef.current?.showPicker?.()}>
           <div className="fw-label">Depart</div>
           <div className="fw-date-display">{depDate ? new Date(depDate+"T12:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}) : "Select date"}</div>
           <input ref={depRef} type="date" className="fw-date-hidden" value={depDate} onChange={e => setDepDate(e.target.value)} />
         </div>
-        <div className="fw-field fw-date-field" onClick={() => retRef.current && retRef.current.showPicker && retRef.current.showPicker()}>
+        <div className="fw-field fw-date-field" onClick={() => retRef.current?.showPicker?.()}>
           <div className="fw-label">Return</div>
           <div className="fw-date-display">{retDate ? new Date(retDate+"T12:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}) : "Select date"}</div>
           <input ref={retRef} type="date" className="fw-date-hidden" value={retDate} onChange={e => setRetDate(e.target.value)} />
         </div>
       </div>
-
       <div className="fw-pax-row">
-        {[["Adults","12+",adults,"adults"],["Children","2–11",children,"children"],["Infants","<2 lap",infants,"infants"]].map(([label,sub,val,type]) => (
+        {[["Adults","12+",adults,"adults"],["Children","2-11",children,"children"],["Infants","<2 lap",infants,"infants"]].map(([label,sub,val,type]) => (
           <div key={type} className="fw-pax-box">
             <div className="fw-pax-label">{label}</div>
             <div className="fw-pax-sub">{sub}</div>
             <div className="fw-pax-ctrl">
-              <button className="fw-ctrl-btn" onClick={() => chg(type,-1)} disabled={val <= (type==="adults"?1:0)}>−</button>
+              <button type="button" className="fw-ctrl-btn" onClick={() => chg(type,-1)} disabled={val<=(type==="adults"?1:0)}>-</button>
               <span className="fw-pax-num">{val}</span>
-              <button className="fw-ctrl-btn" onClick={() => chg(type,1)}>+</button>
+              <button type="button" className="fw-ctrl-btn" onClick={() => chg(type,1)}>+</button>
             </div>
           </div>
         ))}
       </div>
-
-      <a className={`fw-search-btn${!link ? " disabled" : ""}`} href={link || "#"} target="_blank" rel="noopener noreferrer" onClick={e => { if (!link) e.preventDefault(); }}>
+      <a className={`fw-search-btn${!link?" disabled":""}`} href={link||"#"} target="_blank" rel="noopener noreferrer" onClick={e => { if(!link) e.preventDefault(); }}>
         Search Flights →
       </a>
       <div className="fw-powered">All airlines · Powered by Aviasales · Best prices guaranteed</div>

@@ -352,11 +352,13 @@ h1 span{color:var(--teal)}
 .ts-field{display:flex;flex-direction:column;gap:3px;padding:0 8px;}
 .ts-field+.ts-field{border-left:1px solid rgba(255,255,255,.1);}
 .ts-field-label{font-size:10px;font-weight:900;color:rgba(255,255,255,.4);letter-spacing:.08em;text-transform:uppercase;}
+.ts-field input[type=text]::placeholder{color:#fff;font-weight:700;}
 .ts-field select,.ts-field input[type=text]{
   background:transparent;border:none;outline:none;color:#fff;
   font-size:15px;font-weight:700;font-family:'Outfit',sans-serif;
   cursor:pointer;width:100%;
 }
+.ts-field select option:first-child{color:rgba(255,255,255,.45);}
 .ts-field select option{background:#04101d;color:#fff;}
 .ts-field input[type=text]{cursor:text;}
 .ts-field input[type=text]::placeholder{color:rgba(255,255,255,.35);font-weight:400;}
@@ -430,7 +432,7 @@ h1 span{color:var(--teal)}
       <div class="ts-field">
         <div class="ts-field-label">Experience</div>
         <select id="ts-category" onchange="tsUpdateDisplay()">
-          <option value="">All Activities</option>
+          <option value="" disabled selected>Choose activity</option>
           <option value="crab-island-tours-and-activities">🏝 Crab Island Tours</option>
           <option value="dolphin-cruises-and-tours">🐬 Dolphin Cruises</option>
           <option value="fishing-charters">🎣 Fishing Charters</option>
@@ -446,7 +448,7 @@ h1 span{color:var(--teal)}
       <div class="ts-field">
         <div class="ts-field-label">Trip Dates</div>
         <div style="position:relative;">
-          <input type="text" id="ts-dates-display" placeholder="Select dates" readonly onclick="tsOpenDates()" style="cursor:pointer;background:transparent;border:none;outline:none;color:#fff;font-size:15px;font-weight:700;font-family:'Outfit',sans-serif;width:100%;" />
+          <input type="text" id="ts-dates-display" placeholder="Select dates" style="cursor:pointer;background:transparent;border:none;outline:none;color:#fff;font-size:15px;font-weight:700;font-family:'Outfit',sans-serif;width:100%;" readonly onclick="tsOpenDates()" style="cursor:pointer;background:transparent;border:none;outline:none;color:#fff;font-size:15px;font-weight:700;font-family:'Outfit',sans-serif;width:100%;font-size:15px;" />
           <input type="date" id="ts-date-from" onchange="tsHandleFrom()" style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;pointer-events:none;" />
           <input type="date" id="ts-date-to" onchange="tsHandleTo()" style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;pointer-events:none;" />
         </div>
@@ -652,6 +654,16 @@ window.addEventListener('scroll', function(){
 <script>
 var tsFrom = '', tsTo = '', tsPicking = 'from';
 
+// Set min date to today in Central Time (Destin timezone)
+function getTodayCT() {
+  return new Date().toLocaleDateString('en-CA', { timeZone: 'America/Chicago' });
+}
+document.addEventListener('DOMContentLoaded', function() {
+  var today = getTodayCT();
+  document.getElementById('ts-date-from').min = today;
+  document.getElementById('ts-date-to').min = today;
+});
+
 function tsUpdateDisplay() {}
 
 function tsPick(el) {
@@ -711,6 +723,13 @@ function tsSearch() {
   if (tsTo)   params += '&to='   + tsFmt(tsTo);
   window.open(base + params, '_blank');
 }
+  // Force Select dates placeholder to match Choose activity
+  var datesInput = document.getElementById('ts-dates-display');
+  if (datesInput) {
+    var style = document.createElement('style');
+    style.innerHTML = '#ts-dates-display::placeholder{color:#fff!important;font-weight:700!important;font-size:15px!important;}';
+    document.head.appendChild(style);
+  }
 </script>
 </body>
 </html>

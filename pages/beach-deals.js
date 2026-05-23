@@ -915,39 +915,64 @@ const AIRPORTS = [
 ];
 
 function FlightSearch() {
-  const [origin, setOrigin] = useState({ iata: null, label: "" });
-  const [query, setQuery] = useState("");
-  const [suggestions, setSuggestions] = useState([]);
-  const [showSug, setShowSug] = useState(false);
+  const [originQ, setOriginQ] = useState("");
+  const [originIata, setOriginIata] = useState(null);
+  const [originSug, setOriginSug] = useState([]);
+  const [showOriginSug, setShowOriginSug] = useState(false);
+
+  const [destQ, setDestQ] = useState("VPS · Destin FL");
+  const [destIata, setDestIata] = useState("VPS");
+  const [destSug, setDestSug] = useState([]);
+  const [showDestSug, setShowDestSug] = useState(false);
+
   const [depDate, setDepDate] = useState("");
   const [retDate, setRetDate] = useState("");
   const [adults, setAdults] = useState(2);
   const [children, setChildren] = useState(0);
   const [infants, setInfants] = useState(0);
   const [cabin, setCabin] = useState("");
-  const [dest, setDest] = useState("VPS");
-  const inputRef = useRef(null);
+  const depRef = useRef(null);
+  const retRef = useRef(null);
 
-  function handleQuery(val) {
-    setQuery(val);
-    setOrigin({ iata: null, label: val });
-    if (val.length < 2) { setSuggestions([]); setShowSug(false); return; }
+  const DEST_DEFAULTS = [
+    {iata:"VPS",city:"Destin",state:"FL",name:"Destin-Fort Walton Beach"},
+    {iata:"PNS",city:"Pensacola",state:"FL",name:"Pensacola Intl"},
+    {iata:"ECP",city:"Panama City",state:"FL",name:"Northwest Florida Beaches Intl"},
+  ];
+
+  function filterAirports(val) {
+    if (val.length < 2) return [];
     const q = val.toLowerCase();
-    const matches = AIRPORTS.filter(a =>
+    return AIRPORTS.filter(a =>
       a.iata.toLowerCase().startsWith(q) ||
       a.city.toLowerCase().includes(q) ||
       a.name.toLowerCase().includes(q) ||
       a.state.toLowerCase().startsWith(q)
     ).slice(0, 6);
-    setSuggestions(matches);
-    setShowSug(matches.length > 0);
   }
 
-  function pickAirport(a) {
-    setOrigin({ iata: a.iata, label: `${a.city}, ${a.state} (${a.iata})` });
-    setQuery(`${a.city}, ${a.state} (${a.iata})`);
-    setSuggestions([]);
-    setShowSug(false);
+  function handleOriginQ(val) {
+    setOriginQ(val); setOriginIata(null);
+    const m = filterAirports(val);
+    setOriginSug(m); setShowOriginSug(m.length > 0);
+  }
+
+  function pickOrigin(a) {
+    setOriginQ(`${a.city}, ${a.state} (${a.iata})`); setOriginIata(a.iata);
+    setOriginSug([]); setShowOriginSug(false);
+  }
+
+  function handleDestQ(val) {
+    setDestQ(val); setDestIata(null);
+    if (val.length < 2) { setDestSug(DEST_DEFAULTS); setShowDestSug(true); return; }
+    const m = [...DEST_DEFAULTS.filter(a => a.city.toLowerCase().includes(val.toLowerCase()) || a.iata.toLowerCase().startsWith(val.toLowerCase())),
+               ...filterAirports(val).filter(a => !["VPS","PNS","ECP"].includes(a.iata))].slice(0, 6);
+    setDestSug(m); setShowDestSug(m.length > 0);
+  }
+
+  function pickDest(a) {
+    setDestQ(`${a.iata} · ${a.city}`); setDestIata(a.iata);
+    setDestSug([]); setShowDestSug(false);
   }
 
   function chg(type, delta) {
@@ -957,23 +982,23 @@ function FlightSearch() {
   }
 
   function buildLink() {
-    if (!origin.iata || !depDate || !retDate) return null;
+    if (!originIata || !destIata || !depDate || !retDate) return null;
     const d = new Date(depDate), r = new Date(retDate);
     const dd = String(d.getUTCDate()).padStart(2,"0"), dm = String(d.getUTCMonth()+1).padStart(2,"0");
     const rd = String(r.getUTCDate()).padStart(2,"0"), rm = String(r.getUTCMonth()+1).padStart(2,"0");
     const total = adults + children + infants;
-    return `https://www.aviasales.com/search/${origin.iata}${dd}${dm}${dest}${rd}${rm}${cabin}${total}?adults=${adults}&children=${children}&infants=${infants}&marker=709191`;
+    return `https://www.aviasales.com/search/${originIata}${dd}${dm}${destIata}${rd}${rm}${cabin}${total}?adults=${adults}&children=${children}&infants=${infants}&marker=709191`;
   }
 
-  const destLabels = { VPS: "VPS · Destin (35 min)", PNS: "PNS · Pensacola (1h 20min)", ECP: "ECP · Panama City (1h 10min)" };
   const cabins = [{ code: "", label: "Economy" }, { code: "w", label: "Comfort+" }, { code: "c", label: "Business" }, { code: "f", label: "First" }];
   const link = buildLink();
 
   return (
     <div className="flight-widget">
       <div className="fw-header">
-        <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" strokeWidth="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-        <span>Find Flights to Destin</span>
+        <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" strokeWidth="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+        <span>Search Flights</span>
+        <span className="fw-header-sub">Any destination · All airlines · Best prices</span>
       </div>
 
       <div className="fw-cabin-bar">
@@ -983,22 +1008,17 @@ function FlightSearch() {
       </div>
 
       <div className="fw-fields-row">
-        <div className="fw-field fw-origin" style={{position:"relative"}}>
+        <div className="fw-field" style={{position:"relative"}}>
           <div className="fw-label">Flying from</div>
-          <input
-            ref={inputRef}
-            className="fw-input"
-            placeholder="City or airport code"
-            value={query}
-            onChange={e => handleQuery(e.target.value)}
-            onFocus={() => suggestions.length > 0 && setShowSug(true)}
-            onBlur={() => setTimeout(() => setShowSug(false), 150)}
-            autoComplete="off"
-          />
-          {showSug && (
+          <input className="fw-input" placeholder="City or airport code" value={originQ}
+            onChange={e => handleOriginQ(e.target.value)}
+            onFocus={() => originSug.length > 0 && setShowOriginSug(true)}
+            onBlur={() => setTimeout(() => setShowOriginSug(false), 150)}
+            autoComplete="off" />
+          {showOriginSug && (
             <div className="fw-suggestions">
-              {suggestions.map(a => (
-                <div key={a.iata} className="fw-sug-item" onMouseDown={() => pickAirport(a)}>
+              {originSug.map(a => (
+                <div key={a.iata} className="fw-sug-item" onMouseDown={() => pickOrigin(a)}>
                   <span className="fw-sug-iata">{a.iata}</span>
                   <span className="fw-sug-city">{a.city}, {a.state} — {a.name}</span>
                 </div>
@@ -1007,24 +1027,36 @@ function FlightSearch() {
           )}
         </div>
 
-        <div className="fw-field fw-dest">
+        <div className="fw-field" style={{position:"relative"}}>
           <div className="fw-label">Flying to</div>
-          <select className="fw-select" value={dest} onChange={e => setDest(e.target.value)}>
-            <option value="VPS">VPS · Destin (35 min)</option>
-            <option value="PNS">PNS · Pensacola (1h 20min)</option>
-            <option value="ECP">ECP · Panama City (1h 10min)</option>
-          </select>
+          <input className="fw-input" placeholder="City or airport code" value={destQ}
+            onChange={e => handleDestQ(e.target.value)}
+            onFocus={() => { setDestSug(destQ.length < 2 ? DEST_DEFAULTS : filterAirports(destQ).slice(0,6)); setShowDestSug(true); }}
+            onBlur={() => setTimeout(() => setShowDestSug(false), 150)}
+            autoComplete="off" />
+          {showDestSug && (
+            <div className="fw-suggestions">
+              {destSug.map(a => (
+                <div key={a.iata} className="fw-sug-item" onMouseDown={() => pickDest(a)}>
+                  <span className="fw-sug-iata">{a.iata}</span>
+                  <span className="fw-sug-city">{a.city}, {a.state} — {a.name}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
       <div className="fw-fields-row">
-        <div className="fw-field">
+        <div className="fw-field fw-date-field" onClick={() => depRef.current && depRef.current.showPicker && depRef.current.showPicker()}>
           <div className="fw-label">Depart</div>
-          <input type="date" className="fw-input" value={depDate} onChange={e => setDepDate(e.target.value)} />
+          <div className="fw-date-display">{depDate ? new Date(depDate+"T12:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}) : "Select date"}</div>
+          <input ref={depRef} type="date" className="fw-date-hidden" value={depDate} onChange={e => setDepDate(e.target.value)} />
         </div>
-        <div className="fw-field">
+        <div className="fw-field fw-date-field" onClick={() => retRef.current && retRef.current.showPicker && retRef.current.showPicker()}>
           <div className="fw-label">Return</div>
-          <input type="date" className="fw-input" value={retDate} onChange={e => setRetDate(e.target.value)} />
+          <div className="fw-date-display">{retDate ? new Date(retDate+"T12:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}) : "Select date"}</div>
+          <input ref={retRef} type="date" className="fw-date-hidden" value={retDate} onChange={e => setRetDate(e.target.value)} />
         </div>
       </div>
 
@@ -1042,16 +1074,10 @@ function FlightSearch() {
         ))}
       </div>
 
-      <a
-        className={`fw-search-btn${!link ? " disabled" : ""}`}
-        href={link || "#"}
-        target="_blank"
-        rel="noopener noreferrer"
-        onClick={e => { if (!link) e.preventDefault(); }}
-      >
+      <a className={`fw-search-btn${!link ? " disabled" : ""}`} href={link || "#"} target="_blank" rel="noopener noreferrer" onClick={e => { if (!link) e.preventDefault(); }}>
         Search Flights →
       </a>
-      <div className="fw-powered">Searches all airlines · Best prices via Aviasales</div>
+      <div className="fw-powered">All airlines · Powered by Aviasales · Best prices guaranteed</div>
     </div>
   );
 }
@@ -1557,8 +1583,9 @@ export default function BeachDeals({ deals }) {
         .btn-load-more { background: transparent; border: 1.5px solid var(--teal); color: var(--teal); font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:700; letter-spacing:1px; text-transform:uppercase; padding:12px 36px; border-radius:10px; cursor:pointer; transition:background 0.2s,transform 0.15s; }
         .btn-load-more:hover { background:rgba(0,212,200,0.1); transform:translateY(-1px); }
 
-        .flight-widget { background:rgba(255,255,255,.04); border:0.5px solid rgba(0,212,200,.25); border-radius:14px; padding:20px; margin-bottom:28px; }
-        .fw-header { display:flex; align-items:center; gap:10px; font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:900; color:#fff; letter-spacing:.04em; margin-bottom:16px; }
+        .flight-widget { background:rgba(2,11,24,.92); border:1px solid rgba(0,212,200,.35); border-radius:14px; padding:20px; margin-bottom:28px; backdrop-filter:blur(8px); }
+        .fw-header { display:flex; align-items:center; gap:10px; font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:900; color:#fff; letter-spacing:.04em; margin-bottom:16px; flex-wrap:wrap; }
+        .fw-header-sub { font-size:12px; font-weight:400; color:rgba(255,255,255,.4); letter-spacing:.02em; margin-left:4px; }
         .fw-cabin-bar { display:flex; gap:6px; margin-bottom:14px; }
         .fw-cabin-pill { flex:1; text-align:center; padding:8px 0; border-radius:30px; border:0.5px solid rgba(255,255,255,.15); color:rgba(255,255,255,.45); font-size:12px; font-weight:700; cursor:pointer; letter-spacing:.04em; background:transparent; transition:all .15s; }
         .fw-cabin-pill:hover { border-color:rgba(0,212,200,.4); color:rgba(255,255,255,.75); }
@@ -1588,6 +1615,10 @@ export default function BeachDeals({ deals }) {
         .fw-search-btn { display:block; background:var(--teal); color:#020b18; font-size:15px; font-weight:900; padding:15px; border-radius:10px; width:100%; text-align:center; cursor:pointer; letter-spacing:.04em; text-decoration:none; font-family:'Barlow Condensed',sans-serif; box-sizing:border-box; }
         .fw-search-btn.disabled { opacity:.45; cursor:not-allowed; }
         .fw-search-btn:hover:not(.disabled) { background:#00bfb4; }
+        .fw-date-field { cursor:pointer; }
+        .fw-date-display { font-size:14px; font-weight:700; color:#fff; font-family:'Barlow Condensed',sans-serif; }
+        .fw-date-field:hover .fw-date-display { color:var(--teal); }
+        .fw-date-hidden { position:absolute; opacity:0; width:0; height:0; pointer-events:none; }
         .fw-powered { font-size:10px; color:rgba(255,255,255,.2); text-align:center; margin-top:8px; letter-spacing:.04em; }
         .seo-intro { margin-bottom:24px; padding:16px 20px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:12px; font-size:14px; color:rgba(255,255,255,0.55); line-height:1.7; }
         .seo-intro strong { color:rgba(255,255,255,0.8); }

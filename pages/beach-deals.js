@@ -846,6 +846,216 @@ function NoDeals() {
 }
 
 // ── Page ──────────────────────────────────────────────────────────────────────
+
+const AIRPORTS = [
+  {iata:"ATL",city:"Atlanta",state:"GA",name:"Hartsfield-Jackson Atlanta Intl"},
+  {iata:"LAX",city:"Los Angeles",state:"CA",name:"Los Angeles Intl"},
+  {iata:"DFW",city:"Dallas",state:"TX",name:"Dallas/Fort Worth Intl"},
+  {iata:"DEN",city:"Denver",state:"CO",name:"Denver Intl"},
+  {iata:"ORD",city:"Chicago",state:"IL",name:"O'Hare Intl"},
+  {iata:"JFK",city:"New York",state:"NY",name:"John F. Kennedy Intl"},
+  {iata:"MCO",city:"Orlando",state:"FL",name:"Orlando Intl"},
+  {iata:"LAS",city:"Las Vegas",state:"NV",name:"Harry Reid Intl"},
+  {iata:"CLT",city:"Charlotte",state:"NC",name:"Charlotte Douglas Intl"},
+  {iata:"MIA",city:"Miami",state:"FL",name:"Miami Intl"},
+  {iata:"SEA",city:"Seattle",state:"WA",name:"Seattle-Tacoma Intl"},
+  {iata:"PHX",city:"Phoenix",state:"AZ",name:"Phoenix Sky Harbor Intl"},
+  {iata:"EWR",city:"Newark",state:"NJ",name:"Newark Liberty Intl"},
+  {iata:"SFO",city:"San Francisco",state:"CA",name:"San Francisco Intl"},
+  {iata:"IAH",city:"Houston",state:"TX",name:"George Bush Intercontinental"},
+  {iata:"BOS",city:"Boston",state:"MA",name:"Logan Intl"},
+  {iata:"MSP",city:"Minneapolis",state:"MN",name:"Minneapolis-St. Paul Intl"},
+  {iata:"FLL",city:"Fort Lauderdale",state:"FL",name:"Fort Lauderdale-Hollywood Intl"},
+  {iata:"DTW",city:"Detroit",state:"MI",name:"Detroit Metropolitan Wayne County"},
+  {iata:"PHL",city:"Philadelphia",state:"PA",name:"Philadelphia Intl"},
+  {iata:"LGA",city:"New York",state:"NY",name:"LaGuardia"},
+  {iata:"IAD",city:"Washington",state:"DC",name:"Dulles Intl"},
+  {iata:"DCA",city:"Washington",state:"DC",name:"Ronald Reagan Washington National"},
+  {iata:"MDW",city:"Chicago",state:"IL",name:"Midway Intl"},
+  {iata:"DAL",city:"Dallas",state:"TX",name:"Love Field"},
+  {iata:"BNA",city:"Nashville",state:"TN",name:"Nashville Intl"},
+  {iata:"AUS",city:"Austin",state:"TX",name:"Austin-Bergstrom Intl"},
+  {iata:"SLC",city:"Salt Lake City",state:"UT",name:"Salt Lake City Intl"},
+  {iata:"SAN",city:"San Diego",state:"CA",name:"San Diego Intl"},
+  {iata:"HOU",city:"Houston",state:"TX",name:"William P. Hobby"},
+  {iata:"PDX",city:"Portland",state:"OR",name:"Portland Intl"},
+  {iata:"BWI",city:"Baltimore",state:"MD",name:"Baltimore/Washington Intl"},
+  {iata:"STL",city:"St. Louis",state:"MO",name:"St. Louis Lambert Intl"},
+  {iata:"MCI",city:"Kansas City",state:"MO",name:"Kansas City Intl"},
+  {iata:"RDU",city:"Raleigh",state:"NC",name:"Raleigh-Durham Intl"},
+  {iata:"TPA",city:"Tampa",state:"FL",name:"Tampa Intl"},
+  {iata:"IND",city:"Indianapolis",state:"IN",name:"Indianapolis Intl"},
+  {iata:"CVG",city:"Cincinnati",state:"OH",name:"Cincinnati/Northern Kentucky Intl"},
+  {iata:"CMH",city:"Columbus",state:"OH",name:"John Glenn Columbus Intl"},
+  {iata:"CLE",city:"Cleveland",state:"OH",name:"Cleveland Hopkins Intl"},
+  {iata:"PIT",city:"Pittsburgh",state:"PA",name:"Pittsburgh Intl"},
+  {iata:"MSY",city:"New Orleans",state:"LA",name:"Louis Armstrong New Orleans Intl"},
+  {iata:"MEM",city:"Memphis",state:"TN",name:"Memphis Intl"},
+  {iata:"JAX",city:"Jacksonville",state:"FL",name:"Jacksonville Intl"},
+  {iata:"SAT",city:"San Antonio",state:"TX",name:"San Antonio Intl"},
+  {iata:"OKC",city:"Oklahoma City",state:"OK",name:"Will Rogers World"},
+  {iata:"TUL",city:"Tulsa",state:"OK",name:"Tulsa Intl"},
+  {iata:"BHM",city:"Birmingham",state:"AL",name:"Birmingham-Shuttlesworth Intl"},
+  {iata:"LIT",city:"Little Rock",state:"AR",name:"Bill and Hillary Clinton National"},
+  {iata:"BTR",city:"Baton Rouge",state:"LA",name:"Baton Rouge Metropolitan"},
+  {iata:"LEX",city:"Lexington",state:"KY",name:"Blue Grass"},
+  {iata:"TYS",city:"Knoxville",state:"TN",name:"McGhee Tyson"},
+  {iata:"RIC",city:"Richmond",state:"VA",name:"Richmond Intl"},
+  {iata:"SDF",city:"Louisville",state:"KY",name:"Louisville Muhammad Ali Intl"},
+  {iata:"OMA",city:"Omaha",state:"NE",name:"Eppley Airfield"},
+  {iata:"MKE",city:"Milwaukee",state:"WI",name:"Milwaukee Mitchell Intl"},
+  {iata:"ABQ",city:"Albuquerque",state:"NM",name:"Albuquerque Intl Sunport"},
+  {iata:"SMF",city:"Sacramento",state:"CA",name:"Sacramento Intl"},
+  {iata:"BDL",city:"Hartford",state:"CT",name:"Bradley Intl"},
+  {iata:"GRR",city:"Grand Rapids",state:"MI",name:"Gerald R. Ford Intl"},
+  {iata:"DSM",city:"Des Moines",state:"IA",name:"Des Moines Intl"},
+  {iata:"OGG",city:"Maui",state:"HI",name:"Kahului"},
+  {iata:"HNL",city:"Honolulu",state:"HI",name:"Daniel K. Inouye Intl"},
+  {iata:"ANC",city:"Anchorage",state:"AK",name:"Ted Stevens Anchorage Intl"},
+];
+
+function FlightSearch() {
+  const [origin, setOrigin] = useState({ iata: null, label: "" });
+  const [query, setQuery] = useState("");
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSug, setShowSug] = useState(false);
+  const [depDate, setDepDate] = useState("");
+  const [retDate, setRetDate] = useState("");
+  const [adults, setAdults] = useState(2);
+  const [children, setChildren] = useState(0);
+  const [infants, setInfants] = useState(0);
+  const [cabin, setCabin] = useState("");
+  const [dest, setDest] = useState("VPS");
+  const inputRef = useRef(null);
+
+  function handleQuery(val) {
+    setQuery(val);
+    setOrigin({ iata: null, label: val });
+    if (val.length < 2) { setSuggestions([]); setShowSug(false); return; }
+    const q = val.toLowerCase();
+    const matches = AIRPORTS.filter(a =>
+      a.iata.toLowerCase().startsWith(q) ||
+      a.city.toLowerCase().includes(q) ||
+      a.name.toLowerCase().includes(q) ||
+      a.state.toLowerCase().startsWith(q)
+    ).slice(0, 6);
+    setSuggestions(matches);
+    setShowSug(matches.length > 0);
+  }
+
+  function pickAirport(a) {
+    setOrigin({ iata: a.iata, label: `${a.city}, ${a.state} (${a.iata})` });
+    setQuery(`${a.city}, ${a.state} (${a.iata})`);
+    setSuggestions([]);
+    setShowSug(false);
+  }
+
+  function chg(type, delta) {
+    if (type === "adults") setAdults(v => Math.max(1, v + delta));
+    if (type === "children") setChildren(v => Math.max(0, v + delta));
+    if (type === "infants") setInfants(v => Math.max(0, v + delta));
+  }
+
+  function buildLink() {
+    if (!origin.iata || !depDate || !retDate) return null;
+    const d = new Date(depDate), r = new Date(retDate);
+    const dd = String(d.getUTCDate()).padStart(2,"0"), dm = String(d.getUTCMonth()+1).padStart(2,"0");
+    const rd = String(r.getUTCDate()).padStart(2,"0"), rm = String(r.getUTCMonth()+1).padStart(2,"0");
+    const total = adults + children + infants;
+    return `https://www.aviasales.com/search/${origin.iata}${dd}${dm}${dest}${rd}${rm}${cabin}${total}?adults=${adults}&children=${children}&infants=${infants}&marker=709191`;
+  }
+
+  const destLabels = { VPS: "VPS · Destin (35 min)", PNS: "PNS · Pensacola (1h 20min)", ECP: "ECP · Panama City (1h 10min)" };
+  const cabins = [{ code: "", label: "Economy" }, { code: "w", label: "Comfort+" }, { code: "c", label: "Business" }, { code: "f", label: "First" }];
+  const link = buildLink();
+
+  return (
+    <div className="flight-widget">
+      <div className="fw-header">
+        <svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" strokeWidth="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+        <span>Find Flights to Destin</span>
+      </div>
+
+      <div className="fw-cabin-bar">
+        {cabins.map(c => (
+          <button key={c.code} className={`fw-cabin-pill${cabin === c.code ? " active" : ""}`} onClick={() => setCabin(c.code)}>{c.label}</button>
+        ))}
+      </div>
+
+      <div className="fw-fields-row">
+        <div className="fw-field fw-origin" style={{position:"relative"}}>
+          <div className="fw-label">Flying from</div>
+          <input
+            ref={inputRef}
+            className="fw-input"
+            placeholder="City or airport code"
+            value={query}
+            onChange={e => handleQuery(e.target.value)}
+            onFocus={() => suggestions.length > 0 && setShowSug(true)}
+            onBlur={() => setTimeout(() => setShowSug(false), 150)}
+            autoComplete="off"
+          />
+          {showSug && (
+            <div className="fw-suggestions">
+              {suggestions.map(a => (
+                <div key={a.iata} className="fw-sug-item" onMouseDown={() => pickAirport(a)}>
+                  <span className="fw-sug-iata">{a.iata}</span>
+                  <span className="fw-sug-city">{a.city}, {a.state} — {a.name}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="fw-field fw-dest">
+          <div className="fw-label">Flying to</div>
+          <select className="fw-select" value={dest} onChange={e => setDest(e.target.value)}>
+            <option value="VPS">VPS · Destin (35 min)</option>
+            <option value="PNS">PNS · Pensacola (1h 20min)</option>
+            <option value="ECP">ECP · Panama City (1h 10min)</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="fw-fields-row">
+        <div className="fw-field">
+          <div className="fw-label">Depart</div>
+          <input type="date" className="fw-input" value={depDate} onChange={e => setDepDate(e.target.value)} />
+        </div>
+        <div className="fw-field">
+          <div className="fw-label">Return</div>
+          <input type="date" className="fw-input" value={retDate} onChange={e => setRetDate(e.target.value)} />
+        </div>
+      </div>
+
+      <div className="fw-pax-row">
+        {[["Adults","12+",adults,"adults"],["Children","2–11",children,"children"],["Infants","<2 lap",infants,"infants"]].map(([label,sub,val,type]) => (
+          <div key={type} className="fw-pax-box">
+            <div className="fw-pax-label">{label}</div>
+            <div className="fw-pax-sub">{sub}</div>
+            <div className="fw-pax-ctrl">
+              <button className="fw-ctrl-btn" onClick={() => chg(type,-1)} disabled={val <= (type==="adults"?1:0)}>−</button>
+              <span className="fw-pax-num">{val}</span>
+              <button className="fw-ctrl-btn" onClick={() => chg(type,1)}>+</button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <a
+        className={`fw-search-btn${!link ? " disabled" : ""}`}
+        href={link || "#"}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={e => { if (!link) e.preventDefault(); }}
+      >
+        Search Flights →
+      </a>
+      <div className="fw-powered">Searches all airlines · Best prices via Aviasales</div>
+    </div>
+  );
+}
+
 export default function BeachDeals({ deals }) {
   const schemas    = buildSchema(deals);
   const hasDeals   = deals && deals.length > 0;
@@ -981,6 +1191,10 @@ export default function BeachDeals({ deals }) {
           <div className="amenity-item"><div className="amenity-icon">🏊</div><span className="amenity-text">3 outdoor · 1 indoor pool</span></div>
           <div className="amenity-item"><div className="amenity-icon">♨️</div><span className="amenity-text">2 hot tubs</span></div>
         </div>
+
+
+        {/* ── FLIGHT SEARCH WIDGET ─────────────────────────────────────── */}
+        <FlightSearch />
 
         <div id="current-drops" className="section-label">Current Featured Drops</div>
 
@@ -1342,6 +1556,39 @@ export default function BeachDeals({ deals }) {
         .btn-main:hover { transform:translateY(-2px); box-shadow:0 8px 32px rgba(57,255,20,0.55); }
         .btn-load-more { background: transparent; border: 1.5px solid var(--teal); color: var(--teal); font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:700; letter-spacing:1px; text-transform:uppercase; padding:12px 36px; border-radius:10px; cursor:pointer; transition:background 0.2s,transform 0.15s; }
         .btn-load-more:hover { background:rgba(0,212,200,0.1); transform:translateY(-1px); }
+
+        .flight-widget { background:rgba(255,255,255,.04); border:0.5px solid rgba(0,212,200,.25); border-radius:14px; padding:20px; margin-bottom:28px; }
+        .fw-header { display:flex; align-items:center; gap:10px; font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:900; color:#fff; letter-spacing:.04em; margin-bottom:16px; }
+        .fw-cabin-bar { display:flex; gap:6px; margin-bottom:14px; }
+        .fw-cabin-pill { flex:1; text-align:center; padding:8px 0; border-radius:30px; border:0.5px solid rgba(255,255,255,.15); color:rgba(255,255,255,.45); font-size:12px; font-weight:700; cursor:pointer; letter-spacing:.04em; background:transparent; transition:all .15s; }
+        .fw-cabin-pill:hover { border-color:rgba(0,212,200,.4); color:rgba(255,255,255,.75); }
+        .fw-cabin-pill.active { background:var(--teal); color:#020b18; border-color:var(--teal); }
+        .fw-fields-row { display:grid; grid-template-columns:1.3fr 1fr; gap:10px; margin-bottom:10px; }
+        .fw-field { background:rgba(255,255,255,.06); border:0.5px solid rgba(255,255,255,.12); border-radius:10px; padding:11px 14px; position:relative; }
+        .fw-label { font-size:10px; color:rgba(255,255,255,.4); font-weight:700; letter-spacing:.07em; text-transform:uppercase; margin-bottom:4px; }
+        .fw-input { background:transparent; border:none; color:#fff; font-size:14px; font-weight:700; width:100%; outline:none; font-family:'Barlow Condensed',sans-serif; }
+        .fw-input::placeholder { color:rgba(255,255,255,.3); font-weight:400; }
+        .fw-select { background:transparent; border:none; color:var(--teal); font-size:14px; font-weight:700; width:100%; outline:none; font-family:'Barlow Condensed',sans-serif; cursor:pointer; }
+        .fw-select option { background:#0a1e35; color:#fff; }
+        .fw-suggestions { position:absolute; top:100%; left:0; right:0; background:#0d1f35; border:0.5px solid rgba(0,212,200,.3); border-radius:10px; z-index:100; overflow:hidden; margin-top:4px; }
+        .fw-sug-item { display:flex; align-items:center; gap:10px; padding:10px 14px; cursor:pointer; border-bottom:0.5px solid rgba(255,255,255,.06); }
+        .fw-sug-item:last-child { border-bottom:none; }
+        .fw-sug-item:hover { background:rgba(0,212,200,.08); }
+        .fw-sug-iata { font-size:13px; font-weight:900; color:var(--teal); min-width:36px; font-family:'Barlow Condensed',sans-serif; }
+        .fw-sug-city { font-size:12px; color:rgba(255,255,255,.65); }
+        .fw-pax-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:14px; }
+        .fw-pax-box { background:rgba(255,255,255,.06); border:0.5px solid rgba(255,255,255,.12); border-radius:10px; padding:11px 14px; }
+        .fw-pax-label { font-size:11px; color:#fff; font-weight:700; letter-spacing:.03em; }
+        .fw-pax-sub { font-size:10px; color:rgba(255,255,255,.3); margin-bottom:8px; }
+        .fw-pax-ctrl { display:flex; align-items:center; justify-content:space-between; }
+        .fw-ctrl-btn { width:26px; height:26px; border-radius:50%; border:0.5px solid rgba(255,255,255,.25); background:transparent; color:#fff; font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; line-height:1; }
+        .fw-ctrl-btn:hover:not(:disabled) { border-color:var(--teal); color:var(--teal); }
+        .fw-ctrl-btn:disabled { opacity:.2; cursor:not-allowed; }
+        .fw-pax-num { font-size:20px; font-weight:900; color:#fff; font-family:'Barlow Condensed',sans-serif; }
+        .fw-search-btn { display:block; background:var(--teal); color:#020b18; font-size:15px; font-weight:900; padding:15px; border-radius:10px; width:100%; text-align:center; cursor:pointer; letter-spacing:.04em; text-decoration:none; font-family:'Barlow Condensed',sans-serif; box-sizing:border-box; }
+        .fw-search-btn.disabled { opacity:.45; cursor:not-allowed; }
+        .fw-search-btn:hover:not(.disabled) { background:#00bfb4; }
+        .fw-powered { font-size:10px; color:rgba(255,255,255,.2); text-align:center; margin-top:8px; letter-spacing:.04em; }
         .seo-intro { margin-bottom:24px; padding:16px 20px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:12px; font-size:14px; color:rgba(255,255,255,0.55); line-height:1.7; }
         .seo-intro strong { color:rgba(255,255,255,0.8); }
         .seo-faq { margin-top:48px; border-top:1px solid rgba(255,255,255,0.08); padding-top:36px; }

@@ -671,15 +671,9 @@ function tsPick(el) {
 }
 
 function tsOpenDates() {
-  if (!tsFrom) {
-    tsPicking = 'from';
-    tsPick(document.getElementById('ts-date-from'));
-  } else {
-    tsPicking = 'to';
-    var toEl = document.getElementById('ts-date-to');
-    toEl.min = tsFrom;
-    tsPick(toEl);
-  }
+  // Always open FROM so user can reset start date
+  tsPicking = 'from';
+  tsPick(document.getElementById('ts-date-from'));
 }
 
 function tsHandleFrom() {

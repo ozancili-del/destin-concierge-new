@@ -1637,7 +1637,8 @@ export default function BeachDeals({ deals }) {
         .btn-load-more { background: transparent; border: 1.5px solid var(--teal); color: var(--teal); font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:700; letter-spacing:1px; text-transform:uppercase; padding:12px 36px; border-radius:10px; cursor:pointer; transition:background 0.2s,transform 0.15s; }
         .btn-load-more:hover { background:rgba(0,212,200,0.1); transform:translateY(-1px); }
 
-        .flight-widget { background:rgba(2,11,24,.95); border:1px solid rgba(0,212,200,.35); border-radius:14px; padding:20px; margin-bottom:28px; }
+        .flight-widget { background-image:url('/flight-search-bg.jpg'); background-size:cover; background-position:left center; border:1px solid rgba(0,212,200,.35); border-radius:14px; padding:20px; margin-bottom:28px; overflow:hidden; position:relative; }
+        .flight-widget::before { content:''; position:absolute; inset:0; background:linear-gradient(to right, rgba(2,11,24,.15) 0%, rgba(2,11,24,.05) 40%, rgba(2,11,24,.0) 100%); border-radius:14px; pointer-events:none; }
         .fw-header { display:flex; align-items:center; gap:10px; font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:900; color:#fff; letter-spacing:.04em; margin-bottom:16px; flex-wrap:wrap; }
         .fw-header-sub { font-size:12px; font-weight:400; color:rgba(255,255,255,.4); letter-spacing:.02em; margin-left:4px; }
         .fw-cabin-bar { display:flex; gap:6px; margin-bottom:14px; }

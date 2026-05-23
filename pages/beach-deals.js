@@ -1276,7 +1276,17 @@ export default function BeachDeals({ deals }) {
         {/* ── FLIGHT SEARCH WIDGET ─────────────────────────────────────── */}
         <FlightSearch />
 
-        <div id="current-drops" className="section-label">Current Featured Drops</div>
+        <div id="current-drops" className="drops-banner">
+          <div className="drops-banner-left">
+            <div className="drops-banner-tag">📉 Live · Updated daily</div>
+            <div className="drops-banner-title">Current <span>Featured Drops</span></div>
+            <div className="drops-banner-sub">Two Gulf-front condos · Pelican Beach Resort, Destin FL · Direct booking saves 10–20%</div>
+          </div>
+          <div className="drops-banner-right">
+            <div className="drops-banner-num">{deals && deals.length > 0 ? Math.max(...deals.map(d => d.dropPct || 0)) + "%" : "—"}</div>
+            <div className="drops-banner-num-lbl">Max drop today</div>
+          </div>
+        </div>
 
         {/* SEO intro — visible text for Google */}
         <div className="seo-intro">
@@ -1552,6 +1562,15 @@ export default function BeachDeals({ deals }) {
         .amenity-text { font-size:12px; color:rgba(255,255,255,0.65); line-height:1.3; }
         @media (max-width:600px) { .amenities-grid { grid-template-columns:repeat(2,1fr); } }
         .section-label { font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:rgba(255,255,255,0.4); text-align:center; margin-bottom:20px; }
+        .drops-banner { background:linear-gradient(90deg, rgba(0,212,200,.08), rgba(255,209,102,.05)); border:0.5px solid rgba(0,212,200,.2); border-radius:12px; padding:18px 22px; display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:20px; }
+        .drops-banner-left {}
+        .drops-banner-tag { font-size:10px; color:#00d4c8; font-weight:700; letter-spacing:.1em; text-transform:uppercase; margin-bottom:4px; }
+        .drops-banner-title { font-family:'Barlow Condensed',sans-serif; font-size:28px; font-weight:900; color:#fff; line-height:1; }
+        .drops-banner-title span { color:#ffd166; }
+        .drops-banner-sub { font-size:12px; color:rgba(255,255,255,.45); margin-top:4px; }
+        .drops-banner-right { text-align:right; flex-shrink:0; }
+        .drops-banner-num { font-family:'Barlow Condensed',sans-serif; font-size:48px; font-weight:900; color:#ffd166; line-height:1; }
+        .drops-banner-num-lbl { font-size:10px; color:rgba(255,255,255,.4); letter-spacing:.05em; text-transform:uppercase; margin-top:2px; }
         .deals-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; overflow:visible; }
         .deal-card { background:var(--card-bg); border:1.5px solid var(--card-border); border-radius:16px; backdrop-filter:blur(12px); box-shadow:0 8px 32px rgba(0,0,0,0.5); transition:transform 0.25s ease,box-shadow 0.25s ease,border-color 0.25s ease; animation:fadeUp 0.5s ease both; position:relative; }
         .deal-card .card-photo-wrap { overflow:hidden; border-radius:16px 16px 0 0; }

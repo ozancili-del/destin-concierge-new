@@ -1583,27 +1583,27 @@ export default function BeachDeals({ deals }) {
         .btn-load-more { background: transparent; border: 1.5px solid var(--teal); color: var(--teal); font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:700; letter-spacing:1px; text-transform:uppercase; padding:12px 36px; border-radius:10px; cursor:pointer; transition:background 0.2s,transform 0.15s; }
         .btn-load-more:hover { background:rgba(0,212,200,0.1); transform:translateY(-1px); }
 
-        .flight-widget { background:rgba(2,11,24,.92); border:1px solid rgba(0,212,200,.35); border-radius:14px; padding:20px; margin-bottom:28px; backdrop-filter:blur(8px); }
+        .flight-widget { background:rgba(2,11,24,.95); border:1px solid rgba(0,212,200,.35); border-radius:14px; padding:20px; margin-bottom:28px; }
         .fw-header { display:flex; align-items:center; gap:10px; font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:900; color:#fff; letter-spacing:.04em; margin-bottom:16px; flex-wrap:wrap; }
         .fw-header-sub { font-size:12px; font-weight:400; color:rgba(255,255,255,.4); letter-spacing:.02em; margin-left:4px; }
         .fw-cabin-bar { display:flex; gap:6px; margin-bottom:14px; }
         .fw-cabin-pill { flex:1; text-align:center; padding:8px 0; border-radius:30px; border:0.5px solid rgba(255,255,255,.15); color:rgba(255,255,255,.45); font-size:12px; font-weight:700; cursor:pointer; letter-spacing:.04em; background:transparent; transition:all .15s; }
         .fw-cabin-pill:hover { border-color:rgba(0,212,200,.4); color:rgba(255,255,255,.75); }
         .fw-cabin-pill.active { background:var(--teal); color:#020b18; border-color:var(--teal); }
-        .fw-fields-row { display:grid; grid-template-columns:1.3fr 1fr; gap:10px; margin-bottom:10px; position:relative; }
+        .fw-fields-row { display:grid; grid-template-columns:1.3fr 1fr; gap:10px; margin-bottom:10px; position:relative; overflow:visible; }
         .fw-field { background:rgba(255,255,255,.06); border:0.5px solid rgba(255,255,255,.12); border-radius:10px; padding:11px 14px; position:relative; overflow:visible; }
         .fw-label { font-size:10px; color:rgba(255,255,255,.4); font-weight:700; letter-spacing:.07em; text-transform:uppercase; margin-bottom:4px; }
         .fw-input { background:transparent; border:none; color:#fff; font-size:14px; font-weight:700; width:100%; outline:none; font-family:'Barlow Condensed',sans-serif; }
         .fw-input::placeholder { color:rgba(255,255,255,.3); font-weight:400; }
         .fw-select { background:transparent; border:none; color:var(--teal); font-size:14px; font-weight:700; width:100%; outline:none; font-family:'Barlow Condensed',sans-serif; cursor:pointer; }
         .fw-select option { background:#0a1e35; color:#fff; }
-        .fw-suggestions { position:absolute; top:100%; left:0; right:0; background:#0d1f35; border:0.5px solid rgba(0,212,200,.3); border-radius:10px; z-index:9999; overflow:hidden; margin-top:4px; box-shadow:0 8px 32px rgba(0,0,0,.6); }
+        .fw-suggestions { position:absolute; top:calc(100% + 4px); left:0; min-width:100%; background:#0d1f35; border:0.5px solid rgba(0,212,200,.3); border-radius:10px; z-index:99999; overflow:visible; box-shadow:0 8px 32px rgba(0,0,0,.8); }
         .fw-sug-item { display:flex; align-items:center; gap:10px; padding:10px 14px; cursor:pointer; border-bottom:0.5px solid rgba(255,255,255,.06); }
         .fw-sug-item:last-child { border-bottom:none; }
         .fw-sug-item:hover { background:rgba(0,212,200,.08); }
         .fw-sug-iata { font-size:13px; font-weight:900; color:var(--teal); min-width:36px; font-family:'Barlow Condensed',sans-serif; }
         .fw-sug-city { font-size:12px; color:rgba(255,255,255,.65); }
-        .fw-pax-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:14px; }
+        .fw-pax-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:14px; position:relative; z-index:1; }
         .fw-pax-box { background:rgba(255,255,255,.06); border:0.5px solid rgba(255,255,255,.12); border-radius:10px; padding:11px 14px; }
         .fw-pax-label { font-size:11px; color:#fff; font-weight:700; letter-spacing:.03em; }
         .fw-pax-sub { font-size:10px; color:rgba(255,255,255,.3); margin-bottom:8px; }

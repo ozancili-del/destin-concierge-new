@@ -1590,14 +1590,14 @@ export default function BeachDeals({ deals }) {
         .fw-cabin-pill { flex:1; text-align:center; padding:8px 0; border-radius:30px; border:0.5px solid rgba(255,255,255,.15); color:rgba(255,255,255,.45); font-size:12px; font-weight:700; cursor:pointer; letter-spacing:.04em; background:transparent; transition:all .15s; }
         .fw-cabin-pill:hover { border-color:rgba(0,212,200,.4); color:rgba(255,255,255,.75); }
         .fw-cabin-pill.active { background:var(--teal); color:#020b18; border-color:var(--teal); }
-        .fw-fields-row { display:grid; grid-template-columns:1.3fr 1fr; gap:10px; margin-bottom:10px; }
-        .fw-field { background:rgba(255,255,255,.06); border:0.5px solid rgba(255,255,255,.12); border-radius:10px; padding:11px 14px; position:relative; }
+        .fw-fields-row { display:grid; grid-template-columns:1.3fr 1fr; gap:10px; margin-bottom:10px; position:relative; }
+        .fw-field { background:rgba(255,255,255,.06); border:0.5px solid rgba(255,255,255,.12); border-radius:10px; padding:11px 14px; position:relative; overflow:visible; }
         .fw-label { font-size:10px; color:rgba(255,255,255,.4); font-weight:700; letter-spacing:.07em; text-transform:uppercase; margin-bottom:4px; }
         .fw-input { background:transparent; border:none; color:#fff; font-size:14px; font-weight:700; width:100%; outline:none; font-family:'Barlow Condensed',sans-serif; }
         .fw-input::placeholder { color:rgba(255,255,255,.3); font-weight:400; }
         .fw-select { background:transparent; border:none; color:var(--teal); font-size:14px; font-weight:700; width:100%; outline:none; font-family:'Barlow Condensed',sans-serif; cursor:pointer; }
         .fw-select option { background:#0a1e35; color:#fff; }
-        .fw-suggestions { position:absolute; top:100%; left:0; right:0; background:#0d1f35; border:0.5px solid rgba(0,212,200,.3); border-radius:10px; z-index:100; overflow:hidden; margin-top:4px; }
+        .fw-suggestions { position:absolute; top:100%; left:0; right:0; background:#0d1f35; border:0.5px solid rgba(0,212,200,.3); border-radius:10px; z-index:9999; overflow:hidden; margin-top:4px; box-shadow:0 8px 32px rgba(0,0,0,.6); }
         .fw-sug-item { display:flex; align-items:center; gap:10px; padding:10px 14px; cursor:pointer; border-bottom:0.5px solid rgba(255,255,255,.06); }
         .fw-sug-item:last-child { border-bottom:none; }
         .fw-sug-item:hover { background:rgba(0,212,200,.08); }

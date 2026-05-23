@@ -444,9 +444,11 @@ h1 span{color:var(--teal)}
       </div>
       <div class="ts-field">
         <div class="ts-field-label">Trip Dates</div>
-        <input type="text" id="ts-dates-display" placeholder="Select dates" readonly onclick="tsOpenDates()" style="cursor:pointer;" />
-        <input type="date" id="ts-date-from" style="display:none;" onchange="tsHandleFrom()" />
-        <input type="date" id="ts-date-to" style="display:none;" onchange="tsHandleTo()" />
+        <div style="position:relative;">
+          <input type="text" id="ts-dates-display" placeholder="Select dates" readonly onclick="tsOpenDates()" style="cursor:pointer;background:transparent;border:none;outline:none;color:#fff;font-size:15px;font-weight:700;font-family:'Outfit',sans-serif;width:100%;" />
+          <input type="date" id="ts-date-from" onchange="tsHandleFrom()" style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;pointer-events:none;" />
+          <input type="date" id="ts-date-to" onchange="tsHandleTo()" style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;pointer-events:none;" />
+        </div>
       </div>
       <button class="ts-search-btn" onclick="tsSearch()">🔍 Search</button>
     </div>

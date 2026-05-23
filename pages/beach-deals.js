@@ -616,7 +616,7 @@ function DealCard({ deal, index, initialViews = 0, openCardId, setOpenCardId }) 
       <div className="card-photo-wrap">
         <div style={{ position: "relative" }}>
           <Carousel unit={deal.unit} index={index} />
-          <div className="drop-badge">{deal.dropPct}%</div>
+          {!deal.purchased && <div className="drop-badge">{deal.dropPct}%</div>}
           {views > 0 && (
             <div className="views-badge-wrap">
               <div className="views-badge">
@@ -678,9 +678,15 @@ function DealCard({ deal, index, initialViews = 0, openCardId, setOpenCardId }) 
           {dateLabel}
         </div>
         <div className="price-row">
-          <span className="price-was">${deal.fromPrice}</span>
-          <span className="price-arrow">→</span>
-          <span className="price-now"><sup>$</sup>{deal.toPrice}<span className="price-night">/night</span></span>
+          {deal.purchased ? (
+            <span className="price-now"><sup>$</sup>{deal.fromPrice}<span className="price-night">/night</span></span>
+          ) : (
+            <>
+              <span className="price-was">${deal.fromPrice}</span>
+              <span className="price-arrow">→</span>
+              <span className="price-now"><sup>$</sup>{deal.toPrice}<span className="price-night">/night</span></span>
+            </>
+          )}
         </div>
         <div className="btn-row">
           {deal.purchased ? (

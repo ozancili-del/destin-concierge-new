@@ -1642,11 +1642,11 @@ export default function BeachDeals({ deals }) {
         .fw-header { display:flex; align-items:center; gap:10px; font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:900; color:#fff; letter-spacing:.04em; margin-bottom:16px; flex-wrap:wrap; }
         .fw-header-sub { font-size:12px; font-weight:400; color:rgba(255,255,255,.4); letter-spacing:.02em; margin-left:4px; }
         .fw-cabin-bar { display:flex; gap:6px; margin-bottom:14px; }
-        .fw-cabin-pill { flex:1; text-align:center; padding:8px 0; border-radius:30px; border:0.5px solid rgba(255,255,255,.15); color:rgba(255,255,255,.45); font-size:12px; font-weight:700; cursor:pointer; letter-spacing:.04em; background:transparent; transition:all .15s; }
+        .fw-cabin-pill { flex:1; text-align:center; padding:8px 0; border-radius:30px; border:0.5px solid rgba(255,255,255,.3); color:rgba(255,255,255,.8); font-size:12px; font-weight:700; cursor:pointer; letter-spacing:.04em; background:rgba(2,11,24,.7); backdrop-filter:blur(4px); transition:all .15s; }
         .fw-cabin-pill:hover { border-color:rgba(0,212,200,.4); color:rgba(255,255,255,.75); }
         .fw-cabin-pill.active { background:var(--teal); color:#020b18; border-color:var(--teal); }
         .fw-fields-row { display:grid; grid-template-columns:1.3fr 1fr; gap:10px; margin-bottom:10px; position:relative; overflow:visible; }
-        .fw-field { background:rgba(255,255,255,.06); border:0.5px solid rgba(255,255,255,.12); border-radius:10px; padding:11px 14px; position:relative; overflow:visible; }
+        .fw-field { background:rgba(2,11,24,.72); border:0.5px solid rgba(255,255,255,.25); border-radius:10px; padding:11px 14px; position:relative; overflow:visible; backdrop-filter:blur(4px); }
         .fw-label { font-size:10px; color:rgba(255,255,255,.4); font-weight:700; letter-spacing:.07em; text-transform:uppercase; margin-bottom:4px; }
         .fw-input { background:transparent; border:none; color:#fff; font-size:14px; font-weight:700; width:100%; outline:none; font-family:'Barlow Condensed',sans-serif; }
         .fw-input::placeholder { color:rgba(255,255,255,.3); font-weight:400; }
@@ -1659,7 +1659,7 @@ export default function BeachDeals({ deals }) {
         .fw-sug-iata { font-size:13px; font-weight:900; color:var(--teal); min-width:36px; font-family:'Barlow Condensed',sans-serif; }
         .fw-sug-city { font-size:12px; color:rgba(255,255,255,.65); }
         .fw-pax-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:14px; position:relative; z-index:1; }
-        .fw-pax-box { background:rgba(255,255,255,.06); border:0.5px solid rgba(255,255,255,.12); border-radius:10px; padding:11px 14px; }
+        .fw-pax-box { background:rgba(2,11,24,.75); border:0.5px solid rgba(255,255,255,.2); border-radius:10px; padding:11px 14px; backdrop-filter:blur(4px); }
         .fw-pax-label { font-size:11px; color:#fff; font-weight:700; letter-spacing:.03em; }
         .fw-pax-sub { font-size:10px; color:rgba(255,255,255,.3); margin-bottom:8px; }
         .fw-pax-ctrl { display:flex; align-items:center; justify-content:space-between; }

@@ -684,7 +684,7 @@ function tsOpenDates() {
 
 function tsHandleFrom() {
   tsFrom = document.getElementById('ts-date-from').value;
-  if (!tsFrom) return;
+  if (!tsFrom) { tsTo = ''; document.getElementById('ts-date-to').value = ''; tsRefreshDisplay(); return; }
   tsPicking = 'to';
   var toEl = document.getElementById('ts-date-to');
   toEl.min = tsFrom;
@@ -694,6 +694,13 @@ function tsHandleFrom() {
 
 function tsHandleTo() {
   tsTo = document.getElementById('ts-date-to').value;
+  tsRefreshDisplay();
+}
+
+function tsHandleClear() {
+  tsFrom = ''; tsTo = '';
+  document.getElementById('ts-date-from').value = '';
+  document.getElementById('ts-date-to').value = '';
   tsRefreshDisplay();
 }
 

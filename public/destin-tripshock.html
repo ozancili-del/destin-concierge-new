@@ -1,5 +1,6 @@
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -324,6 +325,53 @@ h1 span{color:var(--teal)}
 }
 .floating-home-top.visible{display:flex;}
 
+
+/* ── ACTIVITY SEARCH WIDGET ─────────────────────────────── */
+.ts-search-wrap{
+  border-radius:30px;overflow:hidden;position:relative;margin-bottom:26px;
+  background:linear-gradient(90deg,rgba(4,16,29,.82),rgba(4,16,29,.5) 50%,rgba(4,16,29,.2)),
+    url('/tripshock-bg.jpg') center/cover;
+  border:1px solid rgba(255,255,255,.13);
+  box-shadow:0 32px 90px rgba(0,0,0,.35);
+  padding:32px 36px;
+}
+.ts-search-eyebrow{
+  display:inline-flex;align-items:center;gap:9px;padding:8px 14px;border-radius:999px;
+  border:1px solid rgba(71,226,208,.55);background:rgba(71,226,208,.10);
+  color:#84fff4;font-size:11px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;margin-bottom:14px;
+}
+.ts-search-title{font-size:clamp(24px,3vw,34px);font-weight:900;color:#fff;margin:0 0 6px;line-height:1.1;}
+.ts-search-title span{color:var(--teal)}
+.ts-search-sub{font-size:14px;color:rgba(255,255,255,.55);margin-bottom:22px;}
+.ts-search-bar{
+  display:grid;grid-template-columns:1.6fr 1fr auto;gap:10px;align-items:end;
+  background:rgba(4,16,29,.75);border:1px solid rgba(255,255,255,.15);
+  border-radius:20px;padding:12px 14px;backdrop-filter:blur(8px);
+}
+.ts-field{display:flex;flex-direction:column;gap:3px;padding:0 8px;}
+.ts-field+.ts-field{border-left:1px solid rgba(255,255,255,.1);}
+.ts-field-label{font-size:10px;font-weight:900;color:rgba(255,255,255,.4);letter-spacing:.08em;text-transform:uppercase;}
+.ts-field select,.ts-field input[type=text]{
+  background:transparent;border:none;outline:none;color:#fff;
+  font-size:15px;font-weight:700;font-family:'Outfit',sans-serif;
+  cursor:pointer;width:100%;
+}
+.ts-field select option{background:#04101d;color:#fff;}
+.ts-field input[type=text]{cursor:text;}
+.ts-field input[type=text]::placeholder{color:rgba(255,255,255,.35);font-weight:400;}
+.ts-search-btn{
+  background:linear-gradient(135deg,#e89a20,#ffc04b);color:#161006;border:none;
+  font-size:15px;font-weight:900;padding:14px 26px;border-radius:14px;cursor:pointer;
+  font-family:'Outfit',sans-serif;white-space:nowrap;display:flex;align-items:center;gap:8px;
+  transition:.18s ease;
+}
+.ts-search-btn:hover{filter:brightness(1.08);transform:translateY(-1px);}
+@media(max-width:640px){
+  .ts-search-wrap{padding:20px 16px;}
+  .ts-search-bar{grid-template-columns:1fr;gap:8px;padding:10px 12px;}
+  .ts-field+.ts-field{border-left:none;border-top:1px solid rgba(255,255,255,.1);padding-top:10px;}
+  .ts-search-btn{width:100%;justify-content:center;}
+}
 </style>
 </head>
 
@@ -372,6 +420,37 @@ h1 span{color:var(--teal)}
       </div>
     </div>
   </section>
+
+  <div class="ts-search-wrap">
+    <div class="ts-search-eyebrow">🎟 BOOK ACTIVITIES</div>
+    <h2 class="ts-search-title">Find Things To Do in <span>Destin</span></h2>
+    <p class="ts-search-sub">Pick your experience and dates — we'll take you straight to TripShock to book.</p>
+    <div class="ts-search-bar">
+      <div class="ts-field">
+        <div class="ts-field-label">Experience</div>
+        <select id="ts-category" onchange="tsUpdateDisplay()">
+          <option value="">All Activities</option>
+          <option value="crab-island-tours-and-activities">🏝 Crab Island Tours</option>
+          <option value="dolphin-cruises-and-tours">🐬 Dolphin Cruises</option>
+          <option value="fishing-charters">🎣 Fishing Charters</option>
+          <option value="jet-ski-rentals-tours">🏄 Jet Ski Rentals</option>
+          <option value="parasailing">🪂 Parasailing</option>
+          <option value="sunset-cruises-tours">🌅 Sunset Cruises</option>
+          <option value="boat-rentals">⛵ Boat Rentals</option>
+          <option value="pirate-cruises">🏴‍☠️ Pirate Cruises</option>
+          <option value="private-captained-charters">🛥 Private Charters</option>
+          <option value="golf-cart-rental">🛺 Golf Cart Rental</option>
+        </select>
+      </div>
+      <div class="ts-field">
+        <div class="ts-field-label">Trip Dates</div>
+        <input type="text" id="ts-dates-display" placeholder="Select dates" readonly onclick="tsOpenDates()" style="cursor:pointer;" />
+        <input type="date" id="ts-date-from" style="display:none;" onchange="tsHandleFrom()" />
+        <input type="date" id="ts-date-to" style="display:none;" onchange="tsHandleTo()" />
+      </div>
+      <button class="ts-search-btn" onclick="tsSearch()">🔍 Search</button>
+    </div>
+  </div>
 
   <section class="section-card" id="top-picks">
     <div class="section-head">
@@ -565,5 +644,69 @@ window.addEventListener('scroll', function(){
 });
 </script>
 
+
+<script>
+var tsFrom = '', tsTo = '', tsPicking = 'from';
+
+function tsUpdateDisplay() {}
+
+function tsPick(el) {
+  try { if (el.showPicker) el.showPicker(); else el.click(); } catch(e) { el.click(); }
+}
+
+function tsOpenDates() {
+  if (!tsFrom) {
+    tsPicking = 'from';
+    tsPick(document.getElementById('ts-date-from'));
+  } else {
+    tsPicking = 'to';
+    var toEl = document.getElementById('ts-date-to');
+    toEl.min = tsFrom;
+    tsPick(toEl);
+  }
+}
+
+function tsHandleFrom() {
+  tsFrom = document.getElementById('ts-date-from').value;
+  if (!tsFrom) return;
+  tsPicking = 'to';
+  var toEl = document.getElementById('ts-date-to');
+  toEl.min = tsFrom;
+  setTimeout(function() { tsPick(toEl); }, 100);
+  tsRefreshDisplay();
+}
+
+function tsHandleTo() {
+  tsTo = document.getElementById('ts-date-to').value;
+  tsRefreshDisplay();
+}
+
+function tsRefreshDisplay() {
+  var el = document.getElementById('ts-dates-display');
+  if (tsFrom && tsTo) {
+    el.value = tsFmt(tsFrom) + ' ~ ' + tsFmt(tsTo);
+  } else if (tsFrom) {
+    el.value = tsFmt(tsFrom) + ' ~ Select end';
+  } else {
+    el.value = '';
+  }
+}
+
+function tsFmt(iso) {
+  var d = new Date(iso + 'T12:00:00');
+  return (d.getMonth()+1) + '/' + d.getDate() + '/' + d.getFullYear();
+}
+
+function tsSearch() {
+  var cat = document.getElementById('ts-category').value;
+  var base = cat
+    ? 'https://www.tripshock.com/destination/fl/destin/things-to-do/' + cat + '/'
+    : 'https://www.tripshock.com/destination/fl/destin/things-to-do/';
+  var params = '?aff=destindreamcondo';
+  if (tsFrom) params += '&from=' + tsFmt(tsFrom);
+  if (tsTo)   params += '&to='   + tsFmt(tsTo);
+  window.open(base + params, '_blank');
+}
+</script>
 </body>
 </html>

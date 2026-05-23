@@ -1107,12 +1107,12 @@ function FlightSearch() {
         <div className="fw-field fw-date-field" onClick={() => depRef.current?.showPicker?.()}>
           <div className="fw-label">Depart</div>
           <div className="fw-date-display">{depDate ? new Date(depDate+"T12:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}) : "Select date"}</div>
-          <input ref={depRef} type="date" className="fw-date-hidden" value={depDate} onChange={e => setDepDate(e.target.value)} />
+          <input ref={depRef} type="date" className="fw-date-hidden" value={depDate} onChange={e => { setDepDate(e.target.value); if (retDate && retDate <= e.target.value) setRetDate(""); }} />
         </div>
         <div className="fw-field fw-date-field" onClick={() => retRef.current?.showPicker?.()}>
           <div className="fw-label">Return</div>
           <div className="fw-date-display">{retDate ? new Date(retDate+"T12:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"}) : "Select date"}</div>
-          <input ref={retRef} type="date" className="fw-date-hidden" value={retDate} onChange={e => setRetDate(e.target.value)} />
+          <input ref={retRef} type="date" className="fw-date-hidden" value={retDate} min={depDate || undefined} onChange={e => setRetDate(e.target.value)} />
         </div>
       </div>
       <div className="fw-pax-row">

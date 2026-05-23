@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import Head from "next/head";
 import { createClient } from "@supabase/supabase-js";
 
@@ -933,6 +934,8 @@ function FlightSearch() {
   const [cabin, setCabin] = useState("");
   const depRef = useRef(null);
   const retRef = useRef(null);
+  const destFieldRef = useRef(null);
+  const originFieldRef = useRef(null);
 
   const DEST_DEFAULTS = [
     {iata:"VPS",city:"Destin",state:"FL",name:"Destin-Fort Walton Beach"},
@@ -1008,41 +1011,65 @@ function FlightSearch() {
       </div>
 
       <div className="fw-fields-row">
-        <div className="fw-field" style={{position:"relative"}}>
+        <div className="fw-field" style={{position:"relative"}} ref={originFieldRef}>
           <div className="fw-label">Flying from</div>
           <input className="fw-input" placeholder="City or airport code" value={originQ}
             onChange={e => handleOriginQ(e.target.value)}
             onFocus={() => originSug.length > 0 && setShowOriginSug(true)}
             onBlur={() => setTimeout(() => setShowOriginSug(false), 150)}
             autoComplete="off" />
-          {showOriginSug && (
-            <div className="fw-suggestions">
+          {showOriginSug && originFieldRef.current && typeof document !== "undefined" && createPortal(
+            <div style={{
+              position:"fixed",
+              top: originFieldRef.current.getBoundingClientRect().bottom + 4,
+              left: originFieldRef.current.getBoundingClientRect().left,
+              width: originFieldRef.current.getBoundingClientRect().width,
+              background:"#0d1f35",
+              border:"0.5px solid rgba(0,212,200,.3)",
+              borderRadius:10,
+              zIndex:99999,
+              boxShadow:"0 8px 32px rgba(0,0,0,.8)",
+              overflow:"hidden"
+            }}>
               {originSug.map(a => (
                 <div key={a.iata} className="fw-sug-item" onMouseDown={() => pickOrigin(a)}>
                   <span className="fw-sug-iata">{a.iata}</span>
                   <span className="fw-sug-city">{a.city}, {a.state} — {a.name}</span>
                 </div>
               ))}
-            </div>
+            </div>,
+            document.body
           )}
         </div>
 
-        <div className="fw-field" style={{position:"relative"}}>
+        <div className="fw-field" style={{position:"relative"}} ref={destFieldRef}>
           <div className="fw-label">Flying to</div>
           <input className="fw-input" placeholder="City or airport code" value={destQ}
             onChange={e => handleDestQ(e.target.value)}
             onFocus={() => { setDestSug(destQ.length < 2 ? DEST_DEFAULTS : filterAirports(destQ).slice(0,6)); setShowDestSug(true); }}
             onBlur={() => setTimeout(() => setShowDestSug(false), 150)}
             autoComplete="off" />
-          {showDestSug && (
-            <div className="fw-suggestions">
+          {showDestSug && destFieldRef.current && typeof document !== "undefined" && createPortal(
+            <div className="fw-suggestions-portal" style={{
+              position:"fixed",
+              top: destFieldRef.current.getBoundingClientRect().bottom + 4,
+              left: destFieldRef.current.getBoundingClientRect().left,
+              width: destFieldRef.current.getBoundingClientRect().width,
+              background:"#0d1f35",
+              border:"0.5px solid rgba(0,212,200,.3)",
+              borderRadius:10,
+              zIndex:99999,
+              boxShadow:"0 8px 32px rgba(0,0,0,.8)",
+              overflow:"hidden"
+            }}>
               {destSug.map(a => (
                 <div key={a.iata} className="fw-sug-item" onMouseDown={() => pickDest(a)}>
                   <span className="fw-sug-iata">{a.iata}</span>
                   <span className="fw-sug-city">{a.city}, {a.state} — {a.name}</span>
                 </div>
               ))}
-            </div>
+            </div>,
+            document.body
           )}
         </div>
       </div>

@@ -985,16 +985,25 @@ function AirportAutocomplete({ label, placeholder, initialValue = "", options, p
   const [activeIndex, setActiveIndex] = useState(-1);
   const { dropdownRef, floatingStyle, updatePosition } = useFloatingDropdown({ open, anchorRef: wrapperRef, itemCount: suggestions.length });
 
-  function search(text) {
-    const q = text.trim().toLowerCase();
-    if (q.length < 2) return preferredOptions.slice(0, 6);
-    const pref = preferredOptions.filter(a => a.iata.toLowerCase().startsWith(q) || a.city.toLowerCase().includes(q) || a.name.toLowerCase().includes(q));
-    const rest = options.filter(a => a.iata.toLowerCase().startsWith(q) || a.city.toLowerCase().includes(q) || a.name.toLowerCase().includes(q) || a.state.toLowerCase().startsWith(q));
-    return [...pref, ...rest].filter((a,i,arr) => arr.findIndex(x => x.iata===a.iata)===i).slice(0,6);
+  function normalize(text) {
+    return String(text||"").toLowerCase().replace(/[()·,—-]/g," ").replace(/\s+/g," ").trim();
   }
 
-  function openWith(text) {
-    const m = search(text);
+  function matches(a, q) {
+    return normalize(`${a.iata} ${a.city} ${a.state} ${a.name}`).includes(q);
+  }
+
+  function search(text, forcePreferred = false) {
+    const q = normalize(text);
+    if (forcePreferred && preferredOptions.length > 0) return preferredOptions.slice(0,6);
+    if (q.length < 2) return preferredOptions.slice(0,6);
+    const pref = preferredOptions.filter(a => matches(a,q));
+    const rest = options.filter(a => matches(a,q));
+    return [...pref,...rest].filter((a,i,arr) => arr.findIndex(x=>x.iata===a.iata)===i).slice(0,6);
+  }
+
+  function openWith(text, forcePreferred = false) {
+    const m = search(text, forcePreferred);
     setSuggestions(m); setOpen(m.length > 0); setActiveIndex(-1);
     requestAnimationFrame(updatePosition);
   }
@@ -1007,10 +1016,10 @@ function AirportAutocomplete({ label, placeholder, initialValue = "", options, p
 
   function handleKeyDown(e) {
     if (!open || !suggestions.length) return;
-    if (e.key === "ArrowDown") { e.preventDefault(); setActiveIndex(i => Math.min(i+1, suggestions.length-1)); }
-    if (e.key === "ArrowUp") { e.preventDefault(); setActiveIndex(i => Math.max(i-1, 0)); }
-    if (e.key === "Enter" && activeIndex >= 0) { e.preventDefault(); pick(suggestions[activeIndex]); }
-    if (e.key === "Escape") { setOpen(false); setActiveIndex(-1); }
+    if (e.key==="ArrowDown") { e.preventDefault(); setActiveIndex(i=>Math.min(i+1,suggestions.length-1)); }
+    if (e.key==="ArrowUp") { e.preventDefault(); setActiveIndex(i=>Math.max(i-1,0)); }
+    if (e.key==="Enter" && activeIndex>=0) { e.preventDefault(); pick(suggestions[activeIndex]); }
+    if (e.key==="Escape") { setOpen(false); setActiveIndex(-1); }
   }
 
   useEffect(() => {
@@ -1029,14 +1038,14 @@ function AirportAutocomplete({ label, placeholder, initialValue = "", options, p
         <div className="fw-label">{label}</div>
         <input className="fw-input" value={query} placeholder={placeholder} autoComplete="off"
           onChange={e => { setQuery(e.target.value); onPick(null); openWith(e.target.value); }}
-          onFocus={() => openWith(query)}
+          onFocus={e => { e.target.select(); openWith(query, preferredOptions.length > 0); }}
           onKeyDown={handleKeyDown} />
       </div>
       {isClient && open && suggestions.length > 0 && createPortal(
         <div ref={dropdownRef} style={{...floatingStyle, background:"#0d1f35", border:"0.5px solid rgba(0,212,200,.35)", borderRadius:12, boxShadow:"0 18px 50px rgba(0,0,0,.85)", overflowY:"auto", overflowX:"hidden", boxSizing:"border-box"}}>
           {suggestions.map((a, i) => (
             <button key={a.iata} type="button" onPointerDown={e => { e.preventDefault(); pick(a); }}
-              style={{width:"100%", display:"flex", alignItems:"center", gap:10, padding:"11px 14px", background: i===activeIndex ? "rgba(0,212,200,.1)" : "transparent", border:"none", borderBottom:"0.5px solid rgba(255,255,255,.06)", textAlign:"left", cursor:"pointer"}}>
+              style={{width:"100%", display:"flex", alignItems:"center", gap:10, padding:"11px 14px", background:i===activeIndex?"rgba(0,212,200,.1)":"transparent", border:"none", borderBottom:"0.5px solid rgba(255,255,255,.06)", textAlign:"left", cursor:"pointer"}}>
               <span style={{fontSize:13, fontWeight:900, color:"#00d4c8", minWidth:36, fontFamily:"'Barlow Condensed',sans-serif"}}>{a.iata}</span>
               <span style={{fontSize:12, color:"rgba(255,255,255,.72)"}}>{a.city}, {a.state} — {a.name}</span>
             </button>

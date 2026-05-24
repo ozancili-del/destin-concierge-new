@@ -336,18 +336,18 @@ function buildSchema(deals) {
     "mainEntity": [
       {
         "@type": "Question",
-        "name": "How are the price drops calculated?",
+        "name": "How are condo price drops in Destin FL calculated?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Price drop percentages are calculated against the highest recently recorded price for those dates in our pricing system. Final rates confirmed at checkout."
+          "text": "Price drop percentages on Destin vacation rental condos are calculated against the highest recently recorded nightly rate for those specific dates. Drops are tracked daily using live pricing data and displayed as a percentage savings vs the peak rate. Final rates are confirmed at checkout on destincondogetaways.com."
         }
       },
       {
         "@type": "Question",
-        "name": "Do I need a promo code to get the discount?",
+        "name": "Do I need a promo code to book a Destin condo at a discounted rate?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "No promo code needed. A 10% direct booking discount is automatically applied when you book through destincondogetaways.com. Use code BLUE for an additional 5% off."
+          "text": "No promo code is needed to get the base 10% direct booking discount — it is automatically applied when you book a Destin beachfront condo through destincondogetaways.com. You can also use promo code BLUE at checkout for an additional 5% off on top of the 10% savings."
         }
       },
       {
@@ -360,10 +360,10 @@ function buildSchema(deals) {
       },
       {
         "@type": "Question",
-        "name": "Where are the condos located?",
+        "name": "Where is Pelican Beach Resort located in Destin Florida?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Both Unit 707 and Unit 1006 are located at Pelican Beach Resort, 1002 US-98 East, Destin, FL 32541 — directly on the Gulf of Mexico with beachfront access."
+          "text": "Both Unit 707 and Unit 1006 are located at Pelican Beach Resort, 1002 US-98 East, Destin, FL 32541 — directly on the Gulf of Mexico with private beachfront access. The resort is minutes from Destin HarborWalk Village, Big Kahuna's Water Park, and Henderson Beach State Park. VPS airport (Destin-Fort Walton Beach) is approximately 35 minutes away."
         }
       },
       {
@@ -376,24 +376,123 @@ function buildSchema(deals) {
       },
       {
         "@type": "Question",
-        "name": "How often do these deals update?",
+        "name": "How often do Destin vacation rental price drops update?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Deals are refreshed automatically every 10 minutes based on live pricing data from our system. Prices reflect the most recent rates available at the time of your visit."
+          "text": "Destin condo price drops are refreshed automatically based on live pricing data tracked by our system. Drops are calculated against the highest recently recorded rate for each date window, so you always see the most current savings opportunity on Gulf-front Pelican Beach Resort condos."
         }
       },
       {
         "@type": "Question",
-        "name": "Are these direct booking prices?",
+        "name": "Why is booking direct cheaper than Airbnb or VRBO for Destin condos?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Yes. All prices shown are direct booking rates at destincondogetaways.com, which include a 10% direct booking discount automatically applied. You save the OTA service fees that platforms like Airbnb or VRBO would charge."
+          "text": "Yes. All prices shown are direct booking rates at destincondogetaways.com. When you book direct, you skip the 14–20% platform fees that Airbnb and VRBO add to every booking, plus you receive a 10% direct booking discount automatically. You also get instant confirmation and communicate directly with the condo owner."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What amenities are included at Pelican Beach Resort in Destin FL?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Both Pelican Beach Resort condos include: private Gulf-view balcony, full kitchen, 2 bathrooms, sleeps up to 6 guests, free parking, free WiFi, air conditioning, and EV charger access. The resort features 3 outdoor pools, 1 indoor heated pool, 2 hot tubs, fitness center, sauna, steam room, and direct beachfront access on the Gulf of Mexico. The building is beachfront with no road to cross."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is the best time to book a Destin Florida beach condo for cheap?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The best time to find cheap Destin FL beach condo deals is November through February (off-season) and last-minute bookings within 2–3 weeks of arrival when prices drop significantly. Our price drop tracker monitors daily rate changes and automatically surfaces the best current deals on Gulf-front condos at Pelican Beach Resort. Snowbird stays of 28+ nights in November–February qualify for up to 48% off."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How many guests can stay in a Pelican Beach Resort condo in Destin?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Both Unit 707 (Classic Coastal) and Unit 1006 (Fresh Coastal) at Pelican Beach Resort accommodate up to 6 guests. Each condo has 1 bedroom with a king bed, a bunk bed, and a queen sofa bed in the living area, plus 2 full bathrooms. An extra guest fee applies for groups of more than 4."
         }
       }
     ]
   };
 
-  return [itemList, breadcrumb, faq];
+
+  const website = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Destin Condo Getaways",
+    "url": "https://www.destincondogetaways.com",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "https://deals.destincondogetaways.com/beach-deals?q={search_term_string}"
+      },
+      "query-input": "required name=search_term_string"
+    }
+  };
+
+  const organization = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Destin Condo Getaways",
+    "url": "https://www.destincondogetaways.com",
+    "logo": "https://www.destincondogetaways.com/logo.png",
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "contactType": "customer service",
+      "availableLanguage": "English"
+    },
+    "sameAs": [
+      "https://www.airbnb.com/users/show/574048693",
+      "https://www.vrbo.com/manager/listings"
+    ]
+  };
+
+  const lodging707 = {
+    "@context": "https://schema.org",
+    "@type": "LodgingBusiness",
+    "name": "Destin Condo Getaways — Unit 707 Classic Coastal at Pelican Beach Resort",
+    "description": "Beachfront 1-bedroom condo on the 7th floor of Pelican Beach Resort, Destin FL. Sleeps 6. Private Gulf-view balcony, full kitchen, 2 bathrooms. Direct booking saves 10% vs Airbnb and VRBO.",
+    "url": "https://www.destincondogetaways.com/pelican-beach-resort-unit-707-orp5b47b5ax",
+    "telephone": "",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "1002 US-98 East, Unit 707",
+      "addressLocality": "Destin",
+      "addressRegion": "FL",
+      "postalCode": "32541",
+      "addressCountry": "US"
+    },
+    "geo": { "@type": "GeoCoordinates", "latitude": 30.3935, "longitude": -86.4958 },
+    "image": "https://uc.orez.io/i/0f604abce3284748ba8d2150b7646863-MediumOriginal",
+    "priceRange": "$200–$600/night",
+    "starRating": { "@type": "Rating", "ratingValue": 5 },
+    "aggregateRating": { "@type": "AggregateRating", "ratingValue": 5, "reviewCount": 200, "bestRating": 5 },
+    "amenityFeature": [
+      { "@type": "LocationFeatureSpecification", "name": "Beachfront", "value": true },
+      { "@type": "LocationFeatureSpecification", "name": "Gulf View", "value": true },
+      { "@type": "LocationFeatureSpecification", "name": "Private Balcony", "value": true },
+      { "@type": "LocationFeatureSpecification", "name": "Full Kitchen", "value": true },
+      { "@type": "LocationFeatureSpecification", "name": "Free Parking", "value": true },
+      { "@type": "LocationFeatureSpecification", "name": "Free WiFi", "value": true },
+      { "@type": "LocationFeatureSpecification", "name": "Pool", "value": true },
+      { "@type": "LocationFeatureSpecification", "name": "Hot Tub", "value": true },
+      { "@type": "LocationFeatureSpecification", "name": "Air Conditioning", "value": true },
+      { "@type": "LocationFeatureSpecification", "name": "EV Charger", "value": true }
+    ]
+  };
+
+  const lodging1006 = {
+    ...lodging707,
+    "name": "Destin Condo Getaways — Unit 1006 Fresh Coastal at Pelican Beach Resort",
+    "description": "Beachfront 1-bedroom condo on the 10th floor of Pelican Beach Resort, Destin FL. Higher floor Gulf views, sleeps 6. Private balcony, full kitchen, 2 bathrooms. Direct booking saves 10% vs Airbnb and VRBO.",
+    "url": "https://www.destincondogetaways.com/pelican-beach-resort-unit-1006-orp5b6450ex",
+    "address": { ...lodging707.address, "streetAddress": "1002 US-98 East, Unit 1006" }
+  };
+
+  return [itemList, breadcrumb, faq, website, organization, lodging707, lodging1006];
 }
 
 // ── Carousel ──────────────────────────────────────────────────────────────────
@@ -1177,14 +1276,25 @@ export default function BeachDeals({ deals }) {
   return (
     <>
       <Head>
-        <title>Pelican Beach Resort Condos — Destin Beach Florida Price Drops</title>
-        <meta name="description" content="Live price drops on beachfront condos at Pelican Beach Resort, Destin Beach Florida. Book Unit 707 or Unit 1006 direct — no OTA fees, instant confirmation, owner direct." />
-        <meta property="og:title" content="Featured Beach Deals — Destin Condo Getaways" />
-        <meta property="og:description" content="Beachfront condo price drops in Destin, FL. Book direct and save up to 10% instantly." />
+        <title>Destin FL Beachfront Condo Price Drops — Book Direct &amp; Save | Pelican Beach Resort</title>
+        <meta name="description" content="Live price drops on Gulf-front condos at Pelican Beach Resort, Destin FL. Unit 707 &amp; 1006 — sleeps 6, private balcony, beachfront. Book direct and save 10–20% vs Airbnb &amp; VRBO. Updated daily." />
+        <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+        <meta name="keywords" content="Destin Florida beachfront condo rental, Pelican Beach Resort condo deals, Destin vacation rental price drops, book direct condo Destin FL, Gulf front condo Destin Florida" />
+        <link rel="canonical" href="https://deals.destincondogetaways.com/beach-deals" />
+        <meta property="og:title" content="Destin FL Beachfront Condo Price Drops — Book Direct &amp; Save up to 40%" />
+        <meta property="og:description" content="Live price drops on two Gulf-front condos at Pelican Beach Resort, Destin FL. Skip Airbnb fees — book direct and save 10–20% instantly. Updated daily." />
         <meta property="og:image" content={IMAGES["707"][0].src} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="800" />
+        <meta property="og:image:alt" content="Beachfront condo at Pelican Beach Resort, Destin Florida" />
         <meta property="og:url" content="https://deals.destincondogetaways.com/beach-deals" />
         <meta property="og:type" content="website" />
-        <link rel="canonical" href="https://deals.destincondogetaways.com/beach-deals" />
+        <meta property="og:site_name" content="Destin Condo Getaways" />
+        <meta property="og:locale" content="en_US" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Destin FL Beachfront Condo Price Drops — Book Direct &amp; Save" />
+        <meta name="twitter:description" content="Live price drops on Gulf-front condos at Pelican Beach Resort, Destin FL. Skip Airbnb fees — save 10–20% instantly." />
+        <meta name="twitter:image" content={IMAGES["707"][0].src} />
         <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
         <meta name="msvalidate.01" content="179AF5BF43378717C4812675F6233C2B" />
         {/* GTM — fires Clarity only. GA4 fires direct below (GTM has no GA4 tag inside it) */}
@@ -1362,12 +1472,13 @@ export default function BeachDeals({ deals }) {
         {/* Visible FAQ for SEO */}
         <div className="seo-faq">
           <h2 className="seo-faq-title">Frequently Asked Questions</h2>
-          <div className="seo-faq-item"><h3>How are price drops calculated?</h3><p>Drop percentages are calculated against the highest recently recorded price for those dates in our pricing system. Prices update daily based on live market data.</p></div>
-          <div className="seo-faq-item"><h3>Do I need a promo code to get the discount?</h3><p>No promo code needed. A 10% direct booking discount is automatically applied when you book through destincondogetaways.com. Use code BLUE for an additional 5% off.</p></div>
-          <div className="seo-faq-item"><h3>Are these direct booking prices?</h3><p>Yes — all prices are direct booking rates with no OTA platform fees. Guests who book direct save $200–$400 compared to booking the same unit through Airbnb or VRBO.</p></div>
-          <div className="seo-faq-item"><h3>Where are the condos located?</h3><p>Both Unit 707 and Unit 1006 are at Pelican Beach Resort, 1002 US-98 East, Destin FL 32541 — directly on the Gulf of Mexico. The resort features three pools, hot tubs, a beachside Tiki bar, tennis courts, and free parking with EV chargers.</p></div>
-          <div className="seo-faq-item"><h3>What is the cancellation policy?</h3><p>A 20% non-refundable deposit is due upon booking. Balance due 30 days before check-in. Cancellations within 30 days of check-in are non-refundable. Travel insurance offered at checkout.</p></div>
-          <div className="seo-faq-item"><h3>How often do deals update?</h3><p>Deals refresh every 10 minutes based on live pricing data, scanning the next 180 days across 3, 4, and 5-night stay windows.</p></div>
+          <div className="seo-faq-item"><h3>How are condo price drops in Destin FL calculated?</h3><p>Price drop percentages are calculated against the highest recently recorded nightly rate for those specific dates. Drops are tracked daily using live pricing data and displayed as a percentage savings vs the peak rate. Final rates confirmed at checkout on destincondogetaways.com.</p></div>
+          <div className="seo-faq-item"><h3>Why is booking direct cheaper than Airbnb or VRBO for Destin condos?</h3><p>When you book direct through destincondogetaways.com, you skip the 14–20% platform fees that Airbnb and VRBO add to every reservation, plus you receive a 10% direct booking discount automatically. You also get instant confirmation and communicate directly with the owner. Guests who book direct typically save $200–$500 per stay.</p></div>
+          <div className="seo-faq-item"><h3>What amenities are included at Pelican Beach Resort in Destin FL?</h3><p>Both condos include a private Gulf-view balcony, full kitchen, 2 bathrooms, free parking, free WiFi, and EV charger access. The resort features 3 outdoor pools, 1 indoor heated pool, 2 hot tubs, fitness center, sauna, steam room, and direct beachfront access — with no road to cross.</p></div>
+          <div className="seo-faq-item"><h3>Where is Pelican Beach Resort located in Destin Florida?</h3><p>Both Unit 707 and Unit 1006 are at Pelican Beach Resort, 1002 US-98 East, Destin FL 32541 — directly on the Gulf of Mexico. Minutes from Destin HarborWalk Village, Big Kahuna&apos;s Water Park, and Henderson Beach State Park. VPS airport is 35 minutes away.</p></div>
+          <div className="seo-faq-item"><h3>What is the best time to find cheap Destin beach condo deals?</h3><p>The best time is November through February (off-season) and last-minute bookings within 2–3 weeks of arrival. Snowbird stays of 28+ nights in November–February qualify for up to 48% off. Our price drop tracker surfaces the best current deals automatically — updated daily.</p></div>
+          <div className="seo-faq-item"><h3>How many guests can stay in a Pelican Beach Resort condo?</h3><p>Both units sleep up to 6 guests — king bed, bunk bed, and queen sofa bed, plus 2 full bathrooms. An extra guest fee applies for groups over 4. Perfect for families, groups, and couples looking for a Gulf-front Destin vacation rental.</p></div>
+          <div className="seo-faq-item"><h3>What is the cancellation policy?</h3><p>A 20% non-refundable deposit is due upon booking. Balance due 30 days before check-in. Cancellations within 30 days of check-in are non-refundable. Travel insurance is offered at checkout.</p></div>
         </div>
 
         {/* About section */}

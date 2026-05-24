@@ -24,7 +24,7 @@ function getNights(ci, co) {
   return Math.round((new Date(co) - new Date(ci)) / 86400000);
 }
 
-function OfferCalendar({ unit, year, month, arrival, departure, bookedDates, onSelect, onNav }) {
+function OfferCalendar({ unit, year, month, arrival, departure, bookedDates, rates, onSelect, onNav }) {
   const today = new Date(); today.setHours(0,0,0,0);
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -64,9 +64,11 @@ function OfferCalendar({ unit, year, month, arrival, departure, bookedDates, onS
           else if (isArrival || isDeparture) cls += " selected";
           else if (isInRange) cls += " in-range";
           else cls += " available";
+          const dayRate = !isPast && !isBooked && rates && rates[dateStr];
           return (
             <div key={dateStr} className={cls} onClick={() => !(isPast || isBooked) && onSelect(dateStr)}>
-              {d}
+              <span className="day-num">{d}</span>
+              {dayRate && <span className="day-rate">${dayRate}</span>}
             </div>
           );
         })}
@@ -82,6 +84,7 @@ export default function OfferPage() {
   const [calYear, setCalYear] = useState(new Date().getFullYear());
   const [calMonth, setCalMonth] = useState(new Date().getMonth());
   const [bookedDates, setBookedDates] = useState([]);
+  const [rates, setRates] = useState({});
   const [loadingDates, setLoadingDates] = useState(false);
   const [adults, setAdults] = useState(2);
   const [children, setChildren] = useState(0);
@@ -100,7 +103,7 @@ export default function OfferPage() {
     setLoadingDates(true);
     fetch(`/api/availability?unit=${unit}`)
       .then(r => r.json())
-      .then(d => setBookedDates(d.booked || []))
+      .then(d => { setBookedDates(d.booked || []); setRates(d.rates || {}); })
       .catch(() => setBookedDates([]))
       .finally(() => setLoadingDates(false));
     setArrival(""); setDeparture("");
@@ -528,7 +531,7 @@ export default function OfferPage() {
               {loadingDates ? (
                 <div className="cal-loading">Loading availability…</div>
               ) : (
-                <OfferCalendar unit={unit} year={calYear} month={calMonth} arrival={arrival} departure={departure} bookedDates={bookedDates} onSelect={handleCalSelect} onNav={handleNav} />
+                <OfferCalendar unit={unit} year={calYear} month={calMonth} arrival={arrival} departure={departure} bookedDates={bookedDates} rates={rates} onSelect={handleCalSelect} onNav={handleNav} />
               )}
               {arrival && (
                 <div className="date-display">
@@ -778,7 +781,9 @@ export default function OfferPage() {
         .booked-dot { background: var(--red); }
         .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 5px; }
         .day-name { text-align: center; color: var(--muted); font-size: .68rem; font-weight: 900; text-transform: uppercase; padding-bottom: 3px; }
-        .day { aspect-ratio: 1; display: grid; place-items: center; border-radius: 10px; font-size: .8rem; font-weight: 700; cursor: pointer; transition: .12s; }
+        .day { aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; border-radius: 10px; font-size: .8rem; font-weight: 700; cursor: pointer; transition: .12s; padding: 2px 0; }
+        .day-num { font-size: .8rem; font-weight: 700; line-height: 1; }
+        .day-rate { font-size: .6rem; font-weight: 600; opacity: .85; line-height: 1; }
         .day.available { background: rgba(94,227,139,.85); color: #0a2310; }
         .day.available:hover { background: var(--green); }
         .day.booked { background: rgba(255,107,107,.8); color: #2a0d10; cursor: not-allowed; text-decoration: line-through; }

@@ -98,7 +98,7 @@ export default function OfferPage() {
 
   useEffect(() => {
     setLoadingDates(true);
-    fetch(`/api/availability?unit=${unit}`)
+    fetch(`https://deals.destincondogetaways.com/api/availability?unit=${unit}`)
       .then(r => r.json())
       .then(d => setBookedDates(d.booked || []))
       .catch(() => setBookedDates([]))
@@ -147,7 +147,7 @@ export default function OfferPage() {
     setStatus("sending");
     try {
       const context = `Make an Offer | Unit ${unit} | ${arrival} to ${departure} | ${nights} nights | ${adults} adults, ${children} children, ${infants} infants | Proposed rate: $${rate}/night | Est. total: ${fees ? MONEY(fees.total) : "N/A"}`;
-      const res = await fetch("/api/rate-inquiry", {
+      const res = await fetch("https://deals.destincondogetaways.com/api/rate-inquiry", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, message: "", context }),

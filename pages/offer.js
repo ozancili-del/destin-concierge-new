@@ -320,6 +320,8 @@ export default function OfferPage() {
             "postalCode": "32541",
             "addressCountry": "US"
           },
+          "telephone": "+1-972-357-4262",
+          "priceRange": "$110–$600/night",
           "aggregateRating": {
             "@type": "AggregateRating",
             "ratingValue": "5.0",
@@ -333,80 +335,70 @@ export default function OfferPage() {
               "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" },
               "author": { "@type": "Person", "name": "Lasheika W" },
               "datePublished": "2026-05-01",
-              "reviewBody": "Exactly like the pictures. My son enjoyed his Mother/Son birthday weekend. Perfect beachfront condo at Pelican Beach Resort.",
-              "itemReviewed": { "@type": "LodgingBusiness", "name": "Pelican Beach Resort Unit 707 — Classic Coastal, Destin FL" }
+              "reviewBody": "Exactly like the pictures. My son enjoyed his Mother/Son birthday weekend. Perfect beachfront condo at Pelican Beach Resort."
             },
             {
               "@type": "Review",
               "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" },
               "author": { "@type": "Person", "name": "Jacob A" },
               "datePublished": "2026-04-01",
-              "reviewBody": "Beautiful condo! It actually felt bigger than it looked in the pictures. Ozan was the most responsive host that I have ever dealt with. 10/10 recommend! We will definitely be back!",
-              "itemReviewed": { "@type": "LodgingBusiness", "name": "Pelican Beach Resort Unit 1006 — Fresh Coastal, Destin FL" }
+              "reviewBody": "Beautiful condo! It actually felt bigger than it looked in the pictures. Ozan was the most responsive host that I have ever dealt with. 10/10 recommend! We will definitely be back!"
             },
             {
               "@type": "Review",
               "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" },
               "author": { "@type": "Person", "name": "Elsa J" },
               "datePublished": "2026-04-01",
-              "reviewBody": "Excellent location and listing. The easy beach access made it secure for the kids. The host was extremely flexible and quick to respond. We had no concerns. I look forward to booking with this host again!",
-              "itemReviewed": { "@type": "LodgingBusiness", "name": "Pelican Beach Resort Unit 707 — Classic Coastal, Destin FL" }
+              "reviewBody": "Excellent location and listing. The easy beach access made it secure for the kids. The host was extremely flexible and quick to respond. We had no concerns. I look forward to booking with this host again!"
             },
             {
               "@type": "Review",
               "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" },
               "author": { "@type": "Person", "name": "Ronna C" },
               "datePublished": "2026-01-01",
-              "reviewBody": "Ozan was very helpful and responsive with any issue we had. I would recommend everyone to stay there. We had a great weekend. Thank you very much for your attention, help, and time.",
-              "itemReviewed": { "@type": "LodgingBusiness", "name": "Pelican Beach Resort Unit 1006 — Fresh Coastal, Destin FL" }
+              "reviewBody": "Ozan was very helpful and responsive with any issue we had. I would recommend everyone to stay there. We had a great weekend. Thank you very much for your attention, help, and time."
             },
             {
               "@type": "Review",
               "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" },
               "author": { "@type": "Person", "name": "Carly J" },
               "datePublished": "2025-11-01",
-              "reviewBody": "Ozan's rental was absolutely perfect! Modern appliances, close in proximity to popular restaurants and excursions, and the ocean view was breathtaking! My husband and I had such a relaxing stay, we will definitely be back!",
-              "itemReviewed": { "@type": "LodgingBusiness", "name": "Pelican Beach Resort Unit 1006 — Fresh Coastal, Destin FL" }
+              "reviewBody": "Ozan's rental was absolutely perfect! Modern appliances, close in proximity to popular restaurants and excursions, and the ocean view was breathtaking! My husband and I had such a relaxing stay, we will definitely be back!"
             },
             {
               "@type": "Review",
               "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" },
               "author": { "@type": "Person", "name": "Michelle A" },
               "datePublished": "2025-11-01",
-              "reviewBody": "Just what the doctor ordered! A perfect location to recharge our batteries. The host was extremely communicative and very accommodating. We very much look forward to a return visit!",
-              "itemReviewed": { "@type": "LodgingBusiness", "name": "Pelican Beach Resort Unit 1006 — Fresh Coastal, Destin FL" }
+              "reviewBody": "Just what the doctor ordered! A perfect location to recharge our batteries. The host was extremely communicative and very accommodating. We very much look forward to a return visit!"
             },
             {
               "@type": "Review",
               "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" },
               "author": { "@type": "Person", "name": "Justin F" },
               "datePublished": "2025-10-01",
-              "reviewBody": "Amazing!! Answered calls and texts, very responsive. Great beachfront condo at Pelican Beach Resort Destin.",
-              "itemReviewed": { "@type": "LodgingBusiness", "name": "Pelican Beach Resort Unit 707 — Classic Coastal, Destin FL" }
+              "reviewBody": "Amazing!! Answered calls and texts, very responsive. Great beachfront condo at Pelican Beach Resort Destin."
             },
             {
               "@type": "Review",
               "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" },
               "author": { "@type": "Person", "name": "Steven O" },
               "datePublished": "2025-09-01",
-              "reviewBody": "Ozan's communication was invaluable. Location was great, access to beach was simple. Having a bar with food near the beach and pool access made it very easy to enjoy. Ozan's suggestions for restaurants and activities made our first trip to Destin a fun and memorable experience.",
-              "itemReviewed": { "@type": "LodgingBusiness", "name": "Pelican Beach Resort Unit 707 — Classic Coastal, Destin FL" }
+              "reviewBody": "Ozan's communication was invaluable. Location was great, access to beach was simple. Having a bar with food near the beach and pool access made it very easy to enjoy. Ozan's suggestions for restaurants and activities made our first trip to Destin a fun and memorable experience."
             },
             {
               "@type": "Review",
               "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" },
               "author": { "@type": "Person", "name": "Evan Q" },
               "datePublished": "2025-08-01",
-              "reviewBody": "We had a great stay. Very short walk to the beach access. The resort was very nice and quiet. Overall excellent beachfront vacation rental in Destin FL.",
-              "itemReviewed": { "@type": "LodgingBusiness", "name": "Pelican Beach Resort Unit 707 — Classic Coastal, Destin FL" }
+              "reviewBody": "We had a great stay. Very short walk to the beach access. The resort was very nice and quiet. Overall excellent beachfront vacation rental in Destin FL."
             },
             {
               "@type": "Review",
               "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" },
               "author": { "@type": "Person", "name": "Kristy S" },
               "datePublished": "2025-12-01",
-              "reviewBody": "We just wanted to get away and this place was perfect. We had a very nice time at Pelican Beach Resort in Destin FL.",
-              "itemReviewed": { "@type": "LodgingBusiness", "name": "Pelican Beach Resort Unit 1006 — Fresh Coastal, Destin FL" }
+              "reviewBody": "We just wanted to get away and this place was perfect. We had a very nice time at Pelican Beach Resort in Destin FL."
             }
           ]
         })}} />
@@ -443,6 +435,7 @@ export default function OfferPage() {
             "@type": "Offer",
             "url": "https://offer.destincondogetaways.com/",
             "availability": "https://schema.org/InStock",
+            "price": "0",
             "priceCurrency": "USD",
             "description": "Flexible nightly rate — propose your own price",
             "validFrom": new Date().toISOString().split('T')[0]

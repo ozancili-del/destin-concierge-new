@@ -157,18 +157,301 @@ export default function OfferPage() {
   return (
     <>
       <Head>
-        <title>Make an Offer — Destin Condo Getaways</title>
-        <meta name="description" content="Propose your own nightly rate for a Gulf-front condo at Pelican Beach Resort, Destin FL." />
+        <title>Make an Offer on a Destin FL Beachfront Condo — Name Your Price | Pelican Beach Resort</title>
+        <meta name="description" content="Propose your own nightly rate for a Gulf-front condo at Pelican Beach Resort, Destin FL. Unit 707 or Unit 1006 — sleeps 6, private balcony, beachfront. Submit your offer and we'll respond within hours. No OTA fees, owner direct." />
+        <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+        <meta name="keywords" content="make offer Destin FL condo, name your price vacation rental Destin, Pelican Beach Resort condo deal, flexible pricing Destin Florida, book direct condo Destin FL discount" />
+        <link rel="canonical" href="https://offer.destincondogetaways.com/" />
+
+        <meta property="og:title" content="Make an Offer — Destin Beachfront Condo, Pelican Beach Resort FL" />
+        <meta property="og:description" content="Name your nightly rate for a Gulf-front condo in Destin, FL. Sleeps 6, private balcony, beachfront. Owner responds directly — no middleman, no OTA fees." />
+        <meta property="og:image" content="https://uc.orez.io/i/0f604abce3284748ba8d2150b7646863-MediumOriginal" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="800" />
+        <meta property="og:image:alt" content="Gulf-front beachfront condo at Pelican Beach Resort, Destin Florida" />
+        <meta property="og:url" content="https://offer.destincondogetaways.com/" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Destin Condo Getaways" />
+        <meta property="og:locale" content="en_US" />
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Make an Offer — Destin Beachfront Condo, Name Your Price" />
+        <meta name="twitter:description" content="Propose your own nightly rate for a Gulf-front condo at Pelican Beach Resort, Destin FL. Owner direct, no OTA fees." />
+        <meta name="twitter:image" content="https://uc.orez.io/i/0f604abce3284748ba8d2150b7646863-MediumOriginal" />
+
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          "name": "Make an Offer — Destin Beachfront Condo at Pelican Beach Resort",
+          "description": "Propose your own nightly rate for a Gulf-front vacation rental condo at Pelican Beach Resort, Destin FL. Units 707 and 1006 sleep 6, private Gulf-view balcony, 2 bathrooms. Owner responds directly within hours.",
+          "url": "https://offer.destincondogetaways.com/",
+          "inLanguage": "en-US",
+          "isPartOf": { "@type": "WebSite", "name": "Destin Condo Getaways", "url": "https://www.destincondogetaways.com" },
+          "breadcrumb": {
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              { "@type": "ListItem", "position": 1, "name": "Destin Florida Vacation Rentals", "item": "https://www.destincondogetaways.com" },
+              { "@type": "ListItem", "position": 2, "name": "Pelican Beach Resort Condos", "item": "https://www.destincondogetaways.com/properties" },
+              { "@type": "ListItem", "position": 3, "name": "Make an Offer", "item": "https://offer.destincondogetaways.com/" }
+            ]
+          },
+          "mainEntity": {
+            "@type": "LodgingBusiness",
+            "name": "Destin Condo Getaways — Pelican Beach Resort",
+            "description": "Two Gulf-front beachfront condos at Pelican Beach Resort, Destin FL. Unit 707 (7th floor, Classic Coastal) and Unit 1006 (10th floor, Fresh Coastal). Sleeps 6, private Gulf-view balcony, 2 bathrooms, full kitchen. Book direct and save 10–20% vs Airbnb and VRBO.",
+            "url": "https://www.destincondogetaways.com",
+            "address": {
+              "@type": "PostalAddress",
+              "streetAddress": "1002 US-98 East",
+              "addressLocality": "Destin",
+              "addressRegion": "FL",
+              "postalCode": "32541",
+              "addressCountry": "US"
+            },
+            "geo": { "@type": "GeoCoordinates", "latitude": 30.3935, "longitude": -86.4958 },
+            "priceRange": "$200–$600/night",
+            "image": "https://uc.orez.io/i/0f604abce3284748ba8d2150b7646863-MediumOriginal",
+            "aggregateRating": { "@type": "AggregateRating", "ratingValue": 5, "reviewCount": 400, "bestRating": 5 },
+            "amenityFeature": [
+              { "@type": "LocationFeatureSpecification", "name": "Beachfront", "value": true },
+              { "@type": "LocationFeatureSpecification", "name": "Gulf View", "value": true },
+              { "@type": "LocationFeatureSpecification", "name": "Private Balcony", "value": true },
+              { "@type": "LocationFeatureSpecification", "name": "Full Kitchen", "value": true },
+              { "@type": "LocationFeatureSpecification", "name": "Free Parking", "value": true },
+              { "@type": "LocationFeatureSpecification", "name": "Free WiFi", "value": true },
+              { "@type": "LocationFeatureSpecification", "name": "Pool", "value": true },
+              { "@type": "LocationFeatureSpecification", "name": "Hot Tub", "value": true },
+              { "@type": "LocationFeatureSpecification", "name": "Air Conditioning", "value": true }
+            ]
+          }
+        })}} />
+
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "Can I negotiate the price on a Destin FL beachfront condo?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Yes. At Destin Condo Getaways you can propose your own nightly rate for Unit 707 or Unit 1006 at Pelican Beach Resort, Destin FL. Submit your offer with your dates and proposed rate, and the owner will respond directly within a few hours. If your offer is accepted you receive a booking link at your negotiated rate." }
+            },
+            {
+              "@type": "Question",
+              "name": "How does the Make an Offer feature work for Destin vacation rentals?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Select your unit, pick your dates on the live availability calendar, enter your proposed nightly rate, and see an instant fee breakdown including cleaning fee, tax, and admin fee so you know the full cost. Submit with your name and email and the owner reviews your offer typically within a few hours. This is not a binding booking — no charge until you confirm." }
+            },
+            {
+              "@type": "Question",
+              "name": "What is included in the total cost shown on the offer page?",
+              "acceptedAnswer": { "@type": "Answer", "text": "The estimated total includes: your proposed nightly rate multiplied by the number of nights, a flat cleaning fee of $175, tourist and sales tax at 13%, and a 3% admin fee. This is the full amount you would pay if your offer is accepted — no hidden fees." }
+            },
+            {
+              "@type": "Question",
+              "name": "Which condos are available for offers at Pelican Beach Resort Destin?",
+              "acceptedAnswer": { "@type": "Answer", "text": "Both Unit 707 (Classic Coastal, 7th floor) and Unit 1006 (Fresh Coastal, 10th floor) at Pelican Beach Resort, 1002 US-98 East, Destin FL 32541 are available for price offers. Both condos sleep up to 6 guests with a private Gulf-view balcony, 2 bathrooms, full kitchen, and direct beachfront access." }
+            },
+            {
+              "@type": "Question",
+              "name": "How quickly will I get a response to my condo offer in Destin?",
+              "acceptedAnswer": { "@type": "Answer", "text": "The owner reviews all offers personally and typically responds within a few hours. You will receive a reply directly to your email with either an acceptance and booking link, or a counter-proposal. There is no automated rejection — every offer gets a personal response." }
+            }
+          ]
+        })}} />
+
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Service",
+          "name": "Name Your Price — Destin Beachfront Condo Rental",
+          "description": "Flexible vacation rental pricing for beachfront condos at Pelican Beach Resort, Destin FL. Propose your own nightly rate — owner responds directly within hours.",
+          "provider": {
+            "@type": "Organization",
+            "name": "Destin Condo Getaways",
+            "url": "https://www.destincondogetaways.com"
+          },
+          "areaServed": {
+            "@type": "City",
+            "name": "Destin",
+            "containedIn": { "@type": "State", "name": "Florida" }
+          },
+          "serviceType": "Vacation Rental",
+          "offers": {
+            "@type": "Offer",
+            "availability": "https://schema.org/InStock",
+            "priceCurrency": "USD",
+            "description": "Flexible nightly rates — propose your own price for a Gulf-front condo at Pelican Beach Resort, Destin FL",
+            "seller": { "@type": "Organization", "name": "Destin Condo Getaways" }
+          }
+        })}} />
+
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700;900&family=Inter:wght@400;500;700&display=swap" rel="stylesheet" />
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-3SGXCQ4FTC" />
+        <script dangerouslySetInnerHTML={{ __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-3SGXCQ4FTC');` }} />
+
+        {/* Review snippets — 10 real guest reviews */}
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "LocalBusiness",
+          "name": "Destin Condo Getaways — Pelican Beach Resort",
+          "url": "https://www.destincondogetaways.com",
+          "image": "https://uc.orez.io/i/0f604abce3284748ba8d2150b7646863-MediumOriginal",
+          "address": {
+            "@type": "PostalAddress",
+            "streetAddress": "1002 US-98 East",
+            "addressLocality": "Destin",
+            "addressRegion": "FL",
+            "postalCode": "32541",
+            "addressCountry": "US"
+          },
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "5.0",
+            "reviewCount": "400",
+            "bestRating": "5",
+            "worstRating": "1"
+          },
+          "review": [
+            {
+              "@type": "Review",
+              "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" },
+              "author": { "@type": "Person", "name": "Lasheika W" },
+              "datePublished": "2026-05-01",
+              "reviewBody": "Exactly like the pictures. My son enjoyed his Mother/Son birthday weekend. Perfect beachfront condo at Pelican Beach Resort.",
+              "itemReviewed": { "@type": "LodgingBusiness", "name": "Pelican Beach Resort Unit 707 — Classic Coastal, Destin FL" }
+            },
+            {
+              "@type": "Review",
+              "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" },
+              "author": { "@type": "Person", "name": "Jacob A" },
+              "datePublished": "2026-04-01",
+              "reviewBody": "Beautiful condo! It actually felt bigger than it looked in the pictures. Ozan was the most responsive host that I have ever dealt with. 10/10 recommend! We will definitely be back!",
+              "itemReviewed": { "@type": "LodgingBusiness", "name": "Pelican Beach Resort Unit 1006 — Fresh Coastal, Destin FL" }
+            },
+            {
+              "@type": "Review",
+              "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" },
+              "author": { "@type": "Person", "name": "Elsa J" },
+              "datePublished": "2026-04-01",
+              "reviewBody": "Excellent location and listing. The easy beach access made it secure for the kids. The host was extremely flexible and quick to respond. We had no concerns. I look forward to booking with this host again!",
+              "itemReviewed": { "@type": "LodgingBusiness", "name": "Pelican Beach Resort Unit 707 — Classic Coastal, Destin FL" }
+            },
+            {
+              "@type": "Review",
+              "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" },
+              "author": { "@type": "Person", "name": "Ronna C" },
+              "datePublished": "2026-01-01",
+              "reviewBody": "Ozan was very helpful and responsive with any issue we had. I would recommend everyone to stay there. We had a great weekend. Thank you very much for your attention, help, and time.",
+              "itemReviewed": { "@type": "LodgingBusiness", "name": "Pelican Beach Resort Unit 1006 — Fresh Coastal, Destin FL" }
+            },
+            {
+              "@type": "Review",
+              "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" },
+              "author": { "@type": "Person", "name": "Carly J" },
+              "datePublished": "2025-11-01",
+              "reviewBody": "Ozan's rental was absolutely perfect! Modern appliances, close in proximity to popular restaurants and excursions, and the ocean view was breathtaking! My husband and I had such a relaxing stay, we will definitely be back!",
+              "itemReviewed": { "@type": "LodgingBusiness", "name": "Pelican Beach Resort Unit 1006 — Fresh Coastal, Destin FL" }
+            },
+            {
+              "@type": "Review",
+              "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" },
+              "author": { "@type": "Person", "name": "Michelle A" },
+              "datePublished": "2025-11-01",
+              "reviewBody": "Just what the doctor ordered! A perfect location to recharge our batteries. The host was extremely communicative and very accommodating. We very much look forward to a return visit!",
+              "itemReviewed": { "@type": "LodgingBusiness", "name": "Pelican Beach Resort Unit 1006 — Fresh Coastal, Destin FL" }
+            },
+            {
+              "@type": "Review",
+              "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" },
+              "author": { "@type": "Person", "name": "Justin F" },
+              "datePublished": "2025-10-01",
+              "reviewBody": "Amazing!! Answered calls and texts, very responsive. Great beachfront condo at Pelican Beach Resort Destin.",
+              "itemReviewed": { "@type": "LodgingBusiness", "name": "Pelican Beach Resort Unit 707 — Classic Coastal, Destin FL" }
+            },
+            {
+              "@type": "Review",
+              "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" },
+              "author": { "@type": "Person", "name": "Steven O" },
+              "datePublished": "2025-09-01",
+              "reviewBody": "Ozan's communication was invaluable. Location was great, access to beach was simple. Having a bar with food near the beach and pool access made it very easy to enjoy. Ozan's suggestions for restaurants and activities made our first trip to Destin a fun and memorable experience.",
+              "itemReviewed": { "@type": "LodgingBusiness", "name": "Pelican Beach Resort Unit 707 — Classic Coastal, Destin FL" }
+            },
+            {
+              "@type": "Review",
+              "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" },
+              "author": { "@type": "Person", "name": "Evan Q" },
+              "datePublished": "2025-08-01",
+              "reviewBody": "We had a great stay. Very short walk to the beach access. The resort was very nice and quiet. Overall excellent beachfront vacation rental in Destin FL.",
+              "itemReviewed": { "@type": "LodgingBusiness", "name": "Pelican Beach Resort Unit 707 — Classic Coastal, Destin FL" }
+            },
+            {
+              "@type": "Review",
+              "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" },
+              "author": { "@type": "Person", "name": "Kristy S" },
+              "datePublished": "2025-12-01",
+              "reviewBody": "We just wanted to get away and this place was perfect. We had a very nice time at Pelican Beach Resort in Destin FL.",
+              "itemReviewed": { "@type": "LodgingBusiness", "name": "Pelican Beach Resort Unit 1006 — Fresh Coastal, Destin FL" }
+            }
+          ]
+        })}} />
+
+        {/* Event schema — every submitted offer is a potential booking event */}
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Event",
+          "name": "Destin FL Beachfront Condo Stay — Make an Offer",
+          "description": "Book a Gulf-front beachfront condo stay at Pelican Beach Resort, Destin FL at a price that works for you. Propose your own nightly rate for Unit 707 or Unit 1006 — sleeps 6, private balcony, direct beach access.",
+          "startDate": new Date().toISOString().split('T')[0],
+          "endDate": new Date(Date.now() + 365*86400000).toISOString().split('T')[0],
+          "eventStatus": "https://schema.org/EventScheduled",
+          "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+          "location": {
+            "@type": "Place",
+            "name": "Pelican Beach Resort",
+            "address": {
+              "@type": "PostalAddress",
+              "streetAddress": "1002 US-98 East",
+              "addressLocality": "Destin",
+              "addressRegion": "FL",
+              "postalCode": "32541",
+              "addressCountry": "US"
+            },
+            "geo": { "@type": "GeoCoordinates", "latitude": 30.3935, "longitude": -86.4958 }
+          },
+          "organizer": {
+            "@type": "Organization",
+            "name": "Destin Condo Getaways",
+            "url": "https://www.destincondogetaways.com"
+          },
+          "offers": {
+            "@type": "Offer",
+            "url": "https://offer.destincondogetaways.com/",
+            "availability": "https://schema.org/InStock",
+            "priceCurrency": "USD",
+            "description": "Flexible nightly rate — propose your own price",
+            "validFrom": new Date().toISOString().split('T')[0]
+          },
+          "image": "https://uc.orez.io/i/0f604abce3284748ba8d2150b7646863-MediumOriginal"
+        })}} />
+
+        {/* Speakable — marks content eligible for Google Assistant voice */}
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          "speakable": {
+            "@type": "SpeakableSpecification",
+            "cssSelector": [".offer-page h1", ".speakable-intro", ".speakable-faq"]
+          },
+          "url": "https://offer.destincondogetaways.com/"
+        })}} />
+
       </Head>
 
       <main className="offer-page">
         <header className="page-header">
           <div className="eyebrow">Destin Condo Getaways</div>
           <h1>Make an Offer</h1>
-          <p>Choose your condo, pick your dates, and propose the nightly rate that works for your trip. We&apos;ll review and get back to you within a few hours.</p>
+          <p className="speakable-intro">Choose your condo, pick your dates on the live availability calendar, and propose the nightly rate that works for your Destin beach trip. We review every offer personally and respond within a few hours. No OTA fees, no middlemen — direct from owner.</p>
         </header>
 
         <div className="offer-shell">
@@ -302,6 +585,73 @@ export default function OfferPage() {
           </section>
         </div>
       </main>
+
+      <section style={{width:"min(1180px,calc(100% - 32px))",margin:"0 auto",padding:"0 0 60px"}}>
+        <div style={{borderTop:"1px solid rgba(255,255,255,.08)",paddingTop:40,display:"grid",gap:32}}>
+          <div>
+            <h2 style={{fontFamily:"var(--heading)",fontSize:"clamp(1.6rem,3vw,2.4rem)",color:"var(--white)",marginBottom:12,letterSpacing:".02em"}}>Why Make an Offer on a Destin Beachfront Condo?</h2>
+            <p style={{color:"var(--muted)",fontSize:"1rem",lineHeight:1.7,maxWidth:720}}>Unlike booking platforms that lock in fixed prices, Destin Condo Getaways lets you propose the nightly rate that works for your budget. Whether you&apos;re booking last-minute, staying longer, or visiting in the off-season, there&apos;s often room for a conversation. Submit your offer with your proposed rate and we&apos;ll respond directly — no call centers, no bots, no waiting days for an answer.</p>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(260px,1fr))",gap:20}}>
+            {[
+              ["🏖️","Gulf-front, no road to cross","Both units at Pelican Beach Resort sit directly on the Gulf of Mexico. Walk off the elevator and onto the sand."],
+              ["💰","Skip the 14–20% OTA fees","Airbnb and VRBO add 14–20% service fees on top of every booking. Book direct and that money stays in your pocket."],
+              ["🏠","Sleeps 6 — families welcome","King bed, bunk bed, queen sofa bed, and 2 full bathrooms. Perfect for families and groups up to 6 guests."],
+              ["⚡","Owner responds within hours","Every offer gets a personal response from the owner — not an automated system. Fast, direct, human."],
+            ].map(([icon,title,desc]) => (
+              <div key={title} style={{background:"rgba(255,255,255,.04)",border:"1px solid rgba(255,255,255,.09)",borderRadius:16,padding:"20px 22px"}}>
+                <div style={{fontSize:"1.5rem",marginBottom:8}}>{icon}</div>
+                <div style={{fontFamily:"var(--heading)",fontSize:"1.1rem",fontWeight:700,color:"var(--white)",marginBottom:6,letterSpacing:".02em"}}>{title}</div>
+                <div style={{color:"var(--muted)",fontSize:".88rem",lineHeight:1.6}}>{desc}</div>
+              </div>
+            ))}
+          </div>
+          <div>
+            <h2 style={{fontFamily:"var(--heading)",fontSize:"clamp(1.4rem,2.5vw,2rem)",color:"var(--white)",marginBottom:16,letterSpacing:".02em"}}>Frequently Asked Questions</h2>
+            <div style={{display:"grid",gap:14}} className="speakable-faq">
+              {[
+                ["Can I negotiate the price on a Destin FL beachfront condo?","Yes. Submit your proposed nightly rate through the form above, select your dates, and the owner will review your offer personally and respond within a few hours."],
+                ["Is there a minimum offer price?","There is no published minimum — the owner reviews each offer on its own merits based on the dates, season, and length of stay. Longer stays and off-season dates tend to have more flexibility."],
+                ["What fees are included in the total shown?","The estimated total includes your proposed nightly rate × nights, a flat $175 cleaning fee, 13% tourist and sales tax, and a 3% admin fee. No hidden charges — what you see is what you pay if your offer is accepted."],
+                ["How long does it take to get a response to my offer?","The owner responds personally — usually within a few hours during the day. You will receive an email with either an acceptance and booking link, or a direct counter-offer."],
+                ["Which Destin condos are available for price offers?","Both Unit 707 (Classic Coastal, 7th floor) and Unit 1006 (Fresh Coastal, 10th floor) at Pelican Beach Resort, 1002 US-98 East, Destin FL 32541 accept offers. Both sleep up to 6 guests with direct Gulf-of-Mexico beachfront access."],
+              ].map(([q,a]) => (
+                <div key={q} style={{borderBottom:"1px solid rgba(255,255,255,.07)",paddingBottom:14}}>
+                  <h3 style={{fontFamily:"var(--heading)",fontSize:"1rem",fontWeight:700,color:"var(--white)",marginBottom:5,letterSpacing:".02em"}}>{q}</h3>
+                  <p style={{color:"var(--muted)",fontSize:".88rem",lineHeight:1.6,margin:0}}>{a}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Internal links — helps Google understand site hierarchy */}
+        <div style={{borderTop:"1px solid rgba(255,255,255,.06)",paddingTop:28,marginTop:8}}>
+          <div style={{fontSize:".78rem",color:"rgba(255,255,255,.3)",letterSpacing:".08em",textTransform:"uppercase",marginBottom:14}}>Explore More</div>
+          <div style={{display:"flex",flexWrap:"wrap",gap:10}}>
+            {[
+              ["🏷️ Current Price Drops","https://deals.destincondogetaways.com/beach-deals"],
+              ["❄️ Snowbird & Long Stays","https://sunbirds.destincondogetaways.com/"],
+              ["🏝️ Destin Activities & Tours","https://explore.destincondogetaways.com/destin-tripshock.html"],
+              ["✈️ Flights to Destin","https://explore.destincondogetaways.com/destin-car-rental.html"],
+              ["🗺️ Destin Travel Hub","https://explore.destincondogetaways.com/destin-hub"],
+              ["🏖️ Book Direct","https://www.destincondogetaways.com"],
+            ].map(([label, href]) => (
+              <a key={href} href={href} style={{
+                display:"inline-flex",alignItems:"center",gap:6,
+                padding:"7px 14px",borderRadius:20,
+                border:"0.5px solid rgba(255,255,255,.12)",
+                color:"rgba(255,255,255,.55)",fontSize:".82rem",
+                textDecoration:"none",transition:"border-color .15s,color .15s"
+              }}
+              onMouseEnter={e=>{e.currentTarget.style.borderColor="rgba(0,212,200,.4)";e.currentTarget.style.color="#00d4c8";}}
+              onMouseLeave={e=>{e.currentTarget.style.borderColor="rgba(255,255,255,.12)";e.currentTarget.style.color="rgba(255,255,255,.55)";}}>
+                {label}
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
 
       <style jsx global>{`
         :root {

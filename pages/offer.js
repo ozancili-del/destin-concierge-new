@@ -100,6 +100,15 @@ export default function OfferPage() {
   const fees = rate && nights > 0 ? calcFees(Number(rate), nights, adults, children) : null;
 
   useEffect(() => {
+    function handleScroll() {
+      const el = document.getElementById('offerFloating');
+      if (el) el.classList.toggle('visible', window.scrollY > 300);
+    }
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
     setLoadingDates(true);
     fetch(`/api/availability?unit=${unit}`)
       .then(r => r.json())
@@ -850,7 +859,16 @@ export default function OfferPage() {
           .form-grid, .counter-grid { grid-template-columns: 1fr; }
           .page-header h1 { font-size:clamp(38px,10vw,60px); }
         }
+        .floating-home-top{position:fixed;bottom:24px;right:16px;display:none;flex-direction:column;gap:8px;z-index:9999;}
+        .floating-home-top a,.floating-home-top button{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;text-decoration:none;backdrop-filter:blur(8px);}
+        .floating-home-top a{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);color:#fff;}
+        .floating-home-top button{background:rgba(45,219,180,0.9);color:#000;border:none;box-shadow:0 4px 16px rgba(0,212,200,0.4);}
+        .floating-home-top.visible{display:flex;}
       `}</style>
+      <div id="offerFloating" className="floating-home-top">
+        <a href="https://www.destincondogetaways.com" target="_blank" rel="noopener" aria-label="Home">🏠</a>
+        <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Back to top">↑</button>
+      </div>
     </>
   );
 }

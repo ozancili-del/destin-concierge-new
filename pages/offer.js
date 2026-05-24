@@ -447,6 +447,11 @@ export default function OfferPage() {
 
       </Head>
 
+      <div className="bg-wrap">
+        <img src="/offer-bg.jpg" alt="" aria-hidden="true" />
+        <div className="bg-overlay" />
+      </div>
+
       <header className="deals-topbar">
         <a className="deals-brand" href="https://www.destincondogetaways.com">
           <b>DESTIN</b>
@@ -635,7 +640,7 @@ export default function OfferPage() {
         </div>
       </main>
 
-      <section style={{width:"min(1180px,calc(100% - 32px))",margin:"0 auto",padding:"0 0 60px"}}>
+      <section style={{width:"min(1180px,calc(100% - 44px))",position:"relative",zIndex:1,margin:"0 auto",padding:"0 0 60px"}}>
         <div style={{borderTop:"1px solid rgba(255,255,255,.08)",paddingTop:40,display:"grid",gap:32}}>
           <div>
             <h2 style={{fontFamily:"var(--heading)",fontSize:"clamp(1.6rem,3vw,2.4rem)",color:"var(--white)",marginBottom:12,letterSpacing:".02em"}}>Why Make an Offer on a Destin Beachfront Condo?</h2>
@@ -694,6 +699,9 @@ export default function OfferPage() {
         :root { --green:#39ff14; --teal:#00d4c8; --navy:#020b18; --card-bg:rgba(2,18,40,0.82); --card-border:rgba(0,212,200,0.35); --white:#ffffff; --gold:#ffd166; --red:#ff6b6b; --muted:#9fb2c8; --line:rgba(255,255,255,0.12); --heading:'Barlow Condensed',sans-serif; }
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family:'Outfit','Barlow',sans-serif; background:#04101d; color:#f7fbff; min-height:100vh; overflow-x:hidden; }
+        .bg-wrap { position:fixed; inset:0; z-index:0; }
+        .bg-wrap img { width:100%; height:100%; object-fit:cover; object-position:center 40%; filter:brightness(0.18) saturate(0.7); }
+        .bg-overlay { position:absolute; inset:0; background:linear-gradient(to bottom,rgba(4,16,29,.55),rgba(4,16,29,.82)); }
         button, input, select { font: inherit; }
 
         .deals-topbar{width:min(1180px,calc(100% - 44px));margin:22px auto 24px;display:flex;align-items:center;justify-content:space-between;gap:18px;position:relative;z-index:3;color:white;}
@@ -721,7 +729,7 @@ export default function OfferPage() {
         @media(max-width:900px){.deals-topbar{display:none;}.deals-mobile-nav{display:flex;overflow-x:auto;gap:18px;padding:12px 16px 10px;border-bottom:1px solid rgba(255,255,255,.08);font-size:13px;font-weight:700;}.deals-mobile-nav a{text-decoration:none;color:rgba(255,255,255,.72);white-space:nowrap;}.deals-mobile-nav a.active{color:#47e2d0;}}
         @media(max-width:600px){.amenities-grid{grid-template-columns:repeat(2,1fr);}}
 
-        .offer-page { max-width:1180px; width:min(1180px,calc(100% - 44px)); margin:0 auto; padding:0 0 60px; }
+        .offer-page { max-width:1180px; width:min(1180px,calc(100% - 44px)); margin:0 auto; padding:0 0 60px; position:relative; z-index:1; }
         .page-header{
           min-height:480px;display:grid;align-items:center;
           border-radius:30px;overflow:hidden;position:relative;margin-bottom:26px;

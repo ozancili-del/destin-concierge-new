@@ -13,6 +13,17 @@
     },
     {
       "source": "/",
+      "destination": "/offer",
+      "permanent": false,
+      "has": [
+        {
+          "type": "host",
+          "value": "offer.destincondogetaways.com"
+        }
+      ]
+    },
+    {
+      "source": "/",
       "destination": "/rate-finder.html",
       "permanent": false,
       "has": [

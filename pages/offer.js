@@ -285,7 +285,7 @@ export default function OfferPage() {
 
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700;900&family=Inter:wght@400;500;700&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;800;900&family=Barlow+Condensed:wght@700;800;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-3SGXCQ4FTC" />
         <script dangerouslySetInnerHTML={{ __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-3SGXCQ4FTC');` }} />
 
@@ -473,9 +473,19 @@ export default function OfferPage() {
 
       <main className="offer-page">
         <header className="page-header">
-          <div className="eyebrow">Destin Condo Getaways</div>
-          <h1>Make an Offer</h1>
-          <p className="speakable-intro">Choose your condo, pick your dates on the live availability calendar, and propose the nightly rate that works for your Destin beach trip. We review every offer personally and respond within a few hours. No OTA fees, no middlemen — direct from owner.</p>
+          <div className="page-header-inner">
+            <div className="eyebrow">🏖️ Destin Condo Getaways — Pelican Beach Resort</div>
+            <h1>
+              <span className="line1">Name Your</span>
+              <span className="line2">Price.</span>
+            </h1>
+            <p className="page-header-copy speakable-intro">Propose your own nightly rate for a Gulf-front condo at Pelican Beach Resort. We review every offer personally and respond within a few hours. No OTA fees, no middlemen — direct from owner.</p>
+            <div className="proof">
+              <span>⭐ 400+ Five-Star Stays</span>
+              <span>🏖️ 2 Beachfront Units</span>
+              <span>💰 No OTA Fees</span>
+            </div>
+          </div>
         </header>
 
         <div className="amenities-grid" style={{marginBottom:28}}>
@@ -681,15 +691,9 @@ export default function OfferPage() {
       </section>
 
       <style jsx global>{`
-        :root {
-          --navy: #020b18; --navy2: #061527; --navy3: #0a1d34;
-          --teal: #00d4c8; --gold: #ffd166; --red: #ff6b6b; --green: #5ee38b;
-          --muted: #9fb2c8; --white: #f5fbff; --line: rgba(255,255,255,0.12);
-          --heading: 'Barlow Condensed', sans-serif;
-          --body: 'Inter', system-ui, sans-serif;
-        }
+        :root { --green:#39ff14; --teal:#00d4c8; --navy:#020b18; --card-bg:rgba(2,18,40,0.82); --card-border:rgba(0,212,200,0.35); --white:#ffffff; --gold:#ffd166; --red:#ff6b6b; --muted:#9fb2c8; --line:rgba(255,255,255,0.12); --heading:'Barlow Condensed',sans-serif; }
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: var(--body); color: var(--white); background: radial-gradient(circle at top left, rgba(0,212,200,.14), transparent 34rem), radial-gradient(circle at bottom right, rgba(255,209,102,.12), transparent 32rem), var(--navy); line-height: 1.5; }
+        body { font-family:'Outfit','Barlow',sans-serif; background:#04101d; color:#f7fbff; min-height:100vh; overflow-x:hidden; }
         button, input, select { font: inherit; }
 
         .deals-topbar{width:min(1180px,calc(100% - 44px));margin:22px auto 24px;display:flex;align-items:center;justify-content:space-between;gap:18px;position:relative;z-index:3;color:white;}
@@ -717,15 +721,29 @@ export default function OfferPage() {
         @media(max-width:900px){.deals-topbar{display:none;}.deals-mobile-nav{display:flex;overflow-x:auto;gap:18px;padding:12px 16px 10px;border-bottom:1px solid rgba(255,255,255,.08);font-size:13px;font-weight:700;}.deals-mobile-nav a{text-decoration:none;color:rgba(255,255,255,.72);white-space:nowrap;}.deals-mobile-nav a.active{color:#47e2d0;}}
         @media(max-width:600px){.amenities-grid{grid-template-columns:repeat(2,1fr);}}
 
-        .offer-page { width: min(1180px, calc(100% - 32px)); margin: 0 auto; padding: 48px 0 80px; }
-        .page-header { margin-bottom: 28px; }
-        .eyebrow { color: var(--teal); letter-spacing: .22em; text-transform: uppercase; font-size: .78rem; font-weight: 900; }
-        .page-header h1 { font-family: var(--heading); font-size: clamp(3rem,8vw,6rem); letter-spacing: .02em; line-height: .95; margin: 10px 0 12px; }
-        .page-header p { max-width: 680px; color: var(--muted); font-size: 1rem; }
+        .offer-page { max-width:1180px; width:min(1180px,calc(100% - 44px)); margin:0 auto; padding:0 0 60px; }
+        .page-header{
+          min-height:480px;display:grid;align-items:center;
+          border-radius:30px;overflow:hidden;position:relative;margin-bottom:26px;
+          background:linear-gradient(90deg,rgba(4,16,29,.94),rgba(4,16,29,.55) 48%,rgba(4,16,29,.06)),
+            url('/offer-bg.jpg') center/cover;
+          border:1px solid rgba(255,255,255,.13);
+          box-shadow:0 32px 90px rgba(0,0,0,.35);
+          animation:fadeDown 0.6s ease both;
+        }
+        @keyframes fadeDown{from{opacity:0;transform:translateY(-18px)}to{opacity:1;transform:none}}
+        .page-header-inner{padding:48px;max-width:700px;position:relative;z-index:2;}
+        .eyebrow{display:inline-flex;align-items:center;gap:9px;padding:10px 16px;border-radius:999px;border:1px solid rgba(71,226,208,.55);background:rgba(71,226,208,.10);color:#84fff4;font-size:12px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;margin-bottom:22px;}
+        .page-header h1{font-family:'Outfit','Barlow Condensed',sans-serif;font-size:clamp(48px,6vw,82px);line-height:.95;letter-spacing:-2px;margin:0 0 20px;font-weight:900;}
+        .page-header h1 .line1{color:#fff;display:block;}
+        .page-header h1 .line2{display:block;background:linear-gradient(90deg,var(--teal),#7fffff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+        .page-header-copy{font-size:17px;line-height:1.55;color:rgba(255,255,255,.82);max-width:560px;margin-bottom:26px;}
+        .proof{display:flex;flex-wrap:wrap;gap:22px;color:rgba(255,255,255,.84);font-weight:700;font-size:14px;}
+        .proof span{display:flex;align-items:center;gap:8px;}
 
         .offer-shell { display: grid; grid-template-columns: minmax(320px,.94fr) minmax(380px,1.06fr); min-height: 720px; overflow: hidden; border: 1px solid var(--line); border-radius: 34px; background: linear-gradient(145deg,rgba(9,27,50,.98),rgba(4,16,30,.98)); box-shadow: 0 28px 90px rgba(0,0,0,.42); }
 
-        .availability-side { position: relative; display: flex; flex-direction: column; justify-content: space-between; gap: 28px; padding: 34px; background: linear-gradient(rgba(2,11,24,.24),rgba(2,11,24,.86)), url('/snowbird-hero.jpg') center/cover; }
+        .availability-side { position: relative; display: flex; flex-direction: column; justify-content: space-between; gap: 28px; padding: 34px; background: linear-gradient(rgba(2,11,24,.34),rgba(2,11,24,.88)), url('/offer-bg.jpg') center/cover; }
         .availability-side::after { content:''; position:absolute; inset:0; background:radial-gradient(circle at top left,rgba(0,212,200,.24),transparent 44%); pointer-events:none; }
         .availability-copy, .cal-card, .unit-toggle, .date-display { position: relative; z-index: 1; }
         .availability-copy h2 { font-family: var(--heading); font-size: clamp(2.4rem,5vw,4rem); letter-spacing: .02em; line-height: .95; margin: 10px 0 12px; }
@@ -807,10 +825,12 @@ export default function OfferPage() {
           .availability-side { padding: 24px; gap: 20px; }
           .form-side { padding: 24px; }
           .form-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+          .page-header { min-height:360px; border-radius:24px; }
+          .page-header-inner { padding:26px 18px; }
         }
         @media (max-width: 620px) {
           .form-grid, .counter-grid { grid-template-columns: 1fr; }
-          .page-header h1 { font-size: 3.2rem; }
+          .page-header h1 { font-size:clamp(38px,10vw,60px); }
         }
       `}</style>
     </>

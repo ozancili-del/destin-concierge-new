@@ -461,6 +461,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
           <a href="https://www.destincondogetaways.com/properties">Condos</a>
           <a href="https://deals.destincondogetaways.com/beach-deals">Deals</a>
           <a href="https://explore.destincondogetaways.com/destin-car-rental.html">Flights & Cars</a>
+          <a href="https://offer.destincondogetaways.com/">Make an Offer</a>
         </nav>
         <a className="hub-book" href="https://www.destincondogetaways.com/properties" target="_blank" rel="noopener">🏖️ Book Your Stay</a>
       </header>
@@ -471,6 +472,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
         <a href="https://www.destincondogetaways.com/properties">Condos</a>
         <a href="https://deals.destincondogetaways.com/beach-deals">Deals</a>
         <a href="https://explore.destincondogetaways.com/destin-car-rental.html">Flights & Cars</a>
+        <a href="https://offer.destincondogetaways.com/">Make an Offer</a>
       </nav>
 
       <div className="page-wrap">

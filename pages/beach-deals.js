@@ -1326,6 +1326,7 @@ export default function BeachDeals({ deals }) {
             <a className="active" href="https://deals.destincondogetaways.com/beach-deals">Deals</a>
             <a href="https://explore.destincondogetaways.com/destin-car-rental.html">Flights & Cars</a>
             <a href="https://destin-concierge-new.vercel.app/destin-itinerary-planner.html">Plan Your Trip</a>
+            <a href="https://offer.destincondogetaways.com/">Make an Offer</a>
           </nav>
           <a className="deals-book" href="https://www.destincondogetaways.com/properties" target="_blank" rel="noopener">🏖️ Book Your Stay</a>
         </header>
@@ -1337,6 +1338,7 @@ export default function BeachDeals({ deals }) {
           <a className="active" href="https://deals.destincondogetaways.com/beach-deals">Deals</a>
           <a href="https://explore.destincondogetaways.com/destin-car-rental.html">Flights & Cars</a>
           <a href="https://destin-concierge-new.vercel.app/destin-itinerary-planner.html">Plan Your Trip</a>
+          <a href="https://offer.destincondogetaways.com/">Make an Offer</a>
         </nav>
 
       <main className="page">

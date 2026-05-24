@@ -98,7 +98,7 @@ export default function OfferPage() {
 
   useEffect(() => {
     setLoadingDates(true);
-    fetch(`https://deals.destincondogetaways.com/api/availability?unit=${unit}`)
+    fetch(`/api/availability?unit=${unit}`)
       .then(r => r.json())
       .then(d => setBookedDates(d.booked || []))
       .catch(() => setBookedDates([]))

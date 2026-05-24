@@ -1,6 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
 
 export default async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method === 'OPTIONS') return res.status(200).end();
+
   const { unit } = req.query;
   if (!unit || !["707", "1006"].includes(unit)) {
     return res.status(400).json({ error: "Invalid unit" });
@@ -29,7 +34,7 @@ export default async function handler(req, res) {
 
   const { data: rows } = await supabase
     .from("price_snapshots")
-    .select("date, demand_desc")
+    .select("date, demand_desc, price")
     .eq("unit_id", unit)
     .eq("captured_date", latest.captured_date)
     .gte("date", start)
@@ -39,5 +44,13 @@ export default async function handler(req, res) {
     .filter(r => /unavailable|booked|reserved/i.test(r.demand_desc || ""))
     .map(r => r.date);
 
-  return res.status(200).json({ booked });
+  // Build per-day rates using adjustedAvg formula: round(price * 0.875 + 25)
+  const rates = {};
+  (rows || []).forEach(r => {
+    if (r.price && !/unavailable|booked|reserved/i.test(r.demand_desc || "")) {
+      rates[r.date] = Math.round(r.price * 0.875 + 25);
+    }
+  });
+
+  return res.status(200).json({ booked, rates });
 }

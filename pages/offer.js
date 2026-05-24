@@ -4,15 +4,19 @@ import Head from "next/head";
 const CLEANING = 175;
 const TAX_RATE = 0.13;
 const ADMIN_RATE = 0.03;
+const EXTRA_GUEST_FEE = 20;
 const MONEY = n => "$" + Math.round(n).toLocaleString("en-US");
 
-function calcFees(rate, nights) {
+function calcFees(rate, nights, adults, children) {
   if (!rate || !nights || nights <= 0) return null;
   const rent = rate * nights;
-  const tax = Math.round((rent + CLEANING) * TAX_RATE);
-  const admin = Math.round((rent + CLEANING + tax) * ADMIN_RATE);
-  const total = rent + CLEANING + tax + admin;
-  return { rent, tax, admin, total };
+  const extraGuests = Math.max(0, (adults + children) - 4);
+  const extraFee = extraGuests * EXTRA_GUEST_FEE * nights;
+  const rentAfter = rent + extraFee;
+  const tax = Math.round((rentAfter + CLEANING) * TAX_RATE);
+  const admin = Math.round((rentAfter + CLEANING + tax) * ADMIN_RATE);
+  const total = rentAfter + CLEANING + tax + admin;
+  return { rent, extraFee, extraGuests, tax, admin, total };
 }
 
 function getNights(ci, co) {
@@ -90,7 +94,7 @@ export default function OfferPage() {
 
   const totalGuests = adults + children + infants;
   const nights = getNights(arrival, departure);
-  const fees = rate && nights > 0 ? calcFees(Number(rate), nights) : null;
+  const fees = rate && nights > 0 ? calcFees(Number(rate), nights, adults, children) : null;
 
   useEffect(() => {
     setLoadingDates(true);
@@ -608,6 +612,7 @@ export default function OfferPage() {
                     {fees ? (
                       <>
                         <div className="line-item"><span>Nightly × {nights} night{nights !== 1 ? "s" : ""}</span><strong>{MONEY(fees.rent)}</strong></div>
+                        {fees.extraFee > 0 && <div className="line-item"><span>Extra guest fee ({fees.extraGuests} guest{fees.extraGuests > 1 ? "s" : ""} × ${EXTRA_GUEST_FEE}/night)</span><strong>{MONEY(fees.extraFee)}</strong></div>}
                         <div className="line-item"><span>Cleaning fee</span><strong>{MONEY(CLEANING)}</strong></div>
                         <div className="line-item"><span>Tax 13%</span><strong>{MONEY(fees.tax)}</strong></div>
                         <div className="line-item"><span>Admin 3%</span><strong>{MONEY(fees.admin)}</strong></div>
@@ -632,7 +637,7 @@ export default function OfferPage() {
                   <button type="button" className={`submit-btn${!canSubmit ? " disabled" : ""}`} onClick={handleSubmit} disabled={!canSubmit}>
                     {status === "sending" ? "Sending…" : status === "error" ? "Retry →" : "Send My Offer →"}
                   </button>
-                  <p className="fine-print">This is not a booking. We&apos;ll review and respond within a few hours. No charge until you confirm.</p>
+                  <p className="fine-print">This is not a booking. We&apos;ll review and respond within a few hours. No charge until you confirm. An extra guest fee of $20/night applies for each guest beyond 4 (infants excluded). Final rates confirmed at checkout.</p>
                 </div>
               </>
             )}

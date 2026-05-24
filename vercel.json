@@ -1,17 +1,6 @@
 {
   "redirects": [
     {
-      "source": "/snowbird",
-      "destination": "/",
-      "permanent": true,
-      "has": [
-        {
-          "type": "host",
-          "value": "sunbirds.destincondogetaways.com"
-        }
-      ]
-    },
-    {
       "source": "/",
       "destination": "/snowbird",
       "permanent": false,

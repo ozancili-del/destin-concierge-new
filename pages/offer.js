@@ -447,12 +447,51 @@ export default function OfferPage() {
 
       </Head>
 
+      <header className="deals-topbar">
+        <a className="deals-brand" href="https://www.destincondogetaways.com">
+          <b>DESTIN</b>
+          <span>CONDO GETAWAYS</span>
+        </a>
+        <nav className="deals-nav">
+          <a href="https://explore.destincondogetaways.com/destin-hub">Destin Hub</a>
+          <a href="https://explore.destincondogetaways.com/destin-tripshock.html">Activities</a>
+          <a href="https://www.destincondogetaways.com/properties">Condos</a>
+          <a href="https://deals.destincondogetaways.com/beach-deals">Deals</a>
+          <a href="https://explore.destincondogetaways.com/destin-car-rental.html">Flights & Cars</a>
+          <a className="active" href="https://offer.destincondogetaways.com/" aria-current="page">Make an Offer</a>
+        </nav>
+        <a className="deals-book" href="https://www.destincondogetaways.com/properties" target="_blank" rel="noopener">🏖️ Book Your Stay</a>
+      </header>
+      <nav className="deals-mobile-nav" aria-label="Offer page mobile navigation">
+        <a href="https://explore.destincondogetaways.com/destin-hub">Destin Hub</a>
+        <a href="https://explore.destincondogetaways.com/destin-tripshock.html">Activities</a>
+        <a href="https://www.destincondogetaways.com/properties">Condos</a>
+        <a href="https://deals.destincondogetaways.com/beach-deals">Deals</a>
+        <a href="https://explore.destincondogetaways.com/destin-car-rental.html">Flights & Cars</a>
+        <a className="active" href="https://offer.destincondogetaways.com/" aria-current="page">Make an Offer</a>
+      </nav>
+
       <main className="offer-page">
         <header className="page-header">
           <div className="eyebrow">Destin Condo Getaways</div>
           <h1>Make an Offer</h1>
           <p className="speakable-intro">Choose your condo, pick your dates on the live availability calendar, and propose the nightly rate that works for your Destin beach trip. We review every offer personally and respond within a few hours. No OTA fees, no middlemen — direct from owner.</p>
         </header>
+
+        <div className="amenities-grid" style={{marginBottom:28}}>
+          <div className="amenity-item"><div className="amenity-icon">🧑‍🤝‍🧑</div><span className="amenity-text">Sleeps 6</span></div>
+          <div className="amenity-item"><div className="amenity-icon">🛌</div><span className="amenity-text">King · Bunk · Queen sofa</span></div>
+          <div className="amenity-item"><div className="amenity-icon">🚿</div><span className="amenity-text">2 Bathrooms</span></div>
+          <div className="amenity-item"><div className="amenity-icon">🍳</div><span className="amenity-text">Full kitchen</span></div>
+          <div className="amenity-item"><div className="amenity-icon">👕</div><span className="amenity-text">Laundromat</span></div>
+          <div className="amenity-item"><div className="amenity-icon">📶</div><span className="amenity-text">High-speed WiFi</span></div>
+          <div className="amenity-item"><div className="amenity-icon">📺</div><span className="amenity-text">2 Smart TVs</span></div>
+          <div className="amenity-item"><div className="amenity-icon">💪</div><span className="amenity-text">Fitness · sauna · steam</span></div>
+          <div className="amenity-item"><div className="amenity-icon">🏄</div><span className="amenity-text">Beachfront · No road</span></div>
+          <div className="amenity-item"><div className="amenity-icon">🌅</div><span className="amenity-text">Oceanview balcony</span></div>
+          <div className="amenity-item"><div className="amenity-icon">🏊</div><span className="amenity-text">3 outdoor · 1 indoor pool</span></div>
+          <div className="amenity-item"><div className="amenity-icon">♨️</div><span className="amenity-text">2 hot tubs</span></div>
+        </div>
 
         <div className="offer-shell">
           {/* LEFT — Calendar */}
@@ -625,30 +664,18 @@ export default function OfferPage() {
           </div>
         </div>
 
-        {/* Internal links — helps Google understand site hierarchy */}
-        <div style={{borderTop:"1px solid rgba(255,255,255,.06)",paddingTop:28,marginTop:8}}>
-          <div style={{fontSize:".78rem",color:"rgba(255,255,255,.3)",letterSpacing:".08em",textTransform:"uppercase",marginBottom:14}}>Explore More</div>
-          <div style={{display:"flex",flexWrap:"wrap",gap:10}}>
-            {[
-              ["🏷️ Current Price Drops","https://deals.destincondogetaways.com/beach-deals"],
-              ["❄️ Snowbird & Long Stays","https://sunbirds.destincondogetaways.com/"],
-              ["🏝️ Destin Activities & Tours","https://explore.destincondogetaways.com/destin-tripshock.html"],
-              ["✈️ Flights to Destin","https://explore.destincondogetaways.com/destin-car-rental.html"],
-              ["🗺️ Destin Travel Hub","https://explore.destincondogetaways.com/destin-hub"],
-              ["🏖️ Book Direct","https://www.destincondogetaways.com"],
-            ].map(([label, href]) => (
-              <a key={href} href={href} style={{
-                display:"inline-flex",alignItems:"center",gap:6,
-                padding:"7px 14px",borderRadius:20,
-                border:"0.5px solid rgba(255,255,255,.12)",
-                color:"rgba(255,255,255,.55)",fontSize:".82rem",
-                textDecoration:"none",transition:"border-color .15s,color .15s"
-              }}
-              onMouseEnter={e=>{e.currentTarget.style.borderColor="rgba(0,212,200,.4)";e.currentTarget.style.color="#00d4c8";}}
-              onMouseLeave={e=>{e.currentTarget.style.borderColor="rgba(255,255,255,.12)";e.currentTarget.style.color="rgba(255,255,255,.55)";}}>
-                {label}
-              </a>
-            ))}
+        <div className="plan-trip">
+          <div className="plan-trip-title">Plan Your Destin Trip</div>
+          <div className="plan-trip-links">
+            <a href="https://www.destincondogetaways.com/blog/best-beaches-destin" className="plan-trip-pill">🏖️ Best Beaches</a>
+            <a href="https://www.destincondogetaways.com/blog/destinweather" className="plan-trip-pill">🌤️ Weather Guide</a>
+            <a href="https://www.destincondogetaways.com/blog/destinairport" className="plan-trip-pill">✈️ Which Airport</a>
+            <a href="https://www.destincondogetaways.com/blog/how-to-find-cheaper-flights-and-car-rentals" className="plan-trip-pill">🚗 Flights & Car Rentals</a>
+            <a href="https://www.destincondogetaways.com/blog/destin-fireworks-2026" className="plan-trip-pill">🎆 Fireworks 2026</a>
+            <a href="https://www.destincondogetaways.com/blog/destin-events-2026" className="plan-trip-pill">📅 Events 2026</a>
+            <a href="https://deals.destincondogetaways.com/beach-deals" className="plan-trip-pill">🏷️ Price Drops</a>
+            <a href="https://sunbirds.destincondogetaways.com/" className="plan-trip-pill">❄️ Snowbird Stays</a>
+            <a href="https://explore.destincondogetaways.com/destin-tripshock.html" className="plan-trip-pill">🎟️ Activities & Tours</a>
           </div>
         </div>
       </section>
@@ -664,6 +691,31 @@ export default function OfferPage() {
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: var(--body); color: var(--white); background: radial-gradient(circle at top left, rgba(0,212,200,.14), transparent 34rem), radial-gradient(circle at bottom right, rgba(255,209,102,.12), transparent 32rem), var(--navy); line-height: 1.5; }
         button, input, select { font: inherit; }
+
+        .deals-topbar{width:min(1180px,calc(100% - 44px));margin:22px auto 24px;display:flex;align-items:center;justify-content:space-between;gap:18px;position:relative;z-index:3;color:white;}
+        .deals-brand{line-height:1;text-decoration:none;display:flex;flex-direction:column;gap:2px;white-space:nowrap;}
+        .deals-brand b{font-size:23px;letter-spacing:.12em;color:#47e2d0;font-weight:900;}
+        .deals-brand span{font-size:11px;letter-spacing:.16em;color:rgba(255,255,255,.72);font-weight:800;}
+        .deals-nav{display:flex;gap:28px;align-items:center;font-size:14px;font-weight:800;color:rgba(255,255,255,.86);}
+        .deals-nav a{text-decoration:none;color:inherit;white-space:nowrap;position:relative;}
+        .deals-nav a.active{color:#47e2d0;}
+        .deals-nav a.active::after{content:"";position:absolute;left:0;right:0;bottom:-8px;height:2px;background:#47e2d0;box-shadow:0 0 14px rgba(71,226,208,.7);}
+        .deals-book{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(243,170,52,.55);color:#ffd58a;text-decoration:none;border-radius:12px;padding:12px 18px;font-weight:900;background:rgba(243,170,52,.08);white-space:nowrap;}
+        .deals-mobile-nav{display:none;position:relative;z-index:3;}
+
+        .amenities-grid{border-radius:26px;background:rgba(5,22,36,.70);border:1px solid rgba(255,255,255,.12);box-shadow:0 24px 70px rgba(0,0,0,.22);backdrop-filter:blur(14px);padding:22px;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+        .amenity-item{display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 10px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);text-align:center;}
+        .amenity-icon{font-size:22px;width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(71,226,208,.12);border:1px solid rgba(71,226,208,.28);}
+        .amenity-text{font-size:12px;font-weight:700;color:rgba(255,255,255,.82);line-height:1.3;}
+
+        .plan-trip{margin-top:48px;text-align:center;}
+        .plan-trip-title{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:16px;}
+        .plan-trip-links{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;}
+        .plan-trip-pill{background:rgba(255,255,255,.08)!important;border:1px solid rgba(255,255,255,.12)!important;color:rgba(255,255,255,.82)!important;padding:8px 16px;border-radius:20px;text-decoration:none;font-size:13px;font-weight:700;transition:.15s;}
+        .plan-trip-pill:hover{background:rgba(71,226,208,.12)!important;border-color:rgba(71,226,208,.4)!important;color:#47e2d0!important;}
+
+        @media(max-width:900px){.deals-topbar{display:none;}.deals-mobile-nav{display:flex;overflow-x:auto;gap:18px;padding:12px 16px 10px;border-bottom:1px solid rgba(255,255,255,.08);font-size:13px;font-weight:700;}.deals-mobile-nav a{text-decoration:none;color:rgba(255,255,255,.72);white-space:nowrap;}.deals-mobile-nav a.active{color:#47e2d0;}}
+        @media(max-width:600px){.amenities-grid{grid-template-columns:repeat(2,1fr);}}
 
         .offer-page { width: min(1180px, calc(100% - 32px)); margin: 0 auto; padding: 48px 0 80px; }
         .page-header { margin-bottom: 28px; }

@@ -6,9 +6,9 @@ export async function getServerSideProps({ res }) {
   const today = new Date().toISOString().split("T")[0];
   const pages = [
     { url: "https://deals.destincondogetaways.com/beach-deals",              changefreq: "daily",   priority: "0.9" },
-    { url: "https://sunbirds.destincondogetaways.com/",                      changefreq: "weekly",  priority: "0.8" },
+    { url: "https://sunbirds.destincondogetaways.com/snowbird",              changefreq: "weekly",  priority: "0.8" },
     { url: "https://explore.destincondogetaways.com/destin-hub",             changefreq: "weekly",  priority: "0.8" },
-    { url: "https://offer.destincondogetaways.com/",                         changefreq: "monthly", priority: "0.7" },
+    { url: "https://offer.destincondogetaways.com/offer",                    changefreq: "monthly", priority: "0.7" },
     { url: "https://explore.destincondogetaways.com/destin-car-rental.html", changefreq: "monthly", priority: "0.6" },
     { url: "https://explore.destincondogetaways.com/destin-tripshock.html",  changefreq: "monthly", priority: "0.6" },
     { url: "https://guestview.destincondogetaways.com/",                     changefreq: "monthly", priority: "0.5" },

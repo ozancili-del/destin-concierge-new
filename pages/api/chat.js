@@ -2180,8 +2180,8 @@ RULES — no exceptions:
       return res.status(200).json({ reply, alertSent: false, pendingRelay: false, ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO" });
     }
 
-    // 🟢 PAST DATE CHECK — arrival date is in the past (skip for existing guests)
-    if (dates && dates.arrival && !guestBooking) {
+    // 🟢 PAST DATE CHECK — arrival date is in the past (skip for existing guests, skip for pure info questions)
+    if (dates && dates.arrival && !guestBooking && wantsAvailability) {
       const todayCT = new Date().toLocaleDateString("en-CA", { timeZone: "America/Chicago" });
       if (dates.arrival < todayCT) {
         // First: check if GPT extracted a future date instead

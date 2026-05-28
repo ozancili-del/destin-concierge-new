@@ -454,6 +454,46 @@ export default function OfferPage() {
           "url": "https://offer.destincondogetaways.com/offer"
         })}} />
 
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "WebPage",
+              "@id": "https://offer.destincondogetaways.com/offer#webpage",
+              "url": "https://offer.destincondogetaways.com/offer",
+              "name": "Make an Offer on a Destin Beachfront Condo — Name Your Price",
+              "isPartOf": { "@id": "https://www.destincondogetaways.com/#website" },
+              "publisher": { "@id": "https://www.destincondogetaways.com/#organization" },
+              "significantLink": [
+                "https://deals.destincondogetaways.com/beach-deals",
+                "https://www.destincondogetaways.com/availability",
+                "https://sunbirds.destincondogetaways.com/snowbird",
+                "https://explore.destincondogetaways.com/destin-hub"
+              ]
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://www.destincondogetaways.com/#website",
+              "name": "Destin Condo Getaways",
+              "url": "https://www.destincondogetaways.com"
+            },
+            {
+              "@type": "Organization",
+              "@id": "https://www.destincondogetaways.com/#organization",
+              "name": "Destin Condo Getaways",
+              "url": "https://www.destincondogetaways.com",
+              "telephone": "+1-972-357-4262",
+              "address": {
+                "@type": "PostalAddress",
+                "streetAddress": "1002 US-98 East",
+                "addressLocality": "Destin",
+                "addressRegion": "FL",
+                "postalCode": "32541",
+                "addressCountry": "US"
+              }
+            }
+          ]
+        })}} />
       </Head>
 
       <div className="bg-wrap">

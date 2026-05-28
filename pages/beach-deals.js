@@ -1305,6 +1305,46 @@ export default function BeachDeals({ deals }) {
         {schemas.map((schema, i) => (
           <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
         ))}
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "WebPage",
+              "@id": "https://deals.destincondogetaways.com/beach-deals#webpage",
+              "url": "https://deals.destincondogetaways.com/beach-deals",
+              "name": "Destin FL Beachfront Condo Price Drops — Book Direct & Save",
+              "isPartOf": { "@id": "https://www.destincondogetaways.com/#website" },
+              "publisher": { "@id": "https://www.destincondogetaways.com/#organization" },
+              "significantLink": [
+                "https://offer.destincondogetaways.com/offer",
+                "https://sunbirds.destincondogetaways.com/snowbird",
+                "https://explore.destincondogetaways.com/destin-hub",
+                "https://www.destincondogetaways.com/availability"
+              ]
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://www.destincondogetaways.com/#website",
+              "name": "Destin Condo Getaways",
+              "url": "https://www.destincondogetaways.com"
+            },
+            {
+              "@type": "Organization",
+              "@id": "https://www.destincondogetaways.com/#organization",
+              "name": "Destin Condo Getaways",
+              "url": "https://www.destincondogetaways.com",
+              "telephone": "+1-972-357-4262",
+              "address": {
+                "@type": "PostalAddress",
+                "streetAddress": "1002 US-98 East",
+                "addressLocality": "Destin",
+                "addressRegion": "FL",
+                "postalCode": "32541",
+                "addressCountry": "US"
+              }
+            }
+          ]
+        })}} />
       </Head>
 
       {/* Background */}

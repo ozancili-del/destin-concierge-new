@@ -431,6 +431,46 @@ export default function Snowbird({ dayData }) {
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-3SGXCQ4FTC" />
         <script dangerouslySetInnerHTML={{ __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-3SGXCQ4FTC');` }} />
         {schemas.map((s, i) => <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(s) }} />)}
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "WebPage",
+              "@id": "https://sunbirds.destincondogetaways.com/snowbird#webpage",
+              "url": "https://sunbirds.destincondogetaways.com/snowbird",
+              "name": "Snowbird & Winter Stays at Pelican Beach Resort Destin FL",
+              "isPartOf": { "@id": "https://www.destincondogetaways.com/#website" },
+              "publisher": { "@id": "https://www.destincondogetaways.com/#organization" },
+              "significantLink": [
+                "https://deals.destincondogetaways.com/beach-deals",
+                "https://offer.destincondogetaways.com/offer",
+                "https://www.destincondogetaways.com/availability",
+                "https://explore.destincondogetaways.com/destin-hub"
+              ]
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://www.destincondogetaways.com/#website",
+              "name": "Destin Condo Getaways",
+              "url": "https://www.destincondogetaways.com"
+            },
+            {
+              "@type": "Organization",
+              "@id": "https://www.destincondogetaways.com/#organization",
+              "name": "Destin Condo Getaways",
+              "url": "https://www.destincondogetaways.com",
+              "telephone": "+1-972-357-4262",
+              "address": {
+                "@type": "PostalAddress",
+                "streetAddress": "1002 US-98 East",
+                "addressLocality": "Destin",
+                "addressRegion": "FL",
+                "postalCode": "32541",
+                "addressCountry": "US"
+              }
+            }
+          ]
+        })}} />
       </Head>
 
       {/* Background — helicopter aerial */}

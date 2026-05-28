@@ -447,6 +447,47 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 .back-to-top{position:fixed;bottom:24px;right:20px;background:rgba(45,219,180,0.9);color:#000;border:none;border-radius:50%;width:44px;height:44px;font-size:18px;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,212,200,0.4);z-index:999;transition:opacity 0.3s;}
 .back-to-top.visible{display:flex;}
         `}</style>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "WebPage",
+              "@id": "https://explore.destincondogetaways.com/destin-hub#webpage",
+              "url": "https://explore.destincondogetaways.com/destin-hub",
+              "name": "Destin Florida Vacation Hub — Everything for Your Trip",
+              "isPartOf": { "@id": "https://www.destincondogetaways.com/#website" },
+              "publisher": { "@id": "https://www.destincondogetaways.com/#organization" },
+              "significantLink": [
+                "https://deals.destincondogetaways.com/beach-deals",
+                "https://offer.destincondogetaways.com/offer",
+                "https://explore.destincondogetaways.com/destin-tripshock.html",
+                "https://explore.destincondogetaways.com/destin-car-rental.html",
+                "https://www.destincondogetaways.com/availability"
+              ]
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://www.destincondogetaways.com/#website",
+              "name": "Destin Condo Getaways",
+              "url": "https://www.destincondogetaways.com"
+            },
+            {
+              "@type": "Organization",
+              "@id": "https://www.destincondogetaways.com/#organization",
+              "name": "Destin Condo Getaways",
+              "url": "https://www.destincondogetaways.com",
+              "telephone": "+1-972-357-4262",
+              "address": {
+                "@type": "PostalAddress",
+                "streetAddress": "1002 US-98 East",
+                "addressLocality": "Destin",
+                "addressRegion": "FL",
+                "postalCode": "32541",
+                "addressCountry": "US"
+              }
+            }
+          ]
+        })}} />
       </Head>
 
 

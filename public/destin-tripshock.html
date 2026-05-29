@@ -456,9 +456,28 @@ h1 span{color:var(--teal)}
       <div class="ts-field">
         <div class="ts-field-label">Trip Dates</div>
         <div style="position:relative;">
-          <input type="text" id="ts-dates-display" placeholder="Select dates" style="cursor:pointer;background:transparent;border:none;outline:none;color:#fff;font-size:15px;font-weight:700;font-family:'Outfit',sans-serif;width:100%;" readonly onclick="tsOpenDates()" style="cursor:pointer;background:transparent;border:none;outline:none;color:#fff;font-size:15px;font-weight:700;font-family:'Outfit',sans-serif;width:100%;font-size:15px;" />
-          <input type="date" id="ts-date-from" onchange="tsHandleFrom()" style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;" />
-          <input type="date" id="ts-date-to" onchange="tsHandleTo()" style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;" />
+          <input type="text" id="ts-dates-display" placeholder="Select dates" style="cursor:pointer;background:transparent;border:none;outline:none;color:#fff;font-size:15px;font-weight:700;font-family:'Outfit',sans-serif;width:100%;" readonly onclick="tsOpenDates()" />
+        </div>
+      </div>
+      <!-- Date overlay -->
+      <div id="ts-date-overlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:9999;align-items:center;justify-content:center;">
+        <div style="background:#071628;border-radius:16px;padding:28px 24px;width:min(360px,90vw);box-shadow:0 24px 60px rgba(0,0,0,.5);">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+            <span style="color:#fff;font-size:17px;font-weight:800;font-family:'Outfit',sans-serif;">Select Trip Dates</span>
+            <button onclick="tsCloseDates()" style="background:none;border:none;color:rgba(255,255,255,.5);font-size:22px;cursor:pointer;line-height:1;">✕</button>
+          </div>
+          <div style="margin-bottom:16px;">
+            <div style="color:rgba(255,255,255,.5);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;">From</div>
+            <input type="date" id="ts-date-from" onchange="tsHandleFrom()" style="width:100%;background:#0a1f35;border:1px solid rgba(71,226,208,.3);border-radius:8px;padding:10px 14px;color:#fff;font-size:15px;font-family:'Outfit',sans-serif;box-sizing:border-box;cursor:pointer;" />
+          </div>
+          <div style="margin-bottom:24px;">
+            <div style="color:rgba(255,255,255,.5);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;">To</div>
+            <input type="date" id="ts-date-to" onchange="tsHandleTo()" style="width:100%;background:#0a1f35;border:1px solid rgba(71,226,208,.3);border-radius:8px;padding:10px 14px;color:#fff;font-size:15px;font-family:'Outfit',sans-serif;box-sizing:border-box;cursor:pointer;" />
+          </div>
+          <div style="display:flex;gap:10px;">
+            <button onclick="tsHandleClear()" style="flex:1;padding:11px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:transparent;color:rgba(255,255,255,.6);font-size:14px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;">Clear</button>
+            <button onclick="tsConfirmDates()" style="flex:2;padding:11px;border-radius:8px;border:none;background:#47e2d0;color:#04101d;font-size:14px;font-weight:800;cursor:pointer;font-family:'Outfit',sans-serif;">Confirm Dates</button>
+          </div>
         </div>
       </div>
       <button class="ts-search-btn" onclick="tsSearch()">🔍 Search</button>
@@ -660,12 +679,12 @@ window.addEventListener('scroll', function(){
 
 
 <script>
-var tsFrom = '', tsTo = '', tsPicking = 'from';
+var tsFrom = '', tsTo = '';
 
-// Set min date to today in Central Time (Destin timezone)
 function getTodayCT() {
   return new Date().toLocaleDateString('en-CA', { timeZone: 'America/Chicago' });
 }
+
 document.addEventListener('DOMContentLoaded', function() {
   var today = getTodayCT();
   document.getElementById('ts-date-from').min = today;
@@ -674,51 +693,47 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function tsUpdateDisplay() {}
 
-function tsPick(el) {
-  try { if (el.showPicker) el.showPicker(); else el.click(); } catch(e) { el.click(); }
+function tsOpenDates() {
+  var overlay = document.getElementById('ts-date-overlay');
+  overlay.style.display = 'flex';
+  // Restore existing values if any
+  if (tsFrom) document.getElementById('ts-date-from').value = tsFrom;
+  if (tsTo) document.getElementById('ts-date-to').value = tsTo;
 }
 
-function tsOpenDates() {
-  tsPicking = tsFrom ? 'to' : 'from';
-  var el = document.getElementById(tsPicking === 'to' ? 'ts-date-to' : 'ts-date-from');
-  try {
-    if (el.showPicker) { el.showPicker(); }
-    else { el.focus(); el.click(); }
-  } catch(e) {
-    try { el.focus(); el.click(); } catch(e2) {}
-  }
+function tsCloseDates() {
+  document.getElementById('ts-date-overlay').style.display = 'none';
+}
+
+function tsConfirmDates() {
+  var f = document.getElementById('ts-date-from').value;
+  var t = document.getElementById('ts-date-to').value;
+  if (f) tsFrom = f;
+  if (t) tsTo = t;
+  tsRefreshDisplay();
+  tsCloseDates();
 }
 
 function tsHandleFrom() {
-  tsFrom = document.getElementById('ts-date-from').value;
-  if (!tsFrom) { tsTo = ''; document.getElementById('ts-date-to').value = ''; tsRefreshDisplay(); return; }
-  tsPicking = 'to';
-  var toEl = document.getElementById('ts-date-to');
-  toEl.min = tsFrom;
-  toEl.value = '';
-  tsTo = '';
-  tsRefreshDisplay();
-  // Open TO picker — works on desktop and mobile
-  setTimeout(function() {
-    try {
-      if (toEl.showPicker) { toEl.showPicker(); }
-      else { toEl.focus(); toEl.click(); }
-    } catch(e) {
-      try { toEl.focus(); toEl.click(); } catch(e2) {}
+  var f = document.getElementById('ts-date-from').value;
+  if (f) {
+    var toEl = document.getElementById('ts-date-to');
+    toEl.min = f;
+    if (tsTo && tsTo < f) {
+      tsTo = '';
+      toEl.value = '';
     }
-  }, 300);
+  }
 }
 
-function tsHandleTo() {
-  tsTo = document.getElementById('ts-date-to').value;
-  tsRefreshDisplay();
-}
+function tsHandleTo() {}
 
 function tsHandleClear() {
   tsFrom = ''; tsTo = '';
   document.getElementById('ts-date-from').value = '';
   document.getElementById('ts-date-to').value = '';
   tsRefreshDisplay();
+  tsCloseDates();
 }
 
 function tsRefreshDisplay() {

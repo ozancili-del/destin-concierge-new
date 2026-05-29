@@ -3,6 +3,7 @@
 
 
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -456,8 +457,8 @@ h1 span{color:var(--teal)}
         <div class="ts-field-label">Trip Dates</div>
         <div style="position:relative;">
           <input type="text" id="ts-dates-display" placeholder="Select dates" style="cursor:pointer;background:transparent;border:none;outline:none;color:#fff;font-size:15px;font-weight:700;font-family:'Outfit',sans-serif;width:100%;" readonly onclick="tsOpenDates()" style="cursor:pointer;background:transparent;border:none;outline:none;color:#fff;font-size:15px;font-weight:700;font-family:'Outfit',sans-serif;width:100%;font-size:15px;" />
-          <input type="date" id="ts-date-from" onchange="tsHandleFrom()" style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;pointer-events:none;" />
-          <input type="date" id="ts-date-to" onchange="tsHandleTo()" style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;pointer-events:none;" />
+          <input type="date" id="ts-date-from" onchange="tsHandleFrom()" style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;" />
+          <input type="date" id="ts-date-to" onchange="tsHandleTo()" style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;" />
         </div>
       </div>
       <button class="ts-search-btn" onclick="tsSearch()">🔍 Search</button>
@@ -678,9 +679,14 @@ function tsPick(el) {
 }
 
 function tsOpenDates() {
-  // Always open FROM so user can reset start date
-  tsPicking = 'from';
-  tsPick(document.getElementById('ts-date-from'));
+  tsPicking = tsFrom ? 'to' : 'from';
+  var el = document.getElementById(tsPicking === 'to' ? 'ts-date-to' : 'ts-date-from');
+  try {
+    if (el.showPicker) { el.showPicker(); }
+    else { el.focus(); el.click(); }
+  } catch(e) {
+    try { el.focus(); el.click(); } catch(e2) {}
+  }
 }
 
 function tsHandleFrom() {
@@ -689,8 +695,18 @@ function tsHandleFrom() {
   tsPicking = 'to';
   var toEl = document.getElementById('ts-date-to');
   toEl.min = tsFrom;
-  setTimeout(function() { tsPick(toEl); }, 100);
+  toEl.value = '';
+  tsTo = '';
   tsRefreshDisplay();
+  // Open TO picker — works on desktop and mobile
+  setTimeout(function() {
+    try {
+      if (toEl.showPicker) { toEl.showPicker(); }
+      else { toEl.focus(); toEl.click(); }
+    } catch(e) {
+      try { toEl.focus(); toEl.click(); } catch(e2) {}
+    }
+  }, 300);
 }
 
 function tsHandleTo() {

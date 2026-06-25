@@ -1512,9 +1512,10 @@ export default function BeachDeals({ deals }) {
               </>
             ) : (
               <div className="no-month-deals">
-                <div className="no-month-deals-icon">📭</div>
-                <div className="no-month-deals-title">No deals currently for this month</div>
-                <div className="no-month-deals-sub">Check back daily — prices update every morning. Try another month or <a href="https://www.destincondogetaways.com/availability" style={{color:"var(--teal)"}}>browse all availability</a>.</div>
+                <div className="no-month-deals-icon">🤝</div>
+                <div className="no-month-deals-title">No listed deals for this month — yet</div>
+                <div className="no-month-deals-sub">Why wait for a deal when you can create one? Tell us your dates and budget and we&apos;ll make it work.</div>
+                <a href="https://offer.destincondogetaways.com/offer" className="no-month-deals-btn">Make Us an Offer →</a>
               </div>
             )}
           </>
@@ -1789,7 +1790,9 @@ export default function BeachDeals({ deals }) {
         .no-month-deals { text-align:center; padding:48px 24px; border:1px dashed rgba(255,255,255,.12); border-radius:16px; }
         .no-month-deals-icon { font-size:32px; margin-bottom:12px; }
         .no-month-deals-title { font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:700; color:#fff; margin-bottom:8px; }
-        .no-month-deals-sub { font-size:13px; color:rgba(255,255,255,.45); max-width:360px; margin:0 auto; line-height:1.6; }
+        .no-month-deals-sub { font-size:13px; color:rgba(255,255,255,.45); max-width:360px; margin:0 auto 20px; line-height:1.6; }
+        .no-month-deals-btn { display:inline-block; padding:10px 24px; background:var(--teal); color:#020b18; font-family:'Barlow Condensed',sans-serif; font-size:15px; font-weight:700; letter-spacing:.05em; border-radius:10px; text-decoration:none; transition:filter .15s; }
+        .no-month-deals-btn:hover { filter:brightness(1.1); }
         .deals-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; overflow:visible; }
         .deal-card { background:var(--card-bg); border:1.5px solid var(--card-border); border-radius:16px; backdrop-filter:blur(12px); box-shadow:0 8px 32px rgba(0,0,0,0.5); transition:transform 0.25s ease,box-shadow 0.25s ease,border-color 0.25s ease; animation:fadeUp 0.5s ease both; position:relative; }
         .deal-card .card-photo-wrap { overflow:hidden; border-radius:16px 16px 0 0; }

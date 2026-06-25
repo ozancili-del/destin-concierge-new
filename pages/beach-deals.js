@@ -1248,6 +1248,29 @@ export default function BeachDeals({ deals }) {
   const [viewCounts, setViewCounts] = useState({});
   const [openCardId, setOpenCardId] = useState(null);
 
+  const [selectedMonth, setSelectedMonth] = useState(() => {
+    const now = new Date();
+    return now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+  });
+
+  const monthPills = (() => {
+    const pills = [];
+    const now = new Date();
+    for (let i = 0; i < 12; i++) {
+      const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
+      const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+      const isNextYear = d.getFullYear() > now.getFullYear();
+      const label = d.toLocaleDateString('en-US', { month: 'short' }) + (isNextYear ? " '" + String(d.getFullYear()).slice(2) : '');
+      pills.push({ key, label });
+    }
+    return pills;
+  })();
+
+  const filteredDeals = (deals || []).filter(deal => {
+    if (!deal.arrival) return false;
+    return deal.arrival.slice(0, 7) === selectedMonth;
+  });
+
 
   useEffect(() => {
     function handleScroll() {
@@ -1451,20 +1474,47 @@ export default function BeachDeals({ deals }) {
           <p>These are real-time price drops on our two <strong>beachfront condos at Pelican Beach Resort, Destin FL</strong> — Unit 707 (7th floor, Classic Coastal) and Unit 1006 (10th floor, Fresh Coastal). Both <strong>Pelican Beach Resort condos</strong> sleep up to 6 guests with 1 bedroom, 2 bathrooms, a private Gulf-view balcony, and full kitchen. Minutes from Destin HarborWalk Village, Big Kahuna&apos;s Water Park, and Henderson Beach State Park. When you book direct through <a href="https://www.destincondogetaways.com" style={{color:"var(--teal)"}}>destincondogetaways.com</a>, you skip the 14–20% platform fees charged by Airbnb and VRBO. Prices are tracked daily — drops are calculated against the highest recently recorded rate for each date window.</p>
         </div>
 
+        {/* Month filter pills */}
+        <div className="month-filter-wrap">
+          <div className="month-filter-label">Filter by month</div>
+          <div className="month-pills">
+            {monthPills.map(pill => (
+              <button
+                key={pill.key}
+                type="button"
+                className={"month-pill" + (pill.key === selectedMonth ? " active" : "")}
+                onClick={() => { setSelectedMonth(pill.key); setVisible(10); }}
+              >
+                {pill.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* Deals or no deals */}
         {hasDeals ? (
           <>
-            <div className="deals-grid">
-              {deals.slice(0, visible).map((deal, i) => <DealCard key={`${deal.unit}-${deal.arrival}`} deal={deal} index={i} initialViews={viewCounts[`${deal.unit}::${deal.arrival}::${deal.departure}`] || 0} openCardId={openCardId} setOpenCardId={setOpenCardId} />)}
-            </div>
-            {visible < deals.length && (
-              <div style={{ textAlign: "center", marginTop: 24 }}>
-                <button
-                  onClick={() => setVisible(v => v + 10)}
-                  className="btn-load-more"
-                >
-                  Show More Deals ↓
-                </button>
+            {filteredDeals.length > 0 ? (
+              <>
+                <div className="deals-grid">
+                  {filteredDeals.slice(0, visible).map((deal, i) => <DealCard key={`${deal.unit}-${deal.arrival}`} deal={deal} index={i} initialViews={viewCounts[`${deal.unit}::${deal.arrival}::${deal.departure}`] || 0} openCardId={openCardId} setOpenCardId={setOpenCardId} />)}
+                </div>
+                {visible < filteredDeals.length && (
+                  <div style={{ textAlign: "center", marginTop: 24 }}>
+                    <button
+                      onClick={() => setVisible(v => v + 10)}
+                      className="btn-load-more"
+                    >
+                      Show More Deals ↓
+                    </button>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="no-month-deals">
+                <div className="no-month-deals-icon">📭</div>
+                <div className="no-month-deals-title">No deals currently for this month</div>
+                <div className="no-month-deals-sub">Check back daily — prices update every morning. Try another month or <a href="https://www.destincondogetaways.com/availability" style={{color:"var(--teal)"}}>browse all availability</a>.</div>
               </div>
             )}
           </>
@@ -1730,6 +1780,16 @@ export default function BeachDeals({ deals }) {
         .drops-banner-right { text-align:right; flex-shrink:0; }
         .drops-banner-num { font-family:'Barlow Condensed',sans-serif; font-size:48px; font-weight:900; color:#ffd166; line-height:1; }
         .drops-banner-num-lbl { font-size:10px; color:rgba(255,255,255,.4); letter-spacing:.05em; text-transform:uppercase; margin-top:2px; }
+        .month-filter-wrap { margin-bottom:20px; }
+        .month-filter-label { font-size:11px; color:rgba(255,255,255,.4); text-transform:uppercase; letter-spacing:.08em; font-weight:600; margin-bottom:10px; }
+        .month-pills { display:flex; flex-wrap:wrap; gap:8px; }
+        .month-pill { padding:6px 14px; border-radius:999px; border:1px solid rgba(255,255,255,.18); background:rgba(255,255,255,.06); color:rgba(255,255,255,.65); font-size:13px; cursor:pointer; transition:all .15s; font-family:inherit; }
+        .month-pill:hover { border-color:rgba(0,212,200,.5); color:rgba(255,255,255,.9); }
+        .month-pill.active { background:var(--teal); border-color:var(--teal); color:#020b18; font-weight:700; }
+        .no-month-deals { text-align:center; padding:48px 24px; border:1px dashed rgba(255,255,255,.12); border-radius:16px; }
+        .no-month-deals-icon { font-size:32px; margin-bottom:12px; }
+        .no-month-deals-title { font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:700; color:#fff; margin-bottom:8px; }
+        .no-month-deals-sub { font-size:13px; color:rgba(255,255,255,.45); max-width:360px; margin:0 auto; line-height:1.6; }
         .deals-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; overflow:visible; }
         .deal-card { background:var(--card-bg); border:1.5px solid var(--card-border); border-radius:16px; backdrop-filter:blur(12px); box-shadow:0 8px 32px rgba(0,0,0,0.5); transition:transform 0.25s ease,box-shadow 0.25s ease,border-color 0.25s ease; animation:fadeUp 0.5s ease both; position:relative; }
         .deal-card .card-photo-wrap { overflow:hidden; border-radius:16px 16px 0 0; }
@@ -1975,6 +2035,7 @@ export default function BeachDeals({ deals }) {
         }
         @media(max-width:600px){
           .deals-grid{grid-template-columns:1fr;}
+          .month-pill{font-size:12px;padding:5px 11px;}
         }
         @media(max-width:420px){
           .hero h1{font-size:42px;}

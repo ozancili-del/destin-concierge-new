@@ -232,7 +232,9 @@ function extractSingleDate(text) {
   const year = yearMatch ? parseInt(yearMatch[1]) : new Date().getFullYear();
   const months = {
     january:"01",february:"02",march:"03",april:"04",may:"05",june:"06",
-    july:"07",august:"08",september:"09",october:"10",november:"11",december:"12"
+    july:"07",august:"08",september:"09",october:"10",november:"11",december:"12",
+    jan:"01",feb:"02",mar:"03",apr:"04",jun:"06",
+    jul:"07",aug:"08",sept:"09",sep:"09",oct:"10",nov:"11",dec:"12"
   };
   const mn = Object.keys(months).join("|");
   // "March 12th", "March 12", "12th March", "12 March" — (?!\d) prevents matching 4-digit years
@@ -739,11 +741,13 @@ function extractDates(text) {
 
   const months = {
     january:"01",february:"02",march:"03",april:"04",may:"05",june:"06",
-    july:"07",august:"08",september:"09",october:"10",november:"11",december:"12"
+    july:"07",august:"08",september:"09",october:"10",november:"11",december:"12",
+    jan:"01",feb:"02",mar:"03",apr:"04",jun:"06",
+    jul:"07",aug:"08",sept:"09",sep:"09",oct:"10",nov:"11",dec:"12"
   };
   const mn = Object.keys(months).join("|");
 
-  const sameMonthRange = new RegExp("(" + mn + ")\\s+(\\d{1,2})(?:st|nd|rd|th)?\\s*[-\u2013]\\s*(\\d{1,2})(?:st|nd|rd|th)?", "i");
+  const sameMonthRange = new RegExp("(" + mn + ")\\s+(\\d{1,2})(?:st|nd|rd|th)?\\s*[-\u2013]\\s*(\\d{1,2})(?:st|nd|rd|th)?(?!\\s*(?:adult|child|kid|guest|person|people|ppl|pax|infant|baby|toddler))", "i");
   const sameMatch = text.match(sameMonthRange);
   if (sameMatch) {
     const month = months[sameMatch[1].toLowerCase()];
@@ -764,7 +768,7 @@ function extractDates(text) {
   }
 
   // "march 1-7" format (month THEN day range)
-  const mrMatch = t.match(/(january|february|march|april|may|june|july|august|september|october|november|december)\s+(\d{1,2})(?:st|nd|rd|th)?\s*[-–]\s*(\d{1,2})(?:st|nd|rd|th)?/i);
+  const mrMatch = t.match(/(january|february|march|april|may|june|july|august|september|october|november|december)\s+(\d{1,2})(?:st|nd|rd|th)?\s*[-–]\s*(\d{1,2})(?:st|nd|rd|th)?(?!\s*(?:adult|child|kid|guest|person|people|ppl|pax|infant|baby|toddler))/i);
   if (mrMatch) {
     const month = months[mrMatch[1].toLowerCase()];
     return {
@@ -773,7 +777,7 @@ function extractDates(text) {
     };
   }
 
-  const crossPattern = new RegExp("(" + mn + ")\\s+(\\d{1,2})(?:\\s+(?:to|and|through|until|till|untl|thru|-)\\s+(?:(" + mn + ")\\s+)?(\\d{1,2}))(?!\\s*(?:adult|child|kid|guest|person|people|ppl|pax|infant|baby|toddler))", "i");
+  const crossPattern = new RegExp("(" + mn + ")\\s*(\\d{1,2})(?:(?:\\s+(?:to|and|through|until|till|untl|thru)\\s+|\\s*[-\u2013]\\s*)(?:(" + mn + ")\\s*)?(\\d{1,2}))(?!\\s*(?:adult|child|kid|guest|person|people|ppl|pax|infant|baby|toddler))", "i");
   const crossMatch = text.match(crossPattern);
   if (crossMatch) {
     const month1 = months[crossMatch[1].toLowerCase()];
@@ -2718,7 +2722,7 @@ WEATHER DATA UNAVAILABLE: Real-time weather could not be fetched. Do NOT guess o
       const tsLink = buildTripShockLink(tsCategory || "dolphin", tsDates);
       const tsGeneral = `https://www.tripshock.com/?${TRIPSHOCK_AFF}`;
       // TripShock context always set — blog content is bonus, not required
-      blogContext = `\n\nACTIVITIES REQUEST: Guest is asking about things to do, tours, or activities in Destin.\n${blogResult ? `LIVE BLOG CONTENT: ${blogResult.content}\nBlog link: ${blogResult.url}\n\n` : ""}TRIPSHOCK BOOKING:\n${tsCategory ? `- Specific activity detected (${tsCategory}): send this pre-filtered link: ${tsLink}` : `- No specific activity detected: send general link: ${tsGeneral}`}\n- ONE TripShock link only — never repeat it\n- Present naturally: "You can browse and book [activity] directly here: [link]"\n\nCRITICAL RULES:\n- NEVER use the word "affiliate"\n- Prices are identical to booking direct — never imply otherwise\n- NEVER connect to DESTINY discount code — completely separate\n- If availability context is also present: answer the activity question FIRST, then add availability as a P.S. — never lead with booking links when guest asked about activities\n- Keep it casual and helpful, not salesy`;
+      blogContext = `\n\nACTIVITIES REQUEST: Guest is asking about things to do, tours, or activities in Destin.\n${blogResult ? `LIVE BLOG CONTENT: ${blogResult.content}\nBlog link: ${blogResult.url}\n\n` : ""}TRIPSHOCK BOOKING:\n${tsCategory ? `- Specific activity detected (${tsCategory}): send this pre-filtered link: ${tsLink}` : `- No specific activity detected: send general link: ${tsGeneral}`}\n- ONE TripShock link only — never repeat it\n- Present naturally: write a casual sentence naming the activity, then paste the exact link provided above. NEVER write bracket placeholders like [activity] or [link] — only real URLs given in this context.\n\nCRITICAL RULES:\n- NEVER use the word "affiliate"\n- Prices are identical to booking direct — never imply otherwise\n- NEVER connect to DESTINY discount code — completely separate\n- If availability context is also present: answer the activity question FIRST, then add availability as a P.S. — never lead with booking links when guest asked about activities\n- Keep it casual and helpful, not salesy`;
     } else if (blogTopic === "itinerary") {
       blogContext = `\n\nITINERARY REQUEST: Guest wants help planning their Destin trip. Send them straight to the Trip Planner with curiosity and excitement — NO questions, NO friction, just drop the link and let them explore.\n\nTone: make it sound like you're sending them to something cool they'll want to click. Like a friend saying "oh you HAVE to try this." Tease what it does without over-explaining.\n\nExample vibe (GPT should rephrase naturally): "Oh I've got something for this 👀 — we built an AI Trip Planner specifically for Destin. Pick your dates, your vibe, and it builds your whole itinerary. Worth a look: https://www.destincondogetaways.com/destin-vacation-itinerary-planner-574049367"\n\nCRITICAL RULES:\n- Drop the link immediately — do NOT ask questions first\n- No "Great news" opener — lead with curiosity/intrigue\n- Plain text URL, no markdown\n- Do NOT build the itinerary yourself — that's the planner's job`;
     } else if (blogTopic) {
@@ -2856,8 +2860,8 @@ TRIPSHOCK AFFILIATE RULE:
 - When activity context provides a pre-filtered TripShock link, use THAT link — never use the generic homepage link if a specific one is provided
 - Use ONE TripShock link per response — never repeat it
 - If a guest asks about activities BUT also triggered availability (dates + guest count), ALWAYS answer the activity question first with recommendations, then add availability as a natural P.S. at the end. Never lead with booking links when the primary question was about activities
-- Keep it casual: "You can book [activity] here: [link]" not a sales pitch
-- NEVER quote specific prices for TripShock activities — you don't have real-time pricing. If asked about cost, respond with personality: something like "Honestly prices vary a lot depending on the tour and season — best to check current availability and pricing directly here: [TripShock link] 🐬" — fun and honest, never make up a number
+- Keep it casual — one friendly sentence naming the activity followed by the exact TripShock URL provided in context. NEVER write bracket placeholders like [activity] or [link]; if no TripShock URL is provided in context, do not mention a link at all
+- NEVER quote specific prices for TripShock activities — you don't have real-time pricing. If asked about cost, respond with personality: something like "Honestly prices vary a lot depending on the tour and season — best to check current availability and pricing directly here: <paste the exact TripShock URL from context> 🐬" — fun and honest, never make up a number. If no TripShock URL exists in context, skip the link entirely
 
 AMENITIES ACCURACY RULE:
 - Never invent resort/unit amenities.
@@ -3852,8 +3856,8 @@ Your 10% direct booking discount is already applied! 🎉 Unit 707 availability 
     // would stare at "here are your links" with nothing clickable. Replace
     // with an honest re-ask. Skipped if real links were already sent earlier
     // in the conversation (referring back to them without a URL is legit).
-    const hadPlaceholderToken = /\{url\w*\}/i.test(reply);
-    reply = reply.replace(/\{url\w*\}/gi, "").replace(/\n{3,}/g, "\n\n").trim();
+    const hadPlaceholderToken = /\{url\w*\}/i.test(reply) || /\[[^\]]{0,60}link[^\]]{0,10}\](?!\()/i.test(reply);
+    reply = reply.replace(/\{url\w*\}/gi, "").replace(/\[[^\]]{0,60}link[^\]]{0,10}\](?!\()/gi, "").replace(/\n{3,}/g, "\n\n").trim();
     const claimsLinks = hadPlaceholderToken || /here (are|is) (your|the) (booking )?links?|booking links?:|follow the links?|links? below|links? again for you|share the links? again|provide the booking links?/i.test(reply);
     const hasRealUrl = /https?:\/\//.test(reply);
     if (claimsLinks && !hasRealUrl && !bookingLinksSent) {

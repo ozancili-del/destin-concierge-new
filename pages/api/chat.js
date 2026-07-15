@@ -1391,6 +1391,22 @@ export default async function handler(req, res) {
     const lastBotMsg = [...messages].reverse().find(m => m.role === "assistant");
     const botAskedGuestCount = lastBotMsg && /how many (adult|child|guest|people|person)|how many.*staying|number of (adult|guest|people)/i.test(lastBotMsg.content);
 
+    // ── STICKY INFO-TOPIC GUARD (festival-date-correction fix) ───────────────
+    // Problem: guest asks an INFO question ("Destin seafood festival dates?"),
+    // then follows up with a bare date correction ("I've seen it as Sept 25-27
+    // too"). detectBlogTopic only scans the CURRENT message, finds no keyword,
+    // so the availability flow hijacks the bare dates with "how many adults?".
+    // Fix: if the recent conversation was about an info/blog topic AND the
+    // current message carries NO booking language, treat lingering dates as
+    // part of the info discussion, not a booking request.
+    const recentInfoTopic = detectBlogTopic(lastUser)
+      || (lastBotMsg && lastBotMsg.content ? detectBlogTopic(lastBotMsg.content) : null)
+      || detectBlogTopic(allUserText.slice(-400));
+    // Explicit booking language that would legitimately flip an info chat into a booking
+    const hasBookingLanguageNow = /\b(book|booking|reserve|reservation|availab|stay|check.?in|check.?out|per night|nightly|rate|how much|price|cost|room|unit|condo|nights?)\b/i.test(lastUser) || botAskedGuestCount;
+    // True when: info topic is active, guest sent bare/festival dates, and did NOT ask to book
+    const isInfoDateCorrection = !!recentInfoTopic && !hasBookingLanguageNow && !hasAccommodation;
+
     // Holiday / vague / adjustment detection
     const holidayDates    = extractHolidayDates(lastUser) || extractHolidayDates(allUserText.slice(-300));
     const isSpringBreak   = detectSpringBreak(lastUser);
@@ -2528,10 +2544,10 @@ Unit 1006: ${link1006hoa}`;
       }
     }
 
-    if (dates && !isDiscountRequest && !hasGuestCount && !guestCountFallback && !guestBooking && !hasAccommodation && !bookingLinksSent && !isEscalation && !(detectedBlogTopic && !isExplicitBooking)) {
+    if (dates && !isDiscountRequest && !hasGuestCount && !guestCountFallback && !guestBooking && !hasAccommodation && !bookingLinksSent && !isEscalation && !isInfoDateCorrection && !(detectedBlogTopic && !isExplicitBooking)) {
       availabilityStatus = "NEEDS_GUEST_COUNT";
       availabilityContext = `DATES FOUND: Guest provided dates (${dates.arrival} to ${dates.departure}) but has NOT provided number of adults or children yet. DO NOT send to availability page. Ask warmly: "Perfect — I've got your dates! Just need one more thing: how many adults and children will be staying?  I'll check live availability right away 😊"`;
-    } else if (dates && !isDiscountRequest && !availabilityStatus) {
+    } else if (dates && !isDiscountRequest && !isInfoDateCorrection && !availabilityStatus) {
       const [avail707, avail1006] = await Promise.all([
         checkAvailability(UNIT_707_PROPERTY_ID, dates.arrival, dates.departure),
         checkAvailability(UNIT_1006_PROPERTY_ID, dates.arrival, dates.departure),

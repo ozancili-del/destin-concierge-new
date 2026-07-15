@@ -347,7 +347,7 @@ function detectUnitComparison(text) {
 // Detect escalation/emergency/threat scenarios
 // ─────────────────────────────────────────────────────────────────────────────
 function detectEscalation(text) {
-  return /dying|passed away|funeral|death|asthma|medical|emergency|storm|hurricane|power outage|displaced|sick child|hospital|review|1.star|one star|sue|lawyer|legal|lawsuit|going to post|tell everyone|already checked in|friends just arrived|sleeping in car|floor|waiver|sign anything|please don't turn|breaking point|at my limit/i.test(text);
+  return /dying|passed away|funeral|death|asthma|medical|emergency|storm|hurricane|power outage|displaced|sick child|hospital|review|1.star|one star|sue|lawyer|legal|lawsuit|going to post|tell everyone|already checked in|friends just arrived|sleeping in car|floor|waiver|sign anything|please don't turn|breaking point|at my limit|\bscam\b|\bscammer\b|\bfraud\b|\bfraudulent\b|rip.?off|\bphishing\b|\bfake site\b|\bfake website\b|reporting (you|this)/i.test(text);
 }
 
 function detectExcessGuests(text) {
@@ -1544,6 +1544,15 @@ export default async function handler(req, res) {
     const normalizedLastUser = bareNumberReply ? lastUser.trim().replace(/^(\d+)$/, "$1 adults") : lastUser;
     const hasGuestCount = /(\d+)\s*(adult|kid|child|children|guest|person|people|ppl|pax|infant|baby|toddler)/i.test(normalizedUserText) || bareNumberReply || !!historicBareCount;
     const isGuestCountReply = botAskedGuestCount && hasGuestCount && !wantsAvailability;
+    // ── GUEST COUNT FALLBACK (Ronda fix) ──────────────────────────────────
+    // Bot asked for guest count, guest replied with something that LOOKS like
+    // an attempt to answer ("2 me and my man nooo kids") but regex couldn't
+    // parse it. Instead of re-asking (dead loop risk), proceed with the
+    // 2-adult default and append a disclaimer telling the guest to adjust
+    // the count on the booking page. Scoped tightly: must contain a digit or
+    // people-words, and must NOT be a fresh question (ends with "?").
+    const looksLikeCountAttempt = /\d/.test(lastUser) || /\b(two|three|four|five|six|couple|both of us|just us|me and|us two|my (man|wife|husband|partner|girlfriend|boyfriend|family|kids?))\b/i.test(lastUser);
+    const guestCountFallback = botAskedGuestCount && !hasGuestCount && looksLikeCountAttempt && !/\?\s*$/.test(lastUser.trim());
     // NOTE: isCheckoutReply is defined AFTER the singleCheckinDate block so dates is already resolved
     // "yes/ok/sure" confirmation — carry forward dates bot just proposed in previous message
     const isSimpleConfirmation = /^\s*(yes|yeah|yep|sure|ok|okay|go ahead|please|sounds good|perfect|great|do it|check it|check that|let's do it|let's go|yes please|please check)\s*[!.]*\s*$/i.test(lastUser.trim());
@@ -2169,6 +2178,7 @@ RULES — no exceptions:
 5. Always refer to Ozan for human decision: "Please call Ozan directly at (972) 357-4262 — he is the owner and the right person to speak with in urgent situations."
 6. NEVER suggest competitors, other hotels, Airbnb, Holiday Inn, or any outside accommodation. You are not an emergency center. You only know about these two condos.
 7. Review/legal threats: Do NOT acknowledge the threat. Do NOT get defensive. Stay calm and warm. Just refer to Ozan.
+7b. Scam/fraud accusations ("scam", "fraud", "fake site"): This is a trust crisis — the guest believes they are being deceived. Drop ALL sales language, NO emojis, NO cheerful tone, NEVER ask for booking details. Respond seriously and briefly: acknowledge their frustration, state that this is a real, owner-operated business, and give direct human contact: "I completely understand your frustration and I'm sorry this experience has been confusing. This is a real, owner-operated rental business. Please contact the owner Ozan directly at (972) 357-4262 or ozan@destincondogetaways.com — he will personally sort this out." Nothing else.
 8. Guest already checked in with extra people arriving: Be firm but warm — maximum is 6 during the entire stay. Refer to Ozan.
 9. Never promise exceptions. Never say "let me see what I can do" in a way that implies flexibility on the 6 limit.`;
     }
@@ -2514,7 +2524,7 @@ Unit 1006: ${link1006hoa}`;
       }
     }
 
-    if (dates && !isDiscountRequest && !hasGuestCount && !guestBooking && !hasAccommodation && !bookingLinksSent && !(detectedBlogTopic && !isExplicitBooking)) {
+    if (dates && !isDiscountRequest && !hasGuestCount && !guestCountFallback && !guestBooking && !hasAccommodation && !bookingLinksSent && !isEscalation && !(detectedBlogTopic && !isExplicitBooking)) {
       availabilityStatus = "NEEDS_GUEST_COUNT";
       availabilityContext = `DATES FOUND: Guest provided dates (${dates.arrival} to ${dates.departure}) but has NOT provided number of adults or children yet. DO NOT send to availability page. Ask warmly: "Perfect — I've got your dates! Just need one more thing: how many adults and children will be staying?  I'll check live availability right away 😊"`;
     } else if (dates && !isDiscountRequest && !availabilityStatus) {
@@ -2835,7 +2845,7 @@ MODE 2 — If ALL of the above are already provided AND booking links have alrea
 NEVER invent, generate, guess, or modify booking URLs. The ONLY valid booking URLs are pre-built by the system and provided to you in the context below (they contain "or_arrival=" and "or_departure="). If no pre-built URL is provided, do NOT send any booking link — ask for missing info instead.
 
 ⛔ BOOKING LINK FORMAT RULE:
-When sharing booking links, output the URL directly with NO label before it. Do NOT write "Unit 707:", "- Unit 707:", or any prefix text before the URL. The booking button already shows the unit name. Just write a natural sentence then drop the URL on its own line. Example: "Both units are available! Here are your links:\n{url707}\n{url1006}" — never "Unit 707: {url}" or "- Unit 707: {url}".
+When sharing booking links, output the URL directly with NO label before it. Do NOT write "Unit 707:", "- Unit 707:", or any prefix text before the URL. The booking button already shows the unit name. Just write a natural sentence then drop each pre-built URL on its own line. Write ONLY real URLs provided in the context below — never write placeholder text, template variables, or bracketed tokens of any kind. If no pre-built URL exists in the context, do not claim links are available.
 
 FRESH SESSION / NO PRIOR CONTEXT RULE: If a guest's message implies they spoke with you before (e.g. "is it still available?", "can you send the link again?", "as we discussed", "those dates", "my booking") BUT there are no dates, guest count, or booking links anywhere in the current conversation — do NOT invent or assume any details. Instead respond playfully: something like "OMG it's been such a busy day I may have mixed things up! 😅 Could you remind me of your dates and how many guests? I want to make sure I get everything right for you! 🌊" — keep it warm, fun, and never make the guest feel at fault.
 
@@ -3472,7 +3482,7 @@ NO REPETITION RULE: Review all your previous responses in this conversation befo
         && !availabilityStatus.includes("HOA_UNCERTAIN")
         && !availabilityStatus.includes("HOA_VIOLATION")
         && !availabilityStatus.includes("OCCUPANCY_EXCEEDED")
-        && dates && hasGuestCount && !mentionsPets && !bookingLinksSent && (wantsAvailability || isGuestCountReply || isCheckoutReply || isNightsReply || isAvailabilityConfirm)) {
+        && dates && (hasGuestCount || guestCountFallback) && !mentionsPets && !bookingLinksSent && (wantsAvailability || isGuestCountReply || isCheckoutReply || isNightsReply || isAvailabilityConfirm || guestCountFallback)) {
 
       let bookingReply = null;
 
@@ -3654,9 +3664,12 @@ Your 10% direct booking discount is already applied! 🎉 Unit 707 availability 
         } else {
           bookingReply = bookingReply.replace(/\s*https?:\/\/(?:www\.)?aviasales\.com\/search\/[^\s)>\n]+/g, "").trim();
         }
+        if (guestCountFallback) {
+          bookingReply = bookingReply.trimEnd() + `\n\nQuick note — I wasn't 100% sure of your exact guest count, so I set the links to 2 adults. You can adjust the number of guests right on the booking page before you book! Just keep in mind the maximum is 6 guests total — bookings over 6 can't be honored. 😊`;
+        }
         await logToSheets(sessionId, lastUser, bookingReply,
           dates ? `${dates.arrival} to ${dates.departure}` : "",
-          availabilityStatus, "");
+          availabilityStatus + (guestCountFallback ? "|GUESTCOUNT_FALLBACK" : ""), "");
         return res.status(200).json({
           reply: bookingReply, alertSent: alertWasFired, pendingRelay: false,
           ozanAcked: ozanAcknowledgedFinal, ozanAckType, detectedIntent: "INFO",
@@ -3832,6 +3845,23 @@ Your 10% direct booking discount is already applied! 🎉 Unit 707 availability 
     // Strip trailing punctuation glued to URLs
     reply = reply.replace(/(https?:\/\/[^\s"'<>)]+)[.,!?;:)]+(\ |$)/g, '$1$2');
     reply = reply.replace(/(https?:\/\/[^\s"'<>)]+)[.,!?;:)]+$/, '$1');
+
+    // ── LINK-CLAIM GUARD (Ronda fix) ────────────────────────────────────────
+    // If the reply CLAIMS to contain booking links but no actual URL survived
+    // (placeholder leak, Bug4 strip, hallucination), never send it — the guest
+    // would stare at "here are your links" with nothing clickable. Replace
+    // with an honest re-ask. Skipped if real links were already sent earlier
+    // in the conversation (referring back to them without a URL is legit).
+    const hadPlaceholderToken = /\{url\w*\}/i.test(reply);
+    reply = reply.replace(/\{url\w*\}/gi, "").replace(/\n{3,}/g, "\n\n").trim();
+    const claimsLinks = hadPlaceholderToken || /here (are|is) (your|the) (booking )?links?|booking links?:|follow the links?|links? below|links? again for you|share the links? again|provide the booking links?/i.test(reply);
+    const hasRealUrl = /https?:\/\//.test(reply);
+    if (claimsLinks && !hasRealUrl && !bookingLinksSent) {
+      console.log("Link-claim guard fired: reply claimed links but contained none — replaced with safe re-ask.");
+      reply = dates
+        ? `I want to make sure you get working booking links! Could you confirm how many adults and children will be staying? I'll check live availability for your dates (${dates.arrival} to ${dates.departure}) and send the direct links right away 😊`
+        : `I want to make sure you get working booking links! Could you share your check-in and check-out dates, plus how many adults and children? I'll check live availability right away 😊`;
+    }
 
     // Store openIssues JSON in col G — gate on isMaintenanceReport OR detectedIntent
     // so issues detected by regex always get saved even if GPT said INFO

@@ -1788,7 +1788,13 @@ The flight link is ALREADY BUILT and will be appended below your message automat
 DO NOT ask which airport. DO NOT ask where they are flying from. The question is already answered.
 Simply confirm warmly in ONE short sentence which airport you used${preOriginIsMultiCity ? ` and add that they can switch airports right on the search page if they prefer a different one` : ""}. Example: "Here's your flight search from ${preOriginIsMultiCity ? MULTI_AIRPORT_MAIN[preResolvedOrigin] : preResolvedOrigin} (${preResolvedOrigin})${preOriginIsMultiCity ? " — you can switch airports right on the search page if you'd rather use a different one" : ""}! 😊"
 NEVER write any aviasales.com URL yourself — the button is appended automatically.`
-      : `You have the guest's dates and passenger count. Ask where they're flying from — something warm and brief like: "By the way — where are you flying from? I can build you a direct flight search link for VPS with your exact dates and passengers already filled in! 😊" Ask ONLY for the city — never ask which airport within a city. The system will build and append the flight button automatically. NEVER write any aviasales.com URL in your response.`)
+      : `You have the guest's dates and passenger count, but the system has NOT resolved an origin airport.
+Ask where they're flying from — warm and brief: "By the way — where are you flying from? I can build you a direct flight search link for VPS with your exact dates and passengers already filled in! 😊"
+Ask ONLY for the city — never ask which airport within a city.
+
+🚫 NEVER GUESS OR INFER AN ORIGIN. If the guest's message is unclear, a typo, gibberish, or an abbreviation you are not certain about (e.g. "qny", "chi", "nyy", "any"), do NOT assume what city they meant. Do NOT say "it looks like you're flying from X". Ask them to confirm the city instead — for example: "Sorry, I didn't quite catch that — which city are you flying from? 😊"
+🚫 NEVER say a flight link is ready, provided, or pre-filled unless the system resolved the origin. If no origin is resolved, there is NO link — do not imply one exists.
+The system builds and appends the flight button automatically. NEVER write any aviasales.com URL in your response.`)
   : `Do NOT offer flight links — dates or guest count not yet known.`}
 
 
@@ -3969,6 +3975,29 @@ Your 10% direct booking discount is already applied! 🎉 Unit 707 availability 
       reply = dates
         ? `I want to make sure you get working booking links! Could you confirm how many adults and children will be staying? I'll check live availability for your dates (${dates.arrival} to ${dates.departure}) and send the direct links right away 😊`
         : `I want to make sure you get working booking links! Could you share your check-in and check-out dates, plus how many adults and children? I'll check live availability right away 😊`;
+    }
+
+    // ── FLIGHT-LINK CLAIM GUARD ─────────────────────────────────────────────
+    // Same principle as the booking guard above, for flights: if the reply
+    // CLAIMS a flight search link but no aviasales URL was actually appended,
+    // never ship it. This is what produced "here's your flight search link:"
+    // followed by nothing when GPT guessed an origin ("qny" -> New York) that
+    // the system never resolved. Code decides whether a link exists — not GPT.
+    const claimsFlightLink = /here'?s? (your|the) (direct )?flight( search)? link|flight search link|search flights? (link|for)|flight link (is )?(ready|below)|pre-?filled|already filled in/i.test(reply);
+    const hasFlightUrl = /aviasales\.com\/search\//i.test(reply);
+    if (claimsFlightLink && !hasFlightUrl) {
+      console.log("Flight-claim guard fired: reply promised a flight link but none was built.");
+      // Strip the false promise sentence(s), then ask for the origin honestly.
+      reply = reply
+        .split(/(?<=[.!?😊🎉])\s+/)
+        .filter(s => !/flight( search)? link|search flights?|pre-?filled|already filled in|aviasales|looks like you|it seems you'?re|you might be flying|i think you mean|assuming you/i.test(s))
+        .join(" ")
+        .replace(/\s+/g, " ")
+        .trim();
+      // Drop leftover fragments (stray emoji/punctuation from removed sentences)
+      if (reply.replace(/[\s\p{Emoji_Presentation}\p{Emoji}\u200d\ufe0f.,!?;:—–-]/gu, "").length < 15) reply = "";
+      const flightAsk = `✈️ Which city are you flying from? Send me the city name and I'll build your flight search link to VPS with your dates and passengers already filled in! 😊`;
+      reply = reply ? `${reply}\n\n${flightAsk}` : flightAsk;
     }
 
     // Store openIssues JSON in col G — gate on isMaintenanceReport OR detectedIntent

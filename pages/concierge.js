@@ -218,15 +218,26 @@ const LINK_BUTTONS={
   'destin-vacation-itinerary-planner':{label:'🗺️ Plan My Destin Trip',bg:'linear-gradient(135deg,#1D9E75,#0F6E56)', shadow:'rgba(29,158,117,0.4)'},
   'destincondogetaways.com/availability':{label:'📅 Check Availability',bg:'linear-gradient(135deg,#1D9E75,#0F6E56)', shadow:'rgba(29,158,117,0.4)'},
 };
+const AIRPORT_NAMES={ORD:"Chicago O'Hare",MDW:"Chicago Midway",JFK:"New York JFK",LGA:"New York LaGuardia",EWR:"Newark",IAD:"Washington Dulles",DCA:"Washington Reagan",BWI:"Baltimore",IAH:"Houston Bush",HOU:"Houston Hobby",DFW:"Dallas/Fort Worth",DAL:"Dallas Love Field",SFO:"San Francisco",OAK:"Oakland",SJC:"San Jose",LAX:"Los Angeles",DEN:"Denver",ATL:"Atlanta",BNA:"Nashville",CLT:"Charlotte",BOS:"Boston",SEA:"Seattle",PHX:"Phoenix",PHL:"Philadelphia",DTW:"Detroit",MSP:"Minneapolis",STL:"St. Louis",MCI:"Kansas City",IND:"Indianapolis",CMH:"Columbus",CLE:"Cleveland",CVG:"Cincinnati",PIT:"Pittsburgh",MEM:"Memphis",RDU:"Raleigh-Durham",TPA:"Tampa",JAX:"Jacksonville",MCO:"Orlando",MIA:"Miami",AUS:"Austin",SAT:"San Antonio",MSY:"New Orleans",BHM:"Birmingham",SLC:"Salt Lake City",PDX:"Portland",SAN:"San Diego",SMF:"Sacramento",MKE:"Milwaukee",BUF:"Buffalo",SDF:"Louisville",CHS:"Charleston",RSW:"Fort Myers",OKC:"Oklahoma City",TUL:"Tulsa",ABQ:"Albuquerque",YYZ:"Toronto",YUL:"Montreal",YVR:"Vancouver"};
+const MONTHS_SHORT=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 function getLinkButton(u){
-  // Aviasales — dynamic label from URL
-  const avMatch = u.match(/aviasales\.com\/search\/([A-Z]{3})\d{4}([A-Z]{3})/);
-  if (avMatch) {
-    const origin = avMatch[1];
-    const dest = avMatch[2];
-    const destLabel = dest === 'VPS' ? 'VPS · Destin' : dest === 'PNS' ? 'PNS · Pensacola' : dest === 'ECP' ? 'ECP · Panama City' : dest;
-    const label = `✈️ Search Flights ${origin} → ${destLabel}`;
-    return `<a href="${u}" target="_blank" style="display:flex;align-items:center;gap:10px;padding:10px 14px;margin:5px 0;background:linear-gradient(135deg,#1a3a6b,#2563eb);border:none;border-radius:10px;text-decoration:none;color:#fff;font-size:13px;font-weight:700;box-shadow:0 4px 12px rgba(37,99,235,0.4),0 1px 3px rgba(0,0,0,0.15);">${label} &nbsp;→</a>`;
+  // Aviasales — rich flight card built from the URL itself
+  const avFull = u.match(/aviasales\.com\/search\/([A-Z]{3})(\d{2})(\d{2})([A-Z]{3})(?:(\d{2})(\d{2}))?(\d+)/);
+  if (avFull) {
+    const [, origin, dDay, dMon, dest, rDay, rMon] = avFull;
+    let pax = 1;
+    try {
+      const qs = new URL(u).searchParams;
+      pax = (parseInt(qs.get("adults")||"1",10)||1) + (parseInt(qs.get("children")||"0",10)||0) + (parseInt(qs.get("infants")||"0",10)||0);
+    } catch(e) { pax = parseInt(avFull[7]||"1",10) || 1; }
+    const originName = AIRPORT_NAMES[origin] || origin;
+    const destName = dest === "VPS" ? "Destin" : dest === "PNS" ? "Pensacola" : dest === "ECP" ? "Panama City" : dest;
+    const mi = (m) => MONTHS_SHORT[(parseInt(m,10)||1)-1] || "";
+    const dateStr = (rDay && rMon)
+      ? (dMon === rMon ? `${mi(dMon)} ${parseInt(dDay,10)}–${parseInt(rDay,10)}` : `${mi(dMon)} ${parseInt(dDay,10)} – ${mi(rMon)} ${parseInt(rDay,10)}`)
+      : `${mi(dMon)} ${parseInt(dDay,10)}`;
+    const paxStr = pax === 1 ? "1 passenger" : `${pax} passengers`;
+    return `<a href="${u}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;gap:12px;padding:12px 14px;margin:6px 0;background:#fff;border:1px solid rgba(0,0,0,0.10);border-radius:12px;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,0.06);"><span style="width:38px;height:38px;border-radius:50%;background:#E6F1FB;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;line-height:1;">✈️</span><span style="flex:1;min-width:0;"><span style="display:block;font-size:14px;font-weight:700;color:#0b2237;">${originName} → ${destName}</span><span style="display:block;font-size:12px;color:#5F5E5A;margin-top:2px;">${dateStr} · ${paxStr} · ${origin} → ${dest}</span></span><span style="color:#888780;font-size:15px;flex-shrink:0;">↗</span></a>`;
   }
   for(const[key,btn] of Object.entries(LINK_BUTTONS)){
     if(u.includes(key)){

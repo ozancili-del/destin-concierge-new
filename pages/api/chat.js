@@ -1677,8 +1677,91 @@ Examples:
     let holidayContext = "";
     let dateAdjustContext = "";
     // Build flight deep link template if we have dates and guest count
+
+    // ── FLIGHT ORIGIN RESOLUTION (hoisted so the prompt can be deterministic) ──
+    const cityIataMap = {
+      // ── Multi-airport cities: main airport is the default ──
+      chicago:"ORD", "o'hare":"ORD", ohare:"ORD", midway:"MDW", "chicago midway":"MDW",
+      "new york":"JFK", nyc:"JFK", "new york city":"JFK", jfk:"JFK", laguardia:"LGA", "la guardia":"LGA", newark:"EWR",
+      "washington":"IAD", "washington dc":"IAD", "washington d.c.":"IAD", dulles:"IAD", reagan:"DCA", "national airport":"DCA", baltimore:"BWI",
+      houston:"IAH", "george bush":"IAH", hobby:"HOU",
+      dallas:"DFW", "dallas fort worth":"DFW", "fort worth":"DFW", "love field":"DAL",
+      "san francisco":"SFO", "bay area":"SFO", oakland:"OAK", "san jose":"SJC",
+      // ── Single-airport / primary cities ──
+      denver:"DEN", atlanta:"ATL", nashville:"BNA", "los angeles":"LAX", la:"LAX",
+      miami:"MIA", "fort lauderdale":"FLL", orlando:"MCO", charlotte:"CLT", boston:"BOS",
+      seattle:"SEA", phoenix:"PHX", philadelphia:"PHL", detroit:"DTW", minneapolis:"MSP",
+      "st paul":"MSP", cleveland:"CLE", cincinnati:"CVG", columbus:"CMH", indianapolis:"IND",
+      memphis:"MEM", "kansas city":"MCI", "st louis":"STL", "saint louis":"STL",
+      pittsburgh:"PIT", raleigh:"RDU", "raleigh durham":"RDU", durham:"RDU",
+      tampa:"TPA", jacksonville:"JAX", austin:"AUS", "san antonio":"SAT",
+      "oklahoma city":"OKC", tulsa:"TUL", "new orleans":"MSY", birmingham:"BHM",
+      richmond:"RIC", lexington:"LEX", knoxville:"TYS", "baton rouge":"BTR", "little rock":"LIT",
+      // ── Previously missing mid-size cities (silent dead-end fix) ──
+      "salt lake city":"SLC", "salt lake":"SLC", portland:"PDX", "san diego":"SAN",
+      sacramento:"SMF", milwaukee:"MKE", buffalo:"BUF", albany:"ALB", hartford:"BDL",
+      providence:"PVD", rochester:"ROC", syracuse:"SYR", omaha:"OMA", "des moines":"DSM",
+      wichita:"ICT", boise:"BOI", spokane:"GEG", reno:"RNO", tucson:"TUS", albuquerque:"ABQ",
+      "el paso":"ELP", "colorado springs":"COS", "grand rapids":"GRR", "fort wayne":"FWA",
+      madison:"MSN", "green bay":"GRB", dayton:"DAY", toledo:"TOL", louisville:"SDF",
+      greenville:"GSP", columbia:"CAE", savannah:"SAV", charleston:"CHS", augusta:"AGS",
+      huntsville:"HSV", montgomery:"MGM", mobile:"MOB", pensacola:"PNS", tallahassee:"TLH",
+      gainesville:"GNV", "west palm beach":"PBI", "palm beach":"PBI", sarasota:"SRQ",
+      "fort myers":"RSW", norfolk:"ORF", greensboro:"GSO", asheville:"AVL",
+      chattanooga:"CHA", "little rock arkansas":"LIT", shreveport:"SHV", jackson:"JAN",
+      "sioux falls":"FSD", fargo:"FAR", billings:"BIL", anchorage:"ANC", honolulu:"HNL",
+      // ── Canada (common origins) ──
+      toronto:"YYZ", montreal:"YUL", vancouver:"YVR", calgary:"YYC", ottawa:"YOW"
+    };
+    
+    // Valid origin IATA codes we accept when a guest types a bare code.
+    // Whitelisting prevents random 3-letter words ("BTW", "ANY", "THE")
+    // from being silently misread as an airport — the failure mode where a
+    // guest gets a confidently wrong flight link.
+    const VALID_ORIGIN_IATA = new Set([
+      ...Object.values(cityIataMap),
+      // extra valid codes guests may type that aren't a map default
+      "DAL","HOU","MDW","LGA","EWR","DCA","BWI","OAK","SJC","BUR","LGB","SNA","ONT",
+      "IAD","JFK","ORD","SFO","IAH","DFW","SLC","PDX","SAN","SMF","MKE","BUF","MSY",
+      "MCO","TPA","FLL","PBI","RSW","SRQ","JAX","VPS","ECP","PNS","BHM","HSV","MOB"
+    ]);
+    
+    const extractOrigin = (text) => {
+      const lower = text.toLowerCase();
+      // 1) City names FIRST — longest key first so "kansas city" beats "kansas",
+      //    "chicago midway" beats "chicago", "san antonio" beats "antonio".
+      //    Word-boundary matched so "la" doesn't fire inside "Atlanta"/"Dallas".
+      const cityKeys = Object.keys(cityIataMap).sort((a, b) => b.length - a.length);
+      for (const city of cityKeys) {
+        const safe = city.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        if (new RegExp(`\\b${safe}\\b`, "i").test(lower)) return cityIataMap[city];
+      }
+      // 2) Bare IATA code — only if it's a REAL airport code (whitelist),
+      //    so "BTW"/"ANY"/"THE" can never become a bogus origin.
+      const iataMatches = text.match(/\b([A-Z]{3})\b/g);
+      if (iataMatches) {
+        for (const code of iataMatches) {
+          if (VALID_ORIGIN_IATA.has(code)) return code;
+        }
+      }
+      return null;
+    };
+    
+    
+    
     const flightOffered = messages.some(m => m.role === "assistant" && m.content && (m.content.includes("flying from") || m.content.includes("aviasales.com") || m.content.includes("Search Flights")));
     const flightLink = (dates && dates.arrival && dates.departure && adults) ? true : false;
+
+    // ── DETERMINISTIC ORIGIN RESOLUTION (pre-prompt) ───────────────────────
+    // Resolve the guest's origin airport in CODE before GPT writes anything.
+    // If we can resolve it, we build the link ourselves and hard-instruct GPT
+    // not to ask which airport — removing the decision from GPT entirely.
+    const vagueAirportReplyPre = /^\s*(any|anyone|any one|any of them|whichever|whatever|either|doesn'?t matter|dont matter|no preference|you (pick|choose|decide)|up to you|surprise me|closest|cheapest|the (main|major|biggest) one)\s*[.!]*\s*$/i.test(String(lastUser || "").trim());
+    const allUserTextForOrigin = [...messages].filter(m => m.role === "user").map(m => m.content).join(" ");
+    const preResolvedOrigin = extractOrigin(String(lastUser || "")) || (vagueAirportReplyPre ? extractOrigin(allUserTextForOrigin) : null);
+    // Cities where guests may expect a choice — we pick the main one and say so.
+    const MULTI_AIRPORT_MAIN = { ORD: "Chicago O'Hare", JFK: "New York JFK", IAD: "Washington Dulles", IAH: "Houston Bush", DFW: "Dallas/Fort Worth", SFO: "San Francisco" };
+    const preOriginIsMultiCity = preResolvedOrigin ? Object.prototype.hasOwnProperty.call(MULTI_AIRPORT_MAIN, preResolvedOrigin) : false;
 
     // Extract [ORIGIN:XXX] and [DEST:XXX] tags GPT embeds in its previous response
     const lastAssistantContent = [...messages].reverse().find(m => m.role === "assistant")?.content || "";
@@ -1699,13 +1782,13 @@ Examples:
 - NEVER volunteer ECP unprompted
 
 ${flightLink
-  ? `You have the guest's dates and passenger count. Ask where they're flying from — something warm and brief like: "By the way — where are you flying from? I can build you a direct flight search link for VPS with your exact dates and passengers already filled in! 😊"
-
-NEVER ask which airport. If the guest names a city with multiple airports (Chicago, New York, Washington DC, Houston, Dallas, San Francisco Bay Area), immediately build the link using the city's MAIN airport and simply tell them which one you used and that they can switch it on the search page. Example phrasing: "Here's your flight search from Chicago O'Hare (ORD) — if you'd rather fly out of Midway, you can switch airports right on the search page! 😊" Asking the guest to choose an airport wastes a turn and loses bookings — never do it.
-
-Main airports to assume: Chicago → O'Hare (ORD) · New York → JFK · Washington DC → Dulles (IAD) · Houston → Bush (IAH) · Dallas → DFW · Bay Area → SFO.
-
-The system will automatically build and append the flight button — you do NOT need to construct or include any URL yourself. NEVER write any aviasales.com URL in your response — the system appends the button automatically.`
+  ? (preResolvedOrigin
+      ? `✅ ORIGIN ALREADY RESOLVED BY THE SYSTEM: ${preResolvedOrigin}${preOriginIsMultiCity ? ` (${MULTI_AIRPORT_MAIN[preResolvedOrigin]})` : ""}.
+The flight link is ALREADY BUILT and will be appended below your message automatically.
+DO NOT ask which airport. DO NOT ask where they are flying from. The question is already answered.
+Simply confirm warmly in ONE short sentence which airport you used${preOriginIsMultiCity ? ` and add that they can switch airports right on the search page if they prefer a different one` : ""}. Example: "Here's your flight search from ${preOriginIsMultiCity ? MULTI_AIRPORT_MAIN[preResolvedOrigin] : preResolvedOrigin} (${preResolvedOrigin})${preOriginIsMultiCity ? " — you can switch airports right on the search page if you'd rather use a different one" : ""}! 😊"
+NEVER write any aviasales.com URL yourself — the button is appended automatically.`
+      : `You have the guest's dates and passenger count. Ask where they're flying from — something warm and brief like: "By the way — where are you flying from? I can build you a direct flight search link for VPS with your exact dates and passengers already filled in! 😊" Ask ONLY for the city — never ask which airport within a city. The system will build and append the flight button automatically. NEVER write any aviasales.com URL in your response.`)
   : `Do NOT offer flight links — dates or guest count not yet known.`}
 
 
@@ -3817,79 +3900,13 @@ Your 10% direct booking discount is already applied! 🎉 Unit 707 availability 
       vagueAirportReply
     );
 
-    if (guestMentionedAirport && dates && dates.arrival && dates.departure && adults) {
+    // Fire if the guest named an airport OR the system already pre-resolved one
+    // pre-prompt (prevents the prompt promising a link the code never appends).
+    if ((guestMentionedAirport || preResolvedOrigin) && dates && dates.arrival && dates.departure && adults) {
       // Multi-word keys MUST be checked before single-word ones (see sorting below)
       // so "kansas city" wins over "kansas", "san antonio" over "antonio", etc.
-      const cityIataMap = {
-        // ── Multi-airport cities: main airport is the default ──
-        chicago:"ORD", "o'hare":"ORD", ohare:"ORD", midway:"MDW", "chicago midway":"MDW",
-        "new york":"JFK", nyc:"JFK", "new york city":"JFK", jfk:"JFK", laguardia:"LGA", "la guardia":"LGA", newark:"EWR",
-        "washington":"IAD", "washington dc":"IAD", "washington d.c.":"IAD", dulles:"IAD", reagan:"DCA", "national airport":"DCA", baltimore:"BWI",
-        houston:"IAH", "george bush":"IAH", hobby:"HOU",
-        dallas:"DFW", "dallas fort worth":"DFW", "fort worth":"DFW", "love field":"DAL",
-        "san francisco":"SFO", "bay area":"SFO", oakland:"OAK", "san jose":"SJC",
-        // ── Single-airport / primary cities ──
-        denver:"DEN", atlanta:"ATL", nashville:"BNA", "los angeles":"LAX", la:"LAX",
-        miami:"MIA", "fort lauderdale":"FLL", orlando:"MCO", charlotte:"CLT", boston:"BOS",
-        seattle:"SEA", phoenix:"PHX", philadelphia:"PHL", detroit:"DTW", minneapolis:"MSP",
-        "st paul":"MSP", cleveland:"CLE", cincinnati:"CVG", columbus:"CMH", indianapolis:"IND",
-        memphis:"MEM", "kansas city":"MCI", "st louis":"STL", "saint louis":"STL",
-        pittsburgh:"PIT", raleigh:"RDU", "raleigh durham":"RDU", durham:"RDU",
-        tampa:"TPA", jacksonville:"JAX", austin:"AUS", "san antonio":"SAT",
-        "oklahoma city":"OKC", tulsa:"TUL", "new orleans":"MSY", birmingham:"BHM",
-        richmond:"RIC", lexington:"LEX", knoxville:"TYS", "baton rouge":"BTR", "little rock":"LIT",
-        // ── Previously missing mid-size cities (silent dead-end fix) ──
-        "salt lake city":"SLC", "salt lake":"SLC", portland:"PDX", "san diego":"SAN",
-        sacramento:"SMF", milwaukee:"MKE", buffalo:"BUF", albany:"ALB", hartford:"BDL",
-        providence:"PVD", rochester:"ROC", syracuse:"SYR", omaha:"OMA", "des moines":"DSM",
-        wichita:"ICT", boise:"BOI", spokane:"GEG", reno:"RNO", tucson:"TUS", albuquerque:"ABQ",
-        "el paso":"ELP", "colorado springs":"COS", "grand rapids":"GRR", "fort wayne":"FWA",
-        madison:"MSN", "green bay":"GRB", dayton:"DAY", toledo:"TOL", louisville:"SDF",
-        greenville:"GSP", columbia:"CAE", savannah:"SAV", charleston:"CHS", augusta:"AGS",
-        huntsville:"HSV", montgomery:"MGM", mobile:"MOB", pensacola:"PNS", tallahassee:"TLH",
-        gainesville:"GNV", "west palm beach":"PBI", "palm beach":"PBI", sarasota:"SRQ",
-        "fort myers":"RSW", norfolk:"ORF", greensboro:"GSO", asheville:"AVL",
-        chattanooga:"CHA", "little rock arkansas":"LIT", shreveport:"SHV", jackson:"JAN",
-        "sioux falls":"FSD", fargo:"FAR", billings:"BIL", anchorage:"ANC", honolulu:"HNL",
-        // ── Canada (common origins) ──
-        toronto:"YYZ", montreal:"YUL", vancouver:"YVR", calgary:"YYC", ottawa:"YOW"
-      };
-
-      // Valid origin IATA codes we accept when a guest types a bare code.
-      // Whitelisting prevents random 3-letter words ("BTW", "ANY", "THE")
-      // from being silently misread as an airport — the failure mode where a
-      // guest gets a confidently wrong flight link.
-      const VALID_ORIGIN_IATA = new Set([
-        ...Object.values(cityIataMap),
-        // extra valid codes guests may type that aren't a map default
-        "DAL","HOU","MDW","LGA","EWR","DCA","BWI","OAK","SJC","BUR","LGB","SNA","ONT",
-        "IAD","JFK","ORD","SFO","IAH","DFW","SLC","PDX","SAN","SMF","MKE","BUF","MSY",
-        "MCO","TPA","FLL","PBI","RSW","SRQ","JAX","VPS","ECP","PNS","BHM","HSV","MOB"
-      ]);
-
-      const extractOrigin = (text) => {
-        const lower = text.toLowerCase();
-        // 1) City names FIRST — longest key first so "kansas city" beats "kansas",
-        //    "chicago midway" beats "chicago", "san antonio" beats "antonio".
-        //    Word-boundary matched so "la" doesn't fire inside "Atlanta"/"Dallas".
-        const cityKeys = Object.keys(cityIataMap).sort((a, b) => b.length - a.length);
-        for (const city of cityKeys) {
-          const safe = city.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-          if (new RegExp(`\\b${safe}\\b`, "i").test(lower)) return cityIataMap[city];
-        }
-        // 2) Bare IATA code — only if it's a REAL airport code (whitelist),
-        //    so "BTW"/"ANY"/"THE" can never become a bogus origin.
-        const iataMatches = text.match(/\b([A-Z]{3})\b/g);
-        if (iataMatches) {
-          for (const code of iataMatches) {
-            if (VALID_ORIGIN_IATA.has(code)) return code;
-          }
-        }
-        return null;
-      };
-
       // Try lastUser first, then scan back through conversation history
-      let resolvedOrigin = extractOrigin(lastUser);
+      let resolvedOrigin = preResolvedOrigin || extractOrigin(lastUser);
       if (!resolvedOrigin) {
         const allUserMessages = [...messages].filter(m => m.role === "user").map(m => m.content).join(" ");
         resolvedOrigin = extractOrigin(allUserMessages);

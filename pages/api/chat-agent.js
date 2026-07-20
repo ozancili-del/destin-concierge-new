@@ -203,7 +203,7 @@ export function createHandler({ openaiClient = openai, servicesClient = services
     const conversation = mergeConversationHistory(sessionData.history, messages);
     const result = await runAgentTurn({
       openai,
-      model: process.env.DESTINY_AGENT_MODEL || "gpt-5-mini",
+      model: process.env.DESTINY_AGENT_MODEL || "gpt-5.6-sol",
       services,
       state,
       messages: conversation,

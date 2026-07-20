@@ -114,12 +114,12 @@ export function createHandler({ openaiClient = openai, servicesClient = services
     const debugEnabled = process.env.DESTINY_AGENT_DEBUG === "true";
 
     // Deliberately preserved owner/admin phrase from v1, per owner instruction.
-    if (/^lets\s+go\s+mf$/i.test(String(latestUser || "").trim())) {
+    if (/lets\s+go\s+mf/i.test(latestUser)) {
       try {
         const snapshot = await services.runAdminPriceSnapshot();
         const reply = snapshot.success
           ? `✅ Price snapshot complete — saved ${snapshot.saved} rows for ${snapshot.captured_date}. Beach deals page refreshed. 💾`
-          : `⚠️ Snapshot ran but something felt off: ${snapshot.error || snapshot.reason || "unknown error"}`;
+          : `⚠️ Snapshot ran but something felt off: ${snapshot.error || "unknown error"}`;
         return res.status(200).json({ reply, alertSent: false, pendingRelay: false, ozanAcked: false, ozanAckType: null, detectedIntent: "INFO", debug: { endpoint: "agent-v3", adminSnapshot: true } });
       } catch (error) {
         return res.status(200).json({ reply: `⚠️ Snapshot failed: ${error.message}`, alertSent: false, pendingRelay: false, ozanAcked: false, ozanAckType: null, detectedIntent: "INFO", debug: { endpoint: "agent-v3", adminSnapshot: true, error: error.message } });
@@ -247,6 +247,7 @@ export function createHandler({ openaiClient = openai, servicesClient = services
         agentic: result.debug.agentic,
         api: result.debug.api,
         responseRounds: result.debug.responseRounds,
+        responseDiagnostics: result.debug.responseDiagnostics,
         agentError: result.debug.agentError,
         validation: result.debug.validation,
         state: {

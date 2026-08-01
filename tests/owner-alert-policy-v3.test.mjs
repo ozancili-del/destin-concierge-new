@@ -59,3 +59,22 @@ test("owner policy uses stated adults as a disclosed zero-child booking baseline
   assert.match(result.reply, /infants/i);
   assert.match(result.reply, /six-person maximum/i);
 });
+
+test("completion guard makes the agent execute a forgotten compound-request task", async () => {
+  const services = makeMockServices();
+  const { result } = await runScript({
+    services,
+    latestUser: "What is the weather, and can you find a dolphin cruise?",
+    responses: [
+      { output: [{ type: "function_call", call_id: "weather-first", name: "get_destin_weather", arguments: "{}" }], output_text: "" },
+      textResponse("The forecast is partly cloudy."),
+      { output: [{ type: "function_call", call_id: "activity-after-guard", name: "get_activity_options", arguments: JSON.stringify({ category: "dolphin", start_date: null, end_date: null }) }], output_text: "" },
+      textResponse("The forecast is partly cloudy, and here is the dolphin-cruise browsing link."),
+    ],
+  });
+  assert.equal(services.calls.fetchDestinWeather.length, 1);
+  assert.equal(result.debug.toolCalls.filter(call => call.name === "get_activity_options").length, 1);
+  assert.deepEqual(result.debug.completion.requested, ["weather", "activities"]);
+  assert.deepEqual(result.debug.completion.attempted, ["weather", "activities"]);
+  assert.equal(result.debug.completion.reprompts, 1);
+});

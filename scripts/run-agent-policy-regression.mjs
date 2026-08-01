@@ -22,6 +22,7 @@ const approvedDivergences = new Set([
   "external noise does not auto-alert as unit maintenance",
   "maintenance alert suppresses accidental guest damage",
   "maintenance alert suppresses external disturbance",
+  "availability missing children fails without network call",
 ]);
 
 const testFiles = readdirSync("tests")

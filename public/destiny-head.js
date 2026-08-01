@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded',function(){const lS=localStorage;
 if(window.location.pathname.toLowerCase().includes('concierge'))return;
-const API='https://destin-concierge-new.vercel.app/api/chat';
+const API='https://destin-concierge-new.vercel.app/api/destiny-chat';
 const POLL='https://destin-concierge-new.vercel.app/api/ozan-poll';
 const SAPI='https://destin-concierge-new.vercel.app/api/ozan-send';
 let sessionId=sessionStorage.getItem('db_sid')||'wb_'+Math.random().toString(36).substr(2,12);

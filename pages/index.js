@@ -1,5 +1,6 @@
 // pages/index.js
 import { useState } from "react";
+import { DESTINY_CHAT_ENDPOINT } from "../lib/destiny-chat-endpoint.js";
 
 export default function Home() {
   const [input, setInput] = useState("");
@@ -18,7 +19,7 @@ export default function Home() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/chat", {
+      const res = await fetch(DESTINY_CHAT_ENDPOINT, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: next }),

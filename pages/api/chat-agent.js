@@ -15,6 +15,10 @@ import { runAgentTurn } from "../../lib/destiny-agent/orchestrator.js";
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const services = createServices();
 
+export function isAdminSnapshotCommand(value) {
+  return /^lets\s+go\s+mf$/i.test(String(value || "").trim());
+}
+
 const PAGE_SOURCE_GREETINGS = Object.freeze({
   popup: "Ah, you found the secret door! 🌊 Who do I have the pleasure of welcoming to Destin today?",
   fireworks: "🎆 Fireworks fan? Same. Destin does them better than anywhere. What would you like to know?",
@@ -114,7 +118,7 @@ export function createHandler({ openaiClient = openai, servicesClient = services
     const debugEnabled = process.env.DESTINY_AGENT_DEBUG === "true";
 
     // Deliberately preserved owner/admin phrase from v1, per owner instruction.
-    if (/lets\s+go\s+mf/i.test(latestUser)) {
+    if (isAdminSnapshotCommand(latestUser)) {
       try {
         const snapshot = await services.runAdminPriceSnapshot();
         const reply = snapshot.success
@@ -212,6 +216,7 @@ export function createHandler({ openaiClient = openai, servicesClient = services
       guestBid,
       guestSig: guestSig || sig,
       pageSource,
+      tickerUnit,
       sawBanner: Boolean(sawBanner),
       ozanAckType,
       now: new Date(),

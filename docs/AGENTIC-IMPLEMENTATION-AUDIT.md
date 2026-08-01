@@ -48,10 +48,23 @@ All 30 entries in the archive's internal `SHA256SUMS.txt` also verified successf
 
 The exact archived source snapshot reproduced the retained result: **947 passed, 0 failed**. Reproduced coverage was 96.90% lines, 89.32% branches, and 87.79% functions.
 
-The 16 original offline suites were then run unchanged against this implementation branch's current source. Result: **903 passed, 44 failed** (96.80% lines, 88.71% branches, 87.61% functions). The failures cluster in:
+The 16 original offline suites were then run unchanged against this implementation branch's current source. The initial result was **903 passed, 44 failed** (96.80% lines, 88.71% branches, 87.61% functions).
+
+After owner review of repeat-action and concession behavior, the branch now scores **921 passed, 26 failed** on the unchanged authentic suite. The combined authentic and implementation-specific suite scores **963 passed, 26 failed** across 989 tests.
+
+Owner-approved policy encoded in this draft:
+
+- repeated guest messages are meaningful conversation context, not machine duplicates;
+- emergency and maintenance reports remain priority and may alert again on a later guest message;
+- identical internal side effects are suppressed only within processing of one guest message;
+- empathy cannot introduce or imply compensation or anything of value;
+- the bot cannot suggest that Ozan or another party may provide a concession;
+- a guest compensation request may be relayed without authorization or outcome promises; and
+- an owner-approved concession may be repeated only from an explicit trusted-tool marker and exact approved text.
+
+Two authentic expectations now intentionally conflict with the reviewed policy: one expects an already-open maintenance issue to be suppressed across later state, and one expects an identical read-only call to execute again in a later internal reasoning round. The remaining failures cluster in:
 
 - bounded and signature-deduplicated tool execution;
-- duplicate consequential actions within and across rounds;
 - persisted booking-verification validation and invalidation;
 - long-input/history bounding and multi-turn state retention;
 - mixed-clause current-party parsing;
@@ -81,7 +94,7 @@ Passed:
 
 Blocked or incomplete:
 
-- Current implementation does not have offline parity: 903/947, with 44 failures.
+- Current implementation does not have offline parity: 921/947, with 26 failures, including two documented intentional policy differences.
 - `npm run test:agent:live`: completed at **48/55**. Group results were compound 5/6, booking 6/6, clarification 5/6, follow-up 3/5, weather 4/4, activities 4/4, guide 4/4, knowledge 6/6, flight 3/4, safety 4/5, lead 1/2, relay 2/2, and owner-chat 1/1.
 - `npm run regression -- --dry-run --limit=5`: blocked because `REGRESSION_SECRET` is unavailable.
 - Real OwnerRez, Sheets, Discord, Brevo, door-code, and owner-chat tests: not run without an explicitly controlled credential/data environment.
@@ -90,4 +103,4 @@ Blocked or incomplete:
 
 ## Cutover recommendation
 
-**Do not enable production traffic yet.** The flag must remain false until the 44 offline parity failures are resolved, the full 947-suite passes against current source, and the live benchmark reaches its required threshold, followed by the Sheets regression, controlled real-integration matrix, preview smoke, canary, and rollback exercise with an explicit production-candidate model.
+**Do not enable production traffic yet.** The flag must remain false until the 26 remaining offline results are resolved or explicitly rebaselined through owner-approved tests, the live benchmark reaches its required threshold, and the Sheets regression, controlled real-integration matrix, preview smoke, canary, and rollback exercise pass with an explicit production-candidate model.

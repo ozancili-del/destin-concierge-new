@@ -50,3 +50,32 @@ test("safe fallback never emits a booking URL", () => {
   const reply = safeFallback({ state: createDefaultState(), latestUser: "Book August 5-10" });
   assert.doesNotMatch(reply, /https?:\/\//);
 });
+
+for (const phrase of [
+  "Ozan might offer you a refund.",
+  "The owner could provide a discount for the inconvenience.",
+  "Maintenance may arrange a free night.",
+  "Ozan might be able to offer a waived fee.",
+  "The host could look into giving you a complimentary night.",
+  "We can make this right with an account credit.",
+  "You may receive an upgrade or late checkout.",
+]) {
+  test(`rejects invented concession: ${phrase}`, () => {
+    const result = validateReply({ reply: phrase, allowedUrls: [], toolResults: [], state: createDefaultState(), latestUser: "The AC is still broken" });
+    assert.equal(result.ok, false);
+    assert.ok(result.violations.some(item => item.code === "unauthorized_concession"));
+  });
+}
+
+test("allows a noncommittal relay response when the guest requests compensation", () => {
+  const reply = "I understand why you're asking. I can pass your compensation request to Ozan for review, but I can't authorize or promise any outcome.";
+  const result = validateReply({ reply, allowedUrls: [], toolResults: [], state: createDefaultState(), latestUser: "I want compensation" });
+  assert.equal(result.ok, true);
+});
+
+test("allows an explicit owner-approved concession marker", () => {
+  const reply = "Ozan will provide a refund.";
+  const toolResults = [{ kind: "owner_authorization", data: { ownerApprovedConcession: true, approvedConcessionText: "Ozan will provide a refund." } }];
+  const result = validateReply({ reply, allowedUrls: [], toolResults, state: createDefaultState(), latestUser: "What did Ozan approve?" });
+  assert.equal(result.ok, true);
+});

@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createDefaultState } from "../lib/destiny-agent/business.js";
+import { applyStatePatch, createDefaultState } from "../lib/destiny-agent/business.js";
 import { executeTool } from "../lib/destiny-agent/orchestrator.js";
 
 function context(overrides = {}) {
@@ -74,6 +74,26 @@ test("controlled maintenance delivery records one successful side effect", async
   }));
   assert.equal(result.ok, true);
   assert.equal(sends, 1);
+});
+
+test("a repeated maintenance report in a later guest message can alert again", async () => {
+  let sends = 0;
+  const services = { sendEmergencyDiscord: async () => { sends += 1; return { sent: true }; } };
+  const firstState = createDefaultState();
+  const first = await executeTool("create_maintenance_alert", { severity: "maintenance", summary: "AC is broken" }, context({
+    state: firstState,
+    latestUser: "The AC is broken and the condo is hot",
+    services,
+  }));
+  const secondState = applyStatePatch(firstState, first.statePatch);
+  const second = await executeTool("create_maintenance_alert", { severity: "maintenance", summary: "AC is still broken" }, context({
+    state: secondState,
+    latestUser: "The AC is still broken and it is getting hotter",
+    services,
+  }));
+  assert.equal(first.status, "sent");
+  assert.equal(second.status, "sent");
+  assert.equal(sends, 2);
 });
 
 test("controlled owner chat requires explicit request and returns no internal URL", async () => {

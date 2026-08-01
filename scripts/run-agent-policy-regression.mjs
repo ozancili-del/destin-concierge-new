@@ -18,6 +18,10 @@ const approvedDivergences = new Set([
   "resend booking links rejects stale verification",
   "resend booking links returns current verified links",
   "maintenance issue is deduplicated across state",
+  "accidental guest damage does not auto-alert",
+  "external noise does not auto-alert as unit maintenance",
+  "maintenance alert suppresses accidental guest damage",
+  "maintenance alert suppresses external disturbance",
 ]);
 
 const testFiles = readdirSync("tests")

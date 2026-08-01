@@ -50,7 +50,7 @@ The exact archived source snapshot reproduced the retained result: **947 passed,
 
 The 16 original offline suites were then run unchanged against this implementation branch's current source. The initial result was **903 passed, 44 failed** (96.80% lines, 88.71% branches, 87.61% functions).
 
-After owner review of repeat-action, concession, fresh-booking-link, and runaway-tool behavior, the combined authentic and implementation-specific suite scores **967 passed, 24 failed** across 991 tests.
+After owner review of repeat-action, concession, fresh-booking-link, runaway-tool, and conversation-memory behavior, the combined authentic and implementation-specific suite scores **970 passed, 21 failed** across 991 tests.
 
 Owner-approved policy encoded in this draft:
 
@@ -70,6 +70,9 @@ Owner-approved policy encoded in this draft:
 - emergency and maintenance safety handling occurs before the agent tool budget;
 - deterministic activity tools create browsing links and must not be described as live inventory searches; and
 - the bot cannot imply work will continue after its response is sent.
+- model conversation input retains at most the latest 24 user/assistant messages, 12,000 characters per message, and 120,000 characters total;
+- oversized messages retain both their beginning and end with an explicit truncation marker; and
+- confirmed trip facts remain in typed state across unrelated conversation, while party-only changes do not unnecessarily erase date-specific activity links.
 
 Several authentic expectations now intentionally conflict with reviewed policy: they expect an already-open maintenance issue to be suppressed across later state, an identical read-only call to execute again in a later internal reasoning round, preferred-unit changes to retain verification, cached booking links to be resent, and a link to be emitted when one unit is known available while the other is unknown. The remaining non-policy failures cluster in:
 
@@ -103,7 +106,7 @@ Passed:
 
 Blocked or incomplete:
 
-- Current implementation does not have literal historical-test parity: the combined suite is 967/991 with 24 failures, including documented expectations superseded by owner-approved policy.
+- Current implementation does not have literal historical-test parity: the combined suite is 970/991 with 21 failures, including documented expectations superseded by owner-approved policy.
 - `npm run test:agent:live`: completed at **48/55**. Group results were compound 5/6, booking 6/6, clarification 5/6, follow-up 3/5, weather 4/4, activities 4/4, guide 4/4, knowledge 6/6, flight 3/4, safety 4/5, lead 1/2, relay 2/2, and owner-chat 1/1.
 - `npm run regression -- --dry-run --limit=5`: blocked because `REGRESSION_SECRET` is unavailable.
 - Real OwnerRez, Sheets, Discord, Brevo, door-code, and owner-chat tests: not run without an explicitly controlled credential/data environment.

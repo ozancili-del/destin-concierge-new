@@ -60,6 +60,35 @@ test("controlled OwnerRez unknown never creates booking link", async () => {
   assert.deepEqual(result.urls, []);
 });
 
+test("resending a booking link always performs a fresh availability check", async () => {
+  const state = createDefaultState();
+  state.booking = { ...state.booking, arrival: "2026-08-05", departure: "2026-08-10", adults: 2, children: 0, totalGuests: 2 };
+  state.verified.bookingUrls = ["https://evil.example/old-link"];
+  let checks = 0;
+  const result = await executeTool("build_booking_links", {}, context({
+    state,
+    latestUser: "Please resend my booking link",
+    services: { checkBothUnits: async () => { checks += 1; return { "707": true, "1006": false }; } },
+  }));
+  assert.equal(checks, 1);
+  assert.equal(result.status, "success");
+  assert.equal(result.data.freshAvailabilityCheck, true);
+  assert.equal(result.urls.length, 1);
+  assert.doesNotMatch(result.urls[0], /evil\.example/);
+});
+
+test("partial availability never emits a booking link", async () => {
+  const state = createDefaultState();
+  state.booking = { ...state.booking, arrival: "2026-08-05", departure: "2026-08-10", adults: 2, children: 0, totalGuests: 2 };
+  const result = await executeTool("build_booking_links", {}, context({
+    state,
+    latestUser: "Please resend my booking link",
+    services: { checkBothUnits: async () => ({ "707": true, "1006": null }) },
+  }));
+  assert.equal(result.status, "partial_failure");
+  assert.deepEqual(result.urls, []);
+});
+
 test("controlled weather result remains structured and grounded", async () => {
   const result = await executeTool("get_destin_weather", {}, context());
   assert.equal(result.ok, true);

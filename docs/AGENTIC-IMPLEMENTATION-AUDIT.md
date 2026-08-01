@@ -50,7 +50,7 @@ The exact archived source snapshot reproduced the retained result: **947 passed,
 
 The 16 original offline suites were then run unchanged against this implementation branch's current source. The initial result was **903 passed, 44 failed** (96.80% lines, 88.71% branches, 87.61% functions).
 
-After owner review of repeat-action and concession behavior, the branch now scores **921 passed, 26 failed** on the unchanged authentic suite. The combined authentic and implementation-specific suite scores **963 passed, 26 failed** across 989 tests.
+After owner review of repeat-action, concession, and fresh-booking-link behavior, the combined authentic and implementation-specific suite scores **961 passed, 30 failed** across 991 tests. The increased count reflects newly documented policy conflicts with cached-link tests, not a production cutover.
 
 Owner-approved policy encoded in this draft:
 
@@ -61,8 +61,12 @@ Owner-approved policy encoded in this draft:
 - the bot cannot suggest that Ozan or another party may provide a concession;
 - a guest compensation request may be relayed without authorization or outcome promises; and
 - an owner-approved concession may be repeated only from an explicit trusted-tool marker and exact approved text.
+- every booking-link request performs a fresh live availability check, including resends and returns to earlier dates;
+- changes to dates, party composition, or preferred unit invalidate prior booking links;
+- persisted booking URLs are never reused or edited, regardless of their apparent age or validity; and
+- partial, unknown, or failed availability produces no booking link.
 
-Two authentic expectations now intentionally conflict with the reviewed policy: one expects an already-open maintenance issue to be suppressed across later state, and one expects an identical read-only call to execute again in a later internal reasoning round. The remaining failures cluster in:
+Several authentic expectations now intentionally conflict with reviewed policy: they expect an already-open maintenance issue to be suppressed across later state, an identical read-only call to execute again in a later internal reasoning round, preferred-unit changes to retain verification, cached booking links to be resent, and a link to be emitted when one unit is known available while the other is unknown. The remaining non-policy failures cluster in:
 
 - bounded and signature-deduplicated tool execution;
 - persisted booking-verification validation and invalidation;
@@ -94,7 +98,7 @@ Passed:
 
 Blocked or incomplete:
 
-- Current implementation does not have offline parity: 921/947, with 26 failures, including two documented intentional policy differences.
+- Current implementation does not have literal historical-test parity: the combined suite is 961/991 with 30 failures, including documented expectations superseded by owner-approved policy.
 - `npm run test:agent:live`: completed at **48/55**. Group results were compound 5/6, booking 6/6, clarification 5/6, follow-up 3/5, weather 4/4, activities 4/4, guide 4/4, knowledge 6/6, flight 3/4, safety 4/5, lead 1/2, relay 2/2, and owner-chat 1/1.
 - `npm run regression -- --dry-run --limit=5`: blocked because `REGRESSION_SECRET` is unavailable.
 - Real OwnerRez, Sheets, Discord, Brevo, door-code, and owner-chat tests: not run without an explicitly controlled credential/data environment.
@@ -103,4 +107,4 @@ Blocked or incomplete:
 
 ## Cutover recommendation
 
-**Do not enable production traffic yet.** The flag must remain false until the 26 remaining offline results are resolved or explicitly rebaselined through owner-approved tests, the live benchmark reaches its required threshold, and the Sheets regression, controlled real-integration matrix, preview smoke, canary, and rollback exercise pass with an explicit production-candidate model.
+**Do not enable production traffic yet.** The flag must remain false until the remaining offline results are fixed or explicitly rebaselined through owner-approved tests, the live benchmark reaches its required threshold, and the Sheets regression, controlled real-integration matrix, preview smoke, canary, and rollback exercise pass with an explicit production-candidate model.

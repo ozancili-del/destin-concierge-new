@@ -89,6 +89,18 @@ test("partial availability never emits a booking link", async () => {
   assert.deepEqual(result.urls, []);
 });
 
+test("availability result records the exact party used to create links", async () => {
+  const result = await executeTool("check_availability", {
+    date_text: "August 5-10", arrival: null, departure: null,
+    adults: 2, adults_evidence: "two adults", children: 1, children_evidence: "one child",
+    total_guests: null, total_guests_evidence: null, preferred_unit: "707", bedrooms_requested: null, bedrooms_evidence: null,
+  }, context({ latestUser: "August 5-10 for two adults and one child, prefer 707" }));
+  assert.equal(result.status, "success");
+  assert.ok(result.facts.some(fact => /2 adults and 1 child/.test(fact)));
+  assert.match(result.urls[0], /or_adults=2/);
+  assert.match(result.urls[0], /or_children=1/);
+});
+
 test("controlled weather result remains structured and grounded", async () => {
   const result = await executeTool("get_destin_weather", {}, context());
   assert.equal(result.ok, true);

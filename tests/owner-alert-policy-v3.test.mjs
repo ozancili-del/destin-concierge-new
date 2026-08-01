@@ -78,3 +78,30 @@ test("completion guard makes the agent execute a forgotten compound-request task
   assert.deepEqual(result.debug.completion.attempted, ["weather", "activities"]);
   assert.equal(result.debug.completion.reprompts, 1);
 });
+
+test("explicit traveling party overrides children mentioned only in small talk", async () => {
+  const services = makeMockServices();
+  const { result } = await runScript({
+    services,
+    latestUser: "My sister has 2 kids but she isn't coming. It will just be me and my husband August 5-10.",
+    responses: [
+      { output: [{
+        type: "function_call",
+        call_id: "small-talk-party",
+        name: "check_availability",
+        arguments: JSON.stringify({
+          date_text: "August 5-10", arrival: null, departure: null,
+          adults: 2, adults_evidence: "me and my husband",
+          children: 2, children_evidence: "2 kids",
+          total_guests: null, total_guests_evidence: null,
+          preferred_unit: null, bedrooms_requested: null, bedrooms_evidence: null,
+        }),
+      }], output_text: "" },
+      textResponse("I checked August 5–10 for the actual traveling party: two adults and zero children. The booking link uses that baseline; update it if the traveling party changes."),
+    ],
+  });
+  assert.equal(services.calls.checkBothUnits.length, 1);
+  assert.equal(result.state.booking.adults, 2);
+  assert.equal(result.state.booking.children, 0);
+  assert.match(result.reply, /two adults and zero children/i);
+});

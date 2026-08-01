@@ -40,27 +40,25 @@ Raw files under `public/` are not transformed by Next.js and cannot safely read 
 
 ## Restored test provenance
 
-The 16 files and 947-test implementation described in retained reports are not present on `main`, PR #1, any fetched branch, or reachable Git history. The attached handover contains the specification and historical totals, not the test source. This change therefore recreates a smaller auditable package from the retained behavior and defect matrix; it does **not** claim that the original 947 tests were recovered.
+The owner supplied the original `DESTINY_BLUE_AGENT_V3_947_TESTS.zip`. Its outer SHA-256 was independently verified as:
 
-Current recreated package:
+`4877140587db12a69e085731d47ccc0e6500b16c1b26296e8eb9bb45d9794aaa`
 
-- `business-matrix-v3.test.mjs`
-- `controlled-integration-v3.test.mjs`
-- `endpoint-cutover-v3.test.mjs`
-- `integration-parity-v3.test.mjs`
-- `security-and-permissions-v3.test.mjs`
-- `services-failure-isolation-v3.test.mjs`
-- `live-routing-eval.mjs` (56 live-model cases)
+All 30 entries in the archive's internal `SHA256SUMS.txt` also verified successfully. The archive contains all 16 offline suites, `test-helpers.mjs`, the live-routing benchmark, source snapshot, retained reports, coverage output, migration checklist, and checksums. Although the retained documentation calls it a 56-case benchmark, the executable currently reports 55 cases.
 
-Current deterministic result: **55 passed, 0 failed**.
+The exact archived source snapshot reproduced the retained result: **947 passed, 0 failed**. Reproduced coverage was 96.90% lines, 89.32% branches, and 87.79% functions.
 
-Coverage from `npm run test:agent:coverage`:
+The 16 original offline suites were then run unchanged against this implementation branch's current source. Result: **903 passed, 44 failed** (96.80% lines, 88.71% branches, 87.61% functions). The failures cluster in:
 
-- Lines: 31.85%
-- Branches: 53.50%
-- Functions: 48.81%
+- bounded and signature-deduplicated tool execution;
+- duplicate consequential actions within and across rounds;
+- persisted booking-verification validation and invalidation;
+- long-input/history bounding and multi-turn state retention;
+- mixed-clause current-party parsing;
+- legacy flight-tool status contracts; and
+- admin snapshot structured-failure behavior.
 
-This is below the retained artifact report and must be reported as a divergence, not relabeled as parity.
+The archived source snapshot differs materially from the current branch (including hundreds of changed orchestrator lines). It was not copied over the current implementation. The archive reports and checksum manifests are retained under `docs/agent-v3-test-archive/`; the original suites and benchmark are restored under `tests/`.
 
 ## Defects found and fixed
 
@@ -76,13 +74,15 @@ This is below the retained artifact report and must be reported as a divergence,
 Passed:
 
 - OpenAI SDK exposes `client.responses.create`.
-- 55 recreated deterministic/controlled tests.
+- Authentic archive and all internal checksums verified.
+- Authentic archived snapshot reproduces 947/947.
 - Centralized route defaults to regex v1 and enables v3 only for exact `"true"`.
 - Existing `/api/chat` remains deployed.
 
 Blocked or incomplete:
 
-- `npm run test:agent:live`: blocked because no `OPENAI_API_KEY` or explicit `DESTINY_AGENT_MODEL` exists in the local controlled environment.
+- Current implementation does not have offline parity: 903/947, with 44 failures.
+- `npm run test:agent:live`: completed at **48/55**. Group results were compound 5/6, booking 6/6, clarification 5/6, follow-up 3/5, weather 4/4, activities 4/4, guide 4/4, knowledge 6/6, flight 3/4, safety 4/5, lead 1/2, relay 2/2, and owner-chat 1/1.
 - `npm run regression -- --dry-run --limit=5`: blocked because `REGRESSION_SECRET` is unavailable.
 - Real OwnerRez, Sheets, Discord, Brevo, door-code, and owner-chat tests: not run without an explicitly controlled credential/data environment.
 - `next build`: dependency compilation reached Next.js but the sandbox denied `readlink C:\Users\Lenovo` (`EPERM`). This is an execution-environment restriction, not a source compilation diagnostic.
@@ -90,5 +90,4 @@ Blocked or incomplete:
 
 ## Cutover recommendation
 
-**Do not enable production traffic yet.** The flag must remain false until the 56-case live benchmark, Sheets regression, controlled real-integration matrix, preview smoke, canary, and rollback exercise are completed with an explicit production-candidate model.
-
+**Do not enable production traffic yet.** The flag must remain false until the 44 offline parity failures are resolved, the full 947-suite passes against current source, and the live benchmark reaches its required threshold, followed by the Sheets regression, controlled real-integration matrix, preview smoke, canary, and rollback exercise with an explicit production-candidate model.

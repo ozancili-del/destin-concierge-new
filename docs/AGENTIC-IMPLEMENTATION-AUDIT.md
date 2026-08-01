@@ -52,6 +52,8 @@ The 16 original offline suites were then run unchanged against this implementati
 
 After owner review of repeat-action, concession, fresh-booking-link, runaway-tool, conversation-memory, guest-count, and flight-date behavior, the combined authentic and implementation-specific suite scores **978 passed, 16 failed** across 994 tests.
 
+`npm run test:agent:policy` preserves those historical failures but classifies them against the explicit owner-approved manifest. Current policy result: **PASS — 16/16 approved divergences observed and zero unexpected offline failures**. The command also fails if an unexpected test fails or an approved divergence stops failing without review.
+
 Owner-approved policy encoded in this draft:
 
 - repeated guest messages are meaningful conversation context, not machine duplicates;

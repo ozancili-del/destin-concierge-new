@@ -101,6 +101,32 @@ test("availability result records the exact party used to create links", async (
   assert.match(result.urls[0], /or_children=1/);
 });
 
+test("flight link automatically uses confirmed condo dates and discloses the assumption", async () => {
+  const state = createDefaultState();
+  state.booking = { ...state.booking, arrival: "2026-08-05", departure: "2026-08-10", adults: 2, children: 0, totalGuests: 2 };
+  const result = await executeTool("build_flight_search", { origin_text: "DFW", destination_iata: "VPS", infants: 0 }, context({
+    state,
+    latestUser: "Find flights from DFW",
+  }));
+  assert.equal(result.status, "success");
+  assert.equal(result.data.assumedFromStay, true);
+  assert.match(result.facts[0], /confirmed condo dates were used/i);
+});
+
+test("explicit flight dates remain separate from confirmed condo dates", async () => {
+  const state = createDefaultState();
+  state.booking = { ...state.booking, arrival: "2026-08-05", departure: "2026-08-10", adults: 2, children: 0, totalGuests: 2 };
+  const result = await executeTool("build_flight_search", {
+    origin_text: "DFW", destination_iata: "VPS", date_text: "August 4-11",
+    departure_date: "2026-08-04", return_date: "2026-08-11", infants: 0,
+  }, context({ state, latestUser: "Find flights from DFW August 4-11" }));
+  assert.equal(result.status, "success");
+  assert.equal(result.data.differsFromStay, true);
+  assert.equal(result.data.departureDate, "2026-08-04");
+  assert.equal(state.booking.arrival, "2026-08-05");
+  assert.match(result.facts[0], /separate from the confirmed condo stay/i);
+});
+
 test("controlled weather result remains structured and grounded", async () => {
   const result = await executeTool("get_destin_weather", {}, context());
   assert.equal(result.ok, true);

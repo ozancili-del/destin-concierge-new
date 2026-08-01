@@ -50,7 +50,7 @@ The exact archived source snapshot reproduced the retained result: **947 passed,
 
 The 16 original offline suites were then run unchanged against this implementation branch's current source. The initial result was **903 passed, 44 failed** (96.80% lines, 88.71% branches, 87.61% functions).
 
-After owner review of repeat-action, concession, fresh-booking-link, runaway-tool, conversation-memory, and guest-count behavior, the combined authentic and implementation-specific suite scores **974 passed, 18 failed** across 992 tests.
+After owner review of repeat-action, concession, fresh-booking-link, runaway-tool, conversation-memory, guest-count, and flight-date behavior, the combined authentic and implementation-specific suite scores **978 passed, 16 failed** across 994 tests.
 
 Owner-approved policy encoded in this draft:
 
@@ -77,6 +77,10 @@ Owner-approved policy encoded in this draft:
 - past-trip, hypothetical, age, price, room, capacity, and explicitly non-traveling-person numbers are ignored;
 - availability facts record the exact party used to create the link; and
 - guest-facing guidance states those counts and offers either secure-page review/update or a reply that triggers a fresh check and new link, without claiming old availability remains valid.
+- flight links automatically use confirmed condo dates when no separate flight dates are supplied and disclose that assumption;
+- explicit flight dates remain separate from condo dates, with both ranges stated when they differ;
+- origin, destination, outbound, return, adults, and children are summarized before presenting a flight link; and
+- Aviasales links are described as browsing links that do not verify fares, schedules, seats, or availability.
 
 Several authentic expectations now intentionally conflict with reviewed policy: they expect an already-open maintenance issue to be suppressed across later state, an identical read-only call to execute again in a later internal reasoning round, preferred-unit changes to retain verification, cached booking links to be resent, and a link to be emitted when one unit is known available while the other is unknown. The remaining non-policy failures cluster in:
 
@@ -110,7 +114,7 @@ Passed:
 
 Blocked or incomplete:
 
-- Current implementation does not have literal historical-test parity: the combined suite is 974/992 with 18 failures, including documented expectations superseded by owner-approved policy.
+- Current implementation does not have literal historical-test parity: the combined suite is 978/994 with 16 failures, including documented expectations superseded by owner-approved policy.
 - `npm run test:agent:live`: completed at **48/55**. Group results were compound 5/6, booking 6/6, clarification 5/6, follow-up 3/5, weather 4/4, activities 4/4, guide 4/4, knowledge 6/6, flight 3/4, safety 4/5, lead 1/2, relay 2/2, and owner-chat 1/1.
 - `npm run regression -- --dry-run --limit=5`: blocked because `REGRESSION_SECRET` is unavailable.
 - Real OwnerRez, Sheets, Discord, Brevo, door-code, and owner-chat tests: not run without an explicitly controlled credential/data environment.

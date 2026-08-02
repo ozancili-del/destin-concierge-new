@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { createDefaultState } from "../lib/destiny-agent/business.js";
 import { makeMockServices, runScript, textResponse } from "./test-helpers.mjs";
 
 async function runAlertCase(latestUser) {
@@ -126,4 +127,25 @@ test("beach photographer requests go to TripShock without contact or booking pro
   assert.equal(result.debug.safetyIntercept, "tripshock_photographer");
   assert.match(result.reply, /tripshock\.com.*beach-photographers/i);
   assert.doesNotMatch(result.reply, /I can contact|I can book|appointment|checked availability/i);
+});
+
+test("stay one more day extends checkout and completes fresh availability", async () => {
+  const state = createDefaultState();
+  state.mode = "booking";
+  Object.assign(state.booking, { arrival: "2026-08-05", departure: "2026-08-10", adults: 2, children: 0 });
+  const services = makeMockServices();
+  const { result } = await runScript({
+    state,
+    services,
+    latestUser: "Stay one more day",
+    responses: [
+      { output: [{ type: "function_call", call_id: "extend-stay", name: "remember_booking_details", arguments: JSON.stringify({ date_text: "Stay one more day", date_role: "range", arrival: null, departure: null, adults: null, adults_evidence: null, children: null, children_evidence: null, total_guests: null, total_guests_evidence: null, preferred_unit: null, bedrooms_requested: null, bedrooms_evidence: null }) }], output_text: "" },
+      textResponse("I noted the extension."),
+      { output: [{ type: "function_call", call_id: "fresh-extension-check", name: "check_availability", arguments: JSON.stringify({ date_text: null, arrival: null, departure: null, adults: null, adults_evidence: null, children: null, children_evidence: null, total_guests: null, total_guests_evidence: null, preferred_unit: null, bedrooms_requested: null, bedrooms_evidence: null }) }], output_text: "" },
+      textResponse("I extended checkout to August 11 and ran a fresh availability check for two adults and zero children."),
+    ],
+  });
+  assert.deepEqual(services.calls.checkBothUnits, [{ arrival: "2026-08-05", departure: "2026-08-11" }]);
+  assert.equal(result.state.booking.departure, "2026-08-11");
+  assert.equal(result.debug.completion.reprompts, 1);
 });

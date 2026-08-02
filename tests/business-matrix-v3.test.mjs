@@ -188,6 +188,11 @@ test("TripShock dated link contains affiliate and dates", () => {
 });
 test("TripShock unknown category safely falls back to homepage", () => assert.match(buildTripShockLink("not-real", null), /^https:\/\/www\.tripshock\.com\/?\?/));
 
+test("TripShock rainy-day admission products retain affiliate attribution", () => {
+  assert.equal(buildTripShockLink("gulfarium", null), "https://www.tripshock.com/gulfarium-marine-adventure-park-admission-tickets/details/1453/?aff=destindreamcondo");
+  assert.equal(buildTripShockLink("sciencecenter", null), "https://www.tripshock.com/emerald-coast-science-center-museum-admission-tickets/details/2367/?aff=destindreamcondo");
+});
+
 const detectorCases = [
   [detectScamCrisis, "This looks like a scam", true], [detectScamCrisis, "What is the pool temperature?", false],
   [detectEscalation, "I will sue and leave a one star review", true], [detectLockedOut, "I'm locked out and the pin is wrong", true],

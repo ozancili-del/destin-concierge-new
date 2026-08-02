@@ -21,7 +21,9 @@ Six direct `/api/chat` uses were found and centralized:
 
 Raw files under `public/` are not transformed by Next.js and cannot safely read `process.env`. All surfaces therefore call the stable `/api/destiny-chat` entrypoint. Its server-side selector delegates to the untouched regex handler when `NEXT_PUBLIC_DESTINY_AGENT_V3` is not exactly `"true"`, and to Agent v3 only when it is exactly `"true"`.
 
-## Integration parity
+## Integration wiring audit
+
+This table confirms connector and route wiring; it is not, by itself, a complete legacy behavior-parity claim. The full guest-facing inventory and evidence map is in `docs/LEGACY-CHAT-PARITY-MATRIX.md`.
 
 | Integration/capability | Agent v3 status | Audit result |
 |---|---|---|

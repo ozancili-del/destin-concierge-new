@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createDefaultState } from "../lib/destiny-agent/business.js";
-import { makeMockServices, runScript, textResponse } from "./test-helpers.mjs";
+import { makeMockServices, runScript, textResponse, toolResponse } from "./test-helpers.mjs";
 
 async function runAlertCase(latestUser) {
   const services = makeMockServices();
@@ -113,24 +113,32 @@ test("explicit traveling party overrides children mentioned only in small talk",
   assert.match(result.reply, /two adults and zero children/i);
 });
 
-test("itinerary requests go straight to the dedicated planner", async () => {
+test("the model routes itinerary meaning to the code-owned dedicated planner", async () => {
   const { result, openai } = await runScript({
     latestUser: "Build me a three-day Destin itinerary.",
-    responses: [],
+    responses: [
+      toolResponse([{ name: "set_request_plan", args: { tasks: [{ id: "trip_plan", outcome: "Give the guest the dedicated itinerary planner", required_tool: "get_local_guide" }] } }]),
+      toolResponse([{ name: "get_local_guide", args: { topic: "itinerary" } }]),
+      textResponse("Use our dedicated planner to create your personalized day-by-day Destin trip:\nhttps://www.destincondogetaways.com/destin-vacation-itinerary-planner-574049367"),
+    ],
   });
-  assert.equal(openai.calls.length, 0);
-  assert.equal(result.debug.safetyIntercept, "itinerary_planner");
+  assert.equal(openai.calls.length, 3);
+  assert.deepEqual(result.debug.toolCalls.map(call => call.name), ["set_request_plan", "get_local_guide"]);
   assert.match(result.reply, /destin-vacation-itinerary-planner-574049367/);
   assert.doesNotMatch(result.reply, /Day 1|morning:|afternoon:/i);
 });
 
-test("beach photographer requests go to TripShock without contact or booking promises", async () => {
+test("the model routes beach-photo meaning to the code-owned TripShock category", async () => {
   const { result, openai } = await runScript({
     latestUser: "Find a beach photographer for family pictures.",
-    responses: [],
+    responses: [
+      toolResponse([{ name: "set_request_plan", args: { tasks: [{ id: "family_photos", outcome: "Give the guest beach photography browsing options", required_tool: "get_activity_options" }] } }]),
+      toolResponse([{ name: "get_activity_options", args: { category: "photographer", date_text: null, date_confidence: null, start_date: null, end_date: null, arrival: null, departure: null } }]),
+      textResponse("Browse TripShock's beach-photographer options here. This does not confirm live pricing or availability:\nhttps://www.tripshock.com/destination/fl/destin/things-to-do/beach-photographers/?aff=destindreamcondo"),
+    ],
   });
-  assert.equal(openai.calls.length, 0);
-  assert.equal(result.debug.safetyIntercept, "tripshock_photographer");
+  assert.equal(openai.calls.length, 3);
+  assert.deepEqual(result.debug.toolCalls.map(call => call.name), ["set_request_plan", "get_activity_options"]);
   assert.match(result.reply, /tripshock\.com.*beach-photographers/i);
   assert.doesNotMatch(result.reply, /I can contact|I can book|appointment|checked availability/i);
 });

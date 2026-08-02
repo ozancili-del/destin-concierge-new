@@ -99,8 +99,9 @@ test("explicit traveling party overrides children mentioned only in small talk",
         arguments: JSON.stringify({
           date_text: "August 5-10", arrival: null, departure: null,
           adults: 2, adults_evidence: "me and my husband",
-          children: 2, children_evidence: "2 kids",
+          children: 0, children_evidence: "just be me and my husband",
           total_guests: null, total_guests_evidence: null,
+          party_scope: "current_trip", party_evidence: "It will just be me and my husband",
           preferred_unit: null, bedrooms_requested: null, bedrooms_evidence: null,
         }),
       }], output_text: "" },
@@ -111,6 +112,25 @@ test("explicit traveling party overrides children mentioned only in small talk",
   assert.equal(result.state.booking.adults, 2);
   assert.equal(result.state.booking.children, 0);
   assert.match(result.reply, /two adults and zero children/i);
+});
+
+test("invalid party clarification rewrites fall back to a clear guest-count question", async () => {
+  const latestUser = "My wife and I are coming, and our two kids might join.";
+  const { result } = await runScript({
+    latestUser,
+    responses: [
+      toolResponse([{ name: "remember_booking_details", args: {
+        date_text: null, date_confidence: null, date_role: null, arrival: null, departure: null,
+        adults: 2, adults_evidence: "My wife and I", children: null, children_evidence: "our two kids might join",
+        total_guests: null, total_guests_evidence: null, party_scope: "ambiguous", party_evidence: "our two kids might join",
+        preferred_unit: null, bedrooms_requested: null, bedrooms_evidence: null,
+      } }]),
+      textResponse("I've saved the adults. Are the kids joining?"),
+      textResponse("I've stored the party. Are the kids joining?"),
+    ],
+  });
+  assert.match(result.reply, /confirm the final number of adults and children/i);
+  assert.doesNotMatch(result.reply, /temporary snag|saved|stored/i);
 });
 
 test("the model routes itinerary meaning to the code-owned dedicated planner", async () => {

@@ -255,8 +255,8 @@ test("reply guard rejects false 1006 availability", () => assert.ok(validation("
 test("reply guard rejects false 707 unavailability", () => assert.ok(validation("Unit 707 is booked.", [availResult]).violations.some(v => v.code === "unverified_unavailability_707")));
 test("reply guard rejects false both-units claim", () => assert.ok(validation("Both units are available.", [availResult]).violations.some(v => v.code === "unverified_both_available")));
 
-test("reply guard prevents the concierge from offering to hold a condo", () => {
-  for (const reply of ["Both links are ready. I can hold one of these for you.", "Would you like help reserving one?"]) {
+test("reply guard prevents the concierge from offering to hold a condo or its link", () => {
+  for (const reply of ["Both links are ready. I can hold one of these for you.", "Would you like help reserving one?", "Would you like me to hold that link for you?"]) {
     const checked = validation(reply, [availResult]);
     assert.ok(checked.violations.some(v => v.code === "unsupported_booking_action"));
   }

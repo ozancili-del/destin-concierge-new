@@ -62,18 +62,26 @@ test("weather reports missing configuration without network", async () => {
 });
 
 test("weather normalizes Google response into Fahrenheit facts", async () => {
-  const fetchImpl = makeFetch([{ match: "weather.googleapis.com", reply: response({ json: { forecastDays: [{ date:{year:2026,month:7,day:21}, maxTemperature:{degrees:89.4}, minTemperature:{degrees:75.6}, precipitationProbability:0.31, daytimeForecast:{weatherCondition:{description:{text:"Partly cloudy"}}} }] } }) }]);
+  const fetchImpl = makeFetch([{ match: "weather.googleapis.com", reply: response({ json: { forecastDays: [{ displayDate:{year:2026,month:7,day:21}, maxTemperature:{degrees:89.4}, minTemperature:{degrees:75.6}, daytimeForecast:{precipitation:{probability:{percent:31}}, weatherCondition:{description:{text:"Partly cloudy"}}}, nighttimeForecast:{precipitation:{probability:{percent:44}}} }] } }) }]);
   const services = createServices({ fetchImpl, env: { GOOGLE_WEATHER_API_KEY: "k" }, now: () => NOW, logger: quiet });
-  const r = await services.fetchDestinWeather(); assert.equal(r.status, "success"); assert.deepEqual(r.forecast[0], { date:"2026-07-21", hi:89, lo:76, rain:31, desc:"Partly cloudy" });
+  const r = await services.fetchDestinWeather(); assert.equal(r.status, "success"); assert.deepEqual(r.forecast[0], { date:"2026-07-21", hi:89, lo:76, rain:44, desc:"Partly cloudy" });
 });
 
 test("weather inherits the deployed legacy Google key when no dedicated key is set", async () => {
-  const fetchImpl = makeFetch([{ match: "weather.googleapis.com", reply: response({ json: { forecastDays: [{ date:{year:2026,month:8,day:3}, maxTemperature:{degrees:88}, minTemperature:{degrees:77}, precipitationProbability:0.6, daytimeForecast:{weatherCondition:{description:{text:"Showers"}}} }] } }) }]);
+  const fetchImpl = makeFetch([{ match: "weather.googleapis.com", reply: response({ json: { forecastDays: [{ displayDate:{year:2026,month:8,day:3}, maxTemperature:{degrees:88}, minTemperature:{degrees:77}, daytimeForecast:{precipitation:{probability:{percent:60}}, weatherCondition:{description:{text:"Showers"}}} }] } }) }]);
   const services = createServices({ fetchImpl, env: { GOOGLE_MAPS_KEY: "legacy-weather-key" }, now: () => NOW, logger: quiet });
   const r = await services.fetchDestinWeather();
   assert.equal(r.status, "success");
   assert.match(fetchImpl.calls[0].url, /key=legacy-weather-key/);
   assert.deepEqual(r.forecast[0], { date:"2026-08-03", hi:88, lo:77, rain:60, desc:"Showers" });
+});
+
+test("weather accepts the legacy TV endpoint interval date fallback", async () => {
+  const fetchImpl = makeFetch([{ match: "weather.googleapis.com", reply: response({ json: { forecastDays: [{ interval:{startTime:"2026-08-04T12:00:00Z"}, maxTemperature:{degrees:87}, minTemperature:{degrees:76}, daytimeForecast:{precipitation:{probability:{percent:25}}, weatherCondition:{description:{text:"Mostly sunny"}}} }] } }) }]);
+  const services = createServices({ fetchImpl, env: { GOOGLE_WEATHER_API_KEY: "k" }, now: () => NOW, logger: quiet });
+  const r = await services.fetchDestinWeather();
+  assert.equal(r.status, "success");
+  assert.deepEqual(r.forecast[0], { date:"2026-08-04", hi:87, lo:76, rain:25, desc:"Mostly sunny" });
 });
 
 test("weather HTTP failure is honest", async () => {

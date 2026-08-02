@@ -163,7 +163,7 @@ test("the model routes beach-photo meaning to the code-owned TripShock category"
   assert.doesNotMatch(result.reply, /I can contact|I can book|appointment|checked availability/i);
 });
 
-test("agent-introduced TripShock recommendations are planned, tooled, and linked individually", async () => {
+// Recommendations introduced by the model carry the same affiliate-tool obligation as guest-named activities.\ntest("agent-introduced TripShock recommendations are planned, tooled, and linked individually", async () => {
   const { result } = await runScript({
     latestUser: "Looks like it might rain tomorrow. What can we do with two kids if the beach is a washout?",
     responses: [

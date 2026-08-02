@@ -255,6 +255,19 @@ test("reply guard rejects false 1006 availability", () => assert.ok(validation("
 test("reply guard rejects false 707 unavailability", () => assert.ok(validation("Unit 707 is booked.", [availResult]).violations.some(v => v.code === "unverified_unavailability_707")));
 test("reply guard rejects false both-units claim", () => assert.ok(validation("Both units are available.", [availResult]).violations.some(v => v.code === "unverified_both_available")));
 
+test("reply guard keeps itinerary generation inside the dedicated planner", () => {
+  const tool = { name: "get_local_guide", kind: "guide", data: { topic: "itinerary" }, urls: [STATIC_URLS.tripPlanner], facts: [] };
+  const checked = validation(`Use the dedicated planner: ${STATIC_URLS.tripPlanner}\nI’ll also suggest a few tailored ideas here.`, [tool]);
+  assert.ok(checked.violations.some(v => v.code === "itinerary_must_use_dedicated_planner"));
+});
+
+test("reply guard keeps photographer integration browsing-only", () => {
+  const url = "https://www.tripshock.com/destination/fl/destin/things-to-do/beach-photographers/?aff=destindreamcondo";
+  const tool = { name: "get_activity_options", kind: "activity", data: { category: "photographer" }, urls: [url], facts: [] };
+  const checked = validation(`Browse here: ${url}\nTell me your date and I can pull contact info.`, [tool]);
+  assert.ok(checked.violations.some(v => v.code === "photographer_browsing_only"));
+});
+
 test("reply guard allows exact authorized money and dates from tool data", () => {
   const result = { name: "check_availability", kind: "booking", urls: [], data: { total: "$1,234.00", arrival: "2026-08-05", departure: "2026-08-10", units: [] }, facts: ["10% direct discount"] };
   const checked = validation("The verified total is $1,234.00 for August 5–10, with the 10% direct discount.", [result]);

@@ -61,13 +61,19 @@ test("owner policy uses stated adults as a disclosed zero-child booking baseline
   assert.match(result.reply, /six-person maximum/i);
 });
 
-test("completion guard makes the agent execute a forgotten compound-request task", async () => {
+test("model-authored plan makes the agent execute a forgotten compound-request task", async () => {
   const services = makeMockServices();
   const { result } = await runScript({
     services,
     latestUser: "What is the weather, and can you find a dolphin cruise?",
     responses: [
-      { output: [{ type: "function_call", call_id: "weather-first", name: "get_destin_weather", arguments: "{}" }], output_text: "" },
+      { output: [
+        { type: "function_call", call_id: "request-plan", name: "set_request_plan", arguments: JSON.stringify({ tasks: [
+          { id: "forecast", outcome: "Answer the guest's weather question", required_tool: "get_destin_weather" },
+          { id: "cruise", outcome: "Provide dolphin-cruise browsing options", required_tool: "get_activity_options" },
+        ] }) },
+        { type: "function_call", call_id: "weather-first", name: "get_destin_weather", arguments: "{}" },
+      ], output_text: "" },
       textResponse("The forecast is partly cloudy."),
       { output: [{ type: "function_call", call_id: "activity-after-guard", name: "get_activity_options", arguments: JSON.stringify({ category: "dolphin", start_date: null, end_date: null }) }], output_text: "" },
       textResponse("The forecast is partly cloudy, and here is the dolphin-cruise browsing link."),
@@ -75,8 +81,8 @@ test("completion guard makes the agent execute a forgotten compound-request task
   });
   assert.equal(services.calls.fetchDestinWeather.length, 1);
   assert.equal(result.debug.toolCalls.filter(call => call.name === "get_activity_options").length, 1);
-  assert.deepEqual(result.debug.completion.requested, ["weather", "activities"]);
-  assert.deepEqual(result.debug.completion.attempted, ["weather", "activities"]);
+  assert.deepEqual(result.debug.completion.requested, ["forecast", "cruise"]);
+  assert.deepEqual(result.debug.completion.attempted, ["forecast", "cruise"]);
   assert.equal(result.debug.completion.reprompts, 1);
 });
 
@@ -139,7 +145,13 @@ test("stay one more day extends checkout and completes fresh availability", asyn
     services,
     latestUser: "Stay one more day",
     responses: [
-      { output: [{ type: "function_call", call_id: "extend-stay", name: "remember_booking_details", arguments: JSON.stringify({ date_text: "Stay one more day", date_role: "range", arrival: null, departure: null, adults: null, adults_evidence: null, children: null, children_evidence: null, total_guests: null, total_guests_evidence: null, preferred_unit: null, bedrooms_requested: null, bedrooms_evidence: null }) }], output_text: "" },
+      { output: [
+        { type: "function_call", call_id: "extension-plan", name: "set_request_plan", arguments: JSON.stringify({ tasks: [
+          { id: "update_checkout", outcome: "Extend checkout by one day", required_tool: "remember_booking_details" },
+          { id: "recheck", outcome: "Run fresh availability for the extended stay", required_tool: "check_availability" },
+        ] }) },
+        { type: "function_call", call_id: "extend-stay", name: "remember_booking_details", arguments: JSON.stringify({ date_text: "Stay one more day", date_role: "range", arrival: null, departure: null, adults: null, adults_evidence: null, children: null, children_evidence: null, total_guests: null, total_guests_evidence: null, preferred_unit: null, bedrooms_requested: null, bedrooms_evidence: null }) },
+      ], output_text: "" },
       textResponse("I noted the extension."),
       { output: [{ type: "function_call", call_id: "fresh-extension-check", name: "check_availability", arguments: JSON.stringify({ date_text: null, arrival: null, departure: null, adults: null, adults_evidence: null, children: null, children_evidence: null, total_guests: null, total_guests_evidence: null, preferred_unit: null, bedrooms_requested: null, bedrooms_evidence: null }) }], output_text: "" },
       textResponse("I extended checkout to August 11 and ran a fresh availability check for two adults and zero children."),

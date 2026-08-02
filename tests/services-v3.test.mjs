@@ -73,6 +73,38 @@ test("weather HTTP failure is honest", async () => {
   const r = await services.fetchDestinWeather(); assert.equal(r.status, "unavailable"); assert.equal(r.reason, "http_429");
 });
 
+test("beach conditions combine official Destin flag, NWS Okaloosa surf product, and coastal alerts", async () => {
+  const productText = `Surf Zone Forecast\nFLZ202-204-206-030800-\nEscambia Coastal-Santa Rosa Coastal-Okaloosa Coastal-\nIncluding the beaches of Fort Walton Beach, and Destin\n.TODAY...\nRip Current Risk*...........High.\nSurf Height.................3 to 5 feet.\nWater Temperature...........In the mid 80s.\nWeather.....................Mostly cloudy.\nWinds.......................Southwest winds around 20 mph.\n.TONIGHT...\nRip Current Risk*...........High.\n&&`;
+  const fetchImpl = makeFetch([
+    { match: "destinfire.gov", reply: response({ text: "<h3>Current Status: Water Closed to Public</h3>" }) },
+    { match: "products/types/SRF/locations/MOB", reply: response({ json: { "@graph": [{ id: "surf-1", "@id": "https://api.weather.gov/products/surf-1", issuanceTime: "2026-08-02T08:03:00+00:00" }] } }) },
+    { match: /api\.weather\.gov\/products\/surf-1$/, reply: response({ json: { productText } }) },
+    { match: "alerts/active?zone=FLZ206", reply: response({ json: { features: [{ id: "https://api.weather.gov/alerts/rip-1", properties: { event: "Rip Current Statement", severity: "Moderate", urgency: "Expected", headline: "High Rip Current Risk", effective: "2026-08-02T08:00:00Z", expires: "2026-08-03T05:00:00Z" } }] } }) },
+  ]);
+  const services = createServices({ fetchImpl, env: {}, now: () => NOW, logger: quiet });
+  const r = await services.fetchBeachConditions();
+  assert.equal(r.status, "success");
+  assert.equal(r.flag.value, "Water Closed to Public");
+  assert.equal(r.surf.ripCurrentRisk, "High.");
+  assert.equal(r.surf.surfHeight, "3 to 5 feet.");
+  assert.equal(r.surf.waterTemperature, "In the mid 80s.");
+  assert.equal(r.alerts.items[0].event, "Rip Current Statement");
+});
+
+test("beach conditions fail partially without converting missing sources into safe conditions", async () => {
+  const fetchImpl = makeFetch([
+    { match: "destinfire.gov", reply: response({ text: "page changed" }) },
+    { match: "products/types/SRF/locations/MOB", reply: response({ ok: false, status: 503 }) },
+    { match: "alerts/active?zone=FLZ206", reply: response({ json: { features: [] } }) },
+  ]);
+  const services = createServices({ fetchImpl, env: {}, now: () => NOW, logger: quiet });
+  const r = await services.fetchBeachConditions();
+  assert.equal(r.status, "partial");
+  assert.equal(r.flag.status, "unavailable");
+  assert.equal(r.surf.status, "unavailable");
+  assert.equal(r.alerts.status, "success");
+});
+
 test("itinerary guide is code-owned and performs no fetch", async () => {
   const fetchImpl = makeFetch(); const services = createServices({ fetchImpl, env: {}, now: () => NOW, logger: quiet });
   const r = await services.fetchBlogContent("itinerary"); assert.equal(r.status, "success"); assert.equal(fetchImpl.calls.length, 0);

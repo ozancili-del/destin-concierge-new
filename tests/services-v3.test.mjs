@@ -67,6 +67,15 @@ test("weather normalizes Google response into Fahrenheit facts", async () => {
   const r = await services.fetchDestinWeather(); assert.equal(r.status, "success"); assert.deepEqual(r.forecast[0], { date:"2026-07-21", hi:89, lo:76, rain:31, desc:"Partly cloudy" });
 });
 
+test("weather inherits the deployed legacy Google key when no dedicated key is set", async () => {
+  const fetchImpl = makeFetch([{ match: "weather.googleapis.com", reply: response({ json: { forecastDays: [{ date:{year:2026,month:8,day:3}, maxTemperature:{degrees:88}, minTemperature:{degrees:77}, precipitationProbability:0.6, daytimeForecast:{weatherCondition:{description:{text:"Showers"}}} }] } }) }]);
+  const services = createServices({ fetchImpl, env: { GOOGLE_MAPS_KEY: "legacy-weather-key" }, now: () => NOW, logger: quiet });
+  const r = await services.fetchDestinWeather();
+  assert.equal(r.status, "success");
+  assert.match(fetchImpl.calls[0].url, /key=legacy-weather-key/);
+  assert.deepEqual(r.forecast[0], { date:"2026-08-03", hi:88, lo:77, rain:60, desc:"Showers" });
+});
+
 test("weather HTTP failure is honest", async () => {
   const fetchImpl = makeFetch([{ match: "weather.googleapis.com", reply: response({ ok:false, status:429 }) }]);
   const services = createServices({ fetchImpl, env: { GOOGLE_WEATHER_API_KEY: "k" }, now: () => NOW, logger: quiet });

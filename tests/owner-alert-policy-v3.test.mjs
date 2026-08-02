@@ -163,6 +163,30 @@ test("the model routes beach-photo meaning to the code-owned TripShock category"
   assert.doesNotMatch(result.reply, /I can contact|I can book|appointment|checked availability/i);
 });
 
+test("agent-introduced TripShock recommendations are planned, tooled, and linked individually", async () => {
+  const { result } = await runScript({
+    latestUser: "Looks like it might rain tomorrow. What can we do with two kids if the beach is a washout?",
+    responses: [
+      toolResponse([{ name: "set_request_plan", args: { tasks: [
+        { id: "forecast", outcome: "Verify tomorrow's rain forecast", required_tool: "get_destin_weather" },
+        { id: "family_ideas", outcome: "Give verified rainy-day family ideas", required_tool: "get_local_guide" },
+        { id: "dolphin", outcome: "Recommend a dolphin cruise if weather permits and provide its browsing link", required_tool: "get_activity_options" },
+        { id: "pirate", outcome: "Recommend a pirate cruise if weather permits and provide its browsing link", required_tool: "get_activity_options" },
+      ] } }]),
+      toolResponse([
+        { name: "get_destin_weather", args: {} },
+        { name: "get_local_guide", args: { topic: "kids" } },
+        { name: "get_activity_options", args: { category: "dolphin", date_text: null, start_date: null, end_date: null, arrival: null, departure: null } },
+        { name: "get_activity_options", args: { category: "pirate", date_text: null, start_date: null, end_date: null, arrival: null, departure: null } },
+      ]),
+      textResponse("For an indoor backup, start with the family guide. If the weather clears enough for the water, here are dolphin and pirate cruise browsing options:\nhttps://www.tripshock.com/destination/fl/destin/things-to-do/dolphin-cruises-and-tours/?aff=destindreamcondo\nhttps://www.tripshock.com/destination/fl/destin/things-to-do/pirate-cruises/?aff=destindreamcondo"),
+    ],
+  });
+  assert.deepEqual(result.debug.toolCalls.map(call => call.name), ["set_request_plan", "get_destin_weather", "get_local_guide", "get_activity_options", "get_activity_options"]);
+  assert.match(result.reply, /dolphin-cruises-and-tours\/\?aff=destindreamcondo/i);
+  assert.match(result.reply, /pirate-cruises\/\?aff=destindreamcondo/i);
+});
+
 test("stay one more day extends checkout and completes fresh availability", async () => {
   const state = createDefaultState();
   state.mode = "booking";

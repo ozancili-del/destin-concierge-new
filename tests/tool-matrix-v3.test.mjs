@@ -209,6 +209,27 @@ test("flight search accepts lowercase IATA and uses stored trip state", async ()
   assert.equal(r.status, "success"); assert.match(r.urls[0], /DFW0508VPS10083/);
 });
 
+test("flight search preserves a full numeric round-trip range from Agent Test Case T051", async () => {
+  const latestUser = "Find me a flight from Denver, 07/07/2027-07/14/2027, 2 adults, 2 kids, 1 infant.";
+  const r = await exec("build_flight_search", {
+    origin_text: "Denver",
+    destination_iata: "VPS",
+    date_text: "07/07/2027-07/14/2027",
+    departure_date: "2027-07-07",
+    return_date: "2027-07-14",
+    adults: 2,
+    adults_evidence: "2 adults",
+    children: 2,
+    children_evidence: "2 kids",
+    infants: 1,
+  }, latestUser, { overrides: { messages: [{ role: "user", content: latestUser }] } });
+  assert.equal(r.status, "success");
+  assert.equal(r.data.departureDate, "2027-07-07");
+  assert.equal(r.data.returnDate, "2027-07-14");
+  assert.match(r.urls[0], /DEN0707VPS14075/);
+  assert.match(r.urls[0], /marker=709191/);
+});
+
 test("weather tool propagates unavailable status honestly", async () => {
   const services = makeMockServices({ async fetchDestinWeather() { return { status:"unavailable", reason:"http_500", forecast:[] }; } });
   const r = await exec("get_destin_weather", {}, "What is the weather?", { services }); assert.equal(r.ok, false); assert.equal(r.status, "unavailable"); assert.deepEqual(r.facts, []);

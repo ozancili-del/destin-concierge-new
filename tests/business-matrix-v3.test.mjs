@@ -255,6 +255,19 @@ test("reply guard rejects false 1006 availability", () => assert.ok(validation("
 test("reply guard rejects false 707 unavailability", () => assert.ok(validation("Unit 707 is booked.", [availResult]).violations.some(v => v.code === "unverified_unavailability_707")));
 test("reply guard rejects false both-units claim", () => assert.ok(validation("Both units are available.", [availResult]).violations.some(v => v.code === "unverified_both_available")));
 
+test("reply guard prevents the concierge from offering to hold a condo", () => {
+  for (const reply of ["Both links are ready. I can hold one of these for you.", "Would you like help reserving one?"]) {
+    const checked = validation(reply, [availResult]);
+    assert.ok(checked.violations.some(v => v.code === "unsupported_booking_action"));
+  }
+});
+
+test("reply guard rejects a saved-details claim after party clarification", () => {
+  const tool = { name: "remember_booking_details", kind: "state", ok: false, status: "needs_party_clarification", data: {} };
+  const checked = validation("I've saved your dates and adults; are the kids coming?", [tool]);
+  assert.ok(checked.violations.some(v => v.code === "unverified_details_saved"));
+});
+
 test("reply guard keeps itinerary generation inside the dedicated planner", () => {
   const tool = { name: "get_local_guide", kind: "guide", data: { topic: "itinerary" }, urls: [STATIC_URLS.tripPlanner], facts: [] };
   const checked = validation(`Use the dedicated planner: ${STATIC_URLS.tripPlanner}\nI’ll also suggest a few tailored ideas here.`, [tool]);

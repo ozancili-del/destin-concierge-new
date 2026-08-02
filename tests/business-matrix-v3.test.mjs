@@ -262,6 +262,16 @@ test("reply guard prevents the concierge from offering to hold a condo or its li
   }
 });
 
+test("reply guard never permits a water-safety assurance and requires closure disclosure", () => {
+  const beachResult = { name: "get_beach_conditions", kind: "beach_conditions", status: "success", data: { flag: { value: "Water Closed to Public" }, surf: { ripCurrentRisk: "High." } }, urls: [], facts: [] };
+  const unsafe = validation("The water is safe to swim today.", [beachResult]);
+  assert.ok(unsafe.violations.some(v => v.code === "unsafe_water_assurance"));
+  assert.ok(unsafe.violations.some(v => v.code === "water_closure_omitted"));
+  assert.ok(unsafe.violations.some(v => v.code === "high_rip_risk_omitted"));
+  const honest = validation("Destin Fire reports the water is closed to the public. NWS reports high rip-current risk. Stay out of the water and follow lifeguard instructions.", [beachResult]);
+  assert.equal(honest.ok, true);
+});
+
 test("reply guard rejects a saved-details claim after party clarification", () => {
   const tool = { name: "remember_booking_details", kind: "state", ok: false, status: "needs_party_clarification", data: {} };
   const checked = validation("I've saved your dates and adults; are the kids coming?", [tool]);

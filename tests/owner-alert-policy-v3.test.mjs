@@ -105,3 +105,25 @@ test("explicit traveling party overrides children mentioned only in small talk",
   assert.equal(result.state.booking.children, 0);
   assert.match(result.reply, /two adults and zero children/i);
 });
+
+test("itinerary requests go straight to the dedicated planner", async () => {
+  const { result, openai } = await runScript({
+    latestUser: "Build me a three-day Destin itinerary.",
+    responses: [],
+  });
+  assert.equal(openai.calls.length, 0);
+  assert.equal(result.debug.safetyIntercept, "itinerary_planner");
+  assert.match(result.reply, /destin-vacation-itinerary-planner-574049367/);
+  assert.doesNotMatch(result.reply, /Day 1|morning:|afternoon:/i);
+});
+
+test("beach photographer requests go to TripShock without contact or booking promises", async () => {
+  const { result, openai } = await runScript({
+    latestUser: "Find a beach photographer for family pictures.",
+    responses: [],
+  });
+  assert.equal(openai.calls.length, 0);
+  assert.equal(result.debug.safetyIntercept, "tripshock_photographer");
+  assert.match(result.reply, /tripshock\.com.*beach-photographers/i);
+  assert.doesNotMatch(result.reply, /I can contact|I can book|appointment|checked availability/i);
+});

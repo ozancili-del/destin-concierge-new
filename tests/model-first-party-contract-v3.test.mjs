@@ -33,6 +33,19 @@ test("model-scoped exclusive adult party supports zero children without a zero k
   assert.deepEqual(result.data.query, { arrival: "2027-08-05", departure: "2027-08-10", adults: 2, children: 0 });
 });
 
+test("grounded adult-only party uses the disclosed zero-child baseline even if the model sends an ungrounded zero", async () => {
+  const latestUser = "August 5-10, 2027, two adults. Is 707 open?";
+  const { result } = await check(latestUser, {
+    adults: 2, adults_evidence: "two adults",
+    children: 0, children_evidence: null,
+    party_scope: "current_trip", party_evidence: "two adults",
+    preferred_unit: "707",
+  });
+  assert.equal(result.status, "success");
+  assert.equal(result.data.query.children, 0);
+  assert.match(result.facts.join(" "), /zero children was used as the booking-link baseline/i);
+});
+
 test("model current-trip interpretation wins when a past-trip phrase is also present", async () => {
   const latestUser = "Unlike last time, this trip is 3 adults and 1 kid, August 5-10, 2027.";
   const { result } = await check(latestUser, {

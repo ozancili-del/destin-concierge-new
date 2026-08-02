@@ -45,7 +45,7 @@ export function scriptedOpenAI(responses, { delays = [] } = {}) {
 export function makeMockServices(overrides = {}) {
   const calls = {
     checkBothUnits: [], fetchPriceDrops: [], fetchCalendarAlternatives: [], findOpenWindows: [],
-    fetchBlogContent: [], fetchDestinWeather: [], sendEmergencyDiscord: [], addBrevoContact: [],
+    fetchBlogContent: [], fetchDestinWeather: [], fetchBeachConditions: [], sendEmergencyDiscord: [], addBrevoContact: [],
     readSessState: [], writeSessState: [], sendOwnerChatInvite: [], fetchGuestBooking: [],
   };
   const services = {
@@ -56,6 +56,7 @@ export function makeMockServices(overrides = {}) {
     async findOpenWindows(args) { calls.findOpenWindows.push(args); return []; },
     async fetchBlogContent(topic) { calls.fetchBlogContent.push(topic); return { status: "success", topic, content: "Verified guide content.", url: `https://www.destincondogetaways.com/blog/${topic}` }; },
     async fetchDestinWeather() { calls.fetchDestinWeather.push(true); return { status: "success", checkedAt: NOW.toISOString(), forecast: [{ date: "2026-08-05", hi: 89, lo: 76, rain: 30, desc: "partly cloudy" }] }; },
+    async fetchBeachConditions() { calls.fetchBeachConditions.push(true); return { status: "success", checkedAt: NOW.toISOString(), flag: { status: "success", value: "Medium Hazard", source: "https://www.destinfire.gov/today-s-warning-condition-beach-flags" }, surf: { status: "success", issuedAt: NOW.toISOString(), ripCurrentRisk: "Moderate.", surfHeight: "2 to 3 feet.", waterTemperature: "In the mid 80s.", weather: "Partly cloudy.", winds: "Southwest around 10 mph.", source: "https://api.weather.gov/products/test" }, alerts: { status: "success", items: [], source: "https://api.weather.gov/alerts/active?zone=FLZ206" } }; },
     async sendEmergencyDiscord(...args) { calls.sendEmergencyDiscord.push(args); return { sent: true }; },
     async addBrevoContact(...args) { calls.addBrevoContact.push(args); return { captured: true }; },
     verifyGuestLinkSignature() { return { ok: true, legacy: false }; },

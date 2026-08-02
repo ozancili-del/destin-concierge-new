@@ -235,6 +235,14 @@ test("weather tool propagates unavailable status honestly", async () => {
   const r = await exec("get_destin_weather", {}, "What is the weather?", { services }); assert.equal(r.ok, false); assert.equal(r.status, "unavailable"); assert.deepEqual(r.facts, []);
 });
 
+test("beach conditions expose official flag and NWS surf facts without declaring safety", async () => {
+  const r = await exec("get_beach_conditions", {}, "Are the Gulf water conditions safe today?");
+  assert.equal(r.status, "success");
+  assert.match(r.facts.join(" "), /Destin Fire current beach flag status: Medium Hazard/i);
+  assert.match(r.facts.join(" "), /rip-current risk Moderate/i);
+  assert.match(r.facts.join(" "), /Never describe the water as safe/i);
+});
+
 test("photo guide returns only code-owned URLs", async () => {
   const r = await exec("get_local_guide", { topic:"photos" }, "Show me photos"); assert.equal(r.urls.length, 4); assert.equal(r.urls.every(u => /^https:\/\/www\.destincondogetaways\.com/.test(u)), true);
 });

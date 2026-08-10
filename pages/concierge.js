@@ -373,7 +373,7 @@ function getLinkButton(u){
       padding: "10px 14px",
       boxShadow: "0 4px 12px rgba(37,99,235,0.1), inset 0 1px 0 rgba(255,255,255,0.9)",
       border: "0.5px solid rgba(37,99,235,0.12)",
-      display: "flex", gap: 4, alignItems: "center"
+      display: "flex", gap: 4, alignItems: "center", maxWidth: "82%"
     },
     inputArea: {
       display: "flex", gap: 8,
@@ -447,10 +447,10 @@ function getLinkButton(u){
             <div style={{ display: "flex", alignItems: "flex-end", gap: 8 }}>
               <div style={styles.botIcon}>🌊</div>
               <div style={styles.typingBubble}>
-                {busyMessage && <span style={{ fontSize: 13, lineHeight: 1.4, color: "#475569", marginRight: 5 }}>{busyMessage}</span>}
+                {busyMessage && <span style={{ flex: 1, minWidth: 0, fontSize: 13, lineHeight: 1.4, color: "#475569", marginRight: 5 }}>{busyMessage}</span>}
                 {[0, 200, 400].map((delay, i) => (
                   <div key={i} style={{
-                    width: 7, height: 7, borderRadius: "50%", background: "#94a3b8",
+                    flex: "0 0 7px", width: 7, height: 7, borderRadius: "50%", background: "#94a3b8",
                     animation: "db-bounce 1.2s infinite",
                     animationDelay: `${delay}ms`
                   }} />

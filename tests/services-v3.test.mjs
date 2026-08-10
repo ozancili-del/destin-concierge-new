@@ -228,6 +228,11 @@ test("beach deals reader parses active page data and returns closest reduced dat
   assert.equal(r.matchType,"nearby");
   assert.equal(r.deals[0].arrival,"2026-08-08");
   assert.equal(r.deals.some(deal=>deal.purchased),false);
+
+  const monthly=await services.fetchBeachDeals({month:"2026-09",limit:3});
+  assert.equal(monthly.status,"success");
+  assert.equal(monthly.matchType,"month");
+  assert.deepEqual(monthly.deals.map(deal=>deal.arrival),["2026-09-01"]);
 });
 
 test("guest-link signature supports legacy mode when secret is absent", () => {

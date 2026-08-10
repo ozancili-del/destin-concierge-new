@@ -360,6 +360,26 @@ test("current event search resolves weekend and routes explicit locations with a
   assert.match(r.facts[1],/cross-check/i);
 });
 
+test("current event follow-up excludes prior listings and asks for genuinely new options", async () => {
+  const prompts=[];
+  const openai={responses:{async create(payload){
+    prompts.push(payload.input[0].content);
+    return {output:[{type:"message",content:[{type:"output_text",text:"A different venue has a Saturday show.",annotations:[]}]}]};
+  }}};
+  const priorAnswer="Boukou Groove at Baytowne Wharf. https://www.baytownewharf.com/event_details.php?event=269 https://www.destincondogetaways.com/blog/destin-live-music-2026";
+  const messages=[
+    {role:"user",content:"What concerts are happening around Destin this weekend?"},
+    {role:"assistant",content:priorAnswer},
+    {role:"user",content:"Yes, check for a few more."},
+  ];
+  const r=await exec("search_current_events",{category:"music",query:"Find a few more concerts this weekend",date_context:"this weekend"},"Yes, check for a few more.",{overrides:{openai,model:"gpt-5-mini",messages}});
+  assert.match(prompts[0],/genuinely additional options/i);
+  assert.match(prompts[0],/Boukou Groove/);
+  assert.match(prompts[0],/Do not repeat previously supplied performers/i);
+  assert.match(r.facts[1],/do not repeat previously shown/i);
+  assert.doesNotMatch(r.facts[1],/offer to run one more live check/i);
+});
+
 test("current event search falls back to the curated guide without asking the guest to retry", async () => {
   const openai={responses:{async create(){ throw new Error("search timeout"); }}};
   const r=await exec("search_current_events",{category:"music",query:"concerts this week"},"Concerts this week",{overrides:{openai,model:"gpt-5-mini"}});

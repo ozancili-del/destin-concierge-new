@@ -346,6 +346,22 @@ test("current event search uses live web evidence and the matching curated blog"
   assert.ok(!r.urls.includes("https://www.destincondogetaways.com/blog/destin-events-2026"));
 });
 
+test("current event search combines both evidence sweeps and resolves this weekend Friday through Sunday", async () => {
+  let call=0; const prompts=[];
+  const openai={responses:{async create(payload){
+    prompts.push(payload.input[0].content); call+=1;
+    const venue=call===1?"Club LA":"Baytowne Wharf";
+    const url=call===1?"https://example.com/club-la":"https://example.com/baytowne";
+    return {output:[{type:"message",content:[{type:"output_text",text:`${venue} has a verified show.`,annotations:[{type:"url_citation",url,title:venue}]}]}]};
+  }}};
+  const r=await exec("search_current_events",{category:"music",query:"concerts this weekend"},"What concerts are happening this weekend?",{now:new Date("2026-08-10T12:00:00Z"),overrides:{openai,model:"gpt-5-mini"}});
+  assert.match(prompts[0],/2026-07-24 through 2026-07-26 \(Friday through Sunday\)/);
+  assert.match(r.facts[0],/Club LA/);
+  assert.match(r.facts[0],/Baytowne Wharf/);
+  assert.ok(r.urls.includes("https://example.com/club-la"));
+  assert.ok(r.urls.includes("https://example.com/baytowne"));
+});
+
 test("current event search falls back to the curated guide without asking the guest to retry", async () => {
   const openai={responses:{async create(){ throw new Error("search timeout"); }}};
   const r=await exec("search_current_events",{category:"music",query:"concerts this week"},"Concerts this week",{overrides:{openai,model:"gpt-5-mini"}});

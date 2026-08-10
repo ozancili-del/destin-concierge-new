@@ -3,6 +3,10 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import { DESTINY_CHAT_ENDPOINT } from "../lib/destiny-chat-endpoint.js";
 
+function needsLiveScheduleSearch(text) {
+  return /\b(events?|concerts?|festivals?|live\s+music|music\s+shows?|performers?|what(?:[’']s|\s+is)\s+happening)\b/i.test(String(text || ""));
+}
+
 function generateSessionId() {
   return "db_" + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 }
@@ -14,6 +18,7 @@ export default function Concierge() {
   ]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
+  const [busyMessage, setBusyMessage] = useState("");
   const [alertSent, setAlertSent] = useState(false);
   const [pendingRelay, setPendingRelay] = useState(false);
   const [ozanAcked, setOzanAcked] = useState(false);
@@ -164,6 +169,9 @@ export default function Concierge() {
     }
     const userMsg = { role: "user", content: text };
     setLog(l => [...l, userMsg]);
+    setBusyMessage(needsLiveScheduleSearch(text)
+      ? "I’m checking live event and venue schedules now—this can take up to about 45 seconds. Thanks for your patience!"
+      : "");
     setBusy(true);
     try {
       const r = await fetch(DESTINY_CHAT_ENDPOINT, {
@@ -196,6 +204,7 @@ export default function Concierge() {
       setLog(l => [...l, { role: "assistant", content: "Sorry—there was an error reaching the bot." }]);
     } finally {
       setBusy(false);
+      setBusyMessage("");
     }
   }
 
@@ -438,6 +447,7 @@ function getLinkButton(u){
             <div style={{ display: "flex", alignItems: "flex-end", gap: 8 }}>
               <div style={styles.botIcon}>🌊</div>
               <div style={styles.typingBubble}>
+                {busyMessage && <span style={{ fontSize: 13, lineHeight: 1.4, color: "#475569", marginRight: 5 }}>{busyMessage}</span>}
                 {[0, 200, 400].map((delay, i) => (
                   <div key={i} style={{
                     width: 7, height: 7, borderRadius: "50%", background: "#94a3b8",

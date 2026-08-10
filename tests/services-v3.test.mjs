@@ -56,7 +56,7 @@ test("owner chat invite builds internal signed-style URL only in Discord payload
   const body = JSON.parse(fetchImpl.calls[0].options.body); assert.equal(body.components[0].components[0].url, result.enterChatUrl);
 });
 
-test("weather reports missing configuration without network", async () => {
+test("owner chat invite stays on the current Vercel deployment", async () => {\n  const fetchImpl = makeFetch([{ match: "discord.com/api", reply: response({ status: 200 }) }]);\n  const services = createServices({\n    fetchImpl,\n    env: {\n      DISCORD_BOT_TOKEN: "bot",\n      DISCORD_CHANNEL_ID: "channel",\n      VERCEL_URL: "destin-concierge-preview.example.vercel.app",\n    },\n  });\n\n  const result = await services.sendOwnerChatInvite({ sessionId: "preview", guestMessage: "talk", inviteToken: "token" });\n\n  assert.equal(result.enterChatUrl, "https://destin-concierge-preview.example.vercel.app/ozan?s=preview&t=token");\n});\n\ntest("weather reports missing configuration without network", async () => {
   const fetchImpl = makeFetch(); const services = createServices({ fetchImpl, env: {}, now: () => NOW, logger: quiet });
   const r = await services.fetchDestinWeather(); assert.equal(r.status, "unavailable"); assert.equal(fetchImpl.calls.length, 0);
 });

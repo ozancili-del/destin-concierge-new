@@ -328,6 +328,15 @@ test("owner chat invite never exposes internal entry URL to model", async () => 
   const services=makeMockServices(); const r=await exec("request_owner_chat",{},"Can I speak to Ozan?",{services}); assert.equal(r.status,"invited"); assert.deepEqual(r.urls,[]); assert.equal("enterChatUrl" in r.data,false);
 });
 
+test("explicit invite and join wording authorizes owner chat", async () => {
+  for (const message of ["Invite Ozan into this live chat.", "Can the owner join this chat?"]) {
+    const services=makeMockServices();
+    const r=await exec("request_owner_chat",{},message,{services});
+    assert.equal(r.status,"invited");
+    assert.equal(services.calls.sendOwnerChatInvite.length,1);
+  }
+});
+
 test("owner chat invite is deduplicated if already pending", async () => {
   const services=makeMockServices({async readSessState(){return {ozanActive:"PENDING",inviteToken:"abc"};}}); const r=await exec("request_owner_chat",{},"Talk to the owner",{services}); assert.equal(r.status,"already_invited"); assert.equal(services.calls.sendOwnerChatInvite.length,0);
 });

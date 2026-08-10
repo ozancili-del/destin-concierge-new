@@ -38,11 +38,11 @@ style.textContent=`@import url('https://fonts.googleapis.com/css2?family=DM+Sans
 .db-msg.snote{font-size:11px;color:#94a3b8;text-align:center;align-self:center;background:none;padding:2px 0;font-style:italic}
 .db-msg a{color:inherit;text-decoration:underline}
 .db-typing{display:flex;align-items:center;gap:4px;padding:10px 14px;background:#F0F7FF;border-radius:16px;border-bottom-left-radius:4px;align-self:flex-start;width:52px}
-.db-typing.has-status{width:auto;max-width:82%;font-size:12px;line-height:1.45;color:#475569}
-.db-typing-text{margin-right:6px}
-.db-typing span{width:7px;height:7px;background:#48CAE4;border-radius:50%;animation:db-bounce 1.2s infinite}
-.db-typing span:nth-child(2){animation-delay:.2s}
-.db-typing span:nth-child(3){animation-delay:.4s}
+.db-typing.has-status{width:auto;max-width:82%;font-size:12px;line-height:1.45;color:#475569;align-items:center}
+.db-typing-text{flex:1;min-width:0;margin-right:6px}
+.db-typing-dot{flex:0 0 7px;width:7px;height:7px;background:#48CAE4;border-radius:50%;animation:db-bounce 1.2s infinite}
+.db-typing-dot:nth-of-type(2){animation-delay:.2s}
+.db-typing-dot:nth-of-type(3){animation-delay:.4s}
 @keyframes db-bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
 #db-input-row{padding:12px 14px;display:flex;gap:8px;border-top:1px solid #f0f0f0;flex-shrink:0;background:white}
 #db-input{flex:1;border:1.5px solid #e8e8e8;border-radius:24px;padding:10px 16px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s;height:42px;line-height:1.4}
@@ -142,7 +142,7 @@ window.__dbResetChat=function(){history=[];sessionStorage.removeItem('db_history
 function addOzan(text){rmTyping();const w=document.createElement('div');w.style.cssText='display:flex;flex-direction:column;align-self:flex-start;max-width:82%';const l=document.createElement('div');l.style.cssText='font-size:10px;font-weight:600;color:#0284c7;margin-bottom:3px';l.textContent='Ozan';const el=document.createElement('div');el.className='db-msg ozan';el.textContent=text;w.appendChild(l);w.appendChild(el);msgs.appendChild(w);msgs.scrollTop=msgs.scrollHeight;}
 function addNote(text){const el=document.createElement('div');el.className='db-msg snote';el.textContent=text;msgs.appendChild(el);msgs.scrollTop=msgs.scrollHeight;}
 function needsLiveScheduleSearch(text){return /\b(events?|concerts?|festivals?|live\s+music|music\s+shows?|performers?|what(?:[’']s|\s+is)\s+happening)\b/i.test(String(text||''));}
-function showTyping(statusText){rmTyping();const el=document.createElement('div');el.className='db-typing'+(statusText?' has-status':'');el.id='db-typing';if(statusText){const label=document.createElement('span');label.className='db-typing-text';label.textContent=statusText;el.appendChild(label);}el.insertAdjacentHTML('beforeend','<span></span><span></span><span></span>');msgs.appendChild(el);msgs.scrollTop=msgs.scrollHeight;}
+function showTyping(statusText){rmTyping();const el=document.createElement('div');el.className='db-typing'+(statusText?' has-status':'');el.id='db-typing';if(statusText){const label=document.createElement('span');label.className='db-typing-text';label.textContent=statusText;el.appendChild(label);}el.insertAdjacentHTML('beforeend','<span class="db-typing-dot"></span><span class="db-typing-dot"></span><span class="db-typing-dot"></span>');msgs.appendChild(el);msgs.scrollTop=msgs.scrollHeight;}
 function rmTyping(){const t=document.getElementById('db-typing');if(t)t.remove();}
 function startPoll(){if(pollTimer)return;pollTimer=setInterval(async()=>{try{const r=await fetch(`${POLL}?s=${sessionId}&since=${lastSeenTs}&_t=${Date.now()}`);if(!r.ok)return;const d=await r.json();if(d.ozanActive==='TRUE'&&!ozanIsActive){ozanIsActive=true;ozanInvited=false;addNote('🟢 Ozan has joined the chat');}if(d.ozanActive==='FALSE'&&ozanIsActive){ozanIsActive=false;clearInterval(pollTimer);pollTimer=null;addNote('Ozan has left — Destiny Blue is back! 😊');}const nm=(d.messages||[]).filter(m=>m.ts>lastSeenTs&&m.role==='ozan');if(nm.length){nm.forEach(m=>addOzan(m.text));lastSeenTs=Math.max(...nm.map(m=>m.ts));}}catch(e){}},3000);}
 async function sendMsg(){const text=input.value.trim();if(!text||isTyping)return;input.value='';lS.setItem('dbx','1');if(text!=='__popup_open__')addU(text);

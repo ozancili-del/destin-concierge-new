@@ -241,6 +241,8 @@ export function createHandler({ openaiClient = openai, servicesClient = services
       reply: result.reply,
       alertSent: state.flags.alertSent,
       pendingRelay: state.ownerChat.relayPending,
+      ozanInvited: state.ownerChat.pending === true,
+      ozanActive: state.ownerChat.active === true ? "TRUE" : state.ownerChat.pending === true ? "PENDING" : "FALSE",
       ozanAcked: ozanAcknowledged,
       ozanAckType,
       detectedIntent: result.detectedIntent,

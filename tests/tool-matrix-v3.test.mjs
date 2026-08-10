@@ -255,6 +255,7 @@ test("local guide failure keeps known source URL but reports unavailable", async
 test("activity tool uses a single date as a one-day window", async () => {
   const r = await exec("get_activity_options", { category:"dolphin", date_text:"August fifth", arrival:null, departure:null }, "Dolphin cruise August fifth");
   assert.deepEqual(r.data.dates, { arrival:"2026-08-05", departure:"2026-08-06" });
+  assert.match(r.facts.join(" "), /open the link to check current prices, times, and availability/i);
 });
 
 test("maintenance alert reports accidental guest damage", async () => {

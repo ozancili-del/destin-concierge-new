@@ -59,14 +59,14 @@ const availMatrices = [
   [{ "707": false, "1006": true }, "success", 1],
   [{ "707": false, "1006": false }, "unavailable", 0],
   [{ "707": null, "1006": null }, "partial_failure", 0],
-  [{ "707": true, "1006": null }, "success", 1],
+  [{ "707": true, "1006": null }, "partial_failure", 0],
 ];
 for (const [matrix, status, linkCount] of availMatrices) {
   test(`availability matrix ${JSON.stringify(matrix)}`, async () => {
     const services = makeMockServices({ async checkBothUnits(a,d) { services.calls.checkBothUnits.push({arrival:a,departure:d}); return matrix; } });
     const r = await exec("check_availability", bookingArgs({ preferredUnit: "707" }), "August 5-10, 2 adults, no kids, unit 707", { services });
     assert.equal(r.status, status); assert.equal(r.urls.length, linkCount);
-    for (const u of r.data.units || []) assert.equal(Boolean(u.bookingUrl), u.available === true);
+    for (const u of r.data.units || []) assert.equal(Boolean(u.bookingUrl), status === "success" && u.available === true);
   });
 }
 
@@ -105,10 +105,10 @@ test("availability explicit past dates are rejected", async () => {
   assert.equal(r.ok, false); assert.equal(r.status, "past_dates");
 });
 
-test("availability missing children fails without network call", async () => {
+test("adult-only availability uses zero children as the disclosed baseline", async () => {
   const services = makeMockServices();
   const r = await exec("check_availability", bookingArgs({ children: null, childrenEvidence: null }), "August 5-10, 2 adults", { services });
-  assert.equal(r.status, "missing_guest_count"); assert.equal(services.calls.checkBothUnits.length, 0);
+  assert.equal(r.status, "success"); assert.equal(services.calls.checkBothUnits.length, 1);
 });
 
 test("availability total-only party requires composition", async () => {
@@ -181,15 +181,15 @@ test("existing booking returns only service-verified booking", async () => {
   assert.equal(r.ok, true); assert.equal(r.data.doorCode, "4321"); assert.equal(r.statePatch.existingGuest.bookingId, "B123");
 });
 
-test("resend booking links rejects stale verification", async () => {
+test("resend booking links requires current booking details instead of trusting stale verification", async () => {
   const state = createDefaultState(); state.verified.bookingUrls = [buildBookingLink("707","2026-08-05","2026-08-10",2,0)]; state.verified.availabilityCheckedAt = "2026-07-20T07:00:00-05:00"; state.verified.availabilityQuery = { arrival:"2026-08-05", departure:"2026-08-10", adults:2, children:0 };
-  const r = await exec("build_booking_links", {}, "Send the links again", { state }); assert.equal(r.status, "stale_or_missing_verification");
+  const r = await exec("build_booking_links", {}, "Send the links again", { state }); assert.equal(r.status, "missing_or_invalid_dates");
 });
 
-test("resend booking links returns current verified links", async () => {
+test("resend booking links never returns persisted URLs without current booking details", async () => {
   const state = createDefaultState(); const url = buildBookingLink("707","2026-08-05","2026-08-10",2,0);
   state.verified.bookingUrls = [url]; state.verified.availabilityCheckedAt = NOW.toISOString(); state.verified.availabilityQuery = { arrival:"2026-08-05", departure:"2026-08-10", adults:2, children:0 }; state.verified.availabilityUnits={"707":true,"1006":false};
-  const r = await exec("build_booking_links", {}, "Send the links again", { state }); assert.deepEqual(r.urls, [url]);
+  const r = await exec("build_booking_links", {}, "Send the links again", { state }); assert.deepEqual(r.urls, []); assert.equal(r.status, "missing_or_invalid_dates");
 });
 
 test("flight search asks for origin without guessing", async () => {
@@ -257,14 +257,14 @@ test("activity tool uses a single date as a one-day window", async () => {
   assert.deepEqual(r.data.dates, { arrival:"2026-08-05", departure:"2026-08-06" });
 });
 
-test("maintenance alert suppresses accidental guest damage", async () => {
+test("maintenance alert reports accidental guest damage", async () => {
   const services = makeMockServices(); const r = await exec("create_maintenance_alert", { severity:"maintenance", summary:"broken glass" }, "I accidentally broke a glass", { services });
-  assert.equal(r.status, "accidental_damage_no_auto_alert"); assert.equal(services.calls.sendEmergencyDiscord.length, 0);
+  assert.equal(r.status, "sent"); assert.equal(services.calls.sendEmergencyDiscord.length, 1);
 });
 
-test("maintenance alert suppresses external disturbance", async () => {
+test("maintenance alert reports external disturbance", async () => {
   const services = makeMockServices(); const r = await exec("create_maintenance_alert", { severity:"maintenance", summary:"drilling" }, "There is drilling next door", { services });
-  assert.equal(r.status, "external_disturbance_no_auto_alert"); assert.equal(services.calls.sendEmergencyDiscord.length, 0);
+  assert.equal(r.status, "sent"); assert.equal(services.calls.sendEmergencyDiscord.length, 1);
 });
 
 test("lockout severity is upgraded to emergency by code", async () => {
@@ -272,10 +272,10 @@ test("lockout severity is upgraded to emergency by code", async () => {
   assert.equal(r.data.severity, "emergency"); assert.equal(services.calls.sendEmergencyDiscord.length, 1);
 });
 
-test("maintenance issue is deduplicated across state", async () => {
+test("repeated maintenance issue is reported again", async () => {
   const state = createDefaultState(); state.openIssues=[{type:"maintenance",description:"The AC is not cooling",status:"open"}];
   const services = makeMockServices(); const r = await exec("create_maintenance_alert", { severity:"maintenance", summary:"AC" }, "The AC is not cooling", { state, services });
-  assert.equal(r.status, "deduplicated"); assert.equal(services.calls.sendEmergencyDiscord.length, 0);
+  assert.equal(r.status, "sent"); assert.equal(services.calls.sendEmergencyDiscord.length, 1);
 });
 
 test("lead capture requires popup/banner eligibility", async () => {

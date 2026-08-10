@@ -11,6 +11,7 @@ import {
 } from "../../lib/destiny-agent/business.js";
 import { createServices } from "../../lib/destiny-agent/services.js";
 import { runAgentTurn } from "../../lib/destiny-agent/orchestrator.js";
+import { evaluateGuestReply } from "../../lib/destiny-agent/response-evaluator.js";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const services = createServices();
@@ -232,10 +233,19 @@ export function createHandler({ openaiClient = openai, servicesClient = services
       ? JSON.stringify({ issues: state.openIssues.map(issue => issue.description || issue), ts: new Date().toLocaleString("en-US", { timeZone: "America/Chicago" }) })
       : "";
 
-    await Promise.all([
+    const evaluationEnabled = /^(1|true|yes)$/i.test(String(process.env.DESTINY_RESPONSE_EVAL || process.env.NEXT_PUBLIC_DESTINY_AGENT_V3 || ""));
+    const [evaluation] = await Promise.all([
+      evaluationEnabled ? evaluateGuestReply({
+        openai,
+        model: process.env.DESTINY_EVAL_MODEL || "gpt-5-mini",
+        guestMessage: latestUser,
+        reply: result.reply,
+        detectedIntent: result.detectedIntent,
+        toolResults: result.toolResults,
+      }) : Promise.resolve(null),
       services.writeSessState(sessionId, { v2State: state }),
-      services.logToSheets(sessionId, latestUser, result.reply, datesAsked, availabilityStatus || result.detectedIntent, alertSummary),
     ]);
+    await services.logToSheets(sessionId, latestUser, result.reply, datesAsked, availabilityStatus || result.detectedIntent, alertSummary, evaluation);
 
     return res.status(200).json({
       reply: result.reply,

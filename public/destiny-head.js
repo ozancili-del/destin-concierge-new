@@ -38,6 +38,8 @@ style.textContent=`@import url('https://fonts.googleapis.com/css2?family=DM+Sans
 .db-msg.snote{font-size:11px;color:#94a3b8;text-align:center;align-self:center;background:none;padding:2px 0;font-style:italic}
 .db-msg a{color:inherit;text-decoration:underline}
 .db-typing{display:flex;align-items:center;gap:4px;padding:10px 14px;background:#F0F7FF;border-radius:16px;border-bottom-left-radius:4px;align-self:flex-start;width:52px}
+.db-typing.has-status{width:auto;max-width:82%;font-size:12px;line-height:1.45;color:#475569}
+.db-typing-text{margin-right:6px}
 .db-typing span{width:7px;height:7px;background:#48CAE4;border-radius:50%;animation:db-bounce 1.2s infinite}
 .db-typing span:nth-child(2){animation-delay:.2s}
 .db-typing span:nth-child(3){animation-delay:.4s}
@@ -139,12 +141,13 @@ function addU(text){const el=document.createElement('div');el.className='db-msg 
 window.__dbResetChat=function(){history=[];sessionStorage.removeItem('db_history');try{localStorage.removeItem('db_history');}catch(e){}if(msgs)msgs.innerHTML='';isTyping=false;if(send)send.disabled=false;};
 function addOzan(text){rmTyping();const w=document.createElement('div');w.style.cssText='display:flex;flex-direction:column;align-self:flex-start;max-width:82%';const l=document.createElement('div');l.style.cssText='font-size:10px;font-weight:600;color:#0284c7;margin-bottom:3px';l.textContent='Ozan';const el=document.createElement('div');el.className='db-msg ozan';el.textContent=text;w.appendChild(l);w.appendChild(el);msgs.appendChild(w);msgs.scrollTop=msgs.scrollHeight;}
 function addNote(text){const el=document.createElement('div');el.className='db-msg snote';el.textContent=text;msgs.appendChild(el);msgs.scrollTop=msgs.scrollHeight;}
-function showTyping(){rmTyping();const el=document.createElement('div');el.className='db-typing';el.id='db-typing';el.innerHTML='<span></span><span></span><span></span>';msgs.appendChild(el);msgs.scrollTop=msgs.scrollHeight;}
+function needsLiveScheduleSearch(text){return /\b(events?|concerts?|festivals?|live\s+music|music\s+shows?|performers?|what(?:[’']s|\s+is)\s+happening)\b/i.test(String(text||''));}
+function showTyping(statusText){rmTyping();const el=document.createElement('div');el.className='db-typing'+(statusText?' has-status':'');el.id='db-typing';if(statusText){const label=document.createElement('span');label.className='db-typing-text';label.textContent=statusText;el.appendChild(label);}el.insertAdjacentHTML('beforeend','<span></span><span></span><span></span>');msgs.appendChild(el);msgs.scrollTop=msgs.scrollHeight;}
 function rmTyping(){const t=document.getElementById('db-typing');if(t)t.remove();}
 function startPoll(){if(pollTimer)return;pollTimer=setInterval(async()=>{try{const r=await fetch(`${POLL}?s=${sessionId}&since=${lastSeenTs}&_t=${Date.now()}`);if(!r.ok)return;const d=await r.json();if(d.ozanActive==='TRUE'&&!ozanIsActive){ozanIsActive=true;ozanInvited=false;addNote('🟢 Ozan has joined the chat');}if(d.ozanActive==='FALSE'&&ozanIsActive){ozanIsActive=false;clearInterval(pollTimer);pollTimer=null;addNote('Ozan has left — Destiny Blue is back! 😊');}const nm=(d.messages||[]).filter(m=>m.ts>lastSeenTs&&m.role==='ozan');if(nm.length){nm.forEach(m=>addOzan(m.text));lastSeenTs=Math.max(...nm.map(m=>m.ts));}}catch(e){}},3000);}
 async function sendMsg(){const text=input.value.trim();if(!text||isTyping)return;input.value='';lS.setItem('dbx','1');if(text!=='__popup_open__')addU(text);
 if(ozanIsActive||ozanInvited){try{await fetch(SAPI,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId,text,t:ozanToken||'pending',role:'guest'})});}catch(e){}return;}
-if(text!=='__popup_open__')history.push({role:'user',content:text});sessionStorage.setItem('db_history',JSON.stringify(history));lS.setItem('db_history',JSON.stringify(history));isTyping=true;send.disabled=true;showTyping();
+if(text!=='__popup_open__')history.push({role:'user',content:text});sessionStorage.setItem('db_history',JSON.stringify(history));lS.setItem('db_history',JSON.stringify(history));isTyping=true;send.disabled=true;showTyping(needsLiveScheduleSearch(text)?"I’m checking live event and venue schedules now—this can take up to about 45 seconds. Thanks for your patience!":'');
 try{const res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:history.slice(-20),sessionId,pageSource:sessionStorage.getItem('db_source')||null,sawBanner:sessionStorage.getItem('db_saw_banner')||null,tickerUnit:(()=>{try{const t=sessionStorage.getItem('db_ticker');return t?JSON.parse(t).unit||null:null;}catch(e){return null;}})()} )});const data=await res.json();const reply=data.reply||data.message||"I'm having a little trouble right now — please try again!";
 if(data.ozanInvited){ozanInvited=true;if(data.ozanToken)ozanToken=data.ozanToken;startPoll();}
 if(!reply){isTyping=false;send.disabled=false;return;}

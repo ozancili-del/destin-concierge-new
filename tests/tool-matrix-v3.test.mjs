@@ -338,12 +338,21 @@ test("current event search uses live web evidence and the matching curated blog"
     return {output:[{type:"message",content:[{type:"output_text",text:"HarborWalk lists a concert on August 8.",annotations:[{type:"url_citation",url:"https://www.harborwalkvillage.com/events/concert",title:"Concert"}]}]}]};
   }}};
   const r=await exec("search_current_events",{category:"music",query:"live music August 8",date_context:"August 8"},"What live music is on August 8?",{overrides:{openai,model:"gpt-5-mini"}});
-  assert.equal(calls.length,1);
+  assert.equal(calls.length,2);
   assert.deepEqual(calls[0].tools,[{type:"web_search"}]);
   assert.equal(r.status,"success");
   assert.ok(r.urls.includes("https://www.harborwalkvillage.com/events/concert"));
   assert.ok(r.urls.includes("https://www.destincondogetaways.com/blog/destin-live-music-2026"));
   assert.ok(!r.urls.includes("https://www.destincondogetaways.com/blog/destin-events-2026"));
+});
+
+test("current event search falls back to the curated guide without asking the guest to retry", async () => {
+  const openai={responses:{async create(){ throw new Error("search timeout"); }}};
+  const r=await exec("search_current_events",{category:"music",query:"concerts this week"},"Concerts this week",{overrides:{openai,model:"gpt-5-mini"}});
+  assert.equal(r.status,"search_unavailable");
+  assert.equal(r.ok,false);
+  assert.deepEqual(r.urls,["https://www.destincondogetaways.com/blog/destin-live-music-2026"]);
+  assert.match(r.facts[0],/Do not ask the guest to repeat/i);
 });
 
 test("explicit invite and join wording authorizes owner chat", async () => {

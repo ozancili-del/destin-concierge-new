@@ -326,6 +326,9 @@ test("pending owner relay accepts next message", async () => {
 
 test("owner chat invite never exposes internal entry URL to model", async () => {
   const services=makeMockServices(); const r=await exec("request_owner_chat",{},"Can I speak to Ozan?",{services}); assert.equal(r.status,"invited"); assert.deepEqual(r.urls,[]); assert.equal("enterChatUrl" in r.data,false);
+  const persisted = services.calls.writeSessState[0][1].ozanMessages;
+  assert.equal(persisted.length,1);
+  assert.deepEqual({ role: persisted[0].role, text: persisted[0].text }, { role:"guest", text:"Can I speak to Ozan?" });
 });
 
 test("explicit invite and join wording authorizes owner chat", async () => {

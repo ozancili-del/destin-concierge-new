@@ -11,9 +11,14 @@ import {
 } from "../../lib/destiny-agent/business.js";
 import { createServices } from "../../lib/destiny-agent/services.js";
 import { runAgentTurn } from "../../lib/destiny-agent/orchestrator.js";
+import { evaluateGuestReply } from "../../lib/destiny-agent/response-evaluator.js";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const services = createServices();
+
+export function isAdminSnapshotCommand(value) {
+  return /^lets\s+go\s+mf$/i.test(String(value || "").trim());
+}
 
 const PAGE_SOURCE_GREETINGS = Object.freeze({
   popup: "Ah, you found the secret door! 🌊 Who do I have the pleasure of welcoming to Destin today?",
@@ -114,12 +119,12 @@ export function createHandler({ openaiClient = openai, servicesClient = services
     const debugEnabled = process.env.DESTINY_AGENT_DEBUG === "true";
 
     // Deliberately preserved owner/admin phrase from v1, per owner instruction.
-    if (/lets\s+go\s+mf/i.test(latestUser)) {
+    if (isAdminSnapshotCommand(latestUser)) {
       try {
         const snapshot = await services.runAdminPriceSnapshot();
         const reply = snapshot.success
           ? `✅ Price snapshot complete — saved ${snapshot.saved} rows for ${snapshot.captured_date}. Beach deals page refreshed. 💾`
-          : `⚠️ Snapshot ran but something felt off: ${snapshot.error || "unknown error"}`;
+          : `⚠️ Snapshot ran but something felt off: ${snapshot.error || snapshot.reason || "unknown error"}`;
         return res.status(200).json({ reply, alertSent: false, pendingRelay: false, ozanAcked: false, ozanAckType: null, detectedIntent: "INFO", debug: { endpoint: "agent-v3", adminSnapshot: true } });
       } catch (error) {
         return res.status(200).json({ reply: `⚠️ Snapshot failed: ${error.message}`, alertSent: false, pendingRelay: false, ozanAcked: false, ozanAckType: null, detectedIntent: "INFO", debug: { endpoint: "agent-v3", adminSnapshot: true, error: error.message } });
@@ -212,6 +217,7 @@ export function createHandler({ openaiClient = openai, servicesClient = services
       guestBid,
       guestSig: guestSig || sig,
       pageSource,
+      tickerUnit,
       sawBanner: Boolean(sawBanner),
       ozanAckType,
       now: new Date(),
@@ -227,15 +233,26 @@ export function createHandler({ openaiClient = openai, servicesClient = services
       ? JSON.stringify({ issues: state.openIssues.map(issue => issue.description || issue), ts: new Date().toLocaleString("en-US", { timeZone: "America/Chicago" }) })
       : "";
 
-    await Promise.all([
+    const evaluationEnabled = /^(1|true|yes)$/i.test(String(process.env.DESTINY_RESPONSE_EVAL || process.env.NEXT_PUBLIC_DESTINY_AGENT_V3 || ""));
+    const [evaluation] = await Promise.all([
+      evaluationEnabled ? evaluateGuestReply({
+        openai,
+        model: process.env.DESTINY_EVAL_MODEL || "gpt-5-mini",
+        guestMessage: latestUser,
+        reply: result.reply,
+        detectedIntent: result.detectedIntent,
+        toolResults: result.toolResults,
+      }) : Promise.resolve(null),
       services.writeSessState(sessionId, { v2State: state }),
-      services.logToSheets(sessionId, latestUser, result.reply, datesAsked, availabilityStatus || result.detectedIntent, alertSummary),
     ]);
+    await services.logToSheets(sessionId, latestUser, result.reply, datesAsked, availabilityStatus || result.detectedIntent, alertSummary, evaluation);
 
     return res.status(200).json({
       reply: result.reply,
       alertSent: state.flags.alertSent,
       pendingRelay: state.ownerChat.relayPending,
+      ozanInvited: state.ownerChat.pending === true,
+      ozanActive: state.ownerChat.active === true ? "TRUE" : state.ownerChat.pending === true ? "PENDING" : "FALSE",
       ozanAcked: ozanAcknowledged,
       ozanAckType,
       detectedIntent: result.detectedIntent,

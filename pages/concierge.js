@@ -1,6 +1,11 @@
 // pages/concierge.js
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
+import { DESTINY_CHAT_ENDPOINT } from "../lib/destiny-chat-endpoint.js";
+
+function needsLiveScheduleSearch(text) {
+  return /\b(events?|concerts?|festivals?|live\s+music|music\s+shows?|performers?|what(?:[’']s|\s+is)\s+happening)\b/i.test(String(text || ""));
+}
 
 function generateSessionId() {
   return "db_" + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
@@ -13,6 +18,7 @@ export default function Concierge() {
   ]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
+  const [busyMessage, setBusyMessage] = useState("");
   const [alertSent, setAlertSent] = useState(false);
   const [pendingRelay, setPendingRelay] = useState(false);
   const [ozanAcked, setOzanAcked] = useState(false);
@@ -26,6 +32,7 @@ export default function Concierge() {
   const pollIntervalRef = useRef(null);
   const ozanTokenRef = useRef(null);
   const guestBidRef = useRef(null);
+  const guestSigRef = useRef(null);
   const guestBookingRef = useRef(null);
   const pageSourceRef = useRef("ai-concierge");
 
@@ -43,9 +50,11 @@ export default function Concierge() {
     if (!router.isReady) return;
     if (router.query.pageSource) pageSourceRef.current = router.query.pageSource;
     const bid = router.query.bid;
+    const sig = router.query.sig;
     const fname = router.query.fname;
     if (!bid) return;
     guestBidRef.current = bid;
+    guestSigRef.current = sig || null;
     setLog([]);
     setBusy(true);
     let sid = sessionIdRef.current;
@@ -54,10 +63,10 @@ export default function Concierge() {
       catch(e) { sid = generateSessionId(); }
       sessionIdRef.current = sid;
     }
-    fetch("/api/chat", {
+    fetch(DESTINY_CHAT_ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages: [], sessionId: sid, guestBid: bid, pageSource: "ai-concierge" }),
+      body: JSON.stringify({ messages: [], sessionId: sid, guestBid: bid, guestSig: sig || null, pageSource: "ai-concierge" }),
     })
       .then(r => r.json())
       .then(data => {
@@ -72,7 +81,7 @@ export default function Concierge() {
         setLog([{ role: "assistant", content: `Hey${fname ? " " + fname : " there"}! 🌊 I'm Destiny Blue — ask me anything about your stay! 😊` }]);
       })
       .finally(() => setBusy(false));
-  }, [router.isReady, router.query.bid]);
+  }, [router.isReady, router.query.bid, router.query.sig]);
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -86,7 +95,7 @@ export default function Concierge() {
       catch(e) { sid = generateSessionId(); }
       sessionIdRef.current = sid;
     }
-    fetch("/api/chat", {
+    fetch(DESTINY_CHAT_ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ messages: [], sessionId: sid, pageSource: ps }),
@@ -160,12 +169,15 @@ export default function Concierge() {
     }
     const userMsg = { role: "user", content: text };
     setLog(l => [...l, userMsg]);
+    setBusyMessage(needsLiveScheduleSearch(text)
+      ? "I’m checking live event and venue schedules now—this can take up to about 45 seconds. Thanks for your patience!"
+      : "");
     setBusy(true);
     try {
-      const r = await fetch("/api/chat", {
+      const r = await fetch(DESTINY_CHAT_ENDPOINT, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: [...log, userMsg], sessionId: sessionIdRef.current, alertSent, pendingRelay, ozanAcked, ozanAckType, pageSource: pageSourceRef.current, sawBanner: typeof localStorage !== "undefined" ? (localStorage.getItem('db_saw_banner') || sessionStorage.getItem('db_saw_banner')) : null, guestBooking: guestBookingRef.current || null })
+        body: JSON.stringify({ messages: [...log, userMsg], sessionId: sessionIdRef.current, alertSent, pendingRelay, ozanAcked, ozanAckType, pageSource: pageSourceRef.current, sawBanner: typeof localStorage !== "undefined" ? (localStorage.getItem('db_saw_banner') || sessionStorage.getItem('db_saw_banner')) : null, guestBid: guestBidRef.current || null, guestSig: guestSigRef.current || null, guestBooking: guestBookingRef.current || null })
       });
       const data = await r.json();
       if (data.alertSent) setAlertSent(true);
@@ -192,6 +204,7 @@ export default function Concierge() {
       setLog(l => [...l, { role: "assistant", content: "Sorry—there was an error reaching the bot." }]);
     } finally {
       setBusy(false);
+      setBusyMessage("");
     }
   }
 
@@ -434,6 +447,7 @@ function getLinkButton(u){
             <div style={{ display: "flex", alignItems: "flex-end", gap: 8 }}>
               <div style={styles.botIcon}>🌊</div>
               <div style={styles.typingBubble}>
+                {busyMessage && <span style={{ fontSize: 13, lineHeight: 1.4, color: "#475569", marginRight: 5 }}>{busyMessage}</span>}
                 {[0, 200, 400].map((delay, i) => (
                   <div key={i} style={{
                     width: 7, height: 7, borderRadius: "50%", background: "#94a3b8",

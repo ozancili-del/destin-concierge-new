@@ -1,0 +1,26 @@
+# Migration Checklist
+
+- [ ] Copy `pages/api/chat-agent.js`.
+- [ ] Copy `lib/destiny-agent/`.
+- [ ] Run `npm install openai@latest`.
+- [ ] Confirm all existing environment variables are present.
+- [ ] Set `GUEST_LINK_SECRET`; unsigned legacy booking links are otherwise accepted for compatibility.
+- [ ] Set `DESTINY_AGENT_DEBUG=true` only in staging.
+- [ ] GET `/api/chat-agent` and confirm `X-Destiny-Version: agent-v3-responses`.
+- [ ] Send the compound booking/weather/activity test and inspect three tool calls.
+- [ ] Verify OwnerRez positive, booked, and API-failure cases.
+- [ ] Verify Discord success and failure reporting.
+- [ ] Verify Google Sheets column H state persists across turns.
+- [ ] Verify existing-guest door code release inside and outside the allowed window.
+- [ ] Verify Brevo capture and BLUE authorization.
+- [ ] Verify Ozan live-chat invitation and active relay behavior.
+- [ ] Route offline tests to `/api/chat-agent`, not `/api/chat`.
+- [ ] Run all 947 offline tests and confirm 0 failures.
+- [ ] Verify tool-call flood protection returns `tool_call_limit_exceeded` after the configured per-round budget.
+- [ ] Verify duplicate maintenance, lead, relay, and owner-chat calls produce only one external side effect.
+- [ ] Verify oversized conversation history is truncated before the model request.
+- [ ] Confirm trip-date or party changes invalidate previously verified booking, flight, and activity URLs.
+- [ ] Confirm malformed OwnerRez success responses produce unknown availability and no links.
+- [ ] Confirm repeated consequential tools in later model rounds do not repeat external side effects.
+- [ ] Confirm the admin phrase triggers only as the complete message, never inside guest prose.
+- [ ] Canary a small share of production traffic before full cutover.

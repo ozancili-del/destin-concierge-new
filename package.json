@@ -5,6 +5,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "test:agent": "node --experimental-default-type=module --test tests/*.test.mjs",
+    "test:agent:coverage": "node --experimental-default-type=module --experimental-test-coverage --test tests/*.test.mjs",
+    "test:agent:policy": "node --experimental-default-type=module scripts/run-agent-policy-regression.mjs",
+    "test:agent:live": "node --experimental-default-type=module tests/live-routing-eval.mjs",
     "regression": "node scripts/run-agent-regression.mjs"
   },
   "dependencies": {

@@ -6,6 +6,18 @@ import { createDefaultState } from "../lib/destiny-agent/business.js";
 function textResponse(text) {
   return { output_text: text, output: [{ type: "message", role: "assistant", content: [{ type: "output_text", text }] }] };
 }
+
+function toolResponse(calls) {
+  return {
+    output: calls.map((call, index) => ({
+      type: "function_call",
+      id: `fc_${index}`,
+      call_id: `call_${index}`,
+      name: call.name,
+      arguments: JSON.stringify(call.arguments || {}),
+    })),
+  };
+}
 function mockRes() {
   return {
     headers: {}, statusCode: 200, body: null, ended: false,
@@ -79,6 +91,36 @@ test("page-source open greeting is logged without calling the model", async () =
   const { res, openai, services } = await request({ body: { sessionId: "g1", pageSource: "restaurants", messages: [] } });
   assert.equal(openai.calls.length, 0); assert.equal(services.calls.log.length, 1);
   assert.match(res.body.reply, /food scene/i); assert.equal(res.body.debug.greeting, "restaurants");
+});
+
+test("new owner-chat invite tells the frontend to start polling", async () => {
+  let invites = 0;
+  const services = createServicesMock();
+  services.sendOwnerChatInvite = async () => {
+    invites += 1;
+    return true;
+  };
+  const handler = createHandler({
+    openaiClient: createResponsesClient([
+      toolResponse([{ name: "request_owner_chat", arguments: {} }]),
+      textResponse("Ozan has been invited into this chat."),
+    ]),
+    servicesClient: services,
+  });
+  const req = makeReq({
+    body: {
+      messages: [{ role: "user", content: "Invite Ozan into this live chat." }],
+      sessionId: "invite-poll-session",
+      state: createDefaultState(),
+    },
+  });
+  const res = makeRes();
+
+  await handler(req, res);
+
+  assert.equal(invites, 1);
+  assert.equal(res.body.ozanInvited, true);
+  assert.equal(res.body.ozanActive, "PENDING");
 });
 
 test("active owner chat forwards the guest message and suppresses AI reply", async () => {

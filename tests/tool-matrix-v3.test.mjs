@@ -265,6 +265,11 @@ test("activity tool uses a single date as a one-day window", async () => {
   assert.match(r.facts.join(" "), /open the link to check current prices, times, and availability/i);
 });
 
+test("activity holiday dates use the same disclosed lodging assumption", async () => {
+  const r = await exec("get_activity_options", { category:"dolphin", date_text:"Christmas 2026", date_confidence:"contextual", holiday_name:"christmas", holiday_evidence:"Christmas 2026", start_date:null, end_date:null, arrival:null, departure:null }, "Dolphin cruise for Christmas 2026");
+  assert.deepEqual(r.data.dates, { arrival:"2026-12-23", departure:"2026-12-27" });
+});
+
 test("maintenance alert reports accidental guest damage", async () => {
   const services = makeMockServices(); const r = await exec("create_maintenance_alert", { severity:"maintenance", summary:"broken glass" }, "I accidentally broke a glass", { services });
   assert.equal(r.status, "sent"); assert.equal(services.calls.sendEmergencyDiscord.length, 1);

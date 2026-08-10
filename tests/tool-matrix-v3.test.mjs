@@ -346,12 +346,26 @@ test("current event search uses live web evidence and the matching curated blog"
   assert.ok(!r.urls.includes("https://www.destincondogetaways.com/blog/destin-events-2026"));
 });
 
+test("current event search resolves weekend and routes explicit locations with a discovery page", async () => {
+  const prompts=[];
+  const openai={responses:{async create(payload){
+    prompts.push(payload.input[0].content);
+    return {output:[{type:"message",content:[{type:"output_text",text:"A Pensacola show is a strong lead that needs a time cross-check.",annotations:[]}]}]};
+  }}};
+  const r=await exec("search_current_events",{category:"music",query:"concerts in Pensacola this weekend",location_context:"Pensacola"},"What concerts are happening in Pensacola this weekend?",{overrides:{openai,model:"gpt-5-mini"}});
+  assert.match(prompts[0],/2026-07-24 through 2026-07-26 \(Friday through Sunday\)/);
+  assert.match(prompts[0],/Pensacola and nearby Gulf Coast venues/);
+  assert.ok(r.urls.includes("https://www.bandsintown.com/c/pensacola-fl"));
+  assert.match(r.facts[1],/no more than three/i);
+  assert.match(r.facts[1],/cross-check/i);
+});
+
 test("current event search falls back to the curated guide without asking the guest to retry", async () => {
   const openai={responses:{async create(){ throw new Error("search timeout"); }}};
   const r=await exec("search_current_events",{category:"music",query:"concerts this week"},"Concerts this week",{overrides:{openai,model:"gpt-5-mini"}});
   assert.equal(r.status,"search_unavailable");
   assert.equal(r.ok,false);
-  assert.deepEqual(r.urls,["https://www.destincondogetaways.com/blog/destin-live-music-2026"]);
+  assert.deepEqual(r.urls,["https://www.bandsintown.com/c/destin-fl","https://www.destincondogetaways.com/blog/destin-live-music-2026"]);
   assert.match(r.facts[0],/Do not ask the guest to repeat/i);
 });
 

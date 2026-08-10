@@ -393,26 +393,26 @@ test("lockout fires an emergency backstop and the agent still writes", async () 
   assert.equal(result.state.flags.alertSent, true);
 });
 
-test("accidental guest damage does not auto-alert", async () => {
+test("accidental guest damage alerts the owner", async () => {
   const services = makeMockServices();
   const { result } = await runScript({
     services,
     latestUser: "I accidentally broke a plate",
     responses: [textResponse("Thanks for letting me know. Please contact Ozan directly so he can document it.")],
   });
-  assert.equal(services.calls.sendEmergencyDiscord.length, 0);
+  assert.equal(services.calls.sendEmergencyDiscord.length, 1);
   assert.equal(result.state.flags.accidentalDamage, true);
-  assert.equal(result.state.flags.alertSent, false);
+  assert.equal(result.state.flags.alertSent, true);
 });
 
-test("external noise does not auto-alert as unit maintenance", async () => {
+test("external noise alerts the owner", async () => {
   const services = makeMockServices();
   const { result } = await runScript({
     services,
     latestUser: "There is loud construction noise outside",
     responses: [textResponse("I’m sorry about the outside construction noise. The front desk may be best positioned to help with the disturbance.")],
   });
-  assert.equal(services.calls.sendEmergencyDiscord.length, 0);
+  assert.equal(services.calls.sendEmergencyDiscord.length, 1);
   assert.equal(result.state.flags.externalDisturbance, true);
 });
 

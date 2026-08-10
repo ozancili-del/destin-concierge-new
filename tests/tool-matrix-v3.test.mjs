@@ -336,7 +336,7 @@ test("beach deals returns exact published reductions without claiming availabili
     services.calls.fetchBeachDeals.push(args);
     return {status:"success",matchType:"exact",checkedAt:NOW.toISOString(),deals:[{unit:"707",arrival:"2026-08-05",departure:"2026-08-10",nights:5,dropPct:12,fromPrice:300,toPrice:264,totalSavings:180}]};
   }});
-  const r=await exec("get_beach_deals",{date_text:"August 5-10",arrival:"2026-08-05",departure:"2026-08-10",preferred_unit:"707"},"Any deals for August 5-10 in 707?",{services});
+  const r=await exec("get_beach_deals",{date_text:"August 5-10",arrival:"2026-08-05",departure:"2026-08-10",month:null,flexibility_scope:"specific_dates",preferred_unit:"707"},"Any deals for August 5-10 in 707?",{services});
   assert.equal(r.status,"success");
   assert.equal(r.data.matchType,"exact");
   assert.equal(r.data.deals[0].dropPct,12);
@@ -349,10 +349,38 @@ test("beach deals can return the closest published reduced dates", async () => {
   const services=makeMockServices({async fetchBeachDeals(){
     return {status:"success",matchType:"nearby",checkedAt:NOW.toISOString(),deals:[{unit:"1006",arrival:"2026-08-07",departure:"2026-08-12",nights:5,dropPct:9,fromPrice:310,toPrice:282,totalSavings:140}]};
   }});
-  const r=await exec("get_beach_deals",{date_text:"August 5-10",arrival:"2026-08-05",departure:"2026-08-10",preferred_unit:null},"What are the nearest reduced dates to August 5-10?",{services});
+  const r=await exec("get_beach_deals",{date_text:"August 5-10",arrival:"2026-08-05",departure:"2026-08-10",month:null,flexibility_scope:"specific_dates",preferred_unit:null},"What are the nearest reduced dates to August 5-10?",{services});
   assert.equal(r.data.matchType,"nearby");
   assert.match(r.facts.join(" "),/No exact active reduction/i);
   assert.match(r.facts.join(" "),/2026-08-07 through 2026-08-12/);
+});
+
+test("generic beach deals asks for a month before fetching featured deals", async () => {
+  const services=makeMockServices();
+  const r=await exec("get_beach_deals",{date_text:null,arrival:null,departure:null,month:null,flexibility_scope:"unknown",preferred_unit:null},"What beach deals do you have right now?",{services});
+  assert.equal(r.status,"needs_month");
+  assert.equal(services.calls.fetchBeachDeals.length,0);
+  assert.deepEqual(r.urls,[]);
+  assert.match(r.facts.join(" "),/Ask which month/i);
+});
+
+test("beach deals can be filtered to the guest's named month", async () => {
+  const services=makeMockServices({async fetchBeachDeals(args){
+    services.calls.fetchBeachDeals.push(args);
+    return {status:"success",matchType:"month",checkedAt:NOW.toISOString(),deals:[{unit:"1006",arrival:"2026-12-04",departure:"2026-12-09",nights:5,dropPct:40,fromPrice:300,toPrice:180,totalSavings:600}]};
+  }});
+  const r=await exec("get_beach_deals",{date_text:"December 2026",arrival:null,departure:null,month:"2026-12",flexibility_scope:"month",preferred_unit:null},"Show me December 2026 deals",{services});
+  assert.equal(r.status,"success");
+  assert.equal(r.data.matchType,"month");
+  assert.equal(services.calls.fetchBeachDeals[0].month,"2026-12");
+  assert.match(r.facts.join(" "),/asked about 2026-12/i);
+});
+
+test("explicit offer request returns the owner-reviewed inquiry page without promises", async () => {
+  const r=await exec("get_offer_inquiry",{},"Can I submit a proposed rate for Ozan to review?");
+  assert.deepEqual(r.urls,["https://offer.destincondogetaways.com/offer"]);
+  assert.match(r.facts.join(" "),/Ozan personally reviews/i);
+  assert.match(r.facts.join(" "),/does not guarantee acceptance/i);
 });
 
 test("sunbird guide is a direct approved page and never exposes Make an Offer", async () => {

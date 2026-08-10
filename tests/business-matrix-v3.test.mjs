@@ -39,6 +39,7 @@ import {
   normalizeState,
   parseDateAdjustment,
   parseDateText,
+  resolveHolidayStay,
   todayIso,
   validateDateRange,
   validateParty,
@@ -320,6 +321,16 @@ test("ISO and date arithmetic helpers cover leap year and invalid input", () => 
   assert.equal(isIsoDate("2028-02-29"), true); assert.equal(isIsoDate("2027-02-29"), false);
   assert.equal(addIsoDays("2026-12-31", 1), "2027-01-01"); assert.equal(diffNights("2026-08-05", "2026-08-10"), 5);
   assert.equal(todayIso(NOW), "2026-07-20"); assert.equal(normalizeNullableInteger("3", 1, 5), 3); assert.equal(normalizeNullableInteger("3.5", 1, 5), null);
+});
+
+test("holiday resolver honors an explicit future year and preserves the four-night policy window", () => {
+  assert.deepEqual(resolveHolidayStay("christmas", NOW, 2027), {
+    holiday: "christmas",
+    holidayDate: "2027-12-25",
+    arrival: "2027-12-23",
+    departure: "2027-12-27",
+    nights: 4,
+  });
 });
 
 test("holiday and month normalization helpers are multilingual", () => {

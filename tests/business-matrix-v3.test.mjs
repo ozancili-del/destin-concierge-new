@@ -344,3 +344,13 @@ test("URL extraction strips terminal punctuation and recognizes booking URL", ()
 });
 
 test("origin validation is case-insensitive", () => { assert.equal(isValidOriginIata("dfw"), true); assert.equal(isValidOriginIata("xyz"), false); });
+
+test("available verified price drop must be mentioned without fake scarcity", () => {
+  const toolResults = [{
+    name: "check_availability", kind: "booking", status: "success", urls: [],
+    data: { units: [{ unit: "707", available: true }, { unit: "1006", available: false }], priceDrops: [{ unit: "707", dropPct: 12, windowDays: 7, fromPrice: 300, toPrice: 264 }] },
+    facts: ["Unit 707 price dropped 12% over 7 days from $300 to $264 average nightly before fees and taxes."],
+  }];
+  assert.ok(validation("Unit 707 is available for your dates.", toolResults).violations.some(v => v.code === "verified_price_drop_omitted"));
+  assert.equal(validation("Unit 707 is available, and its verified nightly rate dropped 12%—great timing.", toolResults).ok, true);
+});

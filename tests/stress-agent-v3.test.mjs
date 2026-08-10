@@ -262,7 +262,7 @@ test("weather failure does not discard verified booking and activity results", a
   assert.match(result.reply, /tripshock\.com/i);
 });
 
-test("follow-up date shift uses existing state instead of asking for all details again", async () => {
+test("ambiguous follow-up date shift uses existing state to offer concrete choices", async () => {
   const state = createDefaultState();
   state.booking = {
     ...state.booking,
@@ -288,10 +288,12 @@ test("follow-up date shift uses existing state instead of asking for all details
       textResponse(`I moved the stay one day later to August 6–11. Unit 707 is available. ${shiftedUrl}`),
     ],
   });
-  assert.equal(services.calls.checkBothUnits[0].arrival, "2026-08-06");
-  assert.equal(services.calls.checkBothUnits[0].departure, "2026-08-11");
+  assert.equal(services.calls.checkBothUnits.length, 0);
   assert.equal(result.state.booking.adults, 2);
   assert.equal(result.state.booking.children, 0);
+  assert.match(result.reply, /check-in/i);
+  assert.match(result.reply, /checkout/i);
+  assert.match(result.reply, /entire stay/i);
   assert.match(result.reply, /August 6/i);
 });
 

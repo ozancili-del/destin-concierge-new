@@ -44,7 +44,7 @@ export function scriptedOpenAI(responses, { delays = [] } = {}) {
 
 export function makeMockServices(overrides = {}) {
   const calls = {
-    checkBothUnits: [], fetchPriceDrops: [], fetchCalendarAlternatives: [], findOpenWindows: [],
+    checkBothUnits: [], fetchPriceDrops: [], fetchBeachDeals: [], fetchCalendarAlternatives: [], findOpenWindows: [],
     fetchBlogContent: [], fetchDestinWeather: [], fetchBeachConditions: [], sendEmergencyDiscord: [], addBrevoContact: [],
     readSessState: [], writeSessState: [], sendOwnerChatInvite: [], fetchGuestBooking: [],
   };
@@ -52,6 +52,7 @@ export function makeMockServices(overrides = {}) {
     calls,
     async checkBothUnits(arrival, departure) { calls.checkBothUnits.push({ arrival, departure }); return { "707": true, "1006": true }; },
     async fetchPriceDrops(arrival, departure) { calls.fetchPriceDrops.push({ arrival, departure }); return { status: "success", drops: [] }; },
+    async fetchBeachDeals(args) { calls.fetchBeachDeals.push(args); return { status: "success", matchType: args?.arrival ? "nearby" : "featured", deals: [], checkedAt: NOW.toISOString(), source: "https://deals.destincondogetaways.com/beach-deals" }; },
     async fetchCalendarAlternatives(arrival, departure) { calls.fetchCalendarAlternatives.push({ arrival, departure }); return null; },
     async findOpenWindows(args) { calls.findOpenWindows.push(args); return []; },
     async fetchBlogContent(topic) { calls.fetchBlogContent.push(topic); return { status: "success", topic, content: "Verified guide content.", url: `https://www.destincondogetaways.com/blog/${topic}` }; },

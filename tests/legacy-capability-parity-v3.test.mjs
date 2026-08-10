@@ -122,3 +122,8 @@ test("flight links use clear live-results guidance", () => {
   assert.match(promptSource, /Check the link above for live fares, schedules, seats, and availability/i);
   assert.doesNotMatch(promptSource, /link does not confirm live fares/i);
 });
+
+test("ambiguous date adjustments reuse stored dates in the clarification", () => {
+  assert.match(promptSource, /never ask the guest to repeat them/i);
+  assert.match(promptSource, /move check-in only, move checkout only, or shift the entire stay/i);
+});

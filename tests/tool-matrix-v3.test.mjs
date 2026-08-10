@@ -344,6 +344,16 @@ test("owner chat invite is deduplicated if already pending", async () => {
   const services=makeMockServices({async readSessState(){return {ozanActive:"PENDING",inviteToken:"abc"};}}); const r=await exec("request_owner_chat",{},"Talk to the owner",{services}); assert.equal(r.status,"already_invited"); assert.equal(services.calls.sendOwnerChatInvite.length,0);
 });
 
+test("failed owner chat delivery is retryable and not reported as pending", async () => {
+  const services=makeMockServices({async sendOwnerChatInvite(){return {sent:false,reason:"discord_down"};}});
+  const r=await exec("request_owner_chat",{},"Invite Ozan into this chat",{services});
+  assert.equal(r.status,"invite_failed");
+  assert.equal(r.ok,false);
+  assert.equal(r.statePatch.ownerChat.pending,false);
+  assert.equal(services.calls.writeSessState.length,2);
+  assert.equal(services.calls.writeSessState[1][1].ozanActive,"FALSE");
+});
+
 test("business knowledge returns snippets and explicit URLs", async () => {
   const r=await exec("get_business_knowledge",{query:"Can I bring a dog?",topics:["policies"],limit:4},"Can I bring a dog?"); assert.equal(r.status,"success"); assert.match(r.facts.join(" "),/no-pets|Zero exceptions/i);
 });

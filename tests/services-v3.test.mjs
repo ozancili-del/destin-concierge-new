@@ -214,6 +214,22 @@ test("price drops filters invalid commercial data", async () => {
   const services=createServices({fetchImpl,env:{},now:()=>NOW,logger:quiet}); const r=await services.fetchPriceDrops("2026-08-05","2026-08-10"); assert.equal(r.drops.length,1); assert.equal(r.drops[0].unit,"707");
 });
 
+test("beach deals reader parses active page data and returns closest reduced dates", async () => {
+  const deals=[
+    {unit:"707",arrival:"2026-08-08",departure:"2026-08-12",nights:4,dropPct:10,fromPrice:300,toPrice:270,totalSavings:120,purchased:false},
+    {unit:"1006",arrival:"2026-09-01",departure:"2026-09-05",nights:4,dropPct:15,fromPrice:320,toPrice:272,totalSavings:192,purchased:false},
+    {unit:"707",arrival:"2026-08-05",departure:"2026-08-10",nights:5,dropPct:20,fromPrice:350,toPrice:280,totalSavings:350,purchased:true},
+  ];
+  const html=`<html><script id="__NEXT_DATA__" type="application/json">${JSON.stringify({props:{pageProps:{deals}}})}</script></html>`;
+  const fetchImpl=makeFetch([{match:"deals.destincondogetaways.com/beach-deals",reply:response({text:html})}]);
+  const services=createServices({fetchImpl,env:{},now:()=>NOW,logger:quiet});
+  const r=await services.fetchBeachDeals({arrival:"2026-08-05",departure:"2026-08-10",limit:3});
+  assert.equal(r.status,"success");
+  assert.equal(r.matchType,"nearby");
+  assert.equal(r.deals[0].arrival,"2026-08-08");
+  assert.equal(r.deals.some(deal=>deal.purchased),false);
+});
+
 test("guest-link signature supports legacy mode when secret is absent", () => {
   const services=createServices({fetchImpl:makeFetch(),env:{},now:()=>NOW,logger:quiet}); assert.deepEqual(services.verifyGuestLinkSignature("B1",null),{ok:true,legacy:true});
 });

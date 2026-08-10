@@ -117,3 +117,8 @@ test("legacy parity: the prompt requires tools for factual and consequential cla
   assert.match(promptSource, /door code.*Call the appropriate tool/i);
   assert.match(promptSource, /Never claim Ozan was notified unless the tool result confirms it/i);
 });
+
+test("flight links use clear live-results guidance", () => {
+  assert.match(promptSource, /Check the link above for live fares, schedules, seats, and availability/i);
+  assert.doesNotMatch(promptSource, /link does not confirm live fares/i);
+});

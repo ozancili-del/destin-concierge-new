@@ -345,6 +345,12 @@ test("URL extraction strips terminal punctuation and recognizes booking URL", ()
 
 test("origin validation is case-insensitive", () => { assert.equal(isValidOriginIata("dfw"), true); assert.equal(isValidOriginIata("xyz"), false); });
 
+test("activity link cannot be described as verified live availability", () => {
+  const toolResults = [{ name:"get_activity_options", kind:"activity", ok:true, status:"success", urls:[], data:{ category:"dolphin", liveInventoryChecked:false } }];
+  assert.ok(validation("Dolphin cruises are available.", toolResults).violations.some(v => v.code === "unverified_activity_availability"));
+  assert.equal(validation("Open the link to check current prices, times, and availability.", toolResults).ok, true);
+});
+
 test("available verified price drop must be mentioned without fake scarcity", () => {
   const toolResults = [{
     name: "check_availability", kind: "booking", status: "success", urls: [],

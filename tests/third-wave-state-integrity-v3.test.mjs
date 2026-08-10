@@ -65,7 +65,7 @@ test("repeating identical trip details preserves current verification", async ()
   assert.equal("verified" in result.statePatch, false);
 });
 
-test("preferred-unit-only change does not invalidate date availability", async () => {
+test("preferred-unit change invalidates unit-specific booking verification", async () => {
   const state = verifiedState();
   const result = await executeTool("remember_booking_details", {
     date_text: null, date_role: null, arrival: null, departure: null,
@@ -74,7 +74,8 @@ test("preferred-unit-only change does not invalidate date availability", async (
     bedrooms_requested: null, bedrooms_evidence: null,
   }, context(state, "I prefer 1006", makeMockServices()));
   assert.equal(result.statePatch.booking.preferredUnit, "1006");
-  assert.equal("verified" in result.statePatch, false);
+  assert.deepEqual(result.statePatch.verified.bookingUrls, []);
+  assert.equal(result.statePatch.verified.availabilityCheckedAt, null);
 });
 
 const corruptedVerificationCases = [
@@ -88,21 +89,21 @@ const corruptedVerificationCases = [
   { name: "mixed valid and malicious links", mutate(s) { s.verified.bookingUrls.push("https://evil.example/pay"); } },
 ];
 for (const item of corruptedVerificationCases) {
-  test(`persisted verification fails closed: ${item.name}`, async () => {
+  test(`fresh booking-link check ignores persisted verification: ${item.name}`, async () => {
     const state = verifiedState(); item.mutate(state);
     const result = await executeTool("build_booking_links", {}, context(state, "Please resend the links", makeMockServices()));
-    assert.equal(result.ok, false);
-    assert.ok(["stale_or_missing_verification", "invalid_persisted_verification"].includes(result.status));
-    assert.deepEqual(result.urls, []);
+    assert.equal(result.ok, true);
+    assert.equal(result.data.freshAvailabilityCheck, true);
+    assert.equal(result.urls.length, 2);
   });
 }
 
-test("valid persisted booking verification can be resent", async () => {
+test("valid persisted booking verification is refreshed before links are resent", async () => {
   const state = verifiedState();
   const result = await executeTool("build_booking_links", {}, context(state, "Please resend the links", makeMockServices()));
   assert.equal(result.ok, true);
-  assert.equal(result.urls.length, 1);
-  assert.equal(result.urls[0], state.verified.bookingUrls[0]);
+  assert.equal(result.urls.length, 2);
+  assert.equal(result.data.freshAvailabilityCheck, true);
 });
 
 const consequentialScenarios = [
@@ -162,7 +163,7 @@ test("maintenance safety backstop prevents a later model round from sending a se
   assert.ok(result.toolResults.some(r => r.status === "duplicate_suppressed"));
 });
 
-test("read-only tools may still run in separate reasoning rounds", async () => {
+test("identical read-only tools are suppressed within one turn", async () => {
   const services = makeMockServices();
   await runScript({
     services,
@@ -173,5 +174,5 @@ test("read-only tools may still run in separate reasoning rounds", async () => {
       textResponse("Both forecast checks returned the same verified result."),
     ],
   });
-  assert.equal(services.calls.fetchDestinWeather.length, 2);
+  assert.equal(services.calls.fetchDestinWeather.length, 1);
 });

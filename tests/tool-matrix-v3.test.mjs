@@ -331,6 +331,37 @@ test("owner chat invite never exposes internal entry URL to model", async () => 
   assert.deepEqual({ role: persisted[0].role, text: persisted[0].text }, { role:"guest", text:"Can I speak to Ozan?" });
 });
 
+test("beach deals returns exact published reductions without claiming availability", async () => {
+  const services=makeMockServices({async fetchBeachDeals(args){
+    services.calls.fetchBeachDeals.push(args);
+    return {status:"success",matchType:"exact",checkedAt:NOW.toISOString(),deals:[{unit:"707",arrival:"2026-08-05",departure:"2026-08-10",nights:5,dropPct:12,fromPrice:300,toPrice:264,totalSavings:180}]};
+  }});
+  const r=await exec("get_beach_deals",{date_text:"August 5-10",arrival:"2026-08-05",departure:"2026-08-10",preferred_unit:"707"},"Any deals for August 5-10 in 707?",{services});
+  assert.equal(r.status,"success");
+  assert.equal(r.data.matchType,"exact");
+  assert.equal(r.data.deals[0].dropPct,12);
+  assert.deepEqual(r.urls,["https://deals.destincondogetaways.com/beach-deals"]);
+  assert.match(r.facts.join(" "),/not confirmed availability/i);
+  assert.doesNotMatch(r.facts.join(" "),/make us an offer|offer\.destincondogetaways/i);
+});
+
+test("beach deals can return the closest published reduced dates", async () => {
+  const services=makeMockServices({async fetchBeachDeals(){
+    return {status:"success",matchType:"nearby",checkedAt:NOW.toISOString(),deals:[{unit:"1006",arrival:"2026-08-07",departure:"2026-08-12",nights:5,dropPct:9,fromPrice:310,toPrice:282,totalSavings:140}]};
+  }});
+  const r=await exec("get_beach_deals",{date_text:"August 5-10",arrival:"2026-08-05",departure:"2026-08-10",preferred_unit:null},"What are the nearest reduced dates to August 5-10?",{services});
+  assert.equal(r.data.matchType,"nearby");
+  assert.match(r.facts.join(" "),/No exact active reduction/i);
+  assert.match(r.facts.join(" "),/2026-08-07 through 2026-08-12/);
+});
+
+test("sunbird guide is a direct approved page and never exposes Make an Offer", async () => {
+  const r=await exec("get_local_guide",{topic:"sunbird"},"We want a monthly winter stay in Destin");
+  assert.deepEqual(r.urls,["https://sunbirds.destincondogetaways.com/snowbird"]);
+  assert.match(r.facts.join(" "),/monthly, extended winter/i);
+  assert.doesNotMatch(r.facts.join(" "),/offer\.destincondogetaways/i);
+});
+
 test("current event search uses live web evidence and the matching curated blog", async () => {
   const calls=[];
   const openai={responses:{async create(payload){

@@ -381,6 +381,7 @@ test("explicit offer request returns the owner-reviewed inquiry page without pro
   assert.deepEqual(r.urls,["https://offer.destincondogetaways.com/offer"]);
   assert.match(r.facts.join(" "),/Ozan personally reviews/i);
   assert.match(r.facts.join(" "),/does not guarantee acceptance/i);
+  assert.doesNotMatch(r.facts.join(" "),/ozan@|972/i);
 });
 
 test("sunbird guide is a direct approved page and never exposes Make an Offer", async () => {

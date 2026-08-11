@@ -449,6 +449,35 @@ test("current event search falls back to the curated guide without asking the gu
   assert.match(r.facts[0],/Do not ask the guest to repeat/i);
 });
 
+test("fireworks search grounds the live check in the dedicated guide schedule", async () => {
+  const prompts=[];
+  const services=makeMockServices({async fetchBlogContent(topic){
+    assert.equal(topic,"fireworks");
+    return {status:"success",topic,content:"HarborWalk Thursday Fireworks: Thursdays, late May-August, 9pm. Thursdaze Drone Show: Thursdays through August 13 at 8:30pm.",url:"https://www.destincondogetaways.com/blog/destin-fireworks-2026"};
+  }});
+  const openai={responses:{async create(payload){
+    prompts.push(payload.input[0].content);
+    return {output:[{type:"message",content:[{type:"output_text",text:"The guide-backed Thursday shows match August 13; official details should be cross-checked.",annotations:[]}]}]};
+  }}};
+  const r=await exec("search_current_events",{category:"fireworks",query:"Will there be fireworks Thursday August 13?",date_context:"August 13, 2026"},"Will there be fireworks Thursday August 13?",{services,overrides:{openai}});
+  assert.equal(r.status,"success");
+  assert.ok(r.urls.includes("https://www.destincondogetaways.com/blog/destin-fireworks-2026"));
+  assert.match(prompts[0],/HarborWalk Thursday Fireworks/);
+  assert.match(prompts[0],/EXPECTED_NEEDS_CROSS_CHECK/);
+  assert.match(r.facts.join(" "),/countdown schedule says.*HarborWalk Thursday Fireworks/i);
+});
+
+test("fireworks search timeout retains guide-backed schedule instead of claiming no show", async () => {
+  const services=makeMockServices({async fetchBlogContent(topic){
+    return {status:"success",topic,content:"HarborWalk Thursday Fireworks: Thursdays, late May-August, 9pm.",url:"https://www.destincondogetaways.com/blog/destin-fireworks-2026"};
+  }});
+  const openai={responses:{async create(){throw new Error("search timeout");}}};
+  const r=await exec("search_current_events",{category:"fireworks",query:"Fireworks Thursday?",date_context:"August 13, 2026"},"Fireworks Thursday?",{services,overrides:{openai}});
+  assert.equal(r.status,"search_unavailable");
+  assert.match(r.facts.join(" "),/HarborWalk Thursday Fireworks/);
+  assert.match(r.facts.join(" "),/Do not claim that no fireworks are scheduled/i);
+});
+
 test("explicit invite and join wording authorizes owner chat", async () => {
   for (const message of ["Invite Ozan into this live chat.", "Can the owner join this chat?"]) {
     const services=makeMockServices();

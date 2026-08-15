@@ -31,10 +31,10 @@ Audit rule: every substantive source section must be retained, improved, moved t
 | Full kitchen, two smart TVs, Wi-Fi and private Gulf-front balcony | Retain | Exact-unit section | Complete |
 | Value alternative to a three-bedroom rental for a fitting group | Improve | Family-layout section; avoid calling it universally “best value” | Complete |
 | Spring-break competition and early booking | Retain carefully | Seasonal planning note; avoid unsupported urgency or price claims | Complete |
-| Platform prices add $300–$500 | Verify before publishing | Retain only in this ledger until evidence/current comparison supports it | Needs owner verification |
+| Platform prices add $300–$500 | Retire fixed dollars | Savings vary by stay; replace with the owner-confirmed qualified claim that marketplace guest fees can add up to 20%, depending on platform | Intentionally replaced |
 | Automatic 10% discount at checkout | Retain and clarify | State that OwnerRez automatically applies the current 10% direct-booking discount and reflects the resulting price during secure checkout; do not imply a visible coupon banner | Complete; confirmed by owner |
-| Guests save $200–$400 | Verify before publishing | Do not publish a guaranteed savings range without reproducible evidence | Needs owner verification |
-| Platform fees reach 14–20% | Improve | Current page says marketplaces commonly add a separate guest service fee; no fixed range | Complete |
+| Guests save $200–$400 | Retire fixed dollars | Savings vary by stay; use the qualified up-to-20% marketplace-fee claim instead | Intentionally replaced |
+| Platform fees reach 14–20% | Retain with qualification | State that separate marketplace guest service fees can add up to 20%, depending on the platform | Complete; confirmed by owner |
 | No platform fees | Clarify | “No separate marketplace fee,” because direct booking still includes legitimate rent, fees and taxes | Complete |
 | Returning guests receive 10% off next stay | Retain and clarify | Returning guests may receive 10% off a future direct stay by contacting Ozan; it cannot be combined with another discount | Complete; confirmed by owner |
 | Direct communication, exact unit and transparent pricing | Retain | Direct-booking reasons and comparison table | Complete |

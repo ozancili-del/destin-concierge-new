@@ -22,7 +22,7 @@ const businessSchema = {
   email: "ozan@destincondogetaways.com",
   address: { "@type": "PostalAddress", streetAddress: "1002 US-98", addressLocality: "Destin", addressRegion: "FL", postalCode: "32541", addressCountry: "US" },
   geo: { "@type": "GeoCoordinates", latitude: 30.3935, longitude: -86.4958 },
-  priceRange: "$",
+  priceRange: "$$",
   amenityFeature: ["Beachfront Access","Ocean View Units","Private Balconies","Heated Pool","Indoor Pool","Hot Tub","Fitness Center","Free WiFi","Free Parking","Full Kitchens","Tennis Courts","EV Charging"].map((name) => ({ "@type": "LocationFeatureSpecification", name, value: true })),
   petsAllowed: false,
   smokingAllowed: false,

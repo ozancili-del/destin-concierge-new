@@ -24,6 +24,7 @@ const condos = [
 export default function Home() {
   return (
     <>
+      <div className={styles.page}>
       <Head>
         <title>Destin Condo Getaways | Beachfront Condos at Pelican Beach Resort</title>
         <meta name="description" content="Book two owner-managed beachfront condos at Pelican Beach Resort in Destin, Florida. Direct Gulf views, no road to cross, and local trip planning with Destiny Blue." />
@@ -98,6 +99,7 @@ export default function Home() {
 
       <footer className={styles.footer}><div><strong>Destin Condo Getaways</strong><p>Two beachfront condos. Thoughtful owner-direct hospitality.</p></div><div><a href={`${site}/reviews`}>Reviews</a><a href={`${site}/blog`}>Blog</a><a href={`${site}/privacy-574035022`}>Privacy</a></div><div><a href="tel:+19723574262">(972) 357-4262</a><a href="mailto:ozan@destincondogetaways.com">ozan@destincondogetaways.com</a></div></footer>
 
+      </div>
       <Script src="/destiny-head.js" strategy="afterInteractive" />
     </>
   );

@@ -36,7 +36,7 @@ Audit rule: every substantive source section must be retained, improved, moved t
 | Guests save $200–$400 | Verify before publishing | Do not publish a guaranteed savings range without reproducible evidence | Needs owner verification |
 | Platform fees reach 14–20% | Improve | Current page says marketplaces commonly add a separate guest service fee; no fixed range | Complete |
 | No platform fees | Clarify | “No separate marketplace fee,” because direct booking still includes legitimate rent, fees and taxes | Complete |
-| Returning guests receive 10% off next stay | Verify before publishing | Preserve in ledger; confirm active rule and exclusions before adding | Needs owner verification |
+| Returning guests receive 10% off next stay | Retain and clarify | Returning guests may receive 10% off a future direct stay by contacting Ozan; it cannot be combined with another discount | Complete; confirmed by owner |
 | Direct communication, exact unit and transparent pricing | Retain | Direct-booking reasons and comparison table | Complete |
 | Destiny Blue available 24/7 | Retain and improve | Owner-direct hospitality section; avoids promising instant success for every request | Complete |
 | Connect directly to Ozan when needed | Retain carefully | Says Ozan remains part of the stay; does not promise concessions or automatic human availability | Complete |

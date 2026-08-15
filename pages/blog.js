@@ -27,7 +27,7 @@ const articles = [
   ["destindiversehistory","Destin History & Military Heritage","Fishing-village roots, coastal history and nearby military landmarks.","Things to Do","/florida-panhandle-travel-map.png","Needs refresh"],
   ["destinocen","Water Activities in Destin","Snorkeling, parasailing, boating and ways to enjoy the Gulf.","Things to Do","/hub-activities.png","Needs refresh"],
   ["destinromance","Romantic Things to Do in Destin","Sunsets, dinners and memorable experiences for couples.","Things to Do","/hub-beaches.png","Needs refresh"],
-  ["destinnights","Bars & Nightlife in Destin","Beachfront bars, evening venues and live-music options.","Food & Drink","/destin-night-sky.html","Needs refresh"],
+  ["destinnights","Bars & Nightlife in Destin","Beachfront bars, evening venues and live-music options.","Food & Drink","/hub-music.png","Needs refresh"],
   ["destinessentials","Destin Visitor Essentials","Groceries, pharmacies, practical services and pre-arrival planning.","Practical Guides","/hub-groceries.png","Needs refresh"],
   ["destinkids","Destin with Kids","Family-friendly beaches, activities and rainy-day ideas.","Things to Do","/hub-activities.png","Needs refresh"],
   ["destinexplore","Explore Destin","Fishing, Crab Island, dolphin tours and Emerald Coast day trips.","Things to Do","/hub-activities.png","Needs refresh"]

@@ -42,6 +42,14 @@ Production status: unchanged
 | destinkids | 637 | family activity/affiliate links | Breadcrumb, LodgingBusiness |
 | destinexplore | 575 | activity/affiliate links | Breadcrumb, LodgingBusiness |
 
+## Current migration status
+
+| Slug | Status | Notes |
+|---|---|---|
+| `destinspa` | Migrated and verified in preview | Full 2,005-word visible article retained; Unicode repaired; images, availability form, responsive layout and five schema types verified. See `BLOG-DESTINSPA-CONTENT-RECONCILIATION.md`. |
+| `destinessentials` | Rebuild required | Source contains ChatGPT UI wrappers and a content/meta mismatch; service and emergency facts require verification. See `BLOG-DESTINESSENTIALS-CONTENT-AUDIT.md`. |
+| All other articles | Inventory/audit stage | Current OwnerRez pages remain live and untouched. |
+
 ## Migration classification
 
 ### Preserve and reconcile carefully

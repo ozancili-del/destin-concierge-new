@@ -61,10 +61,10 @@ Audit rule: every substantive source section must be retained, improved, moved t
 | Minimum renter age 25, waived if married | Retain | Rules and FAQ | Complete |
 | Maximum occupancy six | Retain | Rules and FAQ; explicitly includes adults, children and infants | Complete |
 | 20% non-refundable deposit and balance due 30 days before arrival | Retain | Cancellation/payment summary | Complete |
-| Cancellation more than 30 days forfeits deposit; no refund within 30 days | Summarize | Current page directs guest to full checkout terms; exact legal/policy copy must be synchronized with canonical policy source before launch | Complete / final policy sync pending |
-| Mandatory county evacuation prorated refund | Preserve for policy sync | Do not paraphrase loosely on marketing page; include in canonical policy page and checkout terms | Pending policy-page migration |
-| Courtesy reschedule/modified booking cancellation rule | Preserve for policy sync | Canonical policy page and checkout terms | Pending policy-page migration |
-| Travel-insurance recommendation | Preserve for policy sync | Canonical policy page and checkout terms | Pending policy-page migration |
+| Cancellation more than 30 days forfeits deposit; no refund within 30 days | Retain | Visible policy summary plus controlling secure-checkout terms | Complete; confirmed by owner |
+| Mandatory county evacuation prorated refund | Retain | Visible policy summary plus controlling secure-checkout terms | Complete; confirmed by owner |
+| Courtesy reschedule/modified booking cancellation rule | Retain | Visible policy summary plus controlling secure-checkout terms | Complete; confirmed by owner |
+| Travel-insurance recommendation | Retain | Visible recommendation; full terms remain in checkout/policy source | Complete |
 | Added guests may incur fees | Preserve for policy sync | Canonical policy page and checkout terms | Pending policy-page migration |
 | Phone, email, address, Facebook, privacy, blog, about and map links | Retain/normalize | Complete shared footer; physical address and social link will be added to global business/contact component after authoritative audit | Partial; global component pending |
 | Old navigation and OwnerRez “edit page/site/logout” controls | Exclude | Hosting/editor chrome, not public editorial content | Intentionally excluded |

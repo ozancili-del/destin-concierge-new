@@ -523,7 +523,7 @@ test("evidence recovery explains unsupported multi-bedroom fit before asking for
   assert.match(reply, /one-bedroom\/two-bath/i);
   assert.match(reply, /maximum occupancy of six/i);
   assert.match(reply, /two separate condos in the same beachfront building may work/i);
-  assert.match(reply, /check-in and check-out dates/i);
+  assert.match(reply, /check-in date and check-out date/i);
   assert.match(reply, /number of adults/i);
   assert.match(reply, /number of children/i);
   assert.doesNotMatch(reply, /temporary snag|contact Ozan/i);

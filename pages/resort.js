@@ -35,7 +35,7 @@ const reviews = [
 
 function accommodation(floor) {
   return {
-    "@type": "Accommodation", additionalType: "EntirePlace", floorLevel: String(floor), numberOfRooms: 1, numberOfBathroomsTotal: 2,
+    "@type": "Accommodation", additionalType: "EntirePlace", floorLevel: String(floor), numberOfRooms: 1, numberOfBedrooms: 1, numberOfBathroomsTotal: 2, floorSize: { "@type": "QuantitativeValue", value: 873, unitCode: "FTK" },
     occupancy: { "@type": "QuantitativeValue", value: 6 },
     bed: [{ "@type": "BedDetails", numberOfBeds: 1, typeOfBed: "King" }, { "@type": "BedDetails", numberOfBeds: 2, typeOfBed: "Bunk" }, { "@type": "BedDetails", numberOfBeds: 1, typeOfBed: "Sofa Bed" }],
     amenityFeature: ["beachAccess","balcony","ac","kitchen","wifi","parking","pool","hotTub","gym","childFriendly","washerDryer"].map((name) => ({ "@type": "LocationFeatureSpecification", name, value: true })),
@@ -46,7 +46,7 @@ function unitSchema(number, floor, style, image, slug) {
   return {
     "@type": "VacationRental", "@id": `${liveSite}/${slug}#unit`, name: `Pelican Beach Resort Unit ${number} â€“ ${style} Beachfront Condo`,
     description: `Beachfront one-bedroom, two-bathroom condo on the ${floor === 7 ? "seventh" : "tenth"} floor of Pelican Beach Resort in Destin, Florida. Gulf views and sleeping space for up to six guests.`,
-    url: `${liveSite}/${slug}`, image: [image], telephone: "+1-972-357-4262", email: "ozan@destincondogetaways.com",
+    identifier: `destin-condo-getaways-unit-${number}`, additionalType: "Condo", url: `${liveSite}/${slug}`, image: [image], telephone: "+1-972-357-4262", email: "ozan@destincondogetaways.com",
     address: { ...resortAddress, streetAddress: `1002 US Highway 98, Unit ${number}` }, geo, checkinTime: "16:00", checkoutTime: "10:00", petsAllowed: false, smokingAllowed: false,
     containedInPlace: { "@id": `${liveSite}/#business` }, containsPlace: accommodation(floor),
   };

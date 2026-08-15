@@ -572,3 +572,108 @@ test("evidence recovery can retain verified availability while correcting the pr
   assert.match(reply, /https:\/\/example\.test\/707/);
   assert.match(reply, /https:\/\/example\.test\/1006/);
 });
+
+
+test("evidence recovery preserves verified weather instead of returning a generic snag", () => {
+  const state = createDefaultState();
+  const reply = evidenceBasedRecoveryFallback({
+    state,
+    latestUser: "Will it rain tomorrow?",
+    toolResults: [{
+      name: "get_destin_weather", ok: true, status: "success",
+      data: { forecast: [{ date: "2026-08-16", desc: "Partly cloudy", hi: 88, lo: 77, rain: 30 }] },
+    }],
+    violations: [{ code: "unverified_specific_date" }],
+  });
+  assert.match(reply, /verified Destin forecast/i);
+  assert.match(reply, /2026-08-16.*Partly cloudy.*88.*77.*30%/i);
+  assert.doesNotMatch(reply, /temporary snag/i);
+});
+
+test("evidence recovery preserves a verified flight link and positive action language", () => {
+  const state = createDefaultState();
+  const reply = evidenceBasedRecoveryFallback({
+    state,
+    latestUser: "Find flights from Denver",
+    toolResults: [{
+      name: "build_flight_search", ok: true, status: "success",
+      data: { origin: "DEN", destination: "VPS", departureDate: "2027-08-05", returnDate: "2027-08-10", adults: 2, children: 0, infants: 0, assumedFromStay: true, url: "https://www.aviasales.com/search/test" },
+      urls: ["https://www.aviasales.com/search/test"],
+    }],
+    violations: [{ code: "flight_link_claim_without_permission" }],
+  });
+  assert.match(reply, /DEN to VPS/i);
+  assert.match(reply, /confirmed condo dates/i);
+  assert.match(reply, /check live fares, schedules, seats, and availability/i);
+  assert.doesNotMatch(reply, /temporary snag|imaginary|only for browsing/i);
+});
+
+test("evidence recovery preserves a TripShock activity link", () => {
+  const state = createDefaultState();
+  const reply = evidenceBasedRecoveryFallback({
+    state,
+    latestUser: "Jet ski link please",
+    toolResults: [{
+      name: "get_activity_options", ok: true, status: "success",
+      data: { category: "jetski", dates: { arrival: "2027-08-05", departure: "2027-08-10" }, url: "https://www.tripshock.com/test" },
+      urls: ["https://www.tripshock.com/test"],
+    }],
+    violations: [{ code: "unverified_activity_availability" }],
+  });
+  assert.match(reply, /jetski activity link/i);
+  assert.match(reply, /check current prices, times, and availability/i);
+  assert.doesNotMatch(reply, /temporary snag|only for browsing/i);
+});
+
+test("evidence recovery preserves current-event evidence and approved sources", () => {
+  const state = createDefaultState();
+  const reply = evidenceBasedRecoveryFallback({
+    state,
+    latestUser: "What concerts are happening?",
+    toolResults: [{
+      name: "search_current_events", ok: true, status: "success",
+      data: { category: "music" },
+      facts: ["Baytowne lists a Friday evening concert.", "Answer with no more than three options."],
+      urls: ["https://www.baytownewharf.com/events", "https://www.destincondogetaways.com/blog/destin-live-music-2026"],
+    }],
+    violations: [{ code: "unapproved_url" }],
+  });
+  assert.match(reply, /Baytowne lists a Friday evening concert/i);
+  assert.match(reply, /baytownewharf\.com\/events/i);
+  assert.match(reply, /destin-live-music-2026/i);
+  assert.doesNotMatch(reply, /Answer with no more|temporary snag/i);
+});
+
+test("evidence recovery asks a precise missing flight detail", () => {
+  const state = createDefaultState();
+  const reply = evidenceBasedRecoveryFallback({
+    state,
+    latestUser: "Find me a flight",
+    toolResults: [{ name: "build_flight_search", ok: false, status: "needs_origin", data: { missing: ["origin_city"] } }],
+    violations: [{ code: "empty_reply" }],
+  });
+  assert.match(reply, /city or airport you are flying from/i);
+  assert.doesNotMatch(reply, /temporary snag/i);
+});
+
+test("validation-only recovery does not pretend there was a technical outage", () => {
+  const state = createDefaultState();
+  const reply = evidenceBasedRecoveryFallback({
+    state,
+    latestUser: "Can Ozan give me a free night?",
+    violations: [{ code: "unauthorized_concession" }],
+  });
+  assert.match(reply, /unsupported or misleading/i);
+  assert.doesNotMatch(reply, /temporary snag|technical|try once more/i);
+});
+
+test("a genuine agent failure can still fall through to the infrastructure fallback", () => {
+  const state = createDefaultState();
+  const reply = evidenceBasedRecoveryFallback({
+    state,
+    latestUser: "Hello",
+    violations: [],
+    agentError: "agent timeout",
+  });
+  assert.equal(reply, null);
+});

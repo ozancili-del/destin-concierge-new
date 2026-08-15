@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npm run test:agent && next build",
     "start": "next start",
     "test:agent": "node --experimental-default-type=module --test tests/*.test.mjs",
     "test:agent:coverage": "node --experimental-default-type=module --experimental-test-coverage --test tests/*.test.mjs",

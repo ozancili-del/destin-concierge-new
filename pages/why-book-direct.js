@@ -2,6 +2,7 @@ import Head from "next/head";
 import Image from "next/image";
 import Script from "next/script";
 import SiteButton from "../components/SiteButton";
+import AvailabilitySearch from "../components/AvailabilitySearch";
 import styles from "../styles/WhyDirect.module.css";
 
 const liveSite = "https://www.destincondogetaways.com";
@@ -95,7 +96,7 @@ export default function WhyBookDirect() {
           <div className={styles.heroVisual}><Image src="/book-direct-banner-bg.jpg" alt="Pelican Beach Resort and the Gulf of Mexico in Destin" fill priority sizes="(max-width: 900px) 100vw, 48vw" /><div className={styles.imageNote}><strong>Owner-managed</strong><span>Units 707 and 1006</span></div></div>
         </section>
 
-        <form className={styles.availability} id="availability" method="post" action={`${liveSite}/properties`}><div><span>Live availability</span></div><input type="hidden" name="Page" value="1" /><input type="hidden" name="Sort" value="DailyRandom" /><label><span>Check in</span><input aria-label="Arrival date" name="ArrivalDate" type="date" required /></label><label><span>Check out</span><input aria-label="Departure date" name="DepartureDate" type="date" required /></label><label><span>Guests</span><select aria-label="Guests" name="Guests" defaultValue="2">{[1,2,3,4,5,6].map((count) => <option value={count} key={count}>{count} {count === 1 ? "guest" : "guests"}</option>)}</select></label><SiteButton type="submit" variant="primary" size="standard">Search dates</SiteButton></form>
+        <AvailabilitySearch className={styles.availability} />
 
         <section className={styles.promise}><p className={styles.kicker}>What “book direct” means here</p><h2>Less uncertainty between browsing and arrival.</h2><p className={styles.introCopy}>When you book with Destin Condo Getaways, you deal directly with the owner of Pelican Beach Resort Units 707 and 1006. You can ask about the kitchen, sleeping arrangements, balcony, or anything else that matters to your family before committing.</p><div className={styles.reasonGrid}>{reasons.map((reason) => <article key={reason.number}><span>{reason.number}</span><h3>{reason.title}</h3><p>{reason.copy}</p></article>)}</div></section>
 

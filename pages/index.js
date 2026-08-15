@@ -82,8 +82,8 @@ export default function Home() {
 
         <div className={styles.utilityBar}>
           <a href={`${site}/reviews`}>Guest Reviews</a>
-          <a href={`${site}/destin-condo-guide-574047967`}>FAQ</a>
-          <a href={`${site}/destin-condo-guide-574047967`}>Policies</a>
+          <a href="/guest-guide">FAQ</a>
+          <a href="/guest-guide">Policies</a>
           <a href={`${site}/aboutus-574000712`}>Contact</a>
         </div>
 
@@ -300,7 +300,7 @@ export default function Home() {
                 </details>
               ))}
             </div>
-            <a className={styles.textLink} href={`${site}/destin-condo-guide-574047967`}>See all FAQs and policies -&gt;</a>
+            <a className={styles.textLink} href="/guest-guide">See all FAQs and policies -&gt;</a>
           </section>
 
           <section className={styles.liveChat} id="live-chat">
@@ -339,7 +339,7 @@ export default function Home() {
           <div><strong>Stay</strong><a href={condos[0].href}>Unit 707</a><a href={condos[1].href}>Unit 1006</a><a href={`${site}/availability`}>Availability</a><a href={`${site}/reviews`}>Reviews</a><a href={`${site}/book`}>Book direct</a></div>
           <div><strong>Plan</strong><a href={`${site}/blog/how-to-find-cheaper-flights-and-car-rentals`}>Flights</a><a href={`${site}/blog/destincar`}>Car rentals</a><a href="https://explore.destincondogetaways.com/destin-tripshock.html">Activities</a><a href={`${site}/destin-vacation-itinerary-planner-574049367`}>Itinerary planner</a><a href={`${site}/map`}>Destin map</a></div>
           <div><strong>Destin Guides</strong><a href={`${site}/blog/destinweather`}>Weather</a><a href={`${site}/blog/best-beaches-destin`}>Beaches</a><a href={`${site}/blog/best-restaurants-destin`}>Restaurants</a><a href={`${site}/blog/destin-events-2026`}>Events</a><a href={`${site}/blog/destin-fireworks-2026`}>Fireworks</a></div>
-          <div><strong>Guest Information</strong><a href={`${site}/destin-condo-guide-574047967`}>Policies</a><a href={`${site}/destin-condo-guide-574047967`}>FAQ</a><a href={`${site}/aboutus-574000712`}>Contact</a><a href={`${site}/privacy-574035022`}>Privacy</a><a href={`${site}/destin-live-beach-cam-574002656`}>Live beach cam</a></div>
+          <div><strong>Guest Information</strong><a href="/guest-guide">Policies</a><a href="/guest-guide">FAQ</a><a href={`${site}/aboutus-574000712`}>Contact</a><a href={`${site}/privacy-574035022`}>Privacy</a><a href={`${site}/destin-live-beach-cam-574002656`}>Live beach cam</a></div>
         </footer>
       </div>
       <Script src="/destiny-head.js" strategy="lazyOnload" />

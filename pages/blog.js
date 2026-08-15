@@ -74,7 +74,7 @@ export default function BlogHub(){
 
       <section className={styles.featured}>
         <div className={styles.sectionHead}><p className={styles.kicker}>Start with these</p><h2>The guides guests use most.</h2><p>Our highest-value planning articles, including live conditions, maps and frequently updated local information.</p></div>
-        <div className={styles.featuredGrid}>{featured.map((article,index)=><a className={index===0?styles.featureLead:styles.featureCard} href={liveSite+"/blog/"+article.slug} key={article.slug}>
+        <div className={styles.featuredGrid}>{featured.map((article,index)=><a className={index===0?styles.featureLead:styles.featureCard} href={article.slug === "destinspa" ? "/blog/destinspa" : liveSite+"/blog/"+article.slug} key={article.slug}>
           <div className={styles.cardImage}><Image src={article.image} alt="" fill sizes={index===0?"(max-width: 900px) 100vw, 50vw":"(max-width: 900px) 100vw, 25vw"} /></div>
           <div><span>{article.category}</span><h3>{article.title}</h3><p>{article.description}</p><strong>Read the guide →</strong></div>
         </a>)}</div>
@@ -86,7 +86,7 @@ export default function BlogHub(){
         {groups.map(group=>{
           const list=articles.filter(article=>article.category===group);
           if(!list.length)return null;
-          return <section className={styles.group} id={group.toLowerCase().replace(/[^a-z0-9]+/g,"-")} key={group}><div className={styles.groupTitle}><h3>{group}</h3><span>{list.length} {list.length===1?"guide":"guides"}</span></div><div className={styles.articleGrid}>{list.map(article=><a className={styles.articleCard} href={liveSite+"/blog/"+article.slug} key={article.slug}><div className={styles.thumb}><Image src={article.image} alt="" fill sizes="(max-width: 720px) 100vw, 33vw" /></div><div><span>{article.badge}</span><h4>{article.title}</h4><p>{article.description}</p><strong>Read guide →</strong></div></a>)}</div></section>
+          return <section className={styles.group} id={group.toLowerCase().replace(/[^a-z0-9]+/g,"-")} key={group}><div className={styles.groupTitle}><h3>{group}</h3><span>{list.length} {list.length===1?"guide":"guides"}</span></div><div className={styles.articleGrid}>{list.map(article=><a className={styles.articleCard} href={article.slug === "destinspa" ? "/blog/destinspa" : liveSite+"/blog/"+article.slug} key={article.slug}><div className={styles.thumb}><Image src={article.image} alt="" fill sizes="(max-width: 720px) 100vw, 33vw" /></div><div><span>{article.badge}</span><h4>{article.title}</h4><p>{article.description}</p><strong>Read guide →</strong></div></a>)}</div></section>
         })}
       </section>
 

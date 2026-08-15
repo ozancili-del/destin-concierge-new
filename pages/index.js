@@ -1,6 +1,7 @@
 import Head from "next/head";
 import Image from "next/image";
 import Script from "next/script";
+import SiteButton from "../components/SiteButton";
 import styles from "../styles/HomePreview.module.css";
 
 const site = "https://www.destincondogetaways.com";
@@ -102,9 +103,9 @@ export default function Home() {
             <a href="https://deals.destincondogetaways.com/beach-deals">Deals</a>
             <a href="#live-chat">Live Chat</a>
           </nav>
-          <a className={styles.bookButton} href="#availability">
+          <SiteButton href="#availability" variant="primary" size="compact">
             Check availability
-          </a>
+          </SiteButton>
         </header>
 
         <main id="top">
@@ -152,7 +153,7 @@ export default function Home() {
                   ))}
                 </select>
               </label>
-              <button type="submit">Check availability</button>
+              <SiteButton type="submit" variant="primary" size="standard">Check availability</SiteButton>
             </form>
           </section>
 
@@ -218,7 +219,7 @@ export default function Home() {
                 <div><strong>The exact condo</strong><span>See the real unit, view, amenities, and policies.</span></div>
                 <div><strong>OwnerRez checkout</strong><span>Live pricing, availability, and payment remain secure.</span></div>
               </div>
-              <a className={styles.textLink} href={`${site}/-pelican-beach-resort-condo-rental-574046950`}>Why book direct -&gt;</a>
+              <a className={styles.textLink} href="/why-book-direct">Why book direct -&gt;</a>
             </div>
           </section>
 
@@ -324,7 +325,7 @@ export default function Home() {
                 OwnerRez booking process.
               </p>
             </div>
-            <a href="#availability">Check availability</a>
+            <SiteButton href="#availability" variant="primary" size="large">Check availability</SiteButton>
           </section>
         </main>
 

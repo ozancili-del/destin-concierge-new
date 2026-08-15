@@ -332,7 +332,7 @@ export default function Home() {
         <footer className={styles.footer}>
           <div className={styles.footerBrand}>
             <strong>Destin Condo Getaways</strong>
-            <p>Two beachfront condos. Thoughtful owner-direct hospitality.</p>
+            <p>Thoughtful owner-direct hospitality at Pelican Beach Resort.</p>
             <a href="tel:+19723574262">(972) 357-4262</a>
             <a href="mailto:ozan@destincondogetaways.com">ozan@destincondogetaways.com</a>
           </div>

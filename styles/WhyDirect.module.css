@@ -83,7 +83,7 @@
 .finalCta p:last-child { color:#c8d9df; }
 .finalCta .actions { flex-wrap:nowrap; margin:0; }
 
-.footer { padding:48px clamp(20px,6vw,96px); display:grid; grid-template-columns:1.5fr repeat(3,1fr); gap:36px; background:#04283d; color:#c8d9df; font-size:12px; }
+.footer { padding:48px clamp(20px,6vw,96px); display:grid; grid-template-columns:1.5fr repeat(4,1fr); gap:36px; background:#04283d; color:#c8d9df; font-size:12px; }
 .footer strong { display:block; margin-bottom:12px; color:var(--warm); font:700 17px Georgia,serif; }
 .footer a { display:block; margin:8px 0; color:#c8d9df; text-decoration:none; }
 .footer p { max-width:300px; line-height:1.6; }

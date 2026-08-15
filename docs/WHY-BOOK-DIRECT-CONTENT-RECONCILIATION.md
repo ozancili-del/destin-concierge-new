@@ -32,7 +32,7 @@ Audit rule: every substantive source section must be retained, improved, moved t
 | Value alternative to a three-bedroom rental for a fitting group | Improve | Family-layout section; avoid calling it universally “best value” | Complete |
 | Spring-break competition and early booking | Retain carefully | Seasonal planning note; avoid unsupported urgency or price claims | Complete |
 | Platform prices add $300–$500 | Verify before publishing | Retain only in this ledger until evidence/current comparison supports it | Needs owner verification |
-| Automatic 10% discount at checkout | Verify before publishing | Do not state a fixed discount until confirmed against current OwnerRez pricing rules | Needs owner verification |
+| Automatic 10% discount at checkout | Retain and clarify | State that OwnerRez automatically applies the current 10% direct-booking discount and reflects the resulting price during secure checkout; do not imply a visible coupon banner | Complete; confirmed by owner |
 | Guests save $200–$400 | Verify before publishing | Do not publish a guaranteed savings range without reproducible evidence | Needs owner verification |
 | Platform fees reach 14–20% | Improve | Current page says marketplaces commonly add a separate guest service fee; no fixed range | Complete |
 | No platform fees | Clarify | “No separate marketplace fee,” because direct booking still includes legitimate rent, fees and taxes | Complete |

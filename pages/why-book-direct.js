@@ -18,7 +18,7 @@ const faqs = [
   { question: "Will I stay in the condo shown?", answer: "Yes. You choose either Pelican Beach Resort Unit 707 or Unit 1006 and reserve that exact condo. We do not substitute another unit." },
   { question: "How many guests can each condo accommodate?", answer: "Each 873-square-foot, one-bedroom, two-bath condo sleeps up to six guests with a king bedroom, hallway bunks, and a queen sleeper sofa. Every adult, child, and infant counts toward the six-person maximum." },
   { question: "What is included with a direct stay?", answer: "Your stay includes direct beach access, resort pools and hot tubs, fitness facilities, tennis and pickleball, parking, a full kitchen, Wi-Fi, and the unit-specific amenities described on the secure booking page. Seasonal services may vary." },
-  { question: "Can I compare both condos before booking?", answer: "Yes. Search your dates once to see which units are available, then review each condo's photographs, virtual tour, layout, policies, and complete price." },
+  { question: "Can I compare both condos before booking?", answer: "Yes. Search your dates once to see which units are available, then review each condo's photographs, virtual tour, layout, policies, and complete price." },\n  { question: "Do returning guests receive a discount?", answer: "Yes. Returning guests may receive 10% off a future direct stay by contacting Ozan. The returning-guest discount cannot be combined with another discount." },
   { question: "What are check-in, checkout, and the main house rules?", answer: "Check-in is 4:00 PM and checkout is 10:00 AM Central Time. The condos are non-smoking, do not allow pets, and have a maximum occupancy of six. The primary renter must be at least 25 unless married." },
 ];
 

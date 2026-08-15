@@ -48,7 +48,7 @@ Audit date: 2026-08-15
 - Full postal address, ZIP and geo coordinates present.
 - 4.94/400 aggregate and three reviews present visibly and in schema.
 - Preview remains `noindex,nofollow`.
-- GTM is present in shared app code but intentionally dormant on the Vercel preview hostname.
+- GTM is present in shared app code but intentionally dormant on the Vercel preview hostname.\n- Google Rich Results code test: 13 valid items detected—1 Breadcrumb, 3 Local Business, 3 Organization, 4 Review Snippet and 2 Vacation Rental items.\n- Stable VacationRental identifiers were added for Units 707 and 1006, correcting a critical defect in the old markup.
 
 ## Cutover-only checks
 

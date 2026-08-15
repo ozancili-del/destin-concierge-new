@@ -5,7 +5,7 @@ import {
   createDefaultState,
   normalizeState,
 } from "../lib/destiny-agent/business.js";
-import { executeTool, mergeToolPatch } from "../lib/destiny-agent/orchestrator.js";
+import { evidenceBasedRecoveryFallback, executeTool, mergeToolPatch } from "../lib/destiny-agent/orchestrator.js";
 import { NOW, bookingArgs, context, makeMockServices } from "./test-helpers.mjs";
 
 async function exec(name, args, latestUser, { state = createDefaultState(), services = makeMockServices(), overrides = {} } = {}) {
@@ -506,3 +506,174 @@ test("business knowledge returns snippets and explicit URLs", async () => {
 });
 
 test("unknown tool fails safely", async () => { const r=await exec("made_up_tool",{},"hello"); assert.equal(r.status,"unknown_tool"); assert.equal(r.ok,false); });
+
+
+test("evidence recovery explains unsupported multi-bedroom fit before asking for missing details", () => {
+  const state = createDefaultState();
+  state.flags.bedroomMismatch = true;
+  state.booking.bedroomsRequested = 3;
+  state.booking.totalGuests = 9;
+  state.awaiting = ["arrival", "departure", "adults", "children"];
+  const reply = evidenceBasedRecoveryFallback({
+    state,
+    latestUser: "I need a 3BR/2BA for 9 people walking distance to the beach",
+    violations: [{ code: "bedroom_disclosure_missing" }],
+  });
+  assert.match(reply, /don’t have one condo matching/i);
+  assert.match(reply, /one-bedroom\/two-bath/i);
+  assert.match(reply, /maximum occupancy of six/i);
+  assert.match(reply, /two separate condos in the same beachfront building may work/i);
+  assert.match(reply, /check-in date and check-out date/i);
+  assert.match(reply, /number of adults/i);
+  assert.match(reply, /number of children/i);
+  assert.doesNotMatch(reply, /temporary snag|contact Ozan/i);
+});
+
+test("evidence recovery does not recommend competing accommodations", () => {
+  const state = createDefaultState();
+  state.flags.bedroomMismatch = true;
+  state.booking.bedroomsRequested = 3;
+  state.booking.totalGuests = 9;
+  const reply = evidenceBasedRecoveryFallback({
+    state,
+    latestUser: "All nine of us need to stay under one roof",
+    violations: [{ code: "bedroom_disclosure_missing" }],
+  });
+  assert.match(reply, /cannot stay together under one roof/i);
+  assert.doesNotMatch(reply, /Airbnb|Vrbo|hotel|another property|competitor/i);
+});
+
+test("evidence recovery can retain verified availability while correcting the property mismatch", () => {
+  const state = createDefaultState();
+  state.flags.bedroomMismatch = true;
+  state.booking.bedroomsRequested = 3;
+  state.booking.adults = 5;
+  state.booking.children = 4;
+  state.booking.totalGuests = 9;
+  const toolResults = [{
+    name: "check_availability",
+    status: "success",
+    data: {
+      query: { arrival: "2026-09-04", departure: "2026-09-07", adults: 5, children: 4 },
+      units: [
+        { unit: "707", available: true, bookingUrl: "https://example.test/707" },
+        { unit: "1006", available: true, bookingUrl: "https://example.test/1006" },
+      ],
+    },
+  }];
+  const reply = evidenceBasedRecoveryFallback({
+    state,
+    latestUser: "I need a 3BR for 9",
+    toolResults,
+    violations: [{ code: "bedroom_disclosure_missing" }],
+  });
+  assert.match(reply, /one-bedroom\/two-bath/i);
+  assert.match(reply, /I checked 2026-09-04 through 2026-09-07/i);
+  assert.match(reply, /https:\/\/example\.test\/707/);
+  assert.match(reply, /https:\/\/example\.test\/1006/);
+});
+
+
+test("evidence recovery preserves verified weather instead of returning a generic snag", () => {
+  const state = createDefaultState();
+  const reply = evidenceBasedRecoveryFallback({
+    state,
+    latestUser: "Will it rain tomorrow?",
+    toolResults: [{
+      name: "get_destin_weather", ok: true, status: "success",
+      data: { forecast: [{ date: "2026-08-16", desc: "Partly cloudy", hi: 88, lo: 77, rain: 30 }] },
+    }],
+    violations: [{ code: "unverified_specific_date" }],
+  });
+  assert.match(reply, /verified Destin forecast/i);
+  assert.match(reply, /2026-08-16.*Partly cloudy.*88.*77.*30%/i);
+  assert.doesNotMatch(reply, /temporary snag/i);
+});
+
+test("evidence recovery preserves a verified flight link and positive action language", () => {
+  const state = createDefaultState();
+  const reply = evidenceBasedRecoveryFallback({
+    state,
+    latestUser: "Find flights from Denver",
+    toolResults: [{
+      name: "build_flight_search", ok: true, status: "success",
+      data: { origin: "DEN", destination: "VPS", departureDate: "2027-08-05", returnDate: "2027-08-10", adults: 2, children: 0, infants: 0, assumedFromStay: true, url: "https://www.aviasales.com/search/test" },
+      urls: ["https://www.aviasales.com/search/test"],
+    }],
+    violations: [{ code: "flight_link_claim_without_permission" }],
+  });
+  assert.match(reply, /DEN to VPS/i);
+  assert.match(reply, /confirmed condo dates/i);
+  assert.match(reply, /check live fares, schedules, seats, and availability/i);
+  assert.doesNotMatch(reply, /temporary snag|imaginary|only for browsing/i);
+});
+
+test("evidence recovery preserves a TripShock activity link", () => {
+  const state = createDefaultState();
+  const reply = evidenceBasedRecoveryFallback({
+    state,
+    latestUser: "Jet ski link please",
+    toolResults: [{
+      name: "get_activity_options", ok: true, status: "success",
+      data: { category: "jetski", dates: { arrival: "2027-08-05", departure: "2027-08-10" }, url: "https://www.tripshock.com/test" },
+      urls: ["https://www.tripshock.com/test"],
+    }],
+    violations: [{ code: "unverified_activity_availability" }],
+  });
+  assert.match(reply, /jetski activity link/i);
+  assert.match(reply, /check current prices, times, and availability/i);
+  assert.doesNotMatch(reply, /temporary snag|only for browsing/i);
+});
+
+test("evidence recovery preserves current-event evidence and approved sources", () => {
+  const state = createDefaultState();
+  const reply = evidenceBasedRecoveryFallback({
+    state,
+    latestUser: "What concerts are happening?",
+    toolResults: [{
+      name: "search_current_events", ok: true, status: "success",
+      data: { category: "music" },
+      facts: ["Baytowne lists a Friday evening concert.", "Answer with no more than three options."],
+      urls: ["https://www.baytownewharf.com/events", "https://www.destincondogetaways.com/blog/destin-live-music-2026"],
+    }],
+    violations: [{ code: "unapproved_url" }],
+  });
+  assert.match(reply, /Baytowne lists a Friday evening concert/i);
+  assert.match(reply, /baytownewharf\.com\/events/i);
+  assert.match(reply, /destin-live-music-2026/i);
+  assert.doesNotMatch(reply, /Answer with no more|temporary snag/i);
+});
+
+test("evidence recovery asks a precise missing flight detail", () => {
+  const state = createDefaultState();
+  const reply = evidenceBasedRecoveryFallback({
+    state,
+    latestUser: "Find me a flight",
+    toolResults: [{ name: "build_flight_search", ok: false, status: "needs_origin", data: { missing: ["origin_city"] } }],
+    violations: [{ code: "empty_reply" }],
+  });
+  assert.match(reply, /city or airport you are flying from/i);
+  assert.doesNotMatch(reply, /temporary snag/i);
+});
+
+test("validation-only recovery does not pretend there was a technical outage", () => {
+  const state = createDefaultState();
+  const reply = evidenceBasedRecoveryFallback({
+    state,
+    latestUser: "Can Ozan give me a free night?",
+    violations: [{ code: "unauthorized_concession" }],
+  });
+  assert.match(reply, /unsupported or misleading/i);
+  assert.doesNotMatch(reply, /temporary snag|technical|try once more/i);
+});
+
+test("a genuine agent failure can still fall through to the infrastructure fallback", () => {
+  const state = createDefaultState();
+  const reply = evidenceBasedRecoveryFallback({
+    state,
+    latestUser: "Hello",
+    violations: [],
+    agentError: "agent timeout",
+  });
+  assert.equal(reply, null);
+});

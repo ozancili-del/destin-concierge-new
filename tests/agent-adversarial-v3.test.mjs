@@ -236,7 +236,7 @@ test("empty final output triggers a corrective rewrite", async () => {
   assert.match(result.reply, /laundry on every floor/i);
 });
 
-test("an invalid correction falls back deterministically", async () => {
+test("an invalid correction falls back without pretending there was a technical outage", async () => {
   const { result } = await runScript({
     latestUser: "Is there laundry?",
     responses: [
@@ -245,7 +245,8 @@ test("an invalid correction falls back deterministically", async () => {
     ],
   });
   assert.doesNotMatch(result.reply, /evil\.example/);
-  assert.match(result.reply, /temporary snag|Ozan/i);
+  assert.match(result.reply, /unsupported or misleading/i);
+  assert.doesNotMatch(result.reply, /temporary snag|technical|try once more/i);
 });
 
 test("unsupported monetary claims are corrected", async () => {

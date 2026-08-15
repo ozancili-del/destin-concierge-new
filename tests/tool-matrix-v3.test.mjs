@@ -5,7 +5,7 @@ import {
   createDefaultState,
   normalizeState,
 } from "../lib/destiny-agent/business.js";
-import { executeTool, mergeToolPatch } from "../lib/destiny-agent/orchestrator.js";
+import { evidenceBasedRecoveryFallback, executeTool, mergeToolPatch } from "../lib/destiny-agent/orchestrator.js";
 import { NOW, bookingArgs, context, makeMockServices } from "./test-helpers.mjs";
 
 async function exec(name, args, latestUser, { state = createDefaultState(), services = makeMockServices(), overrides = {} } = {}) {
@@ -506,3 +506,69 @@ test("business knowledge returns snippets and explicit URLs", async () => {
 });
 
 test("unknown tool fails safely", async () => { const r=await exec("made_up_tool",{},"hello"); assert.equal(r.status,"unknown_tool"); assert.equal(r.ok,false); });
+
+
+test("evidence recovery explains unsupported multi-bedroom fit before asking for missing details", () => {
+  const state = createDefaultState();
+  state.flags.bedroomMismatch = true;
+  state.booking.bedroomsRequested = 3;
+  state.booking.totalGuests = 9;
+  state.awaiting = ["arrival", "departure", "adults", "children"];
+  const reply = evidenceBasedRecoveryFallback({
+    state,
+    latestUser: "I need a 3BR/2BA for 9 people walking distance to the beach",
+    violations: [{ code: "bedroom_disclosure_missing" }],
+  });
+  assert.match(reply, /don’t have one condo matching/i);
+  assert.match(reply, /one-bedroom\/two-bath/i);
+  assert.match(reply, /maximum occupancy of six/i);
+  assert.match(reply, /two separate condos in the same beachfront building may work/i);
+  assert.match(reply, /check-in and check-out dates/i);
+  assert.match(reply, /number of adults/i);
+  assert.match(reply, /number of children/i);
+  assert.doesNotMatch(reply, /temporary snag|contact Ozan/i);
+});
+
+test("evidence recovery does not recommend competing accommodations", () => {
+  const state = createDefaultState();
+  state.flags.bedroomMismatch = true;
+  state.booking.bedroomsRequested = 3;
+  state.booking.totalGuests = 9;
+  const reply = evidenceBasedRecoveryFallback({
+    state,
+    latestUser: "All nine of us need to stay under one roof",
+    violations: [{ code: "bedroom_disclosure_missing" }],
+  });
+  assert.match(reply, /cannot stay together under one roof/i);
+  assert.doesNotMatch(reply, /Airbnb|Vrbo|hotel|another property|competitor/i);
+});
+
+test("evidence recovery can retain verified availability while correcting the property mismatch", () => {
+  const state = createDefaultState();
+  state.flags.bedroomMismatch = true;
+  state.booking.bedroomsRequested = 3;
+  state.booking.adults = 5;
+  state.booking.children = 4;
+  state.booking.totalGuests = 9;
+  const toolResults = [{
+    name: "check_availability",
+    status: "success",
+    data: {
+      query: { arrival: "2026-09-04", departure: "2026-09-07", adults: 5, children: 4 },
+      units: [
+        { unit: "707", available: true, bookingUrl: "https://example.test/707" },
+        { unit: "1006", available: true, bookingUrl: "https://example.test/1006" },
+      ],
+    },
+  }];
+  const reply = evidenceBasedRecoveryFallback({
+    state,
+    latestUser: "I need a 3BR for 9",
+    toolResults,
+    violations: [{ code: "bedroom_disclosure_missing" }],
+  });
+  assert.match(reply, /one-bedroom\/two-bath/i);
+  assert.match(reply, /I checked 2026-09-04 through 2026-09-07/i);
+  assert.match(reply, /https:\/\/example\.test\/707/);
+  assert.match(reply, /https:\/\/example\.test\/1006/);
+});

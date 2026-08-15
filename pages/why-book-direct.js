@@ -5,6 +5,43 @@ import SiteButton from "../components/SiteButton";
 import styles from "../styles/WhyDirect.module.css";
 
 const liveSite = "https://www.destincondogetaways.com";
+const businessSchema = {
+  "@type": "LodgingBusiness",
+  "@id": `${liveSite}/#business`,
+  name: "Destin Condo Getaways",
+  alternateName: "Destin Getaways Condos @ Pelican Beach Resort",
+  description: "Boutique owner-direct vacation-rental business at Pelican Beach Resort in Destin, Florida, with a 4.94-star rating across 400+ stays.",
+  url: liveSite,
+  image: [
+    "https://uc.orez.io/f/f20eceb9b43142b48e1f20ac457e7232",
+    "https://uc.orez.io/f/242b1d12dd544f7a9debe10583aca308",
+    "https://uc.orez.io/f/110ee87bd98842689ab14819674024f2",
+  ],
+  logo: "https://uc.orez.io/f/6d35eb37c5304c0f8b080ae8dbf5357a",
+  telephone: "+1-972-357-4262",
+  email: "ozan@destincondogetaways.com",
+  address: { "@type": "PostalAddress", streetAddress: "1002 US-98", addressLocality: "Destin", addressRegion: "FL", postalCode: "32541", addressCountry: "US" },
+  geo: { "@type": "GeoCoordinates", latitude: 30.3935, longitude: -86.4958 },
+  priceRange: "$",
+  amenityFeature: ["Beachfront Access","Ocean View Units","Private Balconies","Heated Pool","Indoor Pool","Hot Tub","Fitness Center","Free WiFi","Free Parking","Full Kitchens","Tennis Courts","EV Charging"].map((name) => ({ "@type": "LocationFeatureSpecification", name, value: true })),
+  petsAllowed: false,
+  smokingAllowed: false,
+  checkinTime: "16:00",
+  checkoutTime: "10:00",
+  sameAs: ["https://www.facebook.com/DestinCondo"],
+  numberOfRooms: 2,
+  starRating: { "@type": "Rating", ratingValue: 4.94, bestRating: 5 },
+  paymentAccepted: "Credit Card, Debit Card",
+  currenciesAccepted: "USD",
+  openingHours: "Mo-Su 00:00-23:59",
+  aggregateRating: { "@type": "AggregateRating", ratingValue: 4.94, reviewCount: 400, bestRating: 5, worstRating: 1 },
+  review: [
+    { "@type": "Review", datePublished: "2025-11-30", reviewRating: { "@type": "Rating", ratingValue: 5, bestRating: 5 }, author: { "@type": "Person", name: "Carly J." }, reviewBody: "Ozan's rental was absolutely perfect! Modern appliances, close in proximity to popular restaurants and excursions, and the ocean view was breathtaking! My husband and I had such a relaxing stay, we will definitely be back!" },
+    { "@type": "Review", datePublished: "2025-09-07", reviewRating: { "@type": "Rating", ratingValue: 5, bestRating: 5 }, author: { "@type": "Person", name: "Steven O." }, reviewBody: "Ozan communication was invaluable. Location was great, access to beach was simple with pools is a huge plus. Having a bar with food near the beach and pool access made it very easy to enjoy. Ozan communication with restaurants, activities and helpful suggestions made our first trip to Destin a fun and memorable. Thanks for letting us stay at your beautiful property!" },
+    { "@type": "Review", datePublished: "2025-04-22", reviewRating: { "@type": "Rating", ratingValue: 5, bestRating: 5 }, author: { "@type": "Person", name: "Ariana B." }, reviewBody: "My stay at Ozan's place was fantastic! The home was clean, comfortable, and exactly as described. Ozan was a great host—responsive and helpful throughout. The location was perfect for exploring the area. I'd definitely stay here again and highly recommend it to other guests!" },
+  ],
+};
+
 
 const reasons = [
   { number: "01", title: "The exact condo you selected", copy: "The photographs, floor, balcony view, layout, and furnishings belong to the vacation rental you reserve. There is no rental-pool substitution." },
@@ -29,7 +66,7 @@ export default function WhyBookDirect() {
     "@graph": [
       { "@type": "WebPage", "@id": `${liveSite}/why-book-direct#webpage`, name: "Why Book Direct at Pelican Beach Resort", description: "Why guests book owner-managed Pelican Beach Resort vacation rentals directly with Destin Condo Getaways.", isPartOf: { "@id": `${liveSite}/#website` }, about: { "@id": `${liveSite}/#business` } },
       { "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Home", item: liveSite }, { "@type": "ListItem", position: 2, name: "Why Book Direct", item: `${liveSite}/why-book-direct` }] },
-      { "@type": "FAQPage", mainEntity: faqs.map((faq) => ({ "@type": "Question", name: faq.question, acceptedAnswer: { "@type": "Answer", text: faq.answer } })) },
+      { "@type": "FAQPage", mainEntity: faqs.map((faq) => ({ "@type": "Question", name: faq.question, acceptedAnswer: { "@type": "Answer", text: faq.answer } })) },\n      businessSchema,
     ],
   };
 
@@ -73,14 +110,14 @@ export default function WhyBookDirect() {
 
         <section className={styles.contentSection}><div className={styles.sectionIntro}><p className={styles.kicker}>Know before you reserve</p><h2>Clear basics, with the full terms shown at checkout.</h2></div><div className={styles.policyGrid}><article><h3>Arrival and occupancy</h3><p>Check-in is 4:00 PM and checkout is 10:00 AM Central Time. Maximum occupancy is six people per condo, including adults, children, and infants.</p></article><article><h3>Primary house rules</h3><p>No smoking and no pets. The minimum age to rent is 25 unless married. Beach tents and canopies are prohibited; personal umbrellas must remain behind rental-umbrella rows.</p></article><article><h3>Payments and cancellation</h3><p>A non-refundable 20% deposit plus processing fees is collected at booking, with the remaining balance due 30 days before arrival. Cancellations made more than 30 days before check-in forfeit the deposit; cancellations within 30 days receive no refund. A county-issued mandatory evacuation qualifies for a prorated refund of paid but unused nights after the order. A reservation previously rescheduled or modified as a courtesy is non-refundable if later cancelled. Review the controlling terms during secure checkout, and consider travel insurance.</p></article></div></section>
 
-        <section className={styles.faq} id="direct-faq"><div className={styles.sectionIntro}><p className={styles.kicker}>Questions before booking</p><h2>The important answers.</h2></div><div className={styles.faqList}>{faqs.map((faq) => <details key={faq.question}><summary>{faq.question}</summary><p>{faq.answer}</p></details>)}</div></section>
+        <section className={styles.testimonials}><div className={styles.sectionIntro}><p className={styles.kicker}>Guest experiences</p><h2>Hosted personally. Remembered warmly.</h2><p>Selected verified guest feedback carried forward from the existing page.</p></div><div className={styles.testimonialGrid}>{businessSchema.review.map((review) => <blockquote key={review.author.name}><div aria-label="Five out of five stars">★★★★★</div><p>“{review.reviewBody}”</p><footer><strong>{review.author.name}</strong><span>{review.datePublished}</span></footer></blockquote>)}</div><p className={styles.centerLink}><a className={styles.textLink} href={`${liveSite}/reviews`}>Read more guest reviews →</a></p></section>\n\n        <section className={styles.faq} id="direct-faq"><div className={styles.sectionIntro}><p className={styles.kicker}>Questions before booking</p><h2>The important answers.</h2></div><div className={styles.faqList}>{faqs.map((faq) => <details key={faq.question}><summary>{faq.question}</summary><p>{faq.answer}</p></details>)}</div></section>
 
         <section className={styles.related}><div className={styles.sectionIntro}><p className={styles.kicker}>Continue planning</p><h2>Useful details for the whole Destin stay.</h2></div><div className={styles.relatedGrid}><a href={`${liveSite}/pelican-beach-resort-destin-574048693`}><span>Resort guide</span><strong>Pools, beach access and location</strong></a><a href={`${liveSite}/reviews`}><span>Guest reviews</span><strong>Read recent stay experiences</strong></a><a href={`${liveSite}/destin-live-beach-cam-574002656`}><span>Live beach cam</span><strong>See the Gulf before you arrive</strong></a><a href={`${liveSite}/blog/best-restaurants-destin`}><span>Dining guide</span><strong>Plan seafood and family meals</strong></a><a href={`${liveSite}/blog/destinweather`}><span>Weather guide</span><strong>Know what each season brings</strong></a><a href={`${liveSite}/destin-vacation-itinerary-planner-574049367`}><span>Trip planner</span><strong>Create a personalized itinerary</strong></a></div></section>
 
         <section className={styles.finalCta}><div><p className={styles.kickerLight}>Ready when you are</p><h2>Start with the dates. Decide without pressure.</h2><p>Search both condos and continue only after reviewing the complete price, policies, and booking details.</p></div><div className={styles.actions}><SiteButton href="#availability" variant="primary" size="large">Check availability</SiteButton><SiteButton href="/" variant="light" size="large">Return home</SiteButton></div></section>
       </main>
 
-      <footer className={styles.footer}><div className={styles.footerBrand}><strong>Destin Condo Getaways</strong><p>Two beachfront condos. Thoughtful owner-direct hospitality.</p><a href="tel:+19723574262">(972) 357-4262</a><a href="mailto:ozan@destincondogetaways.com">ozan@destincondogetaways.com</a></div><div><strong>Stay</strong><a href={`${liveSite}/pelican-beach-resort-unit-707-orp5b47b5ax`}>Unit 707</a><a href={`${liveSite}/pelican-beach-resort-unit-1006-orp5b6450ex`}>Unit 1006</a><a href="#availability">Availability</a><a href={`${liveSite}/reviews`}>Reviews</a><a href="/why-book-direct">Book direct</a></div><div><strong>Plan</strong><a href={`${liveSite}/blog/how-to-find-cheaper-flights-and-car-rentals`}>Flights</a><a href={`${liveSite}/blog/destincar`}>Car rentals</a><a href="https://explore.destincondogetaways.com/destin-tripshock.html">Activities</a><a href={`${liveSite}/destin-vacation-itinerary-planner-574049367`}>Itinerary planner</a><a href={`${liveSite}/map`}>Destin map</a></div><div><strong>Destin Guides</strong><a href={`${liveSite}/blog/destinweather`}>Weather</a><a href={`${liveSite}/blog/best-beaches-destin`}>Beaches</a><a href={`${liveSite}/blog/best-restaurants-destin`}>Restaurants</a><a href={`${liveSite}/blog/destin-events-2026`}>Events</a><a href={`${liveSite}/blog/destin-fireworks-2026`}>Fireworks</a></div><div><strong>Guest Information</strong><a href={`${liveSite}/destin-condo-guide-574047967`}>Policies</a><a href="#direct-faq">FAQ</a><a href={`${liveSite}/aboutus-574000712`}>Contact</a><a href={`${liveSite}/privacy-574035022`}>Privacy</a><a href={`${liveSite}/destin-live-beach-cam-574002656`}>Live beach cam</a></div></footer>
+      <footer className={styles.footer}><div className={styles.footerBrand}><strong>Destin Condo Getaways</strong><p>Two beachfront condos. Thoughtful owner-direct hospitality.</p><a href="tel:+19723574262">(972) 357-4262</a><a href="mailto:ozan@destincondogetaways.com">ozan@destincondogetaways.com</a><address>1002 US-98<br />Destin, FL 32541</address></div><div><strong>Stay</strong><a href={`${liveSite}/pelican-beach-resort-unit-707-orp5b47b5ax`}>Unit 707</a><a href={`${liveSite}/pelican-beach-resort-unit-1006-orp5b6450ex`}>Unit 1006</a><a href="#availability">Availability</a><a href={`${liveSite}/reviews`}>Reviews</a><a href="/why-book-direct">Book direct</a></div><div><strong>Plan</strong><a href={`${liveSite}/blog/how-to-find-cheaper-flights-and-car-rentals`}>Flights</a><a href={`${liveSite}/blog/destincar`}>Car rentals</a><a href="https://explore.destincondogetaways.com/destin-tripshock.html">Activities</a><a href={`${liveSite}/destin-vacation-itinerary-planner-574049367`}>Itinerary planner</a><a href={`${liveSite}/map`}>Destin map</a></div><div><strong>Destin Guides</strong><a href={`${liveSite}/blog/destinweather`}>Weather</a><a href={`${liveSite}/blog/best-beaches-destin`}>Beaches</a><a href={`${liveSite}/blog/best-restaurants-destin`}>Restaurants</a><a href={`${liveSite}/blog/destin-events-2026`}>Events</a><a href={`${liveSite}/blog/destin-fireworks-2026`}>Fireworks</a></div><div><strong>Guest Information</strong><a href={`${liveSite}/destin-condo-guide-574047967`}>Policies</a><a href="#direct-faq">FAQ</a><a href={`${liveSite}/aboutus-574000712`}>Contact</a><a href={`${liveSite}/privacy-574035022`}>Privacy</a><a href={`${liveSite}/destin-live-beach-cam-574002656`}>Live beach cam</a></div></footer>
       <Script src="/destiny-loader.js" strategy="lazyOnload" />
     </div>
   );

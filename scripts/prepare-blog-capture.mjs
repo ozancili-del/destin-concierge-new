@@ -4,7 +4,35 @@ import path from "node:path";
 const [sourcePath, outputPath, fallbackImage, iframeTitle = "Interactive Destin guide", preserveVercel = "false", expandHidden = "false", assetMapPath] = process.argv.slice(2);
 if (!sourcePath || !outputPath) throw new Error("Usage: node scripts/prepare-blog-capture.mjs <capture.json> <output.json>");
 
-const source = JSON.parse(fs.readFileSync(sourcePath, "utf8"));
+const rawSource = fs.readFileSync(sourcePath, "utf8");
+let source;
+try {
+  source = JSON.parse(rawSource);
+} catch {
+  const decodeText = (value = "") => value
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&mdash;/gi, "—")
+    .replace(/&ndash;/gi, "–")
+    .replace(/&deg;/gi, "°")
+    .replace(/&amp;/gi, "&")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/&#39;|&apos;/gi, "'")
+    .replace(/&quot;/gi, '"')
+    .replace(/\s+/g, " ")
+    .trim();
+  const schemas = [...rawSource.matchAll(/<script\b[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)]
+    .map((match) => { try { return JSON.parse(match[1]); } catch { return null; } })
+    .filter(Boolean);
+  const h1s = [...rawSource.matchAll(/<h1\b[^>]*>([\s\S]*?)<\/h1>/gi)].map((match) => decodeText(match[1]));
+  source = {
+    url: "",
+    title: h1s.join(" "),
+    description: decodeText(rawSource.match(/<meta\b[^>]*name=["']description["'][^>]*content=["']([^"']*)["'][^>]*>/i)?.[1] || ""),
+    h1: h1s.join(" "),
+    html: rawSource,
+    schemas,
+  };
+}
 let html = source.html || "";
 html = html
   .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "")
@@ -55,7 +83,7 @@ const output = {
   h1: source.h1,
   html,
   faq: visibleFaq?.mainEntity?.length ? visibleFaq : null,
-  extraSchemas: source.schemas.filter((item) => ["ItemList", "SoftwareApplication"].includes(item?.["@type"])),
+  extraSchemas: source.schemas.filter((item) => ["ItemList", "SoftwareApplication", "Dataset"].includes(item?.["@type"])),
 };
 fs.mkdirSync(path.dirname(outputPath), { recursive: true });
 fs.writeFileSync(outputPath, JSON.stringify(output, null, 2) + "\n", "utf8");

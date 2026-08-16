@@ -60,7 +60,7 @@ export default function AvailabilityPage() {
         <div className={styles.calendarShell}><div className="ownerrez-widget" data-widget-type="Ribbon Calendar" data-widgetid={calendarWidgetId}></div></div>
       </section>
 
-      <section className={styles.finalCta}><div><p className={styles.kickerLight}>Need help choosing?</p><h2>Ask about dates, layouts or the resort.</h2><p>Live Chat can help compare the condos. The secure OwnerRez page remains the final source for availability, totals and reservation terms.</p></div><SiteButton href="/concierge" variant="primary" size="large">Open Live Chat</SiteButton></section>
+      <section className={styles.finalCta}><div><p className={styles.kickerLight}>Need help choosing?</p><h2>Ask about dates, layouts or the resort.</h2><p>Live Chat can help compare the condos. The secure OwnerRez page remains the final source for availability, totals and reservation terms.</p></div><SiteButton href="/destin-ai-concierge" variant="primary" size="large">Open Live Chat</SiteButton></section>
     </main>
 
     <SiteFooter />

@@ -69,7 +69,7 @@ export default function BookPage() {
         <a href="/guest-guide#policies">Read the complete guest policies →</a>
       </section>
 
-      <section className={styles.finalCta}><div><p>Questions before booking?</p><h2>Use Live Chat or contact Ozan.</h2><small>Ask about the condos, dates or booking terms before completing checkout.</small></div><SiteButton href="/concierge" variant="primary" size="large">Open Live Chat</SiteButton></section>
+      <section className={styles.finalCta}><div><p>Questions before booking?</p><h2>Use Live Chat or contact Ozan.</h2><small>Ask about the condos, dates or booking terms before completing checkout.</small></div><SiteButton href="/destin-ai-concierge" variant="primary" size="large">Open Live Chat</SiteButton></section>
     </main>
 
     <SiteFooter />

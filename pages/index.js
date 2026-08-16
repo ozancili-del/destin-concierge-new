@@ -132,22 +132,22 @@ export default function Home() {
             <form
               className={styles.search}
               id="availability"
-              method="post"
-              action={`${site}/properties`}
+              method="get"
+              action="/book"
             >
               <input type="hidden" name="Page" value="1" />
               <input type="hidden" name="Sort" value="DailyRandom" />
               <label>
                 <span>Check in</span>
-                <input aria-label="Arrival date" name="ArrivalDate" type="date" required />
+                <input aria-label="Arrival date" name="or_arrival" type="date" required />
               </label>
               <label>
                 <span>Check out</span>
-                <input aria-label="Departure date" name="DepartureDate" type="date" required />
+                <input aria-label="Departure date" name="or_departure" type="date" required />
               </label>
               <label>
                 <span>Guests</span>
-                <select aria-label="Guests" name="Guests" defaultValue="2">
+                <select aria-label="Guests" name="or_guests" defaultValue="2">
                   {[1, 2, 3, 4, 5, 6].map((count) => (
                     <option value={count} key={count}>
                       {count} {count === 1 ? "guest" : "guests"}

@@ -1,5 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "uc.orez.io",
+        pathname: "/**",
+      },
+    ],
+  },
   async rewrites() {
     return [
       { source: "/deals", destination: "/beach-deals" },

@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded',function(){const lS=localStorage;
+function initDestinyHead(){const lS=localStorage;
 if(window.location.pathname.toLowerCase().includes('concierge'))return;
 const API='https://destin-concierge-new.vercel.app/api/destiny-chat';
 const POLL='https://destin-concierge-new.vercel.app/api/ozan-poll';
@@ -253,7 +253,9 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
   ].join('');
   propertiesForm.parentNode.insertBefore(banner, propertiesForm);
 })();
-});
+}
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',initDestinyHead,{once:true});
+else initDestinyHead();
 
 // -- RATE DROP TICKER --
 // DISABLED -- causes 32 API calls per page load

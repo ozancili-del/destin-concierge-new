@@ -100,7 +100,7 @@ export default function Home() {
             <a href="#resort">The Resort</a>
             <a href={`${site}/blog`}>Destin Guide</a>
             <a href={`${site}/destin-live-beach-cam-574002656`}>Beach Cam</a>
-            <a href="https://deals.destincondogetaways.com/beach-deals">Deals</a>
+            <a href="/deals">Deals</a>
             <a href="#live-chat">Live Chat</a>
           </nav>
           <SiteButton href="#availability" variant="primary" size="compact">
@@ -278,7 +278,7 @@ export default function Home() {
               </p>
             </div>
             <div className={styles.exploreGrid}>
-              <a href="https://deals.destincondogetaways.com/beach-deals"><span>Current price reductions</span><strong>Beach deals</strong></a>
+              <a href="/deals"><span>Current price reductions</span><strong>Beach deals</strong></a>
               <a href="/trip-planner"><span>Built around your family</span><strong>Itinerary planner</strong></a>
               <a href="https://explore.destincondogetaways.com/destin-hub"><span>Weather, food & activities</span><strong>Destin guide</strong></a>
               <a href={`${site}/blog/how-to-find-cheaper-flights-and-car-rentals`}><span>Airports and route planning</span><strong>Flights</strong></a>

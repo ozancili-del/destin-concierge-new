@@ -55,7 +55,7 @@ export default function TripPlannerPage() {
     <div className={styles.utility}><a href="/reviews">Guest Reviews</a><a href="/guest-guide#faq">FAQ</a><a href="/guest-guide">Policies</a><a href={liveSite + "/aboutus-574000712"}>Contact</a></div>
     <header className={styles.header}>
       <a className={styles.brand} href="/" aria-label="Destin Condo Getaways homepage"><span className={styles.mark}>DCG</span><span><strong>Destin Condo Getaways</strong><small>Pelican Beach Resort | Destin, Florida</small></span></a>
-      <nav aria-label="Main navigation"><a href="/#condos">Condos</a><a href="/resort">The Resort</a><a href="/blog">Destin Guide</a><a href="/beach-cam">Beach Cam</a><a href="https://deals.destincondogetaways.com/beach-deals">Deals</a><a href="/guest-guide#faq">FAQ</a></nav>
+      <nav aria-label="Main navigation"><a href="/#condos">Condos</a><a href="/resort">The Resort</a><a href="/blog">Destin Guide</a><a href="/beach-cam">Beach Cam</a><a href="/deals">Deals</a><a href="/guest-guide#faq">FAQ</a></nav>
       <SiteButton href="/#availability" variant="primary" size="compact">Check availability</SiteButton>
     </header>
 

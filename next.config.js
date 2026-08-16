@@ -1,5 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  async rewrites() {
+    return [
+      { source: "/deals", destination: "/beach-deals" },
+      { source: "/car-rentals", destination: "/destin-car-rental.html" },
+      { source: "/activities", destination: "/destin-tripshock.html" },
+    ];
+  },
   async redirects() {
     return [
       { source: "/destin-live-beach-cam-574002656", destination: "/beach-cam", permanent: true },

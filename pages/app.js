@@ -27,9 +27,9 @@ export default function App() {
   ];
 
   const tiles = [
-    { emoji: '🔥', label: 'Live Deals',     sub: 'Find your condo',    url: 'https://deals.destincondogetaways.com/beach-deals', bg: '#fff0f0' },
-    { emoji: '✈️', label: 'Flights & Cars', sub: 'Compare travel',     url: 'https://explore.destincondogetaways.com/destin-car-rental.html', bg: '#f0f7ff' },
-    { emoji: '🎟️', label: 'Activities',     sub: 'Book the fun',       url: 'https://explore.destincondogetaways.com/destin-tripshock.html', bg: '#fff5f0' },
+    { emoji: '🔥', label: 'Live Deals',     sub: 'Find your condo',    url: '/deals', bg: '#fff0f0' },
+    { emoji: '✈️', label: 'Flights & Cars', sub: 'Compare travel',     url: '/car-rentals', bg: '#f0f7ff' },
+    { emoji: '🎟️', label: 'Activities',     sub: 'Book the fun',       url: '/activities', bg: '#fff5f0' },
     { emoji: '🌊', label: 'Destin Hub',     sub: 'Your local guide',   url: 'https://explore.destincondogetaways.com/destin-hub', bg: '#f0fff8' },
   ];
 

@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const [sourcePath, outputPath, fallbackImage, iframeTitle = "Interactive Destin guide", preserveVercel = "false", expandHidden = "false"] = process.argv.slice(2);
+const [sourcePath, outputPath, fallbackImage, iframeTitle = "Interactive Destin guide", preserveVercel = "false", expandHidden = "false", assetMapPath] = process.argv.slice(2);
 if (!sourcePath || !outputPath) throw new Error("Usage: node scripts/prepare-blog-capture.mjs <capture.json> <output.json>");
 
 const source = JSON.parse(fs.readFileSync(sourcePath, "utf8"));
@@ -15,6 +15,10 @@ html = html
   .replace(/(href|src)\s*=\s*(["'])\s*javascript:[\s\S]*?\2/gi, "$1=\"#\"")
   .replace(/Two beachfront condos at Pelican Beach Resort, Destin\./g, "Owner-direct stays at Pelican Beach Resort in Destin.");
 if (fallbackImage && fallbackImage !== "-") html = html.replace(/<img(?![^>]*\bsrc=)([^>]*)>/i, `<img src="${fallbackImage}"$1>`);
+if (assetMapPath) {
+  const assetMap = JSON.parse(fs.readFileSync(assetMapPath, "utf8"));
+  for (const [remote, local] of Object.entries(assetMap)) html = html.replaceAll(remote, local);
+}
 if (preserveVercel !== "true") html = html.replace(/https:\/\/destin-concierge-new\.vercel\.app\//g, "/");
 if (expandHidden === "true") {
   html = html

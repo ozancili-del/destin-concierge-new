@@ -3,6 +3,7 @@ import Image from "next/image";
 import Script from "next/script";
 import SiteButton from "../components/SiteButton";
 import SiteFooter from "../components/SiteFooter";
+import SiteHeader from "../components/SiteHeader";
 import styles from "../styles/BookPage.module.css";
 
 const liveSite = "https://www.destincondogetaways.com";
@@ -35,11 +36,7 @@ export default function BookPage() {
 
     <div className={styles.preview}>Preview page | Secure reservations remain powered by OwnerRez</div>
     <div className={styles.utility}><a href="/reviews">Guest Reviews</a><a href="/guest-guide#faq">FAQ</a><a href="/guest-guide#policies">Policies</a><a href={`${liveSite}/aboutus-574000712`}>Contact</a></div>
-    <header className={styles.header}>
-      <a className={styles.brand} href="/" aria-label="Destin Condo Getaways homepage"><span>DCG</span><strong>Destin Condo Getaways<small>Pelican Beach Resort | Destin, Florida</small></strong></a>
-      <nav aria-label="Main navigation"><a href="/#condos">Condos</a><a href="/resort">The Resort</a><a href="/blog">Destin Guide</a><a href="/beach-cam">Beach Cam</a><a href="/why-book-direct">Why Book Direct</a></nav>
-      <SiteButton href="#checkout" variant="primary" size="compact">Book securely</SiteButton>
-    </header>
+    <SiteHeader availabilityHref="#checkout" />
 
     <main>
       <section className={styles.hero}>

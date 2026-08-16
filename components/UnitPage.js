@@ -3,6 +3,7 @@ import Head from "next/head";
 import Script from "next/script";
 import SiteButton from "./SiteButton";
 import SharedSiteFooter from "./SiteFooter";
+import SiteHeader from "./SiteHeader";
 import styles from "../styles/UnitPage.module.css";
 
 const liveSite = "https://www.destincondogetaways.com";
@@ -71,7 +72,7 @@ export default function UnitPage({ unit }) {
     <Head><title>{unit.title}</title><meta name="description" content={rental.description} /><meta name="robots" content="noindex,nofollow" /><meta name="viewport" content="width=device-width, initial-scale=1" /><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} /></Head>
     <div className={styles.preview}>Preview page | Secure checkout remains powered by OwnerRez</div>
     <div className={styles.utility}><a href="/reviews">Guest Reviews</a><a href="/why-book-direct#direct-faq">FAQ</a><a href="/guest-guide#policies">Policies</a><a href={`${liveSite}/aboutus-574000712`}>Contact</a></div>
-    <header className={styles.header}><a className={styles.brand} href="/"><span>DCG</span><strong>Destin Condo Getaways<small>Pelican Beach Resort | Destin, Florida</small></strong></a><nav><a href="/#condos">Condos</a><a href="/resort">The Resort</a><a href="/blog">Destin Guide</a><a href="/beach-cam">Beach Cam</a><a href="/why-book-direct">Why Book Direct</a></nav><SiteButton href="#checkout" variant="primary" size="compact">Book this unit</SiteButton></header>
+    <SiteHeader availabilityHref="#checkout" />
     <main>
       <section className={styles.hero}><img src={photos[0]} alt={photoDescription(unit, 0)} width="1800" height="1200" /><div className={styles.shade}></div><div className={styles.heroCopy}><a href="/">Home</a><span>/</span><a href="/#condos">Condos</a><p>{unit.floorLabel} · 1 bedroom · 2 bathrooms · sleeps 4–6</p><h1>Pelican Beach Resort Unit {unit.number}</h1><h2>{unit.style}</h2><div className={styles.actions}><SiteButton href="#checkout" variant="primary" size="large">See dates &amp; total</SiteButton><SiteButton href="#photos" variant="light" size="large">View all {photos.length} photos</SiteButton></div></div></section>
       <section className={styles.checkout} id="checkout"><div className={styles.checkoutCopy}><p className={styles.kicker}>Secure direct checkout</p><h2>Add dates and guests to see your complete total.</h2><p>The unit-specific OwnerRez checkout shows availability, the automatic direct-booking discount, fees, taxes and the controlling reservation terms before you confirm.</p><div className={styles.trustRow}><span>✓ Exact unit</span><span>✓ Secure checkout</span><span>✓ No discount code needed</span></div></div><div className={styles.widgetShell}><div className="ownerrez-widget" data-propertyid={unit.propertyId} data-widget-type="Booking/Inquiry" data-widgetid={bookingWidgetId}></div><noscript><a href={unit.ownerRezUrl}>Open the secure booking page for Unit {unit.number}</a></noscript></div></section>

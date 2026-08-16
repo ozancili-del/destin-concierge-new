@@ -4,6 +4,7 @@ import Script from "next/script";
 import AvailabilitySearch from "../components/AvailabilitySearch";
 import SiteButton from "../components/SiteButton";
 import SiteFooter from "../components/SiteFooter";
+import SiteHeader from "../components/SiteHeader";
 import styles from "../styles/CondoCollection.module.css";
 
 const liveSite = "https://www.destincondogetaways.com";
@@ -102,11 +103,7 @@ export default function CondoCollection() {
 
     <div className={styles.preview}>Preview page | Production and OwnerRez remain unchanged</div>
     <div className={styles.utility}><a href="/reviews">Guest Reviews</a><a href="#faq">FAQ</a><a href="/guest-guide#policies">Policies</a><a href={`${liveSite}/aboutus-574000712`}>Contact</a></div>
-    <header className={styles.header}>
-      <a className={styles.brand} href="/" aria-label="Destin Condo Getaways homepage"><span className={styles.mark}>DCG</span><span><strong>Destin Condo Getaways</strong><small>Pelican Beach Resort | Destin, Florida</small></span></a>
-      <nav aria-label="Main navigation"><div className={styles.condoNav}><a href="/destin-vacation-rentals-by-owner" aria-haspopup="true">Our Condos <span aria-hidden="true">⌄</span></a><div className={styles.condoMenu}><a href="/destin-vacation-rentals-by-owner">Compare our condos</a><a href="/condos/unit-707">Unit 707</a><a href="/condos/unit-1006">Unit 1006</a></div></div><a href="/resort">The Resort</a><a href="/blog">Destin Guide</a><a href="/beach-cam">Beach Cam</a><a href="/reviews">Reviews</a></nav>
-      <SiteButton href="#availability" variant="primary" size="compact">Live availability</SiteButton>
-    </header>
+    <SiteHeader availabilityHref="#availability" />
 
     <main>
       <section className={styles.hero}>

@@ -4,6 +4,7 @@ import Script from "next/script";
 import AvailabilitySearch from "../components/AvailabilitySearch";
 import SiteButton from "../components/SiteButton";
 import SiteFooter from "../components/SiteFooter";
+import SiteHeader from "../components/SiteHeader";
 import styles from "../styles/VirtualToursPage.module.css";
 import availabilityStyles from "../styles/Blog.module.css";
 
@@ -29,11 +30,7 @@ export default function VirtualToursPage() {
     </Head>
     <div className={styles.preview}>Preview page | Production and OwnerRez remain unchanged</div>
     <div className={styles.utility}><a href="/reviews">Guest Reviews</a><a href="/guest-guide#faq">FAQ</a><a href="/guest-guide#policies">Policies</a><a href={`${liveSite}/aboutus-574000712`}>Contact</a></div>
-    <header className={styles.header}>
-      <a className={styles.brand} href="/" aria-label="Destin Condo Getaways homepage"><span className={styles.mark}>DCG</span><span><strong>Destin Condo Getaways</strong><small>Pelican Beach Resort | Destin, Florida</small></span></a>
-      <nav aria-label="Main navigation"><a href="/destin-vacation-rentals-by-owner">Condos</a><a href="/resort">The Resort</a><a href="/blog">Destin Guide</a><a href="/beach-cam">Beach Cam</a><a href="/why-book-direct">Why Book Direct</a></nav>
-      <SiteButton href="#availability" variant="primary" size="compact">Live availability</SiteButton>
-    </header>
+    <SiteHeader availabilityHref="#availability" />
     <main>
       <section className={styles.hero}>
         <div className={styles.heroCopy}><a href="/">Home</a><p className={styles.kicker}>Interactive 360° walkthroughs</p><h1>Step inside before you choose.</h1><p>Tour the living room, bedroom, hallway and balcony areas of each exact Pelican Beach Resort condo. Move through every scene, look in any direction and compare the two homes before checking your dates.</p><div className={styles.trust}><span>✓ Exact condos</span><span>✓ Full-screen viewing</span><span>✓ Desktop, mobile and VR</span></div></div>

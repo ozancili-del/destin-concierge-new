@@ -4,6 +4,7 @@ import Script from "next/script";
 import AvailabilitySearch from "../components/AvailabilitySearch";
 import SiteButton from "../components/SiteButton";
 import SiteFooter from "../components/SiteFooter";
+import SiteHeader from "../components/SiteHeader";
 import styles from "../styles/AboutLegal.module.css";
 
 const liveSite = "https://www.destincondogetaways.com";
@@ -69,11 +70,7 @@ export default function About() {
     </Head>
 
     <div className={styles.preview}>Migration preview | Production and OwnerRez remain unchanged</div>
-    <header className={styles.header}>
-      <a className={styles.brand} href="/" aria-label="Destin Condo Getaways homepage"><span className={styles.mark}>DCG</span><span><strong>Destin Condo Getaways</strong><small>Pelican Beach Resort | Destin, Florida</small></span></a>
-      <nav aria-label="Main navigation"><a href="/destin-vacation-rentals-by-owner">Condos</a><a href="/resort">The Resort</a><a href="/blog">Destin Guide</a><a href="/reviews">Reviews</a><a href="/destin-ai-concierge">Live Chat</a></nav>
-      <SiteButton href="#availability" variant="primary" size="compact">Live availability</SiteButton>
-    </header>
+    <SiteHeader availabilityHref="#availability" />
 
     <main>
       <section className={styles.aboutHero}>

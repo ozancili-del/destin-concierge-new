@@ -2,6 +2,7 @@ import Head from "next/head";
 import Script from "next/script";
 import SiteButton from "../components/SiteButton";
 import AvailabilitySearch from "../components/AvailabilitySearch";
+import SiteHeader from "../components/SiteHeader";
 import styles from "../styles/Resort.module.css";
 
 const liveSite = "https://www.destincondogetaways.com";
@@ -81,7 +82,7 @@ export default function Resort() {
     </Head>
     <div className={styles.preview}>Preview page | Production and OwnerRez remain unchanged</div>
     <div className={styles.utility}><a href={`${liveSite}/reviews`}>Guest Reviews</a><a href="#faq">FAQ</a><a href="/guest-guide">Policies</a><a href={`${liveSite}/aboutus-574000712`}>Contact</a></div>
-    <header className={styles.header}><a className={styles.brand} href="/" aria-label="Destin Condo Getaways homepage"><span className={styles.mark}>DCG</span><span><strong>Destin Condo Getaways</strong><small>Pelican Beach Resort | Destin, Florida</small></span></a><nav aria-label="Main navigation"><a href="/#condos">Condos</a><a href="/resort">The Resort</a><a href={`${liveSite}/blog`}>Destin Guide</a><a href={`${liveSite}/destin-live-beach-cam-574002656`}>Beach Cam</a><a href="https://deals.destincondogetaways.com/beach-deals">Deals</a><a href="#faq">FAQ</a></nav><SiteButton href="#availability" variant="primary" size="compact">Check availability</SiteButton></header>
+    <SiteHeader availabilityHref="#availability" />
 
     <main>
       <section className={styles.hero}><img src="https://uc.orez.io/i/b004f9895bc24136805cc94e514f4039-Large" alt="Pelican Beach Resort beachfront and Gulf of Mexico in Destin, Florida" /><div className={styles.heroShade}></div><div className={styles.heroCopy}><a href="/">Home</a><p className={styles.kicker}>The complete resort guide</p><h1>Pelican Beach Resort in Destin, Florida</h1><p>Step off the elevator and onto the beachâ€”no road to cross. Explore the pools, location, amenities and two owner-managed Gulf-front condos before choosing your stay.</p><div className={styles.actions}><SiteButton href="#availability" variant="primary" size="large">Check your dates</SiteButton><SiteButton href="#condos" variant="light" size="large">Compare the condos</SiteButton></div></div></section>

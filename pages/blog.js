@@ -3,6 +3,7 @@ import Image from "next/image";
 import Script from "next/script";
 import SiteButton from "../components/SiteButton";
 import AvailabilitySearch from "../components/AvailabilitySearch";
+import SiteHeader from "../components/SiteHeader";
 import styles from "../styles/Blog.module.css";
 
 const liveSite = "https://www.destincondogetaways.com";
@@ -59,11 +60,7 @@ export default function BlogHub(){
 
     <div className={styles.preview}>Preview page | Production and OwnerRez remain unchanged</div>
     <div className={styles.utility}><a href="/reviews">Guest Reviews</a><a href="/guest-guide#faq">FAQ</a><a href="/guest-guide#policies">Policies</a><a href={liveSite+"/aboutus-574000712"}>Contact</a></div>
-    <header className={styles.header}>
-      <a className={styles.brand} href="/" aria-label="Destin Condo Getaways homepage"><span className={styles.mark}>DCG</span><span><strong>Destin Condo Getaways</strong><small>Pelican Beach Resort | Destin, Florida</small></span></a>
-      <nav aria-label="Main navigation"><a href="/#condos">Condos</a><a href="/resort">The Resort</a><a href="/blog" aria-current="page">Destin Guide</a><a href={liveSite+"/destin-live-beach-cam-574002656"}>Beach Cam</a><a href="https://deals.destincondogetaways.com/beach-deals">Deals</a><a href="/guest-guide#faq">FAQ</a></nav>
-      <SiteButton href="#availability" variant="primary" size="compact">Check availability</SiteButton>
-    </header>
+    <SiteHeader availabilityHref="#availability" />
 
     <main>
       <section className={styles.hero}>

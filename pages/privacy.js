@@ -2,6 +2,7 @@ import Head from "next/head";
 import Script from "next/script";
 import SiteButton from "../components/SiteButton";
 import SiteFooter from "../components/SiteFooter";
+import SiteHeader from "../components/SiteHeader";
 import styles from "../styles/AboutLegal.module.css";
 
 const liveSite = "https://www.destincondogetaways.com";
@@ -33,11 +34,7 @@ export default function Privacy() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
     </Head>
     <div className={styles.preview}>Migration preview | Production and OwnerRez remain unchanged</div>
-    <header className={styles.header}>
-      <a className={styles.brand} href="/" aria-label="Destin Condo Getaways homepage"><span className={styles.mark}>DCG</span><span><strong>Destin Condo Getaways</strong><small>Pelican Beach Resort | Destin, Florida</small></span></a>
-      <nav aria-label="Main navigation"><a href="/destin-vacation-rentals-by-owner">Condos</a><a href="/resort">The Resort</a><a href="/blog">Destin Guide</a><a href="/reviews">Reviews</a><a href="/about">Contact</a></nav>
-      <SiteButton href="/availability" variant="primary" size="compact">Live availability</SiteButton>
-    </header>
+    <SiteHeader />
     <main>
       <section className={styles.legalHero}><div><a href="/">Home</a><p className={styles.kickerLight}>Privacy policy</p><h1>Your information deserves straightforward treatment.</h1><p>This policy explains what information Destin Condo Getaways may collect, why it is used and the choices available to you.</p><small>Effective August 16, 2026</small></div></section>
       <section className={styles.legalIntro}><p>We collect only the information reasonably needed to operate the website, respond to guests, provide requested planning tools and support reservations. We do not rent personal information or publish private guest communications.</p><p>This policy applies to Destin Condo Getaways websites and web tools. Separate providers used for booking, payment, email, analytics or linked travel services may maintain their own policies.</p></section>

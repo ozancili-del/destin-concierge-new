@@ -2,6 +2,7 @@ import Head from "next/head";
 import Script from "next/script";
 import SiteButton from "../../components/SiteButton";
 import AvailabilitySearch from "../../components/AvailabilitySearch";
+import SiteHeader from "../../components/SiteHeader";
 import styles from "../../styles/Article.module.css";
 
 const liveSite = "https://www.destincondogetaways.com";
@@ -19,7 +20,7 @@ export default function DestinSpaGuide(){
     <Head><title>10 Best Spas in Destin Florida (2026) | Honest Local Guide</title><meta name="description" content="The best spas in Destin Florida ranked with real guest-review context—from resort treatments to local massage and wellness options near Pelican Beach Resort." /><meta name="robots" content="noindex,nofollow" /><meta name="viewport" content="width=device-width, initial-scale=1" /><link rel="canonical" href={liveSite+"/blog/destinspa"} /><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(structuredData)}} /></Head>
     <div className={styles.preview}>Preview article | Production and OwnerRez remain unchanged</div>
     <div className={styles.utility}><a href="/reviews">Guest Reviews</a><a href="/guest-guide#faq">FAQ</a><a href="/guest-guide#policies">Policies</a><a href={liveSite+"/aboutus-574000712"}>Contact</a></div>
-    <header className={styles.header}><a className={styles.brand} href="/" aria-label="Destin Condo Getaways homepage"><span className={styles.mark}>DCG</span><span><strong>Destin Condo Getaways</strong><small>Pelican Beach Resort | Destin, Florida</small></span></a><nav aria-label="Main navigation"><a href="/#condos">Condos</a><a href="/resort">The Resort</a><a href="/blog">Destin Guide</a><a href={liveSite+"/destin-live-beach-cam-574002656"}>Beach Cam</a><a href="https://deals.destincondogetaways.com/beach-deals">Deals</a><a href="/guest-guide#faq">FAQ</a></nav><SiteButton href="#availability" variant="primary" size="compact">Check availability</SiteButton></header>
+    <SiteHeader availabilityHref="#availability" />
     <main>
       <section className={styles.hero}><img src="https://uc.orez.io/i/4a4320ef00a54d15bccf6767418be83b-Large" alt="Relaxing spa treatment in Destin, Florida" /><div className={styles.heroShade}></div><div className={styles.heroCopy}><a href="/blog">Destin Guide</a><p className={styles.kickerLight}>Wellness & relaxation</p><h1>10 Best Spas in Destin Florida</h1><p>Real ratings, honest context and useful choices for a relaxing day near Pelican Beach Resort.</p></div></section>
       <AvailabilitySearch className={styles.availability} />

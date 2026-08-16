@@ -10,7 +10,7 @@ const condos = [
   {
     unit: "707",
     eyebrow: "Classic Coastal",
-    image: "/hub-beachcam.png",
+    image: "https://uc.orez.io/i/0f604abce3284748ba8d2150b7646863-Large",
     description:
       "A relaxed seventh-floor retreat with direct Gulf views, a private balcony, and the beach just downstairs.",
     href: `${site}/pelican-beach-resort-unit-707-orp5b47b5ax`,
@@ -18,10 +18,28 @@ const condos = [
   {
     unit: "1006",
     eyebrow: "Fresh Coastal",
-    image: "/book-direct-banner-bg.jpg",
+    image: "https://uc.orez.io/i/79fb2b20887c4f44b58c710a59420a30-Large",
     description:
       "A bright tenth-floor escape with panoramic emerald-water views and sunset skies from your private balcony.",
     href: `${site}/pelican-beach-resort-unit-1006-orp5b6450ex`,
+  },
+];
+
+const reviews = [
+  {
+    name: "Carly J.",
+    source: "Verified guest",
+    text: "Modern appliances, close to popular restaurants and excursions, and the ocean view was breathtaking. We had such a relaxing stay and will definitely be back.",
+  },
+  {
+    name: "Steven O.",
+    source: "Verified guest",
+    text: "The location was great, beach access was simple, and Ozan's communication and local suggestions made our first Destin trip fun and memorable.",
+  },
+  {
+    name: "Ariana B.",
+    source: "Verified guest",
+    text: "The home was clean, comfortable, and exactly as described. Ozan was responsive and helpful throughout, and the location was perfect for exploring the area.",
   },
 ];
 
@@ -63,10 +81,10 @@ export default function Home() {
     <>
       <div className={styles.page}>
         <Head>
-          <title>Destin Condo Getaways | Beachfront Condos at Pelican Beach Resort</title>
+          <title>Destin Beachfront Condo Rentals | Pelican Beach Resort</title>
           <meta
             name="description"
-            content="Book two owner-managed beachfront condos at Pelican Beach Resort in Destin, Florida. Direct Gulf views, live availability, local guides, and secure direct booking."
+            content="Book a beachfront condo at Pelican Beach Resort in Destin, Florida. Compare real Gulf views, check live rates and availability, and reserve securely with owner-direct support."
           />
           <meta name="robots" content="noindex,nofollow" />
           <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -121,10 +139,11 @@ export default function Home() {
             <div className={styles.heroShade} />
             <div className={styles.heroContent}>
               <p className={styles.kicker}>4.94 star rating | 400+ stays | 1,000+ guests</p>
-              <h1>Your beachfront Destin stay starts here.</h1>
+              <h1>Destin beachfront condo rentals at Pelican Beach Resort.</h1>
               <p className={styles.heroCopy}>
-                Two owner-managed Gulf-front condos at Pelican Beach Resort. No road to
-                cross—just elevator, sand, and emerald water.
+                Stay in the main Gulf-front building with direct beach access, private
+                balcony views, secure booking, and thoughtful owner support from planning
+                through checkout.
               </p>
             </div>
             <form
@@ -167,10 +186,10 @@ export default function Home() {
           <section className={styles.section} id="condos">
             <div className={styles.sectionIntro}>
               <p className={styles.kickerDark}>Choose your Gulf view</p>
-              <h2>Two condos. One unforgettable shoreline.</h2>
+              <h2>Choose the Pelican Beach Resort condo that feels right.</h2>
               <p>
-                Both are one-bedroom, two-bath beachfront homes with full kitchens,
-                private balconies, and room for up to six guests.
+                Explore the actual home, balcony view, amenities, photos, and guest details
+                before checking live pricing for your Destin dates.
               </p>
             </div>
             <div className={styles.cards}>
@@ -199,16 +218,34 @@ export default function Home() {
             </div>
           </section>
 
+          <section className={styles.reviewShowcase} aria-labelledby="guest-reviews-title">
+            <div className={styles.sectionIntro}>
+              <p className={styles.kickerDark}>Real guest experiences</p>
+              <h2 id="guest-reviews-title">The view brings guests here. The stay brings them back.</h2>
+              <p>Selected feedback from verified stays, with full review history available through our booking profiles.</p>
+            </div>
+            <div className={styles.reviewCards}>
+              {reviews.map((review) => (
+                <blockquote key={review.name}>
+                  <div className={styles.stars} aria-label="Five out of five stars">★★★★★</div>
+                  <p>“{review.text}”</p>
+                  <footer><strong>{review.name}</strong><span>{review.source}</span></footer>
+                </blockquote>
+              ))}
+            </div>
+            <a className={styles.textLink} href={`${site}/reviews`}>Read guest reviews and booking-profile feedback -&gt;</a>
+          </section>
+
           <section className={styles.direct}>
             <div className={styles.reviewPanel}>
-              <p className={styles.kickerDark}>Guest Reviews</p>
+              <p className={styles.kickerDark}>Book with confidence</p>
               <div className={styles.stars} aria-label="Five out of five stars">★★★★★</div>
-              <h2>Hosted personally. Remembered warmly.</h2>
+              <h2>A real Destin stay, supported by a real owner.</h2>
               <p>
-                Guests consistently mention the Gulf views, cleanliness, easy beach access,
-                and responsive owner support.
+                See the exact condo, understand the policies, and reach Ozan directly when
+                a question needs personal attention.
               </p>
-              <a className={styles.textLink} href={`${site}/reviews`}>Read guest reviews -&gt;</a>
+              <a className={styles.textLink} href={`${site}/aboutus-574000712`}>Meet your host -&gt;</a>
             </div>
             <div className={styles.directPanel}>
               <p className={styles.kickerDark}>Why book direct</p>
@@ -321,7 +358,7 @@ export default function Home() {
               <p className={styles.kicker}>Ready when you are</p>
               <h2>Let&apos;s find your dates.</h2>
               <p>
-                Check both condos together and continue through the existing secure
+                Enter your dates to see live availability and continue through the secure
                 OwnerRez booking process.
               </p>
             </div>

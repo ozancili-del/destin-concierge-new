@@ -60,28 +60,14 @@ style.textContent=`@import url('https://fonts.googleapis.com/css2?family=DM+Sans
 @keyframes db-ti{from{opacity:0;transform:scale(.85) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
 @keyframes db-to{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(.85)}}
 @media(max-width:480px){#db-bubble{bottom:16px;right:16px}#db-window{position:fixed;bottom:0;right:0;left:0;width:100%;max-height:92vh;border-radius:20px 20px 0 0;transform-origin:bottom center}#db-messages{max-height:calc(92vh - 160px)}#db-mobile-close{display:flex}#db-btn.open{display:none}}
-#db-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:99998;display:none;align-items:center;justify-content:center}
-#db-overlay.show{display:flex}
-#db-pop{background:linear-gradient(135deg,#00B4D8,#48CAE4,#90E0EF);border-radius:20px;padding:20px;box-shadow:0 12px 48px rgba(0,180,216,.4);position:relative;display:flex;gap:14px;align-items:flex-start;width:300px;max-width:90vw;animation:dbIn .3s cubic-bezier(.34,1.56,.64,1)}
-@keyframes dbIn{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
-#db-pop .dx{position:absolute;top:10px;right:12px;background:rgba(255,255,255,.25);border:none;border-radius:50%;width:24px;height:24px;cursor:pointer;color:white;font-size:13px;display:flex;align-items:center;justify-content:center}
-#db-pop img{width:52px;height:52px;border-radius:50%;border:2px solid rgba(255,255,255,.7);flex-shrink:0;object-fit:cover;object-position:top}
-#db-pop .ptxt{flex:1;padding-right:18px}
-#db-pop .pname{color:white;font-weight:700;font-size:13px;margin:0 0 4px}
-#db-pop .pmsg{color:rgba(255,255,255,.92);font-size:12px;margin:0 0 12px;line-height:1.5}
-#db-pop .pbtn{background:white;color:#0096c7;border:none;border-radius:20px;padding:8px 18px;font-size:12px;font-weight:700;cursor:pointer}
 `;
 document.head.appendChild(style);
 const wrap=document.createElement('div');
 wrap.id='db-bubble';
 wrap.innerHTML=`<div id="db-window"><div id="db-header"><img src="https://destin-concierge-new.vercel.app/destiny_avatar.png" alt="Destiny Blue AI Concierge" style="width:52px;height:52px;border-radius:50%;object-fit:cover;object-position:top;flex-shrink:0;"/><div id="db-header-text"><div id="db-header-name">Destiny Blue</div><div id="db-header-sub"><span class="db-status-dot"></span>AI Concierge · Always here</div></div><button id="db-mobile-close" aria-label="Close">✕</button></div><div id="db-messages"></div><div id="db-input-row"><input id="db-input" type="text" placeholder="Ask me anything…" autocomplete="off"/><button id="db-send" aria-label="Send message"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div><div id="db-footer">Powered by Destiny Blue · © Ozan CILI</div></div><div id="db-tooltip">Hi! Ask me anything about Destin!</div><button id="db-btn" aria-label="Chat"><div id="db-badge"></div><img class="db-icon-open" alt="Destiny Blue AI Concierge" src="https://destin-concierge-new.vercel.app/destiny_avatar.png" style="width:60px;height:60px;border-radius:50%;object-fit:cover;object-position:top;display:block;"/><svg class="db-icon-close" width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6L18 18" stroke="white" stroke-width="2.5" stroke-linecap="round"/></svg></button>`;
 document.body.appendChild(wrap);
-const overlay=document.createElement('div');
-overlay.id='db-overlay';
-overlay.innerHTML=`<div id="db-pop"><button class="dx" id="db-pop-x">✕</button><img src="https://destin-concierge-new.vercel.app/destiny_avatar.png" alt="Destiny Blue AI Concierge"/><div class="ptxt"><p class="pname">Destiny Blue 🌊</p><p class="pmsg">You get <strong style="color:white">10% off</strong> automatically. Chat with me and unlock <strong style="color:white">5% more</strong> on top.</p><button class="pbtn" id="db-pop-go">Treasure Hunt! →</button></div></div>`;
-document.body.appendChild(overlay);document.getElementById('db-pop-x').addEventListener('click',dbX);document.getElementById('db-pop-go').addEventListener('click',dbGo);
 const btn=document.getElementById('db-btn'),win=document.getElementById('db-window'),msgs=document.getElementById('db-messages'),input=document.getElementById('db-input'),send=document.getElementById('db-send'),tooltip=document.getElementById('db-tooltip');
-const TM=["Ask me anything about Destin!","Check availability!","10% off — already applied!","Two beachfront units — compare!","400+ stays, 4.94 rating!","Heated pool open year-round!"];
+const TM=["Ask me anything about Destin!","Check live availability","Plan your Destin stay","Explore local activities","See current beach conditions"];
 let tIdx=0,tTimer=null;
 function cycleTip(){if(isOpen)return;tooltip.classList.remove('hide');tIdx=(tIdx+1)%TM.length;tooltip.style.animation='none';tooltip.offsetHeight;tooltip.style.animation='';tooltip.textContent=TM[tIdx];tTimer=setTimeout(cycleTip,4000);}
 tooltip.addEventListener('click',()=>toggle());
@@ -155,10 +141,6 @@ history.push({role:'assistant',content:reply});sessionStorage.setItem('db_histor
 isTyping=false;send.disabled=false;input.focus();}
 send.addEventListener('click',sendMsg);
 input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();}});
-function dbX(){document.getElementById('db-overlay').classList.remove('show');lS.setItem('dbx','1');}
-function dbGo(){sessionStorage.setItem('db_source','popup');lS.setItem('dbx','1');sessionStorage.removeItem('db_history');history=[];dbX();if(!isOpen)btn.click();setTimeout(function(){isTyping=false;send.disabled=false;if(msgs)msgs.innerHTML='';var i=document.getElementById('db-input');if(i){i.value='__popup_open__';sendMsg();}},500);}
-setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw_banner','1');lS.setItem('db_saw_banner','1');document.getElementById('db-overlay').classList.add('show');},3000);
-
 // -- DEALS TEASER BANNER --
 // DISABLED - replaced by snowbird banner for Nov-Feb season
 // To re-enable: uncomment block below and comment out the snowbird banner

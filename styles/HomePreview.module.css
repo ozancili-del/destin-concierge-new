@@ -266,6 +266,30 @@
   padding: 78px clamp(24px, 8vw, 130px);
   background: var(--sand);
 }
+.reviewShowcase {
+  padding: 92px clamp(20px, 7vw, 118px);
+  text-align: center;
+  background: var(--warm);
+}
+.reviewCards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  max-width: 1160px;
+  margin: 0 auto 28px;
+  text-align: left;
+}
+.reviewCards blockquote {
+  margin: 0;
+  padding: 26px;
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--gold);
+  border-radius: 12px;
+  background: var(--sand);
+}
+.reviewCards blockquote p { color: var(--ink); line-height: 1.68; }
+.reviewCards footer { display: flex; flex-direction: column; gap: 3px; color: var(--muted); font-size: 12px; }
+.reviewCards footer strong { color: var(--navy); font-size: 14px; }
 .reviewPanel, .directPanel { align-self: center; }
 .stars { color: var(--gold); letter-spacing: .16em; font-size: 22px; margin: 10px 0; }
 .reasonGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 26px; margin: 24px 0; }
@@ -413,7 +437,7 @@
   .search button { min-height: 58px; }
   .trustStrip { padding-top: 155px; grid-template-columns: repeat(2, 1fr); }
   .trustStrip div:nth-child(2) { border-right: 0; }
-  .cards, .direct, .resort, .webcam { grid-template-columns: 1fr; }
+  .cards, .direct, .resort, .webcam, .reviewCards { grid-template-columns: 1fr; }
   .resortImage, .webcamVisual { min-height: 360px; }
   .exploreGrid { grid-template-columns: repeat(2, 1fr); }
   .liveChat, .cta { align-items: flex-start; flex-direction: column; }

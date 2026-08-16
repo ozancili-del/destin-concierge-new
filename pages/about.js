@@ -69,7 +69,7 @@ export default function About() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
     </Head>
 
-    <div className={styles.preview}>Migration preview | Production and OwnerRez remain unchanged</div>
+    <div className={styles.preview}>Migration preview | The current live website remains unchanged</div>
     <SiteHeader availabilityHref="#availability" />
 
     <main>
@@ -87,7 +87,7 @@ export default function About() {
         <div>
           <p>After living and working across Asia-Pacific, the Middle East, Africa, the CIS, Europe and the United States, my family discovered Destin after moving to the U.S. in 2016. We purchased our first vacation-rental condo in 2020 and added another in December 2023.</p>
           <p>Our first visit confirmed what the Gulf photos could not fully explain: white sand, emerald water, balcony views and the sound of the waves without the noise of a city. Destin quickly became one of our favorite places to recharge.</p>
-          <p>The website began because returning guests repeatedly asked whether they could reserve directly. We continue to welcome guests through established marketplaces, but this site offers another path: see the exact condo, check live information, complete secure OwnerRez checkout and communicate directly with the owner.</p>
+          <p>The website began because returning guests repeatedly asked whether they could reserve directly. We continue to welcome guests through established marketplaces, but this site offers another path: see the exact condo, check live information, complete secure online checkout and communicate directly with the owner.</p>
         </div>
       </section>
 

@@ -27,27 +27,27 @@ export default function AvailabilityPage() {
   return <div className={styles.page}>
     <Head>
       <title>Destin Condo Availability | Pelican Beach Resort</title>
-      <meta name="description" content="Check live availability for Gulf-front Pelican Beach Resort condos in Destin. Compare Units 707 and 1006, then review live pricing and book securely through OwnerRez." />
+      <meta name="description" content="Check live availability for Gulf-front Pelican Beach Resort condos in Destin. Compare exact condos, then review live pricing and book securely." />
       <meta name="robots" content="noindex,nofollow" />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <link rel="canonical" href={`${liveSite}/availability`} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
     </Head>
 
-    <div className={styles.preview}>Preview page | Production and OwnerRez remain unchanged</div>
+    <div className={styles.preview}>Preview page | Production remains unchanged</div>
     <div className={styles.utility}><a href="/reviews">Guest Reviews</a><a href="/guest-guide#faq">FAQ</a><a href="/guest-guide#policies">Policies</a><a href="/about">Contact</a></div>
     <SiteHeader availabilityHref="#search" />
 
     <main>
       <section className={styles.hero}>
-        <div className={styles.heroCopy}><a href="/">Home</a><p className={styles.kicker}>Live Pelican Beach Resort availability</p><h1>Find the Gulf view that fits your dates.</h1><p>Search both owner-managed condos at once. OwnerRez supplies the current calendar, pricing and secure reservation flow.</p><div className={styles.trust}><span>✓ Live dates</span><span>✓ Exact condo</span><span>✓ Secure OwnerRez checkout</span></div></div>
+        <div className={styles.heroCopy}><a href="/">Home</a><p className={styles.kicker}>Live Pelican Beach Resort availability</p><h1>Find the Gulf view that fits your dates.</h1><p>Search current calendars, pricing and the secure reservation flow in one place.</p><div className={styles.trust}><span>✓ Live dates</span><span>✓ Exact condo</span><span>✓ Secure checkout</span></div></div>
         <div className={styles.heroImage}><Image src="/book-direct-banner-bg.jpg" alt="Pelican Beach Resort overlooking the Gulf of Mexico in Destin Florida" fill priority sizes="(max-width: 900px) 100vw, 48vw" /></div>
       </section>
 
       <section className={styles.searchSection} id="search">
-        <div className={styles.sectionIntro}><p className={styles.kicker}>Start with your stay</p><h2>Check both condos in one search.</h2><p>Enter your arrival, departure and guest count below. The results come directly from the same OwnerRez system that manages each reservation.</p></div>
+        <div className={styles.sectionIntro}><p className={styles.kicker}>Start with your stay</p><h2>Check live availability in one search.</h2><p>Enter your arrival, departure and guest count below. Results come directly from the live reservation calendar.</p></div>
         <div className={styles.widgetShell}><div className="ownerrez-widget" data-widget-type="Availability/Property Search" data-widgetid={searchWidgetId}></div><noscript><a href="/availability">Open the secure availability search</a></noscript></div>
-        <p className={styles.discount}>Your current direct-booking discount is reflected in the OwnerRez booking flow. Review the complete price, fees, taxes and policies before reserving.</p>
+        <p className={styles.discount}>Your current direct-booking discount is reflected in the booking flow. Review the complete price, fees, taxes and policies before reserving.</p>
       </section>
 
       <section className={styles.condos}>
@@ -60,7 +60,7 @@ export default function AvailabilityPage() {
         <div className={styles.calendarShell}><div className="ownerrez-widget" data-widget-type="Ribbon Calendar" data-widgetid={calendarWidgetId}></div></div>
       </section>
 
-      <section className={styles.finalCta}><div><p className={styles.kickerLight}>Need help choosing?</p><h2>Ask about dates, layouts or the resort.</h2><p>Live Chat can help compare the condos. The secure OwnerRez page remains the final source for availability, totals and reservation terms.</p></div><SiteButton href="/destin-ai-concierge" variant="primary" size="large">Open Live Chat</SiteButton></section>
+      <section className={styles.finalCta}><div><p className={styles.kickerLight}>Need help choosing?</p><h2>Ask about dates, layouts or the resort.</h2><p>Live Chat can help compare the condos. Secure checkout remains the final source for availability, totals and reservation terms.</p></div><SiteButton href="/destin-ai-concierge" variant="primary" size="large">Open Live Chat</SiteButton></section>
     </main>
 
     <SiteFooter />

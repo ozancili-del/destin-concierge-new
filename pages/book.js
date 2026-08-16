@@ -19,7 +19,7 @@ export default function BookPage() {
   const structuredData = {
     "@context": "https://schema.org",
     "@graph": [
-      { "@type": "WebPage", "@id": `${liveSite}/book#webpage`, url: `${liveSite}/book`, name: "Book a Pelican Beach Resort Condo Direct", description: "Select a Pelican Beach Resort condo, review live pricing and complete a secure direct reservation through OwnerRez.", isPartOf: { "@id": `${liveSite}/#website` }, about: { "@id": `${liveSite}/#business` } },
+      { "@type": "WebPage", "@id": `${liveSite}/book#webpage`, url: `${liveSite}/book`, name: "Book a Pelican Beach Resort Condo Direct", description: "Select a Pelican Beach Resort condo, review live pricing and complete a secure direct reservation.", isPartOf: { "@id": `${liveSite}/#website` }, about: { "@id": `${liveSite}/#business` } },
       { "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Home", item: liveSite }, { "@type": "ListItem", position: 2, name: "Book Direct", item: `${liveSite}/book` }] },
     ],
   };
@@ -27,20 +27,20 @@ export default function BookPage() {
   return <div className={styles.page}>
     <Head>
       <title>Book a Pelican Beach Resort Condo Direct | Destin</title>
-      <meta name="description" content="Choose your Pelican Beach Resort condo, review live dates and the complete price, and reserve securely through OwnerRez with the direct-booking discount automatically applied." />
+      <meta name="description" content="Choose your Pelican Beach Resort condo, review live dates and the complete price, and reserve securely with the direct-booking discount automatically applied." />
       <meta name="robots" content="noindex,nofollow" />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <link rel="canonical" href={`${liveSite}/book`} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
     </Head>
 
-    <div className={styles.preview}>Preview page | Secure reservations remain powered by OwnerRez</div>
+    <div className={styles.preview}>Preview page | Production reservations remain unchanged</div>
     <div className={styles.utility}><a href="/reviews">Guest Reviews</a><a href="/guest-guide#faq">FAQ</a><a href="/guest-guide#policies">Policies</a><a href="/about">Contact</a></div>
     <SiteHeader availabilityHref="#checkout" />
 
     <main>
       <section className={styles.hero}>
-        <div className={styles.heroCopy}><a href="/">Home</a><p className={styles.kicker}>The final step to the Gulf</p><h1>Choose your condo. See the full total. Book securely.</h1><p>Select dates, guests and the exact condo below. OwnerRez provides the live availability, pricing, fees, taxes, policies and secure reservation checkout.</p><div className={styles.trust}><span>✓ 10% direct discount applied</span><span>✓ Exact condo shown</span><span>✓ Secure OwnerRez checkout</span></div></div>
+        <div className={styles.heroCopy}><a href="/">Home</a><p className={styles.kicker}>The final step to the Gulf</p><h1>Choose your condo. See the full total. Book securely.</h1><p>Select dates, guests and the exact condo below. The live booking system provides availability, pricing, fees, taxes, policies and secure checkout.</p><div className={styles.trust}><span>✓ 10% direct discount applied</span><span>✓ Exact condo shown</span><span>✓ Secure checkout</span></div></div>
         <div className={styles.heroImage}><Image src="/book-direct-banner-bg.jpg" alt="Pelican Beach Resort and the Gulf of Mexico in Destin Florida" fill priority sizes="(max-width: 900px) 100vw, 48vw" /></div>
       </section>
 
@@ -65,7 +65,7 @@ export default function BookPage() {
 
       <section className={styles.details}>
         <div><p className={styles.kicker}>Before you confirm</p><h2>Clear terms, without surprises.</h2></div>
-        <ul><li>Maximum occupancy is six people per condo, including infants.</li><li>Check-in is 4:00 PM Central; checkout is 10:00 AM Central.</li><li>No smoking and no pets. The minimum primary-renter age is 25 unless married.</li><li>A non-refundable 20% deposit plus processing fees is collected when booking; the remaining balance is due 30 days before arrival.</li><li>The OwnerRez checkout displays the controlling total and reservation terms before confirmation.</li></ul>
+        <ul><li>Maximum occupancy is six people per condo, including infants.</li><li>Check-in is 4:00 PM Central; checkout is 10:00 AM Central.</li><li>No smoking and no pets. The minimum primary-renter age is 25 unless married.</li><li>A non-refundable 20% deposit plus processing fees is collected when booking; the remaining balance is due 30 days before arrival.</li><li>The secure checkout displays the controlling total and reservation terms before confirmation.</li></ul>
         <a href="/guest-guide#policies">Read the complete guest policies →</a>
       </section>
 

@@ -1,6 +1,7 @@
 import Head from "next/head";
 import Image from "next/image";
 import Script from "next/script";
+import { useState } from "react";
 import SiteButton from "../components/SiteButton";
 import SiteHeader from "../components/SiteHeader";
 import SiteFooter from "../components/SiteFooter";
@@ -49,7 +50,7 @@ const faqs = [
   {
     question: "Why should I book directly?",
     answer:
-      "Booking directly gives you the current OwnerRez rate and availability, secure checkout, and direct support from the owner without an additional marketplace service fee.",
+      "Booking directly gives you the current rate and availability, secure checkout, and direct support from the owner without an additional marketplace service fee.",
   },
   {
     question: "How close are the condos to the beach?",
@@ -64,11 +65,55 @@ const faqs = [
   {
     question: "Where do I see live pricing and availability?",
     answer:
-      "Enter your dates and guest count in the availability search. OwnerRez will show the current available condo, rate, fees, taxes, policies, and secure checkout.",
+      "Enter your dates and party details in the availability search. The secure booking flow will show the current available condo, rate, fees, taxes, policies, and checkout.",
   },
 ];
 
 export default function Home() {
+  const [arrival, setArrival] = useState("");
+  const [departure, setDeparture] = useState("");
+  const [adults, setAdults] = useState(2);
+  const [children, setChildren] = useState(0);
+
+  function clearValidity(event) {
+    event.currentTarget.setCustomValidity("");
+  }
+
+  function submitAvailability(event) {
+    const form = event.currentTarget;
+    const arrivalInput = form.elements.or_arrival;
+    const departureInput = form.elements.or_departure;
+    const childrenInput = form.elements.or_children;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const arrivalDate = new Date(`${arrival}T00:00:00`);
+    const departureDate = new Date(`${departure}T00:00:00`);
+
+    arrivalInput.setCustomValidity("");
+    departureInput.setCustomValidity("");
+    childrenInput.setCustomValidity("");
+
+    if (arrivalDate < today) {
+      event.preventDefault();
+      arrivalInput.setCustomValidity("Check-in must be today or later.");
+      arrivalInput.reportValidity();
+      return;
+    }
+    if (departureDate <= arrivalDate) {
+      event.preventDefault();
+      departureInput.setCustomValidity("Check-out must be after check-in.");
+      departureInput.reportValidity();
+      return;
+    }
+    if (adults + children > 6) {
+      event.preventDefault();
+      childrenInput.setCustomValidity("The maximum occupancy is six people, including children and infants.");
+      childrenInput.reportValidity();
+      return;
+    }
+
+  }
+
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -97,7 +142,7 @@ export default function Home() {
         </Head>
 
         <div className={styles.previewBar}>
-          Private homepage concept | production and OwnerRez remain unchanged
+          Private homepage concept | production remains unchanged
         </div>
 
         <div className={styles.utilityBar}>
@@ -132,34 +177,37 @@ export default function Home() {
             <form
               className={styles.search}
               id="availability"
-              method="get"
               action="/book"
+              method="get"
+              onSubmit={submitAvailability}
             >
               <label>
                 <span>Check in</span>
-                <input aria-label="Arrival date" name="or_arrival" type="date" required />
+                <input aria-label="Arrival date" name="or_arrival" type="date" value={arrival} onChange={(event) => setArrival(event.target.value)} onInput={clearValidity} required />
               </label>
               <label>
                 <span>Check out</span>
-                <input aria-label="Departure date" name="or_departure" type="date" required />
+                <input aria-label="Departure date" name="or_departure" type="date" value={departure} onChange={(event) => setDeparture(event.target.value)} onInput={clearValidity} required />
               </label>
-              <label>
-                <span>Guests</span>
-                <select aria-label="Guests" name="or_guests" defaultValue="2">
-                  {[1, 2, 3, 4, 5, 6].map((count) => (
-                    <option value={count} key={count}>
-                      {count} {count === 1 ? "guest" : "guests"}
-                    </option>
-                  ))}
-                </select>
+              <label className={styles.partyLabel}>
+                <span>Guests · maximum 6 total</span>
+                <span className={styles.partyFields}>
+                  <select aria-label="Adults" name="or_adults" value={adults} onChange={(event) => setAdults(Number(event.target.value))}>
+                    {[1, 2, 3, 4, 5, 6].map((count) => <option value={count} key={count}>{count} {count === 1 ? "adult" : "adults"}</option>)}
+                  </select>
+                  <select aria-label="Children and infants" name="or_children" value={children} onChange={(event) => { setChildren(Number(event.target.value)); event.currentTarget.setCustomValidity(""); }}>
+                    {[0, 1, 2, 3, 4, 5].map((count) => <option value={count} key={count}>{count} {count === 1 ? "child/infant" : "children/infants"}</option>)}
+                  </select>
+                </span>
               </label>
+              <input type="hidden" name="or_guests" value={adults + children} />
               <SiteButton type="submit" variant="primary" size="standard">Check availability</SiteButton>
             </form>
           </section>
 
           <section className={styles.trustStrip} aria-label="Stay highlights">
             <div><strong>Right on the sand</strong><span>No street to cross</span></div>
-            <div><strong>Book owner-direct</strong><span>Secure OwnerRez checkout</span></div>
+            <div><strong>Book owner-direct</strong><span>Secure checkout</span></div>
             <div><strong>Resort amenities</strong><span>Pools, hot tubs & fitness</span></div>
             <div><strong>Help when needed</strong><span>Owner support plus live chat</span></div>
           </section>
@@ -235,7 +283,7 @@ export default function Home() {
                 <div><strong>No marketplace service fee</strong><span>Book through our direct secure flow.</span></div>
                 <div><strong>Personal local support</strong><span>Reach the owner when the situation needs a person.</span></div>
                 <div><strong>The exact condo</strong><span>See the real unit, view, amenities, and policies.</span></div>
-                <div><strong>OwnerRez checkout</strong><span>Live pricing, availability, and payment remain secure.</span></div>
+                <div><strong>Secure checkout</strong><span>Live pricing, availability, and payment remain protected.</span></div>
               </div>
               <a className={styles.textLink} href="/why-book-direct">Why book direct -&gt;</a>
             </div>
@@ -340,7 +388,7 @@ export default function Home() {
               <h2>Let&apos;s find your dates.</h2>
               <p>
                 Enter your dates to see live availability and continue through the secure
-                OwnerRez booking process.
+                booking process.
               </p>
             </div>
             <SiteButton href="#availability" variant="primary" size="large">Check availability</SiteButton>

@@ -35,7 +35,7 @@ export default function MigratedBlogArticle({
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
     </Head>
 
-    <div className={styles.preview}>Preview article | Production and OwnerRez remain unchanged</div>
+    <div className={styles.preview}>Preview article | The current live website remains unchanged</div>
     <div className={styles.utility}>
       <a href="/reviews">Guest Reviews</a>
       <a href="/guest-guide#faq">FAQ</a>

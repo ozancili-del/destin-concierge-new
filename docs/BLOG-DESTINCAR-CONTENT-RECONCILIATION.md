@@ -21,8 +21,8 @@ The replacement emits a single graph with `WebPage`, `BreadcrumbList`, `Article`
 
 - confirm all captured sections and the affiliate disclosure are visible;
 - confirm affiliate links retain sponsored/nofollow/noopener attributes;
-- confirm the replacement image loads without layout shift;
-- verify one H1, one live-availability form, mobile overflow, links and schema;
+- preview verification found one visible H1, one live-availability form, 3,076 rendered words, no desktop/mobile overflow, no broken images, no encoding defects and the five expected schema types;
+- the replacement image loaded successfully on desktop and mobile;
 - recheck transportation facts and examples before production cutover.
 
 Production remains unchanged during preview development.

@@ -48,7 +48,8 @@ Production status: unchanged
 |---|---|---|
 | `destinspa` | Migrated and verified in preview | Full 2,005-word visible article retained; Unicode repaired; images, availability form, responsive layout and five schema types verified. See `BLOG-DESTINSPA-CONTENT-RECONCILIATION.md`. |
 | `how-to-find-cheaper-flights-and-car-rentals` | Migrated and verified in preview | Full 1,626-word rendered guide retained; desktop/mobile, images, availability, Unicode, safe article HTML and five schema types verified. See `BLOG-FLIGHTS-CARS-CONTENT-RECONCILIATION.md`. |
-| `destincar` | Migrated locally; preview verification pending | Full visible rental-car guide retained; broken OwnerRez image replaced with an existing repository asset. See `BLOG-DESTINCAR-CONTENT-RECONCILIATION.md`. |
+| `destincar` | Migrated and verified in preview | Full 3,076-word rendered guide retained; replacement image, desktop/mobile, availability, safe article HTML and five schema types verified. See `BLOG-DESTINCAR-CONTENT-RECONCILIATION.md`. |
+| `destinsupermarkets` | Migrated locally; preview verification pending | Full guide retained; duplicate external map replaced with one accessible repository-local map. See `BLOG-DESTINSUPERMARKETS-CONTENT-RECONCILIATION.md`. |
 | `destinessentials` | Rebuild required | Source contains ChatGPT UI wrappers and a content/meta mismatch; service and emergency facts require verification. See `BLOG-DESTINESSENTIALS-CONTENT-AUDIT.md`. |
 | All other articles | Inventory/audit stage | Current OwnerRez pages remain live and untouched. |
 

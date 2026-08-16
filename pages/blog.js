@@ -6,7 +6,7 @@ import AvailabilitySearch from "../components/AvailabilitySearch";
 import styles from "../styles/Blog.module.css";
 
 const liveSite = "https://www.destincondogetaways.com";
-const migratedSlugs = new Set(["destinspa", "how-to-find-cheaper-flights-and-car-rentals", "destincar"]);
+const migratedSlugs = new Set(["destinspa", "how-to-find-cheaper-flights-and-car-rentals", "destincar", "destinsupermarkets"]);
 const articleHref = (slug) => migratedSlugs.has(slug) ? `/blog/${slug}` : `${liveSite}/blog/${slug}`;
 
 const articles = [

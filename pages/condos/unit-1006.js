@@ -5,6 +5,7 @@ const unit = {
   number: 1006, floorLabel: "Tenth floor", style: "Fresh Coastal", schema,
   title: "Pelican Beach Resort Unit 1006 | Panoramic Gulf-Front Condo",
   propertyId: "ad9a3b0b0a8145eb88573dd9c0e1ccb8",
+  registrationNumber: "CND5603848",
   ownerRezUrl: "https://www.destincondogetaways.com/pelican-beach-resort-unit-1006-orp5b6450ex",
   introTitle: "A bright coastal condo with a higher panoramic view.",
   intro: [

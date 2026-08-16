@@ -5,6 +5,7 @@ const unit = {
   number: 707, floorLabel: "Seventh floor", style: "Classic Coastal", schema,
   title: "Pelican Beach Resort Unit 707 | Gulf-Front Destin Condo",
   propertyId: "e987ace000304077ac42435e1eb19a35",
+  registrationNumber: "CND5603848",
   ownerRezUrl: "https://www.destincondogetaways.com/pelican-beach-resort-unit-707-orp5b47b5ax",
   introTitle: "A warm coastal home with the Gulf right outside.",
   intro: [

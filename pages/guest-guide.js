@@ -74,7 +74,7 @@ export default function GuestGuidePage() {
         geo: { "@type": "GeoCoordinates", latitude: 30.3935, longitude: -86.4958 },
         checkinTime: "16:00", checkoutTime: "10:00", petsAllowed: false, smokingAllowed: false,
         aggregateRating: { "@type": "AggregateRating", ratingValue: 4.94, reviewCount: 400, bestRating: 5, worstRating: 1 },
-        sameAs: ["https://www.facebook.com/DestinCondo"]
+        sameAs: ["https://www.facebook.com/DestinCondoGetaways"]
       }
     ]
   };

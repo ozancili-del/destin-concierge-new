@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Head from "next/head";
 import Script from "next/script";
 import SiteButton from "./SiteButton";
+import SharedSiteFooter from "./SiteFooter";
 import styles from "../styles/UnitPage.module.css";
 
 const liveSite = "https://www.destincondogetaways.com";
@@ -34,13 +35,7 @@ function photoDescription(unit, index) {
 }
 
 function SiteFooter() {
-  return <footer className={styles.footer}>
-    <div className={styles.footerBrand}><strong>Destin Condo Getaways</strong><p>Thoughtful owner-direct hospitality at Pelican Beach Resort.</p><a href="tel:+19723574262">(972) 357-4262</a><a href="mailto:ozan@destincondogetaways.com">ozan@destincondogetaways.com</a><address>1002 US-98<br />Destin, FL 32541</address></div>
-    <div><strong>Stay</strong><a href="/condos/unit-707">Unit 707</a><a href="/condos/unit-1006">Unit 1006</a><a href="#checkout">Book this unit</a><a href="/reviews">Reviews</a><a href="/why-book-direct">Book direct</a></div>
-    <div><strong>Plan</strong><a href="/blog/how-to-find-cheaper-flights-and-car-rentals">Flights</a><a href="/blog/destincar">Car rentals</a><a href="https://explore.destincondogetaways.com/destin-tripshock.html">Activities</a><a href={`${liveSite}/destin-vacation-itinerary-planner-574049367`}>Itinerary planner</a><a href={`${liveSite}/map`}>Destin map</a></div>
-    <div><strong>Destin Guides</strong><a href="/blog/destinweather">Weather</a><a href="/blog/best-beaches-destin">Beaches</a><a href="/blog/best-restaurants-destin">Restaurants</a><a href="/blog/destin-events-2026">Events</a><a href="/blog/destin-fireworks-2026">Fireworks</a></div>
-    <div><strong>Guest Information</strong><a href="/guest-guide#policies">Policies</a><a href="/why-book-direct#direct-faq">FAQ</a><a href={`${liveSite}/aboutus-574000712`}>Contact</a><a href={`${liveSite}/privacy-574035022`}>Privacy</a><a href="/beach-cam">Live beach cam</a></div>
-  </footer>;
+  return <SharedSiteFooter />;
 }
 
 export default function UnitPage({ unit }) {

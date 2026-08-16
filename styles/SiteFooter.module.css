@@ -1,0 +1,9 @@
+.footer{position:relative;z-index:4;width:100%;box-sizing:border-box;padding:50px clamp(20px,6vw,96px) 24px;display:grid;grid-template-columns:1.5fr repeat(4,1fr);gap:36px;background:#04283d;color:#c8d9df;font:12px/1.5 Arial,sans-serif}
+.footer strong{display:block;margin-bottom:12px;color:#fffefb;font:700 17px Georgia,serif}
+.footer a{display:block;margin:8px 0;color:#c8d9df;text-decoration:none}
+.footer a:hover,.footer a:focus-visible{color:#fff;text-decoration:underline;text-underline-offset:3px}
+.brand p{max-width:300px;line-height:1.6}
+.brand address{color:inherit;font-style:normal;line-height:1.6}
+.legal{grid-column:1/-1;margin-top:10px;padding-top:20px;border-top:1px solid rgba(200,217,223,.22);text-align:center;color:#9fb7c0}
+@media(max-width:900px){.footer{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.footer{grid-template-columns:1fr;padding:42px 22px 22px}.legal{grid-column:1;text-align:left}}

@@ -2,6 +2,7 @@ import Head from "next/head";
 import Script from "next/script";
 import AvailabilitySearch from "./AvailabilitySearch";
 import SiteButton from "./SiteButton";
+import SiteFooter from "./SiteFooter";
 import styles from "../styles/Article.module.css";
 
 const liveSite = "https://www.destincondogetaways.com";
@@ -71,13 +72,7 @@ export default function MigratedBlogArticle({
       <section className={styles.finalCta}><div><p className={styles.kickerLight}>Planning your stay?</p><h2>Check live availability.</h2></div><SiteButton href="#availability" variant="primary" size="large">Check availability</SiteButton></section>
     </main>
 
-    <footer className={styles.footer}>
-      <div className={styles.footerBrand}><strong>Destin Condo Getaways</strong><p>Thoughtful owner-direct hospitality at Pelican Beach Resort.</p><a href="tel:+19723574262">(972) 357-4262</a><a href="mailto:ozan@destincondogetaways.com">ozan@destincondogetaways.com</a><address>1002 US-98<br />Destin, FL 32541</address></div>
-      <div><strong>Stay</strong><a href={liveSite + "/pelican-beach-resort-unit-707-orp5b47b5ax"}>Unit 707</a><a href={liveSite + "/pelican-beach-resort-unit-1006-orp5b6450ex"}>Unit 1006</a><a href="#availability">Availability</a><a href="/reviews">Reviews</a><a href="/why-book-direct">Book direct</a></div>
-      <div><strong>Plan</strong><a href="/blog/how-to-find-cheaper-flights-and-car-rentals">Flights</a><a href={liveSite + "/blog/destincar"}>Car rentals</a><a href="https://explore.destincondogetaways.com/destin-tripshock.html">Activities</a><a href={liveSite + "/destin-vacation-itinerary-planner-574049367"}>Itinerary planner</a></div>
-      <div><strong>Destin Guides</strong><a href="/blog">All guides</a><a href={liveSite + "/blog/destinweather"}>Weather</a><a href={liveSite + "/blog/best-beaches-destin"}>Beaches</a><a href={liveSite + "/blog/best-restaurants-destin"}>Restaurants</a><a href={liveSite + "/blog/destin-events-2026"}>Events</a></div>
-      <div><strong>Guest Information</strong><a href="/guest-guide#policies">Policies</a><a href="/guest-guide#faq">FAQ</a><a href={liveSite + "/aboutus-574000712"}>Contact</a><a href={liveSite + "/privacy-574035022"}>Privacy</a><a href="/beach-cam">Live beach cam</a></div>
-    </footer>
+    <SiteFooter />
     <Script src="/destiny-loader.js" strategy="lazyOnload" />
   </div>;
 }

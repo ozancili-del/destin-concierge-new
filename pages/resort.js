@@ -59,7 +59,7 @@ export default function Resort() {
     description: "Owner-direct beachfront vacation-rental condos at Pelican Beach Resort in Destin, Florida.", url: liveSite, telephone: "+1-972-357-4262", email: "ozan@destincondogetaways.com",
     image: ["https://uc.orez.io/i/b004f9895bc24136805cc94e514f4039-Large","https://uc.orez.io/i/44060a8a29ca4a998586d849184d288f-Large","https://uc.orez.io/i/5cd8d28c33e14711a68e723ec300ca2a-Large"],
     logo: "https://uc.orez.io/f/6d35eb37c5304c0f8b080ae8dbf5357a", address: resortAddress, geo, priceRange: "$$", currenciesAccepted: "USD", paymentAccepted: "Credit Card, Debit Card", checkinTime: "16:00", checkoutTime: "10:00", petsAllowed: false, smokingAllowed: false,
-    amenityFeature: amenities.map(([name]) => ({ "@type": "LocationFeatureSpecification", name, value: true })), sameAs: ["https://www.facebook.com/DestinCondo"], numberOfRooms: 2,
+    amenityFeature: amenities.map(([name]) => ({ "@type": "LocationFeatureSpecification", name, value: true })), sameAs: ["https://www.facebook.com/DestinCondoGetaways"], numberOfRooms: 2,
     aggregateRating: { "@type": "AggregateRating", ratingValue: 4.94, reviewCount: 400, bestRating: 5, worstRating: 1 },
     review: reviews.map((r) => ({ "@type": "Review", datePublished: r.date, reviewRating: { "@type": "Rating", ratingValue: 5, bestRating: 5 }, author: { "@type": "Person", name: r.name }, reviewBody: r.body })),
   };

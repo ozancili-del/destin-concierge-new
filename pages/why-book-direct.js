@@ -29,7 +29,7 @@ const businessSchema = {
   smokingAllowed: false,
   checkinTime: "16:00",
   checkoutTime: "10:00",
-  sameAs: ["https://www.facebook.com/DestinCondo"],
+  sameAs: ["https://www.facebook.com/DestinCondoGetaways"],
   numberOfRooms: 2,
   starRating: { "@type": "Rating", ratingValue: 4.94, bestRating: 5 },
   paymentAccepted: "Credit Card, Debit Card",

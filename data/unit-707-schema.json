@@ -1,0 +1,272 @@
+{
+  "@context": "https://schema.org",
+  "@type": "VacationRental",
+  "identifier": "ORP293722",
+  "image": [
+    "https://uc.orez.io/f/242b1d12dd544f7a9debe10583aca308",
+    "https://uc.orez.io/f/abaefcc22f0749b49d73dc232abc5430",
+    "https://uc.orez.io/f/4a4320ef00a54d15bccf6767418be83b",
+    "https://uc.orez.io/f/ce480f77afa84a6db09a49553d1805f9",
+    "https://uc.orez.io/f/d922aff0c4604db5a0bd1a2002507393",
+    "https://uc.orez.io/f/20f1df0a5a3c4110ba65adff8f057b9c",
+    "https://uc.orez.io/f/79380a1abf0349d8b4b764d9f5e34185",
+    "https://uc.orez.io/f/d0b986817e3d4325a9fd1a0122ee2e18",
+    "https://uc.orez.io/f/0bfd2c87eb494d939f6c3e955bd940db",
+    "https://uc.orez.io/f/76fcd6e4c32a4052b7f415700e12fb98",
+    "https://uc.orez.io/f/8fe04dead38f4ed6889a98afe7d8ab87",
+    "https://uc.orez.io/f/055a66e6d71640e4934d242aea13addc",
+    "https://uc.orez.io/f/fd37e03092254ef9b2fddf7324ac654f",
+    "https://uc.orez.io/f/165031072b964e15b50cfc463f202c79",
+    "https://uc.orez.io/f/2512b2a2032d4acda5eb547959659a37",
+    "https://uc.orez.io/f/a50ef4de6aaa460f8bc3d44625ac2a80",
+    "https://uc.orez.io/f/e21a0cfcacf44837a4d89a42491bd12e",
+    "https://uc.orez.io/f/c72053a60a694f839187129bdd3da3aa",
+    "https://uc.orez.io/f/3b9692e52bb241aa827c5297abdb0bce",
+    "https://uc.orez.io/f/e1b61f59a0c94e3392da23e6d1f4fc6d",
+    "https://uc.orez.io/f/dfba2d3e73cf4b2490e2353dcdff6f6c",
+    "https://uc.orez.io/f/399beafa83584661899e9500cb390d6e",
+    "https://uc.orez.io/f/5ac85dcc68724943bccc016482b6a0e0",
+    "https://uc.orez.io/f/bde896f8a65548ca895643226706bfa1",
+    "https://uc.orez.io/f/04431dd7c4c54a89acc1bb6a0e9852fc",
+    "https://uc.orez.io/f/68dee879c1fb4771b9e8c94ee42f5a33",
+    "https://uc.orez.io/f/550bc66545824775bdc840197304bc18",
+    "https://uc.orez.io/f/643e44cd72a64e118fc07fcdd4916523",
+    "https://uc.orez.io/f/6007c9a799d44643ae47934f3554808b",
+    "https://uc.orez.io/f/d896f25f71644290976971d3292e32b2",
+    "https://uc.orez.io/f/1c744e463af64d65994cabf5e65c51cb",
+    "https://uc.orez.io/f/090dd5d28b4c409182bc1e5dc0919e9f",
+    "https://uc.orez.io/f/b004f9895bc24136805cc94e514f4039",
+    "https://uc.orez.io/f/259eb0c404f648a593eda015614b88e1",
+    "https://uc.orez.io/f/44060a8a29ca4a998586d849184d288f",
+    "https://uc.orez.io/f/ff92f8a289784235a5894aed59a00d7f",
+    "https://uc.orez.io/f/d63e47c97fc54633975fdc5777f0fa3b",
+    "https://uc.orez.io/f/6bbe203b627e435fa9e898222b6c1365",
+    "https://uc.orez.io/f/354161cecb984b2fa7d9352ea438ce05",
+    "https://uc.orez.io/f/e0107c849faf44c08f50fc4adeb25b64",
+    "https://uc.orez.io/f/8ccf13913a9f43748af64cb80b19adf8",
+    "https://uc.orez.io/f/6211257c457a46f1a010d4e813bda632",
+    "https://uc.orez.io/f/557e16852bcc448bb4f245fb70417887",
+    "https://uc.orez.io/f/4ce769332642419ab4537ecf57d0fd1c",
+    "https://uc.orez.io/f/c796cb35e7e14588bcbcdac3fb7e72e7",
+    "https://uc.orez.io/f/10414c630fd64894867c5ef7384d5909",
+    "https://uc.orez.io/f/e1e624f8d4c14ed2a8f3d05e169252e0",
+    "https://uc.orez.io/f/8be90b2116704b56bb593c1dabfb8f4c",
+    "https://uc.orez.io/f/bec7b8357cf640a6bc58819a5b4bc28d",
+    "https://uc.orez.io/f/8f59759bd89a4eddbcc4c854df147c2f",
+    "https://uc.orez.io/f/5cd8d28c33e14711a68e723ec300ca2a",
+    "https://uc.orez.io/f/b55bc332f22243a0afa01276e89d2ca8",
+    "https://uc.orez.io/f/c8d1d0dd99324f31af6bc0be7ca84d05",
+    "https://uc.orez.io/f/c2efad9024224041bf5eed261814ff03",
+    "https://uc.orez.io/f/2a068baddabe46a181f755eebd8d6876",
+    "https://uc.orez.io/f/eec1ac77faad4d069fd9877ff3ecf8a4",
+    "https://uc.orez.io/f/01bb59ef924942f3a583e52c46be47b9",
+    "https://uc.orez.io/f/a96a1beff7bd494ba9e9ba3e7134dfdd",
+    "https://uc.orez.io/f/d0cc9292aed443c3882ad4775ea20175",
+    "https://uc.orez.io/f/0f604abce3284748ba8d2150b7646863",
+    "https://uc.orez.io/f/dedb29defb96450e8a0e8ef2d0a56e2d",
+    "https://uc.orez.io/f/7da337c1e9334be9a992ff9f666cd8b7",
+    "https://uc.orez.io/f/48f08fd8d043409a8e4f1a09e092292b",
+    "https://uc.orez.io/f/79fb2b20887c4f44b58c710a59420a30",
+    "https://uc.orez.io/f/414940cc1628451d9431c9400d48552e",
+    "https://uc.orez.io/f/6df38feb90d548be8b7053629f3ba744",
+    "https://uc.orez.io/f/339526d4d54b42c397445f2bf373e91c",
+    "https://uc.orez.io/f/31dad482bf2046528a930ff213e2b0d7",
+    "https://uc.orez.io/f/1915a52744cc4788ab087e6f3ea008d5",
+    "https://uc.orez.io/f/d6ebe8c186954961a435796e5ffbb6a0",
+    "https://uc.orez.io/f/b628b8b3f7314a918532526347fe489c",
+    "https://uc.orez.io/f/032015898c7e4676ba9c03663254dc9a",
+    "https://uc.orez.io/f/09a8dc7ead3c467d9a3e1439620b2f82",
+    "https://uc.orez.io/f/38db788c28a64e409dc7b249789be8ac",
+    "https://uc.orez.io/f/5242838a8fe9492d951984f24f2a2b47",
+    "https://uc.orez.io/f/dcbef6ef2a0d4302ac4960e098469822",
+    "https://uc.orez.io/f/b45d6f705d4348789b6ba745ab1a4ac9",
+    "https://uc.orez.io/f/3b45e9ab3c57410d856d85cec2c167a5",
+    "https://uc.orez.io/f/f41037f51f4a471582a189ecf3ac4703",
+    "https://uc.orez.io/f/93b68982eab54650a04ff43cc3b3b104",
+    "https://uc.orez.io/f/420952de3c804b39a5fe91bdc43dd1e4",
+    "https://uc.orez.io/f/088e7590ff36474483e832f796437410",
+    "https://uc.orez.io/f/be71935be4024d3f9c7d6523090ec63b",
+    "https://uc.orez.io/f/919a5e82c58348bf86ed40bbe42e039b",
+    "https://uc.orez.io/f/270592024e314e3e9bbf79103d23fc8a",
+    "https://uc.orez.io/f/dce7850dbe534e7d84c7a6ec8b08cb38",
+    "https://uc.orez.io/f/0f414be6e3114f32a355249b05898b89",
+    "https://uc.orez.io/f/c4034225de154158bbe393ad14aa3077",
+    "https://uc.orez.io/f/cc34d9571cf24293945888f1a2f07d50",
+    "https://uc.orez.io/f/c13f2fcb9abb4952a47a5ceefe31bc58",
+    "https://uc.orez.io/f/3502531f93c24119876d81ffb9bdf7be",
+    "https://uc.orez.io/f/15710e09781c4f6db93123ff276cd0bb",
+    "https://uc.orez.io/f/3207bb545e8f49fd90c53395efaade31",
+    "https://uc.orez.io/f/0c3ee67ae6494726a863d4e860535041",
+    "https://uc.orez.io/f/91a1cac5db314281afc12a4853c09a91"
+  ],
+  "latitude": 30.38444811,
+  "longitude": -86.47466705,
+  "containsPlace": {
+    "@type": "Accommodation",
+    "occupancy": {
+      "@type": "QuantitativeValue",
+      "value": 6.0
+    },
+    "additionalType": "EntirePlace",
+    "numberOfBathroomsTotal": 2.0,
+    "numberOfBedrooms": 1.0,
+    "numberOfRooms": 1.0,
+    "amenityFeature": [
+      {
+        "@type": "LocationFeatureSpecification",
+        "name": "ac",
+        "value": true
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        "name": "balcony",
+        "value": true
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        "name": "beachAccess",
+        "value": true
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        "name": "childFriendly",
+        "value": true
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        "name": "crib",
+        "value": true
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        "name": "elevator",
+        "value": true
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        "name": "gymFitnessEquipment",
+        "value": true
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        "name": "heating",
+        "value": true
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        "name": "hotTub",
+        "value": true
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        "name": "instantBookable",
+        "value": true
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        "name": "ironingBoard",
+        "value": true
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        "name": "kitchen",
+        "value": true
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        "name": "microwave",
+        "value": true
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        "name": "outdoorGrill",
+        "value": true
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        "name": "ovenStove",
+        "value": true
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        "name": "patio",
+        "value": true
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        "name": "pool",
+        "value": true
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        "name": "tv",
+        "value": true
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        "name": "washerDryer",
+        "value": true
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        "name": "selfCheckinCheckout",
+        "value": true
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        "name": "wifi",
+        "value": true
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        "name": "internetType",
+        "value": "Free"
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        "name": "parkingType",
+        "value": "Free"
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        "name": "poolType",
+        "value": "Free"
+      }
+    ],
+    "bed": [
+      {
+        "@type": "BedDetails",
+        "numberOfBeds": 1.0,
+        "typeOfBed": "King"
+      },
+      {
+        "@type": "BedDetails",
+        "numberOfBeds": 3.0,
+        "typeOfBed": "Single"
+      }
+    ],
+    "floorSize": {
+      "@type": "QuantitativeValue",
+      "value": 873.0,
+      "UnitCode": "SQFT"
+    }
+  },
+  "name": "Pelican Beach Resort Unit 707",
+  "additionalType": "Apartment",
+  "address": {
+    "addressCountry": "UNITED STATES",
+    "addressLocality": "Destin",
+    "addressRegion": "Florida"
+  },
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": 4.93,
+    "reviewCount": 136,
+    "bestRating": 5,
+    "worstRating": 0
+  },
+  "checkinTime": "16:00:00-04:00",
+  "checkoutTime": "10:00:00-04:00",
+  "description": "Wake up to direct Gulf of Mexico views from your private balcony at Pelican Beach Resort — no streets to cross, just sugar-white Destin beach steps away. This Classic Coastal 1BR/2BA condo sleeps up to 6 with full resort amenities: pools, hot tubs, and beach access that doesn't get any easier. Your Destin home away from home is ready.",
+  "review": []
+}

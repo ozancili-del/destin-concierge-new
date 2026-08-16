@@ -44,7 +44,7 @@ export default function MigratedBlogArticle({
       </a>
       <nav aria-label="Main navigation">
         <a href="/#condos">Condos</a><a href="/resort">The Resort</a><a href="/blog">Destin Guide</a>
-        <a href={liveSite + "/destin-live-beach-cam-574002656"}>Beach Cam</a>
+        <a href="/beach-cam">Beach Cam</a>
         <a href="https://deals.destincondogetaways.com/beach-deals">Deals</a><a href="/guest-guide#faq">FAQ</a>
       </nav>
       <SiteButton href="#availability" variant="primary" size="compact">Check availability</SiteButton>
@@ -73,7 +73,7 @@ export default function MigratedBlogArticle({
       <div><strong>Stay</strong><a href={liveSite + "/pelican-beach-resort-unit-707-orp5b47b5ax"}>Unit 707</a><a href={liveSite + "/pelican-beach-resort-unit-1006-orp5b6450ex"}>Unit 1006</a><a href="#availability">Availability</a><a href="/reviews">Reviews</a><a href="/why-book-direct">Book direct</a></div>
       <div><strong>Plan</strong><a href="/blog/how-to-find-cheaper-flights-and-car-rentals">Flights</a><a href={liveSite + "/blog/destincar"}>Car rentals</a><a href="https://explore.destincondogetaways.com/destin-tripshock.html">Activities</a><a href={liveSite + "/destin-vacation-itinerary-planner-574049367"}>Itinerary planner</a></div>
       <div><strong>Destin Guides</strong><a href="/blog">All guides</a><a href={liveSite + "/blog/destinweather"}>Weather</a><a href={liveSite + "/blog/best-beaches-destin"}>Beaches</a><a href={liveSite + "/blog/best-restaurants-destin"}>Restaurants</a><a href={liveSite + "/blog/destin-events-2026"}>Events</a></div>
-      <div><strong>Guest Information</strong><a href="/guest-guide#policies">Policies</a><a href="/guest-guide#faq">FAQ</a><a href={liveSite + "/aboutus-574000712"}>Contact</a><a href={liveSite + "/privacy-574035022"}>Privacy</a></div>
+      <div><strong>Guest Information</strong><a href="/guest-guide#policies">Policies</a><a href="/guest-guide#faq">FAQ</a><a href={liveSite + "/aboutus-574000712"}>Contact</a><a href={liveSite + "/privacy-574035022"}>Privacy</a><a href="/beach-cam">Live beach cam</a></div>
     </footer>
     <Script src="/destiny-loader.js" strategy="lazyOnload" />
   </div>;

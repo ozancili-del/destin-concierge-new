@@ -300,7 +300,7 @@ export default function Home() {
             <div className={styles.exploreGrid}>
               <a href="/deals"><span>Current price reductions</span><strong>Beach deals</strong></a>
               <a href="/trip-planner"><span>Built around your family</span><strong>Itinerary planner</strong></a>
-              <a href="https://explore.destincondogetaways.com/destin-hub"><span>Weather, food & activities</span><strong>Destin guide</strong></a>
+              <a href="/blog"><span>Weather, food, events & activities</span><strong>Destin blog and guides</strong></a>
               <a href={`${site}/blog/how-to-find-cheaper-flights-and-car-rentals`}><span>Airports and route planning</span><strong>Flights</strong></a>
               <a href={`${site}/blog/destincar`}><span>VPS and Destin transportation</span><strong>Car rentals</strong></a>
               <a href={`${site}/map`}><span>Know what is nearby</span><strong>Destin map</strong></a>

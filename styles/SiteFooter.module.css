@@ -2,6 +2,8 @@
 .footer strong{display:block;margin-bottom:12px;color:#fffefb;font:700 17px Georgia,serif}
 .footer a{display:block;margin:8px 0;color:#c8d9df;text-decoration:none}
 .footer a:hover,.footer a:focus-visible{color:#fff;text-decoration:underline;text-underline-offset:3px}
+.footer .blogButton{margin:2px 0 14px;padding:10px 12px;border:1px solid rgba(217,164,65,.7);border-radius:7px;color:#fffefb;background:rgba(217,164,65,.12);font-weight:700}
+.footer .blogButton:hover,.footer .blogButton:focus-visible{background:#d9a441;color:#073b58;text-decoration:none}
 .brand p{max-width:300px;line-height:1.6}
 .brand address{color:inherit;font-style:normal;line-height:1.6}
 .legal{grid-column:1/-1;margin-top:10px;padding-top:20px;border-top:1px solid rgba(200,217,223,.22);text-align:center;color:#9fb7c0}

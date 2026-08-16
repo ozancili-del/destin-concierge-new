@@ -179,7 +179,6 @@ export default function OfferPage() {
         <meta name="robots" content="noindex,nofollow" />
         <meta name="keywords" content="make offer Destin FL condo, name your price vacation rental Destin, Pelican Beach Resort condo deal, flexible pricing Destin Florida, book direct condo Destin FL discount" />
         <link rel="canonical" href="https://www.destincondogetaways.com/offer" />
-        <link rel="stylesheet" href="/tool-theme.css" />
 
         <meta property="og:title" content="Make an Offer — Destin Beachfront Condo, Pelican Beach Resort FL" />
         <meta property="og:description" content="Name your nightly rate for a Gulf-front condo in Destin, FL. Sleeps 6, private balcony, beachfront. Owner responds directly — no middleman, no OTA fees." />

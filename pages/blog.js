@@ -6,7 +6,7 @@ import AvailabilitySearch from "../components/AvailabilitySearch";
 import styles from "../styles/Blog.module.css";
 
 const liveSite = "https://www.destincondogetaways.com";
-const migratedSlugs = new Set(["destinspa", "how-to-find-cheaper-flights-and-car-rentals", "destincar", "destinsupermarkets", "destin-florida-vacation-guide-2026", "best-time-to-visit-destin-florida"]);
+const migratedSlugs = new Set(["destinspa", "how-to-find-cheaper-flights-and-car-rentals", "destincar", "destinsupermarkets", "destin-florida-vacation-guide-2026", "best-time-to-visit-destin-florida", "best-restaurants-destin-local-guide", "destinairport"]);
 const articleHref = (slug) => migratedSlugs.has(slug) ? `/blog/${slug}` : `${liveSite}/blog/${slug}`;
 
 const articles = [

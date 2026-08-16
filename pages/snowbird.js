@@ -427,6 +427,7 @@ export default function Snowbird({ dayData }) {
         <meta property="og:image" content="https://www.destincondogetaways.com/snowbird-hero.jpg" />
         <meta name="robots" content="noindex,nofollow" />
         <link rel="canonical" href={CANONICAL} />
+        <link rel="stylesheet" href="/tool-theme.css" />
         <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
         <script dangerouslySetInnerHTML={{ __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-PQSF8S6D');` }} />
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-3SGXCQ4FTC" />

@@ -9,6 +9,7 @@ export default function BeachCam({ articleHtml, structuredData }) {
   return <MigratedBlogArticle
     pageTitle="Destin Beach Cams Live | Gulf Views, Crab Island & Miramar Beach"
     description="Watch live Destin beach cams from Pelican Beach Resort, Crab Island, Okaloosa Island, Sterling Sands and Miramar Beach, plus Gulf conditions and beach safety guidance."
+    canonical={canonical}
     structuredData={structuredData}
     heroImage="/beaches-pelican-balcony.jpg"
     heroAlt="Live Gulf view from Pelican Beach Resort in Destin Florida"
@@ -36,7 +37,7 @@ export function getStaticProps() {
   }
   const graph = schemas.flatMap((schema) => schema["@graph"] || [schema]).map((node) => {
     if (node?.["@type"] === "WebPage") return { ...node, "@id": `${canonical}#webpage`, url: canonical };
-    if (node?.["@type"] === "Article") return { ...node, mainEntityOfPage: canonical };
+    if (node?.["@type"] === "Article") return { ...node, datePublished: "2026-08-16", dateModified: "2026-08-16", mainEntityOfPage: canonical };
     return node;
   });
   const structuredData = { "@context": "https://schema.org", "@graph": graph };

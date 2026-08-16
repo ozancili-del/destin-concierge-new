@@ -36,8 +36,8 @@ FAQ entries are included only when their question is visibly present in the arti
 
 - production compilation completed successfully for the new code;
 - local build later stopped on the unrelated `/tv/preview/[slug]` page because the clean clone does not contain Vercel’s Supabase environment variables;
-- Vercel preview must complete the environment-backed build;
-- verify one H1, one live-availability form, no horizontal overflow, no broken images, valid links and the five expected schema types;
+- Vercel completed the environment-backed preview build;
+- preview verification found one visible H1, one live-availability form, 1,626 rendered words, no horizontal overflow, no broken images, no mojibake, no scripts inside the article and the five expected schema types;
 - run final rich-result and analytics checks after domain cutover.
 
 Production and OwnerRez remain unchanged during preview development.

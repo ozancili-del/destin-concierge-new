@@ -21,4 +21,6 @@ The full month-by-month guide, seasonal comparisons, practical advice, quiz and 
 - verify no overflow, broken assets, unsafe article scripts or encoding defects;
 - recheck seasonal facts before production cutover.
 
+Preview verification found one visible H1, one availability form, 2,713 rendered words, one repository-local quiz iframe, no desktop/mobile overflow or encoding defects, no scripts inside the article, and the five expected schema types. The quiz rendered its four-question interface at both tested widths.
+
 Production remains unchanged during preview development.

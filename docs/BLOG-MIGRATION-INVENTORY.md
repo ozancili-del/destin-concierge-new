@@ -51,7 +51,7 @@ Production status: unchanged
 | `destincar` | Migrated and verified in preview | Full 3,076-word rendered guide retained; replacement image, desktop/mobile, availability, safe article HTML and five schema types verified. See `BLOG-DESTINCAR-CONTENT-RECONCILIATION.md`. |
 | `destinsupermarkets` | Migrated and verified in preview | Full 1,421-word rendered guide retained; one accessible authorized map iframe works on desktop/mobile with no map error in the current frame. See `BLOG-DESTINSUPERMARKETS-CONTENT-RECONCILIATION.md`. |
 | `destin-florida-vacation-guide-2026` | Migrated and verified in preview | Complete 1,082-word rendered guide retained; local stylesheet, desktop/mobile, availability, safe article HTML and five schema types verified. See `BLOG-DESTIN-VACATION-GUIDE-CONTENT-RECONCILIATION.md`. |
-| `best-time-to-visit-destin-florida` | Migrated locally; preview verification pending | Full month guide retained; quiz rewritten to the repository-local `/destin-month-quiz.html`. See `BLOG-BEST-TIME-CONTENT-RECONCILIATION.md`. |
+| `best-time-to-visit-destin-florida` | Migrated and verified in preview | Full 2,713-word rendered guide retained; local quiz, desktop/mobile, availability, safe article HTML and five schema types verified. See `BLOG-BEST-TIME-CONTENT-RECONCILIATION.md`. |
 | `destinessentials` | Rebuild required | Source contains ChatGPT UI wrappers and a content/meta mismatch; service and emergency facts require verification. See `BLOG-DESTINESSENTIALS-CONTENT-AUDIT.md`. |
 | All other articles | Inventory/audit stage | Current OwnerRez pages remain live and untouched. |
 

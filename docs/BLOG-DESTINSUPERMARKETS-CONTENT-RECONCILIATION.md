@@ -20,6 +20,8 @@ The complete visible article, store comparisons, delivery guidance, reference ta
 - verify the authorized Vercel-hosted map renders and remains usable on mobile;
 - verify one H1, one live-availability form and one supermarket-map iframe;
 - authorize the final `www.destincondogetaways.com` hostname before switching the iframe to the repository-local copy;
+- preview verification found one visible H1, one availability form, 1,421 rendered words, one accessible map iframe, no overflow or encoding defects, and the five expected schema types;
+- the authorized external map rendered its nine-store interface without the Google error shown by the local preview-host copy;
 - verify no horizontal overflow, broken images, unsafe article scripts or encoding defects;
 - recheck store names, addresses, hours and delivery coverage before production cutover.
 

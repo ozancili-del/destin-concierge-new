@@ -21,4 +21,6 @@ The complete visible trip-planning guide and its internal navigation are retaine
 - verify one H1, one live-availability form, no overflow or encoding defects and the five expected schema types;
 - recheck internal links before final cutover.
 
+Preview verification found one visible H1, one availability form, 1,082 rendered words, no desktop/mobile overflow or encoding defects, no scripts inside the article, the local stylesheet loaded, and all five expected schema types.
+
 Production remains unchanged during preview development.

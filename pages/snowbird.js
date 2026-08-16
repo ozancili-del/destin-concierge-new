@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import Head from "next/head";
+import ToolFooter from "../components/ToolFooter";
 import { createClient } from "@supabase/supabase-js";
 
-const CANONICAL = "https://sunbirds.destincondogetaways.com";
+const CANONICAL = "https://www.destincondogetaways.com/snowbird";
 
 const UNIT_META = {
   "707":  { name: "Unit 707",  sub: "Classic Coastal · 7th Floor",  slug: "pelican-beach-resort-unit-707-orp5b47b5ax",  fullName: "Pelican Beach Resort Unit 707 — Classic Coastal" },
@@ -419,12 +420,12 @@ export default function Snowbird({ dayData }) {
         <meta name="viewport" content="width=device-width,initial-scale=1.0" />
         <title>Snowbird Rentals Destin FL — Monthly Winter Condo Stays at Pelican Beach Resort</title>
         <meta name="description" content="Find monthly snowbird rental rates for beachfront condos in Destin, Florida. Pelican Beach Resort Unit 707 and Unit 1006 — winter stays Nov–Feb with up to 48% off rent booked direct. No platform fees." />
-        <link rel="canonical" href={CANONICAL} />
         <meta property="og:title" content="Snowbird Rentals Destin FL — Monthly Winter Condo Stays" />
         <meta property="og:description" content="Monthly winter rental rates for beachfront condos in Destin FL. Up to 48% off rent for snowbird stays Nov–Feb. Book direct at Pelican Beach Resort." />
         <meta property="og:url" content={CANONICAL} />
         <meta property="og:type" content="website" />
-        <meta property="og:image" content="https://sunbirds.destincondogetaways.com-hero.jpg" />
+        <meta property="og:image" content="https://www.destincondogetaways.com/snowbird-hero.jpg" />
+        <meta name="robots" content="noindex,nofollow" />
         <link rel="canonical" href={CANONICAL} />
         <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
         <script dangerouslySetInnerHTML={{ __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-PQSF8S6D');` }} />
@@ -436,16 +437,16 @@ export default function Snowbird({ dayData }) {
           "@graph": [
             {
               "@type": "WebPage",
-              "@id": "https://sunbirds.destincondogetaways.com/snowbird#webpage",
-              "url": "https://sunbirds.destincondogetaways.com/snowbird",
+              "@id": "https://www.destincondogetaways.com/snowbird#webpage",
+              "url": "https://www.destincondogetaways.com/snowbird",
               "name": "Snowbird & Winter Stays at Pelican Beach Resort Destin FL",
               "isPartOf": { "@id": "https://www.destincondogetaways.com/#website" },
               "publisher": { "@id": "https://www.destincondogetaways.com/#organization" },
               "significantLink": [
-                "https://deals.destincondogetaways.com/beach-deals",
-                "https://offer.destincondogetaways.com/offer",
+                "https://www.destincondogetaways.com/deals",
+                "https://www.destincondogetaways.com/offer",
                 "https://www.destincondogetaways.com/availability",
-                "https://explore.destincondogetaways.com/destin-hub"
+                "https://www.destincondogetaways.com/trip-planner"
               ]
             },
             {
@@ -485,23 +486,13 @@ export default function Snowbird({ dayData }) {
           <b>DESTIN</b><span>CONDO GETAWAYS</span>
         </a>
         <nav className="deals-nav">
-          <a href="https://explore.destincondogetaways.com/destin-hub">Destin Hub</a>
-          <a href="https://explore.destincondogetaways.com/destin-tripshock.html">Activities</a>
-          <a href="https://www.destincondogetaways.com/properties">Condos</a>
-          <a href="https://deals.destincondogetaways.com/beach-deals">Deals</a>
-          <a className="active" href={CANONICAL}>Snowbird</a>
-          <a href="https://explore.destincondogetaways.com/destin-car-rental.html">Flights & Cars</a>
+          <a href="/">Home</a><a href="/#condos">Condos</a><a href="/deals">Deals</a><a href="/activities">Activities</a><a href="/car-rentals">Flights & Cars</a><a href="/trip-planner">Trip Planner</a><a className="active" href="/snowbird">Snowbird</a>
         </nav>
-        <a className="deals-book" href="https://www.destincondogetaways.com/properties" target="_blank" rel="noopener">🏖️ Book Your Stay</a>
+        <a className="deals-book" href="/#availability">Check availability</a>
       </header>
 
       <nav className="deals-mobile-nav">
-        <a href="https://explore.destincondogetaways.com/destin-hub">Destin Hub</a>
-        <a href="https://explore.destincondogetaways.com/destin-tripshock.html">Activities</a>
-        <a href="https://www.destincondogetaways.com/properties">Condos</a>
-        <a href="https://deals.destincondogetaways.com/beach-deals">Deals</a>
-        <a className="active" href={CANONICAL}>❄️ Snowbird</a>
-        <a href="https://explore.destincondogetaways.com/destin-car-rental.html">Flights & Cars</a>
+        <a href="/">Home</a><a href="/deals">Deals</a><a href="/activities">Activities</a><a href="/car-rentals">Flights & Cars</a><a href="/trip-planner">Trip Planner</a><a className="active" href="/snowbird">Snowbird</a>
       </nav>
 
       <main className="page">
@@ -515,7 +506,7 @@ export default function Snowbird({ dayData }) {
             <div className="hero-actions">
               <a className="hero-btn hero-btn-teal" href="#finder">❄️ Find My Rate</a>
               <a className="hero-btn hero-btn-gold" href="https://www.destincondogetaways.com/properties" target="_blank" rel="noopener">🏖️ View Condos</a>
-              <a className="hero-btn hero-btn-glass" href="https://explore.destincondogetaways.com/destin-hub">🌊 Destin Hub</a>
+              <a className="hero-btn hero-btn-glass" href="/trip-planner">🌊 Plan Your Trip</a>
             </div>
             <div className="proof">
               <span>⭐ 400+ Five-Star Stays</span>
@@ -698,9 +689,9 @@ export default function Snowbird({ dayData }) {
             <a href="https://www.destincondogetaways.com/blog/best-beaches-destin" className="plan-trip-pill">🏖️ Best Beaches</a>
             <a href="https://www.destincondogetaways.com/blog/destinweather" className="plan-trip-pill">🌤️ Winter Weather</a>
             <a href="https://www.destincondogetaways.com/blog/destinairport" className="plan-trip-pill">✈️ Which Airport</a>
-            <a href="https://explore.destincondogetaways.com/destin-car-rental.html" className="plan-trip-pill">🚗 Car Rentals</a>
-            <a href="https://deals.destincondogetaways.com/beach-deals" className="plan-trip-pill">🏷️ Price Drops</a>
-            <a href="https://explore.destincondogetaways.com/destin-tripshock.html" className="plan-trip-pill">🎯 Activities</a>
+            <a href="/car-rentals" className="plan-trip-pill">🚗 Car Rentals</a>
+            <a href="/deals" className="plan-trip-pill">🏷️ Price Drops</a>
+            <a href="/activities" className="plan-trip-pill">🎯 Activities</a>
           </div>
         </div>
 
@@ -726,9 +717,11 @@ export default function Snowbird({ dayData }) {
         </div>
 
       </main>
+      <ToolFooter />
 
       <style jsx global>{`
         :root { --green:#39ff14; --teal:#00d4c8; --navy:#020b18; --card-bg:rgba(2,18,40,0.82); --card-border:rgba(0,212,200,0.35); --white:#ffffff; --gold:#ffd166; }
+        html, body { overflow-x:hidden; }
         body { font-family:'Barlow',sans-serif; background:#04101d; color:#f7fbff; }
 
         .bg-wrap { position:fixed; inset:0; z-index:0; pointer-events:none; }

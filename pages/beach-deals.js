@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useLayoutEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import Head from "next/head";
+import ToolFooter from "../components/ToolFooter";
 import { createClient } from "@supabase/supabase-js";
 
 // ── ISR — runs at build time + revalidates every 10 mins ─────────────────────
@@ -225,7 +226,7 @@ function buildSchema(deals) {
     "@type": "ItemList",
     "name": "Featured Destin Beachfront Price Drops",
     "description": "Current vacation rental price drops at Pelican Beach Resort, Destin FL. Direct booking savings on Unit 707 and Unit 1006.",
-    "url": "https://deals.destincondogetaways.com/beach-deals",
+    "url": "https://www.destincondogetaways.com/deals",
     "numberOfItems": deals.length,
     "itemListElement": deals.map((deal, i) => ({
       "@type": "ListItem",
@@ -326,7 +327,7 @@ function buildSchema(deals) {
       { "@type": "ListItem", "position": 1, "name": "Destin Florida Vacation Rentals", "item": "https://www.destincondogetaways.com" },
       { "@type": "ListItem", "position": 2, "name": "Pelican Beach Resort Condos", "item": "https://www.destincondogetaways.com/pelican-beach-resort-destin-574048693" },
       { "@type": "ListItem", "position": 3, "name": "Destin Beachfront Condo Rentals", "item": "https://www.destincondogetaways.com/properties" },
-      { "@type": "ListItem", "position": 4, "name": "Destin Condo Price Drops — Book Direct & Save", "item": "https://deals.destincondogetaways.com/beach-deals" }
+      { "@type": "ListItem", "position": 4, "name": "Destin Condo Price Drops — Book Direct & Save", "item": "https://www.destincondogetaways.com/deals" }
     ]
   };
 
@@ -427,7 +428,7 @@ function buildSchema(deals) {
       "@type": "SearchAction",
       "target": {
         "@type": "EntryPoint",
-        "urlTemplate": "https://deals.destincondogetaways.com/beach-deals?q={search_term_string}"
+        "urlTemplate": "https://www.destincondogetaways.com/deals?q={search_term_string}"
       },
       "query-input": "required name=search_term_string"
     }
@@ -682,7 +683,7 @@ function DealCard({ deal, index, initialViews = 0, openCardId, setOpenCardId }) 
   }
 
   function handleShare() {
-    const shareUrl = `https://deals.destincondogetaways.com/beach-deals#${cardId}`;
+    const shareUrl = `https://www.destincondogetaways.com/deals#${cardId}`;
     const shareText = `Hey, check out this deal at Pelican Beach Resort Destin: ${shareUrl}`;
     if (typeof navigator !== 'undefined' && navigator.share) {
       navigator.share({
@@ -1301,16 +1302,16 @@ export default function BeachDeals({ deals }) {
       <Head>
         <title>Destin FL Beachfront Condo Price Drops — Book Direct &amp; Save | Pelican Beach Resort</title>
         <meta name="description" content="Live price drops on Gulf-front condos at Pelican Beach Resort, Destin FL. Unit 707 &amp; 1006 — sleeps 6, private balcony, beachfront. Book direct and save 10–20% vs Airbnb &amp; VRBO. Updated daily." />
-        <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+        <meta name="robots" content="noindex,nofollow" />
         <meta name="keywords" content="Destin Florida beachfront condo rental, Pelican Beach Resort condo deals, Destin vacation rental price drops, book direct condo Destin FL, Gulf front condo Destin Florida" />
-        <link rel="canonical" href="https://deals.destincondogetaways.com/beach-deals" />
+        <link rel="canonical" href="https://www.destincondogetaways.com/deals" />
         <meta property="og:title" content="Destin FL Beachfront Condo Price Drops — Book Direct &amp; Save up to 40%" />
         <meta property="og:description" content="Live price drops on two Gulf-front condos at Pelican Beach Resort, Destin FL. Skip Airbnb fees — book direct and save 10–20% instantly. Updated daily." />
         <meta property="og:image" content={IMAGES["707"][0].src} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="800" />
         <meta property="og:image:alt" content="Beachfront condo at Pelican Beach Resort, Destin Florida" />
-        <meta property="og:url" content="https://deals.destincondogetaways.com/beach-deals" />
+        <meta property="og:url" content="https://www.destincondogetaways.com/deals" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Destin Condo Getaways" />
         <meta property="og:locale" content="en_US" />
@@ -1333,15 +1334,15 @@ export default function BeachDeals({ deals }) {
           "@graph": [
             {
               "@type": "WebPage",
-              "@id": "https://deals.destincondogetaways.com/beach-deals#webpage",
-              "url": "https://deals.destincondogetaways.com/beach-deals",
+              "@id": "https://www.destincondogetaways.com/deals#webpage",
+              "url": "https://www.destincondogetaways.com/deals",
               "name": "Destin FL Beachfront Condo Price Drops — Book Direct & Save",
               "isPartOf": { "@id": "https://www.destincondogetaways.com/#website" },
               "publisher": { "@id": "https://www.destincondogetaways.com/#organization" },
               "significantLink": [
-                "https://offer.destincondogetaways.com/offer",
-                "https://sunbirds.destincondogetaways.com/snowbird",
-                "https://explore.destincondogetaways.com/destin-hub",
+                "https://www.destincondogetaways.com/offer",
+                "https://www.destincondogetaways.com/snowbird",
+                "https://www.destincondogetaways.com/trip-planner",
                 "https://www.destincondogetaways.com/availability"
               ]
             },
@@ -1383,25 +1384,13 @@ export default function BeachDeals({ deals }) {
             <span>CONDO GETAWAYS</span>
           </a>
           <nav className="deals-nav">
-            <a href="https://explore.destincondogetaways.com/destin-hub">Destin Hub</a>
-            <a href="https://explore.destincondogetaways.com/destin-tripshock.html">Activities</a>
-            <a href="https://www.destincondogetaways.com/properties">Condos</a>
-            <a className="active" href="https://deals.destincondogetaways.com/beach-deals">Deals</a>
-            <a href="https://explore.destincondogetaways.com/destin-car-rental.html">Flights & Cars</a>
-            <a href="https://destin-concierge-new.vercel.app/destin-itinerary-planner.html">Plan Your Trip</a>
-            <a href="https://offer.destincondogetaways.com/">Make an Offer</a>
+            <a href="/">Home</a><a href="/#condos">Condos</a><a className="active" href="/deals">Deals</a><a href="/activities">Activities</a><a href="/car-rentals">Flights & Cars</a><a href="/trip-planner">Trip Planner</a><a href="/snowbird">Snowbird</a>
           </nav>
-          <a className="deals-book" href="https://www.destincondogetaways.com/properties" target="_blank" rel="noopener">🏖️ Book Your Stay</a>
+          <a className="deals-book" href="/#availability">Check availability</a>
         </header>
 
         <nav className="deals-mobile-nav" aria-label="Beach deals mobile navigation">
-          <a href="https://explore.destincondogetaways.com/destin-hub">Destin Hub</a>
-          <a href="https://explore.destincondogetaways.com/destin-tripshock.html">Activities</a>
-          <a href="https://www.destincondogetaways.com/properties">Condos</a>
-          <a className="active" href="https://deals.destincondogetaways.com/beach-deals">Deals</a>
-          <a href="https://explore.destincondogetaways.com/destin-car-rental.html">Flights & Cars</a>
-          <a href="https://destin-concierge-new.vercel.app/destin-itinerary-planner.html">Plan Your Trip</a>
-          <a href="https://offer.destincondogetaways.com/">Make an Offer</a>
+          <a href="/">Home</a><a className="active" href="/deals">Deals</a><a href="/activities">Activities</a><a href="/car-rentals">Flights & Cars</a><a href="/trip-planner">Trip Planner</a><a href="/snowbird">Snowbird</a>
         </nav>
 
       <main className="page">
@@ -1417,7 +1406,7 @@ export default function BeachDeals({ deals }) {
               <a className="hero-btn hero-btn-gold" href="#current-drops">🏷️ View Current Drops</a>
               <a className="hero-btn hero-btn-teal" href="https://www.destincondogetaways.com/availability" target="_blank" rel="noopener">🏖️ Check Availability</a>
               <a className="hero-btn hero-btn-blue" href="#alerts">📬 Price Drop Alerts</a>
-              <a className="hero-btn hero-btn-glass" href="https://explore.destincondogetaways.com/destin-hub">🌊 Destin Hub</a>
+              <a className="hero-btn hero-btn-glass" href="/trip-planner">🌊 Plan Your Trip</a>
             </div>
 
             <div className="proof">
@@ -1609,6 +1598,7 @@ export default function BeachDeals({ deals }) {
         </div>
 
       </main>
+      <ToolFooter />
 
       <style jsx global>{`
         :root { --green:#39ff14; --green-dark:#2bcc0f; --teal:#00d4c8; --navy:#020b18; --card-bg:rgba(2,18,40,0.82); --card-border:rgba(0,212,200,0.35); --white:#ffffff; --gold:#ffd166; --strike:#ff6b6b; }

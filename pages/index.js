@@ -2,6 +2,8 @@ import Head from "next/head";
 import Image from "next/image";
 import Script from "next/script";
 import SiteButton from "../components/SiteButton";
+import SiteHeader from "../components/SiteHeader";
+import SiteFooter from "../components/SiteFooter";
 import styles from "../styles/HomePreview.module.css";
 
 const site = "https://www.destincondogetaways.com";
@@ -105,26 +107,7 @@ export default function Home() {
           <a href="/about">Contact</a>
         </div>
 
-        <header className={styles.header}>
-          <a className={styles.brand} href="#top" aria-label="Destin Condo Getaways home">
-            <span className={styles.mark}>DCG</span>
-            <span>
-              <strong>Destin Condo Getaways</strong>
-              <small>Pelican Beach Resort | Destin, Florida</small>
-            </span>
-          </a>
-          <nav className={styles.nav} aria-label="Main navigation">
-            <a href="#condos">Condos</a>
-            <a href="#resort">The Resort</a>
-            <a href={`${site}/blog`}>Destin Guide</a>
-            <a href="/beach-cam">Beach Cam</a>
-            <a href="/deals">Deals</a>
-            <a href="#live-chat">Live Chat</a>
-          </nav>
-          <SiteButton href="#availability" variant="primary" size="compact">
-            Check availability
-          </SiteButton>
-        </header>
+        <SiteHeader availabilityHref="#availability" />
 
         <main id="top">
           <section className={styles.hero}>
@@ -366,18 +349,7 @@ export default function Home() {
           </section>
         </main>
 
-        <footer className={styles.footer}>
-          <div className={styles.footerBrand}>
-            <strong>Destin Condo Getaways</strong>
-            <p>Thoughtful owner-direct hospitality at Pelican Beach Resort.</p>
-            <a href="tel:+19723574262">(972) 357-4262</a>
-            <a href="mailto:ozan@destincondogetaways.com">ozan@destincondogetaways.com</a>
-          </div>
-          <div><strong>Stay</strong><a href={condos[0].href}>Unit 707</a><a href={condos[1].href}>Unit 1006</a><a href="/availability">Availability</a><a href="/reviews">Reviews</a><a href="/book">Book direct</a></div>
-          <div><strong>Plan</strong><a href="/blog/how-to-find-cheaper-flights-and-car-rentals">Flights</a><a href="/blog/destincar">Car rentals</a><a href="/activities">Activities</a><a href="/trip-planner">Itinerary planner</a><a href="/map">Destin map</a></div>
-          <div><strong>Destin Guides</strong><a href={`${site}/blog/destinweather`}>Weather</a><a href={`${site}/blog/best-beaches-destin`}>Beaches</a><a href={`${site}/blog/best-restaurants-destin`}>Restaurants</a><a href={`${site}/blog/destin-events-2026`}>Events</a><a href={`${site}/blog/destin-fireworks-2026`}>Fireworks</a></div>
-          <div><strong>Guest Information</strong><a href="/guest-guide">Policies</a><a href="/guest-guide">FAQ</a><a href="/about">Contact</a><a href="/privacy">Privacy</a><a href="/beach-cam">Live beach cam</a></div>
-        </footer>
+        <SiteFooter />
       </div>
       <Script src="/destiny-head.js" strategy="lazyOnload" />
     </>

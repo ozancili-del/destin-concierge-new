@@ -16,6 +16,8 @@ export default function MigratedBlogArticle({
   title,
   intro,
   articleHtml,
+  articleContent,
+  canonical,
   related = [],
   stylesheet,
 }) {
@@ -25,6 +27,7 @@ export default function MigratedBlogArticle({
       <meta name="description" content={description} />
       <meta name="robots" content="noindex,nofollow" />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
+      {canonical ? <link rel="canonical" href={canonical} /> : null}
       {stylesheet ? <link rel="stylesheet" href={stylesheet} /> : null}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
     </Head>
@@ -59,7 +62,7 @@ export default function MigratedBlogArticle({
         </div>
       </section>
       <AvailabilitySearch className={styles.availability} />
-      <article className={styles.article} dangerouslySetInnerHTML={{ __html: articleHtml }} />
+      {articleContent ? <article className={styles.article}>{articleContent}</article> : <article className={styles.article} dangerouslySetInnerHTML={{ __html: articleHtml }} />}
 
       <section className={styles.related}>
         <div><p className={styles.kicker}>Continue planning</p><h2>More useful Destin guides.</h2></div>

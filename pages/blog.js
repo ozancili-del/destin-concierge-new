@@ -6,7 +6,7 @@ import AvailabilitySearch from "../components/AvailabilitySearch";
 import styles from "../styles/Blog.module.css";
 
 const liveSite = "https://www.destincondogetaways.com";
-const migratedSlugs = new Set(["destinspa", "how-to-find-cheaper-flights-and-car-rentals", "destincar", "destinsupermarkets", "destin-florida-vacation-guide-2026", "best-time-to-visit-destin-florida", "best-restaurants-destin-local-guide", "best-restaurants-destin", "best-beaches-destin", "destinweather", "destin-fireworks-2026", "destin-events-2026", "destin-live-music-2026", "destinairport"]);
+const migratedSlugs = new Set(["destinspa", "how-to-find-cheaper-flights-and-car-rentals", "destincar", "destinsupermarkets", "destin-florida-vacation-guide-2026", "best-time-to-visit-destin-florida", "best-restaurants-destin-local-guide", "best-restaurants-destin", "best-beaches-destin", "destinweather", "destin-fireworks-2026", "destin-events-2026", "destin-live-music-2026", "destinairport", "destindiversehistory", "destinocen", "destinromance", "destinnights", "destinessentials", "destinkids", "destinexplore"]);
 const articleHref = (slug) => migratedSlugs.has(slug) ? `/blog/${slug}` : `${liveSite}/blog/${slug}`;
 
 const articles = [
@@ -26,13 +26,13 @@ const articles = [
   ["destinsupermarkets","Grocery Stores Near Pelican Beach","Drive times, store choices and an interactive local grocery map.","Practical Guides","/hub-groceries.png","Interactive map"],
   ["destin-condo-ai-concierge-direct-booking","Direct Booking Guide","How owner-direct booking works and where marketplace costs differ.","Book Direct","/hub-deals.png","Booking guide"],
   ["destin-vacation-rental-ai-concierge","The Story of Destiny Blue","Why human-in-the-loop AI supports guests before and during their stay.","About Us","/hub-planner.png","Our story"],
-  ["destindiversehistory","Destin History & Military Heritage","Fishing-village roots, coastal history and nearby military landmarks.","Things to Do","/florida-panhandle-travel-map.png","Needs refresh"],
-  ["destinocen","Water Activities in Destin","Snorkeling, parasailing, boating and ways to enjoy the Gulf.","Things to Do","/hub-activities.png","Needs refresh"],
-  ["destinromance","Romantic Things to Do in Destin","Sunsets, dinners and memorable experiences for couples.","Things to Do","/hub-beaches.png","Needs refresh"],
-  ["destinnights","Bars & Nightlife in Destin","Beachfront bars, evening venues and live-music options.","Food & Drink","/hub-music.png","Needs refresh"],
-  ["destinessentials","Destin Visitor Essentials","Groceries, pharmacies, practical services and pre-arrival planning.","Practical Guides","/hub-groceries.png","Needs refresh"],
-  ["destinkids","Destin with Kids","Family-friendly beaches, activities and rainy-day ideas.","Things to Do","/hub-activities.png","Needs refresh"],
-  ["destinexplore","Explore Destin","Fishing, Crab Island, dolphin tours and Emerald Coast day trips.","Things to Do","/hub-activities.png","Needs refresh"]
+  ["destindiversehistory","Destin History & Military Heritage","Fishing-village roots, regional history, museums and nearby military heritage.","Things to Do","/florida-panhandle-travel-map.png","Expanded guide"],
+  ["destinocen","Water Activities in Destin","Gulf safety, snorkeling, boating, fishing and activity planning.","Things to Do","/hub-activities.png","Expanded guide"],
+  ["destinromance","Romantic Things to Do in Destin","Sunsets, date nights, spas and balanced couples itineraries.","Things to Do","/hub-beaches.png","Expanded guide"],
+  ["destinnights","Bars & Nightlife in Destin","Evening districts, live music, transport and date-night options.","Food & Drink","/hub-music.png","Expanded guide"],
+  ["destinessentials","Destin Visitor Essentials","A practical arrival, packing, safety, grocery and transport checklist.","Practical Guides","/hub-groceries.png","Expanded guide"],
+  ["destinkids","Destin with Kids","Age-specific activities, beach advice and rainy-day backups.","Things to Do","/hub-activities.png","Expanded guide"],
+  ["destinexplore","Explore Destin","Three-, five- and seven-day itineraries with flexible day trips.","Things to Do","/florida-panhandle-travel-map.png","Expanded guide"]
 ].map(([slug,title,description,category,image,badge])=>({slug,title,description,category,image,badge}));
 
 const featured = articles.slice(0,5);

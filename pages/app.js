@@ -293,7 +293,7 @@ export default function App() {
           <div className={`tab-panel ${active === 'planner' ? 'active' : ''}`}>
             <div className="iframe-wrap">
               {!plannerReady && <div className="loading-screen"><div className="spinner"/><p>Loading Trip Planner...</p></div>}
-              <iframe src="https://www.destincondogetaways.com/destin-vacation-itinerary-planner-574049367" title="Trip Planner" onLoad={() => setPlannerReady(true)} loading="lazy" />
+              <iframe src="/trip-planner" title="Trip Planner" onLoad={() => setPlannerReady(true)} loading="lazy" />
             </div>
           </div>
 

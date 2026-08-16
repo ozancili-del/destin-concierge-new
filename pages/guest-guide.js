@@ -142,7 +142,7 @@ export default function GuestGuidePage() {
           <a href="/why-book-direct"><span>Book direct</span><strong>Understand pricing and owner-direct support</strong></a>
           <a href={liveSite + "/blog/best-restaurants-destin"}><span>Restaurants</span><strong>Dining suggestions around Destin</strong></a>
           <a href={liveSite + "/blog/destin-fireworks-2026"}><span>Fireworks</span><strong>Schedules, maps and viewing tips</strong></a>
-          <a href={liveSite + "/destin-vacation-itinerary-planner-574049367"}><span>Trip planner</span><strong>Create a personalized day-by-day itinerary</strong></a>
+          <a href="/trip-planner"><span>Trip planner</span><strong>Create a personalized day-by-day itinerary</strong></a>
         </div>
       </section>
 

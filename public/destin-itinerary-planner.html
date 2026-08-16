@@ -24,6 +24,9 @@
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'DM Sans', sans-serif; background: var(--sand); color: var(--text); min-height: 100vh; }
+  html.embedded body { background: transparent; }
+  html.embedded .header { display: none; }
+  html.embedded .container { max-width: 900px; padding: 0 0 12px; }
 
   .header { background: var(--navy); padding: 20px 32px; display: flex; align-items: center; gap: 16px; }
   .header img { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; }
@@ -234,6 +237,16 @@
 <script>
 var itineraryData = null;
 var formSnapshot = null;
+
+// Keep the embedded planner tall enough as results and email controls appear.
+if (window.parent !== window) {
+  document.documentElement.classList.add('embedded');
+  var reportPlannerHeight = function() {
+    window.parent.postMessage({ type: 'destin-planner-height', height: document.documentElement.scrollHeight }, window.location.origin);
+  };
+  window.addEventListener('load', reportPlannerHeight);
+  if (window.ResizeObserver) new ResizeObserver(reportPlannerHeight).observe(document.body);
+}
 
 // Multi-select chips
 document.querySelectorAll('#cuisineChips .chip, #interestChips .chip').forEach(function(chip) {

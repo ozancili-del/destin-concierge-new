@@ -13,6 +13,13 @@ function generateSessionId() {
 
 export default function Concierge() {
   const router = useRouter();
+  const isEmbed = router.query.embed === "1";
+  const starterPrompts = [
+    "Check condo availability",
+    "Help plan a family trip",
+    "What can we do in Destin?",
+    "I’m already staying and need help",
+  ];
   const [log, setLog] = useState([
     { role: "assistant", content: "Hey there! 👋 I'm Destiny Blue — I can check live availability for both units, build you a booking link in seconds, recommend dolphin tours and activities, or connect you straight to Ozan. What can I help you with? 😊" }
   ]);
@@ -288,23 +295,24 @@ function getLinkButton(u){
      .replace(/\n/g, "<br/>");
 
   const styles = {
-    page: { maxWidth: 820, margin: "0 auto", padding: 12, fontFamily: "system-ui, sans-serif" },
+    page: { maxWidth: isEmbed ? "none" : 920, minHeight: isEmbed ? "100vh" : "auto", margin: "0 auto", padding: isEmbed ? 0 : 16, background: isEmbed ? "#fffefb" : "transparent", fontFamily: "Inter, system-ui, sans-serif" },
     heading: { fontSize: 22, margin: "8px 0 12px" },
     chatBox: {
-      borderRadius: 20,
+      borderRadius: isEmbed ? 18 : 24,
+      minHeight: isEmbed ? "100vh" : "auto",
       overflow: "hidden",
       boxShadow: "0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08)",
       border: "0.5px solid rgba(0,0,0,0.08)"
     },
     header: {
-      background: "linear-gradient(135deg, #1a3a6b 0%, #2563eb 100%)",
-      padding: "14px 18px",
+      background: "linear-gradient(135deg, #073b58 0%, #0c6c7c 100%)",
+      padding: "16px 18px",
       display: "flex",
       alignItems: "center",
       gap: 10
     },
     headerAvatar: {
-      width: 40, height: 40, borderRadius: "50%",
+      width: 46, height: 46, borderRadius: "50%",
       background: "rgba(255,255,255,0.2)",
       display: "flex", alignItems: "center", justifyContent: "center",
       fontSize: 20,
@@ -312,11 +320,11 @@ function getLinkButton(u){
       border: "2px solid rgba(255,255,255,0.3)",
       flexShrink: 0
     },
-    headerName: { color: "#fff", fontWeight: 500, fontSize: 15, margin: 0 },
-    headerSub: { color: "rgba(255,255,255,0.65)", fontSize: 11, margin: 0 },
+    headerName: { color: "#fff", fontWeight: 700, fontSize: 16, margin: 0 },
+    headerSub: { color: "rgba(255,255,255,0.78)", fontSize: 11, margin: "3px 0 0" },
     messagesArea: {
-      height: 520, overflowY: "auto", padding: "16px 14px",
-      background: "#f0f4fa",
+      height: isEmbed ? "calc(100vh - 142px)" : 560, minHeight: isEmbed ? 520 : 0, overflowY: "auto", padding: "20px 18px",
+      background: "linear-gradient(180deg,#f8fbfb 0%,#f1f7f7 100%)",
       display: "flex", flexDirection: "column", gap: 10
     },
     systemMsg: { textAlign: "center", fontSize: 11, color: "#9ca3af", fontStyle: "italic" },
@@ -329,24 +337,24 @@ function getLinkButton(u){
       border: "1.5px solid rgba(255,255,255,0.7)"
     },
     botBubble: {
-      background: "linear-gradient(145deg, #ffffff, #f0f4ff)",
+      background: "#ffffff",
       color: "#1e293b",
       borderRadius: "18px 18px 18px 4px",
       padding: "11px 15px",
       fontSize: 14, lineHeight: 1.55,
       maxWidth: "78%",
-      boxShadow: "0 4px 12px rgba(37,99,235,0.12), 0 1px 4px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.9)",
-      border: "0.5px solid rgba(37,99,235,0.15)",
+      boxShadow: "0 5px 16px rgba(7,59,88,0.10)",
+      border: "1px solid #dbe8e9",
       wordBreak: "break-word"
     },
     userBubble: {
-      background: "linear-gradient(145deg, #2f74eb, #1a56d6)",
+      background: "linear-gradient(145deg, #1597a8, #087b8b)",
       color: "#fff",
       borderRadius: "18px 18px 4px 18px",
       padding: "11px 15px",
       fontSize: 14, lineHeight: 1.55,
       maxWidth: "78%",
-      boxShadow: "0 4px 14px rgba(37,99,235,0.35), 0 1px 4px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.2)",
+      boxShadow: "0 4px 14px rgba(21,151,168,0.28)",
       wordBreak: "break-word"
     },
     ozanIcon: {
@@ -378,44 +386,47 @@ function getLinkButton(u){
     inputArea: {
       display: "flex", gap: 8,
       borderTop: "0.5px solid rgba(0,0,0,0.08)",
-      padding: "10px 12px",
+      padding: "12px 14px",
       background: "#fff",
       alignItems: "flex-end"
     },
     textarea: {
       flex: 1, resize: "none", padding: "9px 14px",
-      borderRadius: 14,
+      borderRadius: 18,
       border: "1px solid #e2e8f0",
       fontSize: 14,
-      background: "#f8fafc",
+      background: "#fffefb",
       boxShadow: "inset 0 1px 3px rgba(0,0,0,0.05)",
       fontFamily: "system-ui, sans-serif",
       outline: "none"
     },
     sendBtn: {
-      padding: "9px 16px", borderRadius: 12, border: 0,
-      background: "linear-gradient(145deg, #2f74eb, #1a56d6)",
+      padding: "11px 18px", borderRadius: 16, border: 0,
+      background: "linear-gradient(145deg, #1597a8, #087b8b)",
       color: "#fff", fontSize: 14, fontWeight: 500, cursor: "pointer",
-      boxShadow: "0 3px 10px rgba(37,99,235,0.35), inset 0 1px 0 rgba(255,255,255,0.2)"
+      boxShadow: "0 3px 10px rgba(21,151,168,0.30), inset 0 1px 0 rgba(255,255,255,0.2)"
     }
   };
 
   return (
     <main style={styles.page}>
-      <h1 style={styles.heading}>Destiny Blue — Your AI Concierge</h1>
+      {!isEmbed && <h1 style={styles.heading}>Destiny Blue — Your AI Concierge</h1>}
 
       <div style={styles.chatBox}>
         {/* Header */}
         <div style={styles.header}>
-          <div style={styles.headerAvatar}>🌊</div>
+          <img src="/destiny_avatar.png" alt="Destiny Blue" style={{...styles.headerAvatar, objectFit:"cover", objectPosition:"center top"}} />
           <div>
             <p style={styles.headerName}>Destiny Blue</p>
-            <p style={styles.headerSub}>Your AI Concierge · Online</p>
+            <p style={styles.headerSub}><span style={{color:"#8de1a8"}}>●</span> AI Concierge · Available now</p>
           </div>
         </div>
 
         {/* Messages */}
         <div ref={scrollContainerRef} style={styles.messagesArea}>
+          {log.length === 1 && !busy && <div style={{display:"flex",flexWrap:"wrap",gap:8,margin:"0 0 8px 36px"}}>
+            {starterPrompts.map(prompt => <button key={prompt} type="button" onClick={() => setInput(prompt)} style={{padding:"9px 12px",borderRadius:999,border:"1px solid #c9dfe2",background:"#fff",color:"#073b58",fontSize:12,fontWeight:700,cursor:"pointer"}}>{prompt}</button>)}
+          </div>}
           {log.map((m, i) => {
             if (m.role === "system") return (
               <div key={i} style={styles.systemMsg}>{m.content}</div>

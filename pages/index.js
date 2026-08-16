@@ -13,7 +13,7 @@ const condos = [
     image: "https://uc.orez.io/i/0f604abce3284748ba8d2150b7646863-Large",
     description:
       "A relaxed seventh-floor retreat with direct Gulf views, a private balcony, and the beach just downstairs.",
-    href: `${site}/pelican-beach-resort-unit-707-orp5b47b5ax`,
+    href: "/condos/unit-707",
   },
   {
     unit: "1006",
@@ -21,7 +21,7 @@ const condos = [
     image: "https://uc.orez.io/i/79fb2b20887c4f44b58c710a59420a30-Large",
     description:
       "A bright tenth-floor escape with panoramic emerald-water views and sunset skies from your private balcony.",
-    href: `${site}/pelican-beach-resort-unit-1006-orp5b6450ex`,
+    href: "/condos/unit-1006",
   },
 ];
 
@@ -99,10 +99,10 @@ export default function Home() {
         </div>
 
         <div className={styles.utilityBar}>
-          <a href={`${site}/reviews`}>Guest Reviews</a>
+          <a href="/reviews">Guest Reviews</a>
           <a href="/guest-guide">FAQ</a>
           <a href="/guest-guide">Policies</a>
-          <a href={`${site}/aboutus-574000712`}>Contact</a>
+          <a href="/about">Contact</a>
         </div>
 
         <header className={styles.header}>
@@ -117,7 +117,7 @@ export default function Home() {
             <a href="#condos">Condos</a>
             <a href="#resort">The Resort</a>
             <a href={`${site}/blog`}>Destin Guide</a>
-            <a href={`${site}/destin-live-beach-cam-574002656`}>Beach Cam</a>
+            <a href="/beach-cam">Beach Cam</a>
             <a href="/deals">Deals</a>
             <a href="#live-chat">Live Chat</a>
           </nav>
@@ -233,7 +233,7 @@ export default function Home() {
                 </blockquote>
               ))}
             </div>
-            <a className={styles.textLink} href={`${site}/reviews`}>Read guest reviews and booking-profile feedback -&gt;</a>
+            <a className={styles.textLink} href="/reviews">Read guest reviews and booking-profile feedback -&gt;</a>
           </section>
 
           <section className={styles.direct}>
@@ -245,7 +245,7 @@ export default function Home() {
                 See the exact condo, understand the policies, and reach Ozan directly when
                 a question needs personal attention.
               </p>
-              <a className={styles.textLink} href={`${site}/aboutus-574000712`}>Meet your host -&gt;</a>
+              <a className={styles.textLink} href="/about">Meet your host -&gt;</a>
             </div>
             <div className={styles.directPanel}>
               <p className={styles.kickerDark}>Why book direct</p>
@@ -281,7 +281,7 @@ export default function Home() {
                 <span>3 pools</span><span>2 hot tubs</span><span>Beachside tiki bar</span>
                 <span>Tennis & pickleball</span><span>Fitness center</span><span>Free parking</span>
               </div>
-              <a className={styles.textLink} href={`${site}/pelican-beach-resort-destin-574048693`}>
+              <a className={styles.textLink} href="/resort">
                 See the resort -&gt;
               </a>
             </div>
@@ -301,7 +301,7 @@ export default function Home() {
               <p className={styles.kicker}>See Destin now</p>
               <h2>Check the beach before you pack.</h2>
               <p>Watch the Gulf, shoreline, and current beach scene from Pelican Beach Resort.</p>
-              <a href={`${site}/destin-live-beach-cam-574002656`}>Open the live beach cam</a>
+              <a href="/beach-cam">Open the live beach cam</a>
             </div>
           </section>
 
@@ -373,10 +373,10 @@ export default function Home() {
             <a href="tel:+19723574262">(972) 357-4262</a>
             <a href="mailto:ozan@destincondogetaways.com">ozan@destincondogetaways.com</a>
           </div>
-          <div><strong>Stay</strong><a href={condos[0].href}>Unit 707</a><a href={condos[1].href}>Unit 1006</a><a href={`${site}/availability`}>Availability</a><a href={`${site}/reviews`}>Reviews</a><a href={`${site}/book`}>Book direct</a></div>
-          <div><strong>Plan</strong><a href={`${site}/blog/how-to-find-cheaper-flights-and-car-rentals`}>Flights</a><a href={`${site}/blog/destincar`}>Car rentals</a><a href="https://explore.destincondogetaways.com/destin-tripshock.html">Activities</a><a href={`${site}/destin-vacation-itinerary-planner-574049367`}>Itinerary planner</a><a href={`${site}/map`}>Destin map</a></div>
+          <div><strong>Stay</strong><a href={condos[0].href}>Unit 707</a><a href={condos[1].href}>Unit 1006</a><a href="/availability">Availability</a><a href="/reviews">Reviews</a><a href="/book">Book direct</a></div>
+          <div><strong>Plan</strong><a href="/blog/how-to-find-cheaper-flights-and-car-rentals">Flights</a><a href="/blog/destincar">Car rentals</a><a href="/activities">Activities</a><a href="/trip-planner">Itinerary planner</a><a href="/map">Destin map</a></div>
           <div><strong>Destin Guides</strong><a href={`${site}/blog/destinweather`}>Weather</a><a href={`${site}/blog/best-beaches-destin`}>Beaches</a><a href={`${site}/blog/best-restaurants-destin`}>Restaurants</a><a href={`${site}/blog/destin-events-2026`}>Events</a><a href={`${site}/blog/destin-fireworks-2026`}>Fireworks</a></div>
-          <div><strong>Guest Information</strong><a href="/guest-guide">Policies</a><a href="/guest-guide">FAQ</a><a href={`${site}/aboutus-574000712`}>Contact</a><a href={`${site}/privacy-574035022`}>Privacy</a><a href={`${site}/destin-live-beach-cam-574002656`}>Live beach cam</a></div>
+          <div><strong>Guest Information</strong><a href="/guest-guide">Policies</a><a href="/guest-guide">FAQ</a><a href="/about">Contact</a><a href="/privacy">Privacy</a><a href="/beach-cam">Live beach cam</a></div>
         </footer>
       </div>
       <Script src="/destiny-head.js" strategy="lazyOnload" />

@@ -135,8 +135,6 @@ export default function Home() {
               method="get"
               action="/book"
             >
-              <input type="hidden" name="Page" value="1" />
-              <input type="hidden" name="Sort" value="DailyRandom" />
               <label>
                 <span>Check in</span>
                 <input aria-label="Arrival date" name="or_arrival" type="date" required />

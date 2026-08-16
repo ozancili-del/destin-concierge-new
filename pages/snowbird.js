@@ -65,7 +65,7 @@ function buildSchema() {
     "@type": "BreadcrumbList",
     "itemListElement": [
       { "@type": "ListItem", "position": 1, "name": "Destin Florida Vacation Rentals", "item": "https://www.destincondogetaways.com" },
-      { "@type": "ListItem", "position": 2, "name": "Pelican Beach Resort Condos", "item": "https://www.destincondogetaways.com/pelican-beach-resort-destin-574048693" },
+      { "@type": "ListItem", "position": 2, "name": "Pelican Beach Resort Condos", "item": "https://www.destincondogetaways.com/resort" },
       { "@type": "ListItem", "position": 3, "name": "Snowbird Rentals Destin FL — Monthly Winter Stays", "item": CANONICAL }
     ]
   };
@@ -274,7 +274,7 @@ function ResultCard({ result, adults, children, year, month, nights, isSnowbird 
           </a>
           <p style={{ fontSize: 10, color: "rgba(255,255,255,.3)", textAlign: "center", marginTop: 8, lineHeight: 1.5 }}>
             Rates are estimates — final total confirmed at checkout.{" "}
-            <a href="https://www.destincondogetaways.com/-pelican-beach-resort-condo-rental-574046950" target="_blank" rel="noopener" style={{ color: "rgba(255,255,255,.3)" }}>Booking terms apply.</a>
+            <a href="/why-book-direct" style={{ color: "rgba(255,255,255,.3)" }}>Booking terms apply.</a>
           </p>
           <MsgForm unit={result.unit} arrival={result.arrival} departure={result.departure} nights={nights} total={fees.total} />
         </div>
@@ -482,7 +482,7 @@ export default function Snowbird({ dayData }) {
 
       {/* Top nav */}
       <header className="deals-topbar">
-        <a className="deals-brand" href="https://www.destincondogetaways.com">
+        <a className="deals-brand" href="/">
           <b>DESTIN</b><span>CONDO GETAWAYS</span>
         </a>
         <nav className="deals-nav">
@@ -505,7 +505,7 @@ export default function Snowbird({ dayData }) {
             <p className="hero-copy">Direct beachfront rates · No platform fees · Up to 48% off rent for monthly winter stays</p>
             <div className="hero-actions">
               <a className="hero-btn hero-btn-teal" href="#finder">❄️ Find My Rate</a>
-              <a className="hero-btn hero-btn-gold" href="https://www.destincondogetaways.com/properties" target="_blank" rel="noopener">🏖️ View Condos</a>
+              <a className="hero-btn hero-btn-gold" href="/destin-vacation-rentals-by-owner">🏖️ View Condos</a>
               <a className="hero-btn hero-btn-glass" href="/trip-planner">🌊 Plan Your Trip</a>
             </div>
             <div className="proof">
@@ -527,7 +527,7 @@ export default function Snowbird({ dayData }) {
 
         {/* SEO intro */}
         <div className="seo-intro">
-          <p>These are direct <strong>snowbird rental rates</strong> for our two <strong>beachfront condos at Pelican Beach Resort, Destin FL</strong> — Unit 707 (7th floor, Classic Coastal) and Unit 1006 (10th floor, Fresh Coastal). Both units sleep up to 6 guests with a private Gulf-view balcony, full kitchen, and 2 bathrooms. For stays of 28 nights or more arriving between November 1 and February 28, guests receive <strong>up to 48% off rent automatically</strong> when booked direct through <a href="https://www.destincondogetaways.com" style={{ color: "var(--teal)" }}>destincondogetaways.com</a>. No promo code needed. No platform fees.</p>
+          <p>These are direct <strong>snowbird rental rates</strong> for our <strong>beachfront vacation rentals at Pelican Beach Resort, Destin FL</strong>. Each featured condo sleeps up to 6 guests with a private Gulf-view balcony, full kitchen, and 2 bathrooms. For stays of 28 nights or more arriving between November 1 and February 28, guests receive <strong>up to 48% off rent automatically</strong> when booked direct through <a href="/" style={{ color: "var(--teal)" }}>destincondogetaways.com</a>. No promo code needed. No platform fees.</p>
         </div>
 
         {/* Rate finder */}
@@ -677,7 +677,7 @@ export default function Snowbird({ dayData }) {
             <div className="host-avatar">OC</div>
             <div className="host-info">
               <strong>Ozan Cili — Owner & Host</strong>
-              <p>I have been hosting guests at Pelican Beach Resort for several years and personally manage both units. I respond directly to all inquiries. Have questions? <a href="https://www.destincondogetaways.com/ai-concierge-574036277" style={{ color: "var(--teal)" }}>Destiny Blue</a>, our AI concierge, is available 24/7.</p>
+              <p>I have been hosting guests at Pelican Beach Resort for several years and respond directly to all inquiries. Have questions? <a href="/destin-ai-concierge" style={{ color: "var(--teal)" }}>Destiny Blue</a>, our AI concierge, is available 24/7.</p>
             </div>
           </div>
         </div>
@@ -686,9 +686,9 @@ export default function Snowbird({ dayData }) {
         <div className="plan-trip">
           <div className="plan-trip-title">Plan Your Destin Winter Escape</div>
           <div className="plan-trip-links">
-            <a href="https://www.destincondogetaways.com/blog/best-beaches-destin" className="plan-trip-pill">🏖️ Best Beaches</a>
-            <a href="https://www.destincondogetaways.com/blog/destinweather" className="plan-trip-pill">🌤️ Winter Weather</a>
-            <a href="https://www.destincondogetaways.com/blog/destinairport" className="plan-trip-pill">✈️ Which Airport</a>
+            <a href="/blog/best-beaches-destin" className="plan-trip-pill">🏖️ Best Beaches</a>
+            <a href="/blog/destinweather" className="plan-trip-pill">🌤️ Winter Weather</a>
+            <a href="/blog/destinairport" className="plan-trip-pill">✈️ Which Airport</a>
             <a href="/car-rentals" className="plan-trip-pill">🚗 Car Rentals</a>
             <a href="/deals" className="plan-trip-pill">🏷️ Price Drops</a>
             <a href="/activities" className="plan-trip-pill">🎯 Activities</a>
@@ -712,7 +712,7 @@ export default function Snowbird({ dayData }) {
         </div>
 
         <div id="floatingHomeTop" className={`floating-home-top${showFloat ? " visible" : ""}`}>
-          <a href="https://www.destincondogetaways.com" target="_blank" rel="noopener" aria-label="Home">🏠</a>
+          <a href="/" aria-label="Home">🏠</a>
           <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} aria-label="Back to top">↑</button>
         </div>
 

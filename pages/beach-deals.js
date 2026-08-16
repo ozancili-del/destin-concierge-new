@@ -325,8 +325,8 @@ function buildSchema(deals) {
     "@type": "BreadcrumbList",
     "itemListElement": [
       { "@type": "ListItem", "position": 1, "name": "Destin Florida Vacation Rentals", "item": "https://www.destincondogetaways.com" },
-      { "@type": "ListItem", "position": 2, "name": "Pelican Beach Resort Condos", "item": "https://www.destincondogetaways.com/pelican-beach-resort-destin-574048693" },
-      { "@type": "ListItem", "position": 3, "name": "Destin Beachfront Condo Rentals", "item": "https://www.destincondogetaways.com/properties" },
+      { "@type": "ListItem", "position": 2, "name": "Pelican Beach Resort Condos", "item": "https://www.destincondogetaways.com/resort" },
+      { "@type": "ListItem", "position": 3, "name": "Destin Beachfront Condo Rentals", "item": "https://www.destincondogetaways.com/destin-vacation-rentals-by-owner" },
       { "@type": "ListItem", "position": 4, "name": "Destin Condo Price Drops — Book Direct & Save", "item": "https://www.destincondogetaways.com/deals" }
     ]
   };
@@ -456,7 +456,7 @@ function buildSchema(deals) {
     "@type": "LodgingBusiness",
     "name": "Destin Condo Getaways — Unit 707 Classic Coastal at Pelican Beach Resort",
     "description": "Beachfront 1-bedroom condo on the 7th floor of Pelican Beach Resort, Destin FL. Sleeps 6. Private Gulf-view balcony, full kitchen, 2 bathrooms. Direct booking saves 10% vs Airbnb and VRBO.",
-    "url": "https://www.destincondogetaways.com/pelican-beach-resort-unit-707-orp5b47b5ax",
+    "url": "https://www.destincondogetaways.com/condos/unit-707",
     "telephone": "",
     "address": {
       "@type": "PostalAddress",
@@ -489,7 +489,7 @@ function buildSchema(deals) {
     ...lodging707,
     "name": "Destin Condo Getaways — Unit 1006 Fresh Coastal at Pelican Beach Resort",
     "description": "Beachfront 1-bedroom condo on the 10th floor of Pelican Beach Resort, Destin FL. Higher floor Gulf views, sleeps 6. Private balcony, full kitchen, 2 bathrooms. Direct booking saves 10% vs Airbnb and VRBO.",
-    "url": "https://www.destincondogetaways.com/pelican-beach-resort-unit-1006-orp5b6450ex",
+    "url": "https://www.destincondogetaways.com/condos/unit-1006",
     "address": { ...lodging707.address, "streetAddress": "1002 US-98 East, Unit 1006" }
   };
 
@@ -943,7 +943,7 @@ function NoDeals() {
         If you have specific dates in mind, send an inquiry — the host may be able to work something out.
       </p>
       <div className="no-deals-btns">
-        <a className="btn-main" href="https://www.destincondogetaways.com/availability">Check Availability</a>
+        <a className="btn-main" href="/availability">Check Availability</a>
         <a className="btn-inquiry" href="mailto:ozan@destincondogetaways.com?subject=Inquiry%20for%20specific%20dates&body=Hi%20Ozan%2C%20I%20am%20interested%20in%20booking%20for%20the%20following%20dates%3A%0A%0AUnit%3A%0AArrival%3A%0ADeparture%3A%0AGuests%3A%0A%0AThank%20you!">
           Send Inquiry
         </a>
@@ -1379,7 +1379,7 @@ export default function BeachDeals({ deals }) {
 
 
         <header className="deals-topbar">
-          <a className="deals-brand" href="https://www.destincondogetaways.com">
+        <a className="deals-brand" href="/">
             <b>DESTIN</b>
             <span>CONDO GETAWAYS</span>
           </a>
@@ -1404,7 +1404,7 @@ export default function BeachDeals({ deals }) {
 
             <div className="hero-actions">
               <a className="hero-btn hero-btn-gold" href="#current-drops">🏷️ View Current Drops</a>
-              <a className="hero-btn hero-btn-teal" href="https://www.destincondogetaways.com/availability" target="_blank" rel="noopener">🏖️ Check Availability</a>
+              <a className="hero-btn hero-btn-teal" href="/availability">🏖️ Check Availability</a>
               <a className="hero-btn hero-btn-blue" href="#alerts">📬 Price Drop Alerts</a>
               <a className="hero-btn hero-btn-glass" href="/trip-planner">🌊 Plan Your Trip</a>
             </div>
@@ -1460,7 +1460,7 @@ export default function BeachDeals({ deals }) {
 
         {/* SEO intro — visible text for Google */}
         <div className="seo-intro">
-          <p>These are real-time price drops on our two <strong>beachfront condos at Pelican Beach Resort, Destin FL</strong> — Unit 707 (7th floor, Classic Coastal) and Unit 1006 (10th floor, Fresh Coastal). Both <strong>Pelican Beach Resort condos</strong> sleep up to 6 guests with 1 bedroom, 2 bathrooms, a private Gulf-view balcony, and full kitchen. Minutes from Destin HarborWalk Village, Big Kahuna&apos;s Water Park, and Henderson Beach State Park. When you book direct through <a href="https://www.destincondogetaways.com" style={{color:"var(--teal)"}}>destincondogetaways.com</a>, you skip the 14–20% platform fees charged by Airbnb and VRBO. Prices are tracked daily — drops are calculated against the highest recently recorded rate for each date window.</p>
+          <p>These are real-time price drops on our <strong>beachfront vacation rentals at Pelican Beach Resort, Destin FL</strong>. Each featured condo sleeps up to 6 guests with 1 bedroom, 2 bathrooms, a private Gulf-view balcony, and full kitchen. Minutes from Destin HarborWalk Village, Big Kahuna&apos;s Water Park, and Henderson Beach State Park. When you book direct through <a href="/" style={{color:"var(--teal)"}}>destincondogetaways.com</a>, you skip the 14–20% platform fees charged by Airbnb and VRBO. Prices are tracked daily — drops are calculated against the highest recently recorded rate for each date window.</p>
         </div>
 
         {/* Month filter pills */}
@@ -1504,7 +1504,7 @@ export default function BeachDeals({ deals }) {
                 <div className="no-month-deals-icon">🤝</div>
                 <div className="no-month-deals-title">No listed deals for this month — yet</div>
                 <div className="no-month-deals-sub">Why wait for a deal when you can create one? Tell us your dates and budget and we&apos;ll make it work.</div>
-                <a href="https://offer.destincondogetaways.com/offer" className="no-month-deals-btn">Make Us an Offer →</a>
+                <a href="/offer" className="no-month-deals-btn">Make Us an Offer →</a>
               </div>
             )}
           </>
@@ -1525,7 +1525,7 @@ export default function BeachDeals({ deals }) {
                 <span>These aren&apos;t the only deals — check live availability for all open dates</span>
               </div>
             </div>
-            <a className="btn-main" href="https://www.destincondogetaways.com">destincondogetaways.com</a>
+            <a className="btn-main" href="/">destincondogetaways.com</a>
           </div>
         )}
 
@@ -1573,7 +1573,7 @@ export default function BeachDeals({ deals }) {
             <div className="host-avatar">OC</div>
             <div className="host-info">
               <strong>Ozan Cili — Owner &amp; Host</strong>
-              <p>I have been hosting guests at Pelican Beach Resort for several years and personally manage both units. I respond directly to all inquiries — no call centers, no middlemen. My goal is simple: give every guest the best possible Destin experience at the best direct price. Have questions before you book? <a href="https://www.destincondogetaways.com/ai-concierge-574036277" style={{color:"var(--teal)"}}>Destiny Blue</a>, our AI concierge, is available 24/7 on every page.</p>
+              <p>I have been hosting guests at Pelican Beach Resort for several years and respond directly to all inquiries — no call centers, no middlemen. My goal is simple: give every guest the best possible Destin experience at the best direct price. Have questions before you book? <a href="/destin-ai-concierge" style={{color:"var(--teal)"}}>Destiny Blue</a>, our AI concierge, is available 24/7 on every page.</p>
             </div>
           </div>
         </div>
@@ -1582,18 +1582,18 @@ export default function BeachDeals({ deals }) {
         <div className="plan-trip">
           <div className="plan-trip-title">Plan Your Destin Trip</div>
           <div className="plan-trip-links">
-            <a href="https://www.destincondogetaways.com/blog/best-beaches-destin" className="plan-trip-pill">🏖️ Best Beaches</a>
-            <a href="https://www.destincondogetaways.com/blog/destinweather" className="plan-trip-pill">🌤️ Weather Guide</a>
-            <a href="https://www.destincondogetaways.com/blog/destinairport" className="plan-trip-pill">✈️ Which Airport</a>
-            <a href="https://www.destincondogetaways.com/blog/how-to-find-cheaper-flights-and-car-rentals" className="plan-trip-pill">🚗 Flights & Car Rentals</a>
-            <a href="https://www.destincondogetaways.com/blog/destin-fireworks-2026" className="plan-trip-pill">🎆 Fireworks 2026</a>
-            <a href="https://www.destincondogetaways.com/blog/destin-events-2026" className="plan-trip-pill">📅 Events 2026</a>
+            <a href="/blog/best-beaches-destin" className="plan-trip-pill">🏖️ Best Beaches</a>
+            <a href="/blog/destinweather" className="plan-trip-pill">🌤️ Weather Guide</a>
+            <a href="/blog/destinairport" className="plan-trip-pill">✈️ Which Airport</a>
+            <a href="/blog/how-to-find-cheaper-flights-and-car-rentals" className="plan-trip-pill">🚗 Flights & Car Rentals</a>
+            <a href="/blog/destin-fireworks-2026" className="plan-trip-pill">🎆 Fireworks 2026</a>
+            <a href="/blog/destin-events-2026" className="plan-trip-pill">📅 Events 2026</a>
           </div>
         </div>
 
 
         <div id="floatingHomeTop" className="floating-home-top">
-          <a href="https://www.destincondogetaways.com" target="_blank" rel="noopener" aria-label="Home">🏠</a>
+          <a href="/" aria-label="Home">🏠</a>
           <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Back to top">↑</button>
         </div>
 

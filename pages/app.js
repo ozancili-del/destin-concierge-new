@@ -30,7 +30,7 @@ export default function App() {
     { emoji: '🔥', label: 'Live Deals',     sub: 'Find your condo',    url: '/deals', bg: '#fff0f0' },
     { emoji: '✈️', label: 'Flights & Cars', sub: 'Compare travel',     url: '/car-rentals', bg: '#f0f7ff' },
     { emoji: '🎟️', label: 'Activities',     sub: 'Book the fun',       url: '/activities', bg: '#fff5f0' },
-    { emoji: '🌊', label: 'Destin Hub',     sub: 'Your local guide',   url: 'https://explore.destincondogetaways.com/destin-hub', bg: '#f0fff8' },
+    { emoji: '🌊', label: 'Destin Hub',     sub: 'Your local guide',   url: '/destin-hub', bg: '#f0fff8' },
   ];
 
   return (
@@ -239,10 +239,10 @@ export default function App() {
               {/* Featured properties */}
               <div className="section-header">
                 <h3>Featured Properties</h3>
-                <a href="https://www.destincondogetaways.com/availability" target="_blank" rel="noreferrer">View all →</a>
+                <a href="/availability">View all →</a>
               </div>
               <div className="properties-row">
-                <a className="prop-card" href="https://www.destincondogetaways.com/pelican-beach-resort-unit-707-orp5b47b5ax" target="_blank" rel="noreferrer">
+                <a className="prop-card" href="/condos/unit-707">
                   <img className="prop-img" src={UNIT_707_IMG} alt="Unit 707" />
                   <div className="prop-info">
                     <div className="prop-unit">Unit 707</div>
@@ -251,7 +251,7 @@ export default function App() {
                     <div className="prop-badge">Book Direct & Save</div>
                   </div>
                 </a>
-                <a className="prop-card" href="https://www.destincondogetaways.com/pelican-beach-resort-unit-1006-orp5b6450ex" target="_blank" rel="noreferrer">
+                <a className="prop-card" href="/condos/unit-1006">
                   <img className="prop-img" src={UNIT_1006_IMG} alt="Unit 1006" />
                   <div className="prop-info">
                     <div className="prop-unit">Unit 1006</div>
@@ -277,7 +277,7 @@ export default function App() {
           <div className={`tab-panel ${active === 'blog' ? 'active' : ''}`}>
             <div className="iframe-wrap">
               {!blogReady && <div className="loading-screen"><div className="spinner"/><p>Loading Destin Guide...</p></div>}
-              <iframe src="https://www.destincondogetaways.com/blog" title="Blog" onLoad={() => setBlogReady(true)} loading="lazy" />
+              <iframe src="/blog" title="Blog" onLoad={() => setBlogReady(true)} loading="lazy" />
             </div>
           </div>
 
@@ -285,7 +285,7 @@ export default function App() {
           <div className={`tab-panel ${active === 'destiny' ? 'active' : ''}`}>
             <div className="iframe-wrap">
               {!destinyReady && <div className="loading-screen"><div className="spinner"/><p>Waking up Destiny Blue...</p></div>}
-              <iframe src="https://www.destincondogetaways.com/ai-concierge-574036277" title="Destiny Blue" onLoad={() => setDestinyReady(true)} loading="lazy" />
+              <iframe src="/destin-ai-concierge" title="Destiny Blue" onLoad={() => setDestinyReady(true)} loading="lazy" />
             </div>
           </div>
 
@@ -301,7 +301,7 @@ export default function App() {
           <div className={`tab-panel ${active === 'resort' ? 'active' : ''}`}>
             <div className="iframe-wrap">
               {!resortReady && <div className="loading-screen"><div className="spinner"/><p>Loading Pelican Beach Resort...</p></div>}
-              <iframe src="https://www.destincondogetaways.com/pelican-beach-resort-destin-574048693" title="Pelican Beach Resort" onLoad={() => setResortReady(true)} loading="lazy" />
+              <iframe src="/resort" title="Pelican Beach Resort" onLoad={() => setResortReady(true)} loading="lazy" />
             </div>
           </div>
 

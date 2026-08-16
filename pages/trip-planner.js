@@ -3,6 +3,7 @@ import Script from "next/script";
 import { useEffect, useState } from "react";
 import SiteButton from "../components/SiteButton";
 import SiteHeader from "../components/SiteHeader";
+import SiteFooter from "../components/SiteFooter";
 import styles from "../styles/TripPlanner.module.css";
 
 const liveSite = "https://www.destincondogetaways.com";
@@ -53,7 +54,7 @@ export default function TripPlannerPage() {
     </Head>
 
     <div className={styles.preview}>Preview page | Production and OwnerRez remain unchanged</div>
-    <div className={styles.utility}><a href="/reviews">Guest Reviews</a><a href="/guest-guide#faq">FAQ</a><a href="/guest-guide">Policies</a><a href={liveSite + "/aboutus-574000712"}>Contact</a></div>
+    <div className={styles.utility}><a href="/reviews">Guest Reviews</a><a href="/guest-guide#faq">FAQ</a><a href="/guest-guide">Policies</a><a href="/about">Contact</a></div>
     <SiteHeader />
 
     <main>
@@ -90,10 +91,10 @@ export default function TripPlannerPage() {
 
       <section className={styles.faq} id="faq"><div className={styles.sectionHead}><p className={styles.kicker}>Trip planner FAQ</p><h2>Before you build your itinerary.</h2></div><div className={styles.faqList}>{faqs.map(([question, answer]) => <details key={question}><summary>{question}</summary><p>{answer}</p></details>)}</div></section>
 
-      <section className={styles.related}><div><p className={styles.kicker}>Keep planning</p><h2>Useful Destin guides for your stay.</h2></div><div className={styles.relatedGrid}><a href="/blog/destinweather"><span>Weather</span><strong>Conditions, seasons and water temperature</strong></a><a href="/blog/best-restaurants-destin"><span>Dining</span><strong>Destin restaurants worth planning around</strong></a><a href="/blog/destin-events-2026"><span>Events</span><strong>Current local events and seasonal highlights</strong></a><a href="/blog/destinkids"><span>Families</span><strong>Kid-friendly ways to enjoy Destin</strong></a><a href="https://explore.destincondogetaways.com/destin-tripshock.html"><span>Activities</span><strong>Browse tours and water activities</strong></a><a href="/beach-cam"><span>Beach cam</span><strong>See the Gulf before you arrive</strong></a></div></section>
+      <section className={styles.related}><div><p className={styles.kicker}>Keep planning</p><h2>Useful Destin guides for your stay.</h2></div><div className={styles.relatedGrid}><a href="/blog/destinweather"><span>Weather</span><strong>Conditions, seasons and water temperature</strong></a><a href="/blog/best-restaurants-destin"><span>Dining</span><strong>Destin restaurants worth planning around</strong></a><a href="/blog/destin-events-2026"><span>Events</span><strong>Current local events and seasonal highlights</strong></a><a href="/blog/destinkids"><span>Families</span><strong>Kid-friendly ways to enjoy Destin</strong></a><a href="/activities"><span>Activities</span><strong>Browse tours and water activities</strong></a><a href="/beach-cam"><span>Beach cam</span><strong>See the Gulf before you arrive</strong></a></div></section>
     </main>
 
-    <footer className={styles.footer}><div className={styles.footerBrand}><strong>Destin Condo Getaways</strong><p>Thoughtful owner-direct hospitality at Pelican Beach Resort.</p><a href="tel:+19723574262">(972) 357-4262</a><a href="mailto:ozan@destincondogetaways.com">ozan@destincondogetaways.com</a><address>1002 US-98<br/>Destin, FL 32541</address></div><div><strong>Stay</strong><a href="/condos/unit-707">Unit 707</a><a href="/condos/unit-1006">Unit 1006</a><a href="/#availability">Availability</a><a href="/reviews">Reviews</a><a href="/why-book-direct">Book direct</a></div><div><strong>Plan</strong><a href="/blog/how-to-find-cheaper-flights-and-car-rentals">Flights</a><a href="/blog/destincar">Car rentals</a><a href="https://explore.destincondogetaways.com/destin-tripshock.html">Activities</a><a href="/trip-planner">Itinerary planner</a><a href={liveSite + "/map"}>Destin map</a></div><div><strong>Destin Guides</strong><a href="/blog/destinweather">Weather</a><a href="/blog/best-beaches-destin">Beaches</a><a href="/blog/best-restaurants-destin">Restaurants</a><a href="/blog/destin-events-2026">Events</a><a href="/blog/destin-fireworks-2026">Fireworks</a></div><div><strong>Guest Information</strong><a href="/guest-guide">Policies</a><a href="/guest-guide#faq">FAQ</a><a href={liveSite + "/aboutus-574000712"}>Contact</a><a href={liveSite + "/privacy-574035022"}>Privacy</a><a href="/beach-cam">Live beach cam</a></div></footer>
+    <SiteFooter />
     <Script src="/destiny-head.js" strategy="lazyOnload" />
   </div>;
 }

@@ -3,6 +3,7 @@ import Script from "next/script";
 import SiteButton from "../components/SiteButton";
 import AvailabilitySearch from "../components/AvailabilitySearch";
 import SiteHeader from "../components/SiteHeader";
+import SiteFooter from "../components/SiteFooter";
 import styles from "../styles/GuestGuide.module.css";
 
 const liveSite = "https://www.destincondogetaways.com";
@@ -90,7 +91,7 @@ export default function GuestGuidePage() {
     </Head>
 
     <div className={styles.preview}>Preview page | Production and OwnerRez remain unchanged</div>
-    <div className={styles.utility}><a href="/reviews">Guest Reviews</a><a href="#faq">FAQ</a><a href="#policies">Policies</a><a href={liveSite + "/aboutus-574000712"}>Contact</a></div>
+    <div className={styles.utility}><a href="/reviews">Guest Reviews</a><a href="#faq">FAQ</a><a href="#policies">Policies</a><a href="/about">Contact</a></div>
     <SiteHeader availabilityHref="#availability" />
 
     <main>
@@ -137,8 +138,8 @@ export default function GuestGuidePage() {
           <a href="/resort"><span>Resort guide</span><strong>Pools, beach, amenities and location</strong></a>
           <a href="/reviews"><span>Guest reviews</span><strong>Current OwnerRez, Airbnb and Vrbo feedback</strong></a>
           <a href="/why-book-direct"><span>Book direct</span><strong>Understand pricing and owner-direct support</strong></a>
-          <a href={liveSite + "/blog/best-restaurants-destin"}><span>Restaurants</span><strong>Dining suggestions around Destin</strong></a>
-          <a href={liveSite + "/blog/destin-fireworks-2026"}><span>Fireworks</span><strong>Schedules, maps and viewing tips</strong></a>
+          <a href="/blog/best-restaurants-destin"><span>Restaurants</span><strong>Dining suggestions around Destin</strong></a>
+          <a href="/blog/destin-fireworks-2026"><span>Fireworks</span><strong>Schedules, maps and viewing tips</strong></a>
           <a href="/trip-planner"><span>Trip planner</span><strong>Create a personalized day-by-day itinerary</strong></a>
         </div>
       </section>
@@ -146,7 +147,7 @@ export default function GuestGuidePage() {
       <section className={styles.finalCta}><div><p className={styles.kickerLight}>Ready to look at dates?</p><h2>Check current availability.</h2></div><div className={styles.actions}><SiteButton href="#availability" variant="primary" size="large">Check availability</SiteButton><SiteButton href="/reviews" variant="light" size="large">Read guest reviews</SiteButton></div></section>
     </main>
 
-    <footer className={styles.footer}><div className={styles.footerBrand}><strong>Destin Condo Getaways</strong><p>Thoughtful owner-direct hospitality at Pelican Beach Resort.</p><a href="tel:+19723574262">(972) 357-4262</a><a href="mailto:ozan@destincondogetaways.com">ozan@destincondogetaways.com</a><address>1002 US-98<br/>Destin, FL 32541</address></div><div><strong>Stay</strong><a href={liveSite + "/pelican-beach-resort-unit-707-orp5b47b5ax"}>Unit 707</a><a href={liveSite + "/pelican-beach-resort-unit-1006-orp5b6450ex"}>Unit 1006</a><a href="#availability">Availability</a><a href="/reviews">Reviews</a><a href="/why-book-direct">Book direct</a></div><div><strong>Plan</strong><a href={liveSite + "/blog/how-to-find-cheaper-flights-and-car-rentals"}>Flights</a><a href={liveSite + "/blog/destincar"}>Car rentals</a><a href="https://explore.destincondogetaways.com/destin-tripshock.html">Activities</a><a href={liveSite + "/destin-vacation-itinerary-planner-574049367"}>Itinerary planner</a><a href={liveSite + "/map"}>Destin map</a></div><div><strong>Destin Guides</strong><a href={liveSite + "/blog/destinweather"}>Weather</a><a href={liveSite + "/blog/best-beaches-destin"}>Beaches</a><a href={liveSite + "/blog/best-restaurants-destin"}>Restaurants</a><a href={liveSite + "/blog/destin-events-2026"}>Events</a><a href={liveSite + "/blog/destin-fireworks-2026"}>Fireworks</a></div><div><strong>Guest Information</strong><a href="/guest-guide#policies">Policies</a><a href="/guest-guide#faq">FAQ</a><a href={liveSite + "/aboutus-574000712"}>Contact</a><a href={liveSite + "/privacy-574035022"}>Privacy</a><a href={liveSite + "/destin-live-beach-cam-574002656"}>Live beach cam</a></div></footer>
+    <SiteFooter />
 
     <Script src="/destiny-loader.js" strategy="lazyOnload" />
   </div>;

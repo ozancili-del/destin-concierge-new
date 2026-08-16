@@ -35,7 +35,7 @@ export default function AvailabilityPage() {
     </Head>
 
     <div className={styles.preview}>Preview page | Production and OwnerRez remain unchanged</div>
-    <div className={styles.utility}><a href="/reviews">Guest Reviews</a><a href="/guest-guide#faq">FAQ</a><a href="/guest-guide#policies">Policies</a><a href={`${liveSite}/aboutus-574000712`}>Contact</a></div>
+    <div className={styles.utility}><a href="/reviews">Guest Reviews</a><a href="/guest-guide#faq">FAQ</a><a href="/guest-guide#policies">Policies</a><a href="/about">Contact</a></div>
     <SiteHeader availabilityHref="#search" />
 
     <main>
@@ -46,7 +46,7 @@ export default function AvailabilityPage() {
 
       <section className={styles.searchSection} id="search">
         <div className={styles.sectionIntro}><p className={styles.kicker}>Start with your stay</p><h2>Check both condos in one search.</h2><p>Enter your arrival, departure and guest count below. The results come directly from the same OwnerRez system that manages each reservation.</p></div>
-        <div className={styles.widgetShell}><div className="ownerrez-widget" data-widget-type="Availability/Property Search" data-widgetid={searchWidgetId}></div><noscript><a href={`${liveSite}/availability`}>Open the secure availability search</a></noscript></div>
+        <div className={styles.widgetShell}><div className="ownerrez-widget" data-widget-type="Availability/Property Search" data-widgetid={searchWidgetId}></div><noscript><a href="/availability">Open the secure availability search</a></noscript></div>
         <p className={styles.discount}>Your current direct-booking discount is reflected in the OwnerRez booking flow. Review the complete price, fees, taxes and policies before reserving.</p>
       </section>
 

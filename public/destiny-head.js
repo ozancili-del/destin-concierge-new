@@ -159,7 +159,7 @@ input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventD
     document.head.appendChild(link);
   }
   var banner = document.createElement('a');
-  banner.href = 'https://deals.destincondogetaways.com/beach-deals';
+  banner.href = '/deals';
   banner.title = 'See current Destin beachfront price drops';
   banner.className = 'hub-banner';
   banner.style.cssText = 'display:block;text-decoration:none;margin:0 0 32px;';
@@ -181,7 +181,7 @@ input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventD
   var propertiesForm = propertyCount.closest('form');
   if(!propertiesForm) return;
   var banner = document.createElement('a');
-  banner.href = 'https://www.destincondogetaways.com/book';
+  banner.href = '/book';
   banner.title = 'Book direct at Pelican Beach Resort Destin FL';
   banner.style.cssText = [
     'display:block;text-decoration:none;margin:0 0 16px;',
@@ -213,7 +213,7 @@ input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventD
   var propertiesForm = propertyCount.closest('form');
   if(!propertiesForm) return;
   var banner = document.createElement('a');
-  banner.href = 'https://sunbirds.destincondogetaways.com';
+  banner.href = '/snowbird';
   banner.title = 'Winter snowbird stays at Pelican Beach Resort Destin FL';
   banner.style.cssText = [
     'display:block;text-decoration:none;margin:0 0 32px;',

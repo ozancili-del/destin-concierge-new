@@ -4,11 +4,12 @@ import Script from "next/script";
 import SiteButton from "../components/SiteButton";
 import AvailabilitySearch from "../components/AvailabilitySearch";
 import SiteHeader from "../components/SiteHeader";
+import SiteFooter from "../components/SiteFooter";
 import styles from "../styles/Blog.module.css";
 
 const liveSite = "https://www.destincondogetaways.com";
 const migratedSlugs = new Set(["destinspa", "how-to-find-cheaper-flights-and-car-rentals", "destincar", "destinsupermarkets", "destin-florida-vacation-guide-2026", "best-time-to-visit-destin-florida", "best-restaurants-destin-local-guide", "best-restaurants-destin", "best-beaches-destin", "destinweather", "destin-fireworks-2026", "destin-events-2026", "destin-live-music-2026", "destinairport", "destindiversehistory", "destinocen", "destinromance", "destinnights", "destinessentials", "destinkids", "destinexplore"]);
-const articleHref = (slug) => migratedSlugs.has(slug) ? `/blog/${slug}` : `${liveSite}/blog/${slug}`;
+const articleHref = (slug) => `/blog/${slug}`;
 
 const articles = [
   ["destinweather","Destin Water Temperature Right Now","Live Gulf readings, monthly temperatures and practical swimming guidance.","Weather & Beach","/hub-weather.png","Live tools"],
@@ -59,7 +60,7 @@ export default function BlogHub(){
     </Head>
 
     <div className={styles.preview}>Preview page | Production and OwnerRez remain unchanged</div>
-    <div className={styles.utility}><a href="/reviews">Guest Reviews</a><a href="/guest-guide#faq">FAQ</a><a href="/guest-guide#policies">Policies</a><a href={liveSite+"/aboutus-574000712"}>Contact</a></div>
+    <div className={styles.utility}><a href="/reviews">Guest Reviews</a><a href="/guest-guide#faq">FAQ</a><a href="/guest-guide#policies">Policies</a><a href="/about">Contact</a></div>
     <SiteHeader availabilityHref="#availability" />
 
     <main>
@@ -94,7 +95,7 @@ export default function BlogHub(){
       <section className={styles.finalCta}><div><p className={styles.kickerLight}>Found your dates?</p><h2>Check live availability.</h2></div><SiteButton href="#availability" variant="primary" size="large">Check availability</SiteButton></section>
     </main>
 
-    <footer className={styles.footer}><div className={styles.footerBrand}><strong>Destin Condo Getaways</strong><p>Thoughtful owner-direct hospitality at Pelican Beach Resort.</p><a href="tel:+19723574262">(972) 357-4262</a><a href="mailto:ozan@destincondogetaways.com">ozan@destincondogetaways.com</a><address>1002 US-98<br/>Destin, FL 32541</address></div><div><strong>Stay</strong><a href={liveSite+"/pelican-beach-resort-unit-707-orp5b47b5ax"}>Unit 707</a><a href={liveSite+"/pelican-beach-resort-unit-1006-orp5b6450ex"}>Unit 1006</a><a href="#availability">Availability</a><a href="/reviews">Reviews</a><a href="/why-book-direct">Book direct</a></div><div><strong>Plan</strong><a href={liveSite+"/blog/how-to-find-cheaper-flights-and-car-rentals"}>Flights</a><a href={liveSite+"/blog/destincar"}>Car rentals</a><a href="https://explore.destincondogetaways.com/destin-tripshock.html">Activities</a><a href={liveSite+"/destin-vacation-itinerary-planner-574049367"}>Itinerary planner</a><a href={liveSite+"/map"}>Destin map</a></div><div><strong>Destin Guides</strong><a href={liveSite+"/blog/destinweather"}>Weather</a><a href={liveSite+"/blog/best-beaches-destin"}>Beaches</a><a href={liveSite+"/blog/best-restaurants-destin"}>Restaurants</a><a href={liveSite+"/blog/destin-events-2026"}>Events</a><a href={liveSite+"/blog/destin-fireworks-2026"}>Fireworks</a></div><div><strong>Guest Information</strong><a href="/guest-guide#policies">Policies</a><a href="/guest-guide#faq">FAQ</a><a href={liveSite+"/aboutus-574000712"}>Contact</a><a href={liveSite+"/privacy-574035022"}>Privacy</a><a href={liveSite+"/destin-live-beach-cam-574002656"}>Live beach cam</a></div></footer>
+    <SiteFooter />
     <Script src="/destiny-loader.js" strategy="lazyOnload" />
   </div>;
 }

@@ -1,6 +1,6 @@
 import Head from 'next/head';
 
-const CANONICAL = 'https://explore.destincondogetaways.com/destin-hub';
+const CANONICAL = 'https://www.destincondogetaways.com/destin-hub';
 
 export default function DestinHub() {
   return (
@@ -15,7 +15,7 @@ export default function DestinHub() {
         <meta property="og:description" content="Your complete Destin Florida guide — beaches, seafood, live music, fireworks, events, airports, car rental and AI concierge." />
         <meta property="og:url" content={CANONICAL} />
         <meta property="og:type" content="website" />
-        <meta property="og:image" content="https://explore.destincondogetaways.com/hub-hero.png" />
+        <meta property="og:image" content="https://www.destincondogetaways.com/hub-hero.png" />
         <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet" />
         <script dangerouslySetInnerHTML={{ __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-PQSF8S6D');` }} />
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-3SGXCQ4FTC" />
@@ -452,16 +452,16 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
           "@graph": [
             {
               "@type": "WebPage",
-              "@id": "https://explore.destincondogetaways.com/destin-hub#webpage",
-              "url": "https://explore.destincondogetaways.com/destin-hub",
+              "@id": "https://www.destincondogetaways.com/destin-hub#webpage",
+              "url": "https://www.destincondogetaways.com/destin-hub",
               "name": "Destin Florida Vacation Hub — Everything for Your Trip",
               "isPartOf": { "@id": "https://www.destincondogetaways.com/#website" },
               "publisher": { "@id": "https://www.destincondogetaways.com/#organization" },
               "significantLink": [
-                "https://deals.destincondogetaways.com/beach-deals",
-                "https://offer.destincondogetaways.com/offer",
-                "https://explore.destincondogetaways.com/destin-tripshock.html",
-                "https://explore.destincondogetaways.com/destin-car-rental.html",
+                "https://www.destincondogetaways.com/deals",
+                "https://www.destincondogetaways.com/offer",
+                "https://www.destincondogetaways.com/activities",
+                "https://www.destincondogetaways.com/car-rentals",
                 "https://www.destincondogetaways.com/availability"
               ]
             },
@@ -492,28 +492,28 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
 
 
       <header className="hub-topbar">
-        <a className="hub-brand" href="https://www.destincondogetaways.com">
+        <a className="hub-brand" href="/">
           <b>DESTIN</b>
           <span>CONDO GETAWAYS</span>
         </a>
         <nav className="hub-nav">
-          <a className="active" href="https://explore.destincondogetaways.com/destin-hub">Destin Hub</a>
-          <a href="https://explore.destincondogetaways.com/destin-tripshock.html">Activities</a>
-          <a href="https://www.destincondogetaways.com/properties">Condos</a>
-          <a href="https://deals.destincondogetaways.com/beach-deals">Deals</a>
-          <a href="https://explore.destincondogetaways.com/destin-car-rental.html">Flights & Cars</a>
-          <a href="https://offer.destincondogetaways.com/">Make an Offer</a>
+          <a className="active" href="/destin-hub">Destin Hub</a>
+          <a href="/activities">Activities</a>
+          <a href="/destin-vacation-rentals-by-owner">Condos</a>
+          <a href="/deals">Deals</a>
+          <a href="/car-rentals">Flights & Cars</a>
+          <a href="/offer">Make an Offer</a>
         </nav>
-        <a className="hub-book" href="https://www.destincondogetaways.com/properties" target="_blank" rel="noopener">🏖️ Book Your Stay</a>
+        <a className="hub-book" href="/availability">🏖️ Book Your Stay</a>
       </header>
 
       <nav className="hub-mobile-nav" aria-label="Mobile navigation">
-        <a className="active" href="https://explore.destincondogetaways.com/destin-hub">Destin Hub</a>
-        <a href="https://explore.destincondogetaways.com/destin-tripshock.html">Activities</a>
-        <a href="https://www.destincondogetaways.com/properties">Condos</a>
-        <a href="https://deals.destincondogetaways.com/beach-deals">Deals</a>
-        <a href="https://explore.destincondogetaways.com/destin-car-rental.html">Flights & Cars</a>
-        <a href="https://offer.destincondogetaways.com/">Make an Offer</a>
+        <a className="active" href="/destin-hub">Destin Hub</a>
+        <a href="/activities">Activities</a>
+        <a href="/destin-vacation-rentals-by-owner">Condos</a>
+        <a href="/deals">Deals</a>
+        <a href="/car-rentals">Flights & Cars</a>
+        <a href="/offer">Make an Offer</a>
       </nav>
 
       <div className="page-wrap">
@@ -528,7 +528,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
             <button className="hbtn hbtn-gold" onClick={() => openModal('deals')}>🏷️ Best Deals</button>
             <button className="hbtn hbtn-teal" onClick={() => openModal('gettinghere')}>✈️ Flights & Cars</button>
             <button className="hbtn hbtn-blue" onClick={() => openModal('activities')}>🐬 Activities</button>
-            <a className="hbtn hbtn-glass" href="https://www.destincondogetaways.com/properties" target="_blank" rel="noopener">🏠 Condos</a>
+            <a className="hbtn hbtn-glass" href="/destin-vacation-rentals-by-owner">🏠 Condos</a>
           </div>
         </div>
       </div>
@@ -715,13 +715,13 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
             <span style={{fontSize:'11px',letterSpacing:'1px',textTransform:'uppercase',color:'rgba(0,212,200,0.7)',fontFamily:'Arial'}}>💡 Local Insight</span>
             <p style={{fontSize:'13px',color:'rgba(255,255,255,0.5)',margin:'4px 0 0',lineHeight:'1.6'}}>Avoid the main boardwalk crowds — head to James Lee Park before 9 AM for free parking. Henderson Beach is worth the entry fee for the quiet and the nature trail.</p>
           </div>
-          <p style={{fontSize:'14px',color:'rgba(255,255,255,0.55)',lineHeight:'1.8',margin:'0 0 20px'}}><a href="https://www.destincondogetaways.com/blog/best-beaches-destin" style={{color:'rgba(0,212,200,0.8)',textDecoration:'none',fontWeight:'600'}}>Read our full Destin beaches guide →</a></p>
+          <p style={{fontSize:'14px',color:'rgba(255,255,255,0.55)',lineHeight:'1.8',margin:'0 0 20px'}}><a href="/blog/best-beaches-destin" style={{color:'rgba(0,212,200,0.8)',textDecoration:'none',fontWeight:'600'}}>Read our full Destin beaches guide →</a></p>
 
           <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:'17px',color:'rgba(255,255,255,0.85)',margin:'0 0 10px'}}>✈️ Destin Travel Logistics: Airports & Getting Here</h2>
-          <p style={{fontSize:'14px',color:'rgba(255,255,255,0.55)',lineHeight:'1.8',margin:'0 0 12px'}}>Three airports serve the Destin area. VPS is the closest but has limited routes. ECP has more flights and is often cheaper. PNS is the largest hub with the most airline options. <a href="https://www.destincondogetaways.com/blog/destinairport" style={{color:'rgba(0,212,200,0.8)',textDecoration:'none',fontWeight:'600'}}>See our full airport comparison →</a></p>
+          <p style={{fontSize:'14px',color:'rgba(255,255,255,0.55)',lineHeight:'1.8',margin:'0 0 12px'}}>Three airports serve the Destin area. VPS is the closest but has limited routes. ECP has more flights and is often cheaper. PNS is the largest hub with the most airline options. <a href="/blog/destinairport" style={{color:'rgba(0,212,200,0.8)',textDecoration:'none',fontWeight:'600'}}>See our full airport comparison →</a></p>
 
           <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:'17px',color:'rgba(255,255,255,0.85)',margin:'0 0 10px'}}>🌤 Destin Weather & Best Time to Visit</h2>
-          <p style={{fontSize:'14px',color:'rgba(255,255,255,0.55)',lineHeight:'1.8',margin:'0 0 12px'}}>Destin has warm weather year-round. Peak season is June–August with water temps reaching 84°F. Spring and fall offer fewer crowds with still-pleasant conditions. <a href="https://www.destincondogetaways.com/blog/destinweather" style={{color:'rgba(0,212,200,0.8)',textDecoration:'none',fontWeight:'600'}}>Read our full Destin weather guide →</a></p>
+          <p style={{fontSize:'14px',color:'rgba(255,255,255,0.55)',lineHeight:'1.8',margin:'0 0 12px'}}>Destin has warm weather year-round. Peak season is June–August with water temps reaching 84°F. Spring and fall offer fewer crowds with still-pleasant conditions. <a href="/blog/destinweather" style={{color:'rgba(0,212,200,0.8)',textDecoration:'none',fontWeight:'600'}}>Read our full Destin weather guide →</a></p>
 
           <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:'17px',color:'rgba(255,255,255,0.85)',margin:'0 0 10px'}}>🦞 Best Restaurants in Destin</h2>
           <ul style={{fontSize:'14px',color:'rgba(255,255,255,0.55)',lineHeight:'1.8',margin:'0 0 12px',paddingLeft:'20px'}}>
@@ -731,7 +731,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
             <li><strong style={{color:'rgba(255,255,255,0.75)'}}>The Back Porch</strong> — oldest beach bar in Destin, open deck over the Gulf.</li>
             <li><strong style={{color:'rgba(255,255,255,0.75)'}}>Dewey Destin's</strong> — locals' favorite for fresh-off-the-boat fish at the harbor.</li>
           </ul>
-          <p style={{fontSize:'14px',color:'rgba(255,255,255,0.55)',lineHeight:'1.8',margin:'0 0 20px'}}><a href="https://www.destincondogetaways.com/blog/best-restaurants-destin" style={{color:'rgba(0,212,200,0.8)',textDecoration:'none',fontWeight:'600'}}>Read our full restaurant guide →</a></p>
+          <p style={{fontSize:'14px',color:'rgba(255,255,255,0.55)',lineHeight:'1.8',margin:'0 0 20px'}}><a href="/blog/best-restaurants-destin" style={{color:'rgba(0,212,200,0.8)',textDecoration:'none',fontWeight:'600'}}>Read our full restaurant guide →</a></p>
 
           <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:'17px',color:'rgba(255,255,255,0.85)',margin:'0 0 10px'}}>🎆 Seasonal Events & Fireworks 2026</h2>
           <ul style={{fontSize:'14px',color:'rgba(255,255,255,0.55)',lineHeight:'1.8',margin:'0 0 12px',paddingLeft:'20px'}}>
@@ -740,15 +740,15 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
             <li><strong style={{color:'rgba(255,255,255,0.75)'}}>Emerald Coast Blue Marlin Classic</strong> — June, world-class offshore fishing tournament.</li>
             <li><strong style={{color:'rgba(255,255,255,0.75)'}}>HarborWalk Village Events</strong> — live music, boat shows, and festivals throughout summer.</li>
           </ul>
-          <p style={{fontSize:'14px',color:'rgba(255,255,255,0.55)',lineHeight:'1.8',margin:'0 0 20px'}}><a href="https://www.destincondogetaways.com/blog/destin-fireworks-2026" style={{color:'rgba(0,212,200,0.8)',textDecoration:'none',fontWeight:'600'}}>Fireworks guide</a> · <a href="https://www.destincondogetaways.com/blog/destin-events-2026" style={{color:'rgba(0,212,200,0.8)',textDecoration:'none',fontWeight:'600'}}>Events 2026 →</a></p>
+          <p style={{fontSize:'14px',color:'rgba(255,255,255,0.55)',lineHeight:'1.8',margin:'0 0 20px'}}><a href="/blog/destin-fireworks-2026" style={{color:'rgba(0,212,200,0.8)',textDecoration:'none',fontWeight:'600'}}>Fireworks guide</a> · <a href="/blog/destin-events-2026" style={{color:'rgba(0,212,200,0.8)',textDecoration:'none',fontWeight:'600'}}>Events 2026 →</a></p>
         </div>
 
         {/* DEALS CTA */}
         <div style={{marginTop:'24px',padding:'24px 20px',background:'linear-gradient(135deg,rgba(0,212,200,0.08),rgba(0,212,200,0.03))',border:'1.5px solid rgba(0,212,200,0.3)',borderRadius:'16px',textAlign:'center'}}>
           <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:'18px',color:'white',margin:'0 0 10px'}}>🏷️ Live Price Drops — Book Direct & Save</h2>
           <p style={{fontSize:'14px',color:'rgba(255,255,255,0.55)',lineHeight:'1.7',margin:'0 0 16px'}}>We track daily price changes on Unit 707 and Unit 1006 at Pelican Beach Resort. When prices drop we surface them here — no Airbnb fees, no VRBO markup, direct from the owner.</p>
-          <a href="https://deals.destincondogetaways.com/beach-deals" style={{display:'inline-block',padding:'13px 28px',background:'linear-gradient(135deg,#00c4b4,#00a89a)',color:'#fff',fontFamily:'Arial',fontSize:'14px',fontWeight:'bold',borderRadius:'10px',textDecoration:'none',boxShadow:'0 4px 16px rgba(0,196,180,0.4)',marginRight:'10px'}}>See Today's Price Drops →</a>
-          <a href="https://www.destincondogetaways.com/properties" style={{display:'inline-block',padding:'13px 28px',background:'rgba(255,255,255,0.08)',color:'rgba(255,255,255,0.7)',fontFamily:'Arial',fontSize:'14px',fontWeight:'bold',borderRadius:'10px',textDecoration:'none',border:'1px solid rgba(255,255,255,0.2)'}}>Book Direct →</a>
+          <a href="/deals" style={{display:'inline-block',padding:'13px 28px',background:'linear-gradient(135deg,#00c4b4,#00a89a)',color:'#fff',fontFamily:'Arial',fontSize:'14px',fontWeight:'bold',borderRadius:'10px',textDecoration:'none',boxShadow:'0 4px 16px rgba(0,196,180,0.4)',marginRight:'10px'}}>See Today's Price Drops →</a>
+          <a href="/availability" style={{display:'inline-block',padding:'13px 28px',background:'rgba(255,255,255,0.08)',color:'rgba(255,255,255,0.7)',fontFamily:'Arial',fontSize:'14px',fontWeight:'bold',borderRadius:'10px',textDecoration:'none',border:'1px solid rgba(255,255,255,0.2)'}}>Book Direct →</a>
         </div>
 
         {/* FAQ */}
@@ -798,25 +798,25 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
       </div>
 
       <div id="backToTop" style={{position:'fixed',bottom:'24px',right:'16px',display:'none',flexDirection:'column',gap:'8px',zIndex:999}}>
-        <a href="https://www.destincondogetaways.com" target="_blank" rel="noopener" style={{width:'44px',height:'44px',borderRadius:'50%',background:'rgba(255,255,255,0.15)',border:'1px solid rgba(255,255,255,0.25)',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'18px',textDecoration:'none'}}>🏠</a>
+        <a href="/" style={{width:'44px',height:'44px',borderRadius:'50%',background:'rgba(255,255,255,0.15)',border:'1px solid rgba(255,255,255,0.25)',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'18px',textDecoration:'none'}}>🏠</a>
         <button onClick={() => window.scrollTo({top:0,behavior:'smooth'})} style={{width:'44px',height:'44px',borderRadius:'50%',background:'rgba(45,219,180,0.9)',color:'#000',border:'none',fontSize:'18px',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:'0 4px 16px rgba(0,212,200,0.4)'}}>↑</button>
       </div>
 
       <script dangerouslySetInnerHTML={{ __html: `
 const TILES={
-  beaches:   {eyebrow:'Explore',         title:'🏖️ Beaches',           url:'https://www.destincondogetaways.com/blog/best-beaches-destin',blog:null},
-  weather:   {eyebrow:'Live Conditions', title:'🌊 Water & Weather',    url:'https://destin-concierge-new.vercel.app/destin-beach-conditions.html',blog:'https://www.destincondogetaways.com/blog/destinweather'},
-  cams:      {eyebrow:'Live',            title:'📷 Beach Cams',         url:'https://www.destincondogetaways.com/destin-live-beach-cam-574002656',blog:null},
-  seafood:   {eyebrow:'Food & Drink',    title:'🦞 Seafood',            url:'https://www.destincondogetaways.com/blog/best-restaurants-destin',blog:null},
-  localeats: {eyebrow:'Food & Drink',    title:'🍝 Local Eats',         url:'https://www.destincondogetaways.com/blog/best-restaurants-destin-local-guide',blog:null},
-  spas:      {eyebrow:'Relax',           title:'💆 Spas',               url:'https://www.destincondogetaways.com/blog/destinspa',blog:null},
-  music:     {eyebrow:'Nightlife',       title:'🎵 Live Music',         url:'https://destin-concierge-new.vercel.app/destin-music-calendar.html',blog:'https://www.destincondogetaways.com/blog/destin-live-music-2026'},
-  fireworks: {eyebrow:'Events',          title:'🎆 Fireworks',          url:'https://www.destincondogetaways.com/blog/destin-fireworks-2026',blog:null},
-  events:    {eyebrow:'Events',          title:'📅 Events 2026',        url:'https://www.destincondogetaways.com/blog/destin-events-2026',blog:null},
-  airports:  {eyebrow:'Flights & Cars',  title:'✈️ Airports',           url:'https://www.destincondogetaways.com/blog/destinairport',blog:null},
-  gettinghere:{eyebrow:'Flights & Cars', title:'🚗✈️ Flights & Cars',   url:'https://destin-concierge-new.vercel.app/destin-car-rental.html',blog:'https://www.destincondogetaways.com/blog/how-to-find-cheaper-flights-and-car-rentals',blog2:'https://www.destincondogetaways.com/blog/destincar'},
-  deals:     {eyebrow:'Direct Booking',  title:'🏷️ Best Deals',         url:'https://deals.destincondogetaways.com/beach-deals',blog:'https://deals.destincondogetaways.com/beach-deals'},
-  grocery:   {eyebrow:'Essentials',      title:'🛒 Groceries',          url:'https://destin-concierge-new.vercel.app/supermarket-map.html',blog:'https://www.destincondogetaways.com/blog/destinsupermarkets'},
+  beaches:   {eyebrow:'Explore',         title:'🏖️ Beaches',           url:'/blog/best-beaches-destin',blog:null},
+  weather:   {eyebrow:'Live Conditions', title:'🌊 Water & Weather',    url:'/destin-beach-conditions.html',blog:'/blog/destinweather'},
+  cams:      {eyebrow:'Live',            title:'📷 Beach Cams',         url:'/beach-cam',blog:null},
+  seafood:   {eyebrow:'Food & Drink',    title:'🦞 Seafood',            url:'/blog/best-restaurants-destin',blog:null},
+  localeats: {eyebrow:'Food & Drink',    title:'🍝 Local Eats',         url:'/blog/best-restaurants-destin-local-guide',blog:null},
+  spas:      {eyebrow:'Relax',           title:'💆 Spas',               url:'/blog/destinspa',blog:null},
+  music:     {eyebrow:'Nightlife',       title:'🎵 Live Music',         url:'/destin-music-calendar.html',blog:'/blog/destin-live-music-2026'},
+  fireworks: {eyebrow:'Events',          title:'🎆 Fireworks',          url:'/blog/destin-fireworks-2026',blog:null},
+  events:    {eyebrow:'Events',          title:'📅 Events 2026',        url:'/blog/destin-events-2026',blog:null},
+  airports:  {eyebrow:'Flights & Cars',  title:'✈️ Airports',           url:'/blog/destinairport',blog:null},
+  gettinghere:{eyebrow:'Flights & Cars', title:'🚗✈️ Flights & Cars',   url:'/car-rentals',blog:'/blog/how-to-find-cheaper-flights-and-car-rentals',blog2:'/blog/destincar'},
+  deals:     {eyebrow:'Direct Booking',  title:'🏷️ Best Deals',         url:'/deals',blog:'/deals'},
+  grocery:   {eyebrow:'Essentials',      title:'🛒 Groceries',          url:'/supermarket-map.html',blog:'/blog/destinsupermarkets'},
   planner:   {eyebrow:'Plan Your Stay',  title:'🗺️ Trip Planner',       url:'https://destin-concierge-new.vercel.app/destin-itinerary-planner.html',blog:null},
   activities:{eyebrow:'Things To Do',    title:'🐬 Activities & Tours', url:'https://destin-concierge-new.vercel.app/destin-tripshock.html',blog:null},
   destiny:   {eyebrow:'AI Concierge',    title:'💬 Destiny Blue',       url:'https://destin-concierge-new.vercel.app/concierge',blog:null},

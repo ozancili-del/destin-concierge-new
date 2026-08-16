@@ -31,7 +31,7 @@ export default function BestTimeToVisitGuide() {
       { label: "Weather & water", title: "Destin conditions guide", href: liveSite + "/blog/destinweather" },
       { label: "Beaches", title: "Best beaches in Destin", href: liveSite + "/blog/best-beaches-destin" },
       { label: "Events", title: "Destin events calendar", href: liveSite + "/blog/destin-events-2026" },
-      { label: "Current reductions", title: "Browse beach deals", href: "https://deals.destincondogetaways.com/beach-deals" },
+      { label: "Current reductions", title: "Browse beach deals", href: "/deals" },
     ]}
   />;
 }

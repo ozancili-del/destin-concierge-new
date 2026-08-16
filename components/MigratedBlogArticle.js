@@ -4,6 +4,7 @@ import AvailabilitySearch from "./AvailabilitySearch";
 import SiteButton from "./SiteButton";
 import SiteFooter from "./SiteFooter";
 import SiteHeader from "./SiteHeader";
+import { cleanInternalLinksInHtml } from "../lib/internal-links";
 import styles from "../styles/Article.module.css";
 
 const liveSite = "https://www.destincondogetaways.com";
@@ -39,7 +40,7 @@ export default function MigratedBlogArticle({
       <a href="/reviews">Guest Reviews</a>
       <a href="/guest-guide#faq">FAQ</a>
       <a href="/guest-guide#policies">Policies</a>
-      <a href={liveSite + "/aboutus-574000712"}>Contact</a>
+      <a href="/about">Contact</a>
     </div>
 
     <SiteHeader availabilityHref="#availability" />
@@ -53,7 +54,7 @@ export default function MigratedBlogArticle({
         </div>
       </section>
       <AvailabilitySearch className={styles.availability} />
-      {articleContent ? <article className={styles.article}>{articleContent}</article> : <article className={styles.article} dangerouslySetInnerHTML={{ __html: articleHtml }} />}
+      {articleContent ? <article className={styles.article}>{articleContent}</article> : <article className={styles.article} dangerouslySetInnerHTML={{ __html: cleanInternalLinksInHtml(articleHtml) }} />}
 
       <section className={styles.related}>
         <div><p className={styles.kicker}>Continue planning</p><h2>More useful Destin guides.</h2></div>

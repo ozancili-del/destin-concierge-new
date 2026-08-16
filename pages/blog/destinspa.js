@@ -3,6 +3,8 @@ import Script from "next/script";
 import SiteButton from "../../components/SiteButton";
 import AvailabilitySearch from "../../components/AvailabilitySearch";
 import SiteHeader from "../../components/SiteHeader";
+import SiteFooter from "../../components/SiteFooter";
+import { cleanInternalLinksInHtml } from "../../lib/internal-links";
 import styles from "../../styles/Article.module.css";
 
 const liveSite = "https://www.destincondogetaways.com";
@@ -19,16 +21,16 @@ export default function DestinSpaGuide(){
   return <div className={styles.page}>
     <Head><title>10 Best Spas in Destin Florida (2026) | Honest Local Guide</title><meta name="description" content="The best spas in Destin Florida ranked with real guest-review context—from resort treatments to local massage and wellness options near Pelican Beach Resort." /><meta name="robots" content="noindex,nofollow" /><meta name="viewport" content="width=device-width, initial-scale=1" /><link rel="canonical" href={liveSite+"/blog/destinspa"} /><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(structuredData)}} /></Head>
     <div className={styles.preview}>Preview article | Production and OwnerRez remain unchanged</div>
-    <div className={styles.utility}><a href="/reviews">Guest Reviews</a><a href="/guest-guide#faq">FAQ</a><a href="/guest-guide#policies">Policies</a><a href={liveSite+"/aboutus-574000712"}>Contact</a></div>
+    <div className={styles.utility}><a href="/reviews">Guest Reviews</a><a href="/guest-guide#faq">FAQ</a><a href="/guest-guide#policies">Policies</a><a href="/about">Contact</a></div>
     <SiteHeader availabilityHref="#availability" />
     <main>
       <section className={styles.hero}><img src="https://uc.orez.io/i/4a4320ef00a54d15bccf6767418be83b-Large" alt="Relaxing spa treatment in Destin, Florida" /><div className={styles.heroShade}></div><div className={styles.heroCopy}><a href="/blog">Destin Guide</a><p className={styles.kickerLight}>Wellness & relaxation</p><h1>10 Best Spas in Destin Florida</h1><p>Real ratings, honest context and useful choices for a relaxing day near Pelican Beach Resort.</p></div></section>
       <AvailabilitySearch className={styles.availability} />
-      <article className={styles.article} dangerouslySetInnerHTML={{__html:articleHtml}} />
+      <article className={styles.article} dangerouslySetInnerHTML={{__html:cleanInternalLinksInHtml(articleHtml)}} />
       <section className={styles.related}><div><p className={styles.kicker}>Continue planning</p><h2>More ways to enjoy Destin.</h2></div><div className={styles.relatedGrid}><a href="/blog/destinromance"><span>For couples</span><strong>Romantic things to do in Destin</strong></a><a href="/blog/best-restaurants-destin"><span>Dining</span><strong>Best seafood restaurants</strong></a><a href="/blog/best-time-to-visit-destin-florida"><span>Trip timing</span><strong>Best time to visit Destin</strong></a><a href="/trip-planner"><span>Personalized plan</span><strong>Create a day-by-day itinerary</strong></a></div></section>
       <section className={styles.finalCta}><div><p className={styles.kickerLight}>Planning your stay?</p><h2>Check live availability.</h2></div><SiteButton href="#availability" variant="primary" size="large">Check availability</SiteButton></section>
     </main>
-    <footer className={styles.footer}><div className={styles.footerBrand}><strong>Destin Condo Getaways</strong><p>Thoughtful owner-direct hospitality at Pelican Beach Resort.</p><a href="tel:+19723574262">(972) 357-4262</a><a href="mailto:ozan@destincondogetaways.com">ozan@destincondogetaways.com</a><address>1002 US-98<br/>Destin, FL 32541</address></div><div><strong>Stay</strong><a href={liveSite+"/pelican-beach-resort-unit-707-orp5b47b5ax"}>Unit 707</a><a href={liveSite+"/pelican-beach-resort-unit-1006-orp5b6450ex"}>Unit 1006</a><a href="#availability">Availability</a><a href="/reviews">Reviews</a><a href="/why-book-direct">Book direct</a></div><div><strong>Plan</strong><a href={liveSite+"/blog/how-to-find-cheaper-flights-and-car-rentals"}>Flights</a><a href={liveSite+"/blog/destincar"}>Car rentals</a><a href="https://explore.destincondogetaways.com/destin-tripshock.html">Activities</a><a href={liveSite+"/destin-vacation-itinerary-planner-574049367"}>Itinerary planner</a></div><div><strong>Destin Guides</strong><a href="/blog">All guides</a><a href={liveSite+"/blog/destinweather"}>Weather</a><a href={liveSite+"/blog/best-beaches-destin"}>Beaches</a><a href={liveSite+"/blog/best-restaurants-destin"}>Restaurants</a><a href={liveSite+"/blog/destin-events-2026"}>Events</a></div><div><strong>Guest Information</strong><a href="/guest-guide#policies">Policies</a><a href="/guest-guide#faq">FAQ</a><a href={liveSite+"/aboutus-574000712"}>Contact</a><a href={liveSite+"/privacy-574035022"}>Privacy</a></div></footer>
+    <SiteFooter />
     <Script src="/destiny-loader.js" strategy="lazyOnload" />
   </div>;
 }

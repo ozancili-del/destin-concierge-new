@@ -208,7 +208,7 @@ export default function OfferPage() {
             "@type": "BreadcrumbList",
             "itemListElement": [
               { "@type": "ListItem", "position": 1, "name": "Destin Florida Vacation Rentals", "item": "https://www.destincondogetaways.com" },
-              { "@type": "ListItem", "position": 2, "name": "Pelican Beach Resort Condos", "item": "https://www.destincondogetaways.com/properties" },
+              { "@type": "ListItem", "position": 2, "name": "Pelican Beach Resort Condos", "item": "https://www.destincondogetaways.com/destin-vacation-rentals-by-owner" },
               { "@type": "ListItem", "position": 3, "name": "Make an Offer", "item": "https://www.destincondogetaways.com/offer" }
             ]
           },
@@ -503,7 +503,7 @@ export default function OfferPage() {
       </div>
 
       <header className="deals-topbar">
-        <a className="deals-brand" href="https://www.destincondogetaways.com">
+        <a className="deals-brand" href="/">
           <b>DESTIN</b>
           <span>CONDO GETAWAYS</span>
         </a>
@@ -724,12 +724,12 @@ export default function OfferPage() {
         <div className="plan-trip">
           <div className="plan-trip-title">Plan Your Destin Trip</div>
           <div className="plan-trip-links">
-            <a href="https://www.destincondogetaways.com/blog/best-beaches-destin" className="plan-trip-pill">🏖️ Best Beaches</a>
-            <a href="https://www.destincondogetaways.com/blog/destinweather" className="plan-trip-pill">🌤️ Weather Guide</a>
-            <a href="https://www.destincondogetaways.com/blog/destinairport" className="plan-trip-pill">✈️ Which Airport</a>
-            <a href="https://www.destincondogetaways.com/blog/how-to-find-cheaper-flights-and-car-rentals" className="plan-trip-pill">🚗 Flights & Car Rentals</a>
-            <a href="https://www.destincondogetaways.com/blog/destin-fireworks-2026" className="plan-trip-pill">🎆 Fireworks 2026</a>
-            <a href="https://www.destincondogetaways.com/blog/destin-events-2026" className="plan-trip-pill">📅 Events 2026</a>
+            <a href="/blog/best-beaches-destin" className="plan-trip-pill">🏖️ Best Beaches</a>
+            <a href="/blog/destinweather" className="plan-trip-pill">🌤️ Weather Guide</a>
+            <a href="/blog/destinairport" className="plan-trip-pill">✈️ Which Airport</a>
+            <a href="/blog/how-to-find-cheaper-flights-and-car-rentals" className="plan-trip-pill">🚗 Flights & Car Rentals</a>
+            <a href="/blog/destin-fireworks-2026" className="plan-trip-pill">🎆 Fireworks 2026</a>
+            <a href="/blog/destin-events-2026" className="plan-trip-pill">📅 Events 2026</a>
             <a href="/deals" className="plan-trip-pill">🏷️ Price Drops</a>
             <a href="/snowbird" className="plan-trip-pill">❄️ Snowbird Stays</a>
             <a href="/activities" className="plan-trip-pill">🎟️ Activities & Tours</a>
@@ -891,7 +891,7 @@ export default function OfferPage() {
         .floating-home-top.visible{display:flex;}
       `}</style>
       <div id="offerFloating" className="floating-home-top">
-        <a href="https://www.destincondogetaways.com" target="_blank" rel="noopener" aria-label="Home">🏠</a>
+        <a href="/" aria-label="Home">🏠</a>
         <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Back to top">↑</button>
       </div>
     </>

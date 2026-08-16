@@ -305,8 +305,8 @@ html,body{width:100%;min-height:100vh;background:var(--sand);font-family:'DM San
 <script>
 console.log('Script loaded');
 const BASE = 'https://destin-concierge-new.vercel.app';
-const UNIT_707  = 'https://www.destincondogetaways.com/pelican-beach-resort-unit-707-orp5b47b5ax';
-const UNIT_1006 = 'https://www.destincondogetaways.com/pelican-beach-resort-unit-1006-orp5b6450ex';
+const UNIT_707  = '/condos/unit-707';
+const UNIT_1006 = '/condos/unit-1006';
 
 let sel = { month: null, part: 'first', nights: 4, adults: 2, children: 0, year: 2026 };
 
@@ -579,7 +579,7 @@ function renderResults(best, others) {
             <div class="fee-total"><span class="fee-total-label">Total</span><span class="fee-total-value">$${f.total}</span></div>
           </div>
           <a class="book-btn" href="${l}" target="_blank" onclick="gtag('event','book_direct_click',{unit:'${w.unit}',arrival:'${w.arr}',departure:'${w.dep}',total:${f.total}});event.stopPropagation()">Book direct — save on fees →</a>
-          <p style="font-size:10px;color:var(--muted);text-align:center;margin:8px 0 0;line-height:1.5">By proceeding you acknowledge our <a href="https://www.destincondogetaways.com/-pelican-beach-resort-condo-rental-574046950" target="_blank" style="color:var(--muted);text-decoration:underline">booking terms</a>, cancellation policy, and house rules. Rates shown are estimates — final total confirmed at checkout.</p>
+          <p style="font-size:10px;color:var(--muted);text-align:center;margin:8px 0 0;line-height:1.5">By proceeding you acknowledge our <a href="/why-book-direct" style="color:var(--muted);text-decoration:underline">booking terms</a>, cancellation policy, and house rules. Rates shown are estimates — final total confirmed at checkout.</p>
           <div class="msg-form" onclick="event.stopPropagation()">
             <p>Or send Ozan a message — he'll get back to you personally</p>
             <input type="email" id="msgEmail_${id}" placeholder="Your email" />

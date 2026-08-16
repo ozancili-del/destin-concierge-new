@@ -71,7 +71,7 @@ export default function UnitPage({ unit }) {
   return <div className={styles.page}>
     <Head><title>{unit.title}</title><meta name="description" content={rental.description} /><meta name="robots" content="noindex,nofollow" /><meta name="viewport" content="width=device-width, initial-scale=1" /><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} /></Head>
     <div className={styles.preview}>Preview page | Secure checkout remains powered by OwnerRez</div>
-    <div className={styles.utility}><a href="/reviews">Guest Reviews</a><a href="/why-book-direct#direct-faq">FAQ</a><a href="/guest-guide#policies">Policies</a><a href={`${liveSite}/aboutus-574000712`}>Contact</a></div>
+    <div className={styles.utility}><a href="/reviews">Guest Reviews</a><a href="/why-book-direct#direct-faq">FAQ</a><a href="/guest-guide#policies">Policies</a><a href="/about">Contact</a></div>
     <SiteHeader availabilityHref="#checkout" />
     <main>
       <section className={styles.hero}><img src={photos[0]} alt={photoDescription(unit, 0)} width="1800" height="1200" /><div className={styles.shade}></div><div className={styles.heroCopy}><a href="/">Home</a><span>/</span><a href="/#condos">Condos</a><p>{unit.floorLabel} · 1 bedroom · 2 bathrooms · sleeps 4–6</p><h1>Pelican Beach Resort Unit {unit.number}</h1><h2>{unit.style}</h2><div className={styles.actions}><SiteButton href="#checkout" variant="primary" size="large">See dates &amp; total</SiteButton><SiteButton href="#photos" variant="light" size="large">View all {photos.length} photos</SiteButton></div></div></section>

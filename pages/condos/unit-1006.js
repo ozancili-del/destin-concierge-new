@@ -6,7 +6,7 @@ const unit = {
   title: "Pelican Beach Resort Unit 1006 | Panoramic Gulf-Front Condo",
   propertyId: "ad9a3b0b0a8145eb88573dd9c0e1ccb8",
   registrationNumber: "CND5603848",
-  ownerRezUrl: "https://www.destincondogetaways.com/pelican-beach-resort-unit-1006-orp5b6450ex",
+  ownerRezUrl: "/book?unit=1006",
   introTitle: "A bright coastal condo with a higher panoramic view.",
   intro: [
     "Unit 1006 is an 873-square-foot, one-bedroom, two-bathroom condo on the tenth floor of Pelican Beach Resort. Its private balcony opens to an uninterrupted Gulf horizon and a broad view along the Emerald Coast.",

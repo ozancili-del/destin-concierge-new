@@ -35,7 +35,7 @@ export default function BookPage() {
     </Head>
 
     <div className={styles.preview}>Preview page | Secure reservations remain powered by OwnerRez</div>
-    <div className={styles.utility}><a href="/reviews">Guest Reviews</a><a href="/guest-guide#faq">FAQ</a><a href="/guest-guide#policies">Policies</a><a href={`${liveSite}/aboutus-574000712`}>Contact</a></div>
+    <div className={styles.utility}><a href="/reviews">Guest Reviews</a><a href="/guest-guide#faq">FAQ</a><a href="/guest-guide#policies">Policies</a><a href="/about">Contact</a></div>
     <SiteHeader availabilityHref="#checkout" />
 
     <main>
@@ -46,7 +46,7 @@ export default function BookPage() {
 
       <section className={styles.checkout} id="checkout">
         <div className={styles.checkoutIntro}><p className={styles.kicker}>Book direct</p><h2>Build and review your reservation.</h2><p>No discount code is needed. Confirm the condo, dates, every guest—including infants—and the complete total before submitting the reservation.</p><p className={styles.backLink}>Still comparing dates? <a href="/availability">Open live availability first →</a></p></div>
-        <div className={styles.widgetShell}><div className="ownerrez-widget" data-widget-type="Booking/Inquiry" data-widgetid={bookingWidgetId}></div><noscript><a href={`${liveSite}/book`}>Open the secure OwnerRez booking form</a></noscript></div>
+        <div className={styles.widgetShell}><div className="ownerrez-widget" data-widget-type="Booking/Inquiry" data-widgetid={bookingWidgetId}></div><noscript><a href="/book">Open the secure booking form</a></noscript></div>
       </section>
 
       <section className={styles.choose}>

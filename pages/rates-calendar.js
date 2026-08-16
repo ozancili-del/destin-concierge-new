@@ -273,12 +273,12 @@ export default function RatesCalendar({ dayData, today }) {
 
       {/* Top nav */}
       <header style={{ position: "relative", zIndex: 3, width: "min(860px,calc(100% - 32px))", margin: "20px auto 0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <a href="https://www.destincondogetaways.com" style={{ textDecoration: "none" }}>
+        <a href="/" style={{ textDecoration: "none" }}>
           <b style={{ fontSize: 20, letterSpacing: ".12em", color: "#47e2d0", fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 900 }}>DESTIN</b>
           <span style={{ display: "block", fontSize: 10, letterSpacing: ".16em", color: "rgba(255,255,255,.6)", fontWeight: 700 }}>CONDO GETAWAYS</span>
         </a>
         <nav style={{ display: "flex", gap: 20, fontSize: 13, fontWeight: 700 }}>
-          {[["Deals", "https://deals.destincondogetaways.com/beach-deals"],["Snowbird", "https://sunbirds.destincondogetaways.com"],["Destin Hub", "https://explore.destincondogetaways.com/destin-hub"]].map(([label, href]) => (
+          {[["Deals", "/deals"],["Snowbird", "/snowbird"],["Destin Hub", "/destin-hub"]].map(([label, href]) => (
             <a key={label} href={href} style={{ color: "rgba(255,255,255,.7)", textDecoration: "none" }}>{label}</a>
           ))}
         </nav>
@@ -395,7 +395,7 @@ export default function RatesCalendar({ dayData, today }) {
       {/* Floating home/top */}
       {showFloat && (
         <div style={{ position: "fixed", bottom: 24, right: 24, display: "flex", flexDirection: "column", gap: 8, zIndex: 999 }}>
-          <a href="https://www.destincondogetaways.com" target="_blank" rel="noopener" style={{ width: 44, height: 44, borderRadius: "50%", background: "rgba(2,18,40,.9)", border: "1px solid rgba(71,226,208,.35)", display: "flex", alignItems: "center", justifyContent: "center", color: "#47e2d0", fontSize: 18, textDecoration: "none" }}>🏠</a>
+          <a href="/" style={{ width: 44, height: 44, borderRadius: "50%", background: "rgba(2,18,40,.9)", border: "1px solid rgba(71,226,208,.35)", display: "flex", alignItems: "center", justifyContent: "center", color: "#47e2d0", fontSize: 18, textDecoration: "none" }}>🏠</a>
           <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} style={{ width: 44, height: 44, borderRadius: "50%", background: "rgba(2,18,40,.9)", border: "1px solid rgba(71,226,208,.35)", color: "#47e2d0", fontSize: 18, cursor: "pointer", fontFamily: "'Barlow',sans-serif" }}>↑</button>
         </div>
       )}

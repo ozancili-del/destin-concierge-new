@@ -6,7 +6,7 @@ const unit = {
   title: "Pelican Beach Resort Unit 707 | Gulf-Front Destin Condo",
   propertyId: "e987ace000304077ac42435e1eb19a35",
   registrationNumber: "CND5603848",
-  ownerRezUrl: "https://www.destincondogetaways.com/pelican-beach-resort-unit-707-orp5b47b5ax",
+  ownerRezUrl: "/book?unit=707",
   introTitle: "A warm coastal home with the Gulf right outside.",
   intro: [
     "Unit 707 is an 873-square-foot, one-bedroom, two-bathroom condo with a direct, unobstructed Gulf view. The seventh-floor balcony is elevated above the beach activity while still feeling close to the water.",

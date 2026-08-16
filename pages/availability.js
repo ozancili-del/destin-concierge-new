@@ -1,6 +1,7 @@
 import Head from "next/head";
 import Image from "next/image";
 import Script from "next/script";
+import { useRouter } from "next/router";
 import SiteButton from "../components/SiteButton";
 import SiteFooter from "../components/SiteFooter";
 import SiteHeader from "../components/SiteHeader";
@@ -16,6 +17,19 @@ const condos = [
 ];
 
 export default function AvailabilityPage() {
+  const router = useRouter();
+  const arrival = typeof router.query.or_arrival === "string" ? router.query.or_arrival : "";
+  const departure = typeof router.query.or_departure === "string" ? router.query.or_departure : "";
+  const adults = Number.parseInt(router.query.or_adults, 10);
+  const children = Number.parseInt(router.query.or_children, 10);
+  const totalGuests = Number.parseInt(router.query.or_guests, 10);
+  const hasSearchSummary = Boolean(arrival && departure && Number.isFinite(totalGuests));
+
+  const displayDate = (value) => {
+    if (!value) return "";
+    const date = new Date(`${value}T12:00:00`);
+    return Number.isNaN(date.getTime()) ? value : new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(date);
+  };
   const structuredData = {
     "@context": "https://schema.org",
     "@graph": [
@@ -46,6 +60,13 @@ export default function AvailabilityPage() {
 
       <section className={styles.searchSection} id="search">
         <div className={styles.sectionIntro}><p className={styles.kicker}>Start with your stay</p><h2>Check live availability in one search.</h2><p>Enter your arrival, departure and guest count below. Results come directly from the live reservation calendar.</p></div>
+        {hasSearchSummary && <div aria-label="Current availability search" style={{ display: "flex", flexWrap: "wrap", gap: ".65rem 1.2rem", alignItems: "center", maxWidth: 1120, margin: "0 auto 1rem", padding: ".9rem 1.1rem", border: "1px solid rgba(7,59,88,.16)", borderRadius: 14, background: "#fffefb", color: "#073b58" }}>
+          <strong style={{ color: "#1597a8", fontSize: ".78rem", letterSpacing: ".08em", textTransform: "uppercase" }}>Your search</strong>
+          <span>{displayDate(arrival)} – {displayDate(departure)}</span>
+          <span>{Number.isFinite(adults) ? adults : totalGuests} {Number.isFinite(adults) && adults === 1 ? "adult" : "adults"}</span>
+          <span>{Number.isFinite(children) ? children : 0} children/infants</span>
+          <span>{totalGuests} total {totalGuests === 1 ? "guest" : "guests"}</span>
+        </div>}
         <div className={styles.widgetShell}><div className="ownerrez-widget" data-widget-type="Availability/Property Search" data-widgetid={searchWidgetId}></div><noscript><a href="/availability">Open the secure availability search</a></noscript></div>
         <p className={styles.discount}>Your current direct-booking discount is reflected in the booking flow. Review the complete price, fees, taxes and policies before reserving.</p>
       </section>

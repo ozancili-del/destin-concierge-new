@@ -19,7 +19,7 @@ export default function AvailabilitySearch({ className, id = "availability" }) {
   const [children, setChildren] = useState(0);
 
   return (
-    <form className={className} id={id} method="get" action="/book">
+    <form className={className} id={id} method="get" action="/availability">
       <div><span>Live availability</span></div>
       <label><span>Check in</span><input aria-label="Arrival date" name="or_arrival" type="date" min={formatDate(new Date())} value={arrival} onChange={(event) => { setArrival(event.target.value); if (departure && departure <= event.target.value) setDeparture(""); }} required /></label>
       <label><span>Check out</span><input aria-label="Departure date" name="or_departure" type="date" min={tomorrowAfter(arrival)} value={departure} onChange={(event) => setDeparture(event.target.value)} required /></label>

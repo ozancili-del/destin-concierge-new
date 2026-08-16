@@ -15,6 +15,22 @@ const reviews = [
   { name: "Jacob A.", text: "Beautiful condo and the most responsive host I have ever dealt with. We will definitely be back." },
 ];
 
+export function getServerSideProps({ query }) {
+  const unit = query.unit === "707" || query.unit === "1006" ? query.unit : null;
+  const destination = unit ? `/condos/unit-${unit}` : "/availability";
+  const forwarded = new URLSearchParams();
+
+  for (const [key, value] of Object.entries(query)) {
+    if (key === "unit") continue;
+    for (const item of Array.isArray(value) ? value : [value]) {
+      if (typeof item === "string") forwarded.append(key, item);
+    }
+  }
+
+  const suffix = forwarded.toString();
+  return { redirect: { destination: `${destination}${suffix ? `?${suffix}` : ""}`, permanent: false } };
+}
+
 export default function BookPage() {
   const structuredData = {
     "@context": "https://schema.org",

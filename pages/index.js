@@ -9,6 +9,17 @@ import styles from "../styles/HomePreview.module.css";
 
 const site = "https://www.destincondogetaways.com";
 
+function formatDate(date) {
+  return date.toISOString().slice(0, 10);
+}
+
+function tomorrowAfter(value) {
+  if (!value) return formatDate(new Date());
+  const date = new Date(`${value}T12:00:00`);
+  date.setDate(date.getDate() + 1);
+  return formatDate(date);
+}
+
 const condos = [
   {
     unit: "707",
@@ -75,45 +86,6 @@ export default function Home() {
   const [adults, setAdults] = useState(2);
   const [children, setChildren] = useState(0);
 
-  function clearValidity(event) {
-    event.currentTarget.setCustomValidity("");
-  }
-
-  function submitAvailability(event) {
-    const form = event.currentTarget;
-    const arrivalInput = form.elements.or_arrival;
-    const departureInput = form.elements.or_departure;
-    const childrenInput = form.elements.or_children;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const arrivalDate = new Date(`${arrival}T00:00:00`);
-    const departureDate = new Date(`${departure}T00:00:00`);
-
-    arrivalInput.setCustomValidity("");
-    departureInput.setCustomValidity("");
-    childrenInput.setCustomValidity("");
-
-    if (arrivalDate < today) {
-      event.preventDefault();
-      arrivalInput.setCustomValidity("Check-in must be today or later.");
-      arrivalInput.reportValidity();
-      return;
-    }
-    if (departureDate <= arrivalDate) {
-      event.preventDefault();
-      departureInput.setCustomValidity("Check-out must be after check-in.");
-      departureInput.reportValidity();
-      return;
-    }
-    if (adults + children > 6) {
-      event.preventDefault();
-      childrenInput.setCustomValidity("The maximum occupancy is six people, including children and infants.");
-      childrenInput.reportValidity();
-      return;
-    }
-
-  }
-
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -179,24 +151,23 @@ export default function Home() {
               id="availability"
               action="/book"
               method="get"
-              onSubmit={submitAvailability}
             >
               <label>
                 <span>Check in</span>
-                <input aria-label="Arrival date" name="or_arrival" type="date" value={arrival} onChange={(event) => setArrival(event.target.value)} onInput={clearValidity} required />
+                <input aria-label="Arrival date" name="or_arrival" type="date" min={formatDate(new Date())} value={arrival} onChange={(event) => { setArrival(event.target.value); if (departure && departure <= event.target.value) setDeparture(""); }} required />
               </label>
               <label>
                 <span>Check out</span>
-                <input aria-label="Departure date" name="or_departure" type="date" value={departure} onChange={(event) => setDeparture(event.target.value)} onInput={clearValidity} required />
+                <input aria-label="Departure date" name="or_departure" type="date" min={tomorrowAfter(arrival)} value={departure} onChange={(event) => setDeparture(event.target.value)} required />
               </label>
               <label className={styles.partyLabel}>
                 <span>Guests · maximum 6 total</span>
                 <span className={styles.partyFields}>
-                  <select aria-label="Adults" name="or_adults" value={adults} onChange={(event) => setAdults(Number(event.target.value))}>
+                  <select aria-label="Adults" name="or_adults" value={adults} onChange={(event) => { const nextAdults = Number(event.target.value); setAdults(nextAdults); setChildren((current) => Math.min(current, 6 - nextAdults)); }}>
                     {[1, 2, 3, 4, 5, 6].map((count) => <option value={count} key={count}>{count} {count === 1 ? "adult" : "adults"}</option>)}
                   </select>
                   <select aria-label="Children and infants" name="or_children" value={children} onChange={(event) => { setChildren(Number(event.target.value)); event.currentTarget.setCustomValidity(""); }}>
-                    {[0, 1, 2, 3, 4, 5].map((count) => <option value={count} key={count}>{count} {count === 1 ? "child/infant" : "children/infants"}</option>)}
+                    {Array.from({ length: 7 - adults }, (_, count) => <option value={count} key={count}>{count} {count === 1 ? "child/infant" : "children/infants"}</option>)}
                   </select>
                 </span>
               </label>

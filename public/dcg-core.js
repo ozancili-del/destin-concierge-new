@@ -210,4 +210,7 @@
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", pageView, { once: true });
   else pageView();
-})(window, document);
+})(
+  typeof window !== "undefined" ? window : { DCGAnalytics: true },
+  typeof document !== "undefined" ? document : {}
+);

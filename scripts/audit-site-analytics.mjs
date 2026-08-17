@@ -8,7 +8,7 @@ const analyticsPath = path.join(root, "public", "dcg-core.js");
 const source = fs.readFileSync(analyticsPath, "utf8");
 const appSource = fs.readFileSync(path.join(root, "pages", "_app.js"), "utf8");
 
-assert.match(appSource, /import\("\.\.\/public\/dcg-core\.js"\)/, "Next pages must bundle the shared analytics layer");
+assert.match(appSource, /import "\.\.\/public\/dcg-core\.js"/, "Next pages must bundle the shared analytics layer");
 assert.match(source, /begin_checkout/, "Canonical booking event is missing");
 assert.match(source, /generate_lead/, "Canonical lead event is missing");
 assert.match(source, /affiliate_click/, "Affiliate click event is missing");

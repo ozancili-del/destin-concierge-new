@@ -28,9 +28,9 @@ export default function BestTimeToVisitGuide() {
     intro="Compare weather, water temperatures, crowds, events and seasonal tradeoffs—then use the interactive quiz to find your best fit."
     articleHtml={article.html}
     related={[
-      { label: "Weather & water", title: "Destin conditions guide", href: liveSite + "/blog/destinweather" },
-      { label: "Beaches", title: "Best beaches in Destin", href: liveSite + "/blog/best-beaches-destin" },
-      { label: "Events", title: "Destin events calendar", href: liveSite + "/blog/destin-events-2026" },
+      { label: "Weather & water", title: "Destin conditions guide", href: "/blog/destinweather" },
+      { label: "Beaches", title: "Best beaches in Destin", href: "/blog/best-beaches-destin" },
+      { label: "Events", title: "Destin events calendar", href: "/blog/destin-events-2026" },
       { label: "Current reductions", title: "Browse beach deals", href: "/deals" },
     ]}
   />;

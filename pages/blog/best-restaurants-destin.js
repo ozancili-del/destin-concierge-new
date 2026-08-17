@@ -26,8 +26,8 @@ export default function DestinSeafoodGuide() {
   ] };
   return <MigratedBlogArticle canonical={canonical} pageTitle="Best Seafood Restaurants in Destin Florida | 2026 Guide" description={article.description} structuredData={structuredData} heroImage="/hub-seafood.webp" heroAlt="Fresh seafood dining in Destin Florida" kicker="Seafood and waterfront dining" title="Best Seafood Restaurants in Destin" intro="Honest local picks for casual beachfront seafood, harbor favorites and fine dining—with distances and an interactive map." articleHtml={article.html} related={[
     { label: "More restaurants", title: "Italian, sushi, breakfast and hidden gems", href: "/blog/best-restaurants-destin-local-guide" },
-    { label: "Family", title: "Destin with kids", href: liveSite + "/blog/destinkids" },
-    { label: "Nightlife", title: "Destin after dark", href: liveSite + "/blog/destinnights" },
+    { label: "Family", title: "Destin with kids", href: "/blog/destinkids" },
+    { label: "Nightlife", title: "Destin after dark", href: "/blog/destinnights" },
     { label: "Planning", title: "Complete Destin vacation guide", href: "/blog/destin-florida-vacation-guide-2026" },
   ]} />;
 }

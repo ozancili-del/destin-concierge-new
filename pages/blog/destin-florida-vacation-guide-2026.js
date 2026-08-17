@@ -29,10 +29,10 @@ export default function DestinVacationGuide() {
     intro="A practical starting point for beaches, weather, airports, food, activities and the details that shape a better Destin trip."
     articleHtml={article.html}
     related={[
-      { label: "Weather & water", title: "Destin conditions guide", href: liveSite + "/blog/destinweather" },
-      { label: "Beaches", title: "Best beaches in Destin", href: liveSite + "/blog/best-beaches-destin" },
-      { label: "Dining", title: "Best restaurants in Destin", href: liveSite + "/blog/best-restaurants-destin" },
-      { label: "Events", title: "Current Destin events", href: liveSite + "/blog/destin-events-2026" },
+      { label: "Weather & water", title: "Destin conditions guide", href: "/blog/destinweather" },
+      { label: "Beaches", title: "Best beaches in Destin", href: "/blog/best-beaches-destin" },
+      { label: "Dining", title: "Best restaurants in Destin", href: "/blog/best-restaurants-destin" },
+      { label: "Events", title: "Current Destin events", href: "/blog/destin-events-2026" },
     ]}
   />;
 }

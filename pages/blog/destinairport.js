@@ -20,6 +20,6 @@ export default function DestinAirportGuide() {
     { label: "Rental cars", title: "Destin car rental guide", href: "/blog/destincar" },
     { label: "Flights", title: "Find cheaper flights and cars", href: "/blog/how-to-find-cheaper-flights-and-car-rentals" },
     { label: "Planning", title: "Complete Destin vacation guide", href: "/blog/destin-florida-vacation-guide-2026" },
-    { label: "Weather", title: "Destin weather guide", href: liveSite + "/blog/destinweather" },
+    { label: "Weather", title: "Destin weather guide", href: "/blog/destinweather" },
   ]} />;
 }

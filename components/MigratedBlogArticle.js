@@ -5,6 +5,7 @@ import SiteButton from "./SiteButton";
 import SiteFooter from "./SiteFooter";
 import SiteHeader from "./SiteHeader";
 import { cleanInternalLinksInHtml } from "../lib/internal-links";
+import blogLinkStrategy from "../data/blog-link-strategy.json";
 import styles from "../styles/Article.module.css";
 
 const liveSite = "https://www.destincondogetaways.com";
@@ -24,6 +25,14 @@ export default function MigratedBlogArticle({
   related = [],
   stylesheet,
 }) {
+  const slug = canonical ? canonical.replace(/\/$/, "").split("/").pop() : "";
+  const nextStep = blogLinkStrategy[slug] || {
+    eyebrow: "Continue planning",
+    title: "Turn the guide into a practical Destin stay.",
+    copy: "Use the trip planner for the details, then check live availability when your dates and group are ready.",
+    primary: { label: "Build a Destin itinerary", href: "/trip-planner" },
+    booking: { label: "Check live availability", href: "/availability" },
+  };
   return <div className={styles.page}>
     <Head>
       <title>{pageTitle}</title>
@@ -60,7 +69,10 @@ export default function MigratedBlogArticle({
         <div><p className={styles.kicker}>Continue planning</p><h2>More useful Destin guides.</h2></div>
         <div className={styles.relatedGrid}>{related.map((item) => <a href={item.href} key={item.href}><span>{item.label}</span><strong>{item.title}</strong></a>)}</div>
       </section>
-      <section className={styles.finalCta}><div><p className={styles.kickerLight}>Planning your stay?</p><h2>Check live availability.</h2></div><SiteButton href="#availability" variant="primary" size="large">Check availability</SiteButton></section>
+      <section className={styles.finalCta}>
+        <div><p className={styles.kickerLight}>{nextStep.eyebrow}</p><h2>{nextStep.title}</h2><p>{nextStep.copy}</p></div>
+        <div className={styles.finalActions}><SiteButton href={nextStep.primary.href} variant="primary" size="large">{nextStep.primary.label}</SiteButton><SiteButton href={nextStep.booking.href} variant="light" size="large">{nextStep.booking.label}</SiteButton></div>
+      </section>
     </main>
 
     <SiteFooter />

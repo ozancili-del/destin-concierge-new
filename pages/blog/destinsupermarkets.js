@@ -28,10 +28,10 @@ export default function DestinSupermarketsGuide() {
     intro="Compare nearby supermarkets, specialty markets, seafood shops and delivery options with an interactive local map."
     articleHtml={article.html}
     related={[
-      { label: "Visitor essentials", title: "Pharmacies and useful services", href: liveSite + "/blog/destinessentials" },
-      { label: "Dining", title: "Best restaurants in Destin", href: liveSite + "/blog/best-restaurants-destin" },
-      { label: "Explore", title: "Destin interactive map", href: liveSite + "/map" },
-      { label: "Trip planning", title: "Destin vacation guide", href: liveSite + "/blog/destin-florida-vacation-guide-2026" },
+      { label: "Visitor essentials", title: "Pharmacies and useful services", href: "/blog/destinessentials" },
+      { label: "Dining", title: "Best restaurants in Destin", href: "/blog/best-restaurants-destin" },
+      { label: "Explore", title: "Destin interactive map", href: "/map" },
+      { label: "Trip planning", title: "Destin vacation guide", href: "/blog/destin-florida-vacation-guide-2026" },
     ]}
   />;
 }

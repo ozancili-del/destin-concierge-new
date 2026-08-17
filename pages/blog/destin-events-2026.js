@@ -19,8 +19,8 @@ export default function DestinEventsGuide() {
   ] };
   return <MigratedBlogArticle canonical={canonical} pageTitle="Destin Events Calendar 2026 | Festivals & Activities" description={article.description} structuredData={structuredData} heroImage="/hub-events.webp" heroAlt="Destin events, festivals and waterfront celebrations" kicker="Updated 2026 events calendar" title="Destin Events Calendar 2026" intro="Plan around festivals, fishing events, food celebrations, concerts and the major seasonal happenings across Destin and the Emerald Coast." articleHtml={article.html} related={[
     { label: "Fireworks", title: "Destin fireworks schedule and map", href: "/blog/destin-fireworks-2026" },
-    { label: "Music", title: "Destin live music guide", href: liveSite + "/blog/destin-live-music-2026" },
+    { label: "Music", title: "Destin live music guide", href: "/blog/destin-live-music-2026" },
     { label: "Planning", title: "Complete Destin vacation guide", href: "/blog/destin-florida-vacation-guide-2026" },
-    { label: "Weather", title: "Destin weather guide", href: liveSite + "/blog/destinweather" },
+    { label: "Weather", title: "Destin weather guide", href: "/blog/destinweather" },
   ]} />;
 }

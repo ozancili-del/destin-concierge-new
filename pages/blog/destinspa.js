@@ -28,7 +28,7 @@ export default function DestinSpaGuide(){
       <AvailabilitySearch className={styles.availability} />
       <article className={styles.article} dangerouslySetInnerHTML={{__html:cleanInternalLinksInHtml(articleHtml)}} />
       <section className={styles.related}><div><p className={styles.kicker}>Continue planning</p><h2>More ways to enjoy Destin.</h2></div><div className={styles.relatedGrid}><a href="/blog/destinromance"><span>For couples</span><strong>Romantic things to do in Destin</strong></a><a href="/blog/best-restaurants-destin"><span>Dining</span><strong>Best seafood restaurants</strong></a><a href="/blog/best-time-to-visit-destin-florida"><span>Trip timing</span><strong>Best time to visit Destin</strong></a><a href="/trip-planner"><span>Personalized plan</span><strong>Create a day-by-day itinerary</strong></a></div></section>
-      <section className={styles.finalCta}><div><p className={styles.kickerLight}>Planning your stay?</p><h2>Check live availability.</h2></div><SiteButton href="#availability" variant="primary" size="large">Check availability</SiteButton></section>
+      <section className={styles.finalCta}><div><p className={styles.kickerLight}>Plan the slower day</p><h2>Pair the spa with an unhurried Destin itinerary.</h2><p>Place the treatment around beach time, dinner and realistic travel instead of turning the day into another checklist.</p></div><div className={styles.finalActions}><SiteButton href="/trip-planner" variant="primary" size="large">Build a relaxing itinerary</SiteButton><SiteButton href="/destin-vacation-rentals-by-owner" variant="light" size="large">Explore beachfront stays</SiteButton></div></section>
     </main>
     <SiteFooter />
     <Script src="/destiny-loader.js" strategy="lazyOnload" />

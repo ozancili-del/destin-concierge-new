@@ -29,9 +29,9 @@ export default function FlightsAndCarsGuide() {
     intro="Compare airports, flight routes, rental-car totals and the real cost of reaching the Emerald Coast before you book."
     articleHtml={article.html}
     related={[
-      { label: "Airports", title: "VPS, PNS and ECP compared", href: liveSite + "/blog/destinairport" },
-      { label: "Driving", title: "Do you need a rental car?", href: liveSite + "/blog/destincar" },
-      { label: "Trip planning", title: "Destin vacation guide", href: liveSite + "/blog/destin-florida-vacation-guide-2026" },
+      { label: "Airports", title: "VPS, PNS and ECP compared", href: "/blog/destinairport" },
+      { label: "Driving", title: "Do you need a rental car?", href: "/blog/destincar" },
+      { label: "Trip planning", title: "Destin vacation guide", href: "/blog/destin-florida-vacation-guide-2026" },
       { label: "Where to stay", title: "Pelican Beach Resort guide", href: "/resort" },
     ]}
   />;

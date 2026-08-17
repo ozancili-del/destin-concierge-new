@@ -17,6 +17,31 @@ const condos = [
   { number: "1006", label: "Fresh Coastal · Tenth floor", href: "/condos/unit-1006", image: "/hub-beachcam.png", alt: "Gulf-front setting of Pelican Beach Resort Unit 1006" },
 ];
 
+function parseStayDate(value) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
+  const date = new Date(`${value}T12:00:00`);
+  if (Number.isNaN(date.getTime())) return null;
+  const [year, month, day] = value.split("-").map(Number);
+  return date.getFullYear() === year && date.getMonth() + 1 === month && date.getDate() === day ? date : null;
+}
+
+function validateSearch({ arrival, departure, adults, children, totalGuests }) {
+  const arrivalDate = parseStayDate(arrival);
+  const departureDate = parseStayDate(departure);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  if (!arrival || !departure) return "Choose both check-in and checkout dates.";
+  if (!arrivalDate || !departureDate) return "Choose valid check-in and checkout dates.";
+  if (arrivalDate < today) return "Check-in must be today or later.";
+  if (departureDate <= arrivalDate) return "Checkout must be after check-in.";
+  if (!Number.isInteger(adults) || adults < 1) return "Choose at least one adult.";
+  if (!Number.isInteger(children) || children < 0) return "Choose a valid number of children and infants.";
+  if (!Number.isInteger(totalGuests) || totalGuests !== adults + children) return "The guest count does not match the adults and children selected. Please search again.";
+  if (totalGuests > 6) return "Each condo accommodates a maximum of six people, including infants.";
+  return "";
+}
+
 export default function AvailabilityPage() {
   const router = useRouter();
   const arrival = typeof router.query.or_arrival === "string" ? router.query.or_arrival : "";
@@ -24,12 +49,14 @@ export default function AvailabilityPage() {
   const adults = Number.parseInt(router.query.or_adults, 10);
   const children = Number.parseInt(router.query.or_children, 10);
   const totalGuests = Number.parseInt(router.query.or_guests, 10);
-  const hasSearchSummary = Boolean(arrival && departure && Number.isFinite(totalGuests));
+  const hasSearchInputs = Boolean(arrival || departure || router.query.or_adults || router.query.or_children || router.query.or_guests);
+  const validationError = hasSearchInputs ? validateSearch({ arrival, departure, adults, children, totalGuests }) : "";
+  const hasValidSearch = hasSearchInputs && !validationError;
   const [liveResults, setLiveResults] = useState(null);
   const [resultsError, setResultsError] = useState("");
 
   useEffect(() => {
-    if (!hasSearchSummary) {
+    if (!hasValidSearch) {
       setLiveResults(null);
       setResultsError("");
       return;
@@ -47,7 +74,7 @@ export default function AvailabilityPage() {
         if (error.name !== "AbortError") setResultsError("Live availability could not be loaded. Please try the search again.");
       });
     return () => controller.abort();
-  }, [arrival, departure, hasSearchSummary]);
+  }, [arrival, departure, hasValidSearch]);
 
   const bookingQuery = new URLSearchParams({
     or_arrival: arrival,
@@ -57,6 +84,7 @@ export default function AvailabilityPage() {
     or_guests: String(totalGuests),
   }).toString();
   const availableCondos = liveResults ? condos.filter((condo) => liveResults[`unit${condo.number}`]?.status === "available") : [];
+  const unknownCondos = liveResults ? condos.filter((condo) => liveResults[`unit${condo.number}`]?.status === "unknown") : [];
 
   const displayDate = (value) => {
     if (!value) return "";
@@ -93,7 +121,7 @@ export default function AvailabilityPage() {
 
       <section className={styles.searchSection} id="search">
         <div className={styles.sectionIntro}><p className={styles.kicker}>Start with your stay</p><h2>Check live availability in one search.</h2><p>Enter your arrival, departure and guest count below. Results come directly from the live reservation calendar.</p></div>
-        {hasSearchSummary && <div aria-label="Current availability search" style={{ display: "flex", flexWrap: "wrap", gap: ".65rem 1.2rem", alignItems: "center", maxWidth: 1120, margin: "0 auto 1rem", padding: ".9rem 1.1rem", border: "1px solid rgba(7,59,88,.16)", borderRadius: 14, background: "#fffefb", color: "#073b58" }}>
+        {hasValidSearch && <div aria-label="Current availability search" style={{ display: "flex", flexWrap: "wrap", gap: ".65rem 1.2rem", alignItems: "center", maxWidth: 1120, margin: "0 auto 1rem", padding: ".9rem 1.1rem", border: "1px solid rgba(7,59,88,.16)", borderRadius: 14, background: "#fffefb", color: "#073b58" }}>
           <strong style={{ color: "#1597a8", fontSize: ".78rem", letterSpacing: ".08em", textTransform: "uppercase" }}>Your search</strong>
           <span>{displayDate(arrival)} – {displayDate(departure)}</span>
           <span>{Number.isFinite(adults) ? adults : totalGuests} {Number.isFinite(adults) && adults === 1 ? "adult" : "adults"}</span>
@@ -101,11 +129,13 @@ export default function AvailabilityPage() {
           <span>{totalGuests} total {totalGuests === 1 ? "guest" : "guests"}</span>
         </div>}
         <AvailabilitySearch className={styles.localSearch} id="availability-form" initialArrival={arrival} initialDeparture={departure} initialAdults={Number.isFinite(adults) ? adults : 2} initialChildren={Number.isFinite(children) ? children : 0} />
-        {hasSearchSummary && <div className={styles.liveResults} aria-live="polite">
+        {hasSearchInputs && validationError && <div className={styles.liveResults} aria-live="polite"><p className={styles.error}>{validationError}</p></div>}
+        {hasValidSearch && <div className={styles.liveResults} aria-live="polite">
           {!liveResults && !resultsError && <p className={styles.loading}>Checking both live calendars…</p>}
           {resultsError && <p className={styles.error}>{resultsError}</p>}
+          {liveResults && unknownCondos.length > 0 && <p className={styles.error}>One live calendar could not be verified. Only confirmed available results are shown; please retry before ruling out the other condo.</p>}
           {liveResults && availableCondos.length > 0 && <><div className={styles.resultsHeading}><p className={styles.kicker}>Available for your stay</p><h3>Choose a condo to see the complete total.</h3><p>Dates and guest counts will carry into the secure unit checkout.</p></div><div className={styles.resultGrid}>{availableCondos.map((condo) => <article key={condo.number}><div className={styles.resultImage}><Image src={condo.image} alt={condo.alt} fill sizes="(max-width: 760px) 100vw, 50vw" /></div><div><p>{condo.label}</p><h4>Unit {condo.number}</h4><SiteButton href={`${condo.href}?${bookingQuery}#checkout`} variant="primary">See complete total</SiteButton></div></article>)}</div></>}
-          {liveResults && availableCondos.length === 0 && <div className={styles.resultsHeading}><p className={styles.kicker}>No exact match</p><h3>Neither condo is open for the full date range.</h3><p>Try nearby dates above or ask Live Chat to help find the closest available stay.</p><SiteButton href="/destin-ai-concierge" variant="secondary">Ask Live Chat</SiteButton></div>}
+          {liveResults && availableCondos.length === 0 && unknownCondos.length === 0 && <div className={styles.resultsHeading}><p className={styles.kicker}>No exact match</p><h3>Neither condo is open for the full date range.</h3><p>Try nearby dates above or ask Live Chat to help find the closest available stay.</p><SiteButton href="/destin-ai-concierge" variant="secondary">Ask Live Chat</SiteButton></div>}
         </div>}
         <p className={styles.discount}>Availability is checked live here. The selected unit page shows the complete current total—including rent, fees and taxes—before you reserve.</p>
       </section>

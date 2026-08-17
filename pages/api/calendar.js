@@ -191,6 +191,29 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "arrival and departure required" });
   }
 
+  const isoDate = /^\d{4}-\d{2}-\d{2}$/;
+  const parseIsoDate = (value) => {
+    if (typeof value !== "string" || !isoDate.test(value)) return null;
+    const date = new Date(`${value}T12:00:00`);
+    if (Number.isNaN(date.getTime())) return null;
+    const [year, month, day] = value.split("-").map(Number);
+    return date.getFullYear() === year && date.getMonth() + 1 === month && date.getDate() === day ? date : null;
+  };
+  const arrivalDate = parseIsoDate(arrival);
+  const departureDate = parseIsoDate(departure);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  if (!arrivalDate || !departureDate) {
+    return res.status(400).json({ error: "arrival and departure must be valid YYYY-MM-DD dates" });
+  }
+  if (arrivalDate < today) {
+    return res.status(400).json({ error: "arrival must be today or later" });
+  }
+  if (departureDate <= arrivalDate) {
+    return res.status(400).json({ error: "departure must be after arrival" });
+  }
+
   // Fetch both units in parallel
   const [bookings707, bookings1006] = await Promise.all([
     fetchBookings(UNIT_707_ID, arrival, departure),
@@ -199,6 +222,10 @@ export default async function handler(req, res) {
 
   const avail707  = analyzeAvailability(bookings707,  arrival, departure);
   const avail1006 = analyzeAvailability(bookings1006, arrival, departure);
+
+  if (avail707.status === "unknown" && avail1006.status === "unknown") {
+    return res.status(503).json({ error: "live availability could not be verified" });
+  }
 
   const orphan707  = avail707.status  === "available" ? detectOrphanDay(bookings707,  departure) : null;
   const orphan1006 = avail1006.status === "available" ? detectOrphanDay(bookings1006, departure) : null;
@@ -210,8 +237,8 @@ export default async function handler(req, res) {
   const both1006 = avail1006.status === "available";
   const part707  = avail707.status  === "partial";
   const part1006 = avail1006.status === "partial";
-  const none707  = avail707.status  === "booked" || avail707.status === "unknown";
-  const none1006 = avail1006.status === "booked" || avail1006.status === "unknown";
+  const none707  = avail707.status  === "booked";
+  const none1006 = avail1006.status === "booked";
 
   if (both707 && both1006) {
     recommendation = "BOTH_AVAILABLE";
@@ -225,8 +252,10 @@ export default async function handler(req, res) {
     recommendation = "ONLY_707_PARTIAL";
   } else if (part1006 && none707) {
     recommendation = "ONLY_1006_PARTIAL";
-  } else {
+  } else if (none707 && none1006) {
     recommendation = "NONE_AVAILABLE";
+  } else {
+    recommendation = "CHECK_INCOMPLETE";
   }
 
   return res.status(200).json({

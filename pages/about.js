@@ -6,6 +6,7 @@ import SiteButton from "../components/SiteButton";
 import SiteFooter from "../components/SiteFooter";
 import SiteHeader from "../components/SiteHeader";
 import styles from "../styles/AboutLegal.module.css";
+import availabilityStyles from "../styles/GalleryAvailability.module.css";
 
 const liveSite = "https://www.destincondogetaways.com";
 
@@ -80,7 +81,7 @@ export default function About() {
         <div className={styles.heroCopy}><a href="/">Home</a><p className={styles.kicker}>Meet your host</p><h1>Hospitality built around trust.</h1><p>Destin Condo Getaways is personally owned and managed by Ozan Cili—a world traveler, technology executive, father and hands-on host who believes direct booking should still feel personal.</p></div>
       </section>
 
-      <AvailabilitySearch className={styles.availability} />
+      <AvailabilitySearch className={`${styles.availability} ${availabilityStyles.availability}`} />
 
       <section className={styles.story}>
         <div><p className={styles.kicker}>How it started</p><h2>From a family getaway to owner-direct hospitality.</h2></div>

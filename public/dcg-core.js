@@ -3,6 +3,8 @@
 
   if (window.DCGAnalytics) return;
 
+  if (document.documentElement) document.documentElement.dataset.dcgMeasurement = "ready";
+
   var GA_ID = "G-3SGXCQ4FTC";
   var GTM_ID = "GTM-PQSF8S6D";
   var PRODUCTION_HOSTS = ["destincondogetaways.com", "www.destincondogetaways.com"];
@@ -66,6 +68,7 @@
     var safe = cleanParams(params || {});
     var dedupeMs = options && options.dedupeMs;
     if (isDuplicate(name, safe, dedupeMs)) return false;
+    if (document.documentElement) document.documentElement.dataset.dcgLastEvent = name;
     dataLayer.push(Object.assign({ event: name, dcg_event: true }, safe));
     if (isProduction) rawGtag("event", name, safe);
     return true;

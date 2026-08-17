@@ -46,6 +46,7 @@ function createBrowser(hostname) {
     head: { appendChild(node) { scripts.push(node); } },
     createElement() { return {}; },
     getElementById() { return null; },
+    documentElement: { dataset: {} },
     addEventListener(type, handler) { listeners[type] = handler; }
   };
   const window = {
@@ -63,12 +64,13 @@ function createBrowser(hostname) {
   };
   const context = { window, document, URL, Object, Array, String, Number, Date, RegExp, FormData: class {}, console };
   vm.runInNewContext(source, context, { filename: analyticsPath });
-  return { window, scripts };
+  return { window, document, scripts };
 }
 
 const preview = createBrowser("preview.example.com");
 assert.equal(preview.scripts.length, 0, "Preview must not send analytics traffic");
 assert.equal(preview.window.DCGAnalytics.production, false);
+assert.equal(preview.document.documentElement.dataset.dcgMeasurement, "ready");
 const previewPageView = preview.window.dataLayer.find((item) => item?.event === "page_view");
 assert.ok(previewPageView, "Preview should expose page-view telemetry for QA");
 assert.doesNotMatch(previewPageView.page_location, /guest@example\.com/, "Page URLs must not expose email addresses");

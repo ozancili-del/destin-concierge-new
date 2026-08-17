@@ -27,7 +27,7 @@ const faqs = [
   { q: "How many floors does Pelican Beach Resort have?", a: "The beachfront building has 20 floors, with no labeled 13th floor, and 339 individually owned condos. The resort was built in 1996 and completed substantial renovations in 2022â€“23." },
   { q: "Does Pelican Beach Resort have EV chargers?", a: "Yes. Two paid J1772 EV chargers are available to resort guests in the covered roof-level parking area." },
   { q: "How far is Pelican Beach Resort from the airport?", a: "Destinâ€“Fort Walton Beach Airport (VPS) is about 17 miles away, commonly around a 30-minute drive. Pensacola International Airport (PNS) is about 50 miles away and commonly around a 90-minute drive, depending on traffic." },
-  { q: "How do I book a condo at Pelican Beach Resort directly?", a: "Search your dates on this page to check Unit 707 and Unit 1006, then review the exact condo, complete price and policies through secure OwnerRez checkout. The current 10% direct-booking discount is automatically reflected there." },
+  { q: "How do I book a condo at Pelican Beach Resort directly?", a: "Search your dates on this page, choose the exact available condo, then review the complete price and policies through secure checkout. The current direct-booking discount is automatically reflected there." },
 ];
 
 const reviews = [
@@ -81,7 +81,7 @@ export default function Resort() {
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
     </Head>
-    <div className={styles.preview}>Preview page | Production and OwnerRez remain unchanged</div>
+    <div className={styles.preview}>Preview page | Production remains unchanged</div>
     <div className={styles.utility}><a href="/reviews">Guest Reviews</a><a href="#faq">FAQ</a><a href="/guest-guide">Policies</a><a href="/about">Contact</a></div>
     <SiteHeader availabilityHref="#availability" />
 

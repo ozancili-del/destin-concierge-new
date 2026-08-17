@@ -37,12 +37,12 @@ function calcFees(priceSum, nights, unit, arrivalStr, adults, children) {
 }
 
 const UNIT_META = {
-  "707":  { name: "Unit 707", sub: "Classic Coastal · 7th Floor", slug: "pelican-beach-resort-unit-707-orp5b47b5ax" },
-  "1006": { name: "Unit 1006", sub: "Fresh Coastal · 10th Floor", slug: "pelican-beach-resort-unit-1006-orp5b6450ex" },
+  "707":  { name: "Unit 707", sub: "Classic Coastal · 7th Floor", route: "/condos/unit-707" },
+  "1006": { name: "Unit 1006", sub: "Fresh Coastal · 10th Floor", route: "/condos/unit-1006" },
 };
 
 function bookingUrl(unit, arrival, departure) {
-  return `https://www.destincondogetaways.com/${UNIT_META[unit].slug}?or_arrival=${arrival}&or_departure=${departure}&or_adults=2&or_children=0&or_guests=2`;
+  return `${UNIT_META[unit].route}?or_arrival=${arrival}&or_departure=${departure}&or_adults=2&or_children=0&or_guests=2#checkout`;
 }
 
 function fmt(d) { return d.toISOString().split("T")[0]; }

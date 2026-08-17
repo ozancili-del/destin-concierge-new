@@ -28,7 +28,7 @@ export default function VirtualToursPage() {
       <meta name="robots" content="noindex,nofollow" /><meta name="viewport" content="width=device-width, initial-scale=1" />
       <link rel="canonical" href={`${liveSite}/virtual-tours`} /><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
     </Head>
-    <div className={styles.preview}>Preview page | Production and OwnerRez remain unchanged</div>
+    <div className={styles.preview}>Preview page | Production remains unchanged</div>
     <div className={styles.utility}><a href="/reviews">Guest Reviews</a><a href="/guest-guide#faq">FAQ</a><a href="/guest-guide#policies">Policies</a><a href="/about">Contact</a></div>
     <SiteHeader availabilityHref="#availability" />
     <main>
@@ -49,7 +49,7 @@ export default function VirtualToursPage() {
         <div className={styles.contextImage}><Image src="/hub-resort.png" alt="Pelican Beach Resort beachfront setting in Destin" fill sizes="(max-width: 900px) 100vw, 44vw" /></div>
         <div><p className={styles.kicker}>What the tour helps you compare</p><h2>See the layout—not merely a room category.</h2><p>Pelican Beach Resort condos are individually owned, so finishes, furnishings, floor level and views can differ. These tours show the two specific homes offered by Destin Condo Getaways.</p><ul><li>Living room, kitchen and sleeping layout</li><li>Private balcony orientation and Gulf view</li><li>Bedroom, bunks and two-bathroom arrangement</li><li>The actual décor and flow of each condo</li></ul><p>For current amenities and presentation, pair the virtual tour with the complete photo gallery on each unit page.</p><div className={styles.actions}><SiteButton href="/destin-vacation-rentals-by-owner" variant="secondary">Compare the condos</SiteButton><SiteButton href="/reviews" variant="outline">Read guest reviews</SiteButton></div></div>
       </section>
-      <section className={styles.finalCta}><div><p className={styles.kickerLight}>Ready to make it real?</p><h2>Check your dates and review the complete stay.</h2><p>The secure OwnerRez booking flow provides live availability, pricing, fees, taxes and reservation terms for the exact condo you select.</p></div><SiteButton href="/availability" variant="primary" size="large">Live availability</SiteButton></section>
+      <section className={styles.finalCta}><div><p className={styles.kickerLight}>Ready to make it real?</p><h2>Check your dates and review the complete stay.</h2><p>The secure booking flow provides live availability, pricing, fees, taxes and reservation terms for the exact condo you select.</p></div><SiteButton href="/availability" variant="primary" size="large">Live availability</SiteButton></section>
     </main>
     <SiteFooter /><Script src="/destiny-loader.js" strategy="lazyOnload" />
   </div>;

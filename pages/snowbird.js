@@ -6,14 +6,14 @@ import { createClient } from "@supabase/supabase-js";
 const CANONICAL = "https://www.destincondogetaways.com/snowbird";
 
 const UNIT_META = {
-  "707":  { name: "Unit 707",  sub: "Classic Coastal · 7th Floor",  slug: "pelican-beach-resort-unit-707-orp5b47b5ax",  fullName: "Pelican Beach Resort Unit 707 — Classic Coastal" },
-  "1006": { name: "Unit 1006", sub: "Fresh Coastal · 10th Floor",   slug: "pelican-beach-resort-unit-1006-orp5b6450ex", fullName: "Pelican Beach Resort Unit 1006 — Fresh Coastal" },
+  "707":  { name: "Unit 707",  sub: "Classic Coastal · 7th Floor",  route: "/condos/unit-707",  fullName: "Pelican Beach Resort Unit 707 — Classic Coastal" },
+  "1006": { name: "Unit 1006", sub: "Fresh Coastal · 10th Floor",   route: "/condos/unit-1006", fullName: "Pelican Beach Resort Unit 1006 — Fresh Coastal" },
 };
 
 function bookingUrl(unit, arrival, departure, adults, children) {
-  const base  = `https://www.destincondogetaways.com/${UNIT_META[unit].slug}`;
+  const base  = UNIT_META[unit].route;
   const total = adults + children;
-  return `${base}?or_arrival=${arrival}&or_departure=${departure}&or_adults=${adults}&or_children=${children}&or_guests=${total}`;
+  return `${base}?or_arrival=${arrival}&or_departure=${departure}&or_adults=${adults}&or_children=${children}&or_guests=${total}#checkout`;
 }
 
 function fmt(d)        { return d.toISOString().split("T")[0]; }

@@ -12,7 +12,7 @@ const liveSite = "https://www.destincondogetaways.com";
 const faqs = [
   ["What can Destiny Blue help with?", "Destiny Blue can check live condo availability, create direct booking links, compare the condos, answer resort and guest questions, research Destin weather, beach conditions, restaurants, activities, concerts and events, and help organize a vacation itinerary."],
   ["Is Destiny Blue a person?", "No. Destiny Blue is an AI concierge created for Destin Condo Getaways. When a request needs the owner, the conversation can be handed to Ozan."],
-  ["Can Destiny Blue complete my reservation?", "Destiny Blue can check availability and prepare the correct secure OwnerRez booking link. You review the complete price, guest count, policies and reservation details before completing checkout on the secure booking page."],
+  ["Can Destiny Blue complete my reservation?", "Destiny Blue can check availability and prepare the correct secure booking link. You review the complete price, guest count, policies and reservation details before completing checkout on the secure booking page."],
   ["Can I ask for Ozan?", "Yes. Ask Destiny Blue to invite Ozan when personal owner assistance is appropriate. His participation depends on availability, while urgent guest and maintenance concerns can still be escalated."],
 ];
 
@@ -31,7 +31,7 @@ export default function DestinAiConciergePage() {
   ] };
   return <div className={styles.page}>
     <Head><title>Destin AI Concierge | Destiny Blue</title><meta name="description" content="Chat with Destiny Blue for live Pelican Beach Resort condo availability, direct booking links, local Destin information and personalized vacation planning." /><meta name="robots" content="noindex,nofollow" /><meta name="viewport" content="width=device-width, initial-scale=1" /><link rel="canonical" href={`${liveSite}/destin-ai-concierge`} /><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} /></Head>
-    <div className={styles.preview}>Preview page | Production and OwnerRez remain unchanged</div>
+    <div className={styles.preview}>Preview page | Production remains unchanged</div>
     <div className={styles.utility}><a href="/reviews">Guest Reviews</a><a href="/guest-guide#faq">FAQ</a><a href="/guest-guide#policies">Policies</a><a href="/about">Contact</a></div>
     <SiteHeader availabilityHref="#availability" />
     <main>

@@ -20,7 +20,7 @@ export default function DestinSpaGuide(){
   ]};
   return <div className={styles.page}>
     <Head><title>10 Best Spas in Destin Florida (2026) | Honest Local Guide</title><meta name="description" content="The best spas in Destin Florida ranked with real guest-review context—from resort treatments to local massage and wellness options near Pelican Beach Resort." /><meta name="robots" content="noindex,nofollow" /><meta name="viewport" content="width=device-width, initial-scale=1" /><link rel="canonical" href={liveSite+"/blog/destinspa"} /><script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(structuredData)}} /></Head>
-    <div className={styles.preview}>Preview article | Production and OwnerRez remain unchanged</div>
+    <div className={styles.preview}>Preview article | Production remains unchanged</div>
     <div className={styles.utility}><a href="/reviews">Guest Reviews</a><a href="/guest-guide#faq">FAQ</a><a href="/guest-guide#policies">Policies</a><a href="/about">Contact</a></div>
     <SiteHeader availabilityHref="#availability" />
     <main>

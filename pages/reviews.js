@@ -50,13 +50,13 @@ export default function ReviewsPage() {
   return <div className={styles.page}>
     <Head>
       <title>Guest Reviews | Destin Beachfront Condo Rentals</title>
-      <meta name="description" content="Read real guest reviews for Destin Condo Getaways at Pelican Beach Resort. See current OwnerRez reviews and visit our Airbnb and Vrbo pages." />
+      <meta name="description" content="Read real guest reviews for Destin Condo Getaways at Pelican Beach Resort and visit our Airbnb and Vrbo pages." />
       <meta name="robots" content="noindex,nofollow" />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
     </Head>
 
-    <div className={styles.preview}>Preview page | Production and OwnerRez remain unchanged</div>
+    <div className={styles.preview}>Preview page | Production remains unchanged</div>
     <div className={styles.utility}><a href="/reviews">Guest Reviews</a><a href="/resort#faq">FAQ</a><a href="/guest-guide">Policies</a><a href="/about">Contact</a></div>
     <SiteHeader availabilityHref="#availability" />
 
@@ -70,8 +70,8 @@ export default function ReviewsPage() {
       <AvailabilitySearch className={styles.availability} />
 
       <section className={styles.score}>
-        <div><strong>4.93</strong><span aria-label="Five stars">★★★★★</span><p>Based on 173 OwnerRez reviews</p></div>
-        <div><p className={styles.kicker}>Verified stays</p><h2>Feedback from guests who stayed in Units 707 and 1006.</h2><p>The live review feed below comes directly from OwnerRez and can be sorted by property, rating or most recent stay.</p></div>
+        <div><strong>4.93</strong><span aria-label="Five stars">★★★★★</span><p>Based on 173 direct-stay reviews</p></div>
+        <div><p className={styles.kicker}>Verified stays</p><h2>Feedback from guests who stayed with us.</h2><p>The live review feed below can be sorted by condo, rating or most recent stay.</p></div>
       </section>
 
       <section className={styles.featured}>
@@ -85,7 +85,7 @@ export default function ReviewsPage() {
       </section>
 
       <section className={styles.liveReviews}>
-        <div className={styles.sectionHead}><p className={styles.kicker}>Live OwnerRez review feed</p><h2>Browse all current guest reviews.</h2><p>This section is supplied directly by OwnerRez, so new approved reviews appear without manually rebuilding this page.</p></div>
+        <div className={styles.sectionHead}><p className={styles.kicker}>Live guest review feed</p><h2>Browse all current guest reviews.</h2><p>New approved direct-stay reviews appear here automatically.</p></div>
         <div className={styles.widgetShell}><div className="ownerrez-widget" data-widget-type="Reviews" data-widgetid="ca0b8a26d6ba48fea90da4a9051de6ea"></div></div>
       </section>
 

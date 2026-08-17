@@ -18,7 +18,7 @@ const sections = [
   ["Data retention and security", "We retain information for as long as reasonably necessary for reservations, guest support, legal, accounting, fraud-prevention and operational purposes. We use reasonable administrative and technical safeguards, but no internet transmission or storage system can be guaranteed completely secure."],
   ["Your choices and requests", "You may ask to access, correct or delete personal information that we control, subject to reservation records, legal obligations and legitimate business needs. You may also opt out of marketing communications. Privacy rights vary by location, and we will respond as required by applicable law."],
   ["Children's privacy", "The website is intended for adults arranging travel. We do not knowingly seek personal information directly from children. Adults making a reservation are responsible for supplying only the information needed for the traveling party."],
-  ["External links", "Our pages may link to OwnerRez, Airbnb, Vrbo, activity operators, travel services, social networks and other third parties. Their privacy policies and practices govern information collected on their websites."],
+  ["External links", "Our pages may link to our secure booking provider, Airbnb, Vrbo, activity operators, travel services, social networks and other third parties. Their privacy policies and practices govern information collected on their websites."],
   ["Policy updates", "We may update this policy when the website, services or legal requirements change. The effective date shown on this page identifies the latest revision. Continued use of the website after an update is subject to the revised policy."],
 ];
 
@@ -33,7 +33,7 @@ export default function Privacy() {
       <link rel="canonical" href={`${liveSite}/privacy`} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
     </Head>
-    <div className={styles.preview}>Migration preview | Production and OwnerRez remain unchanged</div>
+    <div className={styles.preview}>Migration preview | Production remains unchanged</div>
     <SiteHeader />
     <main>
       <section className={styles.legalHero}><div><a href="/">Home</a><p className={styles.kickerLight}>Privacy policy</p><h1>Your information deserves straightforward treatment.</h1><p>This policy explains what information Destin Condo Getaways may collect, why it is used and the choices available to you.</p><small>Effective August 16, 2026</small></div></section>

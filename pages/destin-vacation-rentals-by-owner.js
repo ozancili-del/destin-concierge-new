@@ -52,8 +52,8 @@ const faqs = [
   { q: "Are these Destin vacation rentals truly beachfront?", a: "Yes. Units 707 and 1006 are in the Gulf-front Pelican building at Pelican Beach Resort. Guests take the elevator to beach level and reach the sand without crossing a road." },
   { q: "How many guests can each condo accommodate?", a: "Each condo accommodates a maximum of six people, including adults, children and infants. Both have one bedroom, two bathrooms, hallway bunks and a queen sleeper sofa." },
   { q: "What is the difference between Unit 707 and Unit 1006?", a: "The principal differences are floor level, interior style and viewing perspective. Unit 707 is on the seventh floor with Classic Coastal styling; Unit 1006 is on the tenth floor with Fresh Coastal styling. Both have direct Gulf-facing balconies and the same core layout." },
-  { q: "Why book a Destin condo directly with the owner?", a: "Direct booking lets you choose the exact condo, communicate with the owner and avoid a separate marketplace guest service fee. Depending on the platform and reservation, that fee difference can be as much as 20%. The secure OwnerRez flow shows the complete current price and controlling policies before payment." },
-  { q: "How do I check live availability and pricing?", a: "Enter your dates and guest count in the live availability form. OwnerRez supplies the current calendar, total pricing and secure checkout. Review all adults, children and infants before reserving." },
+  { q: "Why book a Destin condo directly with the owner?", a: "Direct booking lets you choose the exact condo, communicate with the owner and avoid a separate marketplace guest service fee. Depending on the platform and reservation, that fee difference can be as much as 20%. The secure booking flow shows the complete current price and controlling policies before payment." },
+  { q: "How do I check live availability and pricing?", a: "Enter your dates and guest count in the live availability form. The live reservation system supplies the current calendar, total pricing and secure checkout. Review all adults, children and infants before reserving." },
 ];
 
 function vacationRentalSchema(condo) {
@@ -101,13 +101,13 @@ export default function CondoCollection() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
     </Head>
 
-    <div className={styles.preview}>Preview page | Production and OwnerRez remain unchanged</div>
+    <div className={styles.preview}>Preview page | Production remains unchanged</div>
     <div className={styles.utility}><a href="/reviews">Guest Reviews</a><a href="#faq">FAQ</a><a href="/guest-guide#policies">Policies</a><a href="/about">Contact</a></div>
     <SiteHeader availabilityHref="#availability" />
 
     <main>
       <section className={styles.hero}>
-        <div className={styles.heroCopy}><a href="/">Home</a><p className={styles.kicker}>Owner-managed stays on the Gulf</p><h1>Destin vacation rentals by owner at Pelican Beach Resort</h1><p>Compare two specific Gulf-front condos—not a generic rental category. See each home, understand the differences and check both calendars in one secure search.</p><div className={styles.actions}><SiteButton href="#availability" variant="primary" size="large">Check live availability</SiteButton><SiteButton href="#compare" variant="secondary" size="large">Compare the condos</SiteButton></div><div className={styles.trust}><span>4.94 average rating</span><span>400+ stays</span><span>Secure OwnerRez checkout</span></div></div>
+        <div className={styles.heroCopy}><a href="/">Home</a><p className={styles.kicker}>Owner-managed stays on the Gulf</p><h1>Destin vacation rentals by owner at Pelican Beach Resort</h1><p>Compare the Gulf-front vacation rentals offered here, see each home and check live availability in one secure search.</p><div className={styles.actions}><SiteButton href="#availability" variant="primary" size="large">Check live availability</SiteButton><SiteButton href="#compare" variant="secondary" size="large">Explore the condos</SiteButton></div><div className={styles.trust}><span>4.94 average rating</span><span>400+ stays</span><span>Secure checkout</span></div></div>
         <div className={styles.heroVisual}><Image src="/book-direct-banner-bg.jpg" alt="Pelican Beach Resort and white-sand beach in Destin Florida" fill priority sizes="(max-width: 900px) 100vw, 50vw" /><div><strong>Exact condo.</strong><span>Direct Gulf view.</span></div></div>
       </section>
 
@@ -127,7 +127,7 @@ export default function CondoCollection() {
 
       <section className={styles.direct}>
         <div className={styles.directImage}><Image src="/beaches-pelican-beachfront.jpg" alt="White-sand beachfront at Pelican Beach Resort in Destin" fill sizes="(max-width: 900px) 100vw, 46vw" /></div>
-        <div className={styles.directCopy}><p className={styles.kicker}>Why guests book directly</p><h2>Known condo, secure checkout and direct communication.</h2><p>Large marketplaces can be useful for discovery, but direct booking keeps the reservation connected to the person who manages these homes. You still receive secure online checkout through OwnerRez and can review the complete price, policies and guest counts before paying.</p><ul><li>Choose Unit 707 or Unit 1006 specifically</li><li>Ask the owner questions before reserving</li><li>Avoid a separate marketplace guest service fee</li><li>Save up to 20% compared with some platform totals, depending on the stay and platform</li><li>Review current pricing and controlling terms in OwnerRez</li></ul><a href="/why-book-direct">Read the complete direct-booking guide →</a></div>
+        <div className={styles.directCopy}><p className={styles.kicker}>Why guests book directly</p><h2>Known condo, secure checkout and direct communication.</h2><p>Large marketplaces can be useful for discovery, but direct booking keeps the reservation connected to the person who manages these homes. You receive secure online checkout and can review the complete price, policies and guest counts before paying.</p><ul><li>Choose the exact condo you want</li><li>Ask the owner questions before reserving</li><li>Avoid a separate marketplace guest service fee</li><li>Save up to 20% compared with some platform totals, depending on the stay and platform</li><li>Review current pricing and controlling terms before payment</li></ul><a href="/why-book-direct">Read the complete direct-booking guide →</a></div>
       </section>
 
       <section className={styles.resort}>

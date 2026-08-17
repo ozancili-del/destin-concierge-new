@@ -90,7 +90,7 @@ export default function GuestGuidePage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
     </Head>
 
-    <div className={styles.preview}>Preview page | Production and OwnerRez remain unchanged</div>
+    <div className={styles.preview}>Preview page | Production remains unchanged</div>
     <div className={styles.utility}><a href="/reviews">Guest Reviews</a><a href="#faq">FAQ</a><a href="#policies">Policies</a><a href="/about">Contact</a></div>
     <SiteHeader availabilityHref="#availability" />
 
@@ -112,7 +112,7 @@ export default function GuestGuidePage() {
 
       <section className={styles.intro}>
         <div><p className={styles.kicker}>Before you arrive</p><h2>Useful information without the fine-print maze.</h2></div>
-        <div><p>This guide consolidates the most important questions from the former OwnerRez page and corrects details that could be misunderstood. It supports planning, but your secure booking page, signed rental agreement and current arrival instructions control the reservation.</p><p>For live availability, use the form above. For an urgent issue during a stay, use the contact information supplied with your reservation.</p></div>
+        <div><p>This guide consolidates the most important guest questions and clarifies details that could be misunderstood. It supports planning, but your secure booking page, signed rental agreement and current arrival instructions control the reservation.</p><p>For live availability, use the form above. For an urgent issue during a stay, use the contact information supplied with your reservation.</p></div>
       </section>
 
       <section className={styles.guide} id="faq">
@@ -136,7 +136,7 @@ export default function GuestGuidePage() {
         <div className={styles.sectionHead}><p className={styles.kicker}>Continue planning</p><h2>Useful pages for the rest of your trip.</h2></div>
         <div className={styles.relatedGrid}>
           <a href="/resort"><span>Resort guide</span><strong>Pools, beach, amenities and location</strong></a>
-          <a href="/reviews"><span>Guest reviews</span><strong>Current OwnerRez, Airbnb and Vrbo feedback</strong></a>
+          <a href="/reviews"><span>Guest reviews</span><strong>Current direct-stay, Airbnb and Vrbo feedback</strong></a>
           <a href="/why-book-direct"><span>Book direct</span><strong>Understand pricing and owner-direct support</strong></a>
           <a href="/blog/best-restaurants-destin"><span>Restaurants</span><strong>Dining suggestions around Destin</strong></a>
           <a href="/blog/destin-fireworks-2026"><span>Fireworks</span><strong>Schedules, maps and viewing tips</strong></a>

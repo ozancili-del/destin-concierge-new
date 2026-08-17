@@ -351,12 +351,12 @@ export default function Home() {
               </p>
             </div>
             <div className={styles.exploreGrid}>
-              <a href="/deals"><span>Current price reductions</span><strong>Beach deals</strong></a>
-              <a href="/trip-planner"><span>Built around your family</span><strong>Itinerary planner</strong></a>
-              <a href="/blog"><span>Weather, food, events & activities</span><strong>Destin blog and guides</strong></a>
-              <a href="/blog/how-to-find-cheaper-flights-and-car-rentals"><span>Airports and route planning</span><strong>Flights</strong></a>
-              <a href="/blog/destincar"><span>VPS and Destin transportation</span><strong>Car rentals</strong></a>
-              <a href="/map"><span>Know what is nearby</span><strong>Destin map</strong></a>
+              <a href="/deals"><span>Current price reductions</span><strong>Beach deals</strong><em>View current deals →</em></a>
+              <a href="/trip-planner"><span>Built around your family</span><strong>Itinerary planner</strong><em>Build your itinerary →</em></a>
+              <a href="/blog"><span>Weather, food, events & activities</span><strong>Destin blog and guides</strong><em>Browse local guides →</em></a>
+              <a href="/blog/how-to-find-cheaper-flights-and-car-rentals"><span>Airports and route planning</span><strong>Flights</strong><em>Plan your flight →</em></a>
+              <a href="/blog/destincar"><span>VPS and Destin transportation</span><strong>Car rentals</strong><em>Compare transportation →</em></a>
+              <a href="/map"><span>Know what is nearby</span><strong>Destin map</strong><em>Open the map →</em></a>
             </div>
           </section>
 

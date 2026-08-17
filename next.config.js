@@ -27,6 +27,8 @@ const nextConfig = {
       { source: "/ai-concierge-574036277", destination: "/destin-ai-concierge", permanent: true },
       { source: "/virtualtour-574001044", destination: "/virtual-tours", permanent: true },
       { source: "/destin-condo-guide-574047967", destination: "/faq", permanent: true },
+      { source: "/blog/destin-condo-ai-concierge-direct-booking", destination: "/why-book-direct", permanent: true },
+      { source: "/blog/destin-vacation-rental-ai-concierge", destination: "/destin-ai-concierge", permanent: true },
     ];
   },
 };

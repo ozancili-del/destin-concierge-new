@@ -9,7 +9,11 @@ import styles from "../styles/Blog.module.css";
 
 const liveSite = "https://www.destincondogetaways.com";
 const migratedSlugs = new Set(["destinspa", "how-to-find-cheaper-flights-and-car-rentals", "destincar", "destinsupermarkets", "destin-florida-vacation-guide-2026", "best-time-to-visit-destin-florida", "best-restaurants-destin-local-guide", "best-restaurants-destin", "best-beaches-destin", "destinweather", "destin-fireworks-2026", "destin-events-2026", "destin-live-music-2026", "destinairport", "destindiversehistory", "destinocen", "destinromance", "destinnights", "destinessentials", "destinkids", "destinexplore"]);
-const articleHref = (slug) => `/blog/${slug}`;
+const articleDestinations = {
+  "destin-condo-ai-concierge-direct-booking": "/why-book-direct",
+  "destin-vacation-rental-ai-concierge": "/destin-ai-concierge",
+};
+const articleHref = (slug) => articleDestinations[slug] || `/blog/${slug}`;
 
 const articles = [
   ["destinweather","Destin Water Temperature Right Now","Live Gulf readings, monthly temperatures and practical swimming guidance.","Weather & Beach","/hub-weather.webp","Live tools"],
@@ -44,9 +48,9 @@ export default function BlogHub(){
   const itemList = {
     "@context":"https://schema.org",
     "@graph":[
-      {"@type":"Blog","@id":liveSite+"/blog#blog",name:"Destin Condo Getaways Blog",url:liveSite+"/blog",description:"Local Destin guides covering beaches, weather, restaurants, events, transportation and vacation planning.",blogPost:articles.map((article)=>({"@type":"BlogPosting",headline:article.title,url:liveSite+"/blog/"+article.slug}))},
+      {"@type":"Blog","@id":liveSite+"/blog#blog",name:"Destin Condo Getaways Blog",url:liveSite+"/blog",description:"Local Destin guides covering beaches, weather, restaurants, events, transportation and vacation planning.",blogPost:articles.map((article)=>({"@type":"BlogPosting",headline:article.title,url:liveSite+articleHref(article.slug)}))},
       {"@type":"BreadcrumbList",itemListElement:[{"@type":"ListItem",position:1,name:"Home",item:liveSite},{"@type":"ListItem",position:2,name:"Destin Blog",item:liveSite+"/blog"}]},
-      {"@type":"ItemList",numberOfItems:articles.length,itemListElement:articles.map((article,index)=>({"@type":"ListItem",position:index+1,url:liveSite+"/blog/"+article.slug,name:article.title}))}
+      {"@type":"ItemList",numberOfItems:articles.length,itemListElement:articles.map((article,index)=>({"@type":"ListItem",position:index+1,url:liveSite+articleHref(article.slug),name:article.title}))}
     ]
   };
 

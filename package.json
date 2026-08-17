@@ -11,6 +11,7 @@
     "test:agent:live": "node --experimental-default-type=module tests/live-routing-eval.mjs",
     "regression": "node scripts/run-agent-regression.mjs",
     "test:site-links": "node scripts/audit-site-links.mjs",
+    "test:http-links": "node scripts/audit-http-internal-links.mjs",
     "test:link-strategy": "node scripts/audit-link-strategy.mjs && node scripts/audit-internal-link-routing.mjs",
     "test:site-seo": "node scripts/audit-site-seo.mjs",
     "test:search-readiness": "node scripts/audit-rendered-search-readiness.mjs",

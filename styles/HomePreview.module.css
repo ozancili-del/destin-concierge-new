@@ -369,9 +369,16 @@
   color: var(--navy);
   text-decoration: none;
   box-shadow: 0 8px 24px rgba(7, 59, 88, .05);
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
 }
 .exploreGrid span { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .09em; }
 .exploreGrid strong { font: 700 24px Georgia, serif; margin-top: 9px; }
+.exploreGrid em { margin-top: 18px; color: var(--emerald); font-size: 12px; font-style: normal; font-weight: 850; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+.exploreGrid a:hover,.exploreGrid a:focus-visible { transform: translateY(-3px); border-color:#93c8ce; box-shadow:0 15px 34px rgba(7,59,88,.13); outline:none; }
+.exploreGrid a:focus-visible { box-shadow:0 0 0 3px rgba(21,151,168,.25),0 15px 34px rgba(7,59,88,.13); }
 
 .faqSection { padding: 92px clamp(22px, 10vw, 165px); background: var(--warm); }
 .faqList { margin-bottom: 25px; border-top: 1px solid var(--line); }

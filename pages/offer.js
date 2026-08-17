@@ -303,8 +303,6 @@ export default function OfferPage() {
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;800;900&family=Barlow+Condensed:wght@700;800;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-3SGXCQ4FTC" />
-        <script dangerouslySetInnerHTML={{ __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-3SGXCQ4FTC');` }} />
 
         {/* Review snippets — 10 real guest reviews */}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({

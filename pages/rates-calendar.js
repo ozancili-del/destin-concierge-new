@@ -269,7 +269,6 @@ export default function RatesCalendar({ dayData, today }) {
         <meta name="robots" content="noindex,nofollow" />
         <link rel="canonical" href={`${liveSite}/rates-calendar`} />
         <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
-        <script dangerouslySetInnerHTML={{ __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-3SGXCQ4FTC');` }} />
       </Head>
 
       {/* Fixed dark bg */}

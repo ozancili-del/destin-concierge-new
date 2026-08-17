@@ -11,7 +11,7 @@ const condoLinks = [
 
 export default function SiteHeader({ availabilityHref = "/availability" }) {
   return <header className={styles.header}>
-    <a className={styles.brand} href="/" aria-label="Destin Condo Getaways homepage">
+    <a className={styles.brand} href="/">
       <span className={styles.mark}>DCG</span>
       <span><strong>Destin Condo Getaways</strong><small>Pelican Beach Resort | Destin, Florida</small></span>
     </a>

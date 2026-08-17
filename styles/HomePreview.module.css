@@ -1,11 +1,11 @@
 .page {
   --warm: #fffefb;
   --navy: #073b58;
-  --emerald: #1597a8;
+  --emerald: #087887;
   --gold: #d9a441;
   --sand: #faf7f0;
   --ink: #173e52;
-  --muted: #617987;
+  --muted: #526a76;
   --line: #e7e0d4;
   color: var(--ink);
   background: var(--warm);
@@ -65,7 +65,7 @@
 }
 .brand small {
   display: block;
-  color: #71838c;
+  color: #536b77;
   font-size: 11px;
   margin-top: 3px;
 }

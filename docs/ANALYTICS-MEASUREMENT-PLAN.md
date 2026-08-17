@@ -4,7 +4,7 @@
 
 - GA4 measurement ID: `G-3SGXCQ4FTC`
 - GTM container: `GTM-PQSF8S6D`
-- `public/site-events.js` is the only site-owned analytics initializer. The neutral filename avoids common browser privacy filters that block paths containing `analytics`.
+- `public/dcg-core.js` is the only site-owned analytics initializer. The neutral filename avoids common browser privacy filters that block tracking-related path names.
 - GA4 sends the behavioral events. GTM remains available for Clarity and vetted marketing tags; do not add duplicate GA4 configuration or event tags in GTM.
 - Preview and local hosts create an inspectable `dataLayer` but do not contact Google or GTM.
 

@@ -4,11 +4,11 @@ import path from "node:path";
 import vm from "node:vm";
 
 const root = process.cwd();
-const analyticsPath = path.join(root, "public", "site-events.js");
+const analyticsPath = path.join(root, "public", "dcg-core.js");
 const source = fs.readFileSync(analyticsPath, "utf8");
 const appSource = fs.readFileSync(path.join(root, "pages", "_app.js"), "utf8");
 
-assert.match(appSource, /src="\/site-events\.js"/, "Next pages must load the shared analytics layer");
+assert.match(appSource, /src="\/dcg-core\.js"/, "Next pages must load the shared analytics layer");
 assert.match(source, /begin_checkout/, "Canonical booking event is missing");
 assert.match(source, /generate_lead/, "Canonical lead event is missing");
 assert.match(source, /affiliate_click/, "Affiliate click event is missing");
@@ -33,7 +33,7 @@ for (const relative of trackedFiles) {
   const contents = fs.readFileSync(path.join(root, relative), "utf8");
   assert.doesNotMatch(contents, /googletagmanager\.com\/(?:gtag|gtm\.js)/, `${relative} still has an independent tracker`);
   if (relative.startsWith("public/")) {
-    assert.match(contents, /src="\/site-events\.js"/, `${relative} does not load the shared analytics layer`);
+    assert.match(contents, /src="\/dcg-core\.js"/, `${relative} does not load the shared analytics layer`);
   }
 }
 

@@ -465,22 +465,31 @@
   .brand strong { font-size: 15px; }
   .bookButton { font-size: 11px; }
   .hero {
-    min-height: 915px;
-    padding: 350px 22px 245px;
+    min-height: auto;
+    padding: 250px 14px 34px;
+    display: flex;
+    flex-direction: column;
     background: var(--navy);
   }
   .heroImage {
-    height: 330px !important;
+    height: 230px !important;
     object-position: center top;
   }
   .heroShade {
-    background: linear-gradient(to bottom, rgba(3, 43, 64, .03) 0, rgba(3, 43, 64, .14) 260px, rgba(3, 43, 64, .98) 345px, var(--navy) 100%);
+    background: linear-gradient(to bottom, rgba(3, 43, 64, .03) 0, rgba(3, 43, 64, .14) 175px, rgba(3, 43, 64, .98) 245px, var(--navy) 100%);
   }
-  .heroContent { align-self: flex-start; }
+  .heroContent { order: 2; align-self: flex-start; margin-top: 34px; }
   .hero h1 { font-size: 40px; line-height: 1.02; margin-top: 14px; }
   .heroCopy { font-size: 16px; line-height: 1.55; }
-  .search { grid-template-columns: 1fr; bottom: -245px; }
-  .trustStrip { padding-top: 285px; grid-template-columns: 1fr; }
+  .search {
+    position: relative;
+    order: 1;
+    inset: auto;
+    transform: none;
+    width: 100%;
+    grid-template-columns: 1fr;
+  }
+  .trustStrip { padding-top: 55px; grid-template-columns: 1fr; }
   .trustStrip div { border-right: 0; border-bottom: 1px solid #d7d0c2; padding-bottom: 18px; }
   .section { padding: 74px 20px; }
   .cardImage { height: 230px; }

@@ -59,7 +59,7 @@ style.textContent=`@import url('https://fonts.googleapis.com/css2?family=DM+Sans
 #db-tooltip.hide{animation:db-to .2s ease forwards}
 @keyframes db-ti{from{opacity:0;transform:scale(.85) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
 @keyframes db-to{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(.85)}}
-@media(max-width:480px){#db-bubble{bottom:16px;right:16px}#db-window{position:fixed;bottom:0;right:0;left:0;width:100%;max-height:92vh;border-radius:20px 20px 0 0;transform-origin:bottom center}#db-messages{max-height:calc(92vh - 160px)}#db-mobile-close{display:flex}#db-btn.open{display:none}}
+@media(max-width:480px){#db-bubble{bottom:16px;right:16px}#db-tooltip{display:none}#db-window{position:fixed;bottom:0;right:0;left:0;width:100%;max-height:92vh;border-radius:20px 20px 0 0;transform-origin:bottom center}#db-messages{max-height:calc(92vh - 160px)}#db-mobile-close{display:flex}#db-btn.open{display:none}}
 `;
 document.head.appendChild(style);
 const wrap=document.createElement('div');

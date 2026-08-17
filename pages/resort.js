@@ -15,7 +15,7 @@ const amenities = [
   ["Pools", "Three heated pools, a kiddie pool and two hot tubs"],
   ["Wellness", "Fitness center, sauna and steam room"],
   ["Courts", "Complimentary tennis and pickleball courts"],
-  ["Convenience", "Seasonal cafÃ©, Tiki Bar and beach-chair service"],
+  ["Convenience", "Seasonal café, Tiki Bar and beach-chair service"],
   ["Parking", "Covered and uncovered parking plus two paid J1772 EV chargers"],
   ["Practical", "Gas grills, outdoor seating and laundry on every floor"],
   ["Support", "24/7 front desk and on-site security"],
@@ -24,9 +24,9 @@ const amenities = [
 const faqs = [
   { q: "Is Pelican Beach Resort truly beachfront in Destin?", a: "Yes. The Pelican building at 1002 US-98 sits directly on the Gulf of Mexico. Guests take the elevator to beach level and walk to the sand without crossing a road or parking lot. Units 707 and 1006 are both in this beachfront building; the separate Terrace building faces US-98." },
   { q: "How many pools does Pelican Beach Resort have?", a: "The resort has three pools: two outdoor pools and an indoor/outdoor pool that supports year-round swimming. There is also a kiddie pool and two hot tubs. Heating and operating details can vary seasonally." },
-  { q: "How many floors does Pelican Beach Resort have?", a: "The beachfront building has 20 floors, with no labeled 13th floor, and 339 individually owned condos. The resort was built in 1996 and completed substantial renovations in 2022â€“23." },
+  { q: "How many floors does Pelican Beach Resort have?", a: "The beachfront building has 20 floors, with no labeled 13th floor, and 339 individually owned condos. The resort was built in 1996 and completed substantial renovations in 2022–23." },
   { q: "Does Pelican Beach Resort have EV chargers?", a: "Yes. Two paid J1772 EV chargers are available to resort guests in the covered roof-level parking area." },
-  { q: "How far is Pelican Beach Resort from the airport?", a: "Destinâ€“Fort Walton Beach Airport (VPS) is about 17 miles away, commonly around a 30-minute drive. Pensacola International Airport (PNS) is about 50 miles away and commonly around a 90-minute drive, depending on traffic." },
+  { q: "How far is Pelican Beach Resort from the airport?", a: "Destin–Fort Walton Beach Airport (VPS) is about 17 miles away, commonly around a 30-minute drive. Pensacola International Airport (PNS) is about 50 miles away and commonly around a 90-minute drive, depending on traffic." },
   { q: "How do I book a condo at Pelican Beach Resort directly?", a: "Search your dates on this page, choose the exact available condo, then review the complete price and policies through secure checkout. The current direct-booking discount is automatically reflected there." },
 ];
 
@@ -47,7 +47,7 @@ function accommodation(floor) {
 
 function unitSchema(number, floor, style, image, slug) {
   return {
-    "@type": "VacationRental", "@id": `${liveSite}/${slug}#unit`, name: `Pelican Beach Resort Unit ${number} â€“ ${style} Beachfront Condo`,
+    "@type": "VacationRental", "@id": `${liveSite}/${slug}#unit`, name: `Pelican Beach Resort Unit ${number} – ${style} Beachfront Condo`,
     description: `Beachfront one-bedroom, two-bathroom condo on the ${floor === 7 ? "seventh" : "tenth"} floor of Pelican Beach Resort in Destin, Florida. Gulf views and sleeping space for up to six guests.`,
     identifier: `destin-condo-getaways-unit-${number}`, additionalType: "Condo", url: `${liveSite}/${slug}`, image: [image], telephone: "+1-972-357-4262", email: "ozan@destincondogetaways.com",
     address: { ...resortAddress, streetAddress: `1002 US Highway 98, Unit ${number}` }, geo, checkinTime: "16:00", checkoutTime: "10:00", petsAllowed: false, smokingAllowed: false,
@@ -86,7 +86,7 @@ export default function Resort() {
     <SiteHeader availabilityHref="#availability" />
 
     <main>
-      <section className={styles.hero}><img src="https://uc.orez.io/i/b004f9895bc24136805cc94e514f4039-Large" alt="Pelican Beach Resort beachfront and Gulf of Mexico in Destin, Florida" /><div className={styles.heroShade}></div><div className={styles.heroCopy}><a href="/">Home</a><p className={styles.kicker}>The complete resort guide</p><h1>Pelican Beach Resort in Destin, Florida</h1><p>Step off the elevator and onto the beachâ€”no road to cross. Explore the pools, location, amenities and two owner-managed Gulf-front condos before choosing your stay.</p><div className={styles.actions}><SiteButton href="#availability" variant="primary" size="large">Check your dates</SiteButton><SiteButton href="#condos" variant="light" size="large">Compare the condos</SiteButton></div></div></section>
+      <section className={styles.hero}><img src="https://uc.orez.io/i/b004f9895bc24136805cc94e514f4039-Large" alt="Pelican Beach Resort beachfront and Gulf of Mexico in Destin, Florida" /><div className={styles.heroShade}></div><div className={styles.heroCopy}><a href="/">Home</a><p className={styles.kicker}>The complete resort guide</p><h1>Pelican Beach Resort in Destin, Florida</h1><p>Step off the elevator and onto the beach—no road to cross. Explore the pools, location, amenities and Gulf-front vacation rentals before choosing your stay.</p><div className={styles.actions}><SiteButton href="#availability" variant="primary" size="large">Check your dates</SiteButton><SiteButton href="#condos" variant="light" size="large">Explore the condos</SiteButton></div></div></section>
 
       <AvailabilitySearch className={styles.availability} />
 
@@ -104,7 +104,7 @@ export default function Resort() {
 
       <section className={styles.condos} id="condos"><div className={styles.sectionHead}><p className={styles.kicker}>Gulf-front vacation rentals</p><h2>Choose the exact view and style you prefer.</h2><p>Each one-bedroom, two-bath condo sleeps up to six, with a full kitchen, high-speed Wi-Fi, smart TVs, a private balcony and beach gear.</p></div><div className={styles.condoGrid}><article><img src="https://uc.orez.io/i/0f604abce3284748ba8d2150b7646863-Large" alt="Unit 707 Gulf-view balcony at Pelican Beach Resort" /><div><span>Seventh floor</span><h3>Unit 707</h3><p>Classic coastal style with a Gulf-front balcony and sunset views.</p><SiteButton href="/condos/unit-707" variant="secondary">Explore Unit 707</SiteButton></div></article><article><img src="https://uc.orez.io/i/79fb2b20887c4f44b58c710a59420a30-Large" alt="Unit 1006 panoramic Gulf view at Pelican Beach Resort" /><div><span>Tenth floor</span><h3>Unit 1006</h3><p>Fresh coastal style with a higher panoramic view over the Gulf.</p><SiteButton href="/condos/unit-1006" variant="secondary">Explore Unit 1006</SiteButton></div></article></div></section>
 
-      <section className={styles.reviews}><div className={styles.sectionHead}><p className={styles.kicker}>Guest experiences</p><h2>4.94 average rating across 400+ stays.</h2></div><div className={styles.reviewGrid}>{reviews.map(r=><blockquote key={r.name}><div aria-label="Five out of five stars">â˜…â˜…â˜…â˜…â˜…</div><p>â€œ{r.body}â€</p><footer><strong>{r.name}</strong><span>{r.date}</span></footer></blockquote>)}</div></section>
+      <section className={styles.reviews}><div className={styles.sectionHead}><p className={styles.kicker}>Guest experiences</p><h2>4.94 average rating across 400+ stays.</h2></div><div className={styles.reviewGrid}>{reviews.map(r=><blockquote key={r.name}><div aria-label="Five out of five stars">★★★★★</div><p>“{r.body}”</p><footer><strong>{r.name}</strong><span>{r.date}</span></footer></blockquote>)}</div></section>
 
       <section className={styles.faq} id="faq"><div className={styles.sectionHead}><p className={styles.kicker}>Frequently asked questions</p><h2>Plan with the important details in hand.</h2></div>{faqs.map(f=><details key={f.q}><summary>{f.q}</summary><p>{f.a}</p></details>)}</section>
 

@@ -8,6 +8,7 @@ const ignoredParts = ["pages\\api\\", "pages\\admin\\", "pages\\guestview\\", "p
 const cleanAliases = new Set(["/activities", "/car-rentals", "/deals"]);
 const assetExtensions = /\.(?:avif|css|gif|html|ico|jpe?g|js|json|map|mjs|mp4|pdf|png|svg|txt|webmanifest|webp|xml)$/i;
 const legacyPath = /\/(?:aboutus-|privacy-|pelican-beach-resort-unit-\d+-orp|pelican-beach-resort-destin-|destin-vacation-itinerary-planner-|ai-concierge-|virtualtour-)/i;
+const mojibakePattern = /(?:\uFFFD|Ã.|Â.|â€|â€™|â€œ|â€|ðŸ)/;
 
 function walk(directory) {
   return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
@@ -35,6 +36,9 @@ let linksChecked = 0;
 for (const file of sourceRoots.flatMap(walk).filter((item) => /\.(?:html|js|jsx|ts|tsx)$/.test(item))) {
   if (ignoredParts.some((part) => file.includes(part)) || /public\\tv/i.test(file)) continue;
   const source = fs.readFileSync(file, "utf8");
+  if (mojibakePattern.test(source)) {
+    issues.push({ file, href: "", reason: "corrupted UTF-8/mojibake text" });
+  }
   const linkPattern = /(?:<a\b[^>]*?href|<form\b[^>]*?action)\s*=\s*["']([^"']+)["']/gi;
   for (const match of source.matchAll(linkPattern)) {
     const href = match[1].trim();

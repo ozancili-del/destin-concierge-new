@@ -8,20 +8,16 @@ const UNIT_707_ID   = "293722";
 const UNIT_1006_ID  = "410894";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Fetch all active bookings for a property for next 6 months
+// Fetch active bookings that intersect the requested stay window.
 // Returns array of { arrival, departure } for blocked periods
 // ─────────────────────────────────────────────────────────────────────────────
-async function fetchBookings(propertyId) {
+async function fetchBookings(propertyId, requestedArrival, requestedDeparture) {
   try {
     const apiKey = process.env.OWNERREZ_API_TOKEN;
     if (!apiKey) throw new Error("OWNERREZ_API_TOKEN not set");
 
-    const today = new Date();
-    const sixMonths = new Date();
-    sixMonths.setMonth(sixMonths.getMonth() + 6);
-
-    const since = today.toISOString().split("T")[0];
-    const until = sixMonths.toISOString().split("T")[0];
+    const since = requestedArrival;
+    const until = requestedDeparture;
 
     const url = `https://api.ownerrez.com/v2/bookings?property_ids=${propertyId}&arrival=${since}&departure=${until}&limit=100`;
 
@@ -197,8 +193,8 @@ export default async function handler(req, res) {
 
   // Fetch both units in parallel
   const [bookings707, bookings1006] = await Promise.all([
-    fetchBookings(UNIT_707_ID),
-    fetchBookings(UNIT_1006_ID),
+    fetchBookings(UNIT_707_ID, arrival, departure),
+    fetchBookings(UNIT_1006_ID, arrival, departure),
   ]);
 
   const avail707  = analyzeAvailability(bookings707,  arrival, departure);

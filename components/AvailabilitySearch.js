@@ -12,11 +12,13 @@ function tomorrowAfter(value) {
   return formatDate(date);
 }
 
-export default function AvailabilitySearch({ className, id = "availability" }) {
-  const [arrival, setArrival] = useState("");
-  const [departure, setDeparture] = useState("");
-  const [adults, setAdults] = useState(2);
-  const [children, setChildren] = useState(0);
+export default function AvailabilitySearch({ className, id = "availability", initialArrival = "", initialDeparture = "", initialAdults = 2, initialChildren = 0 }) {
+  const safeInitialAdults = Math.min(6, Math.max(1, Number(initialAdults) || 2));
+  const safeInitialChildren = Math.min(6 - safeInitialAdults, Math.max(0, Number(initialChildren) || 0));
+  const [arrival, setArrival] = useState(initialArrival);
+  const [departure, setDeparture] = useState(initialDeparture);
+  const [adults, setAdults] = useState(safeInitialAdults);
+  const [children, setChildren] = useState(safeInitialChildren);
 
   return (
     <form className={className} id={id} method="get" action="/availability">

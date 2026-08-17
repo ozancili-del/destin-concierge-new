@@ -2,13 +2,14 @@ import Head from "next/head";
 import Image from "next/image";
 import Script from "next/script";
 import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import AvailabilitySearch from "../components/AvailabilitySearch";
 import SiteButton from "../components/SiteButton";
 import SiteFooter from "../components/SiteFooter";
 import SiteHeader from "../components/SiteHeader";
 import styles from "../styles/AvailabilityPage.module.css";
 
 const liveSite = "https://www.destincondogetaways.com";
-const searchWidgetId = "c7145de8351d41ab88bfd13135255d89";
 const calendarWidgetId = "91953f0c6e014ff585bffa8e87bad76e";
 
 const condos = [
@@ -24,6 +25,38 @@ export default function AvailabilityPage() {
   const children = Number.parseInt(router.query.or_children, 10);
   const totalGuests = Number.parseInt(router.query.or_guests, 10);
   const hasSearchSummary = Boolean(arrival && departure && Number.isFinite(totalGuests));
+  const [liveResults, setLiveResults] = useState(null);
+  const [resultsError, setResultsError] = useState("");
+
+  useEffect(() => {
+    if (!hasSearchSummary) {
+      setLiveResults(null);
+      setResultsError("");
+      return;
+    }
+    const controller = new AbortController();
+    setLiveResults(null);
+    setResultsError("");
+    fetch(`/api/calendar?arrival=${encodeURIComponent(arrival)}&departure=${encodeURIComponent(departure)}`, { signal: controller.signal })
+      .then((response) => {
+        if (!response.ok) throw new Error("Availability could not be checked");
+        return response.json();
+      })
+      .then(setLiveResults)
+      .catch((error) => {
+        if (error.name !== "AbortError") setResultsError("Live availability could not be loaded. Please try the search again.");
+      });
+    return () => controller.abort();
+  }, [arrival, departure, hasSearchSummary]);
+
+  const bookingQuery = new URLSearchParams({
+    or_arrival: arrival,
+    or_departure: departure,
+    or_adults: String(Number.isFinite(adults) ? adults : 2),
+    or_children: String(Number.isFinite(children) ? children : 0),
+    or_guests: String(totalGuests),
+  }).toString();
+  const availableCondos = liveResults ? condos.filter((condo) => liveResults[`unit${condo.number}`]?.status === "available") : [];
 
   const displayDate = (value) => {
     if (!value) return "";
@@ -67,8 +100,14 @@ export default function AvailabilityPage() {
           <span>{Number.isFinite(children) ? children : 0} children/infants</span>
           <span>{totalGuests} total {totalGuests === 1 ? "guest" : "guests"}</span>
         </div>}
-        <div className={styles.widgetShell}><div className="ownerrez-widget" data-widget-type="Availability/Property Search" data-widgetid={searchWidgetId}></div><noscript><a href="/availability">Open the secure availability search</a></noscript></div>
-        <p className={styles.discount}>Your current direct-booking discount is reflected in the booking flow. Review the complete price, fees, taxes and policies before reserving.</p>
+        <AvailabilitySearch className={styles.localSearch} id="availability-form" initialArrival={arrival} initialDeparture={departure} initialAdults={Number.isFinite(adults) ? adults : 2} initialChildren={Number.isFinite(children) ? children : 0} />
+        {hasSearchSummary && <div className={styles.liveResults} aria-live="polite">
+          {!liveResults && !resultsError && <p className={styles.loading}>Checking both live calendars…</p>}
+          {resultsError && <p className={styles.error}>{resultsError}</p>}
+          {liveResults && availableCondos.length > 0 && <><div className={styles.resultsHeading}><p className={styles.kicker}>Available for your stay</p><h3>Choose a condo to see the complete total.</h3><p>Dates and guest counts will carry into the secure unit checkout.</p></div><div className={styles.resultGrid}>{availableCondos.map((condo) => <article key={condo.number}><div className={styles.resultImage}><Image src={condo.image} alt={condo.alt} fill sizes="(max-width: 760px) 100vw, 50vw" /></div><div><p>{condo.label}</p><h4>Unit {condo.number}</h4><SiteButton href={`${condo.href}?${bookingQuery}#checkout`} variant="primary">See complete total</SiteButton></div></article>)}</div></>}
+          {liveResults && availableCondos.length === 0 && <div className={styles.resultsHeading}><p className={styles.kicker}>No exact match</p><h3>Neither condo is open for the full date range.</h3><p>Try nearby dates above or ask Live Chat to help find the closest available stay.</p><SiteButton href="/destin-ai-concierge" variant="secondary">Ask Live Chat</SiteButton></div>}
+        </div>}
+        <p className={styles.discount}>Availability is checked live here. The selected unit page shows the complete current total—including rent, fees and taxes—before you reserve.</p>
       </section>
 
       <section className={styles.condos}>

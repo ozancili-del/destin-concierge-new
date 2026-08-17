@@ -1302,7 +1302,7 @@ export default function BeachDeals({ deals }) {
       <Head>
         <title>Destin FL Beachfront Condo Price Drops — Book Direct &amp; Save | Pelican Beach Resort</title>
         <meta name="description" content="Live price drops on Gulf-front condos at Pelican Beach Resort, Destin FL. Unit 707 &amp; 1006 — sleeps 6, private balcony, beachfront. Book direct and save 10–20% vs Airbnb &amp; VRBO. Updated daily." />
-        <meta name="robots" content="noindex,nofollow" />
+        <meta name="robots" content={process.env.NEXT_PUBLIC_DEPLOYMENT_ENV === "production" ? "index,follow" : "noindex,nofollow"} />
         <meta name="keywords" content="Destin Florida beachfront condo rental, Pelican Beach Resort condo deals, Destin vacation rental price drops, book direct condo Destin FL, Gulf front condo Destin Florida" />
         <link rel="canonical" href="https://www.destincondogetaways.com/deals" />
         <meta property="og:title" content="Destin FL Beachfront Condo Price Drops — Book Direct &amp; Save up to 40%" />

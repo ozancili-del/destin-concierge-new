@@ -26,7 +26,7 @@ export default function MapPage() {
   ] };
 
   return <div className={styles.page}>
-    <Head><title>Pelican Beach Resort Map & Directions | Destin</title><meta name="description" content="Find Pelican Beach Resort at 1002 US-98 in Destin, Florida. View the map, get driving directions and see nearby beaches, dining, attractions and airports."/><meta name="robots" content="noindex,nofollow"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="canonical" href={`${liveSite}/map`}/><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}/></Head>
+    <Head><title>Pelican Beach Resort Map & Directions | Destin</title><meta name="description" content="Find Pelican Beach Resort at 1002 US-98 in Destin, Florida. View the map, get driving directions and see nearby beaches, dining, attractions and airports."/><meta name="robots" content={process.env.NEXT_PUBLIC_DEPLOYMENT_ENV === "production" ? "index,follow" : "noindex,nofollow"}/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="canonical" href={`${liveSite}/map`}/><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}/></Head>
     <div className={styles.preview}>Migration preview | Production remains unchanged</div><SiteHeader/>
     <main>
       <section className={styles.mapHero}><div><a href="/">Home</a><p className={styles.kickerLight}>Map &amp; directions</p><h1>Beachfront in the heart of Destin.</h1><p>Pelican Beach Resort is at 1002 US-98, with direct Gulf access and central-Destin attractions nearby.</p><SiteButton href={directions} variant="primary" size="large">Open driving directions</SiteButton></div></section>

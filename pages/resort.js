@@ -77,7 +77,7 @@ export default function Resort() {
     <Head>
       <title>Pelican Beach Resort Destin FL | Beach, Pools & Condo Rentals</title>
       <meta name="description" content="Explore Pelican Beach Resort in Destin: Gulf-front beach access, three pools, hot tubs, resort amenities, location details and vacation rentals." />
-      <meta name="robots" content="noindex,nofollow" />
+      <meta name="robots" content={process.env.NEXT_PUBLIC_DEPLOYMENT_ENV === "production" ? "index,follow" : "noindex,nofollow"} />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <link rel="canonical" href={`${liveSite}/resort`} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />

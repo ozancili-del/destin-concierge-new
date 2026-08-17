@@ -90,7 +90,7 @@ export default function CondoCollection() {
     <Head>
       <title>Destin Vacation Rentals by Owner | Pelican Beach Resort</title>
       <meta name="description" content="Compare owner-managed Gulf-front Destin vacation rentals at Pelican Beach Resort. Explore Units 707 and 1006, check live availability and book securely." />
-      <meta name="robots" content="noindex,nofollow" />
+      <meta name="robots" content={process.env.NEXT_PUBLIC_DEPLOYMENT_ENV === "production" ? "index,follow" : "noindex,nofollow"} />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <link rel="canonical" href={pageUrl} />
       <meta property="og:title" content="Destin Vacation Rentals by Owner at Pelican Beach Resort" />

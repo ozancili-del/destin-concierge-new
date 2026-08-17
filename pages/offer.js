@@ -176,7 +176,7 @@ export default function OfferPage() {
       <Head>
         <title>Make an Offer on a Destin FL Beachfront Condo — Name Your Price | Pelican Beach Resort</title>
         <meta name="description" content="Propose your own nightly rate for a Gulf-front condo at Pelican Beach Resort, Destin FL. Unit 707 or Unit 1006 — sleeps 6, private balcony, beachfront. Submit your offer and we'll respond within hours. No OTA fees, owner direct." />
-        <meta name="robots" content="noindex,nofollow" />
+        <meta name="robots" content={process.env.NEXT_PUBLIC_DEPLOYMENT_ENV === "production" ? "index,follow" : "noindex,nofollow"} />
         <meta name="keywords" content="make offer Destin FL condo, name your price vacation rental Destin, Pelican Beach Resort condo deal, flexible pricing Destin Florida, book direct condo Destin FL discount" />
         <link rel="canonical" href="https://www.destincondogetaways.com/offer" />
 

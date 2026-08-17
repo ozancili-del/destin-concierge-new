@@ -69,7 +69,7 @@ export default function UnitPage({ unit }) {
   }, [lightbox, photos.length]);
 
   return <div className={styles.page}>
-    <Head><title>{unit.title}</title><meta name="description" content={rental.description} /><meta name="robots" content="noindex,nofollow" /><meta name="viewport" content="width=device-width, initial-scale=1" /><link rel="canonical" href={canonical} /><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} /></Head>
+    <Head><title>{unit.title}</title><meta name="description" content={rental.description} /><meta name="robots" content={process.env.NEXT_PUBLIC_DEPLOYMENT_ENV === "production" ? "index,follow" : "noindex,nofollow"} /><meta name="viewport" content="width=device-width, initial-scale=1" /><link rel="canonical" href={canonical} /><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} /></Head>
     <div className={styles.preview}>Preview page | Live availability and secure checkout remain connected</div>
     <div className={styles.utility}><a href="/reviews">Guest Reviews</a><a href="/why-book-direct#direct-faq">FAQ</a><a href="/guest-guide#policies">Policies</a><a href="/about">Contact</a></div>
     <SiteHeader availabilityHref="#checkout" />

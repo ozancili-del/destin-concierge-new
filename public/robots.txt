@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://deals.destincondogetaways.com/sitemap-vercel.xml
+Sitemap: https://www.destincondogetaways.com/sitemap-vercel.xml

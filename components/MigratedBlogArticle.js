@@ -37,7 +37,7 @@ export default function MigratedBlogArticle({
     <Head>
       <title>{pageTitle}</title>
       <meta name="description" content={description} />
-      <meta name="robots" content="noindex,nofollow" />
+      <meta name="robots" content={process.env.NEXT_PUBLIC_DEPLOYMENT_ENV === "production" ? "index,follow" : "noindex,nofollow"} />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       {canonical ? <link rel="canonical" href={canonical} /> : null}
       {stylesheet ? <link rel="stylesheet" href={stylesheet} /> : null}

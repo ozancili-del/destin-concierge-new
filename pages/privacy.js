@@ -35,7 +35,7 @@ export default function Privacy() {
     <Head>
       <title>Privacy Policy | Destin Condo Getaways</title>
       <meta name="description" content="Learn how Destin Condo Getaways collects, uses and protects information related to website visits, inquiries, direct bookings, trip planning and guest support." />
-      <meta name="robots" content="noindex,nofollow" />
+      <meta name="robots" content={process.env.NEXT_PUBLIC_DEPLOYMENT_ENV === "production" ? "index,follow" : "noindex,nofollow"} />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <link rel="canonical" href={`${liveSite}/privacy`} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />

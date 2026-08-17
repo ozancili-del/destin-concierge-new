@@ -140,7 +140,7 @@ export default function Home() {
             name="description"
             content="Book a beachfront condo at Pelican Beach Resort in Destin, Florida. Compare real Gulf views, check live rates and availability, and reserve securely with owner-direct support."
           />
-          <meta name="robots" content="noindex,nofollow" />
+          <meta name="robots" content={process.env.NEXT_PUBLIC_DEPLOYMENT_ENV === "production" ? "index,follow" : "noindex,nofollow"} />
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <link rel="canonical" href={`${site}/`} />
           <script

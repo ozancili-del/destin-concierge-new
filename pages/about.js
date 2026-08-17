@@ -63,7 +63,7 @@ export default function About() {
     <Head>
       <title>About Ozan | Destin Condo Getaways</title>
       <meta name="description" content="Meet Ozan Cili, the owner behind Destin Condo Getaways, and learn why personal support, transparent direct booking and guest trust guide every stay." />
-      <meta name="robots" content="noindex,nofollow" />
+      <meta name="robots" content={process.env.NEXT_PUBLIC_DEPLOYMENT_ENV === "production" ? "index,follow" : "noindex,nofollow"} />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <link rel="canonical" href={`${liveSite}/about`} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />

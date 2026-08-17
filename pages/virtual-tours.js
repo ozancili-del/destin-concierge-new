@@ -25,7 +25,7 @@ export default function VirtualToursPage() {
     <Head>
       <title>Pelican Beach Resort Virtual Tours | Destin Condos</title>
       <meta name="description" content="Explore interactive 360-degree virtual tours of Pelican Beach Resort Units 707 and 1006 in Destin, Florida before checking dates or booking direct." />
-      <meta name="robots" content="noindex,nofollow" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+      <meta name="robots" content={process.env.NEXT_PUBLIC_DEPLOYMENT_ENV === "production" ? "index,follow" : "noindex,nofollow"} /><meta name="viewport" content="width=device-width, initial-scale=1" />
       <link rel="canonical" href={`${liveSite}/virtual-tours`} /><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
     </Head>
     <div className={styles.preview}>Preview page | Production remains unchanged</div>

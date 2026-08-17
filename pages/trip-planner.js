@@ -47,7 +47,7 @@ export default function TripPlannerPage() {
     <Head>
       <title>Free Destin Vacation Itinerary Planner | Destiny Blue</title>
       <meta name="description" content="Build a free personalized Destin vacation itinerary with real restaurants, activities, beaches, local tips and rainy-day backups for your exact travel dates." />
-      <meta name="robots" content="noindex,nofollow" />
+      <meta name="robots" content={process.env.NEXT_PUBLIC_DEPLOYMENT_ENV === "production" ? "index,follow" : "noindex,nofollow"} />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <link rel="canonical" href={liveSite + "/trip-planner"} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />

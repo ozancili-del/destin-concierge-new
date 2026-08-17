@@ -57,7 +57,9 @@ for (const relative of pages) {
   if (!/<title>[^<]*<\/title>/.test(source)) issues.push(`${relative}: missing rendered title`);
   if (!/meta\s+name="description"\s+content=(?:"[^"]+"|\{[^}]+\})/.test(source.replace(/\s+/g, " "))) issues.push(`${relative}: missing rendered meta description`);
   if (!/rel="canonical"/.test(source)) issues.push(`${relative}: missing canonical`);
-  if (!/noindex,nofollow/.test(source)) issues.push(`${relative}: preview is not protected by noindex,nofollow`);
+  const hasPreviewProtection = /NEXT_PUBLIC_DEPLOYMENT_ENV\s*===\s*["']production["']\s*\?\s*["']index,follow["']\s*:\s*["']noindex,nofollow["']/.test(source);
+  const isTransactionalNoindex = relative === "pages/book.js" && /content="noindex,follow"/.test(source);
+  if (!hasPreviewProtection && !isTransactionalNoindex) issues.push(`${relative}: missing environment-aware preview protection`);
   if (schemaRequired.has(relative) && !/application\/ld\+json/.test(source)) issues.push(`${relative}: missing JSON-LD`);
 }
 

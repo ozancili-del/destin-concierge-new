@@ -78,7 +78,7 @@ export default function WhyBookDirect() {
       <Head>
         <title>Book a Pelican Beach Resort Vacation Rental Direct | Destin Condo Getaways</title>
         <meta name="description" content="Book owner-managed Pelican Beach Resort vacation rentals in Destin directly. Explore exact condos, avoid marketplace service fees and use secure checkout." />
-        <meta name="robots" content="noindex,nofollow" />
+        <meta name="robots" content={process.env.NEXT_PUBLIC_DEPLOYMENT_ENV === "production" ? "index,follow" : "noindex,nofollow"} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="canonical" href={`${liveSite}/why-book-direct`} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />

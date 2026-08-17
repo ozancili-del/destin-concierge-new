@@ -2,8 +2,8 @@
   "redirects": [
     {
       "source": "/",
-      "destination": "/snowbird",
-      "permanent": false,
+      "destination": "https://www.destincondogetaways.com/snowbird",
+      "permanent": true,
       "has": [
         {
           "type": "host",
@@ -13,8 +13,8 @@
     },
     {
       "source": "/",
-      "destination": "/offer",
-      "permanent": false,
+      "destination": "https://www.destincondogetaways.com/offer",
+      "permanent": true,
       "has": [
         {
           "type": "host",
@@ -24,8 +24,8 @@
     },
     {
       "source": "/",
-      "destination": "/rate-finder.html",
-      "permanent": false,
+      "destination": "https://www.destincondogetaways.com/deals",
+      "permanent": true,
       "has": [
         {
           "type": "host",
@@ -35,7 +35,7 @@
     },
     {
       "source": "/",
-      "destination": "/destin-hub",
+      "destination": "https://www.destincondogetaways.com/destin-hub",
       "permanent": true,
       "has": [
         {
@@ -43,6 +43,36 @@
           "value": "explore.destincondogetaways.com"
         }
       ]
+    },
+    {
+      "source": "/beach-deals",
+      "destination": "https://www.destincondogetaways.com/deals",
+      "permanent": true,
+      "has": [{ "type": "host", "value": "deals.destincondogetaways.com" }]
+    },
+    {
+      "source": "/rate-finder.html",
+      "destination": "https://www.destincondogetaways.com/deals",
+      "permanent": true,
+      "has": [{ "type": "host", "value": "deals.destincondogetaways.com" }]
+    },
+    {
+      "source": "/destin-hub.html",
+      "destination": "https://www.destincondogetaways.com/destin-hub",
+      "permanent": true,
+      "has": [{ "type": "host", "value": "explore.destincondogetaways.com" }]
+    },
+    {
+      "source": "/destin-car-rental.html",
+      "destination": "https://www.destincondogetaways.com/car-rentals",
+      "permanent": true,
+      "has": [{ "type": "host", "value": "explore.destincondogetaways.com" }]
+    },
+    {
+      "source": "/destin-tripshock.html",
+      "destination": "https://www.destincondogetaways.com/activities",
+      "permanent": true,
+      "has": [{ "type": "host", "value": "explore.destincondogetaways.com" }]
     },
     {
       "source": "/",

@@ -104,7 +104,7 @@ export default function AvailabilityPage() {
     <Head>
       <title>Destin Condo Availability | Pelican Beach Resort</title>
       <meta name="description" content="Check live availability for Gulf-front Pelican Beach Resort condos in Destin. Compare exact condos, then review live pricing and book securely." />
-      <meta name="robots" content="noindex,nofollow" />
+      <meta name="robots" content={process.env.NEXT_PUBLIC_DEPLOYMENT_ENV === "production" ? "index,follow" : "noindex,nofollow"} />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <link rel="canonical" href={`${liveSite}/availability`} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />

@@ -266,7 +266,7 @@ export default function RatesCalendar({ dayData, today }) {
       <Head>
         <title>Rates Calendar — Pelican Beach Resort Destin FL</title>
         <meta name="description" content="Browse daily rates for beachfront condos at Pelican Beach Resort, Destin FL. Pick your dates and book direct." />
-        <meta name="robots" content="noindex,nofollow" />
+        <meta name="robots" content="noindex,follow" />
         <link rel="canonical" href={`${liveSite}/rates-calendar`} />
         <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
       </Head>

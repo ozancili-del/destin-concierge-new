@@ -54,7 +54,7 @@ export default function BlogHub(){
     <Head>
       <title>Destin Vacation Blog | Local Guides & Trip Planning</title>
       <meta name="description" content="Plan a Destin vacation with local guides to beaches, Gulf weather, restaurants, events, fireworks, airports, activities and Pelican Beach Resort." />
-      <meta name="robots" content="noindex,nofollow" />
+      <meta name="robots" content={process.env.NEXT_PUBLIC_DEPLOYMENT_ENV === "production" ? "index,follow" : "noindex,nofollow"} />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <link rel="canonical" href={`${liveSite}/blog`} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(itemList)}} />

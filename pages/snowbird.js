@@ -425,7 +425,7 @@ export default function Snowbird({ dayData }) {
         <meta property="og:url" content={CANONICAL} />
         <meta property="og:type" content="website" />
         <meta property="og:image" content="https://www.destincondogetaways.com/snowbird-hero.webp" />
-        <meta name="robots" content="noindex,nofollow" />
+        <meta name="robots" content={process.env.NEXT_PUBLIC_DEPLOYMENT_ENV === "production" ? "index,follow" : "noindex,nofollow"} />
         <link rel="canonical" href={CANONICAL} />
         <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
         {schemas.map((s, i) => <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(s) }} />)}

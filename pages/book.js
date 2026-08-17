@@ -44,7 +44,7 @@ export default function BookPage() {
     <Head>
       <title>Book a Pelican Beach Resort Condo Direct | Destin</title>
       <meta name="description" content="Choose your Pelican Beach Resort condo, review live dates and the complete price, and reserve securely with the direct-booking discount automatically applied." />
-      <meta name="robots" content="noindex,nofollow" />
+      <meta name="robots" content="noindex,follow" />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <link rel="canonical" href={`${liveSite}/book`} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />

@@ -48,7 +48,7 @@ export default function UnitPage({ unit }) {
   const [lightbox, setLightbox] = useState(null);
   const canonical = `${liveSite}/condos/unit-${unit.number}`;
   const photos = unit.schema.image;
-  const virtualTourUrl = unit.number === "707"
+  const virtualTourUrl = String(unit.number) === "707"
     ? "https://kuula.co/share/collection/7Xtss?logo=0&info=0&fs=1&vr=1&sd=1&initload=0&autorotate=-0.47&autopalt=1&thumbs=1"
     : "https://kuula.co/share/collection/7XtwX?logo=0&info=0&fs=1&vr=1&sd=1&initload=0&autorotate=-0.47&autopalt=1&thumbs=1";
   const reviewSchema = unit.reviews.map((review) => ({ "@type": "Review", author: { "@type": "Person", name: review.name }, reviewRating: { "@type": "Rating", ratingValue: 5, bestRating: 5 }, reviewBody: review.text }));

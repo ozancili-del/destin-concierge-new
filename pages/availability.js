@@ -8,7 +8,7 @@ import SiteHeader from "../components/SiteHeader";
 import styles from "../styles/AvailabilityPage.module.css";
 
 const liveSite = "https://www.destincondogetaways.com";
-const searchWidgetId = "984076d873324c5f987365778926c4df";
+const searchWidgetId = "c7145de8351d41ab88bfd13135255d89";
 const calendarWidgetId = "91953f0c6e014ff585bffa8e87bad76e";
 
 const condos = [

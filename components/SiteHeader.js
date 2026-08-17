@@ -5,7 +5,6 @@ const condoLinks = [
   ["Vacation Rentals", "/destin-vacation-rentals-by-owner"],
   ["Unit 707", "/condos/unit-707"],
   ["Unit 1006", "/condos/unit-1006"],
-  ["Photo Gallery", "/gallery"],
   ["Virtual Tours", "/virtual-tours"],
 ];
 
@@ -37,7 +36,7 @@ export default function SiteHeader({ availabilityHref = "/availability" }) {
         <strong>Condos</strong>
         {condoLinks.map(([label, href]) => <a key={href} href={href}>{label}</a>)}
         <a href="/resort">The Resort</a>
-        <a className={styles.galleryLink} href="/gallery">Photo Gallery</a>
+        <a href="/gallery">Photo Gallery</a>
         <a href="/blog">Destin Guide</a>
         <a href="/beach-cam">Beach Cam</a>
         <a href="/deals">Deals</a>

@@ -56,6 +56,7 @@ export default function BlogHub(){
       <meta name="description" content="Plan a Destin vacation with local guides to beaches, Gulf weather, restaurants, events, fireworks, airports, activities and Pelican Beach Resort." />
       <meta name="robots" content="noindex,nofollow" />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <link rel="canonical" href={`${liveSite}/blog`} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(itemList)}} />
     </Head>
 

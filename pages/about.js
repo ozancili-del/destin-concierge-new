@@ -101,10 +101,21 @@ export default function About() {
         </div>
       </section>
 
+      <section className={styles.story}>
+        <div><p className={styles.kicker}>What owner-managed means here</p><h2>One accountable host from planning through the stay.</h2></div>
+        <div>
+          <p>Owner-managed hospitality is not simply a lower-fee checkout path. It means the person responsible for the listing also understands the exact condo, the resort and the questions guests tend to have before arrival. The photographs, sleeping arrangements, policies and live booking information are presented for the specific home being reserved.</p>
+          <p>Before booking, guests can compare the condo pages, read past experiences and review the complete total and reservation terms through secure checkout. After booking, arrival and stay information is provided through the guest process connected to the reservation. Destiny Blue can answer routine planning questions, while maintenance, safety or personal owner matters can be brought to me.</p>
+          <p>Direct communication does not mean informal payment or unclear terms. The reservation is completed through the secure online flow, and guests should rely on the written price, dates, occupancy, cancellation policy and rental terms shown there before confirming.</p>
+        </div>
+      </section>
+
       <section className={styles.contact}>
         <div><p className={styles.kicker}>Contact Ozan</p><h2>A real person is behind every stay.</h2><p>Questions about the condos, booking process or an upcoming visit are welcome. For reservation-specific or urgent in-stay instructions, use the contact details supplied with your booking.</p></div>
         <div className={styles.contactCard}><a href="tel:+19723574262"><span>Call or text</span><strong>(972) 357-4262</strong></a><a href="mailto:ozan@destincondogetaways.com"><span>Email</span><strong>ozan@destincondogetaways.com</strong></a><address><span>Pelican Beach Resort</span><strong>1002 US-98<br />Destin, FL 32541</strong></address></div>
       </section>
+
+      <section className={styles.story}><div><p className={styles.kicker}>Before you reserve</p><h2>Verify the home, the host and the checkout.</h2></div><div><p>Start with the exact condo page and its current photographs. Enter the real dates and every traveler, then review the complete total rather than comparing only a nightly headline. The secure checkout should identify the unit, dates, occupancy, fees, taxes, cancellation terms and payment schedule before you submit a reservation.</p><p>If anything is unclear, ask before paying. I would rather answer a direct question about fit, policies or the resort than have a guest make an assumption that affects the stay. That same principle guides the local guides and Destiny Blue: be useful, distinguish live information from general guidance and involve a person when the situation needs one.</p></div></section>
 
       <section className={styles.finalCta}><div><p className={styles.kickerLight}>Ready to plan?</p><h2>Find the stay that fits your dates.</h2></div><SiteButton href="#availability" variant="primary" size="large">Live availability</SiteButton></section>
     </main>

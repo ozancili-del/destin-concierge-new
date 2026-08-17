@@ -32,7 +32,6 @@ const businessSchema = {
   checkinTime: "16:00",
   checkoutTime: "10:00",
   sameAs: ["https://www.facebook.com/DestinCondoGetaways"],
-  numberOfRooms: 2,
   starRating: { "@type": "Rating", ratingValue: 4.94, bestRating: 5 },
   paymentAccepted: "Credit Card, Debit Card",
   currenciesAccepted: "USD",
@@ -81,6 +80,7 @@ export default function WhyBookDirect() {
         <meta name="description" content="Book owner-managed Pelican Beach Resort vacation rentals in Destin directly. Explore exact condos, avoid marketplace service fees and use secure checkout." />
         <meta name="robots" content="noindex,nofollow" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="canonical" href={`${liveSite}/why-book-direct`} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
       </Head>
 

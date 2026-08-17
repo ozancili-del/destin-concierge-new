@@ -53,6 +53,7 @@ export default function ReviewsPage() {
       <meta name="description" content="Read real guest reviews for Destin Condo Getaways at Pelican Beach Resort and visit our Airbnb and Vrbo pages." />
       <meta name="robots" content="noindex,nofollow" />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <link rel="canonical" href={`${liveSite}/reviews`} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
     </Head>
 

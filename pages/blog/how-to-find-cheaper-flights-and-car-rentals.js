@@ -18,7 +18,7 @@ export default function FlightsAndCarsGuide() {
     { "@type": "LodgingBusiness", "@id": liveSite + "/#business", name: "Destin Condo Getaways", url: liveSite, telephone: "+1-972-357-4262", email: "ozan@destincondogetaways.com", address: { "@type": "PostalAddress", streetAddress: "1002 US-98", addressLocality: "Destin", addressRegion: "FL", postalCode: "32541", addressCountry: "US" }, geo: { "@type": "GeoCoordinates", latitude: 30.3935, longitude: -86.4958 } },
   ] };
 
-  return <MigratedBlogArticle
+  return <MigratedBlogArticle canonical={canonical}
     pageTitle="Cheaper Flights and Car Rentals to Destin | Compare the Real Cost"
     description={article.description}
     structuredData={structuredData}

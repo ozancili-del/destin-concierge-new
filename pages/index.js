@@ -86,14 +86,49 @@ export default function Home() {
   const [adults, setAdults] = useState(2);
   const [children, setChildren] = useState(0);
 
-  const faqSchema = {
+  const structuredData = {
     "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: faqs.map((faq) => ({
-      "@type": "Question",
-      name: faq.question,
-      acceptedAnswer: { "@type": "Answer", text: faq.answer },
-    })),
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": `${site}/#organization`,
+        name: "Destin Condo Getaways",
+        url: site,
+        logo: "https://uc.orez.io/f/6d35eb37c5304c0f8b080ae8dbf5357a",
+        telephone: "+1-972-357-4262",
+        email: "ozan@destincondogetaways.com",
+        sameAs: ["https://www.facebook.com/DestinCondoGetaways"],
+      },
+      {
+        "@type": "LodgingBusiness",
+        "@id": `${site}/#business`,
+        name: "Destin Condo Getaways",
+        alternateName: "Destin Getaways Condos at Pelican Beach Resort",
+        description: "Owner-direct beachfront vacation rentals at Pelican Beach Resort in Destin, Florida.",
+        url: site,
+        image: condos.map((condo) => condo.image),
+        telephone: "+1-972-357-4262",
+        email: "ozan@destincondogetaways.com",
+        address: { "@type": "PostalAddress", streetAddress: "1002 US-98", addressLocality: "Destin", addressRegion: "FL", postalCode: "32541", addressCountry: "US" },
+        geo: { "@type": "GeoCoordinates", latitude: 30.3935, longitude: -86.4958 },
+        checkinTime: "16:00",
+        checkoutTime: "10:00",
+        petsAllowed: false,
+        smokingAllowed: false,
+        priceRange: "$$",
+        aggregateRating: { "@type": "AggregateRating", ratingValue: 4.94, reviewCount: 400, bestRating: 5, worstRating: 1 },
+        review: reviews.map((review) => ({ "@type": "Review", author: { "@type": "Person", name: review.name }, reviewRating: { "@type": "Rating", ratingValue: 5, bestRating: 5 }, reviewBody: review.text })),
+      },
+      { "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Home", item: site }] },
+      {
+        "@type": "FAQPage",
+        mainEntity: faqs.map((faq) => ({
+          "@type": "Question",
+          name: faq.question,
+          acceptedAnswer: { "@type": "Answer", text: faq.answer },
+        })),
+      },
+    ],
   };
 
   return (
@@ -107,9 +142,10 @@ export default function Home() {
           />
           <meta name="robots" content="noindex,nofollow" />
           <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <link rel="canonical" href={`${site}/`} />
           <script
             type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
           />
         </Head>
 

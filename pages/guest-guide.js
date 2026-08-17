@@ -87,6 +87,7 @@ export default function GuestGuidePage() {
       <meta name="description" content="Plan your Pelican Beach Resort stay with accurate answers about beachfront access, condo layouts, pools, check-in, occupancy, policies and direct booking." />
       <meta name="robots" content="noindex,nofollow" />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <link rel="canonical" href={`${liveSite}/guest-guide`} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
     </Head>
 

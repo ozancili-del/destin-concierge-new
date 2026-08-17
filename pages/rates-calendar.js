@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from "react";
 import Head from "next/head";
 import { createClient } from "@supabase/supabase-js";
 
+const liveSite = "https://www.destincondogetaways.com";
+
 function isSnowbirdDiscount(year, month, nights) {
   if (nights < 28) return false;
   return (year === 2026 && (month === 11 || month === 12)) || (year === 2027 && (month === 1 || month === 2));
@@ -264,6 +266,8 @@ export default function RatesCalendar({ dayData, today }) {
       <Head>
         <title>Rates Calendar — Pelican Beach Resort Destin FL</title>
         <meta name="description" content="Browse daily rates for beachfront condos at Pelican Beach Resort, Destin FL. Pick your dates and book direct." />
+        <meta name="robots" content="noindex,nofollow" />
+        <link rel="canonical" href={`${liveSite}/rates-calendar`} />
         <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
         <script dangerouslySetInnerHTML={{ __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-3SGXCQ4FTC');` }} />
       </Head>

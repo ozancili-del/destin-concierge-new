@@ -37,7 +37,7 @@ const policies = [
 function photoDescription(unit, index) {
   if (unit.photoAlts[index]) return unit.photoAlts[index];
   const section = unit.photoSections.find((item) => index <= item.through)?.label || "Pelican Beach Resort amenity and Destin beachfront setting";
-  return `${section} — photo ${index + 1} from Pelican Beach Resort Unit ${unit.number}`;
+  return `${section} for Unit ${unit.number}`;
 }
 
 function SiteFooter() {
@@ -100,7 +100,7 @@ export default function UnitPage({ unit }) {
           <div className={styles.headingBottom}><h2>{unit.style}</h2><div className={styles.actions}><SiteButton href="#checkout" variant="primary" size="large">See dates &amp; total</SiteButton></div></div>
         </div>
         <div className={styles.previewMosaic} id="photos" aria-label={`Photo preview for Pelican Beach Resort Unit ${unit.number}`}>
-          {photos.slice(0, 5).map((src, index) => <button className={index === 0 ? styles.mosaicLead : styles.mosaicTile} key={src} type="button" onClick={() => setLightbox(index)} aria-label={`Enlarge ${photoDescription(unit, index)}`}><img src={src} alt={photoDescription(unit, index)} loading="eager" width="1200" height="800" />{index === 4 && <span>View all {photos.length} photos</span>}</button>)}
+          {photos.slice(0, 5).map((src, index) => <button className={index === 0 ? styles.mosaicLead : styles.mosaicTile} key={src} type="button" onClick={() => setLightbox(index)} aria-label={index === 4 ? `View all ${photos.length} photos, starting with ${photoDescription(unit, index)}` : `Enlarge ${photoDescription(unit, index)}`}><img src={src} alt={photoDescription(unit, index)} loading="eager" width="1200" height="800" />{index === 4 && <span>View all {photos.length} photos</span>}</button>)}
         </div>
         <div className={styles.propertyHighlights} aria-label={`Essential facts for Unit ${unit.number}`}><span><strong>873</strong> sq ft</span><span><strong>1</strong> bedroom</span><span><strong>2</strong> bathrooms</span><span><strong>Sleeps</strong> up to 6</span><span><strong>Gulf-view</strong> balcony</span></div>
       </section>

@@ -13,7 +13,7 @@
 .brand { display: flex; align-items: center; gap: 12px; color: #073b58; text-decoration: none; margin-right: auto; }
 .brand strong { display: block; font-family: Georgia, serif; font-size: 20px; }
 .brand small { display: block; color: #536b77; font-size: 11px; margin-top: 3px; }
-.mark { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; background: #087887; border: 2px solid #bcdfe3; color: #fffefb; font-family: Georgia, serif; font-weight: 700; font-size: 11px; letter-spacing: .08em; }
+.logo { width: 76px; height: 50px; display: block; object-fit: contain; object-position: center; }
 .desktopNav { display: flex; align-items: center; gap: 20px; }
 .desktopNav > a, .dropdown summary { color: #073b58; text-decoration: none; font-size: 13px; font-weight: 700; white-space: nowrap; cursor: pointer; }
 .desktopNav > a:hover, .dropdown summary:hover { color: #1597a8; }
@@ -40,10 +40,11 @@
   .mobileMenu { display: block; order: 3; }
   .brand strong { font-size: 16px; }
   .brand small { display: none; }
-  .mark { width: 40px; height: 40px; }
+  .logo { width: 66px; height: 44px; }
   .header > a:last-of-type { margin-left: auto; }
 }
 @media (max-width: 560px) {
   .brand span:last-child { display: none; }
+  .logo { width: 70px; height: 46px; }
   .header > a:last-of-type { font-size: 11px; padding: 10px 11px; }
 }

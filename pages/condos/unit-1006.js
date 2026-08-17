@@ -15,11 +15,22 @@ const unit = {
   ],
   viewTitle: "A higher horizon and a balcony that feels suspended above the Gulf.",
   viewCopy: "The tenth-floor perspective makes the water and sky feel especially expansive. Sunrise, changing water color and evening light are visible without leaving the condo.",
-  photoAlts: ["living room and panoramic Gulf view", "private tenth-floor balcony view", "white-sand beach below", "wide Gulf horizon", "bright coastal living room", "Gulf view from the condo entrance", "coastal sitting area", "full kitchen", "kitchen with ocean view"],
+  photoAlts: [
+    "Bright Unit 1006 living room with balcony doors and panoramic Gulf view",
+    "Sunset from the private tenth-floor balcony at Pelican Beach Resort Unit 1006",
+    "White-sand Destin beach and Gulf seen from the Unit 1006 balcony",
+    "Gulf sunset viewed from the tenth floor of Unit 1006",
+    "Unit 1006 living and dining area with a wide Gulf backdrop",
+    "Panoramic Gulf view visible on arrival inside Pelican Beach Resort Unit 1006",
+    "Coastal sitting area and balcony access inside Unit 1006",
+    "Full kitchen inside Pelican Beach Resort Unit 1006",
+    "Unit 1006 kitchen and dining area facing the Gulf",
+  ],
   photoSections: [
     { through: 12, label: "Panoramic tenth-floor Gulf views, balcony and living room" },
     { through: 24, label: "Full kitchen, king bedroom, bathrooms and hallway bunks" },
     { through: 50, label: "Pelican Beach Resort pools, beach access, Tiki Bar and amenities" },
+    { through: 65, label: "Pelican Beach Resort grounds, lobby and shared guest amenities" },
   ],
   fullDescription: [
     "Welcome to Unit 1006 — Fresh Coastal, an 873-square-foot Gulf-front condo on the tenth floor of Pelican Beach Resort. Its private balcony opens to a broad, unobstructed view of the emerald Gulf and sugar-white Destin beach, with no road to cross.",

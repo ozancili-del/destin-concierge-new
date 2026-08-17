@@ -35,15 +35,15 @@ let linksChecked = 0;
 for (const file of sourceRoots.flatMap(walk).filter((item) => /\.(?:html|js|jsx|ts|tsx)$/.test(item))) {
   if (ignoredParts.some((part) => file.includes(part)) || /public\\tv/i.test(file)) continue;
   const source = fs.readFileSync(file, "utf8");
-  const linkPattern = /(?:href|action)\s*=\s*["']([^"']+)["']/g;
+  const linkPattern = /(?:<a\b[^>]*?href|<form\b[^>]*?action)\s*=\s*["']([^"']+)["']/gi;
   for (const match of source.matchAll(linkPattern)) {
     const href = match[1].trim();
     linksChecked += 1;
     if (!href || href.startsWith("#") || /^(?:mailto:|tel:|javascript:|data:)/i.test(href)) continue;
     if (/^https?:\/\//i.test(href)) {
       const url = new URL(href);
-      if (url.hostname === "www.destincondogetaways.com" && legacyPath.test(url.pathname)) {
-        issues.push({ file, href, reason: "legacy public-site path" });
+      if (url.hostname === "www.destincondogetaways.com" && url.pathname !== "/") {
+        issues.push({ file, href, reason: legacyPath.test(url.pathname) ? "legacy public-site path" : "absolute self-link bypasses preview host" });
       }
       continue;
     }

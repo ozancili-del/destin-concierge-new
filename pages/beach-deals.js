@@ -200,8 +200,8 @@ const IMAGES = {
 };
 
 const UNIT_META = {
-  "707":  { name: "Unit 707",  sub: "Classic Coastal · 7th Floor",  slug: "pelican-beach-resort-unit-707-orp5b47b5ax",  fullName: "Pelican Beach Resort Unit 707 — Classic Coastal" },
-  "1006": { name: "Unit 1006", sub: "Fresh Coastal · 10th Floor",   slug: "pelican-beach-resort-unit-1006-orp5b6450ex", fullName: "Pelican Beach Resort Unit 1006 — Fresh Coastal" },
+  "707":  { name: "Unit 707",  sub: "Classic Coastal · 7th Floor",  route: "/condos/unit-707",  fullName: "Pelican Beach Resort Unit 707 — Classic Coastal" },
+  "1006": { name: "Unit 1006", sub: "Fresh Coastal · 10th Floor",   route: "/condos/unit-1006", fullName: "Pelican Beach Resort Unit 1006 — Fresh Coastal" },
 };
 
 function shuffledImages(unit) {
@@ -215,8 +215,8 @@ function shuffledImages(unit) {
 }
 
 function bookingUrl(unit, arrival, departure) {
-  const base = `https://www.destincondogetaways.com/${UNIT_META[unit].slug}`;
-  return `${base}?or_arrival=${arrival}&or_departure=${departure}&or_adults=2&or_children=0&or_guests=2`;
+  const base = UNIT_META[unit].route;
+  return `${base}?or_arrival=${arrival}&or_departure=${departure}&or_adults=2&or_children=0&or_guests=2#checkout`;
 }
 
 // ── JSON-LD schema builder ────────────────────────────────────────────────────

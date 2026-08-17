@@ -22,7 +22,7 @@ export default function DestinVacationGuide() {
     description={article.description}
     structuredData={structuredData}
     stylesheet="/disco.css"
-    heroImage="/destin-aerial.jpg"
+    heroImage="/destin-aerial.webp"
     heroAlt="Aerial view of the beach and emerald Gulf water in Destin Florida"
     kicker="Start planning"
     title="Destin Florida Vacation Guide 2026"

@@ -64,7 +64,7 @@ style.textContent=`@import url('https://fonts.googleapis.com/css2?family=DM+Sans
 document.head.appendChild(style);
 const wrap=document.createElement('div');
 wrap.id='db-bubble';
-wrap.innerHTML=`<div id="db-window"><div id="db-header"><img src="https://destin-concierge-new.vercel.app/destiny_avatar.png" alt="Destiny Blue AI Concierge" style="width:52px;height:52px;border-radius:50%;object-fit:cover;object-position:top;flex-shrink:0;"/><div id="db-header-text"><div id="db-header-name">Destiny Blue</div><div id="db-header-sub"><span class="db-status-dot"></span>AI Concierge · Always here</div></div><button id="db-mobile-close" aria-label="Close">✕</button></div><div id="db-messages"></div><div id="db-input-row"><input id="db-input" type="text" placeholder="Ask me anything…" autocomplete="off"/><button id="db-send" aria-label="Send message"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div><div id="db-footer">Powered by Destiny Blue · © Ozan CILI</div></div><div id="db-tooltip">Hi! Ask me anything about Destin!</div><button id="db-btn" aria-label="Chat"><div id="db-badge"></div><img class="db-icon-open" alt="Destiny Blue AI Concierge" src="https://destin-concierge-new.vercel.app/destiny_avatar.png" style="width:60px;height:60px;border-radius:50%;object-fit:cover;object-position:top;display:block;"/><svg class="db-icon-close" width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6L18 18" stroke="white" stroke-width="2.5" stroke-linecap="round"/></svg></button>`;
+wrap.innerHTML=`<div id="db-window"><div id="db-header"><img src="/destiny_avatar.png" alt="Destiny Blue AI Concierge" style="width:52px;height:52px;border-radius:50%;object-fit:cover;object-position:top;flex-shrink:0;"/><div id="db-header-text"><div id="db-header-name">Destiny Blue</div><div id="db-header-sub"><span class="db-status-dot"></span>AI Concierge · Always here</div></div><button id="db-mobile-close" aria-label="Close">✕</button></div><div id="db-messages"></div><div id="db-input-row"><input id="db-input" type="text" aria-label="Ask Destiny Blue a question" placeholder="Ask me anything…" autocomplete="off"/><button id="db-send" aria-label="Send message"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div><div id="db-footer">Powered by Destiny Blue · © Ozan CILI</div></div><div id="db-tooltip">Hi! Ask me anything about Destin!</div><button id="db-btn" aria-label="Chat"><div id="db-badge"></div><img class="db-icon-open" alt="Destiny Blue AI Concierge" src="/destiny_avatar.png" style="width:60px;height:60px;border-radius:50%;object-fit:cover;object-position:top;display:block;"/><svg class="db-icon-close" width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6L18 18" stroke="white" stroke-width="2.5" stroke-linecap="round"/></svg></button>`;
 document.body.appendChild(wrap);
 const btn=document.getElementById('db-btn'),win=document.getElementById('db-window'),msgs=document.getElementById('db-messages'),input=document.getElementById('db-input'),send=document.getElementById('db-send'),tooltip=document.getElementById('db-tooltip');
 const TM=["Ask me anything about Destin!","Check live availability","Plan your Destin stay","Explore local activities","See current beach conditions"];
@@ -187,7 +187,7 @@ input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventD
     'display:block;text-decoration:none;margin:0 0 16px;',
     'position:relative;overflow:hidden;border-radius:16px;',
     'min-height:160px;',
-    'background:url(https://destin-concierge-new.vercel.app/book-direct-banner-bg.jpg) 60% center/cover no-repeat;',
+    'background:url(https://destin-concierge-new.vercel.app/book-direct-banner-bg.webp) 60% center/cover no-repeat;',
     'border:1.5px solid rgba(255,209,102,0.4);',
     'box-shadow:0 8px 32px rgba(0,0,0,0.35);'
   ].join('');
@@ -219,7 +219,7 @@ input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventD
     'display:block;text-decoration:none;margin:0 0 32px;',
     'position:relative;overflow:hidden;border-radius:16px;',
     'min-height:160px;',
-    'background:url(https://destin-concierge-new.vercel.app/snowbird-banner-bg.jpg) 70% center/cover no-repeat;',
+    'background:url(https://destin-concierge-new.vercel.app/snowbird-banner-bg.webp) 70% center/cover no-repeat;',
     'border:1.5px solid rgba(255,209,102,0.4);',
     'box-shadow:0 8px 32px rgba(0,0,0,0.35);'
   ].join('');

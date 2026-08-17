@@ -18,9 +18,9 @@ const featuredReviews = [
 ];
 
 const platformCards = [
-  { name: "Airbnb", label: "View our Airbnb host profile", href: "https://www.airbnb.com/users/profile/about?context=host", image: "https://uc.orez.io/i/b004f9895bc24136805cc94e514f4039-Large", alt: "Gulf-front view from Destin Condo Getaways at Pelican Beach Resort" },
-  { name: "Vrbo", label: "Read reviews for Unit 707", href: "https://www.vrbo.com/2078502", image: "https://uc.orez.io/i/0f604abce3284748ba8d2150b7646863-Large", alt: "Unit 707 Gulf-view balcony at Pelican Beach Resort" },
-  { name: "Vrbo", label: "Read reviews for Unit 1006", href: "https://www.vrbo.com/3799283", image: "https://uc.orez.io/i/79fb2b20887c4f44b58c710a59420a30-Large", alt: "Unit 1006 panoramic Gulf view at Pelican Beach Resort" }
+  { name: "Airbnb", label: "View our Airbnb host profile", href: "https://www.airbnb.com/users/profile/about?context=host", image: "/images/site/b004f9895bc24136805cc94e514f4039-large.webp", alt: "Gulf-front view from Destin Condo Getaways at Pelican Beach Resort" },
+  { name: "Vrbo", label: "Read reviews for Unit 707", href: "https://www.vrbo.com/2078502", image: "/images/site/0f604abce3284748ba8d2150b7646863-large.webp", alt: "Unit 707 Gulf-view balcony at Pelican Beach Resort" },
+  { name: "Vrbo", label: "Read reviews for Unit 1006", href: "https://www.vrbo.com/3799283", image: "/images/site/79fb2b20887c4f44b58c710a59420a30-large.webp", alt: "Unit 1006 panoramic Gulf view at Pelican Beach Resort" }
 ];
 
 export default function ReviewsPage() {
@@ -63,7 +63,7 @@ export default function ReviewsPage() {
 
     <main>
       <section className={styles.hero}>
-        <img src="https://uc.orez.io/i/44060a8a29ca4a998586d849184d288f-Large" alt="Pelican Beach Resort and emerald Gulf water in Destin, Florida" />
+        <img src="/images/site/44060a8a29ca4a998586d849184d288f-large.webp" alt="Pelican Beach Resort and emerald Gulf water in Destin, Florida" />
         <div className={styles.heroShade}></div>
         <div className={styles.heroCopy}><a href="/">Home</a><p className={styles.kicker}>Real guest experiences</p><h1>Guest reviews from Pelican Beach Resort</h1><p>Read what guests say about the condos, the beachfront location and their experience booking directly with Ozan.</p></div>
       </section>

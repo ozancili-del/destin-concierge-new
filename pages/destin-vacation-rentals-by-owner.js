@@ -16,7 +16,7 @@ const condos = [
     floor: "Seventh floor",
     style: "Classic Coastal",
     href: "/condos/unit-707",
-    image: "/hub-beaches.png",
+    image: "/hub-beaches.webp",
     alt: "Gulf-front balcony and beach view from Pelican Beach Resort Unit 707 in Destin",
     description: "A warm coastal home with a direct Gulf view that feels close to the shoreline.",
   },
@@ -25,7 +25,7 @@ const condos = [
     floor: "Tenth floor",
     style: "Fresh Coastal",
     href: "/condos/unit-1006",
-    image: "/hub-beachcam.png",
+    image: "/hub-beachcam.webp",
     alt: "Elevated Gulf of Mexico view from Pelican Beach Resort Unit 1006 in Destin",
     description: "A fresh coastal interior with a higher panoramic perspective over the Gulf.",
   },
@@ -97,7 +97,7 @@ export default function CondoCollection() {
       <meta property="og:description" content="Compare two Gulf-front condos, see the exact homes and check live availability." />
       <meta property="og:type" content="website" />
       <meta property="og:url" content={pageUrl} />
-      <meta property="og:image" content={`${liveSite}/book-direct-banner-bg.jpg`} />
+      <meta property="og:image" content={`${liveSite}/book-direct-banner-bg.webp`} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
     </Head>
 
@@ -108,7 +108,7 @@ export default function CondoCollection() {
     <main>
       <section className={styles.hero}>
         <div className={styles.heroCopy}><a href="/">Home</a><p className={styles.kicker}>Owner-managed stays on the Gulf</p><h1>Destin vacation rentals by owner at Pelican Beach Resort</h1><p>Compare the Gulf-front vacation rentals offered here, see each home and check live availability in one secure search.</p><div className={styles.actions}><SiteButton href="#availability" variant="primary" size="large">Check live availability</SiteButton><SiteButton href="#compare" variant="secondary" size="large">Explore the condos</SiteButton></div><div className={styles.trust}><span>4.94 average rating</span><span>400+ stays</span><span>Secure checkout</span></div></div>
-        <div className={styles.heroVisual}><Image src="/book-direct-banner-bg.jpg" alt="Pelican Beach Resort and white-sand beach in Destin Florida" fill priority sizes="(max-width: 900px) 100vw, 50vw" /><div><strong>Exact condo.</strong><span>Direct Gulf view.</span></div></div>
+        <div className={styles.heroVisual}><Image src="/book-direct-banner-bg.webp" alt="Pelican Beach Resort and white-sand beach in Destin Florida" fill priority sizes="(max-width: 900px) 100vw, 50vw" /><div><strong>Exact condo.</strong><span>Direct Gulf view.</span></div></div>
       </section>
 
       <AvailabilitySearch className={styles.availability} />

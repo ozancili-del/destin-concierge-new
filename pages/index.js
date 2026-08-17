@@ -24,7 +24,7 @@ const condos = [
   {
     unit: "707",
     eyebrow: "Classic Coastal",
-    image: "https://uc.orez.io/i/0f604abce3284748ba8d2150b7646863-Large",
+    image: "/images/site/0f604abce3284748ba8d2150b7646863-large.webp",
     description:
       "A relaxed seventh-floor retreat with direct Gulf views, a private balcony, and the beach just downstairs.",
     href: "/condos/unit-707",
@@ -32,7 +32,7 @@ const condos = [
   {
     unit: "1006",
     eyebrow: "Fresh Coastal",
-    image: "https://uc.orez.io/i/79fb2b20887c4f44b58c710a59420a30-Large",
+    image: "/images/site/79fb2b20887c4f44b58c710a59420a30-large.webp",
     description:
       "A bright tenth-floor escape with panoramic emerald-water views and sunset skies from your private balcony.",
     href: "/condos/unit-1006",
@@ -94,7 +94,7 @@ export default function Home() {
         "@id": `${site}/#organization`,
         name: "Destin Condo Getaways",
         url: site,
-        logo: "https://uc.orez.io/f/6d35eb37c5304c0f8b080ae8dbf5357a",
+        logo: "/images/site/6d35eb37c5304c0f8b080ae8dbf5357a.webp",
         telephone: "+1-972-357-4262",
         email: "ozan@destincondogetaways.com",
         sameAs: ["https://www.facebook.com/DestinCondoGetaways"],
@@ -166,7 +166,7 @@ export default function Home() {
           <section className={styles.hero}>
             <Image
               className={styles.heroImage}
-              src="/book-direct-banner-bg.jpg"
+              src="/book-direct-banner-bg.webp"
               alt="Pelican Beach Resort beside the emerald Gulf waters in Destin"
               fill
               priority
@@ -299,7 +299,7 @@ export default function Home() {
           <section className={styles.resort} id="resort">
             <div className={styles.resortImage}>
               <Image
-                src="/destin-aerial.jpg"
+                src="/destin-aerial.webp"
                 alt="Aerial view of Destin's coastline and emerald Gulf water"
                 fill
                 sizes="(max-width: 900px) 100vw, 52vw"
@@ -326,7 +326,7 @@ export default function Home() {
           <section className={styles.webcam}>
             <div className={styles.webcamVisual}>
               <Image
-                src="/hub-beachcam.png"
+                src="/hub-beachcam.webp"
                 alt="Preview of the live beach view from Destin"
                 fill
                 sizes="(max-width: 900px) 100vw, 62vw"

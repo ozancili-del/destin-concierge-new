@@ -57,7 +57,7 @@ export default function BookPage() {
     <main>
       <section className={styles.hero}>
         <div className={styles.heroCopy}><a href="/">Home</a><p className={styles.kicker}>The final step to the Gulf</p><h1>Choose your condo. See the full total. Book securely.</h1><p>Select dates, guests and the exact condo below. The live booking system provides availability, pricing, fees, taxes, policies and secure checkout.</p><div className={styles.trust}><span>✓ 10% direct discount applied</span><span>✓ Exact condo shown</span><span>✓ Secure checkout</span></div></div>
-        <div className={styles.heroImage}><Image src="/book-direct-banner-bg.jpg" alt="Pelican Beach Resort and the Gulf of Mexico in Destin Florida" fill priority sizes="(max-width: 900px) 100vw, 48vw" /></div>
+        <div className={styles.heroImage}><Image src="/book-direct-banner-bg.webp" alt="Pelican Beach Resort and the Gulf of Mexico in Destin Florida" fill priority sizes="(max-width: 900px) 100vw, 48vw" /></div>
       </section>
 
       <section className={styles.checkout} id="checkout">

@@ -16,7 +16,7 @@ export default function DestinHub() {
         <meta property="og:description" content="Your complete Destin Florida guide — beaches, seafood, live music, fireworks, events, airports, car rental and AI concierge." />
         <meta property="og:url" content={CANONICAL} />
         <meta property="og:type" content="website" />
-        <meta property="og:image" content="https://www.destincondogetaways.com/hub-hero.png" />
+        <meta property="og:image" content="https://www.destincondogetaways.com/hub-hero.webp" />
         <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;900&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet" />
         <script dangerouslySetInnerHTML={{ __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-PQSF8S6D');` }} />
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-3SGXCQ4FTC" />
@@ -55,12 +55,12 @@ export default function DestinHub() {
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:transparent;color:#fff;font-family:'Outfit',sans-serif;-webkit-font-smoothing:antialiased;min-height:100%;}
 .page-wrap{max-width:480px;margin:0 auto;background:transparent;min-height:100vh;position:relative;z-index:1;}
-body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(4,13,26,0.74),rgba(4,13,26,0.90)),url('/hub-bg-golden.jpg');background-size:cover;background-position:center center;filter:saturate(0.95);z-index:0;pointer-events:none;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(4,13,26,0.74),rgba(4,13,26,0.90)),url('/hub-bg-golden.webp');background-size:cover;background-position:center center;filter:saturate(0.95);z-index:0;pointer-events:none;}
 @media(min-width:900px){
   body::before{
     background-image:
       linear-gradient(rgba(4,13,26,0.54),rgba(4,13,26,0.76)),
-      url('/hub-bg-golden.jpg');
+      url('/hub-bg-golden.webp');
     background-size:cover;
     background-position:center center;
     filter:saturate(1.04) contrast(1.03);
@@ -133,7 +133,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
   border-radius:30px;overflow:hidden;position:relative;margin-bottom:26px;
   background:
     linear-gradient(90deg,rgba(4,16,29,.94),rgba(4,16,29,.55) 48%,rgba(4,16,29,.06)),
-    url('/hub-hero.png') center/cover;
+    url(/hub-hero.webp) center/cover;
   border:1px solid rgba(255,255,255,.13);
   box-shadow:0 32px 90px rgba(0,0,0,.35);
 }
@@ -319,7 +319,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
     margin:0 0 26px;
     background:
       linear-gradient(90deg,rgba(4,16,29,.94),rgba(4,16,29,.55) 48%,rgba(4,16,29,.06)),
-      url('/hub-hero.png') center/cover;
+      url(/hub-hero.webp) center/cover;
   }
   .hero-content{
     padding:48px;
@@ -517,10 +517,10 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
         <a href="/offer">Make an Offer</a>
       </nav>
 
-      <div className="page-wrap">
+      <main className="page-wrap">
       {/* HERO */}
       <div className="hero">
-        <div className="hero-bg" style={{backgroundImage:"url('/hub-hero.png')"}}></div>
+        <div className="hero-bg" style={{backgroundImage:"url(/hub-hero.webp)"}}></div>
         <div className="hero-content">
           <div className="hero-badge">✦ Everything for your Destin trip</div>
           <h1>Plan Your<br /><span>Destin Trip</span></h1>
@@ -537,7 +537,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
       {/* FEATURED DEALS */}
       <div className="featured">
         <div className="feat-img-wrap">
-          <img src="/hub-deals.png" alt="Best Deals — Destin Condo Getaways" loading="lazy" />
+          <img src="/hub-deals.webp" alt="Best Deals — Destin Condo Getaways" loading="lazy" />
           <div className="feat-overlay">
             <div className="feat-badge">⭐ Featured</div>
             <div className="feat-title">Best Deals</div>
@@ -559,7 +559,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
       <div className="sec-lbl">Explore Destin</div>
       <div className="grid">
         <div className="card" onClick={() => openModal('beaches')}>
-          <img className="card-img" src="/hub-beaches.png" alt="Beaches" loading="lazy" />
+          <img className="card-img" src="/hub-beaches.webp" alt="Beaches" loading="lazy" />
           <div className="card-body">
             <div className="card-title">Beaches</div>
             <div className="card-desc">Best spots for families, sunsets and relaxation.</div>
@@ -567,7 +567,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
           </div>
         </div>
         <div className="card" onClick={() => openModal('weather')}>
-          <img className="card-img" src="/hub-weather.png" alt="Water & Weather" loading="lazy" />
+          <img className="card-img" src="/hub-weather.webp" alt="Water & Weather" loading="lazy" />
           <div className="card-body">
             <div className="card-title">Water &amp; Weather</div>
             <div className="card-desc">Forecasts &amp; conditions to plan the perfect beach day.</div>
@@ -575,7 +575,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
           </div>
         </div>
         <div className="card" onClick={() => openModal('cams')}>
-          <img className="card-img" src="/hub-beachcam.png" alt="Beach Cams" loading="lazy" />
+          <img className="card-img" src="/hub-beachcam.webp" alt="Beach Cams" loading="lazy" />
           <div className="card-body">
             <div className="card-title">Beach Cams</div>
             <div className="card-desc">Live views of Destin's beaches and the Emerald Coast.</div>
@@ -583,7 +583,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
           </div>
         </div>
         <div className="card" onClick={() => openModal('seafood')}>
-          <img className="card-img" src="/hub-seafood.png" alt="Seafood" loading="lazy" />
+          <img className="card-img" src="/hub-seafood.webp" alt="Seafood" loading="lazy" />
           <div className="card-body">
             <div className="card-title">Seafood</div>
             <div className="card-desc">Waterfront dining &amp; fresh catches you'll love.</div>
@@ -591,7 +591,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
           </div>
         </div>
         <div className="card" onClick={() => openModal('localeats')}>
-          <img className="card-img" src="/hub-eats.png" alt="Local Eats" loading="lazy" />
+          <img className="card-img" src="/hub-eats.webp" alt="Local Eats" loading="lazy" />
           <div className="card-body">
             <div className="card-title">Local Eats</div>
             <div className="card-desc">Tacos, pizza, hidden gems and local favorites.</div>
@@ -599,7 +599,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
           </div>
         </div>
         <div className="card" onClick={() => openModal('spas')}>
-          <img className="card-img" src="/hub-spa.png" alt="Spas" loading="lazy" />
+          <img className="card-img" src="/hub-spa.webp" alt="Spas" loading="lazy" />
           <div className="card-body">
             <div className="card-title">Spas</div>
             <div className="card-desc">Top-rated resort treatments to relax and recharge.</div>
@@ -607,7 +607,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
           </div>
         </div>
         <div className="card" onClick={() => openModal('music')}>
-          <img className="card-img" src="/hub-music.png" alt="Live Music" loading="lazy" />
+          <img className="card-img" src="/hub-music.webp" alt="Live Music" loading="lazy" />
           <div className="card-body">
             <div className="card-title">Live Music</div>
             <div className="card-desc">Nightly live music at top spots across Destin.</div>
@@ -615,7 +615,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
           </div>
         </div>
         <div className="card" onClick={() => openModal('fireworks')}>
-          <img className="card-img" src="/hub-fireworks.png" alt="Fireworks" loading="lazy" />
+          <img className="card-img" src="/hub-fireworks.webp" alt="Fireworks" loading="lazy" />
           <div className="card-body">
             <div className="card-title">Fireworks</div>
             <div className="card-desc">Catch dazzling fireworks over the harbor.</div>
@@ -623,7 +623,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
           </div>
         </div>
         <div className="card" onClick={() => openModal('events')}>
-          <img className="card-img" src="/hub-events.png" alt="Events 2026" loading="lazy" />
+          <img className="card-img" src="/hub-events.webp" alt="Events 2026" loading="lazy" />
           <div className="card-body">
             <div className="card-title">Events 2026</div>
             <div className="card-desc">Concerts, fishing rodeos, festivals &amp; more all year long.</div>
@@ -631,7 +631,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
           </div>
         </div>
         <div className="card" onClick={() => openModal('airports')}>
-          <img className="card-img" src="/hub-airports.png" alt="Airports" loading="lazy" />
+          <img className="card-img" src="/hub-airports.webp" alt="Airports" loading="lazy" />
           <div className="card-body">
             <div className="card-title">Airports</div>
             <div className="card-desc">VPS is 15 mins away. Check wait times, tips &amp; more.</div>
@@ -639,7 +639,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
           </div>
         </div>
         <div className="card" onClick={() => openModal('gettinghere')}>
-          <img className="card-img" src="/hub-flights-cars.png" alt="Flights & Cars" loading="lazy" />
+          <img className="card-img" src="/hub-flights-cars.webp" alt="Flights & Cars" loading="lazy" />
           <div className="card-body">
             <div className="card-title">Flights &amp; Cars</div>
             <div className="card-desc">Compare fares to VPS, ECP and PNS. Best rental prices.</div>
@@ -647,7 +647,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
           </div>
         </div>
         <div className="card" onClick={() => openModal('deals')} style={{borderColor:'rgba(245,166,35,0.35)'}}>
-          <img className="card-img" src="/hub-deals.png" alt="Best Deals" loading="lazy" />
+          <img className="card-img" src="/hub-deals.webp" alt="Best Deals" loading="lazy" />
           <div className="card-body">
             <div className="card-title" style={{color:'#f5a623'}}>Best Deals</div>
             <div className="card-desc">Live price drops on condos, activities and more.</div>
@@ -655,7 +655,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
           </div>
         </div>
         <div className="card" onClick={() => openModal('grocery')}>
-          <img className="card-img" src="/hub-groceries.png" alt="Groceries" loading="lazy" />
+          <img className="card-img" src="/hub-groceries.webp" alt="Groceries" loading="lazy" />
           <div className="card-body">
             <div className="card-title">Groceries</div>
             <div className="card-desc">Publix, Walmart &amp; Winn-Dixie all within 10 mins.</div>
@@ -663,7 +663,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
           </div>
         </div>
         <div className="card" onClick={() => openModal('planner')}>
-          <img className="card-img" src="/hub-planner.png" alt="Trip Planner" loading="lazy" />
+          <img className="card-img" src="/hub-planner.webp" alt="Trip Planner" loading="lazy" />
           <div className="card-body">
             <div className="card-title">Trip Planner</div>
             <div className="card-desc">Build your perfect itinerary in minutes.</div>
@@ -671,7 +671,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
           </div>
         </div>
         <div className="card" onClick={() => openModal('activities')} style={{borderColor:'rgba(240,120,60,0.35)'}}>
-          <img className="card-img" src="/hub-activities.png" alt="Activities & Tours" loading="lazy" />
+          <img className="card-img" src="/hub-activities.webp" alt="Activities & Tours" loading="lazy" />
           <div className="card-body">
             <div className="card-title" style={{color:'#f0997b'}}>Activities &amp; Tours</div>
             <div className="card-desc">Dolphin cruises, snorkeling, jet ski rentals, parasailing.</div>
@@ -771,7 +771,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
         </div>
       </div>
 
-      </div>{/* /page-wrap */}
+      </main>{/* /page-wrap */}
 
       {/* MODAL */}
       <div className="modal-overlay" id="modalOverlay" onClick={(e) => { if(e.target===document.getElementById('modalOverlay')) closeModal(); }}>
@@ -793,7 +793,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
               <div className="loading-spinner"></div>
               <div className="loading-text">Loading...</div>
             </div>
-            <iframe className="modal-iframe" id="modalIframe" src="" onLoad={() => iframeLoaded()} style={{opacity:0,transition:'opacity .3s'}}></iframe>
+            <iframe className="modal-iframe" id="modalIframe" src="about:blank" title="Destin guide details" onLoad={() => iframeLoaded()} style={{opacity:0,transition:'opacity .3s'}}></iframe>
           </div>
         </div>
       </div>

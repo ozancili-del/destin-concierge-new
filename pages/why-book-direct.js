@@ -16,11 +16,11 @@ const businessSchema = {
   description: "Boutique owner-direct vacation-rental business at Pelican Beach Resort in Destin, Florida, with a 4.94-star rating across 400+ stays.",
   url: liveSite,
   image: [
-    "https://uc.orez.io/f/f20eceb9b43142b48e1f20ac457e7232",
-    "https://uc.orez.io/f/242b1d12dd544f7a9debe10583aca308",
-    "https://uc.orez.io/f/110ee87bd98842689ab14819674024f2",
+    "/images/site/f20eceb9b43142b48e1f20ac457e7232.webp",
+    "/images/site/242b1d12dd544f7a9debe10583aca308.webp",
+    "/images/site/110ee87bd98842689ab14819674024f2.webp",
   ],
-  logo: "https://uc.orez.io/f/6d35eb37c5304c0f8b080ae8dbf5357a",
+  logo: "/images/site/6d35eb37c5304c0f8b080ae8dbf5357a.webp",
   telephone: "+1-972-357-4262",
   email: "ozan@destincondogetaways.com",
   address: { "@type": "PostalAddress", streetAddress: "1002 US-98", addressLocality: "Destin", addressRegion: "FL", postalCode: "32541", addressCountry: "US" },
@@ -91,14 +91,14 @@ export default function WhyBookDirect() {
       <main>
         <section className={styles.hero}>
           <div className={styles.heroCopy}><a className={styles.breadcrumb} href="/">Home</a><p className={styles.kicker}>Pelican Beach Resort vacation rentals by owner</p><h1>Book the exact condo—with the owner behind it.</h1><p className={styles.lead}>Direct booking should feel clearer, not riskier. Explore the known Gulf-front condos offered here, check current availability, understand the complete price and reserve through secure checkout.</p><div className={styles.actions}><SiteButton href="#availability" variant="primary" size="large">Check your dates</SiteButton><SiteButton href="/#condos" variant="secondary" size="large">Explore the condos</SiteButton></div></div>
-          <div className={styles.heroVisual}><Image src="/book-direct-banner-bg.jpg" alt="Pelican Beach Resort and the Gulf of Mexico in Destin" fill priority sizes="(max-width: 900px) 100vw, 48vw" /><div className={styles.imageNote}><strong>Owner-managed</strong><span>Units 707 and 1006</span></div></div>
+          <div className={styles.heroVisual}><Image src="/book-direct-banner-bg.webp" alt="Pelican Beach Resort and the Gulf of Mexico in Destin" fill priority sizes="(max-width: 900px) 100vw, 48vw" /><div className={styles.imageNote}><strong>Owner-managed</strong><span>Units 707 and 1006</span></div></div>
         </section>
 
         <AvailabilitySearch className={styles.availability} />
 
         <section className={styles.promise}><p className={styles.kicker}>What “book direct” means here</p><h2>Less uncertainty between browsing and arrival.</h2><p className={styles.introCopy}>When you book with Destin Condo Getaways, you deal directly with the owner of Pelican Beach Resort Units 707 and 1006. You can ask about the kitchen, sleeping arrangements, balcony, or anything else that matters to your family before committing.</p><div className={styles.reasonGrid}>{reasons.map((reason) => <article key={reason.number}><span>{reason.number}</span><h3>{reason.title}</h3><p>{reason.copy}</p></article>)}</div></section>
 
-        <section className={styles.exact}><div className={styles.exactImage}><Image src="/hub-beachcam.png" alt="Gulf view at Pelican Beach Resort" fill sizes="(max-width: 900px) 100vw, 48vw" /></div><div className={styles.exactCopy}><p className={styles.kicker}>What you see is where you stay</p><h2>No generic rental-pool promises.</h2><p>Pelican Beach Resort contains individually owned condos, so renovation, furnishings, floor level, and view can vary. Direct booking means choosing one known home—not merely reserving a unit category.</p><ul><li>Unit-specific photographs, descriptions, and virtual tours</li><li>Known seventh- or tenth-floor Gulf view</li><li>873 square feet with one bedroom and two bathrooms</li><li>King bedroom, hallway bunks, and queen sleeper sofa</li><li>Full kitchen, fast Wi-Fi, two smart TVs, and private Gulf-front balcony</li><li>Direct beachfront building with no road to cross</li></ul><a className={styles.textLink} href="/#condos">Compare Unit 707 and Unit 1006 →</a></div></section>
+        <section className={styles.exact}><div className={styles.exactImage}><Image src="/hub-beachcam.webp" alt="Gulf view at Pelican Beach Resort" fill sizes="(max-width: 900px) 100vw, 48vw" /></div><div className={styles.exactCopy}><p className={styles.kicker}>What you see is where you stay</p><h2>No generic rental-pool promises.</h2><p>Pelican Beach Resort contains individually owned condos, so renovation, furnishings, floor level, and view can vary. Direct booking means choosing one known home—not merely reserving a unit category.</p><ul><li>Unit-specific photographs, descriptions, and virtual tours</li><li>Known seventh- or tenth-floor Gulf view</li><li>873 square feet with one bedroom and two bathrooms</li><li>King bedroom, hallway bunks, and queen sleeper sofa</li><li>Full kitchen, fast Wi-Fi, two smart TVs, and private Gulf-front balcony</li><li>Direct beachfront building with no road to cross</li></ul><a className={styles.textLink} href="/#condos">Compare Unit 707 and Unit 1006 →</a></div></section>
 
         <section className={styles.contentSection}><div className={styles.sectionIntro}><p className={styles.kicker}>A family-friendly Destin stay</p><h2>The layout and location make beach days easier.</h2></div><div className={styles.split}><div><h3>Close to the Gulf—without giving up the view</h3><p>The seventh- and tenth-floor balconies are high enough for wide Gulf views while keeping the shoreline visually close. On calm mornings, guests may even spot dolphins offshore.</p><p>For families, direct beach access matters: take the elevator downstairs and walk to the sand without crossing traffic while carrying children, chairs, or beach gear.</p></div><div><h3>Practical space for up to six</h3><p>Each condo provides a full kitchen for easy breakfasts and lunches, two bathrooms, and flexible sleeping space. That can offer better value than paying for a much larger three-bedroom rental when the one-bedroom layout fits your group.</p><p><a className={styles.textLink} href="/virtual-tours">Walk through the virtual tours →</a></p></div></div></section>
 

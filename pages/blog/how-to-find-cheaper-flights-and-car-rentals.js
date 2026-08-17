@@ -22,7 +22,7 @@ export default function FlightsAndCarsGuide() {
     pageTitle="Cheaper Flights and Car Rentals to Destin | Compare the Real Cost"
     description={article.description}
     structuredData={structuredData}
-    heroImage="/flights-cars-hero-bg.png"
+    heroImage="/flights-cars-hero-bg.webp"
     heroAlt="Flight and rental-car planning for a Destin Florida vacation"
     kicker="Flights & car rentals"
     title="Cheaper Flights and Car Rentals to Destin"

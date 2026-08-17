@@ -21,7 +21,7 @@ export default function BestTimeToVisitGuide() {
     pageTitle="Best Time to Visit Destin Florida | Month-by-Month Guide"
     description={article.description}
     structuredData={structuredData}
-    heroImage="/destin-aerial.jpg"
+    heroImage="/destin-aerial.webp"
     heroAlt="Destin Florida beach and emerald Gulf water viewed from above"
     kicker="Choose your month"
     title="Best Time to Visit Destin Florida"

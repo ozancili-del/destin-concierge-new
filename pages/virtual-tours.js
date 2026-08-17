@@ -34,7 +34,7 @@ export default function VirtualToursPage() {
     <main>
       <section className={styles.hero}>
         <div className={styles.heroCopy}><a href="/">Home</a><p className={styles.kicker}>Interactive 360° walkthroughs</p><h1>Step inside before you choose.</h1><p>Tour the living room, bedroom, hallway and balcony areas of each exact Pelican Beach Resort condo. Move through every scene, look in any direction and compare the two homes before checking your dates.</p><div className={styles.trust}><span>✓ Exact condos</span><span>✓ Full-screen viewing</span><span>✓ Desktop, mobile and VR</span></div></div>
-        <div className={styles.heroImage}><Image src="/book-direct-banner-bg.jpg" alt="Pelican Beach Resort and the Gulf of Mexico in Destin Florida" fill priority sizes="(max-width: 900px) 100vw, 48vw" /></div>
+        <div className={styles.heroImage}><Image src="/book-direct-banner-bg.webp" alt="Pelican Beach Resort and the Gulf of Mexico in Destin Florida" fill priority sizes="(max-width: 900px) 100vw, 48vw" /></div>
       </section>
       <AvailabilitySearch id="availability" className={availabilityStyles.availability} />
       <section className={styles.tours}>

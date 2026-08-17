@@ -174,28 +174,28 @@ export async function getStaticProps() {
 // ── Static data ───────────────────────────────────────────────────────────────
 const IMAGES = {
   "707": [
-    { src: "https://uc.orez.io/f/242b1d12dd544f7a9debe10583aca308", alt: "Pelican Beach Resort Unit 707 beachfront balcony view in Destin Florida" },
-    { src: "https://uc.orez.io/i/abaefcc22f0749b49d73dc232abc5430-MediumOriginal", alt: "Unit 707 Classic Coastal living room with Gulf views at Pelican Beach Resort Destin" },
-    { src: "https://uc.orez.io/i/4a4320ef00a54d15bccf6767418be83b-MediumOriginal", alt: "Destin beachfront condo bedroom Unit 707 Pelican Beach Resort" },
-    { src: "https://uc.orez.io/i/3b9692e52bb241aa827c5297abdb0bce-MediumOriginal", alt: "Unit 707 kitchen and dining area at Pelican Beach Resort Destin FL" },
-    { src: "https://uc.orez.io/i/399beafa83584661899e9500cb390d6e-MediumOriginal", alt: "Emerald Gulf of Mexico view from Unit 707 balcony Pelican Beach Resort" },
-    { src: "https://uc.orez.io/i/6007c9a799d44643ae47934f3554808b-MediumOriginal", alt: "Unit 707 bathroom at Pelican Beach Resort Destin Florida" },
-    { src: "https://uc.orez.io/f/44060a8a29ca4a998586d849184d288f", alt: "Pelican Beach Resort pool and beach access from Unit 707 Destin FL" },
-    { src: "https://uc.orez.io/f/e1e624f8d4c14ed2a8f3d05e169252e0", alt: "Unit 707 Classic Coastal condo interior Pelican Beach Resort Destin" },
-    { src: "https://uc.orez.io/i/5cd8d28c33e14711a68e723ec300ca2a-MediumOriginal", alt: "Sunset Gulf view from Unit 707 7th floor Pelican Beach Resort Destin" },
-    { src: "https://uc.orez.io/i/7da337c1e9334be9a992ff9f666cd8b7-MediumOriginal", alt: "Direct beach access from Pelican Beach Resort Unit 707 Destin Florida" },
+    { src: "/images/site/242b1d12dd544f7a9debe10583aca308.webp", alt: "Pelican Beach Resort Unit 707 beachfront balcony view in Destin Florida" },
+    { src: "/images/site/abaefcc22f0749b49d73dc232abc5430-medium.webp", alt: "Unit 707 Classic Coastal living room with Gulf views at Pelican Beach Resort Destin" },
+    { src: "/images/site/4a4320ef00a54d15bccf6767418be83b-medium.webp", alt: "Destin beachfront condo bedroom Unit 707 Pelican Beach Resort" },
+    { src: "/images/site/3b9692e52bb241aa827c5297abdb0bce-medium.webp", alt: "Unit 707 kitchen and dining area at Pelican Beach Resort Destin FL" },
+    { src: "/images/site/399beafa83584661899e9500cb390d6e-medium.webp", alt: "Emerald Gulf of Mexico view from Unit 707 balcony Pelican Beach Resort" },
+    { src: "/images/site/6007c9a799d44643ae47934f3554808b-medium.webp", alt: "Unit 707 bathroom at Pelican Beach Resort Destin Florida" },
+    { src: "/images/site/44060a8a29ca4a998586d849184d288f.webp", alt: "Pelican Beach Resort pool and beach access from Unit 707 Destin FL" },
+    { src: "/images/site/e1e624f8d4c14ed2a8f3d05e169252e0.webp", alt: "Unit 707 Classic Coastal condo interior Pelican Beach Resort Destin" },
+    { src: "/images/site/5cd8d28c33e14711a68e723ec300ca2a-medium.webp", alt: "Sunset Gulf view from Unit 707 7th floor Pelican Beach Resort Destin" },
+    { src: "/images/site/7da337c1e9334be9a992ff9f666cd8b7-medium.webp", alt: "Direct beach access from Pelican Beach Resort Unit 707 Destin Florida" },
   ],
   "1006": [
-    { src: "https://uc.orez.io/i/f20eceb9b43142b48e1f20ac457e7232-MediumOriginal", alt: "Pelican Beach Resort Unit 1006 panoramic Gulf view from 10th floor Destin Florida" },
-    { src: "https://uc.orez.io/f/e5af88bfe30c4243ba03fe79ee2f8229", alt: "Unit 1006 Fresh Coastal living room with Gulf of Mexico view Pelican Beach Resort" },
-    { src: "https://uc.orez.io/i/6108b609ed6046c8bd828f4b5ba19fda-MediumOriginal", alt: "Destin beachfront condo bedroom Unit 1006 Pelican Beach Resort FL" },
-    { src: "https://uc.orez.io/i/4e32883598f649e2869f5d4bb1e1d16f-MediumOriginal", alt: "Unit 1006 kitchen and dining at Pelican Beach Resort Destin Florida" },
-    { src: "https://uc.orez.io/f/2e389c31f39b43ad97002f607e7c4aef", alt: "Emerald Coast view from Unit 1006 private balcony Pelican Beach Resort" },
-    { src: "https://uc.orez.io/f/79bdfd24ee36463396ae08a12e478975", alt: "Unit 1006 bathroom at Pelican Beach Resort Destin FL" },
-    { src: "https://uc.orez.io/f/e5038191e8884d3b9c0cb1a40ba2766f", alt: "Pelican Beach Resort pool and beachfront from Unit 1006 Destin" },
-    { src: "https://uc.orez.io/f/17399809efc54824944e7af6bb55472e", alt: "Unit 1006 Fresh Coastal condo interior 10th floor Pelican Beach Resort Destin" },
-    { src: "https://uc.orez.io/f/e604a649be3a4d07b58b6f5f07ca92c7", alt: "Gulf sunset panoramic view Unit 1006 Pelican Beach Resort Destin Florida" },
-    { src: "https://uc.orez.io/i/a98c17bc10814f3aa27da0cdbbf81af4-MediumOriginal", alt: "Direct beachfront access Pelican Beach Resort Unit 1006 Destin FL" },
+    { src: "/images/site/f20eceb9b43142b48e1f20ac457e7232-medium.webp", alt: "Pelican Beach Resort Unit 1006 panoramic Gulf view from 10th floor Destin Florida" },
+    { src: "/images/site/e5af88bfe30c4243ba03fe79ee2f8229.webp", alt: "Unit 1006 Fresh Coastal living room with Gulf of Mexico view Pelican Beach Resort" },
+    { src: "/images/site/6108b609ed6046c8bd828f4b5ba19fda-medium.webp", alt: "Destin beachfront condo bedroom Unit 1006 Pelican Beach Resort FL" },
+    { src: "/images/site/4e32883598f649e2869f5d4bb1e1d16f-medium.webp", alt: "Unit 1006 kitchen and dining at Pelican Beach Resort Destin Florida" },
+    { src: "/images/site/2e389c31f39b43ad97002f607e7c4aef.webp", alt: "Emerald Coast view from Unit 1006 private balcony Pelican Beach Resort" },
+    { src: "/images/site/79bdfd24ee36463396ae08a12e478975.webp", alt: "Unit 1006 bathroom at Pelican Beach Resort Destin FL" },
+    { src: "/images/site/e5038191e8884d3b9c0cb1a40ba2766f.webp", alt: "Pelican Beach Resort pool and beachfront from Unit 1006 Destin" },
+    { src: "/images/site/17399809efc54824944e7af6bb55472e.webp", alt: "Unit 1006 Fresh Coastal condo interior 10th floor Pelican Beach Resort Destin" },
+    { src: "/images/site/e604a649be3a4d07b58b6f5f07ca92c7.webp", alt: "Gulf sunset panoramic view Unit 1006 Pelican Beach Resort Destin Florida" },
+    { src: "/images/site/a98c17bc10814f3aa27da0cdbbf81af4-medium.webp", alt: "Direct beachfront access Pelican Beach Resort Unit 1006 Destin FL" },
   ],
 };
 
@@ -467,7 +467,7 @@ function buildSchema(deals) {
       "addressCountry": "US"
     },
     "geo": { "@type": "GeoCoordinates", "latitude": 30.3935, "longitude": -86.4958 },
-    "image": "https://uc.orez.io/i/0f604abce3284748ba8d2150b7646863-MediumOriginal",
+    "image": "/images/site/0f604abce3284748ba8d2150b7646863-medium.webp",
     "priceRange": "$200–$600/night",
     "starRating": { "@type": "Rating", "ratingValue": 5 },
     "aggregateRating": { "@type": "AggregateRating", "ratingValue": 5, "reviewCount": 200, "bestRating": 5 },
@@ -1373,7 +1373,7 @@ export default function BeachDeals({ deals }) {
 
       {/* Background */}
       <div className="bg-wrap">
-        <img src="https://uc.orez.io/i/0f604abce3284748ba8d2150b7646863-MediumOriginal" alt="" aria-hidden="true" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 40%", filter: "brightness(0.35) saturate(0.8)" }} />
+        <img src="/images/site/0f604abce3284748ba8d2150b7646863-medium.webp" alt="" aria-hidden="true" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 40%", filter: "brightness(0.35) saturate(0.8)" }} />
         <div className="bg-overlay" />
       </div>
 
@@ -1653,7 +1653,7 @@ export default function BeachDeals({ deals }) {
           border-radius:30px;overflow:hidden;position:relative;margin-bottom:26px;
           background:
             linear-gradient(90deg,rgba(4,16,29,.94),rgba(4,16,29,.55) 48%,rgba(4,16,29,.06)),
-            url('https://uc.orez.io/i/0f604abce3284748ba8d2150b7646863-MediumOriginal') center/cover;
+            url('/images/site/0f604abce3284748ba8d2150b7646863-medium.webp') center/cover;
           border:1px solid rgba(255,255,255,.13);
           box-shadow:0 32px 90px rgba(0,0,0,.35);
           text-align:left;
@@ -1868,7 +1868,7 @@ export default function BeachDeals({ deals }) {
         .btn-load-more { background: transparent; border: 1.5px solid var(--teal); color: var(--teal); font-family:'Barlow Condensed',sans-serif; font-size:16px; font-weight:700; letter-spacing:1px; text-transform:uppercase; padding:12px 36px; border-radius:10px; cursor:pointer; transition:background 0.2s,transform 0.15s; }
         .btn-load-more:hover { background:rgba(0,212,200,0.1); transform:translateY(-1px); }
 
-        .flight-widget { background-image:url('/flight-search-bg.jpg'); background-size:cover; background-position:left center; border:1px solid rgba(0,212,200,.35); border-radius:14px; padding:20px; margin-bottom:28px; overflow:hidden; position:relative; }
+        .flight-widget { background-image:url('/flight-search-bg.webp'); background-size:cover; background-position:left center; border:1px solid rgba(0,212,200,.35); border-radius:14px; padding:20px; margin-bottom:28px; overflow:hidden; position:relative; }
         .flight-widget::before { content:''; position:absolute; inset:0; background:linear-gradient(to right, rgba(2,11,24,.15) 0%, rgba(2,11,24,.05) 40%, rgba(2,11,24,.0) 100%); border-radius:14px; pointer-events:none; }
         .fw-header { display:flex; align-items:center; gap:10px; font-family:'Barlow Condensed',sans-serif; font-size:20px; font-weight:900; color:#fff; letter-spacing:.04em; margin-bottom:16px; flex-wrap:wrap; }
         .fw-header-sub { font-size:12px; font-weight:400; color:rgba(255,255,255,.4); letter-spacing:.02em; margin-left:4px; }
@@ -2013,7 +2013,7 @@ export default function BeachDeals({ deals }) {
           .hero{
             min-height:560px;border-radius:24px;margin-bottom:18px;background:
               linear-gradient(180deg,rgba(4,16,29,.45),rgba(4,16,29,.94)),
-              url('https://uc.orez.io/i/0f604abce3284748ba8d2150b7646863-MediumOriginal') center/cover;
+              url('/images/site/0f604abce3284748ba8d2150b7646863-medium.webp') center/cover;
           }
           .hero-inner{padding:26px 18px;}
           .hero h1{font-size:48px;letter-spacing:-2px;}

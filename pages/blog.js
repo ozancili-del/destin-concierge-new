@@ -12,29 +12,29 @@ const migratedSlugs = new Set(["destinspa", "how-to-find-cheaper-flights-and-car
 const articleHref = (slug) => `/blog/${slug}`;
 
 const articles = [
-  ["destinweather","Destin Water Temperature Right Now","Live Gulf readings, monthly temperatures and practical swimming guidance.","Weather & Beach","/hub-weather.png","Live tools"],
-  ["destin-fireworks-2026","Destin Fireworks 2026","Schedules, viewing locations, directions and the interactive July 4 map.","Events & Music","/hub-fireworks.png","Updated guide"],
-  ["best-beaches-destin","13 Best Beaches in Destin","Parking, crowd levels, clear-water spots and live beach conditions.","Weather & Beach","/hub-beaches.png","Local guide"],
-  ["best-restaurants-destin","Best Seafood Restaurants in Destin","Waterfront favorites, honest local picks and an interactive restaurant map.","Food & Drink","/hub-seafood.png","Interactive map"],
-  ["destin-events-2026","Destin Events Calendar 2026","Festivals, seasonal events and major happenings around the Emerald Coast.","Events & Music","/hub-events.png","Updated monthly"],
-  ["how-to-find-cheaper-flights-and-car-rentals","Cheaper Flights and Car Rentals","Compare airports, bags, routes and the real cost of reaching Destin.","Getting Here","/hub-flights-cars.png","Planning guide"],
-  ["destin-florida-vacation-guide-2026","Destin Vacation Guide 2026","A broad planning guide covering beaches, airports, food and useful trip tools.","Start Here","/hub-hero.png","Complete guide"],
-  ["destinspa","10 Best Spas in Destin","Wellness and relaxation options ranked with real guest-review context.","Things to Do","/hub-spa.png","Local guide"],
-  ["destinairport","Closest Airports to Destin","VPS, ECP and PNS routes, drive times, live flights and airport maps.","Getting Here","/hub-airports.png","Live tools"],
-  ["destincar","Do You Need a Car in Destin?","Walkability, rideshares, rentals, parking and when a car actually helps.","Getting Here","/car-rental-coastal-drive.png","Honest guide"],
-  ["best-restaurants-destin-local-guide","Italian, Sushi & Breakfast in Destin","Hidden gems, local favorites and the interactive dining map.","Food & Drink","/hub-eats.png","Interactive map"],
-  ["best-time-to-visit-destin-florida","Best Time to Visit Destin","Month-by-month water, weather, crowds, prices and the trip-month quiz.","Plan Your Stay","/hub-weather.png","Interactive quiz"],
-  ["destin-live-music-2026","Live Music in Destin 2026","Concerts, free performances, venues and an interactive music calendar.","Events & Music","/hub-music.png","Live calendar"],
-  ["destinsupermarkets","Grocery Stores Near Pelican Beach","Drive times, store choices and an interactive local grocery map.","Practical Guides","/hub-groceries.png","Interactive map"],
-  ["destin-condo-ai-concierge-direct-booking","Direct Booking Guide","How owner-direct booking works and where marketplace costs differ.","Book Direct","/hub-deals.png","Booking guide"],
-  ["destin-vacation-rental-ai-concierge","The Story of Destiny Blue","Why human-in-the-loop AI supports guests before and during their stay.","About Us","/hub-planner.png","Our story"],
-  ["destindiversehistory","Destin History & Military Heritage","Fishing-village roots, regional history, museums and nearby military heritage.","Things to Do","/florida-panhandle-travel-map.png","Expanded guide"],
-  ["destinocen","Water Activities in Destin","Gulf safety, snorkeling, boating, fishing and activity planning.","Things to Do","/hub-activities.png","Expanded guide"],
-  ["destinromance","Romantic Things to Do in Destin","Sunsets, date nights, spas and balanced couples itineraries.","Things to Do","/hub-beaches.png","Expanded guide"],
-  ["destinnights","Bars & Nightlife in Destin","Evening districts, live music, transport and date-night options.","Food & Drink","/hub-music.png","Expanded guide"],
-  ["destinessentials","Destin Visitor Essentials","A practical arrival, packing, safety, grocery and transport checklist.","Practical Guides","/hub-groceries.png","Expanded guide"],
-  ["destinkids","Destin with Kids","Age-specific activities, beach advice and rainy-day backups.","Things to Do","/hub-activities.png","Expanded guide"],
-  ["destinexplore","Explore Destin","Three-, five- and seven-day itineraries with flexible day trips.","Things to Do","/florida-panhandle-travel-map.png","Expanded guide"]
+  ["destinweather","Destin Water Temperature Right Now","Live Gulf readings, monthly temperatures and practical swimming guidance.","Weather & Beach","/hub-weather.webp","Live tools"],
+  ["destin-fireworks-2026","Destin Fireworks 2026","Schedules, viewing locations, directions and the interactive July 4 map.","Events & Music","/hub-fireworks.webp","Updated guide"],
+  ["best-beaches-destin","13 Best Beaches in Destin","Parking, crowd levels, clear-water spots and live beach conditions.","Weather & Beach","/hub-beaches.webp","Local guide"],
+  ["best-restaurants-destin","Best Seafood Restaurants in Destin","Waterfront favorites, honest local picks and an interactive restaurant map.","Food & Drink","/hub-seafood.webp","Interactive map"],
+  ["destin-events-2026","Destin Events Calendar 2026","Festivals, seasonal events and major happenings around the Emerald Coast.","Events & Music","/hub-events.webp","Updated monthly"],
+  ["how-to-find-cheaper-flights-and-car-rentals","Cheaper Flights and Car Rentals","Compare airports, bags, routes and the real cost of reaching Destin.","Getting Here","/hub-flights-cars.webp","Planning guide"],
+  ["destin-florida-vacation-guide-2026","Destin Vacation Guide 2026","A broad planning guide covering beaches, airports, food and useful trip tools.","Start Here","/hub-hero.webp","Complete guide"],
+  ["destinspa","10 Best Spas in Destin","Wellness and relaxation options ranked with real guest-review context.","Things to Do","/hub-spa.webp","Local guide"],
+  ["destinairport","Closest Airports to Destin","VPS, ECP and PNS routes, drive times, live flights and airport maps.","Getting Here","/hub-airports.webp","Live tools"],
+  ["destincar","Do You Need a Car in Destin?","Walkability, rideshares, rentals, parking and when a car actually helps.","Getting Here","/car-rental-coastal-drive.webp","Honest guide"],
+  ["best-restaurants-destin-local-guide","Italian, Sushi & Breakfast in Destin","Hidden gems, local favorites and the interactive dining map.","Food & Drink","/hub-eats.webp","Interactive map"],
+  ["best-time-to-visit-destin-florida","Best Time to Visit Destin","Month-by-month water, weather, crowds, prices and the trip-month quiz.","Plan Your Stay","/hub-weather.webp","Interactive quiz"],
+  ["destin-live-music-2026","Live Music in Destin 2026","Concerts, free performances, venues and an interactive music calendar.","Events & Music","/hub-music.webp","Live calendar"],
+  ["destinsupermarkets","Grocery Stores Near Pelican Beach","Drive times, store choices and an interactive local grocery map.","Practical Guides","/hub-groceries.webp","Interactive map"],
+  ["destin-condo-ai-concierge-direct-booking","Direct Booking Guide","How owner-direct booking works and where marketplace costs differ.","Book Direct","/hub-deals.webp","Booking guide"],
+  ["destin-vacation-rental-ai-concierge","The Story of Destiny Blue","Why human-in-the-loop AI supports guests before and during their stay.","About Us","/hub-planner.webp","Our story"],
+  ["destindiversehistory","Destin History & Military Heritage","Fishing-village roots, regional history, museums and nearby military heritage.","Things to Do","/florida-panhandle-travel-map.webp","Expanded guide"],
+  ["destinocen","Water Activities in Destin","Gulf safety, snorkeling, boating, fishing and activity planning.","Things to Do","/hub-activities.webp","Expanded guide"],
+  ["destinromance","Romantic Things to Do in Destin","Sunsets, date nights, spas and balanced couples itineraries.","Things to Do","/hub-beaches.webp","Expanded guide"],
+  ["destinnights","Bars & Nightlife in Destin","Evening districts, live music, transport and date-night options.","Food & Drink","/hub-music.webp","Expanded guide"],
+  ["destinessentials","Destin Visitor Essentials","A practical arrival, packing, safety, grocery and transport checklist.","Practical Guides","/hub-groceries.webp","Expanded guide"],
+  ["destinkids","Destin with Kids","Age-specific activities, beach advice and rainy-day backups.","Things to Do","/hub-activities.webp","Expanded guide"],
+  ["destinexplore","Explore Destin","Three-, five- and seven-day itineraries with flexible day trips.","Things to Do","/florida-panhandle-travel-map.webp","Expanded guide"]
 ].map(([slug,title,description,category,image,badge])=>({slug,title,description,category,image,badge}));
 
 const featured = articles.slice(0,5);
@@ -66,7 +66,7 @@ export default function BlogHub(){
 
     <main>
       <section className={styles.hero}>
-        <Image src="/og-hub.jpg" alt="Destin beach and emerald Gulf water" fill priority sizes="100vw" />
+        <Image src="/og-hub.webp" alt="Destin beach and emerald Gulf water" fill priority sizes="100vw" />
         <div className={styles.heroShade}></div>
         <div className={styles.heroCopy}><p className={styles.kickerLight}>Destin vacation guides</p><h1>Local knowledge for a better beach trip.</h1><p>Weather, beaches, food, events and practical planning—from someone who hosts guests here and keeps the useful tools close.</p></div>
       </section>

@@ -75,7 +75,7 @@ export default function About() {
     <main>
       <section className={styles.aboutHero}>
         <div className={styles.portrait}>
-          <Image src="https://uc.orez.io/f/9617d4a8e90b442fa5ef0332ac346eb4" alt="Ozan Cili, owner of Destin Condo Getaways" fill priority sizes="(max-width: 760px) 100vw, 42vw" />
+          <Image src="/images/site/9617d4a8e90b442fa5ef0332ac346eb4.webp" alt="Ozan Cili, owner of Destin Condo Getaways" fill priority sizes="(max-width: 760px) 100vw, 42vw" />
         </div>
         <div className={styles.heroCopy}><a href="/">Home</a><p className={styles.kicker}>Meet your host</p><h1>Hospitality built around trust.</h1><p>Destin Condo Getaways is personally owned and managed by Ozan Cili—a world traveler, technology executive, father and hands-on host who believes direct booking should still feel personal.</p></div>
       </section>

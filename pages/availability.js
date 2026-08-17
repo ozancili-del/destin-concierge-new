@@ -13,8 +13,8 @@ const liveSite = "https://www.destincondogetaways.com";
 const calendarWidgetId = "91953f0c6e014ff585bffa8e87bad76e";
 
 const condos = [
-  { number: "707", label: "Classic Coastal · Seventh floor", href: "/condos/unit-707", image: "/hub-beaches.png", alt: "Gulf-front view from Pelican Beach Resort Unit 707" },
-  { number: "1006", label: "Fresh Coastal · Tenth floor", href: "/condos/unit-1006", image: "/hub-beachcam.png", alt: "Gulf-front setting of Pelican Beach Resort Unit 1006" },
+  { number: "707", label: "Classic Coastal · Seventh floor", href: "/condos/unit-707", image: "/hub-beaches.webp", alt: "Gulf-front view from Pelican Beach Resort Unit 707" },
+  { number: "1006", label: "Fresh Coastal · Tenth floor", href: "/condos/unit-1006", image: "/hub-beachcam.webp", alt: "Gulf-front setting of Pelican Beach Resort Unit 1006" },
 ];
 
 function parseStayDate(value) {
@@ -116,7 +116,7 @@ export default function AvailabilityPage() {
     <main>
       <section className={styles.hero}>
         <div className={styles.heroCopy}><a href="/">Home</a><p className={styles.kicker}>Live Pelican Beach Resort availability</p><h1>Find the Gulf view that fits your dates.</h1><p>Search current calendars, pricing and the secure reservation flow in one place.</p><div className={styles.trust}><span>✓ Live dates</span><span>✓ Exact condo</span><span>✓ Secure checkout</span></div></div>
-        <div className={styles.heroImage}><Image src="/book-direct-banner-bg.jpg" alt="Pelican Beach Resort overlooking the Gulf of Mexico in Destin Florida" fill priority sizes="(max-width: 900px) 100vw, 48vw" /></div>
+        <div className={styles.heroImage}><Image src="/book-direct-banner-bg.webp" alt="Pelican Beach Resort overlooking the Gulf of Mexico in Destin Florida" fill priority sizes="(max-width: 900px) 100vw, 48vw" /></div>
       </section>
 
       <section className={styles.searchSection} id="search">

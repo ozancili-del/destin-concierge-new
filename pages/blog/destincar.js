@@ -21,7 +21,7 @@ export default function DestinCarGuide() {
     pageTitle="Do You Need a Car in Destin Florida? | 2026 Guide"
     description={article.description}
     structuredData={structuredData}
-    heroImage="/car-rental-coastal-drive.png"
+    heroImage="/car-rental-coastal-drive.webp"
     heroAlt="Rental car on a coastal drive near Destin Florida"
     kicker="Getting around Destin"
     title="Do You Need a Car in Destin?"

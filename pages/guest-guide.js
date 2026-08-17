@@ -97,7 +97,7 @@ export default function GuestGuidePage() {
 
     <main>
       <section className={styles.hero}>
-        <img src="https://uc.orez.io/i/5cd8d28c33e14711a68e723ec300ca2a-Large" alt="White-sand beach and Gulf water at Pelican Beach Resort in Destin" />
+        <img src="/images/site/5cd8d28c33e14711a68e723ec300ca2a-large.webp" alt="White-sand beach and Gulf water at Pelican Beach Resort in Destin" />
         <div className={styles.heroShade}></div>
         <div className={styles.heroCopy}><a href="/">Home</a><p className={styles.kickerLight}>Guest guide & FAQ</p><h1>Plan your Pelican Beach Resort stay with confidence.</h1><p>Clear answers about the resort, condo layouts, booking, arrival and the practical details guests ask most.</p></div>
       </section>

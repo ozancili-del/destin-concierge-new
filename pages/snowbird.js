@@ -424,7 +424,7 @@ export default function Snowbird({ dayData }) {
         <meta property="og:description" content="Monthly winter rental rates for beachfront condos in Destin FL. Up to 48% off rent for snowbird stays Nov–Feb. Book direct at Pelican Beach Resort." />
         <meta property="og:url" content={CANONICAL} />
         <meta property="og:type" content="website" />
-        <meta property="og:image" content="https://www.destincondogetaways.com/snowbird-hero.jpg" />
+        <meta property="og:image" content="https://www.destincondogetaways.com/snowbird-hero.webp" />
         <meta name="robots" content="noindex,nofollow" />
         <link rel="canonical" href={CANONICAL} />
         <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -476,7 +476,7 @@ export default function Snowbird({ dayData }) {
 
       {/* Background — helicopter aerial */}
       <div className="bg-wrap">
-        <img src="/snowbird-hero.jpg" alt="Aerial view of Pelican Beach Resort Destin Florida" aria-hidden="true" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 40%", filter: "brightness(0.77) saturate(0.9)" }} />
+        <img src="/snowbird-hero.webp" alt="Aerial view of Pelican Beach Resort Destin Florida" aria-hidden="true" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 40%", filter: "brightness(0.77) saturate(0.9)" }} />
         <div className="bg-overlay" />
       </div>
 
@@ -635,7 +635,7 @@ export default function Snowbird({ dayData }) {
         <div style={{ marginTop: 32, marginBottom: 32 }}>
           <div className="section-label">Same bird. Better season.</div>
           <img
-            src="/snowbird-vs-sunbird.jpg"
+            src="/snowbird-vs-sunbird.webp"
             alt="Snowbird vs Sunbird — Escape winter and live your best life in Destin Florida"
             style={{ width: "100%", borderRadius: 16, display: "block" }}
           />

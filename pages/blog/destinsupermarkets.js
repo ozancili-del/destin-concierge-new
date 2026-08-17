@@ -21,7 +21,7 @@ export default function DestinSupermarketsGuide() {
     pageTitle="Grocery Stores Near Pelican Beach Resort | Destin Guide"
     description={article.description}
     structuredData={structuredData}
-    heroImage="/hub-groceries.png"
+    heroImage="/hub-groceries.webp"
     heroAlt="Grocery and vacation essentials near Pelican Beach Resort in Destin"
     kicker="Groceries & essentials"
     title="Grocery Stores Near Pelican Beach Resort"

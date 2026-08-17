@@ -182,7 +182,7 @@ export default function OfferPage() {
 
         <meta property="og:title" content="Make an Offer — Destin Beachfront Condo, Pelican Beach Resort FL" />
         <meta property="og:description" content="Name your nightly rate for a Gulf-front condo in Destin, FL. Sleeps 6, private balcony, beachfront. Owner responds directly — no middleman, no OTA fees." />
-        <meta property="og:image" content="https://uc.orez.io/i/0f604abce3284748ba8d2150b7646863-MediumOriginal" />
+        <meta property="og:image" content="/images/site/0f604abce3284748ba8d2150b7646863-medium.webp" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="800" />
         <meta property="og:image:alt" content="Gulf-front beachfront condo at Pelican Beach Resort, Destin Florida" />
@@ -194,7 +194,7 @@ export default function OfferPage() {
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Make an Offer — Destin Beachfront Condo, Name Your Price" />
         <meta name="twitter:description" content="Propose your own nightly rate for a Gulf-front condo at Pelican Beach Resort, Destin FL. Owner direct, no OTA fees." />
-        <meta name="twitter:image" content="https://uc.orez.io/i/0f604abce3284748ba8d2150b7646863-MediumOriginal" />
+        <meta name="twitter:image" content="/images/site/0f604abce3284748ba8d2150b7646863-medium.webp" />
 
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
           "@context": "https://schema.org",
@@ -227,7 +227,7 @@ export default function OfferPage() {
             },
             "geo": { "@type": "GeoCoordinates", "latitude": 30.3935, "longitude": -86.4958 },
             "priceRange": "$200–$600/night",
-            "image": "https://uc.orez.io/i/0f604abce3284748ba8d2150b7646863-MediumOriginal",
+            "image": "/images/site/0f604abce3284748ba8d2150b7646863-medium.webp",
             "aggregateRating": { "@type": "AggregateRating", "ratingValue": 5, "reviewCount": 400, "bestRating": 5 },
             "amenityFeature": [
               { "@type": "LocationFeatureSpecification", "name": "Beachfront", "value": true },
@@ -312,7 +312,7 @@ export default function OfferPage() {
           "@type": "LocalBusiness",
           "name": "Destin Condo Getaways — Pelican Beach Resort",
           "url": "https://www.destincondogetaways.com",
-          "image": "https://uc.orez.io/i/0f604abce3284748ba8d2150b7646863-MediumOriginal",
+          "image": "/images/site/0f604abce3284748ba8d2150b7646863-medium.webp",
           "address": {
             "@type": "PostalAddress",
             "streetAddress": "1002 US-98 East",
@@ -441,7 +441,7 @@ export default function OfferPage() {
             "description": "Flexible nightly rate — propose your own price",
             "validFrom": new Date().toISOString().split('T')[0]
           },
-          "image": "https://uc.orez.io/i/0f604abce3284748ba8d2150b7646863-MediumOriginal"
+          "image": "/images/site/0f604abce3284748ba8d2150b7646863-medium.webp"
         })}} />
 
         {/* Speakable — marks content eligible for Google Assistant voice */}
@@ -498,7 +498,7 @@ export default function OfferPage() {
       </Head>
 
       <div className="bg-wrap">
-        <img src="/offer-bg.jpg" alt="" aria-hidden="true" />
+        <img src="/offer-bg.webp" alt="" aria-hidden="true" />
         <div className="bg-overlay" />
       </div>
 
@@ -776,7 +776,7 @@ export default function OfferPage() {
           min-height:480px;display:grid;align-items:center;
           border-radius:30px;overflow:hidden;position:relative;margin-bottom:26px;
           background:linear-gradient(90deg,rgba(4,16,29,.94),rgba(4,16,29,.55) 48%,rgba(4,16,29,.06)),
-            url('/offer-bg.jpg') center/cover;
+            url('/offer-bg.webp') center/cover;
           border:1px solid rgba(255,255,255,.13);
           box-shadow:0 32px 90px rgba(0,0,0,.35);
           animation:fadeDown 0.6s ease both;
@@ -793,7 +793,7 @@ export default function OfferPage() {
 
         .offer-shell { display: grid; grid-template-columns: minmax(320px,.94fr) minmax(380px,1.06fr); min-height: 720px; overflow: hidden; border: 1px solid var(--line); border-radius: 34px; background: linear-gradient(145deg,rgba(9,27,50,.98),rgba(4,16,30,.98)); box-shadow: 0 28px 90px rgba(0,0,0,.42); }
 
-        .availability-side { position: relative; display: flex; flex-direction: column; justify-content: space-between; gap: 28px; padding: 34px; background: linear-gradient(rgba(2,11,24,.34),rgba(2,11,24,.88)), url('/hub-bg-golden.jpg') center 40%/cover; }
+        .availability-side { position: relative; display: flex; flex-direction: column; justify-content: space-between; gap: 28px; padding: 34px; background: linear-gradient(rgba(2,11,24,.34),rgba(2,11,24,.88)), url('/hub-bg-golden.webp') center 40%/cover; }
         .availability-side::after { content:''; position:absolute; inset:0; background:radial-gradient(circle at top left,rgba(0,212,200,.24),transparent 44%); pointer-events:none; }
         .availability-copy, .cal-card, .unit-toggle, .date-display { position: relative; z-index: 1; }
         .availability-copy h2 { font-family: var(--heading); font-size: clamp(2.4rem,5vw,4rem); letter-spacing: .02em; line-height: .95; margin: 10px 0 12px; }

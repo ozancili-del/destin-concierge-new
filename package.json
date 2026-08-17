@@ -11,7 +11,8 @@
     "test:agent:live": "node --experimental-default-type=module tests/live-routing-eval.mjs",
     "regression": "node scripts/run-agent-regression.mjs",
     "test:site-links": "node scripts/audit-site-links.mjs",
-    "test:site-seo": "node scripts/audit-site-seo.mjs"
+    "test:site-seo": "node scripts/audit-site-seo.mjs",
+    "test:site-assets": "node scripts/audit-site-assets.mjs"
   },
   "dependencies": {
     "next": "14.2.4",

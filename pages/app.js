@@ -1,9 +1,9 @@
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
 
-const HERO_IMG = "https://uc.orez.io/i/0f604abce3284748ba8d2150b7646863-MediumOriginal";
-const UNIT_707_IMG = "https://uc.orez.io/f/242b1d12dd544f7a9debe10583aca308";
-const UNIT_1006_IMG = "https://uc.orez.io/i/f20eceb9b43142b48e1f20ac457e7232-MediumOriginal";
+const HERO_IMG = "/images/site/0f604abce3284748ba8d2150b7646863-medium.webp";
+const UNIT_707_IMG = "/images/site/242b1d12dd544f7a9debe10583aca308.webp";
+const UNIT_1006_IMG = "/images/site/f20eceb9b43142b48e1f20ac457e7232-medium.webp";
 
 export default function App() {
   const [active, setActive] = useState('home');

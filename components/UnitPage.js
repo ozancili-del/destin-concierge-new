@@ -7,7 +7,7 @@ import SiteHeader from "./SiteHeader";
 import styles from "../styles/UnitPage.module.css";
 
 const liveSite = "https://www.destincondogetaways.com";
-const bookingWidgetId = "c1aad72d7c4a420fb1fcc8f1fc7aecc4";
+const bookingWidgetId = "74e63543689f497287da04d5d23455b0";
 const calendarWidgetId = "851adbcbc00b45d784c00ac5ce972d29";
 const amenityGroups = [
   ["Sleeping & family", ["King bedroom", "Hallway bunk beds", "Queen sleeper sofa", "Pack 'n Play/travel crib", "Children's books, toys and board games"]],

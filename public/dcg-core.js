@@ -120,7 +120,7 @@
     if (/rentalcars|discovercars|economybookings|qeeq|kayak/i.test(hostname)) return "car_rental";
     if (/airbnb\.com$/i.test(hostname)) return "airbnb";
     if (/vrbo\.com$/i.test(hostname)) return "vrbo";
-    return "external";
+    return null;
   }
 
   function trackLink(anchor) {
@@ -138,7 +138,7 @@
       send("chat_open", Object.assign(base, { placement: "site_link" }));
       return;
     }
-    if (url.pathname === "/availability" || url.pathname === "/book" || url.hash === "#checkout") {
+    if (url.pathname === "/availability" || url.pathname === "/book" || url.hash === "#availability" || url.hash === "#checkout") {
       send("booking_cta_click", Object.assign(base, { destination: url.pathname || window.location.pathname }));
       return;
     }
@@ -148,7 +148,8 @@
       return;
     }
     if (url.hostname && url.hostname !== window.location.hostname && FIRST_PARTY_HOSTS.indexOf(url.hostname) === -1) {
-      send("affiliate_click", Object.assign(base, { partner: identifyPartner(url.hostname) }));
+      var partner = identifyPartner(url.hostname);
+      if (partner) send("affiliate_click", Object.assign(base, { partner: partner }));
     }
   }
 

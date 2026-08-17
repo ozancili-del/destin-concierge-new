@@ -8,3 +8,7 @@
 .article :global([style*="color: #999"]){color:#526b79!important}
 .article :global(a[style*="#00B4D8"]),.article :global(a[style*="#0096C7"]){background:#087789!important;color:#fff!important}
 .article :global(a[style*="#39a275"]){background:#16714c!important;color:#fff!important}
+.relatedGrid a{transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
+.relatedGrid a::after{content:"Explore →";display:block;margin-top:18px;color:var(--teal);font-size:12px;font-weight:850;text-decoration:underline;text-underline-offset:4px}
+.relatedGrid a:hover,.relatedGrid a:focus-visible{transform:translateY(-3px);border-color:#93c8ce;box-shadow:0 15px 34px rgba(7,59,88,.13);outline:none}
+.relatedGrid a:focus-visible{box-shadow:0 0 0 3px rgba(21,151,168,.25),0 15px 34px rgba(7,59,88,.13)}

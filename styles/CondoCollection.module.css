@@ -18,4 +18,7 @@
 @media(max-width:1050px){.availability{grid-template-columns:1fr 1fr}.availability>div{grid-column:1/-1}.featureGrid{grid-template-columns:1fr 1fr}}
 @media(max-width:900px){.heroVisual{min-height:390px;order:-1}.intro,.resort,.direct,.related{grid-template-columns:1fr}.directImage{min-height:390px}.condoGrid,.reviewGrid{grid-template-columns:1fr}.relatedGrid{grid-template-columns:1fr 1fr}}
 @media(max-width:560px){.heroVisual{min-height:310px}.availability{margin:18px auto 0;padding:17px;grid-template-columns:1fr}.availability>div{grid-column:auto}.intro,.compare,.features,.directCopy,.resort,.reviews,.faq,.related{padding:66px 18px}.cardImage{min-height:225px}.cardBody{padding:22px}.cardBody ul,.featureGrid,.resortFacts,.relatedGrid{grid-template-columns:1fr}.cardActions>*{width:100%}.directImage{min-height:300px}}
-
+.relatedGrid a{transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
+.relatedGrid a::after{content:"Explore →";display:block;margin-top:15px;color:var(--teal);font-size:12px;font-weight:850;text-decoration:underline;text-underline-offset:4px}
+.relatedGrid a:hover,.relatedGrid a:focus-visible{transform:translateY(-3px);border-color:#93c8ce;box-shadow:0 15px 34px rgba(7,59,88,.13);outline:none}
+.relatedGrid a:focus-visible{box-shadow:0 0 0 3px rgba(21,151,168,.25),0 15px 34px rgba(7,59,88,.13)}

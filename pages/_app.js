@@ -13,7 +13,7 @@ export default function App({ Component, pageProps }) {
   return (
     <>
       <Component {...pageProps} />
-      <Script src="/site-analytics.js" strategy="afterInteractive" />
+      <Script src="/site-events.js" strategy="afterInteractive" />
       {shouldLoadChat(pathname) ? <Script src="/destiny-head.js" strategy="lazyOnload" /> : null}
     </>
   );

@@ -2,3 +2,9 @@
 .article :global(iframe){display:block;width:100%!important;max-width:100%;min-width:0!important;border:0}
 .finalCta>div:first-child{max-width:760px}.finalCta>div:first-child>p:last-child{max-width:680px;color:#c9dce4;font-size:16px;line-height:1.65}.finalActions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:12px;min-width:min(100%,360px)}
 @media(max-width:700px){.finalActions{justify-content:flex-start;margin-top:28px;min-width:0}.finalActions>a{width:100%}}
+.page{--teal:#087789;--muted:#526b79}
+.availability input,.availability select{min-height:44px}
+.article :global(a:not([style*="background"])){color:#087789!important}
+.article :global([style*="color: #999"]){color:#526b79!important}
+.article :global(a[style*="#00B4D8"]),.article :global(a[style*="#0096C7"]){background:#087789!important;color:#fff!important}
+.article :global(a[style*="#39a275"]){background:#16714c!important;color:#fff!important}

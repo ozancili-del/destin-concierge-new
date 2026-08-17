@@ -31,7 +31,7 @@ export default function SiteHeader({ availabilityHref = "/availability" }) {
     <SiteButton href={availabilityHref} variant="primary" size="compact">Live availability</SiteButton>
 
     <details className={styles.mobileMenu}>
-      <summary aria-label="Open navigation">Menu</summary>
+      <summary aria-label="Menu">Menu</summary>
       <nav aria-label="Mobile navigation">
         <strong>Condos</strong>
         {condoLinks.map(([label, href]) => <a key={href} href={href}>{label}</a>)}

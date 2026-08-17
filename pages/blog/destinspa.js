@@ -4,7 +4,7 @@ import SiteButton from "../../components/SiteButton";
 import AvailabilitySearch from "../../components/AvailabilitySearch";
 import SiteHeader from "../../components/SiteHeader";
 import SiteFooter from "../../components/SiteFooter";
-import { cleanInternalLinksInHtml } from "../../lib/internal-links";
+import { prepareMigratedArticleHtml } from "../../lib/internal-links";
 import styles from "../../styles/Article.module.css";
 
 const liveSite = "https://www.destincondogetaways.com";
@@ -12,10 +12,16 @@ const articleHtml = "\n            <!-- PAGE: destincondogetaways.com/blog/desti
 const originalSchemas = [{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the best spa in Destin Florida?","acceptedAnswer":{"@type":"Answer","text":"Spa Lilliana at Hotel Effie is ranked #1 on TripAdvisor. For best overall value and consistency, Emerald Sanctuary Spa has 420+ Google reviews at 4.9 stars and 20 years in business. For deep tissue massage, RUYI Massage has over 1,000 Google reviews at 4.8 stars."}},{"@type":"Question","name":"How much does a massage cost in Destin Florida?","acceptedAnswer":{"@type":"Answer","text":"Independent spas in Destin typically charge $99-$140 for a 60-minute massage. Resort spas like Henderson Spa and Serenity by the Sea start around $140-$160 and go up to $250+ for specialty treatments."}},{"@type":"Question","name":"Do Destin spas take walk-ins?","acceptedAnswer":{"@type":"Answer","text":"Most Destin spas require advance booking, especially in summer. RUYI Massage is the best walk-in option, open 9am-9pm daily with frequent same-day availability. Always call ahead during peak season (June-August)."}},{"@type":"Question","name":"Are resort spas in Destin open to non-hotel guests?","acceptedAnswer":{"@type":"Answer","text":"Yes. Henderson Spa, Serenity by the Sea at Hilton Sandestin, and The Spa at Emerald Grande all accept outside guests with advance booking. Non-hotel guests may not have access to resort pools or other amenities with a spa booking."}}]},{"@context":"https://schema.org","@type":"Article","headline":"10 Best Spas in Destin Florida (2026) — Real Ratings, Honest Guide","description":"The top-rated spas in Destin Florida ranked by Google and TripAdvisor reviews — from luxury resort spas to the best value day spas on the Emerald Coast.","author":{"@type":"Person","name":"Ozan CILI"},"publisher":{"@type":"Organization","name":"Destin Condo Getaways","url":"https://www.destincondogetaways.com"},"datePublished":"2026-03-29","dateModified":"2026-03-29","mainEntityOfPage":{"@type":"WebPage","@id":"https://www.destincondogetaways.com/blog/destinspa"}}];
 
 export default function DestinSpaGuide(){
+  const normalizedSchemas = originalSchemas.map((schema) => schema["@type"] === "FAQPage" ? {
+    ...schema,
+    mainEntity: schema.mainEntity.map((entry) => entry.name === "How much does a massage cost in Destin Florida?"
+      ? { ...entry, name: "How much does a massage cost in Destin?" }
+      : entry),
+  } : schema);
   const structuredData={"@context":"https://schema.org","@graph":[
     {"@type":"WebPage","@id":liveSite+"/blog/destinspa#webpage","name":"10 Best Spas in Destin Florida (2026)","description":"The best spas in Destin Florida ranked with real guest-review context and honest local guidance."},
     {"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":liveSite},{"@type":"ListItem","position":2,"name":"Destin Blog","item":liveSite+"/blog"},{"@type":"ListItem","position":3,"name":"Best Spas in Destin","item":liveSite+"/blog/destinspa"}]},
-    ...originalSchemas,
+    ...normalizedSchemas,
     {"@type":"LodgingBusiness","@id":liveSite+"/#business","name":"Destin Condo Getaways","url":liveSite,"telephone":"+1-972-357-4262","email":"ozan@destincondogetaways.com","address":{"@type":"PostalAddress","streetAddress":"1002 US-98","addressLocality":"Destin","addressRegion":"FL","postalCode":"32541","addressCountry":"US"},"geo":{"@type":"GeoCoordinates","latitude":30.3935,"longitude":-86.4958}}
   ]};
   return <div className={styles.page}>
@@ -26,7 +32,7 @@ export default function DestinSpaGuide(){
     <main>
       <section className={styles.hero}><img src="/images/site/4a4320ef00a54d15bccf6767418be83b-large.webp" alt="Relaxing spa treatment in Destin, Florida" /><div className={styles.heroShade}></div><div className={styles.heroCopy}><a href="/blog">Destin Guide</a><p className={styles.kickerLight}>Wellness & relaxation</p><h1>10 Best Spas in Destin Florida</h1><p>Real ratings, honest context and useful choices for a relaxing day near Pelican Beach Resort.</p></div></section>
       <AvailabilitySearch className={styles.availability} />
-      <article className={styles.article} dangerouslySetInnerHTML={{__html:cleanInternalLinksInHtml(articleHtml)}} />
+      <article className={styles.article} dangerouslySetInnerHTML={{__html:prepareMigratedArticleHtml(articleHtml)}} />
       <section className={styles.related}><div><p className={styles.kicker}>Continue planning</p><h2>More ways to enjoy Destin.</h2></div><div className={styles.relatedGrid}><a href="/blog/destinromance"><span>For couples</span><strong>Romantic things to do in Destin</strong></a><a href="/blog/best-restaurants-destin"><span>Dining</span><strong>Best seafood restaurants</strong></a><a href="/blog/best-time-to-visit-destin-florida"><span>Trip timing</span><strong>Best time to visit Destin</strong></a><a href="/trip-planner"><span>Personalized plan</span><strong>Create a day-by-day itinerary</strong></a></div></section>
       <section className={styles.finalCta}><div><p className={styles.kickerLight}>Plan the slower day</p><h2>Pair the spa with an unhurried Destin itinerary.</h2><p>Place the treatment around beach time, dinner and realistic travel instead of turning the day into another checklist.</p></div><div className={styles.finalActions}><SiteButton href="/trip-planner" variant="primary" size="large">Build a relaxing itinerary</SiteButton><SiteButton href="/destin-vacation-rentals-by-owner" variant="light" size="large">Explore beachfront stays</SiteButton></div></section>
     </main>

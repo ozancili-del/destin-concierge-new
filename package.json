@@ -11,9 +11,11 @@
     "test:agent:live": "node --experimental-default-type=module tests/live-routing-eval.mjs",
     "regression": "node scripts/run-agent-regression.mjs",
     "test:site-links": "node scripts/audit-site-links.mjs",
-    "test:link-strategy": "node scripts/audit-link-strategy.mjs",
+    "test:link-strategy": "node scripts/audit-link-strategy.mjs && node scripts/audit-internal-link-routing.mjs",
     "test:site-seo": "node scripts/audit-site-seo.mjs",
-    "test:site-cutover": "node scripts/audit-site-cutover.mjs",
+    "test:search-readiness": "node scripts/audit-rendered-search-readiness.mjs",
+    "test:booking-canonicals": "node scripts/audit-booking-canonicals.mjs",
+    "test:site-cutover": "node scripts/audit-site-cutover.mjs && node scripts/audit-booking-canonicals.mjs",
     "test:site-assets": "node scripts/audit-site-assets.mjs",
     "test:site-analytics": "node scripts/audit-site-analytics.mjs"
   },

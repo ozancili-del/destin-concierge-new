@@ -30,7 +30,13 @@ const sections = [
 ];
 
 export default function Privacy() {
-  const schema = { "@context": "https://schema.org", "@type": "WebPage", "@id": `${liveSite}/privacy#webpage`, url: `${liveSite}/privacy`, name: "Privacy Policy | Destin Condo Getaways", dateModified: "2026-08-16", isPartOf: { "@id": `${liveSite}/#website` } };
+  const schema = { "@context": "https://schema.org", "@graph": [
+    { "@type": "WebPage", "@id": `${liveSite}/privacy#webpage`, url: `${liveSite}/privacy`, name: "Privacy Policy | Destin Condo Getaways", dateModified: "2026-08-16", isPartOf: { "@id": `${liveSite}/#website` } },
+    { "@type": "BreadcrumbList", itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: liveSite },
+      { "@type": "ListItem", position: 2, name: "Privacy Policy", item: `${liveSite}/privacy` },
+    ] },
+  ] };
   return <div className={styles.page}>
     <Head>
       <title>Privacy Policy | Destin Condo Getaways</title>

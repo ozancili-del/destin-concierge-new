@@ -123,7 +123,7 @@ export default function AvailabilityPage() {
       <section className={styles.searchSection} id="search">
         <div className={styles.sectionIntro}><p className={styles.kicker}>{hasValidSearch ? "Live results" : "Start with your stay"}</p><h2>{hasValidSearch ? "Available condos for your dates." : "Check live availability in one search."}</h2><p>{hasValidSearch ? "Choose an available condo below to review its complete total and continue securely." : "Enter your arrival, departure and guest count below. Results come directly from the live reservation calendar."}</p></div>
         {hasValidSearch && <div className={styles.searchSummary} aria-label="Current availability search">
-          <strong style={{ color: "#1597a8", fontSize: ".78rem", letterSpacing: ".08em", textTransform: "uppercase" }}>Your search</strong>
+          <strong style={{ color: "#087789", fontSize: ".78rem", letterSpacing: ".08em", textTransform: "uppercase" }}>Your search</strong>
           <span>{displayDate(arrival)} – {displayDate(departure)}</span>
           <span>{Number.isFinite(adults) ? adults : totalGuests} {Number.isFinite(adults) && adults === 1 ? "adult" : "adults"}</span>
           <span>{Number.isFinite(children) ? children : 0} children/infants</span>

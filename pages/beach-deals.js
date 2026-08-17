@@ -348,7 +348,7 @@ function buildSchema(deals) {
         "name": "Do I need a promo code to book a Destin condo at a discounted rate?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "No promo code is needed to get the base 10% direct booking discount — it is automatically applied when you book a Destin beachfront condo through destincondogetaways.com. You can also use promo code BLUE at checkout for an additional 5% off on top of the 10% savings."
+          "text": "No promo code is needed for the base direct-booking discount; it is applied automatically. When an additional promotion is active, its current terms and any required code are shown before checkout."
         }
       },
       {
@@ -1300,8 +1300,8 @@ export default function BeachDeals({ deals }) {
   return (
     <>
       <Head>
-        <title>Destin FL Beachfront Condo Price Drops — Book Direct &amp; Save | Pelican Beach Resort</title>
-        <meta name="description" content="Live price drops on Gulf-front condos at Pelican Beach Resort, Destin FL. Unit 707 &amp; 1006 — sleeps 6, private balcony, beachfront. Book direct and save 10–20% vs Airbnb &amp; VRBO. Updated daily." />
+        <title>Destin Beachfront Condo Deals | Pelican Beach Resort</title>
+        <meta name="description" content="See current price drops for Gulf-front Pelican Beach Resort condos in Destin. Compare dates, check live availability and book direct." />
         <meta name="robots" content={process.env.NEXT_PUBLIC_DEPLOYMENT_ENV === "production" ? "index,follow" : "noindex,nofollow"} />
         <meta name="keywords" content="Destin Florida beachfront condo rental, Pelican Beach Resort condo deals, Destin vacation rental price drops, book direct condo Destin FL, Gulf front condo Destin Florida" />
         <link rel="canonical" href="https://www.destincondogetaways.com/deals" />
@@ -1550,11 +1550,14 @@ export default function BeachDeals({ deals }) {
         <div className="seo-faq">
           <h2 className="seo-faq-title">Frequently Asked Questions</h2>
           <div className="seo-faq-item"><h3>How are condo price drops in Destin FL calculated?</h3><p>Price drop percentages are calculated against the highest recently recorded nightly rate for those specific dates. Drops are tracked daily using live pricing data and displayed as a percentage savings vs the peak rate. Final rates confirmed at checkout on destincondogetaways.com.</p></div>
+          <div className="seo-faq-item"><h3>Do I need a promo code to book a Destin condo at a discounted rate?</h3><p>No promo code is needed for the base direct-booking discount; it is applied automatically. When an additional promotion is active, its current terms and any required code are shown before checkout.</p></div>
+          <div className="seo-faq-item"><h3>What are the check-in and check-out times?</h3><p>Check-in is at 4:00 PM and check-out is at 10:00 AM Central Time. Free parking is included, and paid EV chargers are available on the property.</p></div>
+          <div className="seo-faq-item"><h3>How often do Destin vacation rental price drops update?</h3><p>The price-drop tracker refreshes from current pricing data. Each displayed reduction is compared with the highest recently recorded rate for the same date window; the secure checkout page provides the controlling current total.</p></div>
           <div className="seo-faq-item"><h3>Why is booking direct cheaper than Airbnb or VRBO for Destin condos?</h3><p>When you book direct through destincondogetaways.com, you skip the 14–20% platform fees that Airbnb and VRBO add to every reservation, plus you receive a 10% direct booking discount automatically. You also get instant confirmation and communicate directly with the owner. Guests who book direct typically save $200–$500 per stay.</p></div>
           <div className="seo-faq-item"><h3>What amenities are included at Pelican Beach Resort in Destin FL?</h3><p>Both condos include a private Gulf-view balcony, full kitchen, 2 bathrooms, free parking, free WiFi, and EV charger access. The resort features 3 outdoor pools, 1 indoor heated pool, 2 hot tubs, fitness center, sauna, steam room, and direct beachfront access — with no road to cross.</p></div>
           <div className="seo-faq-item"><h3>Where is Pelican Beach Resort located in Destin Florida?</h3><p>Both Unit 707 and Unit 1006 are at Pelican Beach Resort, 1002 US-98 East, Destin FL 32541 — directly on the Gulf of Mexico. Minutes from Destin HarborWalk Village, Big Kahuna&apos;s Water Park, and Henderson Beach State Park. VPS airport is 35 minutes away.</p></div>
-          <div className="seo-faq-item"><h3>What is the best time to find cheap Destin beach condo deals?</h3><p>The best time is November through February (off-season) and last-minute bookings within 2–3 weeks of arrival. Snowbird stays of 28+ nights in November–February qualify for up to 48% off. Our price drop tracker surfaces the best current deals automatically — updated daily.</p></div>
-          <div className="seo-faq-item"><h3>How many guests can stay in a Pelican Beach Resort condo?</h3><p>Both units sleep up to 6 guests — king bed, bunk bed, and queen sofa bed, plus 2 full bathrooms. An extra guest fee applies for groups over 4. Perfect for families, groups, and couples looking for a Gulf-front Destin vacation rental.</p></div>
+          <div className="seo-faq-item"><h3>What is the best time to book a Destin Florida beach condo for cheap?</h3><p>The best opportunities are often November through February and selected last-minute openings within two to three weeks of arrival. The tracker surfaces the strongest currently recorded reductions automatically.</p></div>
+          <div className="seo-faq-item"><h3>How many guests can stay in a Pelican Beach Resort condo in Destin?</h3><p>Each condo accommodates up to 6 total guests, including children and infants, with a king bed, hallway bunks, a queen sleeper sofa and 2 full bathrooms. Enter the complete party size when checking dates.</p></div>
           <div className="seo-faq-item"><h3>What is the cancellation policy?</h3><p>A 20% non-refundable deposit is due upon booking. Balance due 30 days before check-in. Cancellations within 30 days of check-in are non-refundable. Travel insurance is offered at checkout.</p></div>
         </div>
 

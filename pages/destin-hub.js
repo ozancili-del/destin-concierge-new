@@ -8,7 +8,7 @@ export default function DestinHub() {
       <Head>
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-        <title>Destin Florida Local Guide 2026: Beaches, Seafood, Events &amp; Vacation Tips</title>
+        <title>Destin Florida Vacation Guide 2026 | Local Trip Planner</title>
         <meta name="description" content="Your complete Destin Florida guide — beaches, seafood, live music, fireworks, events, airports, car rental and AI concierge." />
         <meta name="robots" content={process.env.NEXT_PUBLIC_DEPLOYMENT_ENV === "production" ? "index,follow" : "noindex,nofollow"} />
         <link rel="canonical" href={CANONICAL} />

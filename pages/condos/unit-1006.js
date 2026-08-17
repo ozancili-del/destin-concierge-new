@@ -4,6 +4,7 @@ import schema from "../../data/unit-1006-schema.json";
 const unit = {
   number: 1006, floorLabel: "Tenth floor", style: "Fresh Coastal", schema,
   title: "Pelican Beach Resort Unit 1006 | Panoramic Gulf-Front Condo",
+  metaDescription: "Pelican Beach Resort Unit 1006 is a 10th-floor Gulf-front Destin condo with panoramic views, 1 bedroom, 2 bathrooms and space for up to 6 guests.",
   propertyId: "ad9a3b0b0a8145eb88573dd9c0e1ccb8",
   registrationNumber: "CND5603848",
   ownerRezUrl: "/book?unit=1006",

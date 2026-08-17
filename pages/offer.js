@@ -174,8 +174,8 @@ export default function OfferPage() {
   return (
     <>
       <Head>
-        <title>Make an Offer on a Destin FL Beachfront Condo — Name Your Price | Pelican Beach Resort</title>
-        <meta name="description" content="Propose your own nightly rate for a Gulf-front condo at Pelican Beach Resort, Destin FL. Unit 707 or Unit 1006 — sleeps 6, private balcony, beachfront. Submit your offer and we'll respond within hours. No OTA fees, owner direct." />
+        <title>Make an Offer on a Destin Beachfront Condo</title>
+        <meta name="description" content="Request owner review of your proposed rate for a Gulf-front Pelican Beach Resort condo in Destin. Submit dates, guests and your offer." />
         <meta name="robots" content={process.env.NEXT_PUBLIC_DEPLOYMENT_ENV === "production" ? "index,follow" : "noindex,nofollow"} />
         <meta name="keywords" content="make offer Destin FL condo, name your price vacation rental Destin, Pelican Beach Resort condo deal, flexible pricing Destin Florida, book direct condo Destin FL discount" />
         <link rel="canonical" href="https://www.destincondogetaways.com/offer" />
@@ -245,6 +245,16 @@ export default function OfferPage() {
 
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
           "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.destincondogetaways.com/" },
+            { "@type": "ListItem", "position": 2, "name": "Vacation Rentals", "item": "https://www.destincondogetaways.com/destin-vacation-rentals-by-owner" },
+            { "@type": "ListItem", "position": 3, "name": "Make an Offer", "item": "https://www.destincondogetaways.com/offer" }
+          ]
+        })}} />
+
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          "@context": "https://schema.org",
           "@type": "FAQPage",
           "mainEntity": [
             {
@@ -260,7 +270,7 @@ export default function OfferPage() {
             {
               "@type": "Question",
               "name": "What is included in the total cost shown on the offer page?",
-              "acceptedAnswer": { "@type": "Answer", "text": "The estimated total includes: your proposed nightly rate multiplied by the number of nights, a flat cleaning fee of $175, tourist and sales tax at 13%, and a 3% admin fee. This is the full amount you would pay if your offer is accepted — no hidden fees." }
+              "acceptedAnswer": { "@type": "Answer", "text": "The estimate includes the proposed nightly rate for the selected nights plus the displayed cleaning fee, taxes and administrative fee. If an offer is accepted, review the controlling complete total and terms on the secure booking page before confirming." }
             },
             {
               "@type": "Question",
@@ -705,10 +715,10 @@ export default function OfferPage() {
             <div style={{display:"grid",gap:14}} className="speakable-faq">
               {[
                 ["Can I negotiate the price on a Destin FL beachfront condo?","Yes. Submit your proposed nightly rate through the form above, select your dates, and the owner will review your offer personally and respond within a few hours."],
-                ["Is there a minimum offer price?","There is no published minimum — the owner reviews each offer on its own merits based on the dates, season, and length of stay. Longer stays and off-season dates tend to have more flexibility."],
-                ["What fees are included in the total shown?","The estimated total includes your proposed nightly rate × nights, a flat $175 cleaning fee, 13% tourist and sales tax, and a 3% admin fee. No hidden charges — what you see is what you pay if your offer is accepted."],
-                ["How long does it take to get a response to my offer?","The owner responds personally — usually within a few hours during the day. You will receive an email with either an acceptance and booking link, or a direct counter-offer."],
-                ["Which Destin condos are available for price offers?","Both Unit 707 (Classic Coastal, 7th floor) and Unit 1006 (Fresh Coastal, 10th floor) at Pelican Beach Resort, 1002 US-98 East, Destin FL 32541 accept offers. Both sleep up to 6 guests with direct Gulf-of-Mexico beachfront access."],
+                ["How does the Make an Offer feature work for Destin vacation rentals?","Select a condo, choose dates from the live calendar, enter a proposed nightly rate and review the estimated fees and taxes. Submit your contact information for personal review; the request is not a binding reservation and no payment is taken through this form."],
+                ["What is included in the total cost shown on the offer page?","The estimate includes the proposed nightly rate for the selected nights plus the displayed cleaning fee, taxes and administrative fee. If an offer is accepted, review the controlling complete total and terms on the secure booking page before confirming."],
+                ["How quickly will I get a response to my condo offer in Destin?","The owner reviews requests personally and normally replies by email within a few hours during the day, either with an acceptance and booking link or a counter-proposal."],
+                ["Which condos are available for offers at Pelican Beach Resort Destin?","The available choices are shown in the form for Pelican Beach Resort at 1002 US-98 East, Destin FL 32541. Each listed condo has direct Gulf-front access and accommodates up to six total guests."],
               ].map(([q,a]) => (
                 <div key={q} style={{borderBottom:"1px solid rgba(255,255,255,.07)",paddingBottom:14}}>
                   <h3 style={{fontFamily:"var(--heading)",fontSize:"1rem",fontWeight:700,color:"var(--white)",marginBottom:5,letterSpacing:".02em"}}>{q}</h3>

@@ -77,7 +77,7 @@ function buildSchema() {
       { "@type": "Question", "name": "What is the snowbird discount at Pelican Beach Resort?", "acceptedAnswer": { "@type": "Answer", "text": "Guests who book 28 or more nights directly through destincondogetaways.com for stays arriving November 1, 2026 through February 28, 2027 receive 50% off rent automatically. No promo code needed." } },
       { "@type": "Question", "name": "What is the minimum stay for snowbird rates?", "acceptedAnswer": { "@type": "Answer", "text": "The snowbird discount requires a minimum of 28 nights. Full month stays (check-in on the 1st, check-out on the 1st of the following month) automatically qualify." } },
       { "@type": "Question", "name": "Which months qualify for the snowbird discount?", "acceptedAnswer": { "@type": "Answer", "text": "Arrivals from November 1, 2026 through February 28, 2027 qualify for the 50% off rent snowbird discount when booked direct for 28+ nights." } },
-      { "@type": "Question", "name": "Where are the snowbird condos located?", "acceptedAnswer": { "@type": "Answer", "text": "Both units are at Pelican Beach Resort, 1002 US-98 East, Destin FL 32541 — directly on the Gulf of Mexico. No road to cross. Step off the elevator straight onto the beach." } },
+      { "@type": "Question", "name": "Where are the snowbird condos located?", "acceptedAnswer": { "@type": "Answer", "text": "The condos are at Pelican Beach Resort, 1002 US-98 East, Destin FL 32541, directly on the Gulf of Mexico with no road between the building and the beach." } },
       { "@type": "Question", "name": "What is included in a monthly snowbird stay?", "acceptedAnswer": { "@type": "Answer", "text": "Full kitchen, high-speed WiFi, 2 Smart TVs, private Gulf-view balcony, 2 bathrooms, beach chairs, umbrella and cooler on arrival. Resort amenities include 3 pools (1 indoor heated), 2 hot tubs, fitness center, tennis and pickleball courts, sauna, steam room, and beachside Tiki bar." } },
       { "@type": "Question", "name": "How do I book a monthly snowbird stay?", "acceptedAnswer": { "@type": "Answer", "text": "Use the rate finder above to select your month and number of nights, then click the booking link to complete your reservation directly at destincondogetaways.com. Up to 48% off rent is applied automatically at checkout for qualifying stays." } }
     ]
@@ -418,8 +418,8 @@ export default function Snowbird({ dayData }) {
       <Head>
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-        <title>Snowbird Rentals Destin FL — Monthly Winter Condo Stays at Pelican Beach Resort</title>
-        <meta name="description" content="Find monthly snowbird rental rates for beachfront condos in Destin, Florida. Pelican Beach Resort Unit 707 and Unit 1006 — winter stays Nov–Feb with up to 48% off rent booked direct. No platform fees." />
+        <title>Destin Snowbird Rentals | Pelican Beach Resort</title>
+        <meta name="description" content="Explore monthly winter rentals at Pelican Beach Resort in Destin, with live rates for qualifying November–February snowbird stays." />
         <meta property="og:title" content="Snowbird Rentals Destin FL — Monthly Winter Condo Stays" />
         <meta property="og:description" content="Monthly winter rental rates for beachfront condos in Destin FL. Up to 48% off rent for snowbird stays Nov–Feb. Book direct at Pelican Beach Resort." />
         <meta property="og:url" content={CANONICAL} />
@@ -657,11 +657,12 @@ export default function Snowbird({ dayData }) {
         {/* FAQ */}
         <div className="seo-faq">
           <h2 className="seo-faq-title">Snowbird Rentals Destin FL — FAQ</h2>
-          <div className="seo-faq-item"><h3>What is the snowbird discount?</h3><p>Guests who book 28+ nights direct through destincondogetaways.com for stays arriving November 1 through February 28 receive 50% off rent automatically. No promo code needed.</p></div>
-          <div className="seo-faq-item"><h3>What months qualify?</h3><p>Arrivals November 1, 2026 through February 28, 2027 with 28 or more nights qualify for the 50% off rent snowbird discount when booked direct.</p></div>
-          <div className="seo-faq-item"><h3>What is included?</h3><p>Full kitchen, high-speed WiFi, private balcony with Gulf views, 2 bathrooms, Smart TVs, beach chairs, umbrella and cooler on arrival. Resort amenities include pools, hot tubs, fitness center, sauna, steam room, tennis, pickleball and beachside Tiki bar.</p></div>
-          <div className="seo-faq-item"><h3>Where are the condos?</h3><p>Both units are at Pelican Beach Resort, 1002 US-98 East, Destin FL 32541 — directly on the Gulf of Mexico. No road to cross — step off the elevator straight onto the beach.</p></div>
-          <div className="seo-faq-item"><h3>How do I book?</h3><p>Use the rate finder above, select your month and nights, then click the booking link to complete your reservation directly at destincondogetaways.com. Up to 48% off rent is applied automatically at checkout for qualifying stays.</p></div>
+          <div className="seo-faq-item"><h3>What is the snowbird discount at Pelican Beach Resort?</h3><p>Guests who book 28+ nights direct through destincondogetaways.com for stays arriving November 1 through February 28 receive the qualifying winter rent reduction automatically. No promo code is needed.</p></div>
+          <div className="seo-faq-item"><h3>What is the minimum stay for snowbird rates?</h3><p>The snowbird rate requires at least 28 nights. A full-month stay from the first day of one month to the first day of the next also meets that requirement.</p></div>
+          <div className="seo-faq-item"><h3>Which months qualify for the snowbird discount?</h3><p>Qualifying 28-night stays arrive from November through February. Enter the exact dates in the rate finder to see the current winter total.</p></div>
+          <div className="seo-faq-item"><h3>What is included in a monthly snowbird stay?</h3><p>Full kitchen, high-speed WiFi, private balcony with Gulf views, 2 bathrooms, Smart TVs, beach chairs, umbrella and cooler on arrival. Resort amenities include pools, hot tubs, fitness center, sauna, steam room, tennis, pickleball and beachside Tiki bar.</p></div>
+          <div className="seo-faq-item"><h3>Where are the snowbird condos located?</h3><p>The condos are at Pelican Beach Resort, 1002 US-98 East, Destin FL 32541, directly on the Gulf of Mexico with no road between the building and the beach.</p></div>
+          <div className="seo-faq-item"><h3>How do I book a monthly snowbird stay?</h3><p>Use the rate finder above, select your arrival and departure dates, and open the unit booking link to review the current complete price and reservation terms before checkout.</p></div>
         </div>
 
         {/* About */}

@@ -40,6 +40,15 @@ export function getStaticProps() {
     if (node?.["@type"] === "Article") return { ...node, datePublished: "2026-08-16", dateModified: "2026-08-16", mainEntityOfPage: canonical };
     return node;
   });
+  if (!graph.some((node) => node?.["@type"] === "BreadcrumbList")) {
+    graph.push({
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: `${liveSite}/` },
+        { "@type": "ListItem", position: 2, name: "Destin Beach Cams", item: canonical },
+      ],
+    });
+  }
   const structuredData = { "@context": "https://schema.org", "@graph": graph };
   const articleHtml = source
     .replace(schemaPattern, "")

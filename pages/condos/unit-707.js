@@ -4,6 +4,7 @@ import schema from "../../data/unit-707-schema.json";
 const unit = {
   number: 707, floorLabel: "Seventh floor", style: "Classic Coastal", schema,
   title: "Pelican Beach Resort Unit 707 | Gulf-Front Destin Condo",
+  metaDescription: "Pelican Beach Resort Unit 707 is a Gulf-front Destin condo with 1 bedroom, 2 bathrooms, a private balcony and space for up to 6 guests.",
   propertyId: "e987ace000304077ac42435e1eb19a35",
   registrationNumber: "CND5603848",
   ownerRezUrl: "/book?unit=707",

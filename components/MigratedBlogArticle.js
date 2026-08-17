@@ -4,7 +4,7 @@ import AvailabilitySearch from "./AvailabilitySearch";
 import SiteButton from "./SiteButton";
 import SiteFooter from "./SiteFooter";
 import SiteHeader from "./SiteHeader";
-import { cleanInternalLinksInHtml } from "../lib/internal-links";
+import { prepareMigratedArticleHtml } from "../lib/internal-links";
 import blogLinkStrategy from "../data/blog-link-strategy.json";
 import styles from "../styles/Article.module.css";
 
@@ -63,7 +63,7 @@ export default function MigratedBlogArticle({
         </div>
       </section>
       <AvailabilitySearch className={styles.availability} />
-      {articleContent ? <article className={styles.article}>{articleContent}</article> : <article className={styles.article} dangerouslySetInnerHTML={{ __html: cleanInternalLinksInHtml(articleHtml) }} />}
+      {articleContent ? <article className={styles.article}>{articleContent}</article> : <article className={styles.article} dangerouslySetInnerHTML={{ __html: prepareMigratedArticleHtml(articleHtml) }} />}
 
       <section className={styles.related}>
         <div><p className={styles.kicker}>Continue planning</p><h2>More useful Destin guides.</h2></div>

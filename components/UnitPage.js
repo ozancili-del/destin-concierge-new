@@ -50,7 +50,22 @@ export default function UnitPage({ unit }) {
   const photos = unit.schema.image;
   const reviewSchema = unit.reviews.map((review) => ({ "@type": "Review", author: { "@type": "Person", name: review.name }, reviewRating: { "@type": "Rating", ratingValue: 5, bestRating: 5 }, reviewBody: review.text }));
   const imageSchema = photos.map((url, index) => ({ "@type": "ImageObject", contentUrl: url, url, caption: photoDescription(unit, index), name: photoDescription(unit, index) }));
-  const rental = { ...unit.schema, "@id": `${canonical}#rental`, url: canonical, image: imageSchema, review: reviewSchema };
+  const rental = {
+    ...unit.schema,
+    "@id": `${canonical}#rental`,
+    url: canonical,
+    image: imageSchema,
+    review: reviewSchema,
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: "1002 US-98",
+      addressLocality: "Destin",
+      addressRegion: "FL",
+      postalCode: "32541",
+      addressCountry: "US",
+    },
+    geo: { "@type": "GeoCoordinates", latitude: 30.3935, longitude: -86.4958 },
+  };
   const structuredData = { "@context": "https://schema.org", "@graph": [rental,
     { "@type": "WebPage", "@id": `${canonical}#webpage`, url: canonical, name: unit.title, description: rental.description, mainEntity: { "@id": `${canonical}#rental` } },
     { "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Home", item: liveSite }, { "@type": "ListItem", position: 2, name: "Condos", item: `${liveSite}/#condos` }, { "@type": "ListItem", position: 3, name: `Unit ${unit.number}`, item: canonical }] },
@@ -69,7 +84,7 @@ export default function UnitPage({ unit }) {
   }, [lightbox, photos.length]);
 
   return <div className={styles.page}>
-    <Head><title>{unit.title}</title><meta name="description" content={rental.description} /><meta name="robots" content={process.env.NEXT_PUBLIC_DEPLOYMENT_ENV === "production" ? "index,follow" : "noindex,nofollow"} /><meta name="viewport" content="width=device-width, initial-scale=1" /><link rel="canonical" href={canonical} /><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} /></Head>
+    <Head><title>{unit.title}</title><meta name="description" content={unit.metaDescription || rental.description} /><meta name="robots" content={process.env.NEXT_PUBLIC_DEPLOYMENT_ENV === "production" ? "index,follow" : "noindex,nofollow"} /><meta name="viewport" content="width=device-width, initial-scale=1" /><link rel="canonical" href={canonical} /><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} /></Head>
     <div className={styles.preview}>Preview page | Live availability and secure checkout remain connected</div>
     <div className={styles.utility}><a href="/reviews">Guest Reviews</a><a href="/why-book-direct#direct-faq">FAQ</a><a href="/guest-guide#policies">Policies</a><a href="/about">Contact</a></div>
     <SiteHeader availabilityHref="#checkout" />

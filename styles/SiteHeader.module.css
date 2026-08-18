@@ -15,6 +15,7 @@
 .brand small { display: block; color: #536b77; font-size: 11px; margin-top: 3px; }
 .logo { width: 76px; height: 50px; display: block; object-fit: contain; object-position: center; }
 .slogan {
+  display: none;
   flex: 0 0 auto;
   margin: 0;
   color: #073b58;
@@ -43,7 +44,6 @@
 .mobileMenu nav a { padding: 10px; color: #073b58; text-decoration: none; font-size: 14px; font-weight: 650; }
 .mobileMenu nav a:nth-of-type(6) { margin-top: 6px; border-top: 1px solid #e7e0d4; }
 .mobileMenu nav .galleryLink { color: #087f90; font-weight: 850; }
-@media (max-width: 1380px) { .slogan { display: none; } }
 @media (max-width: 1180px) { .desktopNav { gap: 13px; } .desktopNav > a, .dropdown summary { font-size: 12px; } }
 @media (max-width: 980px) {
   .header { min-height: 70px; padding: 10px 16px; gap: 10px; }
@@ -51,7 +51,12 @@
   .mobileMenu { display: block; order: 3; }
   .slogan { display: block; margin-right: auto; transform: rotate(-1deg); }
   .desktopSlogan { display: none; }
-  .mobileSlogan { display: block; font-size: clamp(18px, 4.2vw, 24px); }
+  .mobileSlogan {
+    display: block;
+    font-size: clamp(18px, 4.2vw, 24px);
+    font-weight: 600;
+    text-shadow: .25px 0 currentColor, -.25px 0 currentColor;
+  }
   .brand strong { font-size: 16px; }
   .brand small { display: none; }
   .logo { width: 66px; height: 44px; }

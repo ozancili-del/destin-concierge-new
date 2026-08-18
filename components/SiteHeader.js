@@ -30,7 +30,7 @@ export default function SiteHeader({ availabilityHref = "/availability" }) {
 
     <p className={styles.slogan} aria-label="Where Destin stays with you">
       <span className={`${styles.desktopSlogan} ${desktopSlogan.className}`}>Where Destin stays with you</span>
-      <span className={`${styles.mobileSlogan} ${mobileSlogan.className}`} aria-hidden="true">Where Destin stays with you</span>
+      <span className={`${styles.mobileSlogan} ${mobileSlogan.className}`} aria-hidden="true">Where Destin stays with you…</span>
     </p>
 
     <nav className={styles.desktopNav} aria-label="Main navigation">

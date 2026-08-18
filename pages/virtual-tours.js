@@ -6,7 +6,6 @@ import SiteButton from "../components/SiteButton";
 import SiteFooter from "../components/SiteFooter";
 import SiteHeader from "../components/SiteHeader";
 import styles from "../styles/VirtualToursPage.module.css";
-import availabilityStyles from "../styles/Blog.module.css";
 
 const liveSite = "https://www.destincondogetaways.com";
 const tours = [
@@ -36,7 +35,7 @@ export default function VirtualToursPage() {
         <div className={styles.heroCopy}><a href="/">Home</a><p className={styles.kicker}>Interactive 360° walkthroughs</p><h1>Step inside before you choose.</h1><p>Tour the living room, bedroom, hallway and balcony areas of each exact Pelican Beach Resort condo. Move through every scene, look in any direction and compare the two homes before checking your dates.</p><div className={styles.trust}><span>✓ Exact condos</span><span>✓ Full-screen viewing</span><span>✓ Desktop, mobile and VR</span></div></div>
         <div className={styles.heroImage}><Image src="/book-direct-banner-bg.webp" alt="Pelican Beach Resort and the Gulf of Mexico in Destin Florida" fill priority sizes="(max-width: 900px) 100vw, 48vw" /></div>
       </section>
-      <AvailabilitySearch id="availability" className={availabilityStyles.availability} />
+      <AvailabilitySearch id="availability" />
       <section className={styles.tours}>
         <div className={styles.sectionIntro}><p className={styles.kicker}>Choose a condo to explore</p><h2>Two Gulf-front homes. Two complete walkthroughs.</h2><p>Select a room from the thumbnail strip, drag to look around, or use the full-screen control for the most immersive view.</p></div>
         {tours.map((tour) => <article className={styles.tourCard} id={`unit-${tour.unit}`} key={tour.unit}>

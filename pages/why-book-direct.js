@@ -94,7 +94,7 @@ export default function WhyBookDirect() {
           <div className={styles.heroVisual}><Image src="/book-direct-banner-bg.webp" alt="Pelican Beach Resort and the Gulf of Mexico in Destin" fill priority sizes="(max-width: 900px) 100vw, 48vw" /><div className={styles.imageNote}><strong>Owner-managed</strong><span>Units 707 and 1006</span></div></div>
         </section>
 
-        <AvailabilitySearch className={styles.availability} />
+        <AvailabilitySearch />
 
         <section className={styles.promise}><p className={styles.kicker}>What “book direct” means here</p><h2>Less uncertainty between browsing and arrival.</h2><p className={styles.introCopy}>When you book with Destin Condo Getaways, you deal directly with the owner of Pelican Beach Resort Units 707 and 1006. You can ask about the kitchen, sleeping arrangements, balcony, or anything else that matters to your family before committing.</p><div className={styles.reasonGrid}>{reasons.map((reason) => <article key={reason.number}><span>{reason.number}</span><h3>{reason.title}</h3><p>{reason.copy}</p></article>)}</div></section>
 

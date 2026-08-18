@@ -75,7 +75,7 @@ export default function BlogHub(){
         <div className={styles.heroCopy}><p className={styles.kickerLight}>Destin vacation guides</p><h1>Local knowledge for a better beach trip.</h1><p>Weather, beaches, food, events and practical planning—from someone who hosts guests here and keeps the useful tools close.</p></div>
       </section>
 
-      <AvailabilitySearch className={styles.availability} />
+      <AvailabilitySearch />
 
       <section className={styles.featured}>
         <div className={styles.sectionHead}><p className={styles.kicker}>Start with these</p><h2>The guides guests use most.</h2><p>Our highest-value planning articles, including live conditions, maps and frequently updated local information.</p></div>

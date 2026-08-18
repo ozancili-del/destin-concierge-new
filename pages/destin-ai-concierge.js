@@ -5,7 +5,6 @@ import AvailabilitySearch from "../components/AvailabilitySearch";
 import SiteButton from "../components/SiteButton";
 import SiteFooter from "../components/SiteFooter";
 import SiteHeader from "../components/SiteHeader";
-import availabilityStyles from "../styles/Blog.module.css";
 import styles from "../styles/DestinAiConcierge.module.css";
 
 const liveSite = "https://www.destincondogetaways.com";
@@ -36,7 +35,7 @@ export default function DestinAiConciergePage() {
     <SiteHeader availabilityHref="#availability" />
     <main>
       <section className={styles.hero}><div className={styles.heroCopy}><a href="/">Home</a><p className={styles.kicker}>Destin vacation help, in one conversation</p><h1>Plan your Destin stay with an AI concierge.</h1><p>Ask Destiny Blue about live condo availability, the resort, weather, beach conditions, restaurants, activities, events or an upcoming stay. She is an AI assistant—and Ozan can join when personal owner help is needed.</p><div className={styles.trust}><span>Live availability</span><span>Local trip planning</span><span>Human handoff</span></div></div><div className={styles.portrait}><Image src="/destiny_avatar.png" alt="Destiny Blue, the AI concierge for Destin Condo Getaways" fill priority sizes="(max-width: 900px) 100vw, 44vw" /></div></section>
-      <AvailabilitySearch id="availability" className={availabilityStyles.availability} />
+      <AvailabilitySearch id="availability" />
       <section className={styles.chatSection} id="chat"><div className={styles.chatIntro}><p className={styles.kicker}>Live chat</p><h2>What can I help you plan?</h2><p>Write naturally. Include dates and the number of adults, children and infants when asking about a stay.</p><div className={styles.capabilities}><span>Check my dates</span><span>Compare the condos</span><span>Plan with kids</span><span>Find activities</span><span>Check conditions</span><span>Existing guest help</span></div><div className={styles.aiNote}><strong>AI, with a real owner behind it.</strong><p>Destiny handles routine research and booking preparation. She does not invent concessions or make promises for Ozan.</p></div></div><div className={styles.chatFrame}><iframe key={chatSrc} src={chatSrc} title="Chat with Destiny Blue, the Destin AI Concierge" allow="clipboard-write" /></div></section>
       <section className={styles.whatSheDoes}><div className={styles.sectionHead}><p className={styles.kicker}>Useful before and during the stay</p><h2>More than a question-and-answer box.</h2></div><div className={styles.featureGrid}>{[["Stay", "Check live dates, compare the exact condos and prepare a secure booking link."],["Plan", "Build an itinerary around your group, interests, weather and pace."],["Explore", "Research restaurants, activities, concerts, events, flights and local transportation."],["Support", "Answer resort and guest questions, recognize urgent situations and involve Ozan when appropriate."]].map(([title, copy]) => <article key={title}><span>{title}</span><p>{copy}</p></article>)}</div></section>
 

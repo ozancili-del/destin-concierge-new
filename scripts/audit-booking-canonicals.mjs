@@ -39,10 +39,11 @@ requireMatch(book, /for \(const \[key, value\] of Object\.entries\(query\)\)/, "
 // five must survive the homepage/search -> availability -> unit checkout flow.
 for (const key of bookingKeys) {
   requireMatch(availabilitySearch, new RegExp(`name=["']${key}["']`), `Shared availability search is missing ${key}.`);
-  requireMatch(homepage, new RegExp(`name=["']${key}["']`), `Homepage booking form is missing ${key}.`);
   requireMatch(availability, new RegExp(`router\\.query\\.${key}`), `Availability page does not read ${key}.`);
   requireMatch(availability, new RegExp(`${key}:`), `Availability-to-unit links do not serialize ${key}.`);
 }
+requireMatch(homepage, /import AvailabilitySearch from ["']\.\.\/components\/AvailabilitySearch["'];/, "Homepage does not import the shared availability search.");
+requireMatch(homepage, /<AvailabilitySearch\s*\/>/, "Homepage does not render the shared availability search.");
 requireMatch(availabilitySearch, /method="get" action="\/availability"/, "Shared availability search must use a crawl-safe GET to /availability.");
 requireMatch(availability, /`\$\{condo\.href\}\?\$\{bookingQuery\}#checkout`/, "Available-unit links no longer carry the validated stay into checkout.");
 

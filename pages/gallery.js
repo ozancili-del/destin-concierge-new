@@ -8,7 +8,6 @@ import SiteButton from "../components/SiteButton";
 import SiteFooter from "../components/SiteFooter";
 import SiteHeader from "../components/SiteHeader";
 import styles from "../styles/GalleryMapFaq.module.css";
-import availabilityStyles from "../styles/GalleryAvailability.module.css";
 
 const liveSite = "https://www.destincondogetaways.com";
 const unitPhotos = [
@@ -32,7 +31,7 @@ export default function Gallery() {
     <Head><title>Pelican Beach Resort Condo Gallery | Destin</title><meta name="description" content="Explore the complete photo galleries for Gulf-front Units 707 and 1006 at Pelican Beach Resort, including rooms, balconies, beach views, pools and amenities."/><meta name="robots" content={process.env.NEXT_PUBLIC_DEPLOYMENT_ENV === "production" ? "index,follow" : "noindex,nofollow"}/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="canonical" href={`${liveSite}/gallery`}/><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}/></Head>
     <div className={styles.preview}>Migration preview | The current live website remains unchanged</div><SiteHeader availabilityHref="#availability" />
     <main><section className={styles.galleryHero}><div><a href="/">Home</a><p className={styles.kickerLight}>Complete photo gallery</p><h1>See the exact condos before you choose.</h1><p>Browse the complete property photo collection—interiors, private balconies, Gulf views, beach access, pools and resort amenities.</p></div></section>
-      <AvailabilitySearch className={`${styles.availability} ${availabilityStyles.availability}`}/>
+      <AvailabilitySearch />
       <section className={styles.galleryIntro}><div><p className={styles.kicker}>Choose your Gulf view</p><h2>Browse everything or filter by condo.</h2></div><div className={styles.filters} role="group" aria-label="Filter gallery"><button className={filter === "all" ? styles.activeFilter : ""} onClick={() => {setFilter("all");setActive(null);}}>All photos</button><button className={filter === "707" ? styles.activeFilter : ""} onClick={() => {setFilter("707");setActive(null);}}>Unit 707</button><button className={filter === "1006" ? styles.activeFilter : ""} onClick={() => {setFilter("1006");setActive(null);}}>Unit 1006</button></div></section>
       <section className={styles.photoGrid} aria-live="polite">{photos.map((photo, index) => <button type="button" key={`${photo.unit}-${photo.index}`} onClick={() => setActive(index)} aria-label={`Enlarge ${photo.caption}`}><img src={photo.src} alt={photo.caption} width="900" height="650" loading={index < 8 ? "eager" : "lazy"}/><span>Unit {photo.unit}</span></button>)}</section>
       <section className={styles.finalCta}><div><p className={styles.kickerLight}>Ready to choose?</p><h2>Match the exact home to your dates.</h2></div><div><SiteButton href="/destin-vacation-rentals-by-owner" variant="light">Compare vacation rentals</SiteButton><SiteButton href="/availability" variant="primary">Check live availability</SiteButton></div></section>

@@ -62,7 +62,7 @@ export default function MigratedBlogArticle({
           <a href="/blog">Destin Guide</a><p className={styles.kickerLight}>{kicker}</p><h1>{title}</h1><p>{intro}</p>
         </div>
       </section>
-      <AvailabilitySearch className={styles.availability} />
+      <AvailabilitySearch />
       {articleContent ? <article className={styles.article}>{articleContent}</article> : <article className={styles.article} dangerouslySetInnerHTML={{ __html: prepareMigratedArticleHtml(articleHtml) }} />}
 
       <section className={styles.related}>

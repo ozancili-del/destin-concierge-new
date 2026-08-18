@@ -92,7 +92,7 @@
   white-space: nowrap;
 }
 .nav a:hover, .textLink:hover { color: var(--emerald); }
-.bookButton, .search button, .cta > a {
+.bookButton, .cta > a {
   background: var(--gold);
   color: var(--navy);
   text-decoration: none;
@@ -166,45 +166,6 @@
   line-height: 1;
   text-align: right;
 }
-.search {
-  position: absolute;
-  z-index: 3;
-  bottom: -48px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: min(1120px, calc(100% - 40px));
-  background: var(--warm);
-  box-shadow: 0 18px 50px rgba(7, 59, 88, .18);
-  border: 1px solid var(--line);
-  border-radius: 13px;
-  padding: 16px;
-  display: grid;
-  grid-template-columns: 1fr 1fr 1.35fr 1.15fr;
-  gap: 11px;
-}
-.search label {
-  border: 1px solid #cedcdf;
-  border-radius: 8px;
-  padding: 9px 13px;
-}
-.search label span {
-  display: block;
-  color: #61757d;
-  text-transform: uppercase;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: .12em;
-}
-.search input, .search select {
-  border: 0;
-  width: 100%;
-  padding: 7px 0 0;
-  background: transparent;
-  color: var(--ink);
-  font: inherit;
-}
-.search button { font-size: 15px; cursor: pointer; }
-
 .trustStrip {
   padding: 92px clamp(20px, 6vw, 96px) 42px;
   display: grid;
@@ -282,20 +243,6 @@
   gap: 50px;
   padding: 78px clamp(24px, 8vw, 130px);
   background: var(--sand);
-}
-.partyFields {
-  display: grid !important;
-  grid-template-columns: .8fr 1.2fr;
-  gap: 9px;
-  color: inherit !important;
-  text-transform: none !important;
-  font-size: inherit !important;
-  font-weight: 400 !important;
-  letter-spacing: normal !important;
-}
-.partyFields select + select {
-  border-left: 1px solid #cedcdf;
-  padding-left: 9px;
 }
 .reviewShowcase {
   padding: 92px clamp(20px, 7vw, 118px);
@@ -474,8 +421,6 @@
   .heroShade { background: linear-gradient(90deg, rgba(3, 43, 64, .9), rgba(3, 43, 64, .35)); }
   .hero h1 { font-size: 48px; }
   .heroCopy { font-size: 17px; }
-  .search { bottom: -115px; grid-template-columns: 1fr 1fr; padding: 14px; }
-  .search button { min-height: 58px; }
   .trustStrip { padding-top: 155px; grid-template-columns: repeat(2, 1fr); }
   .trustStrip div:nth-child(2) { border-right: 0; }
   .cards, .direct, .resort, .webcam, .reviewCards { grid-template-columns: 1fr; }
@@ -508,14 +453,6 @@
   .heroContent { order: 2; align-self: flex-start; margin-top: 34px; }
   .hero h1 { font-size: 40px; line-height: 1.02; margin-top: 14px; }
   .heroCopy { font-size: 16px; line-height: 1.55; }
-  .search {
-    position: relative;
-    order: 1;
-    inset: auto;
-    transform: none;
-    width: 100%;
-    grid-template-columns: 1fr;
-  }
   .trustStrip { padding-top: 55px; grid-template-columns: 1fr; }
   .trustStrip div { border-right: 0; border-bottom: 1px solid #d7d0c2; padding-bottom: 18px; }
   .section { padding: 74px 20px; }

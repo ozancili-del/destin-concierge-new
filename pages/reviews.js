@@ -68,7 +68,7 @@ export default function ReviewsPage() {
         <div className={styles.heroCopy}><a href="/">Home</a><p className={styles.kicker}>Real guest experiences</p><h1>Guest reviews from Pelican Beach Resort</h1><p>Read what guests say about the condos, the beachfront location and their experience booking directly with Ozan.</p></div>
       </section>
 
-      <AvailabilitySearch className={styles.availability} />
+      <AvailabilitySearch />
 
       <section className={styles.score}>
         <div><strong>4.93</strong><span aria-label="Five stars">★★★★★</span><p>Based on 173 direct-stay reviews</p></div>

@@ -89,7 +89,7 @@ export default function Resort() {
     <main>
       <section className={styles.hero}><img src="/images/site/b004f9895bc24136805cc94e514f4039-large.webp" alt="Pelican Beach Resort beachfront and Gulf of Mexico in Destin, Florida" /><div className={styles.heroShade}></div><div className={styles.heroCopy}><a href="/">Home</a><p className={styles.kicker}>The complete resort guide</p><h1>Pelican Beach Resort in Destin, Florida</h1><p>Step off the elevator and onto the beach—no road to cross. Explore the pools, location, amenities and Gulf-front vacation rentals before choosing your stay.</p><div className={styles.actions}><SiteButton href="#availability" variant="primary" size="large">Check your dates</SiteButton><SiteButton href="#condos" variant="light" size="large">Explore the condos</SiteButton></div></div></section>
 
-      <AvailabilitySearch className={styles.availability} />
+      <AvailabilitySearch />
 
       <section className={styles.intro}><div><p className={styles.kicker}>Why this location stands out</p><h2>Beachfront means beachfront here.</h2></div><div><p>Pelican Beach Resort sits at <strong>1002 US Highway 98, Destin, FL 32541</strong>, directly on the Gulf of Mexico. The Pelican building is the beachfront building: take the elevator to ground level and walk to the white quartz sand without crossing traffic.</p><p>The separate Terrace at Pelican building faces US-98 and is not beachfront. Units 707 and 1006 are both in the Pelican building, with private Gulf-facing balconies.</p></div></section>
 

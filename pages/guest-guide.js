@@ -102,7 +102,7 @@ export default function GuestGuidePage() {
         <div className={styles.heroCopy}><a href="/">Home</a><p className={styles.kickerLight}>Guest guide & FAQ</p><h1>Plan your Pelican Beach Resort stay with confidence.</h1><p>Clear answers about the resort, condo layouts, booking, arrival and the practical details guests ask most.</p></div>
       </section>
 
-      <AvailabilitySearch className={styles.availability} />
+      <AvailabilitySearch />
 
       <section className={styles.quickFacts}>
         <article><span>Check-in</span><strong>4:00 PM</strong></article>

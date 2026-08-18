@@ -130,7 +130,7 @@ export default function AvailabilityPage() {
           <span>{totalGuests} total {totalGuests === 1 ? "guest" : "guests"}</span>
           <button type="button" onClick={() => setShowChangeSearch((current) => !current)}>{showChangeSearch ? "Keep these dates" : "Change dates"}</button>
         </div>}
-        {(!hasValidSearch || showChangeSearch) && <AvailabilitySearch className={styles.localSearch} id="availability-form" initialArrival={arrival} initialDeparture={departure} initialAdults={Number.isFinite(adults) ? adults : 2} initialChildren={Number.isFinite(children) ? children : 0} />}
+        {(!hasValidSearch || showChangeSearch) && <AvailabilitySearch id="availability-form" initialArrival={arrival} initialDeparture={departure} initialAdults={Number.isFinite(adults) ? adults : 2} initialChildren={Number.isFinite(children) ? children : 0} />}
         {hasSearchInputs && validationError && <div className={styles.liveResults} aria-live="polite"><p className={styles.error}>{validationError}</p></div>}
         {hasValidSearch && <div className={styles.liveResults} aria-live="polite">
           {!liveResults && !resultsError && <p className={styles.loading}>Checking both live calendars…</p>}

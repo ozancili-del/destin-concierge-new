@@ -1,5 +1,6 @@
 import { useState } from "react";
 import SiteButton from "./SiteButton";
+import styles from "../styles/AvailabilitySearch.module.css";
 
 function formatDate(date) {
   return date.toISOString().slice(0, 10);
@@ -12,7 +13,7 @@ function tomorrowAfter(value) {
   return formatDate(date);
 }
 
-export default function AvailabilitySearch({ className, id = "availability", initialArrival = "", initialDeparture = "", initialAdults = 2, initialChildren = 0 }) {
+export default function AvailabilitySearch({ id = "availability", initialArrival = "", initialDeparture = "", initialAdults = 2, initialChildren = 0 }) {
   const safeInitialAdults = Math.min(6, Math.max(1, Number(initialAdults) || 2));
   const safeInitialChildren = Math.min(6 - safeInitialAdults, Math.max(0, Number(initialChildren) || 0));
   const [arrival, setArrival] = useState(initialArrival);
@@ -21,7 +22,7 @@ export default function AvailabilitySearch({ className, id = "availability", ini
   const [children, setChildren] = useState(safeInitialChildren);
 
   return (
-    <form className={className} id={id} method="get" action="/availability">
+    <form className={styles.availability} id={id} method="get" action="/availability">
       <div><span>Live availability</span></div>
       <label><span>Check in</span><input aria-label="Arrival date" name="or_arrival" type="date" min={formatDate(new Date())} value={arrival} onChange={(event) => { setArrival(event.target.value); if (departure && departure <= event.target.value) setDeparture(""); }} required /></label>
       <label><span>Check out</span><input aria-label="Departure date" name="or_departure" type="date" min={tomorrowAfter(arrival)} value={departure} onChange={(event) => setDeparture(event.target.value)} required /></label>

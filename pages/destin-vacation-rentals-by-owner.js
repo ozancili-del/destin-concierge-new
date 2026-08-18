@@ -111,7 +111,7 @@ export default function CondoCollection() {
         <div className={styles.heroVisual}><Image src="/book-direct-banner-bg.webp" alt="Pelican Beach Resort and white-sand beach in Destin Florida" fill priority sizes="(max-width: 900px) 100vw, 50vw" /><div><strong>Exact condo.</strong><span>Direct Gulf view.</span></div></div>
       </section>
 
-      <AvailabilitySearch className={styles.availability} />
+      <AvailabilitySearch />
 
       <section className={styles.intro}>
         <div><p className={styles.kicker}>A more useful way to choose</p><h2>Start with the home—not merely the destination.</h2></div>

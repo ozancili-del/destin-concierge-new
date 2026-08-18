@@ -1,8 +1,8 @@
 import Head from "next/head";
 import Image from "next/image";
 import Script from "next/script";
-import { useState } from "react";
 import { Parisienne, Sacramento } from "next/font/google";
+import AvailabilitySearch from "../components/AvailabilitySearch";
 import SiteButton from "../components/SiteButton";
 import SiteHeader from "../components/SiteHeader";
 import SiteFooter from "../components/SiteFooter";
@@ -12,17 +12,6 @@ const heroSlogan = Sacramento({ subsets: ["latin"], weight: "400", display: "swa
 const heroSignature = Parisienne({ subsets: ["latin"], weight: "400", display: "swap" });
 
 const site = "https://www.destincondogetaways.com";
-
-function formatDate(date) {
-  return date.toISOString().slice(0, 10);
-}
-
-function tomorrowAfter(value) {
-  if (!value) return formatDate(new Date());
-  const date = new Date(`${value}T12:00:00`);
-  date.setDate(date.getDate() + 1);
-  return formatDate(date);
-}
 
 const condos = [
   {
@@ -85,10 +74,6 @@ const faqs = [
 ];
 
 export default function Home() {
-  const [arrival, setArrival] = useState("");
-  const [departure, setDeparture] = useState("");
-  const [adults, setAdults] = useState(2);
-  const [children, setChildren] = useState(0);
 
   const structuredData = {
     "@context": "https://schema.org",
@@ -190,35 +175,9 @@ export default function Home() {
                 <small className={heroSignature.className}>— Ozan Cili</small>
               </div>
             </div>
-            <form
-              className={styles.search}
-              id="availability"
-              action="/book"
-              method="get"
-            >
-              <label>
-                <span>Check in</span>
-                <input aria-label="Arrival date" name="or_arrival" type="date" min={formatDate(new Date())} value={arrival} onChange={(event) => { setArrival(event.target.value); if (departure && departure <= event.target.value) setDeparture(""); }} required />
-              </label>
-              <label>
-                <span>Check out</span>
-                <input aria-label="Departure date" name="or_departure" type="date" min={tomorrowAfter(arrival)} value={departure} onChange={(event) => setDeparture(event.target.value)} required />
-              </label>
-              <label className={styles.partyLabel}>
-                <span>Guests · maximum 6 total</span>
-                <span className={styles.partyFields}>
-                  <select aria-label="Adults" name="or_adults" value={adults} onChange={(event) => { const nextAdults = Number(event.target.value); setAdults(nextAdults); setChildren((current) => Math.min(current, 6 - nextAdults)); }}>
-                    {[1, 2, 3, 4, 5, 6].map((count) => <option value={count} key={count}>{count} {count === 1 ? "adult" : "adults"}</option>)}
-                  </select>
-                  <select aria-label="Children and infants" name="or_children" value={children} onChange={(event) => { setChildren(Number(event.target.value)); event.currentTarget.setCustomValidity(""); }}>
-                    {Array.from({ length: 7 - adults }, (_, count) => <option value={count} key={count}>{count} {count === 1 ? "child/infant" : "children/infants"}</option>)}
-                  </select>
-                </span>
-              </label>
-              <input type="hidden" name="or_guests" value={adults + children} />
-              <SiteButton type="submit" variant="primary" size="standard">Check availability</SiteButton>
-            </form>
           </section>
+
+          <AvailabilitySearch />
 
           <section className={styles.trustStrip} aria-label="Stay highlights">
             <div><strong>Right on the sand</strong><span>No street to cross</span></div>

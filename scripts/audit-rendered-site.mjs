@@ -13,6 +13,8 @@ const defaultRoutes = [
 const routes = process.env.AUDIT_ROUTES ? process.env.AUDIT_ROUTES.split(",") : defaultRoutes;
 const viewports = [
   { name: "mobile", width: 390, height: 844 },
+  { name: "tablet-portrait", width: 820, height: 1180 },
+  { name: "tablet-landscape", width: 1024, height: 768 },
   { name: "desktop", width: 1440, height: 1000 },
 ];
 
@@ -95,4 +97,4 @@ if (issues.length) {
   for (const issue of issues) console.error(`- ${issue}`);
   process.exit(1);
 }
-console.log(`Rendered-site audit passed: ${results.length} mobile/desktop page renders checked.`);
+console.log(`Rendered-site audit passed: ${results.length} responsive page renders checked across mobile, tablet portrait, tablet landscape and desktop.`);

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Head from "next/head";
+import Image from "next/image";
 import Script from "next/script";
 import SiteButton from "./SiteButton";
 import SharedSiteFooter from "./SiteFooter";
@@ -101,7 +102,7 @@ export default function UnitPage({ unit }) {
           <div className={styles.headingBottom}><h2>{unit.style}</h2><div className={styles.actions}><SiteButton href="#checkout" variant="primary" size="large">See dates &amp; total</SiteButton></div></div>
         </div>
         <div className={styles.previewMosaic} id="photos" aria-label={`Photo preview for Pelican Beach Resort Unit ${unit.number}`}>
-          {photos.slice(0, 5).map((src, index) => <button className={index === 0 ? styles.mosaicLead : styles.mosaicTile} key={src} type="button" onClick={() => setLightbox(index)} aria-label={index === 4 ? `View all ${photos.length} photos, starting with ${photoDescription(unit, index)}` : `Enlarge ${photoDescription(unit, index)}`}><img src={src} alt={photoDescription(unit, index)} loading="eager" width="1200" height="800" />{index === 4 && <span>View all {photos.length} photos</span>}</button>)}
+          {photos.slice(0, 5).map((src, index) => <button className={index === 0 ? styles.mosaicLead : styles.mosaicTile} key={src} type="button" onClick={() => setLightbox(index)} aria-label={index === 4 ? `View all ${photos.length} photos, starting with ${photoDescription(unit, index)}` : `Enlarge ${photoDescription(unit, index)}`}><Image src={src} alt={photoDescription(unit, index)} fill priority={index === 0} fetchPriority={index === 0 ? "high" : "auto"} sizes={index === 0 ? "(max-width: 1000px) 100vw, 50vw" : "(max-width: 1000px) 50vw, 25vw"} quality={index === 0 ? 78 : 72}/>{index === 4 && <span>View all {photos.length} photos</span>}</button>)}
         </div>
         <div className={styles.propertyHighlights} aria-label={`Essential facts for Unit ${unit.number}`}><span><strong>873</strong> sq ft</span><span><strong>1</strong> bedroom</span><span><strong>2</strong> bathrooms</span><span><strong>Sleeps</strong> up to 6</span><span><strong>Gulf-view</strong> balcony</span></div>
       </section>

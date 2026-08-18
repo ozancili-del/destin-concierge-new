@@ -23,3 +23,8 @@
 /* Final WCAG AA overrides: these declarations must follow legacy component rules. */
 .kicker,.journeyGrid span{color:#0b7584}
 .virtualTour p{color:#526b79}
+
+/* Reserve the final third-party checkout footprint before its iframe hydrates. */
+.widgetShell{min-height:720px;contain:layout paint}
+.widgetShell :global(.ownerrez-widget){display:block;min-height:680px}
+@media(max-width:680px){.widgetShell{min-height:780px}.widgetShell :global(.ownerrez-widget){min-height:760px}}

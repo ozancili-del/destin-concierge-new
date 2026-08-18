@@ -75,6 +75,55 @@
       "has": [{ "type": "host", "value": "explore.destincondogetaways.com" }]
     },
     {
+      "source": "/blog/best-restaurants-destin-local-guide",
+      "destination": "https://www.destincondogetaways.com/blog/best-restaurants-destin-local-guide",
+      "permanent": true,
+      "has": [{ "type": "host", "value": "explore.destincondogetaways.com" }]
+    },
+    {
+      "source": "/blog/destinweather",
+      "destination": "https://www.destincondogetaways.com/blog/destinweather",
+      "permanent": true,
+      "has": [{ "type": "host", "value": "explore.destincondogetaways.com" }]
+    },
+    {
+      "source": "/pelican-beach-resort-unit-1006-orp5b6450ex",
+      "destination": "https://www.destincondogetaways.com/condos/unit-1006",
+      "permanent": true,
+      "preserveQueryParams": true,
+      "has": [{ "type": "host", "value": "explore.destincondogetaways.com" }]
+    },
+    {
+      "source": "/blog/destinnights",
+      "destination": "https://www.destincondogetaways.com/blog/destinnights",
+      "permanent": true,
+      "has": [{ "type": "host", "value": "deals.destincondogetaways.com" }]
+    },
+    {
+      "source": "/:path*",
+      "destination": "https://www.destincondogetaways.com/deals",
+      "permanent": true,
+      "has": [{ "type": "host", "value": "deals.destincondogetaways.com" }]
+    },
+    {
+      "source": "/:path*",
+      "destination": "https://www.destincondogetaways.com/destin-hub",
+      "permanent": true,
+      "has": [{ "type": "host", "value": "explore.destincondogetaways.com" }]
+    },
+    {
+      "source": "/:path*",
+      "destination": "https://www.destincondogetaways.com/offer",
+      "permanent": true,
+      "has": [{ "type": "host", "value": "offer.destincondogetaways.com" }]
+    },
+    {
+      "source": "/:path*",
+      "destination": "https://www.destincondogetaways.com/snowbird",
+      "permanent": true,
+      "has": [{ "type": "host", "value": "sunbirds.destincondogetaways.com" }]
+    },
+    {
       "source": "/",
       "destination": "/guestview",
       "permanent": false,
@@ -99,26 +148,12 @@
   ],
   "rewrites": [
     {
-      "source": "/(.*)",
-      "destination": "/snowbird",
-      "has": [
-        {
-          "type": "host",
-          "value": "sunbirds.destincondogetaways.com"
-        }
-      ]
-    },
-    {
       "source": "/tv-707.html",
       "destination": "/tv-707.html"
     },
     {
       "source": "/tv-1006.html",
       "destination": "/tv-1006.html"
-    },
-    {
-      "source": "/destin-hub.html",
-      "destination": "/destin-hub"
     }
   ],
   "crons": [

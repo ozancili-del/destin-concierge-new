@@ -2,7 +2,7 @@ import fs from "node:fs";
 
 const origin = process.env.AUDIT_ORIGIN || "http://localhost:3107";
 const productionOrigin = "https://www.destincondogetaways.com";
-const sitemapSource = fs.readFileSync("pages/sitemap-vercel.xml.js", "utf8");
+const sitemapSource = fs.readFileSync("pages/sitemap.xml.js", "utf8");
 const routeBlock = sitemapSource.match(/const ROUTES\s*=\s*\[([\s\S]*?)\];/)?.[1] || "";
 const routes = [...routeBlock.matchAll(/["'](\/[^"']*)["']/g)].map((match) => match[1]);
 const issues = [];

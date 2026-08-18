@@ -56,8 +56,8 @@ The remaining work is principally launch assurance: GTM reconciliation, final si
 - Canonical production URLs and structured-data inventory are represented in the code and supporting audits.
 - Strategic internal-link audit and routing checks are implemented.
 - Booking query URLs are prevented from becoming competing canonical index targets.
-- `robots.txt` currently points crawlers to `https://www.destincondogetaways.com/sitemap-vercel.xml`.
-- Dynamic production sitemap route currently contains the intended canonical public route inventory.
+- Production `robots.txt` points crawlers to the single authoritative sitemap at `https://www.destincondogetaways.com/sitemap.xml`; non-production deployments block crawling.
+- The dynamic production sitemap contains the intended canonical public route inventory, while the former `/sitemap-vercel.xml` address permanently redirects to it.
 - Legacy redirect rules already exist in `next.config.js`; host-specific subdomain redirects exist in `vercel.json`.
 - Preview SEO isolation remains intentional and must be removed/adjusted only during production cutover.
 
@@ -89,23 +89,23 @@ Known environment note: a local full build can stop on an existing TV preview ro
 
 ## Pending work in execution order
 
-### 1. Google Tag Manager and GA4 audit — pending, critical
+### 1. Google Tag Manager and GA4 audit — assessed; production validation pending, critical
 
-- Inventory every GTM tag, trigger, variable, custom HTML script, consent rule, and environment.
-- Identify OwnerRez DOM selectors, old URL patterns, duplicate GA4 installation, and obsolete conversion logic.
-- Reconcile GTM events with the new code-based analytics events.
+- GTM tags, triggers, variables, custom HTML scripts, the pending workspace change, and live script loading have been inventoried read-only.
+- Legacy OwnerRez URL patterns, duplicate-loader risks, obsolete SEO injection logic, and the Travelpayouts affiliate script have been identified.
+- GTM has been reconciled with the new code-owned analytics architecture; see `docs/GTM-GA4-AUDIT.md`.
 - Verify booking search, availability result, unit selection, checkout start, inquiry, outbound affiliate, phone, email, and chat events.
 - Use Tag Assistant/Preview mode and GA4 DebugView.
-- Decide explicitly which tags are retained, rewritten, or retired.
+- Ozan confirmed Microsoft Clarity and Travelpayouts must remain; verify both load exactly once and scope Travelpayouts away from booking/private workflows in production.
 
-### 2. Sitemap and robots production validation — pending, critical
+### 2. Sitemap and robots production validation — implemented; live cutover validation pending, critical
 
-- Resolve whether `/sitemap.xml` should redirect to or be replaced by `/sitemap-vercel.xml`; expose one authoritative sitemap wherever possible.
-- Confirm every canonical indexable route appears once.
-- Confirm no preview, API, TV, admin, chat-session, parameterised booking, duplicate `.html`, or legacy redirect URL appears.
+- [x] Expose one authoritative sitemap at `/sitemap.xml` and permanently redirect the former `/sitemap-vercel.xml` address.
+- [x] Confirm every canonical indexable route appears once in the checked-in inventory.
+- [x] Confirm no preview, API, TV, admin, chat-session, parameterised booking, duplicate `.html`, or legacy redirect URL appears.
 - Add appropriate `lastmod` only when it can be maintained honestly.
 - Verify correct XML content type, status 200, absolute HTTPS URLs, and production hostname.
-- Ensure production robots permits public crawling while excluding non-public utilities as appropriate.
+- [x] Ensure production robots permits public crawling while excluding non-public utilities; preview deployments block crawling.
 - Submit the final sitemap to both Google Search Console and Bing Webmaster Tools after cutover.
 
 ### 3. Redirect map reconciliation — pending, critical
@@ -169,7 +169,7 @@ Known environment note: a local full build can stop on an existing TV preview ro
 
 ## Current redirect inventory already in code
 
-The current implementation includes redirects for legacy beach-cam, About, privacy, properties, resort, why-book-direct, unit 707, unit 1006, itinerary planner, AI concierge, virtual tour, FAQ, and selected legacy AI/blog routes. Host-specific redirects also cover the deals, explore, offer, sunbirds, guestview, and app subdomains.
+The complete source-of-truth mapping is now maintained in `docs/REDIRECT-MASTER-MAP.md`, backed by `config/legacy-redirects.js`, host rules in `vercel.json`, and `npm run test:redirect-map`. It covers numbered OwnerRez URLs, duplicate aliases, former `.html` tools, historical Google/Bing 404s, retired public subdomains, and booking-query preservation. Guestview and app remain separate product surfaces.
 
 This inventory is not yet considered launch-complete. It must be reconciled against Search Console, Bing Webmaster Tools, the supplied historical URL lists, current crawl results, and OwnerRez-hosted routes.
 
@@ -196,6 +196,6 @@ This inventory is not yet considered launch-complete. It must be reconciled agai
 - `docs/SEO-COMMERCIAL-MIGRATION-DEEP-DIVE.md`.
 - `docs/WEBSITE-SEO-SCHEMA-INVENTORY.md`.
 - `docs/ANALYTICS-MEASUREMENT-PLAN.md`.
+- `docs/GTM-GA4-AUDIT.md`.
 - Content reconciliation files under `docs/`.
 - Audit scripts under `scripts/` and test suites under `tests/`.
-

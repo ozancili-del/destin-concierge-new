@@ -104,3 +104,12 @@ export default function BlogHub(){
     <Script src="/destiny-loader.js" strategy="lazyOnload" />
   </div>;
 }
+
+// OwnerRez exposed category query variants that Google crawled as duplicate
+// blog hubs. Retire only that known CMS parameter and keep the clean hub URL.
+export async function getServerSideProps({ query }) {
+  if (query.categoryId) {
+    return { redirect: { destination: "/blog", permanent: true } };
+  }
+  return { props: {} };
+}

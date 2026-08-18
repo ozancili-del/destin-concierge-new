@@ -17,7 +17,7 @@ const availability = read("pages/availability.js");
 const availabilitySearch = read("components/AvailabilitySearch.js");
 const homepage = read("pages/index.js");
 const book = read("pages/book.js");
-const sitemap = read("pages/sitemap-vercel.xml.js");
+const sitemap = read("pages/sitemap.xml.js");
 const sitemapRouteBlock = sitemap.match(/const ROUTES\s*=\s*\[([\s\S]*?)\];/)?.[1] || "";
 
 // Unit pages may receive booking parameters, but their indexable identity must

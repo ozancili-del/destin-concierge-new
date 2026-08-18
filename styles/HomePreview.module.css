@@ -149,6 +149,23 @@
   line-height: 1.65;
   color: #eef8f8;
 }
+.heroSignature {
+  width: fit-content;
+  margin: 22px 0 0 26px;
+  color: #fff8ea;
+  transform: rotate(-1.2deg);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, .35);
+}
+.heroSignature span,
+.heroSignature small { display: block; }
+.heroSignature span { font-size: clamp(27px, 2.3vw, 37px); line-height: 1; }
+.heroSignature small {
+  margin: 6px 12px 0 0;
+  color: #e8bd62;
+  font-size: clamp(20px, 1.65vw, 27px);
+  line-height: 1;
+  text-align: right;
+}
 .search {
   position: absolute;
   z-index: 3;
@@ -488,6 +505,7 @@
   .heroContent { order: 2; align-self: flex-start; margin-top: 34px; }
   .hero h1 { font-size: 40px; line-height: 1.02; margin-top: 14px; }
   .heroCopy { font-size: 16px; line-height: 1.55; }
+  .heroSignature { display: none; }
   .search {
     position: relative;
     order: 1;

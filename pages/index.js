@@ -2,10 +2,14 @@ import Head from "next/head";
 import Image from "next/image";
 import Script from "next/script";
 import { useState } from "react";
+import { Parisienne, Sacramento } from "next/font/google";
 import SiteButton from "../components/SiteButton";
 import SiteHeader from "../components/SiteHeader";
 import SiteFooter from "../components/SiteFooter";
 import styles from "../styles/HomePreview.module.css";
+
+const heroSlogan = Sacramento({ subsets: ["latin"], weight: "400", display: "swap" });
+const heroSignature = Parisienne({ subsets: ["latin"], weight: "400", display: "swap" });
 
 const site = "https://www.destincondogetaways.com";
 
@@ -181,6 +185,10 @@ export default function Home() {
                 balcony views, secure booking, and thoughtful owner support from planning
                 through checkout.
               </p>
+              <div className={styles.heroSignature}>
+                <span className={heroSlogan.className}>Where Destin stays with you…</span>
+                <small className={heroSignature.className}>— Ozan Cili</small>
+              </div>
             </div>
             <form
               className={styles.search}

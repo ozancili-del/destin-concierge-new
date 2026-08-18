@@ -28,7 +28,7 @@ export default function SiteHeader({ availabilityHref = "/availability" }) {
       <span><strong>Destin Condo Getaways</strong><small>Pelican Beach Resort | Destin, Florida</small></span>
     </a>
 
-    <p className={styles.slogan} aria-label="Where Destin stays with you">
+    <p className={styles.slogan}>
       <span className={`${styles.desktopSlogan} ${desktopSlogan.className}`}>Where Destin stays with you</span>
       <span className={`${styles.mobileSlogan} ${mobileSlogan.className}`} aria-hidden="true">Where Destin stays with you…</span>
     </p>

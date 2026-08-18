@@ -199,3 +199,17 @@ This inventory is not yet considered launch-complete. It must be reconciled agai
 - `docs/GTM-GA4-AUDIT.md`.
 - Content reconciliation files under `docs/`.
 - Audit scripts under `scripts/` and test suites under `tests/`.
+
+## August 18, 2026 final-candidate dry-run update
+
+- The optimized production build completes without requiring TV-preview Supabase credentials; the TV preview now fails closed with a 404 when its private database configuration is unavailable.
+- Rendered search-readiness passed for 46 canonical routes. Canonicals are absolute, query-free, schema-aligned, and preview deployments remain `noindex,nofollow`.
+- Rendered HTTP crawling passed for 64 internal routes with no 4xx or 5xx response.
+- The cutover, booking-canonical, and redirect-master-map suites passed, including preservation of all five booking parameters.
+- Static internal-link coverage passed for 532 links across 56 routes and aliases. The strategic-link audit passed for all 21 blog entry pages.
+- SEO, asset, and analytics audits passed: 21 priority metadata pages, 15 schema-owned pages, 193 migrated asset references, and 11 analytics surfaces.
+- Chrome Lighthouse on the exact optimized build passed Accessibility 100, Best Practices 100, and Agentic Browsing 100 on both mobile and desktop. The preview-only SEO score is 69 solely because crawling is intentionally blocked before cutover.
+- An unthrottled Chrome performance trace recorded 257 ms LCP, 13 ms TTFB, and 0.00 CLS. Render-blocking resources had an estimated 0 ms LCP/FCP impact. Production field performance still requires post-cutover observation.
+- Key booking, lodging, trust, and media routes were rendered at 390×844, 820×1180, 1024×768, and 1440×1000. Every checked page had one visible H1, zero horizontal overflow, and zero broken images.
+- The repeated contextual image on both unit pages was replaced with a distinct migrated unit image; the top gallery is no longer repeated verbatim farther down the page.
+- Remaining launch gates: authenticated live availability/price/checkout edge-case testing, third-party form and chat/handoff testing, Tag Assistant plus GA4 DebugView validation, production Rich Results validation, DNS/TLS rehearsal, and rollback verification. None of these may be recorded as passed from a credential-free local build.

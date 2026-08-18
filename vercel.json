@@ -90,7 +90,6 @@
       "source": "/pelican-beach-resort-unit-1006-orp5b6450ex",
       "destination": "https://www.destincondogetaways.com/condos/unit-1006",
       "permanent": true,
-      "preserveQueryParams": true,
       "has": [{ "type": "host", "value": "explore.destincondogetaways.com" }]
     },
     {

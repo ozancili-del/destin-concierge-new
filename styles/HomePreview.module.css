@@ -91,7 +91,7 @@
   font-weight: 650;
   white-space: nowrap;
 }
-.nav a:hover, .textLink:hover { color: var(--emerald); }
+.nav a:hover, .textLink:hover { color: #065f6d; }
 .bookButton, .cta > a {
   background: var(--gold);
   color: var(--navy);
@@ -234,8 +234,36 @@
 .card h3 { font: 700 27px/1.2 Georgia, serif; color: var(--navy); margin: 8px 0 14px; }
 .card ul { display: flex; gap: 20px; padding: 0; margin: 0; list-style: none; color: #4e6872; font-size: 13px; }
 .cardCopy { color: var(--muted); line-height: 1.65; }
-.card a, .textLink { color: var(--navy); font-weight: 800; text-decoration: none; }
-.card a span { color: var(--gold); }
+.card a {
+  width: fit-content;
+  min-height: 44px;
+  margin-top: 4px;
+  padding: 11px 15px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #87c7cf;
+  border-radius: 9px;
+  background: #e9f7f8;
+  color: #075f70;
+  font-weight: 800;
+  text-decoration: none;
+  transition: background-color .18s ease, border-color .18s ease, color .18s ease;
+}
+.card a span { color: #075f70; }
+.card a:hover,
+.card a:focus-visible {
+  border-color: var(--emerald);
+  background: #d8f0f2;
+  color: #064f5d;
+}
+.textLink {
+  color: #007c99;
+  font-weight: 800;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
 
 .direct {
   display: grid;
@@ -312,7 +340,18 @@
 .webcamCopy { padding: 55px clamp(28px, 6vw, 80px); align-self: center; color: var(--warm); }
 .webcamCopy h2 { color: var(--warm); }
 .webcamCopy > p { color: #c8d9df; }
-.webcamCopy a { color: #f2ce79; font-weight: 800; text-decoration: none; }
+.webcamCopy a {
+  width: fit-content;
+  min-height: 44px;
+  padding: 11px 15px;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid #f2ce79;
+  border-radius: 9px;
+  color: #f2ce79;
+  font-weight: 800;
+  text-decoration: none;
+}
 
 .explore { padding: 96px clamp(20px, 7vw, 118px); background: var(--sand); }
 .exploreGrid {
@@ -340,7 +379,7 @@
 }
 .exploreGrid span { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .09em; }
 .exploreGrid strong { font: 700 24px Georgia, serif; margin-top: 9px; }
-.exploreGrid em { margin-top: 18px; color: var(--emerald); font-size: 12px; font-style: normal; font-weight: 850; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+.exploreGrid em { margin-top: 18px; color: #007c99; font-size: 12px; font-style: normal; font-weight: 850; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 4px; }
 .exploreGrid a:hover,.exploreGrid a:focus-visible { transform: translateY(-3px); border-color:#93c8ce; box-shadow:0 15px 34px rgba(7,59,88,.13); outline:none; }
 .exploreGrid a:focus-visible { box-shadow:0 0 0 3px rgba(21,151,168,.25),0 15px 34px rgba(7,59,88,.13); }
 

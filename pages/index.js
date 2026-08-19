@@ -236,7 +236,7 @@ export default function Home() {
                 </blockquote>
               ))}
             </div>
-            <a className={styles.textLink} href="/reviews">Read guest reviews and booking-profile feedback -&gt;</a>
+            <a className={styles.textLink} href="/reviews">Read guest reviews <span aria-hidden="true">→</span></a>
           </section>
 
           <section className={styles.direct}>
@@ -248,7 +248,7 @@ export default function Home() {
                 See the exact condo, understand the policies, and reach Ozan directly when
                 a question needs personal attention.
               </p>
-              <a className={styles.textLink} href="/about">Meet your host -&gt;</a>
+              <a className={styles.textLink} href="/about">Meet your host <span aria-hidden="true">→</span></a>
             </div>
             <div className={styles.directPanel}>
               <p className={styles.kickerDark}>Why book direct</p>
@@ -259,7 +259,7 @@ export default function Home() {
                 <div><strong>The exact condo</strong><span>See the real unit, view, amenities, and policies.</span></div>
                 <div><strong>Secure checkout</strong><span>Live pricing, availability, and payment remain protected.</span></div>
               </div>
-              <a className={styles.textLink} href="/why-book-direct">Why book direct -&gt;</a>
+              <a className={styles.textLink} href="/why-book-direct">Why book direct <span aria-hidden="true">→</span></a>
             </div>
           </section>
 
@@ -285,7 +285,7 @@ export default function Home() {
                 <span>Tennis & pickleball</span><span>Fitness center</span><span>Free parking</span>
               </div>
               <a className={styles.textLink} href="/resort">
-                See the resort -&gt;
+                See the resort <span aria-hidden="true">→</span>
               </a>
             </div>
           </section>
@@ -340,7 +340,7 @@ export default function Home() {
                 </details>
               ))}
             </div>
-            <a className={styles.textLink} href="/guest-guide">See all FAQs and policies -&gt;</a>
+            <a className={styles.textLink} href="/guest-guide">See all FAQs and policies <span aria-hidden="true">→</span></a>
           </section>
 
           <section className={styles.liveChat} id="live-chat">

@@ -1,6 +1,7 @@
 import Script from "next/script";
 import { useRouter } from "next/router";
 import "../public/dcg-core.js";
+import "../styles/globals.css";
 
 const CHAT_EXCLUDED_ROUTES = ["/concierge", "/destin-ai-concierge", "/ozan", "/app", "/guestview", "/tv"];
 

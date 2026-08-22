@@ -27,9 +27,9 @@ export default function App() {
   ];
 
   const tiles = [
-    { emoji: '🔥', label: 'Live Deals',     sub: 'Find your condo',    url: '/deals', bg: '#fff0f0' },
-    { emoji: '✈️', label: 'Flights & Cars', sub: 'Compare travel',     url: '/car-rentals', bg: '#f0f7ff' },
-    { emoji: '🎟️', label: 'Activities',     sub: 'Book the fun',       url: '/activities', bg: '#fff5f0' },
+    { emoji: '🔥', label: 'Live Deals',     sub: 'Find your condo',    url: '/destin-condo-deals', bg: '#fff0f0' },
+    { emoji: '✈️', label: 'Flights & Cars', sub: 'Compare travel',     url: '/destin-car-rentals', bg: '#f0f7ff' },
+    { emoji: '🎟️', label: 'Activities',     sub: 'Book the fun',       url: '/destin-activities', bg: '#fff5f0' },
     { emoji: '🌊', label: 'Destin Hub',     sub: 'Your local guide',   url: '/destin-hub', bg: '#f0fff8' },
   ];
 
@@ -242,7 +242,7 @@ export default function App() {
                 <a href="/availability">View all →</a>
               </div>
               <div className="properties-row">
-                <a className="prop-card" href="/condos/unit-707">
+                <a className="prop-card" href="/pelican-beach-resort-unit-707">
                   <img className="prop-img" src={UNIT_707_IMG} alt="Unit 707" />
                   <div className="prop-info">
                     <div className="prop-unit">Unit 707</div>
@@ -251,7 +251,7 @@ export default function App() {
                     <div className="prop-badge">Book Direct & Save</div>
                   </div>
                 </a>
-                <a className="prop-card" href="/condos/unit-1006">
+                <a className="prop-card" href="/pelican-beach-resort-unit-1006">
                   <img className="prop-img" src={UNIT_1006_IMG} alt="Unit 1006" />
                   <div className="prop-info">
                     <div className="prop-unit">Unit 1006</div>
@@ -293,7 +293,7 @@ export default function App() {
           <div className={`tab-panel ${active === 'planner' ? 'active' : ''}`}>
             <div className="iframe-wrap">
               {!plannerReady && <div className="loading-screen"><div className="spinner"/><p>Loading Trip Planner...</p></div>}
-              <iframe src="/trip-planner" title="Trip Planner" onLoad={() => setPlannerReady(true)} loading="lazy" />
+              <iframe src="/destin-vacation-itinerary-planner" title="Trip Planner" onLoad={() => setPlannerReady(true)} loading="lazy" />
             </div>
           </div>
 
@@ -301,7 +301,7 @@ export default function App() {
           <div className={`tab-panel ${active === 'resort' ? 'active' : ''}`}>
             <div className="iframe-wrap">
               {!resortReady && <div className="loading-screen"><div className="spinner"/><p>Loading Pelican Beach Resort...</p></div>}
-              <iframe src="/resort" title="Pelican Beach Resort" onLoad={() => setResortReady(true)} loading="lazy" />
+              <iframe src="/pelican-beach-resort-destin" title="Pelican Beach Resort" onLoad={() => setResortReady(true)} loading="lazy" />
             </div>
           </div>
 

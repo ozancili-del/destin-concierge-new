@@ -1,10 +1,13 @@
 import fs from "node:fs";
+import { createRequire } from "node:module";
+
+const require = createRequire(import.meta.url);
+const { legacyRedirects } = require("../config/legacy-redirects.js");
 
 const issues = [];
 const robots = fs.readFileSync("pages/robots.txt.js", "utf8");
 const sitemapSource = fs.readFileSync("pages/sitemap.xml.js", "utf8");
 const nextConfig = fs.readFileSync("next.config.js", "utf8");
-const redirectConfig = fs.readFileSync("config/legacy-redirects.js", "utf8");
 const vercel = JSON.parse(fs.readFileSync("vercel.json", "utf8"));
 
 const canonicalSitemap = "https://www.destincondogetaways.com/sitemap.xml";
@@ -16,14 +19,14 @@ if (/https:\/\/(?:deals|explore|offer|sunbirds|guestview)\.destincondogetaways\.
 }
 if (!/NEXT_PUBLIC_DEPLOYMENT_ENV:\s*process\.env\.VERCEL_ENV/.test(nextConfig)) issues.push("deployment environment is not exposed for robots switching");
 if (!/process\.env\.VERCEL_ENV\s*===\s*["']production["']/.test(robots)) issues.push("robots route does not block non-production deployments");
-if (!/permanent\(["']\/sitemap-vercel\.xml["'],\s*["']\/sitemap\.xml["']\)/.test(redirectConfig)) {
+if (!legacyRedirects.some((rule) => rule.source === "/sitemap-vercel.xml" && rule.destination === "/sitemap.xml" && rule.permanent)) {
   issues.push("legacy sitemap URL does not permanently redirect to /sitemap.xml");
 }
 
 const routeMatches = [...sitemapSource.matchAll(/"(\/(?:[^" ]*)?)"/g)].map((match) => match[1]);
 const routes = new Set(routeMatches);
 if (routeMatches.length !== routes.size) issues.push("canonical sitemap contains duplicate routes");
-for (const required of ["/", "/availability", "/resort", "/condos/unit-707", "/condos/unit-1006", "/reviews", "/blog", "/deals"]) {
+for (const required of ["/", "/availability", "/pelican-beach-resort-destin", "/pelican-beach-resort-unit-707", "/pelican-beach-resort-unit-1006", "/destin-condo-rental-reviews", "/blog", "/destin-condo-deals", "/destin-snowbird-rentals", "/destin-condo-special-offers"]) {
   if (!routes.has(required)) issues.push(`canonical sitemap is missing ${required}`);
 }
 if (routes.has("/book")) issues.push("transactional /book route must not be in the indexable sitemap");

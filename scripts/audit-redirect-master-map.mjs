@@ -3,10 +3,15 @@ import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
 const { legacyRedirects } = require("../config/legacy-redirects.js");
+const { pathRedirects, retiredHosts } = require("../config/redirect-inventory.js");
 const vercel = JSON.parse(fs.readFileSync("vercel.json", "utf8"));
 const sitemap = fs.readFileSync("pages/sitemap.xml.js", "utf8");
 const blog = fs.readFileSync("pages/blog.js", "utf8");
 const issues = [];
+
+if (JSON.stringify(legacyRedirects.map(({ source, destination }) => [source, destination])) !== JSON.stringify(pathRedirects)) {
+  issues.push("Next.js redirects have drifted from config/redirect-inventory.js");
+}
 
 const sources = new Set();
 for (const rule of legacyRedirects) {
@@ -36,28 +41,32 @@ if (!/query\.categoryId[\s\S]*destination:\s*["']\/blog["'][\s\S]*permanent:\s*t
   issues.push("OwnerRez blog category query variants are not permanently consolidated to /blog");
 }
 
-const publicHosts = ["deals.destincondogetaways.com", "explore.destincondogetaways.com", "offer.destincondogetaways.com", "sunbirds.destincondogetaways.com"];
+const publicHosts = Object.keys(retiredHosts);
 for (const host of publicHosts) {
   const rules = vercel.redirects.filter((rule) => rule.has?.some((item) => item.type === "host" && item.value === host));
-  if (!rules.some((rule) => rule.source === "/:path*" && rule.permanent)) issues.push(`${host} lacks a permanent catch-all`);
+  const catchallIndex = vercel.redirects.findIndex((rule) => rule.source === "/:path*" && rule.has?.some((item) => item.type === "host" && item.value === host));
+  if (catchallIndex < 0) issues.push(`${host} lacks a permanent catch-all`);
   for (const rule of rules) {
     if (!rule.permanent) issues.push(`${host}${rule.source} is not permanent`);
     if (!rule.destination.startsWith("https://www.destincondogetaways.com/")) issues.push(`${host}${rule.source} does not land directly on canonical www`);
+    const destinationPath = new URL(rule.destination).pathname;
+    if (sources.has(destinationPath)) issues.push(`${host}${rule.source} chains through redirect source ${destinationPath}`);
+    if (!sitemap.includes(`"${destinationPath}"`)) issues.push(`${host}${rule.source} targets ${destinationPath}, which is absent from the canonical sitemap`);
   }
-}
-
-const hostSpecifics = [
-  ["deals.destincondogetaways.com", "/beach-deals", "/deals"],
-  ["deals.destincondogetaways.com", "/rate-finder.html", "/deals"],
-  ["explore.destincondogetaways.com", "/destin-hub.html", "/destin-hub"],
-  ["explore.destincondogetaways.com", "/destin-car-rental.html", "/car-rentals"],
-  ["explore.destincondogetaways.com", "/destin-tripshock.html", "/activities"],
-  ["explore.destincondogetaways.com", "/pelican-beach-resort-unit-1006-orp5b6450ex", "/condos/unit-1006"],
-];
-for (const [host, source, destination] of hostSpecifics) {
-  const match = vercel.redirects.find((rule) => rule.source === source && rule.has?.some((item) => item.type === "host" && item.value === host));
-  if (!match) issues.push(`missing host-specific redirect ${host}${source}`);
-  else if (new URL(match.destination).pathname !== destination) issues.push(`${host}${source} targets ${match.destination}, expected ${destination}`);
+  const contract = retiredHosts[host];
+  const catchall = rules.find((rule) => rule.source === "/:path*");
+  if (catchall && new URL(catchall.destination).pathname !== contract.fallback) {
+    issues.push(`${host} catch-all targets ${catchall.destination}, expected ${contract.fallback}`);
+  }
+  for (const [source, destination] of Object.entries(contract.exceptions)) {
+    const index = vercel.redirects.findIndex((rule) => rule.source === source && rule.has?.some((item) => item.type === "host" && item.value === host));
+    const match = index >= 0 ? vercel.redirects[index] : null;
+    if (!match) issues.push(`missing host-specific redirect ${host}${source}`);
+    else {
+      if (new URL(match.destination).pathname !== destination) issues.push(`${host}${source} targets ${match.destination}, expected ${destination}`);
+      if (catchallIndex >= 0 && index > catchallIndex) issues.push(`${host}${source} appears after its catch-all and is unreachable`);
+    }
+  }
 }
 
 if (issues.length) {
@@ -70,4 +79,5 @@ console.log(`Redirect master-map audit passed: ${legacyRedirects.length} path ru
 console.log("- Every path target is a canonical sitemap route (or the canonical sitemap itself)");
 console.log("- No same-host redirect chains or duplicate sources");
 console.log("- Known Google/Bing 404 and duplicate URLs are covered");
-console.log("- Booking query parameters remain eligible for native Next.js pass-through");
+console.log("- Retired-host exceptions precede catch-alls and land on indexable canonical routes");
+console.log("- Runtime booking-query verification is available through npm run test:redirect-runtime");

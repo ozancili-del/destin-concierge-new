@@ -31,7 +31,7 @@ export default function DestinCarGuide() {
       { label: "Flights & cars", title: "Compare the real trip cost", href: "/blog/how-to-find-cheaper-flights-and-car-rentals" },
       { label: "Airports", title: "VPS, PNS and ECP compared", href: "/blog/destinairport" },
       { label: "Trip planning", title: "Destin vacation guide", href: "/blog/destin-florida-vacation-guide-2026" },
-      { label: "Where to stay", title: "Pelican Beach Resort guide", href: "/resort" },
+      { label: "Where to stay", title: "Pelican Beach Resort guide", href: "/pelican-beach-resort-destin" },
     ]}
   />;
 }

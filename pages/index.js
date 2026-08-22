@@ -20,7 +20,7 @@ const condos = [
     image: "/images/site/0f604abce3284748ba8d2150b7646863-large.webp",
     description:
       "A relaxed seventh-floor retreat with direct Gulf views, a private balcony, and the beach just downstairs.",
-    href: "/condos/unit-707",
+    href: "/pelican-beach-resort-unit-707",
   },
   {
     unit: "1006",
@@ -28,7 +28,7 @@ const condos = [
     image: "/images/site/79fb2b20887c4f44b58c710a59420a30-large.webp",
     description:
       "A bright tenth-floor escape with panoramic emerald-water views and sunset skies from your private balcony.",
-    href: "/condos/unit-1006",
+    href: "/pelican-beach-resort-unit-1006",
   },
 ];
 
@@ -143,7 +143,7 @@ export default function Home() {
         </div>
 
         <div className={styles.utilityBar}>
-          <a href="/reviews">Guest Reviews</a>
+          <a href="/destin-condo-rental-reviews">Guest Reviews</a>
           <a href="/guest-guide">FAQ</a>
           <a href="/guest-guide">Policies</a>
           <a href="/about">Contact</a>
@@ -236,7 +236,7 @@ export default function Home() {
                 </blockquote>
               ))}
             </div>
-            <a className={styles.textLink} href="/reviews">Read guest reviews <span aria-hidden="true">→</span></a>
+            <a className={styles.textLink} href="/destin-condo-rental-reviews">Read guest reviews <span aria-hidden="true">→</span></a>
           </section>
 
           <section className={styles.direct}>
@@ -284,7 +284,7 @@ export default function Home() {
                 <span>3 pools</span><span>2 hot tubs</span><span>Beachside tiki bar</span>
                 <span>Tennis & pickleball</span><span>Fitness center</span><span>Free parking</span>
               </div>
-              <a className={styles.textLink} href="/resort">
+              <a className={styles.textLink} href="/pelican-beach-resort-destin">
                 See the resort <span aria-hidden="true">→</span>
               </a>
             </div>
@@ -318,8 +318,8 @@ export default function Home() {
               </p>
             </div>
             <div className={styles.exploreGrid}>
-              <a href="/deals"><span>Current price reductions</span><strong>Beach deals</strong><em>View current deals →</em></a>
-              <a href="/trip-planner"><span>Built around your family</span><strong>Itinerary planner</strong><em>Build your itinerary →</em></a>
+              <a href="/destin-condo-deals"><span>Current price reductions</span><strong>Beach deals</strong><em>View current deals →</em></a>
+              <a href="/destin-vacation-itinerary-planner"><span>Built around your family</span><strong>Itinerary planner</strong><em>Build your itinerary →</em></a>
               <a href="/blog"><span>Weather, food, events & activities</span><strong>Destin blog and guides</strong><em>Browse local guides →</em></a>
               <a href="/blog/how-to-find-cheaper-flights-and-car-rentals"><span>Airports and route planning</span><strong>Flights</strong><em>Plan your flight →</em></a>
               <a href="/blog/destincar"><span>VPS and Destin transportation</span><strong>Car rentals</strong><em>Compare transportation →</em></a>

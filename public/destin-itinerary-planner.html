@@ -237,6 +237,7 @@
 <script>
 var itineraryData = null;
 var formSnapshot = null;
+var itineraryDeliveryToken = null;
 
 // Keep the embedded planner tall enough as results and email controls appear.
 if (window.parent !== window) {
@@ -335,21 +336,17 @@ async function createItinerary() {
     msgEl.textContent = loadingMsgs[msgIdx];
   }, 4000);
 
-  var systemPrompt = 'You are Destiny Blue, warm local-friend AI concierge for Destin Condo Getaways at Pelican Beach Resort. Return ONLY valid JSON, no markdown, no code fences. STRICT RULES: 1) REAL Destin venues only, never invent. 2) Bookable activities (water sports/fishing/boat tours/dolphin tours/snorkeling/parasailing/jet ski/pontoon/kayak/paddleboard/sunset cruise): tripshock:true, link_url:"https://tripshock.com/?aff=destindreamcondo". 3) Never suggest other accommodations. 4) Each day: exactly 4 blocks (MORNING, LUNCH, AFTERNOON, DINNER). 5) description: MAX 8 words. 6) tip: MAX 8 words. 7) Never repeat venues across days. 8) backup: rainy-day alternative MAX 8 words. 9) weather: MAX 12 words, conditions + temp + 1 tip. 10) lat/lng: real coordinates. 11) summary: open "Hi! I\'m Destiny Blue, your AI concierge at Pelican Beach Resort!" then 2 warm sentences. JSON: {"summary":"...","days":[{"day_number":1,"title":"...","weather":"...","blocks":[{"time":"MORNING","emoji":"☀️","place":"...","description":"...","tip":"...","backup":"...","link_url":"...","link_label":"...","tripshock":false,"lat":30.393,"lng":-86.496}]}]}';
-
-
-  var userPrompt = 'Create a ' + numDays + '-day Destin itinerary. Dates: ' + arrFmt + ' to ' + depFmt + '. Group: ' + adults + ' adult' + (adults > 1 ? 's' : '') + (kids > 0 ? ', ' + kids + ' kid' + (kids > 1 ? 's' : '') : ', no kids') + '. Cuisine: ' + (cuisine.length ? cuisine.join(', ') : 'open') + '. Beach/pool: ' + beachPool + '. Pace: ' + pace + '. Interests: ' + (interests.length ? interests.join(', ') : 'general') + '. Use web search to find events during these exact dates and include them.';
-
   try {
     var res = await fetch('/api/itinerary', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ systemPrompt: systemPrompt, userPrompt: userPrompt })
+      body: JSON.stringify(formSnapshot)
     });
     var data = await res.json();
     if (!res.ok) throw new Error(data.error || 'API error');
-    var raw = data.choices[0].message.content.replace(/```json|```/g, '').trim();
-    itineraryData = JSON.parse(raw);
+    itineraryData = data.itinerary;
+    formSnapshot = data.formSnapshot;
+    itineraryDeliveryToken = data.deliveryToken;
     clearInterval(msgTimer);
     document.getElementById('loadingState').classList.remove('visible');
     renderPreview(itineraryData, formSnapshot);
@@ -410,10 +407,12 @@ function resetForm() {
   document.getElementById('formCard').style.display = 'block';
   document.querySelector('.intro').style.display = 'block';
   itineraryData = null;
+  formSnapshot = null;
+  itineraryDeliveryToken = null;
 }
 
 async function sendItineraryEmail() {
-  if (!itineraryData || !formSnapshot) return;
+  if (!itineraryData || !formSnapshot || !itineraryDeliveryToken) return;
   var email = document.getElementById('emailInput').value.trim();
   var statusEl = document.getElementById('emailStatus');
   if (!email || !email.includes('@')) {
@@ -430,7 +429,7 @@ async function sendItineraryEmail() {
     var res = await fetch('/api/send-itinerary', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: email, itinerary: itineraryData, formSnapshot: formSnapshot })
+      body: JSON.stringify({ email: email, itinerary: itineraryData, formSnapshot: formSnapshot, deliveryToken: itineraryDeliveryToken })
     });
     if (!res.ok) throw new Error('Send failed');
     statusEl.style.display = 'block';

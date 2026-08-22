@@ -13,8 +13,8 @@ const liveSite = "https://www.destincondogetaways.com";
 const calendarWidgetId = "91953f0c6e014ff585bffa8e87bad76e";
 
 const condos = [
-  { number: "707", label: "Classic Coastal · Seventh floor", href: "/condos/unit-707", image: "/hub-beaches.webp", alt: "Gulf-front view from Pelican Beach Resort Unit 707" },
-  { number: "1006", label: "Fresh Coastal · Tenth floor", href: "/condos/unit-1006", image: "/hub-beachcam.webp", alt: "Gulf-front setting of Pelican Beach Resort Unit 1006" },
+  { number: "707", label: "Classic Coastal · Seventh floor", href: "/pelican-beach-resort-unit-707", image: "/hub-beaches.webp", alt: "Gulf-front view from Pelican Beach Resort Unit 707" },
+  { number: "1006", label: "Fresh Coastal · Tenth floor", href: "/pelican-beach-resort-unit-1006", image: "/hub-beachcam.webp", alt: "Gulf-front setting of Pelican Beach Resort Unit 1006" },
 ];
 
 function parseStayDate(value) {
@@ -111,7 +111,7 @@ export default function AvailabilityPage() {
     </Head>
 
     <div className={styles.preview}>Preview page | Production remains unchanged</div>
-    <div className={styles.utility}><a href="/reviews">Guest Reviews</a><a href="/guest-guide#faq">FAQ</a><a href="/guest-guide#policies">Policies</a><a href="/about">Contact</a></div>
+    <div className={styles.utility}><a href="/destin-condo-rental-reviews">Guest Reviews</a><a href="/guest-guide#faq">FAQ</a><a href="/guest-guide#policies">Policies</a><a href="/about">Contact</a></div>
     <SiteHeader availabilityHref="#search" />
 
     <main>

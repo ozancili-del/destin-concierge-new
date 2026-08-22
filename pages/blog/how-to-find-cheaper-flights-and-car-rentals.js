@@ -32,7 +32,7 @@ export default function FlightsAndCarsGuide() {
       { label: "Airports", title: "VPS, PNS and ECP compared", href: "/blog/destinairport" },
       { label: "Driving", title: "Do you need a rental car?", href: "/blog/destincar" },
       { label: "Trip planning", title: "Destin vacation guide", href: "/blog/destin-florida-vacation-guide-2026" },
-      { label: "Where to stay", title: "Pelican Beach Resort guide", href: "/resort" },
+      { label: "Where to stay", title: "Pelican Beach Resort guide", href: "/pelican-beach-resort-destin" },
     ]}
   />;
 }

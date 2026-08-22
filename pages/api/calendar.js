@@ -2,6 +2,7 @@
 // Standalone calendar intelligence for Destiny Blue
 // Tests: hit /api/calendar?unit=707&arrival=2026-03-10&departure=2026-03-17
 // No impact on chat.js — delete this file to revert everything
+import { allowSameOriginRequest, enforceJsonSize, enforceRateLimit, parseIsoDate } from '../../lib/public-api-security.js';
 
 const OWNERREZ_USER = "ozan@destincondogetaways.com";
 const UNIT_707_ID   = "293722";
@@ -180,10 +181,9 @@ function detectOrphanDay(bookings, requestedDeparture) {
 // Main handler
 // ─────────────────────────────────────────────────────────────────────────────
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (!allowSameOriginRequest(req, res, { methods: ['GET', 'POST'] })) return;
+  if (req.method === 'POST' && !enforceJsonSize(req, res, 4096)) return;
+  if (!enforceRateLimit(req, res, { scope: 'calendar', limit: 40, windowMs: 10 * 60 * 1000 })) return;
 
   const { arrival, departure } = req.method === "POST" ? req.body : req.query;
 
@@ -191,14 +191,6 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "arrival and departure required" });
   }
 
-  const isoDate = /^\d{4}-\d{2}-\d{2}$/;
-  const parseIsoDate = (value) => {
-    if (typeof value !== "string" || !isoDate.test(value)) return null;
-    const date = new Date(`${value}T12:00:00`);
-    if (Number.isNaN(date.getTime())) return null;
-    const [year, month, day] = value.split("-").map(Number);
-    return date.getFullYear() === year && date.getMonth() + 1 === month && date.getDate() === day ? date : null;
-  };
   const arrivalDate = parseIsoDate(arrival);
   const departureDate = parseIsoDate(departure);
   const today = new Date();
@@ -212,6 +204,11 @@ export default async function handler(req, res) {
   }
   if (departureDate <= arrivalDate) {
     return res.status(400).json({ error: "departure must be after arrival" });
+  }
+  const requestedNights = Math.round((departureDate - arrivalDate) / 86400000);
+  const maxFuture = new Date(); maxFuture.setUTCFullYear(maxFuture.getUTCFullYear() + 2);
+  if (requestedNights > 31 || arrivalDate > maxFuture) {
+    return res.status(400).json({ error: "date range is outside the supported window" });
   }
 
   // Fetch both units in parallel

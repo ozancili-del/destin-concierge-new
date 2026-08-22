@@ -8,11 +8,11 @@ const legacyPath = /\/(?:aboutus-|about-me-|aboutme-|privacy-|pelican-beach-reso
 const legacyHost = /https?:\/\/(?:www\.)?destincondogetaways\.com\/(?!$)|https?:\/\/(?:deals|explore|offer|sunbirds)\.destincondogetaways\.com/i;
 
 const cases = new Map([
-  ["/pelican-beach-resort-unit-707-orp5b47b5ax?or_arrival=2026-09-10#availability", "/condos/unit-707?or_arrival=2026-09-10#availability"],
+  ["/pelican-beach-resort-unit-707-orp5b47b5ax?or_arrival=2026-09-10#availability", "/pelican-beach-resort-unit-707?or_arrival=2026-09-10#availability"],
   ["/destin-hub.html", "/destin-hub"],
   ["/concierge?pageSource=beaches", "/destin-ai-concierge?pageSource=beaches"],
-  ["https://www.destincondogetaways.com/pelican-beach-resort-destin-574048693", "/resort"],
-  ["https://explore.destincondogetaways.com/destin-tripshock.html?aff=destindreamcondo", "/activities?aff=destindreamcondo"],
+  ["https://www.destincondogetaways.com/pelican-beach-resort-destin-574048693", "/pelican-beach-resort-destin"],
+  ["https://explore.destincondogetaways.com/destin-tripshock.html?aff=destindreamcondo", "/destin-activities?aff=destindreamcondo"],
 ]);
 
 for (const [input, expected] of cases) {
@@ -36,13 +36,13 @@ const sharedFooter = fs.readFileSync(path.join(root, "components", "SiteFooter.j
 for (const [label, route] of [
   ["condo collection", "/destin-vacation-rentals-by-owner"],
   ["availability", "/availability"],
-  ["resort", "/resort"],
+  ["resort", "/pelican-beach-resort-destin"],
   ["blog hub", "/blog"],
   ["AI concierge", "/destin-ai-concierge"],
 ]) {
   if (!sharedHeader.includes(route) && !sharedFooter.includes(route)) issues.push(`Shared navigation is missing ${label}: ${route}`);
 }
-for (const route of ["/condos/unit-707", "/condos/unit-1006", "/gallery", "/virtual-tours", "/reviews", "/trip-planner", "/activities", "/car-rentals", "/deals", "/faq", "/about", "/privacy"]) {
+for (const route of ["/pelican-beach-resort-unit-707", "/pelican-beach-resort-unit-1006", "/destin-condo-photo-gallery", "/pelican-beach-resort-condo-virtual-tours", "/destin-condo-rental-reviews", "/destin-vacation-itinerary-planner", "/destin-activities", "/destin-car-rentals", "/destin-condo-deals", "/destin-condo-rental-faq", "/about", "/privacy"]) {
   if (!sharedFooter.includes(route)) issues.push(`Shared footer is missing final route ${route}`);
 }
 

@@ -2,7 +2,7 @@
   "redirects": [
     {
       "source": "/",
-      "destination": "https://www.destincondogetaways.com/snowbird",
+      "destination": "https://www.destincondogetaways.com/destin-snowbird-rentals",
       "permanent": true,
       "has": [
         {
@@ -13,7 +13,7 @@
     },
     {
       "source": "/",
-      "destination": "https://www.destincondogetaways.com/offer",
+      "destination": "https://www.destincondogetaways.com/destin-condo-special-offers",
       "permanent": true,
       "has": [
         {
@@ -24,7 +24,7 @@
     },
     {
       "source": "/",
-      "destination": "https://www.destincondogetaways.com/deals",
+      "destination": "https://www.destincondogetaways.com/destin-condo-deals",
       "permanent": true,
       "has": [
         {
@@ -46,13 +46,13 @@
     },
     {
       "source": "/beach-deals",
-      "destination": "https://www.destincondogetaways.com/deals",
+      "destination": "https://www.destincondogetaways.com/destin-condo-deals",
       "permanent": true,
       "has": [{ "type": "host", "value": "deals.destincondogetaways.com" }]
     },
     {
       "source": "/rate-finder.html",
-      "destination": "https://www.destincondogetaways.com/deals",
+      "destination": "https://www.destincondogetaways.com/destin-condo-deals",
       "permanent": true,
       "has": [{ "type": "host", "value": "deals.destincondogetaways.com" }]
     },
@@ -64,13 +64,13 @@
     },
     {
       "source": "/destin-car-rental.html",
-      "destination": "https://www.destincondogetaways.com/car-rentals",
+      "destination": "https://www.destincondogetaways.com/destin-car-rentals",
       "permanent": true,
       "has": [{ "type": "host", "value": "explore.destincondogetaways.com" }]
     },
     {
       "source": "/destin-tripshock.html",
-      "destination": "https://www.destincondogetaways.com/activities",
+      "destination": "https://www.destincondogetaways.com/destin-activities",
       "permanent": true,
       "has": [{ "type": "host", "value": "explore.destincondogetaways.com" }]
     },
@@ -88,7 +88,7 @@
     },
     {
       "source": "/pelican-beach-resort-unit-1006-orp5b6450ex",
-      "destination": "https://www.destincondogetaways.com/condos/unit-1006",
+      "destination": "https://www.destincondogetaways.com/pelican-beach-resort-unit-1006",
       "permanent": true,
       "has": [{ "type": "host", "value": "explore.destincondogetaways.com" }]
     },
@@ -100,7 +100,7 @@
     },
     {
       "source": "/:path*",
-      "destination": "https://www.destincondogetaways.com/deals",
+      "destination": "https://www.destincondogetaways.com/destin-condo-deals",
       "permanent": true,
       "has": [{ "type": "host", "value": "deals.destincondogetaways.com" }]
     },
@@ -112,26 +112,21 @@
     },
     {
       "source": "/:path*",
-      "destination": "https://www.destincondogetaways.com/offer",
+      "destination": "https://www.destincondogetaways.com/destin-condo-special-offers",
       "permanent": true,
       "has": [{ "type": "host", "value": "offer.destincondogetaways.com" }]
     },
     {
       "source": "/:path*",
-      "destination": "https://www.destincondogetaways.com/snowbird",
+      "destination": "https://www.destincondogetaways.com/destin-snowbird-rentals",
       "permanent": true,
       "has": [{ "type": "host", "value": "sunbirds.destincondogetaways.com" }]
     },
     {
-      "source": "/",
-      "destination": "/guestview",
+      "source": "/:path*",
+      "destination": "https://www.destincondogetaways.com/guestview",
       "permanent": false,
-      "has": [
-        {
-          "type": "host",
-          "value": "guestview.destincondogetaways.com"
-        }
-      ]
+      "has": [{ "type": "host", "value": "guestview.destincondogetaways.com" }]
     },
     {
       "source": "/",
@@ -145,24 +140,10 @@
       ]
     }
   ],
-  "rewrites": [
-    {
-      "source": "/tv-707.html",
-      "destination": "/tv-707.html"
-    },
-    {
-      "source": "/tv-1006.html",
-      "destination": "/tv-1006.html"
-    }
-  ],
   "crons": [
     {
       "path": "/api/price-snapshot",
       "schedule": "0 6 * * *"
-    },
-    {
-      "path": "/api/thermostat",
-      "schedule": "0 12 * * *"
     }
   ]
 }

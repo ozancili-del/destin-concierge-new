@@ -3,6 +3,7 @@
 // Returns best deals for the deals page — no guest input needed
 
 import { createClient } from '@supabase/supabase-js';
+import { allowSameOriginRequest, enforceRateLimit } from '../../lib/public-api-security.js';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_GUESTVIEW_SUPABASE_URL,
@@ -22,8 +23,9 @@ function friendly(str) {
 }
 
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (!allowSameOriginRequest(req, res, { methods: ['GET'] })) return;
+  if (!enforceRateLimit(req, res, { scope: 'deals-page', limit: 60, windowMs: 600_000 })) return;
+  res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=900');
 
   try {
     const today = new Date();
@@ -163,6 +165,6 @@ export default async function handler(req, res) {
 
   } catch (err) {
     console.error('[DEALS-PAGE]', err.message);
-    return res.status(500).json({ error: err.message, deals: [] });
+    return res.status(500).json({ error: 'Deals are temporarily unavailable', deals: [] });
   }
 }

@@ -2,7 +2,7 @@
 
 Source URL: `https://www.destincondogetaways.com/pelican-beach-resort-destin-574048693`
 
-Destination route: `/resort`
+Destination route: `/pelican-beach-resort-destin`
 
 Audit date: 2026-08-15
 
@@ -53,7 +53,7 @@ Audit date: 2026-08-15
 ## Cutover-only checks
 
 - Replace preview robots directive with production indexing and canonical.
-- Map the old OwnerRez URL directly to `/resort` using one permanent redirect.
+- Map the old OwnerRez URL directly to `/pelican-beach-resort-destin` using one permanent redirect.
 - Run Google Rich Results Test on the production-domain version.
 - Confirm GTM Preview mode sees `GTM-PQSF8S6D` and audit every tag, trigger and conversion before DNS cutover.
 - Confirm GA4, Search Console verification and consent behavior on the final production hostname.

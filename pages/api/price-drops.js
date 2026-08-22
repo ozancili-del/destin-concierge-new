@@ -1,5 +1,6 @@
 // pages/api/price-drops.js
 import { createClient } from '@supabase/supabase-js';
+import { allowSameOriginRequest, enforceRateLimit, parseIsoDate } from '../../lib/public-api-security.js';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_GUESTVIEW_SUPABASE_URL,
@@ -10,12 +11,16 @@ const WINDOWS = [1, 3, 5, 7, 14, 30];
 const MIN_DROP_PCT = 5;
 
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (!allowSameOriginRequest(req, res, { methods: ['GET'] })) return;
+  if (!enforceRateLimit(req, res, { scope: 'price-drops', limit: 60, windowMs: 10 * 60 * 1000 })) return;
 
   const { arrival, departure } = req.query;
   if (!arrival || !departure) {
     return res.status(400).json({ error: 'arrival and departure required' });
+  }
+  const arrivalDate = parseIsoDate(arrival), departureDate = parseIsoDate(departure);
+  if (!arrivalDate || !departureDate || departureDate <= arrivalDate || (departureDate - arrivalDate) / 86400000 > 31) {
+    return res.status(400).json({ error: 'invalid or unsupported date range' });
   }
 
   // Cache for 1 hour — same dates won't change prices that fast
@@ -25,8 +30,8 @@ export default async function handler(req, res) {
     const today = new Date().toISOString().split('T')[0];
 
     const dates = [];
-    let d = new Date(arrival);
-    const end = new Date(departure);
+    let d = new Date(arrivalDate);
+    const end = new Date(departureDate);
     while (d < end) {
       dates.push(d.toISOString().split('T')[0]);
       d.setDate(d.getDate() + 1);
@@ -91,7 +96,7 @@ export default async function handler(req, res) {
     return res.status(200).json(result);
 
   } catch (err) {
-    console.error('[PRICE-DROPS] Error:', err.message);
-    return res.status(500).json({ error: err.message });
+    console.error('[PRICE-DROPS] Error:', err?.name || 'Error');
+    return res.status(500).json({ error: 'Unable to load price history' });
   }
 }

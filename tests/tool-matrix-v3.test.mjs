@@ -340,7 +340,7 @@ test("beach deals returns exact published reductions without claiming availabili
   assert.equal(r.status,"success");
   assert.equal(r.data.matchType,"exact");
   assert.equal(r.data.deals[0].dropPct,12);
-  assert.deepEqual(r.urls,["https://deals.destincondogetaways.com/beach-deals"]);
+  assert.deepEqual(r.urls,["https://www.destincondogetaways.com/destin-condo-deals"]);
   assert.match(r.facts.join(" "),/not confirmed availability/i);
   assert.doesNotMatch(r.facts.join(" "),/make us an offer|offer\.destincondogetaways/i);
 });
@@ -378,7 +378,7 @@ test("beach deals can be filtered to the guest's named month", async () => {
 
 test("explicit offer request returns the owner-reviewed inquiry page without promises", async () => {
   const r=await exec("get_offer_inquiry",{},"Can I submit a proposed rate for Ozan to review?");
-  assert.deepEqual(r.urls,["https://offer.destincondogetaways.com/offer"]);
+  assert.deepEqual(r.urls,["https://www.destincondogetaways.com/destin-condo-special-offers"]);
   assert.match(r.facts.join(" "),/Ozan personally reviews/i);
   assert.match(r.facts.join(" "),/does not guarantee acceptance/i);
   assert.doesNotMatch(r.facts.join(" "),/ozan@|972/i);
@@ -386,7 +386,7 @@ test("explicit offer request returns the owner-reviewed inquiry page without pro
 
 test("sunbird guide is a direct approved page and never exposes Make an Offer", async () => {
   const r=await exec("get_local_guide",{topic:"sunbird"},"We want a monthly winter stay in Destin");
-  assert.deepEqual(r.urls,["https://sunbirds.destincondogetaways.com/snowbird"]);
+  assert.deepEqual(r.urls,["https://www.destincondogetaways.com/destin-snowbird-rentals"]);
   assert.match(r.facts.join(" "),/monthly, extended winter/i);
   assert.doesNotMatch(r.facts.join(" "),/offer\.destincondogetaways/i);
 });

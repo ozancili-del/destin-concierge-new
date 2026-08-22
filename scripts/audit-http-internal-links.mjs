@@ -4,7 +4,9 @@ import path from "node:path";
 const root = process.cwd();
 const pagesRoot = path.join(root, "pages");
 const base = new URL(process.argv[2] || process.env.SITE_AUDIT_BASE || "http://localhost:3000");
-const ignoredRoute = /^\/(?:api|admin|guestview|tv)(?:\/|$)/;
+// Utility/private surfaces are intentionally excluded from the public migration
+// crawl. `/ozan` is the authenticated owner-chat console, not a guest-facing page.
+const ignoredRoute = /^\/(?:api|admin|guestview|ozan|tv)(?:\/|$)/;
 const ignoredFile = /(?:^|[\\/])(?:_app|_document|_error|404)\.(?:js|jsx|ts|tsx)$/;
 const pageExtension = /\.(?:js|jsx|ts|tsx)$/;
 const htmlEntity = (value) => value.replaceAll("&amp;", "&").replaceAll("&#x2F;", "/").replaceAll("&#47;", "/");
@@ -27,7 +29,7 @@ const queue = walk(pagesRoot)
   .filter((file) => pageExtension.test(file) && !ignoredFile.test(file))
   .map(pageRoute)
   .filter((route) => !route.includes("[") && !ignoredRoute.test(route));
-queue.push("/activities", "/car-rentals", "/deals");
+queue.push("/destin-activities", "/destin-car-rentals", "/destin-condo-deals");
 
 const checked = new Map();
 const discoveredFrom = new Map(queue.map((route) => [route, "route inventory"]));

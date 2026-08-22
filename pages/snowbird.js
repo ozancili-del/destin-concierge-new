@@ -3,11 +3,11 @@ import Head from "next/head";
 import ToolFooter from "../components/ToolFooter";
 import { createClient } from "@supabase/supabase-js";
 
-const CANONICAL = "https://www.destincondogetaways.com/snowbird";
+const CANONICAL = "https://www.destincondogetaways.com/destin-snowbird-rentals";
 
 const UNIT_META = {
-  "707":  { name: "Unit 707",  sub: "Classic Coastal · 7th Floor",  route: "/condos/unit-707",  fullName: "Pelican Beach Resort Unit 707 — Classic Coastal" },
-  "1006": { name: "Unit 1006", sub: "Fresh Coastal · 10th Floor",   route: "/condos/unit-1006", fullName: "Pelican Beach Resort Unit 1006 — Fresh Coastal" },
+  "707":  { name: "Unit 707",  sub: "Classic Coastal · 7th Floor",  route: "/pelican-beach-resort-unit-707",  fullName: "Pelican Beach Resort Unit 707 — Classic Coastal" },
+  "1006": { name: "Unit 1006", sub: "Fresh Coastal · 10th Floor",   route: "/pelican-beach-resort-unit-1006", fullName: "Pelican Beach Resort Unit 1006 — Fresh Coastal" },
 };
 
 function bookingUrl(unit, arrival, departure, adults, children) {
@@ -65,7 +65,7 @@ function buildSchema() {
     "@type": "BreadcrumbList",
     "itemListElement": [
       { "@type": "ListItem", "position": 1, "name": "Destin Florida Vacation Rentals", "item": "https://www.destincondogetaways.com" },
-      { "@type": "ListItem", "position": 2, "name": "Pelican Beach Resort Condos", "item": "https://www.destincondogetaways.com/resort" },
+      { "@type": "ListItem", "position": 2, "name": "Pelican Beach Resort Condos", "item": "https://www.destincondogetaways.com/pelican-beach-resort-destin" },
       { "@type": "ListItem", "position": 3, "name": "Snowbird Rentals Destin FL — Monthly Winter Stays", "item": CANONICAL }
     ]
   };
@@ -363,7 +363,7 @@ export default function Snowbird({ dayData }) {
       if (monthDays.length === 0) {
             continue;
       }
-  
+
       if (isSnowbird) {
         const arrival   = `${yr}-${mo}-01`;
         const nextMonth = month === 12 ? `${yr + 1}-01-01` : `${yr}-${pad(month + 1)}-01`;
@@ -434,16 +434,16 @@ export default function Snowbird({ dayData }) {
           "@graph": [
             {
               "@type": "WebPage",
-              "@id": "https://www.destincondogetaways.com/snowbird#webpage",
-              "url": "https://www.destincondogetaways.com/snowbird",
+              "@id": "https://www.destincondogetaways.com/destin-snowbird-rentals#webpage",
+              "url": "https://www.destincondogetaways.com/destin-snowbird-rentals",
               "name": "Snowbird & Winter Stays at Pelican Beach Resort Destin FL",
               "isPartOf": { "@id": "https://www.destincondogetaways.com/#website" },
               "publisher": { "@id": "https://www.destincondogetaways.com/#organization" },
               "significantLink": [
-                "https://www.destincondogetaways.com/deals",
-                "https://www.destincondogetaways.com/offer",
+                "https://www.destincondogetaways.com/destin-condo-deals",
+                "https://www.destincondogetaways.com/destin-condo-special-offers",
                 "https://www.destincondogetaways.com/availability",
-                "https://www.destincondogetaways.com/trip-planner"
+                "https://www.destincondogetaways.com/destin-vacation-itinerary-planner"
               ]
             },
             {
@@ -483,13 +483,13 @@ export default function Snowbird({ dayData }) {
           <b>DESTIN</b><span>CONDO GETAWAYS</span>
         </a>
         <nav className="deals-nav">
-          <a href="/">Home</a><a href="/#condos">Condos</a><a href="/deals">Deals</a><a href="/activities">Activities</a><a href="/car-rentals">Flights & Cars</a><a href="/trip-planner">Trip Planner</a><a className="active" href="/snowbird">Snowbird</a>
+          <a href="/">Home</a><a href="/#condos">Condos</a><a href="/destin-condo-deals">Deals</a><a href="/destin-activities">Activities</a><a href="/destin-car-rentals">Flights & Cars</a><a href="/destin-vacation-itinerary-planner">Trip Planner</a><a className="active" href="/destin-snowbird-rentals">Snowbird</a>
         </nav>
         <a className="deals-book" href="/#availability">Check availability</a>
       </header>
 
       <nav className="deals-mobile-nav">
-        <a href="/">Home</a><a href="/deals">Deals</a><a href="/activities">Activities</a><a href="/car-rentals">Flights & Cars</a><a href="/trip-planner">Trip Planner</a><a className="active" href="/snowbird">Snowbird</a>
+        <a href="/">Home</a><a href="/destin-condo-deals">Deals</a><a href="/destin-activities">Activities</a><a href="/destin-car-rentals">Flights & Cars</a><a href="/destin-vacation-itinerary-planner">Trip Planner</a><a className="active" href="/destin-snowbird-rentals">Snowbird</a>
       </nav>
 
       <main className="page">
@@ -503,7 +503,7 @@ export default function Snowbird({ dayData }) {
             <div className="hero-actions">
               <a className="hero-btn hero-btn-teal" href="#finder">❄️ Find My Rate</a>
               <a className="hero-btn hero-btn-gold" href="/destin-vacation-rentals-by-owner">🏖️ View Condos</a>
-              <a className="hero-btn hero-btn-glass" href="/trip-planner">🌊 Plan Your Trip</a>
+              <a className="hero-btn hero-btn-glass" href="/destin-vacation-itinerary-planner">🌊 Plan Your Trip</a>
             </div>
             <div className="proof">
               <span>⭐ 400+ Five-Star Stays</span>
@@ -687,9 +687,9 @@ export default function Snowbird({ dayData }) {
             <a href="/blog/best-beaches-destin" className="plan-trip-pill">🏖️ Best Beaches</a>
             <a href="/blog/destinweather" className="plan-trip-pill">🌤️ Winter Weather</a>
             <a href="/blog/destinairport" className="plan-trip-pill">✈️ Which Airport</a>
-            <a href="/car-rentals" className="plan-trip-pill">🚗 Car Rentals</a>
-            <a href="/deals" className="plan-trip-pill">🏷️ Price Drops</a>
-            <a href="/activities" className="plan-trip-pill">🎯 Activities</a>
+            <a href="/destin-car-rentals" className="plan-trip-pill">🚗 Car Rentals</a>
+            <a href="/destin-condo-deals" className="plan-trip-pill">🏷️ Price Drops</a>
+            <a href="/destin-activities" className="plan-trip-pill">🎯 Activities</a>
           </div>
         </div>
 

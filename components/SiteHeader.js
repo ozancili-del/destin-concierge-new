@@ -16,9 +16,9 @@ const mobileSlogan = Parisienne({
 
 const condoLinks = [
   ["Vacation Rentals", "/destin-vacation-rentals-by-owner"],
-  ["Unit 707", "/condos/unit-707"],
-  ["Unit 1006", "/condos/unit-1006"],
-  ["Virtual Tours", "/virtual-tours"],
+  ["Unit 707", "/pelican-beach-resort-unit-707"],
+  ["Unit 1006", "/pelican-beach-resort-unit-1006"],
+  ["Virtual Tours", "/pelican-beach-resort-condo-virtual-tours"],
 ];
 
 export default function SiteHeader({ availabilityHref = "/availability" }) {
@@ -38,11 +38,11 @@ export default function SiteHeader({ availabilityHref = "/availability" }) {
         <summary>Condos</summary>
         <div>{condoLinks.map(([label, href]) => <a key={href} href={href}>{label}</a>)}</div>
       </details>
-      <a href="/resort">The Resort</a>
-      <a href="/gallery">Gallery</a>
+      <a href="/pelican-beach-resort-destin">The Resort</a>
+      <a href="/destin-condo-photo-gallery">Gallery</a>
       <a href="/blog">Destin Guide</a>
       <a href="/beach-cam">Beach Cam</a>
-      <a href="/deals">Deals</a>
+      <a href="/destin-condo-deals">Deals</a>
       <a href="/destin-ai-concierge">Live Chat</a>
     </nav>
 
@@ -53,11 +53,11 @@ export default function SiteHeader({ availabilityHref = "/availability" }) {
       <nav aria-label="Mobile navigation">
         <strong>Condos</strong>
         {condoLinks.map(([label, href]) => <a key={href} href={href}>{label}</a>)}
-        <a href="/resort">The Resort</a>
-        <a href="/gallery">Photo Gallery</a>
+        <a href="/pelican-beach-resort-destin">The Resort</a>
+        <a href="/destin-condo-photo-gallery">Photo Gallery</a>
         <a href="/blog">Destin Guide</a>
         <a href="/beach-cam">Beach Cam</a>
-        <a href="/deals">Deals</a>
+        <a href="/destin-condo-deals">Deals</a>
         <a href="/destin-ai-concierge">Live Chat</a>
       </nav>
     </details>

@@ -3,12 +3,12 @@ const SITE = "https://www.destincondogetaways.com";
 // Canonical, public, indexable routes only. Transactional, account, API,
 // preview, redirect, and query-string variants intentionally do not belong here.
 const ROUTES = [
-  "/", "/availability", "/destin-vacation-rentals-by-owner", "/resort",
-  "/condos/unit-707", "/condos/unit-1006", "/reviews", "/gallery",
-  "/virtual-tours", "/trip-planner", "/destin-ai-concierge", "/guest-guide",
-  "/faq", "/map", "/about", "/privacy", "/why-book-direct", "/beach-cam",
-  "/blog", "/destin-hub", "/deals", "/snowbird", "/offer", "/car-rentals",
-  "/activities", "/blog/best-beaches-destin", "/blog/best-restaurants-destin",
+  "/", "/availability", "/destin-vacation-rentals-by-owner", "/pelican-beach-resort-destin",
+  "/pelican-beach-resort-unit-707", "/pelican-beach-resort-unit-1006", "/destin-condo-rental-reviews", "/destin-condo-photo-gallery",
+  "/pelican-beach-resort-condo-virtual-tours", "/destin-vacation-itinerary-planner", "/destin-ai-concierge", "/guest-guide",
+  "/destin-condo-rental-faq", "/map", "/about", "/privacy", "/why-book-direct", "/beach-cam",
+  "/blog", "/destin-hub", "/destin-condo-deals", "/destin-snowbird-rentals", "/destin-condo-special-offers", "/destin-car-rentals",
+  "/destin-activities", "/blog/best-beaches-destin", "/blog/best-restaurants-destin",
   "/blog/best-restaurants-destin-local-guide", "/blog/best-time-to-visit-destin-florida",
   "/blog/destin-events-2026", "/blog/destin-fireworks-2026",
   "/blog/destin-florida-vacation-guide-2026", "/blog/destin-live-music-2026",

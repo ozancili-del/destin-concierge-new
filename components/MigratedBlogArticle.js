@@ -30,7 +30,7 @@ export default function MigratedBlogArticle({
     eyebrow: "Continue planning",
     title: "Turn the guide into a practical Destin stay.",
     copy: "Use the trip planner for the details, then check live availability when your dates and group are ready.",
-    primary: { label: "Build a Destin itinerary", href: "/trip-planner" },
+    primary: { label: "Build a Destin itinerary", href: "/destin-vacation-itinerary-planner" },
     booking: { label: "Check live availability", href: "/availability" },
   };
   return <div className={styles.page}>
@@ -46,7 +46,7 @@ export default function MigratedBlogArticle({
 
     <div className={styles.preview}>Preview article | The current live website remains unchanged</div>
     <div className={styles.utility}>
-      <a href="/reviews">Guest Reviews</a>
+      <a href="/destin-condo-rental-reviews">Guest Reviews</a>
       <a href="/guest-guide#faq">FAQ</a>
       <a href="/guest-guide#policies">Policies</a>
       <a href="/about">Contact</a>

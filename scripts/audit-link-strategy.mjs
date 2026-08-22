@@ -4,7 +4,7 @@ import path from "node:path";
 const root = process.cwd();
 const pagesRoot = path.join(root, "pages");
 const strategy = JSON.parse(fs.readFileSync(path.join(root, "data", "blog-link-strategy.json"), "utf8"));
-const aliases = new Set(["/activities", "/car-rentals", "/deals"]);
+const aliases = new Set(["/destin-activities", "/destin-car-rentals", "/destin-condo-deals"]);
 
 function walk(directory) {
   return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {

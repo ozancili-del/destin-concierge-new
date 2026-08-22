@@ -1,8 +1,8 @@
 function initDestinyHead(){const lS=localStorage;
 if(window.location.pathname.toLowerCase().includes('concierge'))return;
-const API='https://destin-concierge-new.vercel.app/api/destiny-chat';
-const POLL='https://destin-concierge-new.vercel.app/api/ozan-poll';
-const SAPI='https://destin-concierge-new.vercel.app/api/ozan-send';
+const API='/api/destiny-chat';
+const POLL='/api/ozan-poll';
+const SAPI='/api/ozan-send';
 let sessionId=sessionStorage.getItem('db_sid')||'wb_'+Math.random().toString(36).substr(2,12);
 sessionStorage.setItem('db_sid',sessionId);
 let history=JSON.parse(sessionStorage.getItem('db_history')||lS.getItem('db_history')||'[]');
@@ -22,7 +22,7 @@ style.textContent=`@import url('https://fonts.googleapis.com/css2?family=DM+Sans
 #db-window.open{transform:scale(1) translateY(0);opacity:1;pointer-events:all}
 #db-header{background:linear-gradient(135deg,#00B4D8,#48CAE4,#90E0EF);padding:16px 18px;display:flex;align-items:center;gap:12px;flex-shrink:0}
 #db-header-text{flex:1}
-#db-mobile-close{display:none;background:rgba(255,255,255,.25);border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;flex-shrink:0;align-items:center;justify-content:center;color:white;font-size:18px;line-height:1}
+#db-mobile-close{display:flex;background:rgba(255,255,255,.25);border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;flex-shrink:0;align-items:center;justify-content:center;color:white;font-size:18px;line-height:1}
 #db-header-name{font-weight:600;font-size:15px;line-height:1.2;background:linear-gradient(90deg,#fff 0%,#ffe066 20%,#ffb3e6 40%,#e0d4ff 55%,#b3f0ff 70%,#ffe066 85%,#fff 100%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:db-rainbow 3s linear infinite}
 @keyframes db-rainbow{0%{background-position:0% center}100%{background-position:200% center}}
 #db-header-sub{color:rgba(255,255,255,.8);font-size:12px;margin-top:1px}
@@ -51,17 +51,19 @@ style.textContent=`@import url('https://fonts.googleapis.com/css2?family=DM+Sans
 #db-send:hover{transform:scale(1.08)}
 #db-send:disabled{opacity:.5;cursor:not-allowed}
 #db-footer{text-align:center;padding:6px 0 10px;font-size:11px;color:#bbb;flex-shrink:0}
-@media(max-width:480px){#db-bubble{bottom:16px;right:16px}#db-window{position:fixed;bottom:0;right:0;left:0;width:100%;max-height:92vh;border-radius:20px 20px 0 0;transform-origin:bottom center}#db-messages{max-height:calc(92vh - 160px)}#db-mobile-close{display:flex}#db-btn.open{display:none}}
+@media(max-width:480px){#db-bubble{bottom:16px;right:16px}#db-window{position:fixed;bottom:0;right:0;left:0;width:100%;max-height:92vh;border-radius:20px 20px 0 0;transform-origin:bottom center}#db-messages{max-height:calc(92vh - 160px)}#db-btn.open{display:none}}
+@media(prefers-reduced-motion:reduce){#db-btn,#db-btn img,#db-btn svg,#db-window,#db-send{transition:none!important}#db-header-name,.db-msg,.db-typing-dot{animation:none!important}#db-messages{scroll-behavior:auto}}
 `;
 document.head.appendChild(style);
 const wrap=document.createElement('div');
 wrap.id='db-bubble';
-wrap.innerHTML=`<div id="db-window"><div id="db-header"><img src="/destiny_avatar.png" alt="Destiny Blue AI Concierge" style="width:52px;height:52px;border-radius:50%;object-fit:cover;object-position:top;flex-shrink:0;"/><div id="db-header-text"><div id="db-header-name">Destiny Blue</div><div id="db-header-sub"><span class="db-status-dot"></span>AI Concierge · Always here</div></div><button id="db-mobile-close" aria-label="Close">✕</button></div><div id="db-messages"></div><div id="db-input-row"><input id="db-input" type="text" aria-label="Ask Destiny Blue a question" placeholder="Ask me anything…" autocomplete="off"/><button id="db-send" aria-label="Send message"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div><div id="db-footer">Powered by Destiny Blue · © Ozan CILI</div></div><button id="db-btn" aria-label="Open live chat"><div id="db-badge"></div><img class="db-icon-open" alt="Destiny Blue AI Concierge" src="/destiny_avatar.png" style="width:60px;height:60px;border-radius:50%;object-fit:cover;object-position:top;display:block;"/><svg class="db-icon-close" width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6L18 18" stroke="white" stroke-width="2.5" stroke-linecap="round"/></svg></button>`;
+wrap.innerHTML=`<div id="db-window" role="dialog" aria-modal="true" aria-labelledby="db-header-name" aria-hidden="true"><div id="db-header"><img src="/destiny_avatar.png" alt="" style="width:52px;height:52px;border-radius:50%;object-fit:cover;object-position:top;flex-shrink:0;"/><div id="db-header-text"><div id="db-header-name">Destiny Blue</div><div id="db-header-sub"><span class="db-status-dot"></span>AI Concierge · Always here</div></div><button id="db-mobile-close" aria-label="Close live chat">✕</button></div><div id="db-messages" role="log" aria-live="polite" aria-relevant="additions text"></div><div id="db-input-row"><input id="db-input" type="text" aria-label="Ask Destiny Blue a question" placeholder="Ask me anything…" autocomplete="off"/><button id="db-send" aria-label="Send message"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div><div id="db-footer">Powered by Destiny Blue · © Ozan CILI</div></div><button id="db-btn" aria-label="Open live chat" aria-controls="db-window" aria-expanded="false"><div id="db-badge"></div><img class="db-icon-open" alt="Destiny Blue AI Concierge" src="/destiny_avatar.png" style="width:60px;height:60px;border-radius:50%;object-fit:cover;object-position:top;display:block;"/><svg class="db-icon-close" width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M18 6L6 18M6 6L18 18" stroke="white" stroke-width="2.5" stroke-linecap="round"/></svg></button>`;
 document.body.appendChild(wrap);
 const btn=document.getElementById('db-btn'),win=document.getElementById('db-window'),msgs=document.getElementById('db-messages'),input=document.getElementById('db-input'),send=document.getElementById('db-send');
-function toggle(){isOpen=!isOpen;btn.classList.toggle('open',isOpen);win.classList.toggle('open',isOpen);btn.setAttribute('aria-label',isOpen?'Close live chat':'Open live chat');if(isOpen){window.dispatchEvent(new CustomEvent('dcg:chat_open',{detail:{placement:'chat_bubble'}}));if(msgs.children.length===0){if(history.length>0)history.forEach(m=>{if(m.role==='user')addU(m.content);else addB(m.content);});else{const openers=["Hi! I'm Destiny Blue 🌊 AI concierge for Destin beachfront condos. Live availability, instant booking links. What can I help you with?"];addB(openers[Math.floor(Math.random()*openers.length)]);}}setTimeout(()=>input.focus(),300);}}
+function toggle(force){isOpen=typeof force==='boolean'?force:!isOpen;btn.classList.toggle('open',isOpen);win.classList.toggle('open',isOpen);btn.setAttribute('aria-label',isOpen?'Close live chat':'Open live chat');btn.setAttribute('aria-expanded',String(isOpen));win.setAttribute('aria-hidden',String(!isOpen));if(isOpen){window.dispatchEvent(new CustomEvent('dcg:chat_open',{detail:{placement:'chat_bubble'}}));if(msgs.children.length===0){if(history.length>0)history.forEach(m=>{if(m.role==='user')addU(m.content);else addB(m.content);});else{const openers=["Hi! I'm Destiny Blue 🌊 AI concierge for Destin beachfront condos. Live availability, instant booking links. What can I help you with?"];addB(openers[Math.floor(Math.random()*openers.length)]);}}setTimeout(()=>input.focus(),300);}else{btn.focus();}}
 btn.addEventListener('click',toggle);
 document.getElementById('db-mobile-close').addEventListener('click',toggle);
+win.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();toggle(false);return;}if(e.key!=='Tab')return;const focusable=[...win.querySelectorAll('button:not([disabled]),input:not([disabled]),a[href],select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')].filter(el=>el.offsetParent!==null);if(!focusable.length)return;const first=focusable[0],last=focusable[focusable.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}});
 const LINK_BUTTONS={
   'tripshock.com':          {label:'🐬 Book Activities in Destin',  bg:'linear-gradient(135deg,#00B4D8,#0096c7)', shadow:'rgba(0,150,200,0.5)'},
   'best-restaurants-destin-local-guide': {label:'🍽️ Local Restaurants Guide',   bg:'linear-gradient(135deg,#E95A2A,#c44a20)', shadow:'rgba(200,80,40,0.4)'},
@@ -145,7 +147,7 @@ input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventD
     document.head.appendChild(link);
   }
   var banner = document.createElement('a');
-  banner.href = '/deals';
+  banner.href = '/destin-condo-deals';
   banner.title = 'See current Destin beachfront price drops';
   banner.className = 'hub-banner';
   banner.style.cssText = 'display:block;text-decoration:none;margin:0 0 32px;';
@@ -199,7 +201,7 @@ input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventD
   var propertiesForm = propertyCount.closest('form');
   if(!propertiesForm) return;
   var banner = document.createElement('a');
-  banner.href = '/snowbird';
+  banner.href = '/destin-snowbird-rentals';
   banner.title = 'Winter snowbird stays at Pelican Beach Resort Destin FL';
   banner.style.cssText = [
     'display:block;text-decoration:none;margin:0 0 32px;',
@@ -229,7 +231,7 @@ else initDestinyHead();
 // DISABLED -- causes 32 API calls per page load
 /*
 (function(){
-  const BASE = 'https://destin-concierge-new.vercel.app/api/price-drops';
+  const BASE = '/api/price-drops';
   let dbTickerDragged = false;
 
   // Generate dynamic date windows from today — rolling, never stale

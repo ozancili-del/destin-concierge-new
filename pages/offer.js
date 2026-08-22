@@ -160,7 +160,7 @@ export default function OfferPage() {
     setStatus("sending");
     try {
       const context = `Make an Offer | Unit ${unit} | ${arrival} to ${departure} | ${nights} nights | ${adults} adults, ${children} children, ${infants} infants | Proposed rate: $${rate}/night | Est. total: ${fees ? MONEY(fees.total) : "N/A"}`;
-      const res = await fetch("https://deals.destincondogetaways.com/api/rate-inquiry", {
+      const res = await fetch("/api/rate-inquiry", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, message: "", context }),
@@ -178,7 +178,7 @@ export default function OfferPage() {
         <meta name="description" content="Request owner review of your proposed rate for a Gulf-front Pelican Beach Resort condo in Destin. Submit dates, guests and your offer." />
         <meta name="robots" content={process.env.NEXT_PUBLIC_DEPLOYMENT_ENV === "production" ? "index,follow" : "noindex,nofollow"} />
         <meta name="keywords" content="make offer Destin FL condo, name your price vacation rental Destin, Pelican Beach Resort condo deal, flexible pricing Destin Florida, book direct condo Destin FL discount" />
-        <link rel="canonical" href="https://www.destincondogetaways.com/offer" />
+        <link rel="canonical" href="https://www.destincondogetaways.com/destin-condo-special-offers" />
 
         <meta property="og:title" content="Make an Offer — Destin Beachfront Condo, Pelican Beach Resort FL" />
         <meta property="og:description" content="Name your nightly rate for a Gulf-front condo in Destin, FL. Sleeps 6, private balcony, beachfront. Owner responds directly — no middleman, no OTA fees." />
@@ -186,7 +186,7 @@ export default function OfferPage() {
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="800" />
         <meta property="og:image:alt" content="Gulf-front beachfront condo at Pelican Beach Resort, Destin Florida" />
-        <meta property="og:url" content="https://www.destincondogetaways.com/offer" />
+        <meta property="og:url" content="https://www.destincondogetaways.com/destin-condo-special-offers" />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="Destin Condo Getaways" />
         <meta property="og:locale" content="en_US" />
@@ -201,7 +201,7 @@ export default function OfferPage() {
           "@type": "WebPage",
           "name": "Make an Offer — Destin Beachfront Condo at Pelican Beach Resort",
           "description": "Propose your own nightly rate for a Gulf-front vacation rental condo at Pelican Beach Resort, Destin FL. Units 707 and 1006 sleep 6, private Gulf-view balcony, 2 bathrooms. Owner responds directly within hours.",
-          "url": "https://www.destincondogetaways.com/offer",
+          "url": "https://www.destincondogetaways.com/destin-condo-special-offers",
           "inLanguage": "en-US",
           "isPartOf": { "@type": "WebSite", "name": "Destin Condo Getaways", "url": "https://www.destincondogetaways.com" },
           "breadcrumb": {
@@ -209,7 +209,7 @@ export default function OfferPage() {
             "itemListElement": [
               { "@type": "ListItem", "position": 1, "name": "Destin Florida Vacation Rentals", "item": "https://www.destincondogetaways.com" },
               { "@type": "ListItem", "position": 2, "name": "Pelican Beach Resort Condos", "item": "https://www.destincondogetaways.com/destin-vacation-rentals-by-owner" },
-              { "@type": "ListItem", "position": 3, "name": "Make an Offer", "item": "https://www.destincondogetaways.com/offer" }
+              { "@type": "ListItem", "position": 3, "name": "Destin Condo Special Offers", "item": "https://www.destincondogetaways.com/destin-condo-special-offers" }
             ]
           },
           "mainEntity": {
@@ -249,7 +249,7 @@ export default function OfferPage() {
           "itemListElement": [
             { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://www.destincondogetaways.com/" },
             { "@type": "ListItem", "position": 2, "name": "Vacation Rentals", "item": "https://www.destincondogetaways.com/destin-vacation-rentals-by-owner" },
-            { "@type": "ListItem", "position": 3, "name": "Make an Offer", "item": "https://www.destincondogetaways.com/offer" }
+            { "@type": "ListItem", "position": 3, "name": "Destin Condo Special Offers", "item": "https://www.destincondogetaways.com/destin-condo-special-offers" }
           ]
         })}} />
 
@@ -442,7 +442,7 @@ export default function OfferPage() {
           },
           "offers": {
             "@type": "Offer",
-            "url": "https://www.destincondogetaways.com/offer",
+            "url": "https://www.destincondogetaways.com/destin-condo-special-offers",
             "availability": "https://schema.org/InStock",
             "price": "0",
             "priceCurrency": "USD",
@@ -460,7 +460,7 @@ export default function OfferPage() {
             "@type": "SpeakableSpecification",
             "cssSelector": [".offer-page h1", ".speakable-intro", ".speakable-faq"]
           },
-          "url": "https://www.destincondogetaways.com/offer"
+          "url": "https://www.destincondogetaways.com/destin-condo-special-offers"
         })}} />
 
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
@@ -468,16 +468,16 @@ export default function OfferPage() {
           "@graph": [
             {
               "@type": "WebPage",
-              "@id": "https://www.destincondogetaways.com/offer#webpage",
-              "url": "https://www.destincondogetaways.com/offer",
+              "@id": "https://www.destincondogetaways.com/destin-condo-special-offers#webpage",
+              "url": "https://www.destincondogetaways.com/destin-condo-special-offers",
               "name": "Make an Offer on a Destin Beachfront Condo — Name Your Price",
               "isPartOf": { "@id": "https://www.destincondogetaways.com/#website" },
               "publisher": { "@id": "https://www.destincondogetaways.com/#organization" },
               "significantLink": [
-                "https://www.destincondogetaways.com/deals",
+                "https://www.destincondogetaways.com/destin-condo-deals",
                 "https://www.destincondogetaways.com/availability",
-                "https://www.destincondogetaways.com/snowbird",
-                "https://www.destincondogetaways.com/trip-planner"
+                "https://www.destincondogetaways.com/destin-snowbird-rentals",
+                "https://www.destincondogetaways.com/destin-vacation-itinerary-planner"
               ]
             },
             {
@@ -516,12 +516,12 @@ export default function OfferPage() {
           <span>CONDO GETAWAYS</span>
         </a>
         <nav className="deals-nav">
-          <a href="/">Home</a><a href="/#condos">Condos</a><a href="/deals">Deals</a><a href="/activities">Activities</a><a href="/car-rentals">Flights & Cars</a><a href="/trip-planner">Trip Planner</a><a href="/snowbird">Snowbird</a>
+          <a href="/">Home</a><a href="/#condos">Condos</a><a href="/destin-condo-deals">Deals</a><a href="/destin-activities">Activities</a><a href="/destin-car-rentals">Flights & Cars</a><a href="/destin-vacation-itinerary-planner">Trip Planner</a><a href="/destin-snowbird-rentals">Snowbird</a>
         </nav>
         <a className="deals-book" href="/#availability">Check availability</a>
       </header>
       <nav className="deals-mobile-nav" aria-label="Offer page mobile navigation">
-        <a href="/">Home</a><a href="/deals">Deals</a><a href="/activities">Activities</a><a href="/car-rentals">Flights & Cars</a><a href="/trip-planner">Trip Planner</a><a href="/snowbird">Snowbird</a>
+        <a href="/">Home</a><a href="/destin-condo-deals">Deals</a><a href="/destin-activities">Activities</a><a href="/destin-car-rentals">Flights & Cars</a><a href="/destin-vacation-itinerary-planner">Trip Planner</a><a href="/destin-snowbird-rentals">Snowbird</a>
       </nav>
 
       <main className="offer-page">
@@ -738,9 +738,9 @@ export default function OfferPage() {
             <a href="/blog/how-to-find-cheaper-flights-and-car-rentals" className="plan-trip-pill">🚗 Flights & Car Rentals</a>
             <a href="/blog/destin-fireworks-2026" className="plan-trip-pill">🎆 Fireworks 2026</a>
             <a href="/blog/destin-events-2026" className="plan-trip-pill">📅 Events 2026</a>
-            <a href="/deals" className="plan-trip-pill">🏷️ Price Drops</a>
-            <a href="/snowbird" className="plan-trip-pill">❄️ Snowbird Stays</a>
-            <a href="/activities" className="plan-trip-pill">🎟️ Activities & Tours</a>
+            <a href="/destin-condo-deals" className="plan-trip-pill">🏷️ Price Drops</a>
+            <a href="/destin-snowbird-rentals" className="plan-trip-pill">❄️ Snowbird Stays</a>
+            <a href="/destin-activities" className="plan-trip-pill">🎟️ Activities & Tours</a>
           </div>
         </div>
       </section>

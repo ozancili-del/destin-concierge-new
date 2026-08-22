@@ -27,10 +27,10 @@ export default function ReviewsPage() {
   const structuredData = {
     "@context": "https://schema.org",
     "@graph": [
-      { "@type": "WebPage", "@id": liveSite + "/reviews#webpage", name: "Guest Reviews for Destin Condo Getaways", description: "Real guest reviews for owner-managed beachfront condos at Pelican Beach Resort in Destin, Florida." },
+      { "@type": "WebPage", "@id": liveSite + "/destin-condo-rental-reviews#webpage", name: "Guest Reviews for Destin Condo Getaways", description: "Real guest reviews for owner-managed beachfront condos at Pelican Beach Resort in Destin, Florida." },
       { "@type": "BreadcrumbList", itemListElement: [
         { "@type": "ListItem", position: 1, name: "Home", item: liveSite },
-        { "@type": "ListItem", position: 2, name: "Guest Reviews", item: liveSite + "/reviews" }
+        { "@type": "ListItem", position: 2, name: "Guest Reviews", item: liveSite + "/destin-condo-rental-reviews" }
       ]},
       {
         "@type": "LodgingBusiness", "@id": liveSite + "/#business", name: "Destin Condo Getaways",
@@ -53,12 +53,12 @@ export default function ReviewsPage() {
       <meta name="description" content="Read real guest reviews for Destin Condo Getaways at Pelican Beach Resort and visit our Airbnb and Vrbo pages." />
       <meta name="robots" content={process.env.NEXT_PUBLIC_DEPLOYMENT_ENV === "production" ? "index,follow" : "noindex,nofollow"} />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
-      <link rel="canonical" href={`${liveSite}/reviews`} />
+      <link rel="canonical" href={`${liveSite}/destin-condo-rental-reviews`} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
     </Head>
 
     <div className={styles.preview}>Preview page | Production remains unchanged</div>
-    <div className={styles.utility}><a href="/reviews">Guest Reviews</a><a href="/resort#faq">FAQ</a><a href="/guest-guide">Policies</a><a href="/about">Contact</a></div>
+    <div className={styles.utility}><a href="/destin-condo-rental-reviews">Guest Reviews</a><a href="/pelican-beach-resort-destin#faq">FAQ</a><a href="/guest-guide">Policies</a><a href="/about">Contact</a></div>
     <SiteHeader availabilityHref="#availability" />
 
     <main>

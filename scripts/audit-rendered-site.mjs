@@ -5,9 +5,9 @@ const require = createRequire(import.meta.url);
 const { chromium } = require("playwright");
 const baseUrl = process.env.SITE_AUDIT_URL || "http://127.0.0.1:3020";
 const defaultRoutes = [
-  "/", "/availability", "/book", "/destin-vacation-rentals-by-owner", "/resort",
-  "/condos/unit-707", "/condos/unit-1006", "/reviews", "/gallery", "/virtual-tours",
-  "/trip-planner", "/destin-ai-concierge", "/guest-guide", "/faq", "/map", "/about",
+  "/", "/availability", "/book", "/destin-vacation-rentals-by-owner", "/pelican-beach-resort-destin",
+  "/pelican-beach-resort-unit-707", "/pelican-beach-resort-unit-1006", "/destin-condo-rental-reviews", "/destin-condo-photo-gallery", "/pelican-beach-resort-condo-virtual-tours",
+  "/destin-vacation-itinerary-planner", "/destin-ai-concierge", "/guest-guide", "/destin-condo-rental-faq", "/map", "/about",
   "/privacy", "/why-book-direct", "/beach-cam", "/blog", "/destin-hub",
 ];
 const routes = process.env.AUDIT_ROUTES ? process.env.AUDIT_ROUTES.split(",") : defaultRoutes;

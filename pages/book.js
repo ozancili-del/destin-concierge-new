@@ -51,7 +51,7 @@ export default function BookPage() {
     </Head>
 
     <div className={styles.preview}>Preview page | Production reservations remain unchanged</div>
-    <div className={styles.utility}><a href="/reviews">Guest Reviews</a><a href="/guest-guide#faq">FAQ</a><a href="/guest-guide#policies">Policies</a><a href="/about">Contact</a></div>
+    <div className={styles.utility}><a href="/destin-condo-rental-reviews">Guest Reviews</a><a href="/guest-guide#faq">FAQ</a><a href="/guest-guide#policies">Policies</a><a href="/about">Contact</a></div>
     <SiteHeader availabilityHref="#checkout" />
 
     <main>
@@ -68,15 +68,15 @@ export default function BookPage() {
       <section className={styles.choose}>
         <div className={styles.sectionHead}><p className={styles.kicker}>Know what you are reserving</p><h2>Compare the exact condos before paying.</h2><p>Both are one-bedroom, two-bath Gulf-front condos that sleep up to six people. Their floor, interior style and view perspective differ.</p></div>
         <div className={styles.cards}>
-          <a href="/condos/unit-707"><span>Seventh floor · Classic Coastal</span><strong>Explore Unit 707</strong><small>Photos, amenities, reviews and live calendar →</small></a>
-          <a href="/condos/unit-1006"><span>Tenth floor · Fresh Coastal</span><strong>Explore Unit 1006</strong><small>Photos, amenities, reviews and live calendar →</small></a>
+          <a href="/pelican-beach-resort-unit-707"><span>Seventh floor · Classic Coastal</span><strong>Explore Unit 707</strong><small>Photos, amenities, reviews and live calendar →</small></a>
+          <a href="/pelican-beach-resort-unit-1006"><span>Tenth floor · Fresh Coastal</span><strong>Explore Unit 1006</strong><small>Photos, amenities, reviews and live calendar →</small></a>
         </div>
       </section>
 
       <section className={styles.reviews}>
         <div className={styles.sectionHead}><p className={styles.kicker}>Guest confidence</p><h2>Real stays. Direct owner support.</h2></div>
         <div className={styles.reviewGrid}>{reviews.map((review) => <blockquote key={review.name}><div aria-label="Five out of five stars">★★★★★</div><p>“{review.text}”</p><footer>{review.name}</footer></blockquote>)}</div>
-        <SiteButton href="/reviews" variant="secondary">Read guest reviews</SiteButton>
+        <SiteButton href="/destin-condo-rental-reviews" variant="secondary">Read guest reviews</SiteButton>
       </section>
 
       <section className={styles.details}>

@@ -1,8 +1,10 @@
 # Redirect Master Map
 
-Updated: August 18, 2026
+Updated: August 22, 2026
 Scope: OwnerRez-hosted URLs, prior Vercel/subdomain URLs, and historical Google/Bing crawl findings
 Production status: unchanged; these rules are staged in draft PR #10
+
+Machine-readable source of truth: `config/redirect-inventory.js`. Next.js path redirects are derived from this inventory; the redirect audit reconciles Vercel host rules against the same contract.
 
 ## Contract
 
@@ -22,20 +24,32 @@ Production status: unchanged; these rules are staged in draft PR #10
 | `/aboutus-574000712`, `/about-me-574000712`, `/aboutme-574000712` | `/about` | About-page aliases |
 | `/privacy-574035022` | `/privacy` | Privacy replacement |
 | `/properties`, `/pelican-` | `/destin-vacation-rentals-by-owner` | Closest commercial collection intent |
-| `/pelican-beach-resort-destin-574048693` | `/resort` | Resort replacement |
+| `/pelican-beach-resort-destin-574048693` | `/pelican-beach-resort-destin` | Resort replacement |
 | `/-pelican-beach-resort-condo-rental-574046950` | `/why-book-direct` | Historic direct-booking page |
-| `/pelican-beach-resort-unit-707-orp5b47b5ax` | `/condos/unit-707` | Exact listing identity; booking query retained |
-| `/pelican-beach-resort-unit-1006-orp5b6450ex` | `/condos/unit-1006` | Exact listing identity; booking query retained |
-| `/destin-vacation-itinerary-planner-574049367` | `/trip-planner` | Planner replacement |
+| `/pelican-beach-resort-unit-707-orp5b47b5ax` | `/pelican-beach-resort-unit-707` | Exact listing identity; booking query retained |
+| `/pelican-beach-resort-unit-1006-orp5b6450ex` | `/pelican-beach-resort-unit-1006` | Exact listing identity; booking query retained |
+| `/destin-vacation-itinerary-planner-574049367` | `/destin-vacation-itinerary-planner` | Planner replacement |
 | `/ai-concierge-574036277`, `/concierge` | `/destin-ai-concierge` | One public concierge route |
-| `/virtualtour-574001044` | `/virtual-tours` | Virtual-tour replacement |
-| `/destin-condo-guide-574047967` | `/faq` | Public condo FAQ replacement |
-| `/pricing-dashboard-574049826` | `/deals` | Public price-reduction intent |
-| `/beach-deals`, `/rate-finder.html` | `/deals` | Clean deals route |
+| `/virtualtour-574001044` | `/pelican-beach-resort-condo-virtual-tours` | Virtual-tour replacement |
+| `/destin-condo-guide-574047967` | `/destin-condo-rental-faq` | Public condo FAQ replacement |
+| `/pricing-dashboard-574049826` | `/destin-condo-deals` | Public price-reduction intent |
+| `/beach-deals`, `/rate-finder.html` | `/destin-condo-deals` | Clean deals route |
 | `/destin-hub.html` | `/destin-hub` | Clean planning-hub route |
-| `/destin-car-rental.html` | `/car-rentals` | Clean transport route |
-| `/destin-tripshock.html` | `/activities` | Clean activities route |
-| `/snowbird.html` | `/snowbird` | Clean snowbird route |
+| `/destin-car-rental.html` | `/destin-car-rentals` | Clean transport route |
+| `/destin-tripshock.html` | `/destin-activities` | Clean activities route |
+| `/snowbird.html` | `/destin-snowbird-rentals` | Clean snowbird route |
+| `/condos/unit-707` | `/pelican-beach-resort-unit-707` | Preview-era alias; booking query retained |
+| `/condos/unit-1006` | `/pelican-beach-resort-unit-1006` | Preview-era alias; booking query retained |
+| `/resort` | `/pelican-beach-resort-destin` | Preview-era alias |
+| `/gallery` | `/destin-condo-photo-gallery` | Preview-era alias |
+| `/virtual-tours` | `/pelican-beach-resort-condo-virtual-tours` | Preview-era alias |
+| `/reviews` | `/destin-condo-rental-reviews` | Preview-era alias |
+| `/deals` | `/destin-condo-deals` | Preview-era alias |
+| `/snowbird` | `/destin-snowbird-rentals` | Preview-era alias |
+| `/activities` | `/destin-activities` | Preview-era alias |
+| `/car-rentals` | `/destin-car-rentals` | Preview-era alias |
+| `/trip-planner` | `/destin-vacation-itinerary-planner` | Preview-era alias |
+| `/faq` | `/destin-condo-rental-faq` | Preview-era alias |
 | `/blog/rss` | `/blog` | No replacement feed; preserve human discovery |
 | `/blog/why-we-built-an-ai-concierge-for-destin-vacation-rentals` | `/destin-ai-concierge` | Closest AI-concierge intent |
 | `/blog/destin-condo-ai-concierge-direct-booking` | `/why-book-direct` | Consolidated direct-booking intent |
@@ -47,16 +61,16 @@ Production status: unchanged; these rules are staged in draft PR #10
 
 | Historical host/path | Final canonical route | Fallback policy |
 |---|---|---|
-| `deals.../`, `/beach-deals`, `/rate-finder.html` | `/deals` | Other retired deals paths also go to `/deals` |
+| `deals.../`, `/beach-deals`, `/rate-finder.html` | `/destin-condo-deals` | Other retired deals paths also go to the canonical deals page |
 | `explore.../`, `/destin-hub`, `/destin-hub.html` | `/destin-hub` | Other retired explore paths go to the hub |
-| `explore.../destin-car-rental.html` | `/car-rentals` | Exact functional successor |
-| `explore.../destin-tripshock.html` | `/activities` | Exact functional successor |
+| `explore.../destin-car-rental.html` | `/destin-car-rentals` | Exact functional successor |
+| `explore.../destin-tripshock.html` | `/destin-activities` | Exact functional successor |
 | `explore.../blog/best-restaurants-destin-local-guide` | Same main-domain blog route | Historical cross-host 404 repair |
 | `explore.../blog/destinweather` | Same main-domain blog route | Historical cross-host 404 repair |
-| `explore.../pelican-beach-resort-unit-1006-orp5b6450ex` | `/condos/unit-1006` | Historical cross-host 404 repair |
+| `explore.../pelican-beach-resort-unit-1006-orp5b6450ex` | `/pelican-beach-resort-unit-1006` | Historical cross-host 404 repair |
 | `deals.../blog/destinnights` | `/blog/destinnights` | Historical cross-host 404 repair |
-| `offer.../`, `/offer` | `/offer` | Other retired offer paths go to `/offer` |
-| `sunbirds.../`, `/snowbird` | `/snowbird` | Other retired sunbird paths go to `/snowbird` |
+| `offer.../`, `/offer` | `/destin-condo-special-offers` | Retired offer subdomain and short alias go directly to the indexed main-domain offer page |
+| `sunbirds.../`, `/snowbird` | `/destin-snowbird-rentals` | Other retired sunbird paths go to the canonical snowbird page |
 
 `guestview.destincondogetaways.com` and `app.destincondogetaways.com` are application surfaces, not retired public SEO hosts. Their temporary product routing remains separate from this migration map.
 
@@ -69,7 +83,7 @@ Production status: unchanged; these rules are staged in draft PR #10
 
 ## Cutover verification
 
-After the production domain is attached, run `npm run test:redirect-map` and live HTTP checks that assert:
+Before cutover, `npm run test:precutover` builds the exact candidate, runs the static map/canonical audits, and exercises redirects through a real local Next.js HTTP server. After the production domain is attached, rerun it and perform live-domain checks that assert:
 
 1. source returns 308 (or platform-equivalent permanent status);
 2. `Location` is the final HTTPS `www` canonical URL;

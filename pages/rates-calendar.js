@@ -39,8 +39,8 @@ function calcFees(priceSum, nights, unit, arrivalStr, adults, children) {
 }
 
 const UNIT_META = {
-  "707":  { name: "Unit 707", sub: "Classic Coastal · 7th Floor", route: "/condos/unit-707" },
-  "1006": { name: "Unit 1006", sub: "Fresh Coastal · 10th Floor", route: "/condos/unit-1006" },
+  "707":  { name: "Unit 707", sub: "Classic Coastal · 7th Floor", route: "/pelican-beach-resort-unit-707" },
+  "1006": { name: "Unit 1006", sub: "Fresh Coastal · 10th Floor", route: "/pelican-beach-resort-unit-1006" },
 };
 
 function bookingUrl(unit, arrival, departure) {
@@ -281,7 +281,7 @@ export default function RatesCalendar({ dayData, today }) {
           <span style={{ display: "block", fontSize: 10, letterSpacing: ".16em", color: "rgba(255,255,255,.6)", fontWeight: 700 }}>CONDO GETAWAYS</span>
         </a>
         <nav style={{ display: "flex", gap: 20, fontSize: 13, fontWeight: 700 }}>
-          {[["Deals", "/deals"],["Snowbird", "/snowbird"],["Destin Hub", "/destin-hub"]].map(([label, href]) => (
+          {[["Deals", "/destin-condo-deals"],["Snowbird", "/destin-snowbird-rentals"],["Destin Hub", "/destin-hub"]].map(([label, href]) => (
             <a key={label} href={href} style={{ color: "rgba(255,255,255,.7)", textDecoration: "none" }}>{label}</a>
           ))}
         </nav>

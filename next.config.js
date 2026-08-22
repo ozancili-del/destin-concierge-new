@@ -7,9 +7,9 @@ const nextConfig = {
   },
   async rewrites() {
     return [
-      { source: "/deals", destination: "/beach-deals" },
-      { source: "/car-rentals", destination: "/destin-car-rental.html" },
-      { source: "/activities", destination: "/destin-tripshock.html" },
+      { source: "/destin-condo-deals", destination: "/beach-deals" },
+      { source: "/destin-car-rentals", destination: "/destin-car-rental.html" },
+      { source: "/destin-activities", destination: "/destin-tripshock.html" },
     ];
   },
   async redirects() {

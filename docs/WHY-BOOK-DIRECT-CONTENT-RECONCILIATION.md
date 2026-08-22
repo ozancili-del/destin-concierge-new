@@ -13,11 +13,11 @@ Audit rule: every substantive source section must be retained, improved, moved t
 | Pelican Beach Resort vacation-rental introduction | Improve | Stronger owner-direct vacation-rental title, meta description, kicker, H1 and introduction | Complete |
 | 2026 owner insights and family-friendly positioning | Improve | Family-friendly section written as evergreen copy; avoid putting a year into permanent URL copy | Complete |
 | Seventh- and tenth-floor Gulf views, waves and possible dolphin sightings | Retain | Family-friendly section and exact-unit section | Complete |
-| Why families choose Pelican Beach Resort | Split by intent | Direct beach access and family convenience retained here; complete amenities/location treatment moves to `/resort` | Complete / `/resort` pending |
+| Why families choose Pelican Beach Resort | Split by intent | Direct beach access and family convenience retained here; complete amenities/location treatment moves to `/pelican-beach-resort-destin` | Complete / `/pelican-beach-resort-destin` pending |
 | No road or traffic to cross | Retain | Exact-unit and family sections | Complete |
-| Heated pools | Retain | Included-amenities summary; detailed pool description moves to `/resort` | Complete / `/resort` pending |
-| Pelican Beach Cafe and seasonal operation | Move | `/resort`; summarized as seasonal cafe on this page | Pending `/resort` |
-| Walkability to The Pancakery and Big Kahuna's | Move | `/resort` location/nearby section; do not duplicate a local-area guide here | Pending `/resort` |
+| Heated pools | Retain | Included-amenities summary; detailed pool description moves to `/pelican-beach-resort-destin` | Complete / `/pelican-beach-resort-destin` pending |
+| Pelican Beach Cafe and seasonal operation | Move | `/pelican-beach-resort-destin`; summarized as seasonal cafe on this page | Pending `/pelican-beach-resort-destin` |
+| Walkability to The Pancakery and Big Kahuna's | Move | `/pelican-beach-resort-destin` location/nearby section; do not duplicate a local-area guide here | Pending `/pelican-beach-resort-destin` |
 | Full kitchens and family meal convenience | Retain | Exact-unit and family sections | Complete |
 | Owner insight about easy breakfasts and less stressful beach access | Improve | Family-friendly copy without presenting an unattributed quotation | Complete |
 | Meaning of “Destin beachfront condo rental by owner” | Retain and improve | Owner-direct introduction and four direct-booking reasons | Complete |
@@ -43,18 +43,18 @@ Audit rule: every substantive source section must be retained, improved, moved t
 | Virtual tours | Retain | Visible virtual-tour link and exact-unit copy | Complete |
 | “What you see is what you get” concept | Retain | Exact-unit section | Complete |
 | Private beach access | Retain | Included-amenities grid | Complete |
-| Three heated pools and kiddie pool | Retain | Included-amenities grid; detail moves to `/resort` | Complete / `/resort` pending |
+| Three heated pools and kiddie pool | Retain | Included-amenities grid; detail moves to `/pelican-beach-resort-destin` | Complete / `/pelican-beach-resort-destin` pending |
 | Two hot tubs | Retain | Included-amenities grid | Complete |
 | Fitness center, sauna and steam room | Retain | Included-amenities grid | Complete |
 | Tennis and pickleball | Retain | Included-amenities grid | Complete |
-| Seasonal beach-chair service dates/hours | Move and verify | `/resort`; current page retains only “seasonal beach chair service” so stale dates are not hard-coded | Pending `/resort` verification |
+| Seasonal beach-chair service dates/hours | Move and verify | `/pelican-beach-resort-destin`; current page retains only “seasonal beach chair service” so stale dates are not hard-coded | Pending `/pelican-beach-resort-destin` verification |
 | Complimentary chairs and umbrella in unit | Retain | Included-amenities grid | Complete |
-| Seasonal tiki bar and cafe | Retain summary / move details | Included grid; details on `/resort` | Complete / `/resort` pending |
-| Free parking and paid EV chargers | Retain | Included grid; exact charger details move to `/resort` | Complete |
+| Seasonal tiki bar and cafe | Retain summary / move details | Included grid; details on `/pelican-beach-resort-destin` | Complete / `/pelican-beach-resort-destin` pending |
+| Free parking and paid EV chargers | Retain | Included grid; exact charger details move to `/pelican-beach-resort-destin` | Complete |
 | Gas grills and outdoor seating | Retain | Included grid | Complete |
 | Laundry on every floor | Retain | Included grid | Complete |
 | 24/7 front desk and security | Retain | Included grid | Complete |
-| Vending machines | Move | Minor resort detail for `/resort`; excluding it here avoids diluting page intent | Pending `/resort` |
+| Vending machines | Move | Minor resort detail for `/pelican-beach-resort-destin`; excluding it here avoids diluting page intent | Pending `/pelican-beach-resort-destin` |
 | Tent/canopy and umbrella rule | Retain | Know-before-you-reserve rules | Complete |
 | Check-in 4 PM and checkout 10 AM Central | Retain | Rules and FAQ | Complete |
 | No smoking, no pets | Retain | Rules and FAQ | Complete |
@@ -86,5 +86,5 @@ Audit rule: every substantive source section must be retained, improved, moved t
 2. Confirm the returning-guest discount and exact exclusions.
 3. Either substantiate or permanently retire the old fixed savings ranges.
 4. Synchronize the full cancellation wording with the canonical policy/OwnerRez checkout source.
-5. Finish `/resort` so all moved resort and nearby-location content has a real destination.
+5. Finish `/pelican-beach-resort-destin` so all moved resort and nearby-location content has a real destination.
 

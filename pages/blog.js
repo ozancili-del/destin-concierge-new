@@ -65,7 +65,7 @@ export default function BlogHub(){
     </Head>
 
     <div className={styles.preview}>Preview page | The current live website remains unchanged</div>
-    <div className={styles.utility}><a href="/reviews">Guest Reviews</a><a href="/guest-guide#faq">FAQ</a><a href="/guest-guide#policies">Policies</a><a href="/about">Contact</a></div>
+    <div className={styles.utility}><a href="/destin-condo-rental-reviews">Guest Reviews</a><a href="/guest-guide#faq">FAQ</a><a href="/guest-guide#policies">Policies</a><a href="/about">Contact</a></div>
     <SiteHeader availabilityHref="#availability" />
 
     <main>

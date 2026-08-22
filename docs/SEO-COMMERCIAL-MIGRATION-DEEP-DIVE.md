@@ -64,14 +64,14 @@ These six pages account for approximately 95% of recorded clicks. They must not 
 |---|---|---|
 | `/` | Brand + Destin beachfront condo overview | Search live availability |
 | `/destin-beachfront-condo-rentals` | Main commercial collection page | Compare and select a unit |
-| `/condos/unit-707` | Exact property listing | Check dates / continue to secure checkout |
-| `/condos/unit-1006` | Exact property listing | Check dates / continue to secure checkout |
+| `/pelican-beach-resort-unit-707` | Exact property listing | Check dates / continue to secure checkout |
+| `/pelican-beach-resort-unit-1006` | Exact property listing | Check dates / continue to secure checkout |
 | `/availability` | Live availability comparison | Open current OwnerRez results |
 | `/book` | Transactional booking flow | Complete secure booking |
 | `/pelican-beach-resort-destin` | Resort/location research | Move to matching condo or availability |
-| `/reviews` | Trust and proof | Continue to availability |
-| `/gallery` | Visual consideration | Open a unit or availability |
-| `/virtual-tours` | High-intent visual inspection | Open a unit or availability |
+| `/destin-condo-rental-reviews` | Trust and proof | Continue to availability |
+| `/destin-condo-photo-gallery` | Visual consideration | Open a unit or availability |
+| `/pelican-beach-resort-condo-virtual-tours` | High-intent visual inspection | Open a unit or availability |
 
 The old `/properties` route should 301 directly to `/destin-beachfront-condo-rentals`. Do not redirect it to the homepage or availability page; the new collection page is the closest intent match.
 
@@ -82,9 +82,9 @@ The old `/properties` route should 301 directly to `/destin-beachfront-condo-ren
 | `/destin-airport-car-rentals` | Commercial car-rental landing page with live affiliate tool | Distinct from the long educational `destincar` guide |
 | `/flights-to-destin-florida` | Flight-search landing page | Supported by `destinairport` and the cheaper-flights guide |
 | `/things-to-do-in-destin` | Activities landing page with TripShock browsing tool | Supported by beaches, kids, romance, water, events and itinerary content |
-| `/deals` | Current reduced-date discovery | Replace `deals.` subdomain destination after validation |
+| `/destin-condo-deals` | Current reduced-date discovery | Replace `deals.` subdomain destination after validation |
 | `/snowbird-rentals-destin-fl` | Monthly winter stay landing page | Replace `sunbirds.` subdomain destination |
-| `/trip-planner` | Personalized itinerary tool | Route activities, dining and stay interest to relevant pages |
+| `/destin-vacation-itinerary-planner` | Personalized itinerary tool | Route activities, dining and stay interest to relevant pages |
 
 Informational guides should remain articles. Commercial landing pages should contain enough unique explanatory content to rank, but their main job is helping the visitor take action.
 
@@ -172,7 +172,7 @@ Informational guides should remain articles. Commercial landing pages should con
 - If the remaining page has little independent query/backlink value, 301 it to the condo collection after Search Console query/link review.
 - Avoid numeric savings claims unless phrased and supported accurately (“save up to 20% compared with some platform totals,” not a universal guarantee).
 
-### Reviews `/reviews`
+### Reviews `/destin-condo-rental-reviews`
 
 **Intent:** brand validation and pre-booking trust.
 **Required improvements:**
@@ -201,7 +201,7 @@ Informational guides should remain articles. Commercial landing pages should con
 - Link to resort, airport, car rental, unit pages and availability.
 - JSON-LD: `WebPage`, `BreadcrumbList`, `Place`; the embedded map itself is not enough content for ranking.
 
-### FAQ `/faq`
+### FAQ `/destin-condo-rental-faq`
 
 **Intent:** remove booking objections and reduce support friction.
 **Required improvements:**
@@ -214,7 +214,7 @@ Informational guides should remain articles. Commercial landing pages should con
 ### Destin AI concierge, planner and guest guide
 
 - `/destin-ai-concierge`: `SoftwareApplication` or `WebApplication`, `WebPage`, `BreadcrumbList`; clearly disclose AI and explain what it can and cannot do.
-- `/trip-planner`: retain working email flow; use `WebApplication`, visible FAQs and contextual links to activities/stays.
+- `/destin-vacation-itinerary-planner`: retain working email flow; use `WebApplication`, visible FAQs and contextual links to activities/stays.
 - `/guest-guide`: primarily guest-support intent; keep indexable only if it contains useful public pre-booking information. Separate sensitive or booking-specific content behind authenticated links.
 
 ### About, privacy and contact
@@ -328,7 +328,7 @@ The existing Lighthouse evidence showed mobile performance around 47, LCP around
 
 Priority work:
 
-- convert oversized hero/gallery images to responsive AVIF/WebP and size them correctly;
+- convert oversized hero/destin-condo-photo-gallery images to responsive AVIF/WebP and size them correctly;
 - preload only the true LCP image and avoid lazy-loading it;
 - lazy-load below-the-fold galleries, maps, Kuula tours, chat and affiliate tools;
 - reserve dimensions for images/iframes/chat to prevent layout shift;
@@ -433,7 +433,7 @@ Initial search evidence on August 16, 2026 shows the competitor surfacing dedica
 
 #### Homepage comparison — August 16, 2026
 
-Destin Condo Getaways is currently ahead in visual refinement, semantic structure, labeled form controls, guest-count capture, owner-direct explanation, planning utility, FAQ coverage and the clarity of presenting the exact available units. The competitor is ahead in keyword-explicit hero messaging, visible inventory depth, review volume, repeated booking reinforcement, property/resort proof and mature commercial internal linking.
+Destin Condo Getaways is currently ahead in visual refinement, semantic structure, labeled form controls, guest-count capture, owner-direct explanation, planning utility, FAQ coverage and the clarity of presenting the exact available units. The competitor is ahead in keyword-explicit hero messaging, visible inventory depth, review volume, repeated booking reinforcement, property/pelican-beach-resort-destin proof and mature commercial internal linking.
 
 Immediate issues on the Destin Condo Getaways preview:
 

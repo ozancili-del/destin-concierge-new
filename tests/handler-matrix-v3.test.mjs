@@ -75,16 +75,17 @@ test("unsupported HTTP method returns 405", async () => {
   assert.equal(res.statusCode, 405); assert.equal(res.body.error, "Method not allowed");
 });
 
-test("admin phrase runs the snapshot without entering the agent", async () => {
+test("former admin phrase is handled as ordinary guest text", async () => {
   const { res, openai, services } = await request({ body: { sessionId: "s", messages: [{ role: "user", content: "lets go mf" }] } });
-  assert.equal(services.calls.admin, 1); assert.equal(openai.calls.length, 0);
-  assert.match(res.body.reply, /saved 4 rows/); assert.equal(res.body.debug.adminSnapshot, true);
+  assert.equal(services.calls.admin, 0); assert.equal(openai.calls.length, 1);
+  assert.equal(res.body.reply, "Hello!");
 });
 
-test("admin snapshot exception is reported without crashing endpoint", async () => {
+test("former admin phrase cannot invoke a failing snapshot service", async () => {
   const services = mockServices({ async runAdminPriceSnapshot() { throw new Error("snapshot down"); } });
   const { res } = await request({ services, body: { messages: [{ role: "user", content: "LETS GO MF" }] } });
-  assert.match(res.body.reply, /Snapshot failed: snapshot down/);
+  assert.equal(services.calls.admin, 0);
+  assert.equal(res.body.reply, "Hello!");
 });
 
 test("page-source open greeting is logged without calling the model", async () => {
@@ -95,26 +96,24 @@ test("page-source open greeting is logged without calling the model", async () =
 
 test("new owner-chat invite tells the frontend to start polling", async () => {
   let invites = 0;
-  const services = createServicesMock();
+  const services = mockServices();
   services.sendOwnerChatInvite = async () => {
     invites += 1;
-    return true;
+    return { sent: true };
   };
   const handler = createHandler({
-    openaiClient: createResponsesClient([
+    openaiClient: mockOpenAI([
       toolResponse([{ name: "request_owner_chat", arguments: {} }]),
       textResponse("Ozan has been invited into this chat."),
     ]),
     servicesClient: services,
   });
-  const req = makeReq({
-    body: {
+  const req = { method: "POST", headers: {}, body: {
       messages: [{ role: "user", content: "Invite Ozan into this live chat." }],
       sessionId: "invite-poll-session",
       state: createDefaultState(),
-    },
-  });
-  const res = makeRes();
+    } };
+  const res = mockRes();
 
   await handler(req, res);
 
@@ -222,13 +221,15 @@ test("admin phrase must be the entire trimmed user message", async () => {
   }
 });
 
-test("admin phrase tolerates surrounding whitespace but not extra words", async () => {
-  const { services } = await request({ body: { messages: [{ role: "user", content: "  LETS   GO   MF  " }] } });
-  assert.equal(services.calls.admin, 1);
+test("former admin phrase with whitespace remains ordinary guest text", async () => {
+  const { services, openai } = await request({ body: { messages: [{ role: "user", content: "  LETS   GO   MF  " }] } });
+  assert.equal(services.calls.admin, 0);
+  assert.equal(openai.calls.length, 1);
 });
 
-test("admin snapshot structured failure surfaces its reason", async () => {
+test("former admin phrase cannot surface internal snapshot details", async () => {
   const services = mockServices({ async runAdminPriceSnapshot() { return { success: false, reason: "http_503" }; } });
   const { res } = await request({ services, body: { messages: [{ role: "user", content: "lets go mf" }] } });
-  assert.match(res.body.reply, /http_503/);
+  assert.equal(services.calls.admin, 0);
+  assert.doesNotMatch(res.body.reply, /http_503/);
 });

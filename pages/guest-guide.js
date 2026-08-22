@@ -92,7 +92,7 @@ export default function GuestGuidePage() {
     </Head>
 
     <div className={styles.preview}>Preview page | Production remains unchanged</div>
-    <div className={styles.utility}><a href="/reviews">Guest Reviews</a><a href="#faq">FAQ</a><a href="#policies">Policies</a><a href="/about">Contact</a></div>
+    <div className={styles.utility}><a href="/destin-condo-rental-reviews">Guest Reviews</a><a href="#faq">FAQ</a><a href="#policies">Policies</a><a href="/about">Contact</a></div>
     <SiteHeader availabilityHref="#availability" />
 
     <main>
@@ -136,16 +136,16 @@ export default function GuestGuidePage() {
       <section className={styles.related}>
         <div className={styles.sectionHead}><p className={styles.kicker}>Continue planning</p><h2>Useful pages for the rest of your trip.</h2></div>
         <div className={styles.relatedGrid}>
-          <a href="/resort"><span>Resort guide</span><strong>Pools, beach, amenities and location</strong></a>
-          <a href="/reviews"><span>Guest reviews</span><strong>Current direct-stay, Airbnb and Vrbo feedback</strong></a>
+          <a href="/pelican-beach-resort-destin"><span>Resort guide</span><strong>Pools, beach, amenities and location</strong></a>
+          <a href="/destin-condo-rental-reviews"><span>Guest reviews</span><strong>Current direct-stay, Airbnb and Vrbo feedback</strong></a>
           <a href="/why-book-direct"><span>Book direct</span><strong>Understand pricing and owner-direct support</strong></a>
           <a href="/blog/best-restaurants-destin"><span>Restaurants</span><strong>Dining suggestions around Destin</strong></a>
           <a href="/blog/destin-fireworks-2026"><span>Fireworks</span><strong>Schedules, maps and viewing tips</strong></a>
-          <a href="/trip-planner"><span>Trip planner</span><strong>Create a personalized day-by-day itinerary</strong></a>
+          <a href="/destin-vacation-itinerary-planner"><span>Trip planner</span><strong>Create a personalized day-by-day itinerary</strong></a>
         </div>
       </section>
 
-      <section className={styles.finalCta}><div><p className={styles.kickerLight}>Ready to look at dates?</p><h2>Check current availability.</h2></div><div className={styles.actions}><SiteButton href="#availability" variant="primary" size="large">Check availability</SiteButton><SiteButton href="/reviews" variant="light" size="large">Read guest reviews</SiteButton></div></section>
+      <section className={styles.finalCta}><div><p className={styles.kickerLight}>Ready to look at dates?</p><h2>Check current availability.</h2></div><div className={styles.actions}><SiteButton href="#availability" variant="primary" size="large">Check availability</SiteButton><SiteButton href="/destin-condo-rental-reviews" variant="light" size="large">Read guest reviews</SiteButton></div></section>
     </main>
 
     <SiteFooter />

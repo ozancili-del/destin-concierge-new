@@ -3,7 +3,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 
 const require = createRequire(import.meta.url);
 const { chromium } = require("playwright");
-const routes = ["/", "/availability", "/condos/unit-707", "/condos/unit-1006", "/gallery", "/blog", "/destin-hub"];
+const routes = ["/", "/availability", "/pelican-beach-resort-unit-707", "/pelican-beach-resort-unit-1006", "/destin-condo-photo-gallery", "/blog", "/destin-hub"];
 const browser = await chromium.launch({ channel: "chrome", headless: true });
 const report = [];
 

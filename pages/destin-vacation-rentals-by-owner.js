@@ -15,7 +15,7 @@ const condos = [
     number: "707",
     floor: "Seventh floor",
     style: "Classic Coastal",
-    href: "/condos/unit-707",
+    href: "/pelican-beach-resort-unit-707",
     image: "/hub-beaches.webp",
     alt: "Gulf-front balcony and beach view from Pelican Beach Resort Unit 707 in Destin",
     description: "A warm coastal home with a direct Gulf view that feels close to the shoreline.",
@@ -24,7 +24,7 @@ const condos = [
     number: "1006",
     floor: "Tenth floor",
     style: "Fresh Coastal",
-    href: "/condos/unit-1006",
+    href: "/pelican-beach-resort-unit-1006",
     image: "/hub-beachcam.webp",
     alt: "Elevated Gulf of Mexico view from Pelican Beach Resort Unit 1006 in Destin",
     description: "A fresh coastal interior with a higher panoramic perspective over the Gulf.",
@@ -70,7 +70,7 @@ function vacationRentalSchema(condo) {
     occupancy: { "@type": "QuantitativeValue", maxValue: 6 },
     floorSize: { "@type": "QuantitativeValue", value: 873, unitCode: "FTK" },
     address: { "@type": "PostalAddress", streetAddress: `1002 US-98, Unit ${condo.number}`, addressLocality: "Destin", addressRegion: "FL", postalCode: "32541", addressCountry: "US" },
-    containedInPlace: { "@id": `${liveSite}/resort#place` },
+    containedInPlace: { "@id": `${liveSite}/pelican-beach-resort-destin#place` },
   };
 }
 
@@ -102,7 +102,7 @@ export default function CondoCollection() {
     </Head>
 
     <div className={styles.preview}>Preview page | Production remains unchanged</div>
-    <div className={styles.utility}><a href="/reviews">Guest Reviews</a><a href="#faq">FAQ</a><a href="/guest-guide#policies">Policies</a><a href="/about">Contact</a></div>
+    <div className={styles.utility}><a href="/destin-condo-rental-reviews">Guest Reviews</a><a href="#faq">FAQ</a><a href="/guest-guide#policies">Policies</a><a href="/about">Contact</a></div>
     <SiteHeader availabilityHref="#availability" />
 
     <main>
@@ -131,15 +131,15 @@ export default function CondoCollection() {
       </section>
 
       <section className={styles.resort}>
-        <div><p className={styles.kicker}>Pelican Beach Resort</p><h2>Direct beach access plus the amenities families use.</h2><p>The Gulf is immediately behind the building. The resort also provides indoor and outdoor pools, hot tubs, fitness facilities, tennis and pickleball courts, grills, parking and seasonal food and beach services.</p><SiteButton href="/resort" variant="secondary">Explore the resort</SiteButton></div>
+        <div><p className={styles.kicker}>Pelican Beach Resort</p><h2>Direct beach access plus the amenities families use.</h2><p>The Gulf is immediately behind the building. The resort also provides indoor and outdoor pools, hot tubs, fitness facilities, tennis and pickleball courts, grills, parking and seasonal food and beach services.</p><SiteButton href="/pelican-beach-resort-destin" variant="secondary">Explore the resort</SiteButton></div>
         <div className={styles.resortFacts}><article><strong>3 pools</strong><span>Including an indoor/outdoor option</span></article><article><strong>2 hot tubs</strong><span>Alongside pool and wellness facilities</span></article><article><strong>No road to cross</strong><span>Elevator-to-sand beachfront access</span></article><article><strong>Central Destin</strong><span>Near dining, HarborWalk and family activities</span></article></div>
       </section>
 
-      <section className={styles.reviews}><div className={styles.sectionIntro}><p className={styles.kicker}>Guest experiences</p><h2>Personal hosting backed by hundreds of stays.</h2></div><div className={styles.reviewGrid}>{reviews.map((review) => <blockquote key={review.name}><div aria-label="Five out of five stars">★★★★★</div><p>“{review.text}”</p><footer><strong>{review.name}</strong><span>Verified guest feedback</span></footer></blockquote>)}</div><p className={styles.centerLink}><a href="/reviews">Read more guest reviews →</a></p></section>
+      <section className={styles.reviews}><div className={styles.sectionIntro}><p className={styles.kicker}>Guest experiences</p><h2>Personal hosting backed by hundreds of stays.</h2></div><div className={styles.reviewGrid}>{reviews.map((review) => <blockquote key={review.name}><div aria-label="Five out of five stars">★★★★★</div><p>“{review.text}”</p><footer><strong>{review.name}</strong><span>Verified guest feedback</span></footer></blockquote>)}</div><p className={styles.centerLink}><a href="/destin-condo-rental-reviews">Read more guest reviews →</a></p></section>
 
       <section className={styles.faq} id="faq"><div className={styles.sectionIntro}><p className={styles.kicker}>Frequently asked questions</p><h2>Answers before you choose.</h2></div>{faqs.map((faq) => <details key={faq.q}><summary>{faq.q}</summary><p>{faq.a}</p></details>)}</section>
 
-      <section className={styles.related}><div><p className={styles.kicker}>Keep planning</p><h2>Useful information around the stay.</h2></div><div className={styles.relatedGrid}><a href="/availability"><span>Availability</span><strong>Search current dates and prices</strong></a><a href="/resort"><span>Resort guide</span><strong>Beach, pools, location and amenities</strong></a><a href="/trip-planner"><span>Trip planner</span><strong>Create a personalized itinerary</strong></a><a href="/blog/destinweather"><span>Weather</span><strong>Conditions and seasonal guidance</strong></a><a href="/blog/best-restaurants-destin"><span>Dining</span><strong>Local restaurant guide</strong></a><a href="/beach-cam"><span>Beach cam</span><strong>See current Gulf views</strong></a></div></section>
+      <section className={styles.related}><div><p className={styles.kicker}>Keep planning</p><h2>Useful information around the stay.</h2></div><div className={styles.relatedGrid}><a href="/availability"><span>Availability</span><strong>Search current dates and prices</strong></a><a href="/pelican-beach-resort-destin"><span>Resort guide</span><strong>Beach, pools, location and amenities</strong></a><a href="/destin-vacation-itinerary-planner"><span>Trip planner</span><strong>Create a personalized itinerary</strong></a><a href="/blog/destinweather"><span>Weather</span><strong>Conditions and seasonal guidance</strong></a><a href="/blog/best-restaurants-destin"><span>Dining</span><strong>Local restaurant guide</strong></a><a href="/beach-cam"><span>Beach cam</span><strong>See current Gulf views</strong></a></div></section>
 
       <section className={styles.finalCta}><div><p className={styles.kickerLight}>Ready when you are</p><h2>Check both condos with one search.</h2><p>Enter the dates and correct total guest count, then review the exact home, complete price and policies before reserving.</p></div><SiteButton href="#availability" variant="primary" size="large">Live availability</SiteButton></section>
     </main>

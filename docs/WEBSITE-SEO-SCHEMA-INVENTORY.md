@@ -1,7 +1,7 @@
 # Website SEO and Structured-Data Migration Inventory
 
-Status: discovery baseline captured 2026-08-15  
-Source: current OwnerRez-hosted production pages and public sitemap  
+Status: discovery baseline captured 2026-08-15
+Source: current OwnerRez-hosted production pages and public sitemap
 Target branch: `website/homepage-preview`
 
 ## Non-negotiable migration rules
@@ -36,10 +36,10 @@ It includes business identity, contact information, address, geo coordinates, am
 | Current page | Custom/important schema observed | Migration destination |
 |---|---|---|
 | Homepage | Organization, BreadcrumbList, LodgingBusiness | `/` |
-| Unit 707 | OwnerRez VacationRental plus manually embedded VacationRental, BreadcrumbList, LodgingBusiness | `/condos/unit-707` |
-| Unit 1006 | OwnerRez VacationRental plus manually embedded VacationRental, BreadcrumbList, LodgingBusiness | `/condos/unit-1006` |
-| Why Book Direct | BreadcrumbList, LodgingBusiness, ratings/reviews | `/why-book-direct` with business reference and visible supporting content |
-| Pelican Beach Resort | FAQPage, LodgingBusiness, VacationRental/Accommodation details, reviews | `/resort`; redistribute unit-specific rental facts to unit pages |
+| Unit 707 | OwnerRez VacationRental plus manually embedded VacationRental, BreadcrumbList, LodgingBusiness | `/pelican-beach-resort-unit-707` |
+| Unit 1006 | OwnerRez VacationRental plus manually embedded VacationRental, BreadcrumbList, LodgingBusiness | `/pelican-beach-resort-unit-1006` |
+| Why Book Direct | BreadcrumbList, LodgingBusiness, ratings/destin-condo-rental-reviews | `/why-book-direct` with business reference and visible supporting content |
+| Pelican Beach Resort | FAQPage, LodgingBusiness, VacationRental/Accommodation details, reviews | `/pelican-beach-resort-destin`; redistribute unit-specific rental facts to unit pages |
 | Beach Cam | VideoObject graph, BroadcastEvent, FAQPage, Article, WebPage, LodgingBusiness | `/beach-cam` |
 | AI Concierge | LocalBusiness, SoftwareApplication, Offer, FAQPage | future clean concierge route |
 | Itinerary Planner | FAQPage, SoftwareApplication, Offer | future clean planner route |

@@ -17,7 +17,7 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const services = createServices();
 
 export function isAdminSnapshotCommand(value) {
-  return /^lets\s+go\s+mf$/i.test(String(value || "").trim());
+  return false;
 }
 
 const PAGE_SOURCE_GREETINGS = Object.freeze({
@@ -117,19 +117,6 @@ export function createHandler({ openaiClient = openai, servicesClient = services
     } = req.body || {};
     const latestUser = latestUserMessage(messages);
     const debugEnabled = process.env.DESTINY_AGENT_DEBUG === "true";
-
-    // Deliberately preserved owner/admin phrase from v1, per owner instruction.
-    if (isAdminSnapshotCommand(latestUser)) {
-      try {
-        const snapshot = await services.runAdminPriceSnapshot();
-        const reply = snapshot.success
-          ? `✅ Price snapshot complete — saved ${snapshot.saved} rows for ${snapshot.captured_date}. Beach deals page refreshed. 💾`
-          : `⚠️ Snapshot ran but something felt off: ${snapshot.error || snapshot.reason || "unknown error"}`;
-        return res.status(200).json({ reply, alertSent: false, pendingRelay: false, ozanAcked: false, ozanAckType: null, detectedIntent: "INFO", debug: { endpoint: "agent-v3", adminSnapshot: true } });
-      } catch (error) {
-        return res.status(200).json({ reply: `⚠️ Snapshot failed: ${error.message}`, alertSent: false, pendingRelay: false, ozanAcked: false, ozanAckType: null, detectedIntent: "INFO", debug: { endpoint: "agent-v3", adminSnapshot: true, error: error.message } });
-      }
-    }
 
     if (messages.length === 0 && PAGE_SOURCE_GREETINGS[pageSource]) {
       const greeting = PAGE_SOURCE_GREETINGS[pageSource];

@@ -17,7 +17,9 @@
     "test:search-readiness": "node scripts/audit-rendered-search-readiness.mjs",
     "test:booking-canonicals": "node scripts/audit-booking-canonicals.mjs",
     "test:redirect-map": "node scripts/audit-redirect-master-map.mjs",
+    "test:redirect-runtime": "node scripts/audit-redirect-runtime.mjs",
     "test:site-cutover": "node scripts/audit-site-cutover.mjs && node scripts/audit-booking-canonicals.mjs && node scripts/audit-redirect-master-map.mjs",
+    "test:precutover": "npm run build && npm run test:site-cutover && npm run test:redirect-runtime",
     "test:site-assets": "node scripts/audit-site-assets.mjs",
     "test:site-analytics": "node scripts/audit-site-analytics.mjs"
   },

@@ -22,7 +22,7 @@ const sitemapRouteBlock = sitemap.match(/const ROUTES\s*=\s*\[([\s\S]*?)\];/)?.[
 
 // Unit pages may receive booking parameters, but their indexable identity must
 // always remain the clean, stable unit URL for Google and Bing.
-requireMatch(unitPage, /const canonical = `\$\{liveSite\}\/condos\/unit-\$\{unit\.number\}`;/, "Unit canonical is not built from the clean unit route.");
+requireMatch(unitPage, /const canonical = `\$\{liveSite\}\/pelican-beach-resort-unit-\$\{unit\.number\}`;/, "Unit canonical is not built from the clean unit route.");
 requireMatch(unitPage, /<link rel="canonical" href=\{canonical\}/, "Unit pages do not emit their clean canonical.");
 requireMatch(unitPage, /url: canonical/, "Unit structured data is not aligned with the clean canonical.");
 const canonicalDeclaration = unitPage.match(/const canonical\s*=\s*([^;]+);/)?.[1] || "";
@@ -49,7 +49,7 @@ requireMatch(availability, /`\$\{condo\.href\}\?\$\{bookingQuery\}#checkout`/, "
 
 // Only clean discovery URLs belong in XML sitemaps. Query strings and fragments
 // can create duplicate URL families in both Google Search Console and Bing.
-for (const route of ["/availability", "/condos/unit-707", "/condos/unit-1006"]) {
+for (const route of ["/availability", "/pelican-beach-resort-unit-707", "/pelican-beach-resort-unit-1006"]) {
   requireMatch(sitemap, new RegExp(`(?:["'])${route.replaceAll("/", "\\/")}(?:["'])`), `Sitemap is missing clean route ${route}.`);
 }
 requireMatch(sitemap, /const ROUTES\s*=\s*\[/, "Sitemap route list could not be inspected.");

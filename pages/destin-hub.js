@@ -456,10 +456,10 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
               "isPartOf": { "@id": "https://www.destincondogetaways.com/#website" },
               "publisher": { "@id": "https://www.destincondogetaways.com/#organization" },
               "significantLink": [
-                "https://www.destincondogetaways.com/deals",
-                "https://www.destincondogetaways.com/offer",
-                "https://www.destincondogetaways.com/activities",
-                "https://www.destincondogetaways.com/car-rentals",
+                "https://www.destincondogetaways.com/destin-condo-deals",
+                "https://www.destincondogetaways.com/destin-condo-special-offers",
+                "https://www.destincondogetaways.com/destin-activities",
+                "https://www.destincondogetaways.com/destin-car-rentals",
                 "https://www.destincondogetaways.com/availability"
               ]
             },
@@ -496,22 +496,22 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
         </a>
         <nav className="hub-nav">
           <a className="active" href="/destin-hub">Destin Hub</a>
-          <a href="/activities">Activities</a>
+          <a href="/destin-activities">Activities</a>
           <a href="/destin-vacation-rentals-by-owner">Condos</a>
-          <a href="/deals">Deals</a>
-          <a href="/car-rentals">Flights & Cars</a>
-          <a href="/offer">Make an Offer</a>
+          <a href="/destin-condo-deals">Deals</a>
+          <a href="/destin-car-rentals">Flights & Cars</a>
+          <a href="/destin-condo-special-offers">Special Offers</a>
         </nav>
         <a className="hub-book" href="/availability">🏖️ Book Your Stay</a>
       </header>
 
       <nav className="hub-mobile-nav" aria-label="Mobile navigation">
         <a className="active" href="/destin-hub">Destin Hub</a>
-        <a href="/activities">Activities</a>
+        <a href="/destin-activities">Activities</a>
         <a href="/destin-vacation-rentals-by-owner">Condos</a>
-        <a href="/deals">Deals</a>
-        <a href="/car-rentals">Flights & Cars</a>
-        <a href="/offer">Make an Offer</a>
+        <a href="/destin-condo-deals">Deals</a>
+        <a href="/destin-car-rentals">Flights & Cars</a>
+        <a href="/destin-condo-special-offers">Special Offers</a>
       </nav>
 
       <main className="page-wrap">
@@ -745,7 +745,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
         <div style={{marginTop:'24px',padding:'24px 20px',background:'linear-gradient(135deg,rgba(0,212,200,0.08),rgba(0,212,200,0.03))',border:'1.5px solid rgba(0,212,200,0.3)',borderRadius:'16px',textAlign:'center'}}>
           <h2 style={{fontFamily:"'Playfair Display',serif",fontSize:'18px',color:'white',margin:'0 0 10px'}}>🏷️ Live Price Drops — Book Direct & Save</h2>
           <p style={{fontSize:'14px',color:'rgba(255,255,255,0.55)',lineHeight:'1.7',margin:'0 0 16px'}}>We track daily price changes on Unit 707 and Unit 1006 at Pelican Beach Resort. When prices drop we surface them here — no Airbnb fees, no VRBO markup, direct from the owner.</p>
-          <a href="/deals" style={{display:'inline-block',padding:'13px 28px',background:'linear-gradient(135deg,#00c4b4,#00a89a)',color:'#fff',fontFamily:'Arial',fontSize:'14px',fontWeight:'bold',borderRadius:'10px',textDecoration:'none',boxShadow:'0 4px 16px rgba(0,196,180,0.4)',marginRight:'10px'}}>See Today's Price Drops →</a>
+          <a href="/destin-condo-deals" style={{display:'inline-block',padding:'13px 28px',background:'linear-gradient(135deg,#00c4b4,#00a89a)',color:'#fff',fontFamily:'Arial',fontSize:'14px',fontWeight:'bold',borderRadius:'10px',textDecoration:'none',boxShadow:'0 4px 16px rgba(0,196,180,0.4)',marginRight:'10px'}}>See Today's Price Drops →</a>
           <a href="/availability" style={{display:'inline-block',padding:'13px 28px',background:'rgba(255,255,255,0.08)',color:'rgba(255,255,255,0.7)',fontFamily:'Arial',fontSize:'14px',fontWeight:'bold',borderRadius:'10px',textDecoration:'none',border:'1px solid rgba(255,255,255,0.2)'}}>Book Direct →</a>
         </div>
 
@@ -812,8 +812,8 @@ const TILES={
   fireworks: {eyebrow:'Events',          title:'🎆 Fireworks',          url:'/blog/destin-fireworks-2026',blog:null},
   events:    {eyebrow:'Events',          title:'📅 Events 2026',        url:'/blog/destin-events-2026',blog:null},
   airports:  {eyebrow:'Flights & Cars',  title:'✈️ Airports',           url:'/blog/destinairport',blog:null},
-  gettinghere:{eyebrow:'Flights & Cars', title:'🚗✈️ Flights & Cars',   url:'/car-rentals',blog:'/blog/how-to-find-cheaper-flights-and-car-rentals',blog2:'/blog/destincar'},
-  deals:     {eyebrow:'Direct Booking',  title:'🏷️ Best Deals',         url:'/deals',blog:'/deals'},
+  gettinghere:{eyebrow:'Flights & Cars', title:'🚗✈️ Flights & Cars',   url:'/destin-car-rentals',blog:'/blog/how-to-find-cheaper-flights-and-car-rentals',blog2:'/blog/destincar'},
+  deals:     {eyebrow:'Direct Booking',  title:'🏷️ Best Deals',         url:'/destin-condo-deals',blog:'/destin-condo-deals'},
   grocery:   {eyebrow:'Essentials',      title:'🛒 Groceries',          url:'/supermarket-map.html',blog:'/blog/destinsupermarkets'},
   planner:   {eyebrow:'Plan Your Stay',  title:'🗺️ Trip Planner',       url:'https://destin-concierge-new.vercel.app/destin-itinerary-planner.html',blog:null},
   activities:{eyebrow:'Things To Do',    title:'🐬 Activities & Tours', url:'https://destin-concierge-new.vercel.app/destin-tripshock.html',blog:null},

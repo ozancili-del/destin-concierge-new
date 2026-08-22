@@ -1,11 +1,20 @@
+import { allowSameOriginRequest, cleanText, enforceJsonSize, enforceRateLimit, escapeHtml, isBotTrapFilled, safeExternalHttpUrl, validEmail, verifyPayloadSignature } from '../../lib/public-api-security.js';
+
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+  if (!allowSameOriginRequest(req, res, { methods: ['POST'] })) return;
+  if (!enforceJsonSize(req, res, 140000)) return;
+  if (!enforceRateLimit(req, res, { scope: 'send-itinerary', limit: 3, windowMs: 3600000 })) return;
+  if (isBotTrapFilled(req.body)) return res.status(400).json({ error: 'Invalid submission' });
+
+  const { itinerary, formSnapshot, deliveryToken } = req.body || {};
+  const email = validEmail(req.body?.email);
+  if (!email || !itinerary || !formSnapshot || !deliveryToken) {
+    return res.status(400).json({ error: 'Missing required fields' });
   }
 
-  const { email, itinerary, formSnapshot } = req.body;
-  if (!email || !itinerary || !formSnapshot) {
-    return res.status(400).json({ error: 'Missing required fields' });
+  const signedPayload = { itinerary, formSnapshot };
+  if (!verifyPayloadSignature(signedPayload, deliveryToken, process.env.ITINERARY_SIGNING_SECRET)) {
+    return res.status(403).json({ error: 'This itinerary could not be verified. Please generate it again.' });
   }
 
   const apiKey = process.env.BREVO_API_KEY;
@@ -13,8 +22,30 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'BREVO_API_KEY not set' });
   }
 
-  const snap = formSnapshot;
-  const data = itinerary;
+  const snap = {
+    adults: Number(formSnapshot.adults) || 1, kids: Number(formSnapshot.kids) || 0,
+    arrFmt: escapeHtml(cleanText(formSnapshot.arrFmt, 40)), depFmt: escapeHtml(cleanText(formSnapshot.depFmt, 40)),
+    beachPool: escapeHtml(cleanText(formSnapshot.beachPool, 40)), pace: escapeHtml(cleanText(formSnapshot.pace, 30)),
+    cuisine: Array.isArray(formSnapshot.cuisine) ? formSnapshot.cuisine.slice(0, 8).map(v => escapeHtml(cleanText(v, 40))) : [],
+    interests: Array.isArray(formSnapshot.interests) ? formSnapshot.interests.slice(0, 8).map(v => escapeHtml(cleanText(v, 40))) : [],
+  };
+  const rawDays = Array.isArray(itinerary.days) ? itinerary.days.slice(0, 14) : [];
+  if (!rawDays.length) return res.status(400).json({ error: 'Invalid itinerary' });
+  const data = {
+    summary: escapeHtml(cleanText(itinerary.summary, 600, { multiline: true })),
+    days: rawDays.map((day, index) => ({
+      day_number: index + 1,
+      title: escapeHtml(cleanText(day?.title, 100)), weather: escapeHtml(cleanText(day?.weather, 180)),
+      blocks: Array.isArray(day?.blocks) ? day.blocks.slice(0, 4).map(b => ({
+        time: escapeHtml(cleanText(b?.time, 20)), emoji: escapeHtml(cleanText(b?.emoji, 8)), place: escapeHtml(cleanText(b?.place, 100)),
+        description: escapeHtml(cleanText(b?.description, 160)), tip: escapeHtml(cleanText(b?.tip, 160)), backup: escapeHtml(cleanText(b?.backup, 160)),
+        tripshock: b?.tripshock === true,
+        link_url: safeExternalHttpUrl(b?.link_url, { allowedHosts: ['destincondogetaways.com', 'tripshock.com', 'google.com'] }),
+        link_label: escapeHtml(cleanText(b?.link_label, 80)),
+      })) : [],
+    })),
+  };
+  if (data.days.some(day => day.blocks.length !== 4 || day.blocks.some(block => !block.time || !block.place))) return res.status(400).json({ error: 'Invalid itinerary' });
 
   // ── Build itinerary HTML email ──────────────────────────────────────────
   const groupStr = snap.adults + ' Adult' + (snap.adults > 1 ? 's' : '') +
@@ -143,23 +174,7 @@ export default async function handler(req, res) {
 </body>
 </html>`;
 
-  // ── 1. Add contact to Brevo list #6 ────────────────────────────────────
-  try {
-    await fetch('https://api.brevo.com/v3/contacts', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'api-key': apiKey },
-      body: JSON.stringify({
-        email,
-        listIds: [6],
-        updateEnabled: true,
-      }),
-    });
-  } catch (err) {
-    console.warn('Brevo contact add failed:', err.message);
-    // Don't block email send if contact add fails
-  }
-
-  // ── 2. Send transactional email via Brevo ───────────────────────────────
+  // Transactional delivery only. This request does not subscribe the guest to marketing.
   const sendRes = await fetch('https://api.brevo.com/v3/smtp/email', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'api-key': apiKey },
@@ -172,8 +187,7 @@ export default async function handler(req, res) {
   });
 
   if (!sendRes.ok) {
-    const err = await sendRes.json();
-    console.error('Brevo send failed:', err);
+    console.error('Brevo send failed with status:', sendRes.status);
     return res.status(500).json({ error: 'Failed to send email' });
   }
 

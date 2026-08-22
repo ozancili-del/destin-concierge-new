@@ -95,7 +95,7 @@ export default function About() {
         <div><p className={styles.kickerLight}>Why trust matters</p><h2>Trust is demonstrated, not declared.</h2><p>It is reasonable to verify an independent vacation-rental website before booking. You can review our public hosting history, contact me directly, and complete payment through the secure booking flow rather than relying only on a promise.</p></div>
         <div className={styles.proofGrid}>
           <a href="https://airbnb.com/h/destindream" target="_blank" rel="noopener noreferrer"><span>Hosting history</span><strong>View our Airbnb profile</strong></a>
-          <a href="/reviews"><span>Guest experiences</span><strong>Read verified reviews</strong></a>
+          <a href="/destin-condo-rental-reviews"><span>Guest experiences</span><strong>Read verified reviews</strong></a>
           <a href="https://www.linkedin.com/in/ozancili/" target="_blank" rel="noopener noreferrer"><span>Professional identity</span><strong>Connect on LinkedIn</strong></a>
           <a href="https://www.facebook.com/Ozancili/" target="_blank" rel="noopener noreferrer"><span>Personal contact</span><strong>Message Ozan on Facebook</strong></a>
         </div>

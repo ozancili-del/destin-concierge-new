@@ -1,10 +1,9 @@
 import { createClient } from "@supabase/supabase-js";
+import { allowSameOriginRequest, enforceRateLimit } from '../../lib/public-api-security.js';
 
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (!allowSameOriginRequest(req, res, { methods: ['GET'] })) return;
+  if (!enforceRateLimit(req, res, { scope: 'availability', limit: 60, windowMs: 10 * 60 * 1000 })) return;
 
   const { unit } = req.query;
   if (!unit || !["707", "1006"].includes(unit)) {
@@ -52,5 +51,6 @@ export default async function handler(req, res) {
     }
   });
 
+  res.setHeader('Cache-Control', 's-maxage=900, stale-while-revalidate=1800');
   return res.status(200).json({ booked, rates });
 }

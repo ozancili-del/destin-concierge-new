@@ -738,7 +738,7 @@ body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(
             <li><strong style={{color:'rgba(255,255,255,0.75)'}}>Emerald Coast Blue Marlin Classic</strong> — June, world-class offshore fishing tournament.</li>
             <li><strong style={{color:'rgba(255,255,255,0.75)'}}>HarborWalk Village Events</strong> — live music, boat shows, and festivals throughout summer.</li>
           </ul>
-          <p style={{fontSize:'14px',color:'rgba(255,255,255,0.55)',lineHeight:'1.8',margin:'0 0 20px'}}><a href="/blog/destin-fireworks-2026" style={{color:'rgba(0,212,200,0.8)',textDecoration:'none',fontWeight:'600'}}>Fireworks guide</a> · <a href="/blog/destin-events-2026" style={{color:'rgba(0,212,200,0.8)',textDecoration:'none',fontWeight:'600'}}>Events 2026 →</a></p>
+          <p style={{fontSize:'14px',color:'rgba(255,255,255,0.55)',lineHeight:'1.8',margin:'0 0 20px'}}><a href="/blog/destin-fireworks-2026" style={{color:'rgba(0,212,200,0.8)',textDecoration:'none',fontWeight:'600'}}>Fireworks guide</a> · <a href="/blog/destin-events" style={{color:'rgba(0,212,200,0.8)',textDecoration:'none',fontWeight:'600'}}>Destin events →</a></p>
         </div>
 
         {/* DEALS CTA */}
@@ -810,7 +810,7 @@ const TILES={
   spas:      {eyebrow:'Relax',           title:'💆 Spas',               url:'/blog/destinspa',blog:null},
   music:     {eyebrow:'Nightlife',       title:'🎵 Live Music',         url:'/destin-music-calendar.html',blog:'/blog/destin-live-music-2026'},
   fireworks: {eyebrow:'Events',          title:'🎆 Fireworks',          url:'/blog/destin-fireworks-2026',blog:null},
-  events:    {eyebrow:'Events',          title:'📅 Events 2026',        url:'/blog/destin-events-2026',blog:null},
+  events:    {eyebrow:'Events',          title:'📅 Destin Events',      url:'/blog/destin-events',blog:null},
   airports:  {eyebrow:'Flights & Cars',  title:'✈️ Airports',           url:'/blog/destinairport',blog:null},
   gettinghere:{eyebrow:'Flights & Cars', title:'🚗✈️ Flights & Cars',   url:'/destin-car-rentals',blog:'/blog/how-to-find-cheaper-flights-and-car-rentals',blog2:'/blog/destincar'},
   deals:     {eyebrow:'Direct Booking',  title:'🏷️ Best Deals',         url:'/destin-condo-deals',blog:'/destin-condo-deals'},

@@ -70,7 +70,7 @@ const LINK_BUTTONS={
   'best-restaurants-destin':{label:'🍽️ Best Restaurants Guide',    bg:'linear-gradient(135deg,#E95A2A,#c44a20)', shadow:'rgba(200,80,40,0.4)'},
   'best-beaches-destin':    {label:'🏖️ Best Beaches Guide',         bg:'linear-gradient(135deg,#378ADD,#185FA5)', shadow:'rgba(55,138,221,0.4)'},
   'destinweather':          {label:'⛅ Destin Weather Guide',        bg:'linear-gradient(135deg,#BA7517,#854F0B)', shadow:'rgba(186,117,23,0.4)'},
-  'destin-events-2026':     {label:'🎉 Destin Events 2026',          bg:'linear-gradient(135deg,#7F77DD,#534AB7)', shadow:'rgba(127,119,221,0.4)'},
+  'destin-events':          {label:'🎉 Destin Events Calendar',      bg:'linear-gradient(135deg,#7F77DD,#534AB7)', shadow:'rgba(127,119,221,0.4)'},
   'destinairport':          {label:'✈️ Airport & Getting Here',      bg:'linear-gradient(135deg,#888780,#5F5E5A)', shadow:'rgba(136,135,128,0.4)'},
   'destincar':              {label:'🚗 Car Rental Guide',            bg:'linear-gradient(135deg,#639922,#3B6D11)', shadow:'rgba(100,153,34,0.4)'},
   'destinspa':              {label:'💆 Spa & Wellness Guide',        bg:'linear-gradient(135deg,#D4537E,#993556)', shadow:'rgba(212,83,126,0.4)'},

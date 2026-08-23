@@ -175,6 +175,20 @@ Known environment note: a local full build can stop on an existing TV preview ro
 - Verify HTTPS, `www` canonicalisation, homepage, priority pages, APIs, booking flow, redirects, sitemap, robots, analytics, and chat from outside the authenticated preview environment.
 - Submit sitemaps and priority URLs only after these checks pass.
 
+### August 22, 2026 production cutover record
+
+- Approved launch commit: `3b502a7` on `website/homepage-preview`.
+- Vercel production deployment: `dpl_BNhhhLSQhWS3N2RY6b4WGVvYy4W4`, served from `destin-concierge-ethnog1e2-ozans-projects-6452888f.vercel.app`.
+- `destincondogetaways.com` and `www.destincondogetaways.com` were attached to the existing `destin-concierge-new` Vercel project and verified by Vercel.
+- Cloudflare cutover records are DNS-only CNAMEs for both `@` and `www` to `0667490d3f5b0e77.vercel-dns-017.com`.
+- Rollback DNS snapshot: apex A records `52.201.23.5`, `52.86.46.114`, and `34.235.235.52`; `www` CNAME `hosted.ownerrez.com`.
+- Existing mail, verification, DKIM, DMARC, and tool-subdomain records were not changed. Existing `app`, `deals`, `offer`, `explore`, `sunbirds`, and `guestview` Vercel aliases remained attached.
+- Public Cloudflare and Google DNS returned the Vercel target for `www`; Vercel reported both apex and `www` as configured correctly. Some local resolvers temporarily retained the old `www` response during its previous TTL.
+- Live HTTPS returned `200` for the canonical homepage, availability with all five booking parameters, both unit pages, resort, gallery, blog, deals, offers, snowbirds, robots, and sitemap.
+- Live legacy-path checks reached the intended clean canonical routes for both OwnerRez unit slugs, resort, why-book-direct, beach cam, and AI concierge. Retired deals, offer, and snowbird hosts reached their intended canonical pages.
+- The production homepage is indexable, emits no `noindex`, and declares `https://www.destincondogetaways.com/` as canonical.
+- OwnerRez website hosting must remain available during the stability window as the documented DNS rollback target. Do not cancel it until post-launch booking, analytics, crawling, and redirect monitoring are complete.
+
 ### 9. Post-launch monitoring — pending
 
 - First hour: uptime, TLS, booking, forms, analytics, redirects, 404s, and server errors.

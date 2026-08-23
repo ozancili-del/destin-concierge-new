@@ -3,7 +3,15 @@ import { NextResponse } from "next/server";
 // Quarantined prototypes are intentionally unavailable from the public
 // Destin Condo Getaways deployment. Their source remains in the repository so
 // each can be rebuilt and deployed independently with its own authentication.
-export function middleware() {
+export function middleware(request) {
+  if (["/destin-activities", "/destin-car-rentals"].includes(request.nextUrl.pathname)) {
+    const response = NextResponse.next();
+    if (process.env.VERCEL_ENV !== "production") {
+      response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
+    }
+    return response;
+  }
+
   return new NextResponse(null, {
     status: 404,
     headers: {
@@ -15,6 +23,11 @@ export function middleware() {
 
 export const config = {
   matcher: [
+    // Canonical static commercial guides are indexable in production, while
+    // preview deployments remain protected at the HTTP response layer.
+    "/destin-activities",
+    "/destin-car-rentals",
+
     // Retired GuestView / in-room TV prototype.
     "/guestview/:path*",
     "/tv/:path*",

@@ -1368,7 +1368,7 @@ export default function BeachDeals({ deals }) {
 
       {/* Background */}
       <div className="bg-wrap">
-        <img src="/images/site/0f604abce3284748ba8d2150b7646863-medium.webp" alt="" aria-hidden="true" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 40%", filter: "brightness(0.35) saturate(0.8)" }} />
+        <img src="/images/site/0f604abce3284748ba8d2150b7646863-medium.webp" alt="Pelican Beach Resort beside the emerald Gulf water in Destin, Florida" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 40%", filter: "brightness(0.35) saturate(0.8)" }} />
         <div className="bg-overlay" />
       </div>
 

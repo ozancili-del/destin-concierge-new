@@ -9,7 +9,6 @@ export async function getServerSideProps({ res }) {
         "User-agent: *",
         "Allow: /",
         "Disallow: /api/",
-        "Disallow: /book",
         "Disallow: /guestview/",
         "Disallow: /ozan",
         "Disallow: /tv/",

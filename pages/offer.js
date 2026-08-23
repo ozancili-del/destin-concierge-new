@@ -506,7 +506,7 @@ export default function OfferPage() {
       </Head>
 
       <div className="bg-wrap">
-        <img src="/offer-bg.webp" alt="" aria-hidden="true" />
+        <img src="/offer-bg.webp" alt="Gulf-front Pelican Beach Resort condo view in Destin, Florida" />
         <div className="bg-overlay" />
       </div>
 

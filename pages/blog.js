@@ -64,7 +64,7 @@ export default function BlogHub(){
       <script type="application/ld+json" dangerouslySetInnerHTML={{__html:JSON.stringify(itemList)}} />
     </Head>
 
-    <div className={styles.preview}>Preview page | The current live website remains unchanged</div>
+    {process.env.NEXT_PUBLIC_DEPLOYMENT_ENV !== "production" ? <div className={styles.preview}>Preview page | The current live website remains unchanged</div> : null}
     <div className={styles.utility}><a href="/destin-condo-rental-reviews">Guest Reviews</a><a href="/guest-guide#faq">FAQ</a><a href="/guest-guide#policies">Policies</a><a href="/about">Contact</a></div>
     <SiteHeader availabilityHref="#availability" />
 

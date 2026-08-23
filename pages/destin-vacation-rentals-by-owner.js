@@ -101,7 +101,7 @@ export default function CondoCollection() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
     </Head>
 
-    <div className={styles.preview}>Preview page | Production remains unchanged</div>
+    {process.env.NEXT_PUBLIC_DEPLOYMENT_ENV !== "production" ? <div className={styles.preview}>Preview page | Production remains unchanged</div> : null}
     <div className={styles.utility}><a href="/destin-condo-rental-reviews">Guest Reviews</a><a href="#faq">FAQ</a><a href="/guest-guide#policies">Policies</a><a href="/about">Contact</a></div>
     <SiteHeader availabilityHref="#availability" />
 

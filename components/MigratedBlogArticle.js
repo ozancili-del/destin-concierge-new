@@ -44,7 +44,7 @@ export default function MigratedBlogArticle({
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
     </Head>
 
-    <div className={styles.preview}>Preview article | The current live website remains unchanged</div>
+    {process.env.NEXT_PUBLIC_DEPLOYMENT_ENV !== "production" ? <div className={styles.preview}>Preview article | The current live website remains unchanged</div> : null}
     <div className={styles.utility}>
       <a href="/destin-condo-rental-reviews">Guest Reviews</a>
       <a href="/guest-guide#faq">FAQ</a>

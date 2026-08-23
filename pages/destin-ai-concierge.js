@@ -30,7 +30,7 @@ export default function DestinAiConciergePage() {
   ] };
   return <div className={styles.page}>
     <Head><title>Destin AI Concierge | Destiny Blue</title><meta name="description" content="Chat with Destiny Blue for live Pelican Beach Resort condo availability, direct booking links, local Destin information and personalized vacation planning." /><meta name="robots" content={process.env.NEXT_PUBLIC_DEPLOYMENT_ENV === "production" ? "index,follow" : "noindex,nofollow"} /><meta name="viewport" content="width=device-width, initial-scale=1" /><link rel="canonical" href={`${liveSite}/destin-ai-concierge`} /><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} /></Head>
-    <div className={styles.preview}>Preview page | Production remains unchanged</div>
+    {process.env.NEXT_PUBLIC_DEPLOYMENT_ENV !== "production" ? <div className={styles.preview}>Preview page | Production remains unchanged</div> : null}
     <div className={styles.utility}><a href="/destin-condo-rental-reviews">Guest Reviews</a><a href="/guest-guide#faq">FAQ</a><a href="/guest-guide#policies">Policies</a><a href="/about">Contact</a></div>
     <SiteHeader availabilityHref="#availability" />
     <main>

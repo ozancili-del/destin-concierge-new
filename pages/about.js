@@ -69,7 +69,7 @@ export default function About() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
     </Head>
 
-    <div className={styles.preview}>Migration preview | The current live website remains unchanged</div>
+    {process.env.NEXT_PUBLIC_DEPLOYMENT_ENV !== "production" ? <div className={styles.preview}>Migration preview | The current live website remains unchanged</div> : null}
     <SiteHeader availabilityHref="#availability" />
 
     <main>

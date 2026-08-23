@@ -46,7 +46,7 @@ export default function Privacy() {
       <link rel="canonical" href={`${liveSite}/privacy`} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }} />
     </Head>
-    <div className={styles.preview}>Migration preview | Production remains unchanged</div>
+    {process.env.NEXT_PUBLIC_DEPLOYMENT_ENV !== "production" ? <div className={styles.preview}>Migration preview | Production remains unchanged</div> : null}
     <SiteHeader />
     <main>
       <section className={styles.legalHero}><div><a href="/">Home</a><p className={styles.kickerLight}>Privacy policy</p><h1>Your information deserves straightforward treatment.</h1><p>This policy explains what information Destin Condo Getaways may collect, why it is used and the choices available to you.</p><small>Effective August 16, 2026</small></div></section>

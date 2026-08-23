@@ -103,7 +103,7 @@ export default function UnitPage({ unit }) {
 
   return <div className={styles.page}>
     <Head><title>{unit.title}</title><meta name="description" content={unit.metaDescription || rental.description} /><meta name="robots" content={process.env.NEXT_PUBLIC_DEPLOYMENT_ENV === "production" ? "index,follow" : "noindex,nofollow"} /><meta name="viewport" content="width=device-width, initial-scale=1" /><link rel="canonical" href={canonical} /><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} /></Head>
-    <div className={styles.preview}>Preview page | Live availability and secure checkout remain connected</div>
+    {process.env.NEXT_PUBLIC_DEPLOYMENT_ENV !== "production" ? <div className={styles.preview}>Preview page | Live availability and secure checkout remain connected</div> : null}
     <div className={styles.utility}><a href="/destin-condo-rental-reviews">Guest Reviews</a><a href="/why-book-direct#direct-faq">FAQ</a><a href="/guest-guide#policies">Policies</a><a href="/about">Contact</a></div>
     <SiteHeader availabilityHref="#checkout" />
     <main>

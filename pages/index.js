@@ -138,9 +138,11 @@ export default function Home() {
           />
         </Head>
 
-        <div className={styles.previewBar}>
-          Private homepage concept | production remains unchanged
-        </div>
+        {process.env.NEXT_PUBLIC_DEPLOYMENT_ENV !== "production" ? (
+          <div className={styles.previewBar}>
+            Private homepage concept | production remains unchanged
+          </div>
+        ) : null}
 
         <div className={styles.utilityBar}>
           <a href="/destin-condo-rental-reviews">Guest Reviews</a>

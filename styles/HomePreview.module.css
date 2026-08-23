@@ -35,9 +35,21 @@
   border-bottom: 1px solid var(--line);
 }
 .utilityBar a {
-  color: #5a717d;
-  font-size: 11px;
-  text-decoration: none;
+  color: #234f62;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-color: #1597a8;
+  text-decoration-thickness: 1px;
+}
+.utilityBar a:hover,
+.utilityBar a:focus-visible {
+  color: #073b58;
+  text-decoration-thickness: 2px;
+}
+.utilityBar a:focus-visible {
+  outline: 2px solid #d9a441;
+  outline-offset: 3px;
 }
 .header {
   min-height: 78px;
@@ -267,7 +279,7 @@
   border: 1px solid #1597a8;
   border-radius: 8px;
   background: transparent;
-  color: #087f91;
+  color: #065f6d;
   font-weight: 800;
   text-decoration: none;
   transition: color .18s ease, background-color .18s ease, border-color .18s ease, transform .18s ease;
@@ -405,7 +417,7 @@
   border: 1px solid #a8d7dc;
   border-radius: 999px;
   background: #e9f7f8;
-  color: #087f91;
+  color: #065f6d;
   font-size: 12px;
   font-style: normal;
   font-weight: 850;
@@ -505,7 +517,7 @@
 @media (max-width: 560px) {
   .previewBar { font-size: 9px; }
   .utilityBar { justify-content: center; padding: 7px 10px; gap: 13px; }
-  .utilityBar a { font-size: 10px; }
+  .utilityBar a { font-size: 11px; }
   .brand strong { font-size: 15px; }
   .bookButton { font-size: 11px; }
   .hero {

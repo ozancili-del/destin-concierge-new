@@ -24,7 +24,7 @@ const condoLinks = [
 export default function SiteHeader({ availabilityHref = "/availability" }) {
   return <header className={styles.header}>
     <a className={styles.brand} href="/">
-      <img className={styles.logo} src="/logo.webp" width="360" height="217" alt="Destin Condo Getaways" />
+      <img className={styles.logo} src="/logo-180.webp" width="180" height="108" alt="Destin Condo Getaways" />
       <span><strong>Destin Condo Getaways</strong><small>Pelican Beach Resort | Destin, Florida</small></span>
     </a>
 

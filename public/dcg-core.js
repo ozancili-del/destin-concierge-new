@@ -102,6 +102,28 @@
     document.head.appendChild(script);
   }
 
+  function scheduleMeasurementScripts() {
+    var started = false;
+    function start() {
+      if (started) return;
+      started = true;
+      loadScript("https://www.googletagmanager.com/gtag/js?id=" + GA_ID, "dcg-ga4");
+      loadScript("https://www.googletagmanager.com/gtm.js?id=" + GTM_ID, "dcg-gtm");
+    }
+    function afterLoad() {
+      if (typeof window.requestIdleCallback === "function") {
+        window.requestIdleCallback(start, { timeout: 8000 });
+      } else {
+        window.setTimeout(start, 4000);
+      }
+    }
+    ["pointerdown", "touchstart", "keydown"].forEach(function (eventName) {
+      window.addEventListener(eventName, start, { once: true, passive: true });
+    });
+    if (document.readyState === "complete") afterLoad();
+    else window.addEventListener("load", afterLoad, { once: true });
+  }
+
   function pageView() {
     var path = window.location.pathname + window.location.search;
     if (path === lastPagePath) return;
@@ -208,8 +230,7 @@
       linker: { domains: FIRST_PARTY_HOSTS }
     });
     dataLayer.push({ "gtm.start": Date.now(), event: "gtm.js" });
-    loadScript("https://www.googletagmanager.com/gtag/js?id=" + GA_ID, "dcg-ga4");
-    loadScript("https://www.googletagmanager.com/gtm.js?id=" + GTM_ID, "dcg-gtm");
+    scheduleMeasurementScripts();
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", pageView, { once: true });

@@ -162,6 +162,7 @@ export default function Home() {
               fill
               priority
               sizes="100vw"
+              quality={58}
             />
             <div className={styles.heroShade} />
             <div className={styles.heroContent}>
@@ -205,7 +206,8 @@ export default function Home() {
                       src={condo.image}
                       alt={`Gulf-view setting for Pelican Beach Resort Unit ${condo.unit}`}
                       fill
-                      sizes="(max-width: 900px) 100vw, 50vw"
+                      sizes="(max-width: 560px) calc(100vw - 40px), (max-width: 900px) calc(100vw - 80px), 50vw"
+                      quality={68}
                     />
                     <span>Unit {condo.unit}</span>
                   </div>

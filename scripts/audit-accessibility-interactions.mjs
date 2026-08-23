@@ -43,16 +43,19 @@ await assertPageLayout("reduced-motion", { width: 390, height: 844 }, "/", { red
   const dialog = page.locator("#db-window");
   if (await bubble.getAttribute("aria-expanded") !== "false") failures.push("chat: closed bubble does not expose aria-expanded=false");
   if (await dialog.getAttribute("aria-hidden") !== "true") failures.push("chat: closed dialog is not hidden from assistive technology");
+  if ((await dialog.getAttribute("inert")) === null) failures.push("chat: closed dialog remains keyboard-focusable");
   await bubble.click();
   await page.waitForTimeout(350);
   if (await bubble.getAttribute("aria-expanded") !== "true") failures.push("chat: opening does not expose aria-expanded=true");
   if (await dialog.getAttribute("aria-hidden") !== "false") failures.push("chat: opened dialog remains aria-hidden");
+  if ((await dialog.getAttribute("inert")) !== null) failures.push("chat: opened dialog remains inert");
   const activeAfterOpen = await page.evaluate(() => document.activeElement?.id || "");
   if (activeAfterOpen !== "db-input") failures.push(`chat: focus did not move to input (found ${activeAfterOpen || "none"})`);
   await page.keyboard.press("Escape");
   const activeAfterEscape = await page.evaluate(() => document.activeElement?.id || "");
   if (activeAfterEscape !== "db-btn") failures.push(`chat: Escape did not return focus to bubble (found ${activeAfterEscape || "none"})`);
   if (await dialog.getAttribute("aria-hidden") !== "true") failures.push("chat: Escape did not hide dialog");
+  if ((await dialog.getAttribute("inert")) === null) failures.push("chat: Escape did not restore inert state");
   await context.close();
 }
 

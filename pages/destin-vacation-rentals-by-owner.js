@@ -56,33 +56,14 @@ const faqs = [
   { q: "How do I check live availability and pricing?", a: "Enter your dates and guest count in the live availability form. The live reservation system supplies the current calendar, total pricing and secure checkout. Review all adults, children and infants before reserving." },
 ];
 
-function vacationRentalSchema(condo) {
-  return {
-    "@type": "VacationRental",
-    "@id": `${liveSite}${condo.href}#vacation-rental`,
-    name: `Pelican Beach Resort Unit ${condo.number}`,
-    url: `${liveSite}${condo.href}`,
-    image: `${liveSite}${condo.image}`,
-    description: `${condo.style} one-bedroom, two-bath Gulf-front vacation rental at Pelican Beach Resort in Destin, Florida. Sleeps up to six guests.`,
-    additionalType: "Condo",
-    numberOfBedrooms: 1,
-    numberOfBathroomsTotal: 2,
-    occupancy: { "@type": "QuantitativeValue", maxValue: 6 },
-    floorSize: { "@type": "QuantitativeValue", value: 873, unitCode: "FTK" },
-    address: { "@type": "PostalAddress", streetAddress: `1002 US-98, Unit ${condo.number}`, addressLocality: "Destin", addressRegion: "FL", postalCode: "32541", addressCountry: "US" },
-    containedInPlace: { "@id": `${liveSite}/pelican-beach-resort-destin#place` },
-  };
-}
-
 export default function CondoCollection() {
   const structuredData = {
     "@context": "https://schema.org",
     "@graph": [
       { "@type": "CollectionPage", "@id": `${pageUrl}#webpage`, url: pageUrl, name: "Destin Vacation Rentals by Owner at Pelican Beach Resort", description: "Compare two owner-managed Gulf-front Destin vacation rentals at Pelican Beach Resort, check live availability and book securely.", isPartOf: { "@id": `${liveSite}/#website` }, about: { "@id": `${liveSite}/#business` }, mainEntity: { "@id": `${pageUrl}#condos` } },
       { "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Home", item: liveSite }, { "@type": "ListItem", position: 2, name: "Destin Vacation Rentals by Owner", item: pageUrl }] },
-      { "@type": "ItemList", "@id": `${pageUrl}#condos`, name: "Owner-managed condos at Pelican Beach Resort", numberOfItems: 2, itemListElement: condos.map((condo, index) => ({ "@type": "ListItem", position: index + 1, item: { "@id": `${liveSite}${condo.href}#vacation-rental` } })) },
+      { "@type": "ItemList", "@id": `${pageUrl}#condos`, name: "Owner-managed condos at Pelican Beach Resort", numberOfItems: 2, itemListElement: condos.map((condo, index) => ({ "@type": "ListItem", position: index + 1, name: `Pelican Beach Resort Unit ${condo.number}`, url: `${liveSite}${condo.href}` })) },
       { "@type": "FAQPage", mainEntity: faqs.map((faq) => ({ "@type": "Question", name: faq.q, acceptedAnswer: { "@type": "Answer", text: faq.a } })) },
-      ...condos.map(vacationRentalSchema),
     ],
   };
 

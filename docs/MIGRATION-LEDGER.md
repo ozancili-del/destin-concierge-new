@@ -196,6 +196,24 @@ Known environment note: a local full build can stop on an existing TV preview ro
 - First 30 days: rankings, organic landing pages, booking conversion, affiliate events, crawl errors, redirect hits, and OwnerRez-host dependency checks.
 - Keep the old hosting available until traffic and crawl logs show the migration is stable.
 
+### August 23, 2026 search-indexing handoff and crawlability verification
+
+- Google Search Console's daily manual indexing quota was reached after Ozan submitted `/destin-hub`. This quota does not prevent normal discovery or crawling: the production sitemap remains submitted successfully, and IndexNow continues to notify participating search engines of canonical URL changes.
+- Ozan previously reported manually requesting Google indexing for the homepage, both canonical unit pages, `/destin-vacation-rentals-by-owner`, `/availability`, `/pelican-beach-resort-destin`, `/destin-condo-rental-reviews`, and `/blog`. Treat Search Console itself as the authoritative status source because a request is not a guarantee of indexing.
+- Newly reported submitted on August 23: `/destin-hub`.
+- **Priority manual Google URL Inspection queue when quota resets:**
+  1. `/destin-condo-deals`
+  2. `/destin-condo-special-offers`
+  3. `/destin-snowbird-rentals`
+  4. `/destin-activities`
+  5. `/destin-car-rentals`
+  6. `/destin-vacation-itinerary-planner`
+  7. `/destin-ai-concierge`
+- **Secondary manual queue, only after the commercial pages above:** `/destin-condo-photo-gallery`, `/pelican-beach-resort-condo-virtual-tours`, `/guest-guide`, `/destin-condo-rental-faq`, `/map`, `/about`, `/privacy`, `/why-book-direct`, and `/beach-cam`. Manual submission is optional acceleration; these pages are already discoverable through the sitemap and internal links.
+- A live production crawlability regression check fetched all **46 canonical sitemap URLs**. Every URL returned HTTP `200`, none emitted a `noindex` or `nofollow` directive in either HTML metadata or `X-Robots-Tag`, and every page declared its own clean sitemap URL as canonical.
+- Live `robots.txt` allows `/` and advertises `https://www.destincondogetaways.com/sitemap.xml`. It intentionally disallows only `/api/`, `/guestview/`, `/ozan`, and `/tv/`; these are non-search/private surfaces and are absent from the sitemap.
+- Result: **zero crawlability or indexability regressions across the canonical sitemap as of August 23, 2026**. Do not repeatedly submit all 46 URLs manually. Use the priority queue above, then allow sitemap discovery and monitor Google Page Indexing and Bing Site Explorer reports.
+
 ## Current redirect inventory already in code
 
 The complete source-of-truth mapping is now maintained in `docs/REDIRECT-MASTER-MAP.md`, backed by `config/legacy-redirects.js`, host rules in `vercel.json`, and `npm run test:redirect-map`. It covers numbered OwnerRez URLs, duplicate aliases, former `.html` tools, historical Google/Bing 404s, retired public subdomains, and booking-query preservation. Guestview and app remain separate product surfaces.

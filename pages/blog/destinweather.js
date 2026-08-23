@@ -20,7 +20,7 @@ export default function DestinWeatherGuide() {
   return <MigratedBlogArticle canonical={canonical} pageTitle="Destin Water Temperature Right Now | Monthly Swim Guide" description={article.description} structuredData={structuredData} heroImage="/beaches-pelican-sand-water.jpg" heroAlt="Emerald Gulf water and white sand in Destin Florida" kicker="Live Gulf conditions and monthly guide" title="Destin Water Temperature Right Now" intro="See the live Gulf reading, monthly water temperatures, swimming comfort, tides, beach safety and the best seasonal activities for each temperature range." articleHtml={article.html} related={[
     { label: "Beaches", title: "Best beaches in Destin", href: "/blog/best-beaches-destin" },
     { label: "Timing", title: "Best time to visit Destin", href: "/blog/best-time-to-visit-destin-florida" },
-    { label: "Events", title: "Destin events calendar 2026", href: "/blog/destin-events-2026" },
+    { label: "Events", title: "Destin events calendar", href: "/blog/destin-events" },
     { label: "Planning", title: "Complete Destin vacation guide", href: "/blog/destin-florida-vacation-guide-2026" },
   ]} />;
 }

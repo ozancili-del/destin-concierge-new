@@ -18,7 +18,7 @@ export default function DestinFireworksGuide() {
     { "@type": "LodgingBusiness", "@id": liveSite + "/#business", name: "Destin Condo Getaways", url: liveSite, telephone: "+1-972-357-4262", email: "ozan@destincondogetaways.com", address: { "@type": "PostalAddress", streetAddress: "1002 US-98", addressLocality: "Destin", addressRegion: "FL", postalCode: "32541", addressCountry: "US" }, geo: { "@type": "GeoCoordinates", latitude: 30.3935, longitude: -86.4958 } },
   ] };
   return <MigratedBlogArticle canonical={canonical} pageTitle="Destin Fireworks 2026 | Schedule, Locations & Map" description={article.description} structuredData={structuredData} heroImage="/fireworks-harborwalk.webp" heroAlt="Fireworks over Destin Harbor and the Emerald Coast" kicker="2026 schedule and viewing guide" title="Destin Fireworks 2026" intro="Find fireworks dates, viewing locations, directions, parking advice and the interactive July 4 map in one locally researched guide." articleHtml={article.html} related={[
-    { label: "Events", title: "Destin events in 2026", href: "/blog/destin-events-2026" },
+    { label: "Events", title: "Destin and Emerald Coast events", href: "/blog/destin-events" },
     { label: "Music", title: "Destin live music guide", href: "/blog/destin-live-music-2026" },
     { label: "Planning", title: "Complete Destin vacation guide", href: "/blog/destin-florida-vacation-guide-2026" },
     { label: "Nightlife", title: "Destin after dark", href: "/blog/destinnights" },

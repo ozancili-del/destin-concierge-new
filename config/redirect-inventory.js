@@ -1,6 +1,7 @@
 // Canonical source-of-truth for migration redirects. Keep historical aliases
 // here indefinitely so they remain independent of the retired OwnerRez host.
 const pathRedirects = [
+  ["/blog/destin-events-2026", "/blog/destin-events"],
   ["/sitemap-vercel.xml", "/sitemap.xml"],
   ["/destin-live-beach-cam-574002656", "/beach-cam"],
   ["/webcam-574002656", "/beach-cam"],

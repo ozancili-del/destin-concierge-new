@@ -30,7 +30,7 @@ export default function BestTimeToVisitGuide() {
     related={[
       { label: "Weather & water", title: "Destin conditions guide", href: "/blog/destinweather" },
       { label: "Beaches", title: "Best beaches in Destin", href: "/blog/best-beaches-destin" },
-      { label: "Events", title: "Destin events calendar", href: "/blog/destin-events-2026" },
+      { label: "Events", title: "Destin events calendar", href: "/blog/destin-events" },
       { label: "Current reductions", title: "Browse beach deals", href: "/destin-condo-deals" },
     ]}
   />;

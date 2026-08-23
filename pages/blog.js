@@ -8,7 +8,7 @@ import SiteFooter from "../components/SiteFooter";
 import styles from "../styles/Blog.module.css";
 
 const liveSite = "https://www.destincondogetaways.com";
-const migratedSlugs = new Set(["destinspa", "how-to-find-cheaper-flights-and-car-rentals", "destincar", "destinsupermarkets", "destin-florida-vacation-guide-2026", "best-time-to-visit-destin-florida", "best-restaurants-destin-local-guide", "best-restaurants-destin", "best-beaches-destin", "destinweather", "destin-fireworks-2026", "destin-events-2026", "destin-live-music-2026", "destinairport", "destindiversehistory", "destinocen", "destinromance", "destinnights", "destinessentials", "destinkids", "destinexplore"]);
+const migratedSlugs = new Set(["destinspa", "how-to-find-cheaper-flights-and-car-rentals", "destincar", "destinsupermarkets", "destin-florida-vacation-guide-2026", "best-time-to-visit-destin-florida", "best-restaurants-destin-local-guide", "best-restaurants-destin", "best-beaches-destin", "destinweather", "destin-fireworks-2026", "destin-events", "destin-live-music-2026", "destinairport", "destindiversehistory", "destinocen", "destinromance", "destinnights", "destinessentials", "destinkids", "destinexplore"]);
 const articleDestinations = {
   "destin-condo-ai-concierge-direct-booking": "/why-book-direct",
   "destin-vacation-rental-ai-concierge": "/destin-ai-concierge",
@@ -20,7 +20,7 @@ const articles = [
   ["destin-fireworks-2026","Destin Fireworks 2026","Schedules, viewing locations, directions and the interactive July 4 map.","Events & Music","/hub-fireworks.webp","Updated guide"],
   ["best-beaches-destin","13 Best Beaches in Destin","Parking, crowd levels, clear-water spots and live beach conditions.","Weather & Beach","/hub-beaches.webp","Local guide"],
   ["best-restaurants-destin","Best Seafood Restaurants in Destin","Waterfront favorites, honest local picks and an interactive restaurant map.","Food & Drink","/hub-seafood.webp","Interactive map"],
-  ["destin-events-2026","Destin Events Calendar 2026","Festivals, seasonal events and major happenings around the Emerald Coast.","Events & Music","/hub-events.webp","Updated monthly"],
+  ["destin-events","Destin & Emerald Coast Events","Verified festivals, holiday events and winter happenings through March 2027.","Events & Music","/hub-events.webp","Seven-month planner"],
   ["how-to-find-cheaper-flights-and-car-rentals","Cheaper Flights and Car Rentals","Compare airports, bags, routes and the real cost of reaching Destin.","Getting Here","/hub-flights-cars.webp","Planning guide"],
   ["destin-florida-vacation-guide-2026","Destin Vacation Guide 2026","A broad planning guide covering beaches, airports, food and useful trip tools.","Start Here","/hub-hero.webp","Complete guide"],
   ["destinspa","10 Best Spas in Destin","Wellness and relaxation options ranked with real guest-review context.","Things to Do","/hub-spa.webp","Local guide"],

@@ -10,7 +10,7 @@ const ROUTES = [
   "/blog", "/destin-hub", "/destin-condo-deals", "/destin-snowbird-rentals", "/destin-condo-special-offers", "/destin-car-rentals",
   "/destin-activities", "/blog/best-beaches-destin", "/blog/best-restaurants-destin",
   "/blog/best-restaurants-destin-local-guide", "/blog/best-time-to-visit-destin-florida",
-  "/blog/destin-events-2026", "/blog/destin-fireworks-2026",
+  "/blog/destin-events", "/blog/destin-fireworks-2026",
   "/blog/destin-florida-vacation-guide-2026", "/blog/destin-live-music-2026",
   "/blog/destinairport", "/blog/destincar", "/blog/destindiversehistory",
   "/blog/destinessentials", "/blog/destinexplore", "/blog/destinkids",

@@ -32,7 +32,7 @@ export default function DestinVacationGuide() {
       { label: "Weather & water", title: "Destin conditions guide", href: "/blog/destinweather" },
       { label: "Beaches", title: "Best beaches in Destin", href: "/blog/best-beaches-destin" },
       { label: "Dining", title: "Best restaurants in Destin", href: "/blog/best-restaurants-destin" },
-      { label: "Events", title: "Current Destin events", href: "/blog/destin-events-2026" },
+      { label: "Events", title: "Current Destin events", href: "/blog/destin-events" },
     ]}
   />;
 }

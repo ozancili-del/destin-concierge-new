@@ -18,7 +18,7 @@ test("both flag states resolve to callable handlers", () => {
 });
 
 test("all frontend chat surfaces use the centralized route", async () => {
-  const files = ["pages/concierge.js", "pages/index.js", "public/destiny-head.js", "public/destiny-blue-tests.html"];
+  const files = ["pages/concierge.js", "public/destiny-head.js", "public/destiny-blue-tests.html"];
   for (const file of files) {
     const source = await readFile(new URL(`../${file}`, import.meta.url), "utf8");
     assert.doesNotMatch(source, /(?:fetch\(|value=|const API=)[^\n]*\/api\/chat(?:["'])/);
@@ -31,9 +31,9 @@ test("rollback endpoint remains deployed", async () => {
   assert.match(source, /export default async function handler/);
 });
 
-test("admin snapshot command requires the complete trimmed message", () => {
-  assert.equal(isAdminSnapshotCommand("lets go mf"), true);
-  assert.equal(isAdminSnapshotCommand("  LETS   GO MF  "), true);
+test("public chat does not recognize hidden admin commands", () => {
+  assert.equal(isAdminSnapshotCommand("lets go mf"), false);
+  assert.equal(isAdminSnapshotCommand("  LETS   GO MF  "), false);
   assert.equal(isAdminSnapshotCommand("Guest said lets go mf yesterday"), false);
   assert.equal(isAdminSnapshotCommand("lets go mf please"), false);
 });

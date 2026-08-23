@@ -6,8 +6,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Winter Snowbird Stays — Pelican Beach Resort Destin FL</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-3SGXCQ4FTC"></script>
-<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-3SGXCQ4FTC');</script>
+<script src="/dcg-core.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 :root{
@@ -329,8 +328,8 @@ html,body{width:100%;min-height:100vh;background:var(--sand);font-family:'DM San
 
 <script>
 const BASE       = 'https://destin-concierge-new.vercel.app';
-const UNIT_707   = 'https://www.destincondogetaways.com/pelican-beach-resort-unit-707-orp5b47b5ax';
-const UNIT_1006  = 'https://www.destincondogetaways.com/pelican-beach-resort-unit-1006-orp5b6450ex';
+const UNIT_707   = '/pelican-beach-resort-unit-707';
+const UNIT_1006  = '/pelican-beach-resort-unit-1006';
 const SUPABASE_URL = 'https://itopaepmlyoytzacjkt.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0b3BhZXBtbHlveXR6YWNqa3QiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTcxMzIxMzIwMiwiZXhwIjoyMDI4Nzg5MjAyfQ.Ds2oBUQNxGkBmf3S-_S8_Rd-QlqS0lCjJeGhvuRilKI';
 
@@ -634,7 +633,7 @@ function renderResults(best, others) {
             <div class="fee-total"><span class="fee-total-label">Total</span><span class="fee-total-value">$${f.total}</span></div>
           </div>
           <a class="book-btn ${isBest && isMonthlyDiscount() ? 'disco' : ''}" href="${l}" target="_blank" onclick="gtag('event','snowbird_book_click',{unit:'${w.unit}',arrival:'${w.arr}',departure:'${w.dep}',total:${f.total}});event.stopPropagation()">Book direct — save on fees →</a>
-          <p style="font-size:10px;color:var(--muted);text-align:center;margin:8px 0 0;line-height:1.5">Rates are estimates — final total confirmed at checkout. <a href="https://www.destincondogetaways.com/-pelican-beach-resort-condo-rental-574046950" target="_blank" style="color:var(--muted);text-decoration:underline">Booking terms apply.</a></p>
+          <p style="font-size:10px;color:var(--muted);text-align:center;margin:8px 0 0;line-height:1.5">Rates are estimates — final total confirmed at checkout. <a href="/why-book-direct" style="color:var(--muted);text-decoration:underline">Booking terms apply.</a></p>
           <div class="msg-form" onclick="event.stopPropagation()">
             <p>Questions? Send Ozan a message — he'll get back to you personally</p>
             <input type="email" id="msgEmail_${id}" placeholder="Your email" />

@@ -1,18 +1,19 @@
 import { useState, useEffect } from "react";
 import Head from "next/head";
+import ToolFooter from "../components/ToolFooter";
 import { createClient } from "@supabase/supabase-js";
 
-const CANONICAL = "https://sunbirds.destincondogetaways.com";
+const CANONICAL = "https://www.destincondogetaways.com/destin-snowbird-rentals";
 
 const UNIT_META = {
-  "707":  { name: "Unit 707",  sub: "Classic Coastal · 7th Floor",  slug: "pelican-beach-resort-unit-707-orp5b47b5ax",  fullName: "Pelican Beach Resort Unit 707 — Classic Coastal" },
-  "1006": { name: "Unit 1006", sub: "Fresh Coastal · 10th Floor",   slug: "pelican-beach-resort-unit-1006-orp5b6450ex", fullName: "Pelican Beach Resort Unit 1006 — Fresh Coastal" },
+  "707":  { name: "Unit 707",  sub: "Classic Coastal · 7th Floor",  route: "/pelican-beach-resort-unit-707",  fullName: "Pelican Beach Resort Unit 707 — Classic Coastal" },
+  "1006": { name: "Unit 1006", sub: "Fresh Coastal · 10th Floor",   route: "/pelican-beach-resort-unit-1006", fullName: "Pelican Beach Resort Unit 1006 — Fresh Coastal" },
 };
 
 function bookingUrl(unit, arrival, departure, adults, children) {
-  const base  = `https://www.destincondogetaways.com/${UNIT_META[unit].slug}`;
+  const base  = UNIT_META[unit].route;
   const total = adults + children;
-  return `${base}?or_arrival=${arrival}&or_departure=${departure}&or_adults=${adults}&or_children=${children}&or_guests=${total}`;
+  return `${base}?or_arrival=${arrival}&or_departure=${departure}&or_adults=${adults}&or_children=${children}&or_guests=${total}#checkout`;
 }
 
 function fmt(d)        { return d.toISOString().split("T")[0]; }
@@ -64,7 +65,7 @@ function buildSchema() {
     "@type": "BreadcrumbList",
     "itemListElement": [
       { "@type": "ListItem", "position": 1, "name": "Destin Florida Vacation Rentals", "item": "https://www.destincondogetaways.com" },
-      { "@type": "ListItem", "position": 2, "name": "Pelican Beach Resort Condos", "item": "https://www.destincondogetaways.com/pelican-beach-resort-destin-574048693" },
+      { "@type": "ListItem", "position": 2, "name": "Pelican Beach Resort Condos", "item": "https://www.destincondogetaways.com/pelican-beach-resort-destin" },
       { "@type": "ListItem", "position": 3, "name": "Snowbird Rentals Destin FL — Monthly Winter Stays", "item": CANONICAL }
     ]
   };
@@ -76,7 +77,7 @@ function buildSchema() {
       { "@type": "Question", "name": "What is the snowbird discount at Pelican Beach Resort?", "acceptedAnswer": { "@type": "Answer", "text": "Guests who book 28 or more nights directly through destincondogetaways.com for stays arriving November 1, 2026 through February 28, 2027 receive 50% off rent automatically. No promo code needed." } },
       { "@type": "Question", "name": "What is the minimum stay for snowbird rates?", "acceptedAnswer": { "@type": "Answer", "text": "The snowbird discount requires a minimum of 28 nights. Full month stays (check-in on the 1st, check-out on the 1st of the following month) automatically qualify." } },
       { "@type": "Question", "name": "Which months qualify for the snowbird discount?", "acceptedAnswer": { "@type": "Answer", "text": "Arrivals from November 1, 2026 through February 28, 2027 qualify for the 50% off rent snowbird discount when booked direct for 28+ nights." } },
-      { "@type": "Question", "name": "Where are the snowbird condos located?", "acceptedAnswer": { "@type": "Answer", "text": "Both units are at Pelican Beach Resort, 1002 US-98 East, Destin FL 32541 — directly on the Gulf of Mexico. No road to cross. Step off the elevator straight onto the beach." } },
+      { "@type": "Question", "name": "Where are the snowbird condos located?", "acceptedAnswer": { "@type": "Answer", "text": "The condos are at Pelican Beach Resort, 1002 US-98 East, Destin FL 32541, directly on the Gulf of Mexico with no road between the building and the beach." } },
       { "@type": "Question", "name": "What is included in a monthly snowbird stay?", "acceptedAnswer": { "@type": "Answer", "text": "Full kitchen, high-speed WiFi, 2 Smart TVs, private Gulf-view balcony, 2 bathrooms, beach chairs, umbrella and cooler on arrival. Resort amenities include 3 pools (1 indoor heated), 2 hot tubs, fitness center, tennis and pickleball courts, sauna, steam room, and beachside Tiki bar." } },
       { "@type": "Question", "name": "How do I book a monthly snowbird stay?", "acceptedAnswer": { "@type": "Answer", "text": "Use the rate finder above to select your month and number of nights, then click the booking link to complete your reservation directly at destincondogetaways.com. Up to 48% off rent is applied automatically at checkout for qualifying stays." } }
     ]
@@ -273,7 +274,7 @@ function ResultCard({ result, adults, children, year, month, nights, isSnowbird 
           </a>
           <p style={{ fontSize: 10, color: "rgba(255,255,255,.3)", textAlign: "center", marginTop: 8, lineHeight: 1.5 }}>
             Rates are estimates — final total confirmed at checkout.{" "}
-            <a href="https://www.destincondogetaways.com/-pelican-beach-resort-condo-rental-574046950" target="_blank" rel="noopener" style={{ color: "rgba(255,255,255,.3)" }}>Booking terms apply.</a>
+            <a href="/why-book-direct" style={{ color: "rgba(255,255,255,.3)" }}>Booking terms apply.</a>
           </p>
           <MsgForm unit={result.unit} arrival={result.arrival} departure={result.departure} nights={nights} total={fees.total} />
         </div>
@@ -362,7 +363,7 @@ export default function Snowbird({ dayData }) {
       if (monthDays.length === 0) {
             continue;
       }
-  
+
       if (isSnowbird) {
         const arrival   = `${yr}-${mo}-01`;
         const nextMonth = month === 12 ? `${yr + 1}-01-01` : `${yr}-${pad(month + 1)}-01`;
@@ -417,35 +418,32 @@ export default function Snowbird({ dayData }) {
       <Head>
         <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-        <title>Snowbird Rentals Destin FL — Monthly Winter Condo Stays at Pelican Beach Resort</title>
-        <meta name="description" content="Find monthly snowbird rental rates for beachfront condos in Destin, Florida. Pelican Beach Resort Unit 707 and Unit 1006 — winter stays Nov–Feb with up to 48% off rent booked direct. No platform fees." />
-        <link rel="canonical" href={CANONICAL} />
+        <title>Destin Snowbird Rentals | Pelican Beach Resort</title>
+        <meta name="description" content="Explore monthly winter rentals at Pelican Beach Resort in Destin, with live rates for qualifying November–February snowbird stays." />
         <meta property="og:title" content="Snowbird Rentals Destin FL — Monthly Winter Condo Stays" />
         <meta property="og:description" content="Monthly winter rental rates for beachfront condos in Destin FL. Up to 48% off rent for snowbird stays Nov–Feb. Book direct at Pelican Beach Resort." />
         <meta property="og:url" content={CANONICAL} />
         <meta property="og:type" content="website" />
-        <meta property="og:image" content="https://sunbirds.destincondogetaways.com-hero.jpg" />
+        <meta property="og:image" content="https://www.destincondogetaways.com/snowbird-hero.webp" />
+        <meta name="robots" content={process.env.NEXT_PUBLIC_DEPLOYMENT_ENV === "production" ? "index,follow" : "noindex,nofollow"} />
         <link rel="canonical" href={CANONICAL} />
         <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
-        <script dangerouslySetInnerHTML={{ __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-PQSF8S6D');` }} />
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-3SGXCQ4FTC" />
-        <script dangerouslySetInnerHTML={{ __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-3SGXCQ4FTC');` }} />
         {schemas.map((s, i) => <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(s) }} />)}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
           "@context": "https://schema.org",
           "@graph": [
             {
               "@type": "WebPage",
-              "@id": "https://sunbirds.destincondogetaways.com/snowbird#webpage",
-              "url": "https://sunbirds.destincondogetaways.com/snowbird",
+              "@id": "https://www.destincondogetaways.com/destin-snowbird-rentals#webpage",
+              "url": "https://www.destincondogetaways.com/destin-snowbird-rentals",
               "name": "Snowbird & Winter Stays at Pelican Beach Resort Destin FL",
               "isPartOf": { "@id": "https://www.destincondogetaways.com/#website" },
               "publisher": { "@id": "https://www.destincondogetaways.com/#organization" },
               "significantLink": [
-                "https://deals.destincondogetaways.com/beach-deals",
-                "https://offer.destincondogetaways.com/offer",
+                "https://www.destincondogetaways.com/destin-condo-deals",
+                "https://www.destincondogetaways.com/destin-condo-special-offers",
                 "https://www.destincondogetaways.com/availability",
-                "https://explore.destincondogetaways.com/destin-hub"
+                "https://www.destincondogetaways.com/destin-vacation-itinerary-planner"
               ]
             },
             {
@@ -475,33 +473,23 @@ export default function Snowbird({ dayData }) {
 
       {/* Background — helicopter aerial */}
       <div className="bg-wrap">
-        <img src="/snowbird-hero.jpg" alt="Aerial view of Pelican Beach Resort Destin Florida" aria-hidden="true" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 40%", filter: "brightness(0.77) saturate(0.9)" }} />
+        <img src="/snowbird-hero.webp" alt="Aerial view of Pelican Beach Resort Destin Florida" aria-hidden="true" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 40%", filter: "brightness(0.77) saturate(0.9)" }} />
         <div className="bg-overlay" />
       </div>
 
       {/* Top nav */}
       <header className="deals-topbar">
-        <a className="deals-brand" href="https://www.destincondogetaways.com">
+        <a className="deals-brand" href="/">
           <b>DESTIN</b><span>CONDO GETAWAYS</span>
         </a>
         <nav className="deals-nav">
-          <a href="https://explore.destincondogetaways.com/destin-hub">Destin Hub</a>
-          <a href="https://explore.destincondogetaways.com/destin-tripshock.html">Activities</a>
-          <a href="https://www.destincondogetaways.com/properties">Condos</a>
-          <a href="https://deals.destincondogetaways.com/beach-deals">Deals</a>
-          <a className="active" href={CANONICAL}>Snowbird</a>
-          <a href="https://explore.destincondogetaways.com/destin-car-rental.html">Flights & Cars</a>
+          <a href="/">Home</a><a href="/#condos">Condos</a><a href="/destin-condo-deals">Deals</a><a href="/destin-activities">Activities</a><a href="/destin-car-rentals">Flights & Cars</a><a href="/destin-vacation-itinerary-planner">Trip Planner</a><a className="active" href="/destin-snowbird-rentals">Snowbird</a>
         </nav>
-        <a className="deals-book" href="https://www.destincondogetaways.com/properties" target="_blank" rel="noopener">🏖️ Book Your Stay</a>
+        <a className="deals-book" href="/#availability">Check availability</a>
       </header>
 
       <nav className="deals-mobile-nav">
-        <a href="https://explore.destincondogetaways.com/destin-hub">Destin Hub</a>
-        <a href="https://explore.destincondogetaways.com/destin-tripshock.html">Activities</a>
-        <a href="https://www.destincondogetaways.com/properties">Condos</a>
-        <a href="https://deals.destincondogetaways.com/beach-deals">Deals</a>
-        <a className="active" href={CANONICAL}>❄️ Snowbird</a>
-        <a href="https://explore.destincondogetaways.com/destin-car-rental.html">Flights & Cars</a>
+        <a href="/">Home</a><a href="/destin-condo-deals">Deals</a><a href="/destin-activities">Activities</a><a href="/destin-car-rentals">Flights & Cars</a><a href="/destin-vacation-itinerary-planner">Trip Planner</a><a className="active" href="/destin-snowbird-rentals">Snowbird</a>
       </nav>
 
       <main className="page">
@@ -514,8 +502,8 @@ export default function Snowbird({ dayData }) {
             <p className="hero-copy">Direct beachfront rates · No platform fees · Up to 48% off rent for monthly winter stays</p>
             <div className="hero-actions">
               <a className="hero-btn hero-btn-teal" href="#finder">❄️ Find My Rate</a>
-              <a className="hero-btn hero-btn-gold" href="https://www.destincondogetaways.com/properties" target="_blank" rel="noopener">🏖️ View Condos</a>
-              <a className="hero-btn hero-btn-glass" href="https://explore.destincondogetaways.com/destin-hub">🌊 Destin Hub</a>
+              <a className="hero-btn hero-btn-gold" href="/destin-vacation-rentals-by-owner">🏖️ View Condos</a>
+              <a className="hero-btn hero-btn-glass" href="/destin-vacation-itinerary-planner">🌊 Plan Your Trip</a>
             </div>
             <div className="proof">
               <span>⭐ 400+ Five-Star Stays</span>
@@ -536,7 +524,7 @@ export default function Snowbird({ dayData }) {
 
         {/* SEO intro */}
         <div className="seo-intro">
-          <p>These are direct <strong>snowbird rental rates</strong> for our two <strong>beachfront condos at Pelican Beach Resort, Destin FL</strong> — Unit 707 (7th floor, Classic Coastal) and Unit 1006 (10th floor, Fresh Coastal). Both units sleep up to 6 guests with a private Gulf-view balcony, full kitchen, and 2 bathrooms. For stays of 28 nights or more arriving between November 1 and February 28, guests receive <strong>up to 48% off rent automatically</strong> when booked direct through <a href="https://www.destincondogetaways.com" style={{ color: "var(--teal)" }}>destincondogetaways.com</a>. No promo code needed. No platform fees.</p>
+          <p>These are direct <strong>snowbird rental rates</strong> for our <strong>beachfront vacation rentals at Pelican Beach Resort, Destin FL</strong>. Each featured condo sleeps up to 6 guests with a private Gulf-view balcony, full kitchen, and 2 bathrooms. For stays of 28 nights or more arriving between November 1 and February 28, guests receive <strong>up to 48% off rent automatically</strong> when booked direct through <a href="/" style={{ color: "var(--teal)" }}>destincondogetaways.com</a>. No promo code needed. No platform fees.</p>
         </div>
 
         {/* Rate finder */}
@@ -644,7 +632,7 @@ export default function Snowbird({ dayData }) {
         <div style={{ marginTop: 32, marginBottom: 32 }}>
           <div className="section-label">Same bird. Better season.</div>
           <img
-            src="/snowbird-vs-sunbird.jpg"
+            src="/snowbird-vs-sunbird.webp"
             alt="Snowbird vs Sunbird — Escape winter and live your best life in Destin Florida"
             style={{ width: "100%", borderRadius: 16, display: "block" }}
           />
@@ -669,11 +657,12 @@ export default function Snowbird({ dayData }) {
         {/* FAQ */}
         <div className="seo-faq">
           <h2 className="seo-faq-title">Snowbird Rentals Destin FL — FAQ</h2>
-          <div className="seo-faq-item"><h3>What is the snowbird discount?</h3><p>Guests who book 28+ nights direct through destincondogetaways.com for stays arriving November 1 through February 28 receive 50% off rent automatically. No promo code needed.</p></div>
-          <div className="seo-faq-item"><h3>What months qualify?</h3><p>Arrivals November 1, 2026 through February 28, 2027 with 28 or more nights qualify for the 50% off rent snowbird discount when booked direct.</p></div>
-          <div className="seo-faq-item"><h3>What is included?</h3><p>Full kitchen, high-speed WiFi, private balcony with Gulf views, 2 bathrooms, Smart TVs, beach chairs, umbrella and cooler on arrival. Resort amenities include pools, hot tubs, fitness center, sauna, steam room, tennis, pickleball and beachside Tiki bar.</p></div>
-          <div className="seo-faq-item"><h3>Where are the condos?</h3><p>Both units are at Pelican Beach Resort, 1002 US-98 East, Destin FL 32541 — directly on the Gulf of Mexico. No road to cross — step off the elevator straight onto the beach.</p></div>
-          <div className="seo-faq-item"><h3>How do I book?</h3><p>Use the rate finder above, select your month and nights, then click the booking link to complete your reservation directly at destincondogetaways.com. Up to 48% off rent is applied automatically at checkout for qualifying stays.</p></div>
+          <div className="seo-faq-item"><h3>What is the snowbird discount at Pelican Beach Resort?</h3><p>Guests who book 28+ nights direct through destincondogetaways.com for stays arriving November 1 through February 28 receive the qualifying winter rent reduction automatically. No promo code is needed.</p></div>
+          <div className="seo-faq-item"><h3>What is the minimum stay for snowbird rates?</h3><p>The snowbird rate requires at least 28 nights. A full-month stay from the first day of one month to the first day of the next also meets that requirement.</p></div>
+          <div className="seo-faq-item"><h3>Which months qualify for the snowbird discount?</h3><p>Qualifying 28-night stays arrive from November through February. Enter the exact dates in the rate finder to see the current winter total.</p></div>
+          <div className="seo-faq-item"><h3>What is included in a monthly snowbird stay?</h3><p>Full kitchen, high-speed WiFi, private balcony with Gulf views, 2 bathrooms, Smart TVs, beach chairs, umbrella and cooler on arrival. Resort amenities include pools, hot tubs, fitness center, sauna, steam room, tennis, pickleball and beachside Tiki bar.</p></div>
+          <div className="seo-faq-item"><h3>Where are the snowbird condos located?</h3><p>The condos are at Pelican Beach Resort, 1002 US-98 East, Destin FL 32541, directly on the Gulf of Mexico with no road between the building and the beach.</p></div>
+          <div className="seo-faq-item"><h3>How do I book a monthly snowbird stay?</h3><p>Use the rate finder above, select your arrival and departure dates, and open the unit booking link to review the current complete price and reservation terms before checkout.</p></div>
         </div>
 
         {/* About */}
@@ -686,7 +675,7 @@ export default function Snowbird({ dayData }) {
             <div className="host-avatar">OC</div>
             <div className="host-info">
               <strong>Ozan Cili — Owner & Host</strong>
-              <p>I have been hosting guests at Pelican Beach Resort for several years and personally manage both units. I respond directly to all inquiries. Have questions? <a href="https://www.destincondogetaways.com/ai-concierge-574036277" style={{ color: "var(--teal)" }}>Destiny Blue</a>, our AI concierge, is available 24/7.</p>
+              <p>I have been hosting guests at Pelican Beach Resort for several years and respond directly to all inquiries. Have questions? <a href="/destin-ai-concierge" style={{ color: "var(--teal)" }}>Destiny Blue</a>, our AI concierge, is available 24/7.</p>
             </div>
           </div>
         </div>
@@ -695,12 +684,12 @@ export default function Snowbird({ dayData }) {
         <div className="plan-trip">
           <div className="plan-trip-title">Plan Your Destin Winter Escape</div>
           <div className="plan-trip-links">
-            <a href="https://www.destincondogetaways.com/blog/best-beaches-destin" className="plan-trip-pill">🏖️ Best Beaches</a>
-            <a href="https://www.destincondogetaways.com/blog/destinweather" className="plan-trip-pill">🌤️ Winter Weather</a>
-            <a href="https://www.destincondogetaways.com/blog/destinairport" className="plan-trip-pill">✈️ Which Airport</a>
-            <a href="https://explore.destincondogetaways.com/destin-car-rental.html" className="plan-trip-pill">🚗 Car Rentals</a>
-            <a href="https://deals.destincondogetaways.com/beach-deals" className="plan-trip-pill">🏷️ Price Drops</a>
-            <a href="https://explore.destincondogetaways.com/destin-tripshock.html" className="plan-trip-pill">🎯 Activities</a>
+            <a href="/blog/best-beaches-destin" className="plan-trip-pill">🏖️ Best Beaches</a>
+            <a href="/blog/destinweather" className="plan-trip-pill">🌤️ Winter Weather</a>
+            <a href="/blog/destinairport" className="plan-trip-pill">✈️ Which Airport</a>
+            <a href="/destin-car-rentals" className="plan-trip-pill">🚗 Car Rentals</a>
+            <a href="/destin-condo-deals" className="plan-trip-pill">🏷️ Price Drops</a>
+            <a href="/destin-activities" className="plan-trip-pill">🎯 Activities</a>
           </div>
         </div>
 
@@ -721,14 +710,16 @@ export default function Snowbird({ dayData }) {
         </div>
 
         <div id="floatingHomeTop" className={`floating-home-top${showFloat ? " visible" : ""}`}>
-          <a href="https://www.destincondogetaways.com" target="_blank" rel="noopener" aria-label="Home">🏠</a>
+          <a href="/" aria-label="Home">🏠</a>
           <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} aria-label="Back to top">↑</button>
         </div>
 
       </main>
+      <ToolFooter />
 
       <style jsx global>{`
         :root { --green:#39ff14; --teal:#00d4c8; --navy:#020b18; --card-bg:rgba(2,18,40,0.82); --card-border:rgba(0,212,200,0.35); --white:#ffffff; --gold:#ffd166; }
+        html, body { overflow-x:hidden; }
         body { font-family:'Barlow',sans-serif; background:#04101d; color:#f7fbff; }
 
         .bg-wrap { position:fixed; inset:0; z-index:0; pointer-events:none; }

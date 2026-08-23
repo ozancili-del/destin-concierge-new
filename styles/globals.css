@@ -1,0 +1,64 @@
+:root {
+  --dcg-link: #065f6d;
+  --dcg-link-hover: #044b56;
+  --dcg-focus: rgba(21, 151, 168, 0.34);
+}
+
+/* Editorial links should look actionable without restyling navigation or buttons. */
+:where(main, article) :where(p, li, dd, figcaption, address) a:not([class]),
+:where(main, article) a[class*="textLink"],
+:where(main, article) a[class*="inlineLink"] {
+  color: var(--dcg-link);
+  font-weight: 750;
+  text-decoration-line: underline;
+  text-decoration-color: rgba(8, 127, 145, 0.62);
+  text-decoration-thickness: 0.1em;
+  text-underline-offset: 0.2em;
+  transition: color 160ms ease, text-decoration-color 160ms ease;
+}
+
+:where(main, article) :where(p, li, dd, figcaption, address) a:not([class]):hover,
+:where(main, article) a[class*="textLink"]:hover,
+:where(main, article) a[class*="inlineLink"]:hover {
+  color: var(--dcg-link-hover);
+  text-decoration-color: currentColor;
+}
+
+/* The card remains clickable; its final instruction supplies the visual cue. */
+a[class*="featureLead"] strong,
+a[class*="featureCard"] strong,
+a[class*="articleCard"] strong {
+  color: var(--dcg-link);
+  font-weight: 850;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
+:where(a, button, summary, input, select, textarea):focus-visible {
+  outline: 3px solid var(--dcg-focus);
+  outline-offset: 3px;
+}
+
+@media (forced-colors: active) {
+  :where(main, article) :where(p, li, dd, figcaption, address) a:not([class]),
+  :where(main, article) a[class*="textLink"],
+  :where(main, article) a[class*="inlineLink"] {
+    color: LinkText;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:focus-within {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://deals.destincondogetaways.com/sitemap-vercel.xml

@@ -1,0 +1,74 @@
+.header {
+  min-height: 78px;
+  padding: 12px clamp(20px, 5vw, 76px);
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  background: #fffefb;
+  border-bottom: 1px solid #e7e0d4;
+  position: relative;
+  z-index: 100;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+.brand { display: flex; align-items: center; gap: 12px; color: #073b58; text-decoration: none; margin-right: auto; }
+.brand strong { display: block; font-family: Georgia, serif; font-size: 20px; }
+.brand small { display: block; color: #536b77; font-size: 11px; margin-top: 3px; }
+.logo { width: 76px; height: 50px; display: block; object-fit: contain; object-position: center; }
+.slogan {
+  display: none;
+  flex: 0 0 auto;
+  margin: 0;
+  color: #073b58;
+  line-height: 1;
+  white-space: nowrap;
+  transform: rotate(-1deg);
+}
+.desktopSlogan { display: block; font-size: clamp(24px, 1.8vw, 32px); }
+.mobileSlogan { display: none; }
+.desktopNav { display: flex; align-items: center; gap: 20px; }
+.desktopNav > a, .dropdown summary { color: #073b58; text-decoration: none; font-size: 13px; font-weight: 700; white-space: nowrap; cursor: pointer; }
+.desktopNav > a:hover, .dropdown summary:hover { color: #1597a8; }
+.dropdown { position: relative; }
+.dropdown summary { list-style: none; padding: 12px 0; }
+.dropdown summary::-webkit-details-marker { display: none; }
+.dropdown summary:after { content: "⌄"; margin-left: 6px; color: #1597a8; }
+.dropdown > div { display: none; position: absolute; top: calc(100% - 2px); left: -16px; min-width: 210px; padding: 9px; border: 1px solid #e7e0d4; border-radius: 10px; background: #fffefb; box-shadow: 0 16px 36px rgba(7,59,88,.16); }
+.dropdown[open] > div { display: grid; }
+.dropdown > div a { padding: 10px 12px; border-radius: 7px; color: #073b58; text-decoration: none; font-size: 13px; }
+.dropdown > div a:hover { background: #faf7f0; color: #1597a8; }
+.mobileMenu { display: none; position: relative; }
+.mobileMenu > summary { list-style: none; cursor: pointer; padding: 10px 12px; border: 1px solid #1597a8; border-radius: 8px; color: #073b58; font-weight: 800; font-size: 12px; }
+.mobileMenu > summary::-webkit-details-marker { display: none; }
+.mobileMenu nav { position: absolute; right: 0; top: calc(100% + 9px); width: min(290px, calc(100vw - 30px)); max-height: 72vh; overflow-y: auto; padding: 13px; display: grid; border: 1px solid #e7e0d4; border-radius: 12px; background: #fffefb; box-shadow: 0 18px 44px rgba(7,59,88,.2); }
+.mobileMenu nav strong { padding: 8px 10px 4px; color: #1597a8; font-size: 11px; text-transform: uppercase; letter-spacing: .12em; }
+.mobileMenu nav a { padding: 10px; color: #073b58; text-decoration: none; font-size: 14px; font-weight: 650; }
+.mobileMenu nav a:nth-of-type(6) { margin-top: 6px; border-top: 1px solid #e7e0d4; }
+.mobileMenu nav .galleryLink { color: #087f90; font-weight: 850; }
+@media (max-width: 1180px) { .desktopNav { gap: 13px; } .desktopNav > a, .dropdown summary { font-size: 12px; } }
+@media (max-width: 980px) {
+  .header { min-height: 70px; padding: 10px 16px; gap: 10px; }
+  .desktopNav { display: none; }
+  .mobileMenu { display: block; order: 3; }
+  .slogan { display: block; margin-right: auto; transform: rotate(-1deg); }
+  .desktopSlogan { display: none; }
+  .mobileSlogan {
+    display: block;
+    font-size: clamp(18px, 4.2vw, 24px);
+    font-weight: 600;
+    text-shadow: .25px 0 currentColor, -.25px 0 currentColor;
+  }
+  .brand strong { font-size: 16px; }
+  .brand small { display: none; }
+  .logo { width: 66px; height: 44px; }
+  .header > a:last-of-type { margin-left: auto; }
+}
+@media (max-width: 560px) {
+  .brand span:last-child { display: none; }
+  .logo { width: 70px; height: 46px; }
+  .slogan { max-width: 130px; white-space: normal; line-height: .92; text-align: center; }
+  .mobileSlogan { font-size: 19px; }
+  .header > a:last-of-type { font-size: 11px; padding: 10px 11px; }
+}
+@media (max-width: 390px) {
+  .slogan { display: none; }
+}

@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from "react";
 import Head from "next/head";
 import { createClient } from "@supabase/supabase-js";
 
+const liveSite = "https://www.destincondogetaways.com";
+
 function isSnowbirdDiscount(year, month, nights) {
   if (nights < 28) return false;
   return (year === 2026 && (month === 11 || month === 12)) || (year === 2027 && (month === 1 || month === 2));
@@ -37,12 +39,12 @@ function calcFees(priceSum, nights, unit, arrivalStr, adults, children) {
 }
 
 const UNIT_META = {
-  "707":  { name: "Unit 707", sub: "Classic Coastal · 7th Floor", slug: "pelican-beach-resort-unit-707-orp5b47b5ax" },
-  "1006": { name: "Unit 1006", sub: "Fresh Coastal · 10th Floor", slug: "pelican-beach-resort-unit-1006-orp5b6450ex" },
+  "707":  { name: "Unit 707", sub: "Classic Coastal · 7th Floor", route: "/pelican-beach-resort-unit-707" },
+  "1006": { name: "Unit 1006", sub: "Fresh Coastal · 10th Floor", route: "/pelican-beach-resort-unit-1006" },
 };
 
 function bookingUrl(unit, arrival, departure) {
-  return `https://www.destincondogetaways.com/${UNIT_META[unit].slug}?or_arrival=${arrival}&or_departure=${departure}&or_adults=2&or_children=0&or_guests=2`;
+  return `${UNIT_META[unit].route}?or_arrival=${arrival}&or_departure=${departure}&or_adults=2&or_children=0&or_guests=2#checkout`;
 }
 
 function fmt(d) { return d.toISOString().split("T")[0]; }
@@ -264,8 +266,9 @@ export default function RatesCalendar({ dayData, today }) {
       <Head>
         <title>Rates Calendar — Pelican Beach Resort Destin FL</title>
         <meta name="description" content="Browse daily rates for beachfront condos at Pelican Beach Resort, Destin FL. Pick your dates and book direct." />
+        <meta name="robots" content="noindex,follow" />
+        <link rel="canonical" href={`${liveSite}/rates-calendar`} />
         <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
-        <script dangerouslySetInnerHTML={{ __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-3SGXCQ4FTC');` }} />
       </Head>
 
       {/* Fixed dark bg */}
@@ -273,12 +276,12 @@ export default function RatesCalendar({ dayData, today }) {
 
       {/* Top nav */}
       <header style={{ position: "relative", zIndex: 3, width: "min(860px,calc(100% - 32px))", margin: "20px auto 0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <a href="https://www.destincondogetaways.com" style={{ textDecoration: "none" }}>
+        <a href="/" style={{ textDecoration: "none" }}>
           <b style={{ fontSize: 20, letterSpacing: ".12em", color: "#47e2d0", fontFamily: "'Barlow Condensed',sans-serif", fontWeight: 900 }}>DESTIN</b>
           <span style={{ display: "block", fontSize: 10, letterSpacing: ".16em", color: "rgba(255,255,255,.6)", fontWeight: 700 }}>CONDO GETAWAYS</span>
         </a>
         <nav style={{ display: "flex", gap: 20, fontSize: 13, fontWeight: 700 }}>
-          {[["Deals", "https://deals.destincondogetaways.com/beach-deals"],["Snowbird", "https://sunbirds.destincondogetaways.com"],["Destin Hub", "https://explore.destincondogetaways.com/destin-hub"]].map(([label, href]) => (
+          {[["Deals", "/destin-condo-deals"],["Snowbird", "/destin-snowbird-rentals"],["Destin Hub", "/destin-hub"]].map(([label, href]) => (
             <a key={label} href={href} style={{ color: "rgba(255,255,255,.7)", textDecoration: "none" }}>{label}</a>
           ))}
         </nav>
@@ -395,7 +398,7 @@ export default function RatesCalendar({ dayData, today }) {
       {/* Floating home/top */}
       {showFloat && (
         <div style={{ position: "fixed", bottom: 24, right: 24, display: "flex", flexDirection: "column", gap: 8, zIndex: 999 }}>
-          <a href="https://www.destincondogetaways.com" target="_blank" rel="noopener" style={{ width: 44, height: 44, borderRadius: "50%", background: "rgba(2,18,40,.9)", border: "1px solid rgba(71,226,208,.35)", display: "flex", alignItems: "center", justifyContent: "center", color: "#47e2d0", fontSize: 18, textDecoration: "none" }}>🏠</a>
+          <a href="/" style={{ width: 44, height: 44, borderRadius: "50%", background: "rgba(2,18,40,.9)", border: "1px solid rgba(71,226,208,.35)", display: "flex", alignItems: "center", justifyContent: "center", color: "#47e2d0", fontSize: 18, textDecoration: "none" }}>🏠</a>
           <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} style={{ width: 44, height: 44, borderRadius: "50%", background: "rgba(2,18,40,.9)", border: "1px solid rgba(71,226,208,.35)", color: "#47e2d0", fontSize: 18, cursor: "pointer", fontFamily: "'Barlow',sans-serif" }}>↑</button>
         </div>
       )}

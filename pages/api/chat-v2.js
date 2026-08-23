@@ -141,17 +141,6 @@ export default async function handler(req, res) {
     const ozanAckType = sessState?.ozanAckType || sessionData?.ozanAckType || null;
     const ozanAcked = !!sessState?.ozanAcked || !!ozanAckType;
 
-    // ── Deterministic intercept: secret owner trigger (v1 2031-2056) ─────────
-    if (/^lets go mf$/i.test(lastUser.trim())) {
-      try {
-        await fetch("https://destin-concierge-new.vercel.app/api/price-snapshot", { method: "POST" });
-        await fetch("https://destin-concierge-new.vercel.app/api/revalidate?path=/beach-deals");
-        return send({ reply: "🚀 Snapshot captured and beach-deals revalidated. LFG.", debug: { intercept: "owner_trigger", v: 2 } });
-      } catch (e) {
-        return send({ reply: `Snapshot trigger failed: ${e.message}`, debug: { intercept: "owner_trigger_failed", v: 2 } });
-      }
-    }
-
     // ── Deterministic intercept: @ozan live chat (v1 2058-2111) ──────────────
     if (/^@ozan\b/i.test(lastUser.trim())) {
       const inviteToken = Math.random().toString(36).slice(2, 10);

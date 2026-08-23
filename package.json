@@ -9,12 +9,26 @@
     "test:agent:coverage": "node --experimental-default-type=module --experimental-test-coverage --test tests/*.test.mjs",
     "test:agent:policy": "node --experimental-default-type=module scripts/run-agent-policy-regression.mjs",
     "test:agent:live": "node --experimental-default-type=module tests/live-routing-eval.mjs",
-    "regression": "node scripts/run-agent-regression.mjs"
+    "regression": "node scripts/run-agent-regression.mjs",
+    "test:site-links": "node scripts/audit-site-links.mjs",
+    "test:http-links": "node scripts/audit-http-internal-links.mjs",
+    "test:link-strategy": "node scripts/audit-link-strategy.mjs && node scripts/audit-internal-link-routing.mjs",
+    "test:site-seo": "node scripts/audit-site-seo.mjs",
+    "test:search-readiness": "node scripts/audit-rendered-search-readiness.mjs",
+    "test:booking-canonicals": "node scripts/audit-booking-canonicals.mjs",
+    "test:redirect-map": "node scripts/audit-redirect-master-map.mjs",
+    "test:redirect-runtime": "node scripts/audit-redirect-runtime.mjs",
+    "test:site-cutover": "node scripts/audit-site-cutover.mjs && node scripts/audit-booking-canonicals.mjs && node scripts/audit-redirect-master-map.mjs",
+    "test:precutover": "npm run build && npm run test:site-cutover && npm run test:redirect-runtime",
+    "test:site-assets": "node scripts/audit-site-assets.mjs",
+    "test:site-analytics": "node scripts/audit-site-analytics.mjs",
+    "indexnow:submit": "node scripts/submit-indexnow.mjs"
   },
   "dependencies": {
     "next": "14.2.4",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "sharp": "^0.33.5",
     "openai": "^4.55.4",
     "@anthropic-ai/sdk": "^0.20.0",
     "@supabase/supabase-js": "^2.39.0"

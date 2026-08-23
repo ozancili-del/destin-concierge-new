@@ -1,8 +1,8 @@
-document.addEventListener('DOMContentLoaded',function(){const lS=localStorage;
+function initDestinyHead(){const lS=localStorage;
 if(window.location.pathname.toLowerCase().includes('concierge'))return;
-const API='https://destin-concierge-new.vercel.app/api/destiny-chat';
-const POLL='https://destin-concierge-new.vercel.app/api/ozan-poll';
-const SAPI='https://destin-concierge-new.vercel.app/api/ozan-send';
+const API='/api/destiny-chat';
+const POLL='/api/ozan-poll';
+const SAPI='/api/ozan-send';
 let sessionId=sessionStorage.getItem('db_sid')||'wb_'+Math.random().toString(36).substr(2,12);
 sessionStorage.setItem('db_sid',sessionId);
 let history=JSON.parse(sessionStorage.getItem('db_history')||lS.getItem('db_history')||'[]');
@@ -22,7 +22,7 @@ style.textContent=`@import url('https://fonts.googleapis.com/css2?family=DM+Sans
 #db-window.open{transform:scale(1) translateY(0);opacity:1;pointer-events:all}
 #db-header{background:linear-gradient(135deg,#00B4D8,#48CAE4,#90E0EF);padding:16px 18px;display:flex;align-items:center;gap:12px;flex-shrink:0}
 #db-header-text{flex:1}
-#db-mobile-close{display:none;background:rgba(255,255,255,.25);border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;flex-shrink:0;align-items:center;justify-content:center;color:white;font-size:18px;line-height:1}
+#db-mobile-close{display:flex;background:rgba(255,255,255,.25);border:none;border-radius:50%;width:32px;height:32px;cursor:pointer;flex-shrink:0;align-items:center;justify-content:center;color:white;font-size:18px;line-height:1}
 #db-header-name{font-weight:600;font-size:15px;line-height:1.2;background:linear-gradient(90deg,#fff 0%,#ffe066 20%,#ffb3e6 40%,#e0d4ff 55%,#b3f0ff 70%,#ffe066 85%,#fff 100%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:db-rainbow 3s linear infinite}
 @keyframes db-rainbow{0%{background-position:0% center}100%{background-position:200% center}}
 #db-header-sub{color:rgba(255,255,255,.8);font-size:12px;margin-top:1px}
@@ -51,45 +51,19 @@ style.textContent=`@import url('https://fonts.googleapis.com/css2?family=DM+Sans
 #db-send:hover{transform:scale(1.08)}
 #db-send:disabled{opacity:.5;cursor:not-allowed}
 #db-footer{text-align:center;padding:6px 0 10px;font-size:11px;color:#bbb;flex-shrink:0}
-#db-btn::before{content:'';position:absolute;width:100%;height:100%;border-radius:50%;border:3px solid #48CAE4;animation:db-pulse 2.5s ease-out infinite;pointer-events:none}
-#db-btn.open::before{display:none}
-@keyframes db-pulse{0%{transform:scale(1);opacity:.8}70%,100%{transform:scale(1.55);opacity:0}}
-#db-tooltip{position:absolute;bottom:74px;right:0;background:white;border-radius:16px 16px 4px 16px;padding:10px 14px;font-size:13px;color:#1a1a2e;box-shadow:0 4px 20px rgba(0,0,0,.13);white-space:nowrap;font-weight:500;animation:db-ti .4s cubic-bezier(.34,1.56,.64,1) forwards;cursor:pointer}
-#db-tooltip::after{content:'';position:absolute;bottom:-7px;right:18px;width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:7px solid white}
-#db-tooltip.hide{animation:db-to .2s ease forwards}
-@keyframes db-ti{from{opacity:0;transform:scale(.85) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
-@keyframes db-to{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(.85)}}
-@media(max-width:480px){#db-bubble{bottom:16px;right:16px}#db-window{position:fixed;bottom:0;right:0;left:0;width:100%;max-height:92vh;border-radius:20px 20px 0 0;transform-origin:bottom center}#db-messages{max-height:calc(92vh - 160px)}#db-mobile-close{display:flex}#db-btn.open{display:none}}
-#db-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:99998;display:none;align-items:center;justify-content:center}
-#db-overlay.show{display:flex}
-#db-pop{background:linear-gradient(135deg,#00B4D8,#48CAE4,#90E0EF);border-radius:20px;padding:20px;box-shadow:0 12px 48px rgba(0,180,216,.4);position:relative;display:flex;gap:14px;align-items:flex-start;width:300px;max-width:90vw;animation:dbIn .3s cubic-bezier(.34,1.56,.64,1)}
-@keyframes dbIn{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
-#db-pop .dx{position:absolute;top:10px;right:12px;background:rgba(255,255,255,.25);border:none;border-radius:50%;width:24px;height:24px;cursor:pointer;color:white;font-size:13px;display:flex;align-items:center;justify-content:center}
-#db-pop img{width:52px;height:52px;border-radius:50%;border:2px solid rgba(255,255,255,.7);flex-shrink:0;object-fit:cover;object-position:top}
-#db-pop .ptxt{flex:1;padding-right:18px}
-#db-pop .pname{color:white;font-weight:700;font-size:13px;margin:0 0 4px}
-#db-pop .pmsg{color:rgba(255,255,255,.92);font-size:12px;margin:0 0 12px;line-height:1.5}
-#db-pop .pbtn{background:white;color:#0096c7;border:none;border-radius:20px;padding:8px 18px;font-size:12px;font-weight:700;cursor:pointer}
+@media(max-width:480px){#db-bubble{bottom:16px;right:16px}#db-window{position:fixed;bottom:0;right:0;left:0;width:100%;max-height:92vh;border-radius:20px 20px 0 0;transform-origin:bottom center}#db-messages{max-height:calc(92vh - 160px)}#db-btn.open{display:none}}
+@media(prefers-reduced-motion:reduce){#db-btn,#db-btn img,#db-btn svg,#db-window,#db-send{transition:none!important}#db-header-name,.db-msg,.db-typing-dot{animation:none!important}#db-messages{scroll-behavior:auto}}
 `;
 document.head.appendChild(style);
 const wrap=document.createElement('div');
 wrap.id='db-bubble';
-wrap.innerHTML=`<div id="db-window"><div id="db-header"><img src="https://destin-concierge-new.vercel.app/destiny_avatar.png" alt="Destiny Blue AI Concierge" style="width:52px;height:52px;border-radius:50%;object-fit:cover;object-position:top;flex-shrink:0;"/><div id="db-header-text"><div id="db-header-name">Destiny Blue</div><div id="db-header-sub"><span class="db-status-dot"></span>AI Concierge · Always here</div></div><button id="db-mobile-close" aria-label="Close">✕</button></div><div id="db-messages"></div><div id="db-input-row"><input id="db-input" type="text" placeholder="Ask me anything…" autocomplete="off"/><button id="db-send" aria-label="Send message"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div><div id="db-footer">Powered by Destiny Blue · © Ozan CILI</div></div><div id="db-tooltip">Hi! Ask me anything about Destin!</div><button id="db-btn" aria-label="Chat"><div id="db-badge"></div><img class="db-icon-open" alt="Destiny Blue AI Concierge" src="https://destin-concierge-new.vercel.app/destiny_avatar.png" style="width:60px;height:60px;border-radius:50%;object-fit:cover;object-position:top;display:block;"/><svg class="db-icon-close" width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6L18 18" stroke="white" stroke-width="2.5" stroke-linecap="round"/></svg></button>`;
+wrap.innerHTML=`<div id="db-window" role="dialog" aria-modal="true" aria-labelledby="db-header-name" aria-hidden="true" inert><div id="db-header"><img src="/destiny-avatar-160.webp" alt="" width="52" height="52" style="width:52px;height:52px;border-radius:50%;object-fit:cover;object-position:top;flex-shrink:0;"/><div id="db-header-text"><div id="db-header-name">Destiny Blue</div><div id="db-header-sub"><span class="db-status-dot"></span>AI Concierge · Always here</div></div><button id="db-mobile-close" aria-label="Close live chat">✕</button></div><div id="db-messages" role="log" aria-live="polite" aria-relevant="additions text"></div><div id="db-input-row"><input id="db-input" type="text" aria-label="Ask Destiny Blue a question" placeholder="Ask me anything…" autocomplete="off"/><button id="db-send" aria-label="Send message"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div><div id="db-footer">Powered by Destiny Blue · © Ozan CILI</div></div><button id="db-btn" aria-label="Open live chat" aria-controls="db-window" aria-expanded="false"><div id="db-badge"></div><img class="db-icon-open" alt="Destiny Blue AI Concierge" src="/destiny-avatar-160.webp" width="60" height="60" style="width:60px;height:60px;border-radius:50%;object-fit:cover;object-position:top;display:block;"/><svg class="db-icon-close" width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M18 6L6 18M6 6L18 18" stroke="white" stroke-width="2.5" stroke-linecap="round"/></svg></button>`;
 document.body.appendChild(wrap);
-const overlay=document.createElement('div');
-overlay.id='db-overlay';
-overlay.innerHTML=`<div id="db-pop"><button class="dx" id="db-pop-x">✕</button><img src="https://destin-concierge-new.vercel.app/destiny_avatar.png" alt="Destiny Blue AI Concierge"/><div class="ptxt"><p class="pname">Destiny Blue 🌊</p><p class="pmsg">You get <strong style="color:white">10% off</strong> automatically. Chat with me and unlock <strong style="color:white">5% more</strong> on top.</p><button class="pbtn" id="db-pop-go">Treasure Hunt! →</button></div></div>`;
-document.body.appendChild(overlay);document.getElementById('db-pop-x').addEventListener('click',dbX);document.getElementById('db-pop-go').addEventListener('click',dbGo);
-const btn=document.getElementById('db-btn'),win=document.getElementById('db-window'),msgs=document.getElementById('db-messages'),input=document.getElementById('db-input'),send=document.getElementById('db-send'),tooltip=document.getElementById('db-tooltip');
-const TM=["Ask me anything about Destin!","Check availability!","10% off — already applied!","Two beachfront units — compare!","400+ stays, 4.94 rating!","Heated pool open year-round!"];
-let tIdx=0,tTimer=null;
-function cycleTip(){if(isOpen)return;tooltip.classList.remove('hide');tIdx=(tIdx+1)%TM.length;tooltip.style.animation='none';tooltip.offsetHeight;tooltip.style.animation='';tooltip.textContent=TM[tIdx];tTimer=setTimeout(cycleTip,4000);}
-tooltip.addEventListener('click',()=>toggle());
-tTimer=setTimeout(cycleTip,4000);
-if(window.innerWidth>=1024)setTimeout(()=>{if(!isOpen)toggle();},15000);
-function toggle(){isOpen=!isOpen;btn.classList.toggle('open',isOpen);win.classList.toggle('open',isOpen);if(isOpen){tooltip.classList.add('hide');clearTimeout(tTimer);if(msgs.children.length===0){if(history.length>0)history.forEach(m=>{if(m.role==='user')addU(m.content);else addB(m.content);});else{const openers=["Hi! I'm Destiny Blue 🌊 AI concierge for Destin beachfront condos. Live availability, instant booking links. What can I help you with?"];addB(openers[Math.floor(Math.random()*openers.length)]);}}setTimeout(()=>input.focus(),300);}else{setTimeout(()=>{tooltip.classList.remove('hide');tTimer=setTimeout(cycleTip,4000);},500);}}
+const btn=document.getElementById('db-btn'),win=document.getElementById('db-window'),msgs=document.getElementById('db-messages'),input=document.getElementById('db-input'),send=document.getElementById('db-send');
+function toggle(force){isOpen=typeof force==='boolean'?force:!isOpen;btn.classList.toggle('open',isOpen);win.classList.toggle('open',isOpen);btn.setAttribute('aria-label',isOpen?'Close live chat':'Open live chat');btn.setAttribute('aria-expanded',String(isOpen));win.setAttribute('aria-hidden',String(!isOpen));if(isOpen)win.removeAttribute('inert');else win.setAttribute('inert','');if(isOpen){window.dispatchEvent(new CustomEvent('dcg:chat_open',{detail:{placement:'chat_bubble'}}));if(msgs.children.length===0){if(history.length>0)history.forEach(m=>{if(m.role==='user')addU(m.content);else addB(m.content);});else{const openers=["Hi! I'm Destiny Blue 🌊 AI concierge for Destin beachfront condos. Live availability, instant booking links. What can I help you with?"];addB(openers[Math.floor(Math.random()*openers.length)]);}}setTimeout(()=>input.focus(),300);}else{btn.focus();}}
 btn.addEventListener('click',toggle);
 document.getElementById('db-mobile-close').addEventListener('click',toggle);
+win.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();toggle(false);return;}if(e.key!=='Tab')return;const focusable=[...win.querySelectorAll('button:not([disabled]),input:not([disabled]),a[href],select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])')].filter(el=>el.offsetParent!==null);if(!focusable.length)return;const first=focusable[0],last=focusable[focusable.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}});
 const LINK_BUTTONS={
   'tripshock.com':          {label:'🐬 Book Activities in Destin',  bg:'linear-gradient(135deg,#00B4D8,#0096c7)', shadow:'rgba(0,150,200,0.5)'},
   'best-restaurants-destin-local-guide': {label:'🍽️ Local Restaurants Guide',   bg:'linear-gradient(135deg,#E95A2A,#c44a20)', shadow:'rgba(200,80,40,0.4)'},
@@ -145,7 +119,7 @@ function needsLiveScheduleSearch(text){return /\b(events?|concerts?|festivals?|l
 function showTyping(statusText){rmTyping();const el=document.createElement('div');el.className='db-typing'+(statusText?' has-status':'');el.id='db-typing';if(statusText){const label=document.createElement('span');label.className='db-typing-text';label.textContent=statusText;el.appendChild(label);}el.insertAdjacentHTML('beforeend','<span class="db-typing-dot"></span><span class="db-typing-dot"></span><span class="db-typing-dot"></span>');msgs.appendChild(el);msgs.scrollTop=msgs.scrollHeight;}
 function rmTyping(){const t=document.getElementById('db-typing');if(t)t.remove();}
 function startPoll(){if(pollTimer)return;pollTimer=setInterval(async()=>{try{const r=await fetch(`${POLL}?s=${sessionId}&since=${lastSeenTs}&_t=${Date.now()}`);if(!r.ok)return;const d=await r.json();if(d.ozanActive==='TRUE'&&!ozanIsActive){ozanIsActive=true;ozanInvited=false;addNote('🟢 Ozan has joined the chat');}if(d.ozanActive==='FALSE'&&ozanIsActive){ozanIsActive=false;clearInterval(pollTimer);pollTimer=null;addNote('Ozan has left — Destiny Blue is back! 😊');}const nm=(d.messages||[]).filter(m=>m.ts>lastSeenTs&&m.role==='ozan');if(nm.length){nm.forEach(m=>addOzan(m.text));lastSeenTs=Math.max(...nm.map(m=>m.ts));}}catch(e){}},3000);}
-async function sendMsg(){const text=input.value.trim();if(!text||isTyping)return;input.value='';lS.setItem('dbx','1');if(text!=='__popup_open__')addU(text);
+async function sendMsg(){const text=input.value.trim();if(!text||isTyping)return;input.value='';lS.setItem('dbx','1');if(text!=='__popup_open__'){window.dispatchEvent(new CustomEvent('dcg:chat_message'));addU(text);}
 if(ozanIsActive||ozanInvited){try{await fetch(SAPI,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId,text,t:ozanToken||'pending',role:'guest'})});}catch(e){}return;}
 if(text!=='__popup_open__')history.push({role:'user',content:text});sessionStorage.setItem('db_history',JSON.stringify(history));lS.setItem('db_history',JSON.stringify(history));isTyping=true;send.disabled=true;showTyping(needsLiveScheduleSearch(text)?"I’m checking live event and venue schedules now—this can take up to about 45 seconds. Thanks for your patience!":'');
 try{const res=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:history.slice(-20),sessionId,pageSource:sessionStorage.getItem('db_source')||null,sawBanner:sessionStorage.getItem('db_saw_banner')||null,tickerUnit:(()=>{try{const t=sessionStorage.getItem('db_ticker');return t?JSON.parse(t).unit||null:null;}catch(e){return null;}})()} )});const data=await res.json();const reply=data.reply||data.message||"I'm having a little trouble right now — please try again!";
@@ -155,10 +129,6 @@ history.push({role:'assistant',content:reply});sessionStorage.setItem('db_histor
 isTyping=false;send.disabled=false;input.focus();}
 send.addEventListener('click',sendMsg);
 input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();}});
-function dbX(){document.getElementById('db-overlay').classList.remove('show');lS.setItem('dbx','1');}
-function dbGo(){sessionStorage.setItem('db_source','popup');lS.setItem('dbx','1');sessionStorage.removeItem('db_history');history=[];dbX();if(!isOpen)btn.click();setTimeout(function(){isTyping=false;send.disabled=false;if(msgs)msgs.innerHTML='';var i=document.getElementById('db-input');if(i){i.value='__popup_open__';sendMsg();}},500);}
-setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw_banner','1');lS.setItem('db_saw_banner','1');document.getElementById('db-overlay').classList.add('show');},3000);
-
 // -- DEALS TEASER BANNER --
 // DISABLED - replaced by snowbird banner for Nov-Feb season
 // To re-enable: uncomment block below and comment out the snowbird banner
@@ -177,7 +147,7 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
     document.head.appendChild(link);
   }
   var banner = document.createElement('a');
-  banner.href = 'https://deals.destincondogetaways.com/beach-deals';
+  banner.href = '/destin-condo-deals';
   banner.title = 'See current Destin beachfront price drops';
   banner.className = 'hub-banner';
   banner.style.cssText = 'display:block;text-decoration:none;margin:0 0 32px;';
@@ -199,13 +169,13 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
   var propertiesForm = propertyCount.closest('form');
   if(!propertiesForm) return;
   var banner = document.createElement('a');
-  banner.href = 'https://www.destincondogetaways.com/book';
+  banner.href = '/book';
   banner.title = 'Book direct at Pelican Beach Resort Destin FL';
   banner.style.cssText = [
     'display:block;text-decoration:none;margin:0 0 16px;',
     'position:relative;overflow:hidden;border-radius:16px;',
     'min-height:160px;',
-    'background:url(https://destin-concierge-new.vercel.app/book-direct-banner-bg.jpg) 60% center/cover no-repeat;',
+    'background:url(https://destin-concierge-new.vercel.app/book-direct-banner-bg.webp) 60% center/cover no-repeat;',
     'border:1.5px solid rgba(255,209,102,0.4);',
     'box-shadow:0 8px 32px rgba(0,0,0,0.35);'
   ].join('');
@@ -231,13 +201,13 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
   var propertiesForm = propertyCount.closest('form');
   if(!propertiesForm) return;
   var banner = document.createElement('a');
-  banner.href = 'https://sunbirds.destincondogetaways.com';
+  banner.href = '/destin-snowbird-rentals';
   banner.title = 'Winter snowbird stays at Pelican Beach Resort Destin FL';
   banner.style.cssText = [
     'display:block;text-decoration:none;margin:0 0 32px;',
     'position:relative;overflow:hidden;border-radius:16px;',
     'min-height:160px;',
-    'background:url(https://destin-concierge-new.vercel.app/snowbird-banner-bg.jpg) 70% center/cover no-repeat;',
+    'background:url(https://destin-concierge-new.vercel.app/snowbird-banner-bg.webp) 70% center/cover no-repeat;',
     'border:1.5px solid rgba(255,209,102,0.4);',
     'box-shadow:0 8px 32px rgba(0,0,0,0.35);'
   ].join('');
@@ -253,13 +223,15 @@ setTimeout(function(){if(lS.getItem('dbx'))return;sessionStorage.setItem('db_saw
   ].join('');
   propertiesForm.parentNode.insertBefore(banner, propertiesForm);
 })();
-});
+}
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',initDestinyHead,{once:true});
+else initDestinyHead();
 
 // -- RATE DROP TICKER --
 // DISABLED -- causes 32 API calls per page load
 /*
 (function(){
-  const BASE = 'https://destin-concierge-new.vercel.app/api/price-drops';
+  const BASE = '/api/price-drops';
   let dbTickerDragged = false;
 
   // Generate dynamic date windows from today — rolling, never stale

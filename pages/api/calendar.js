@@ -2,26 +2,23 @@
 // Standalone calendar intelligence for Destiny Blue
 // Tests: hit /api/calendar?unit=707&arrival=2026-03-10&departure=2026-03-17
 // No impact on chat.js — delete this file to revert everything
+import { allowSameOriginRequest, enforceJsonSize, enforceRateLimit, parseIsoDate } from '../../lib/public-api-security.js';
 
 const OWNERREZ_USER = "ozan@destincondogetaways.com";
 const UNIT_707_ID   = "293722";
 const UNIT_1006_ID  = "410894";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Fetch all active bookings for a property for next 6 months
+// Fetch active bookings that intersect the requested stay window.
 // Returns array of { arrival, departure } for blocked periods
 // ─────────────────────────────────────────────────────────────────────────────
-async function fetchBookings(propertyId) {
+async function fetchBookings(propertyId, requestedArrival, requestedDeparture) {
   try {
     const apiKey = process.env.OWNERREZ_API_TOKEN;
     if (!apiKey) throw new Error("OWNERREZ_API_TOKEN not set");
 
-    const today = new Date();
-    const sixMonths = new Date();
-    sixMonths.setMonth(sixMonths.getMonth() + 6);
-
-    const since = today.toISOString().split("T")[0];
-    const until = sixMonths.toISOString().split("T")[0];
+    const since = requestedArrival;
+    const until = requestedDeparture;
 
     const url = `https://api.ownerrez.com/v2/bookings?property_ids=${propertyId}&arrival=${since}&departure=${until}&limit=100`;
 
@@ -184,10 +181,9 @@ function detectOrphanDay(bookings, requestedDeparture) {
 // Main handler
 // ─────────────────────────────────────────────────────────────────────────────
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (!allowSameOriginRequest(req, res, { methods: ['GET', 'POST'] })) return;
+  if (req.method === 'POST' && !enforceJsonSize(req, res, 4096)) return;
+  if (!enforceRateLimit(req, res, { scope: 'calendar', limit: 40, windowMs: 10 * 60 * 1000 })) return;
 
   const { arrival, departure } = req.method === "POST" ? req.body : req.query;
 
@@ -195,14 +191,38 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "arrival and departure required" });
   }
 
+  const arrivalDate = parseIsoDate(arrival);
+  const departureDate = parseIsoDate(departure);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  if (!arrivalDate || !departureDate) {
+    return res.status(400).json({ error: "arrival and departure must be valid YYYY-MM-DD dates" });
+  }
+  if (arrivalDate < today) {
+    return res.status(400).json({ error: "arrival must be today or later" });
+  }
+  if (departureDate <= arrivalDate) {
+    return res.status(400).json({ error: "departure must be after arrival" });
+  }
+  const requestedNights = Math.round((departureDate - arrivalDate) / 86400000);
+  const maxFuture = new Date(); maxFuture.setUTCFullYear(maxFuture.getUTCFullYear() + 2);
+  if (requestedNights > 31 || arrivalDate > maxFuture) {
+    return res.status(400).json({ error: "date range is outside the supported window" });
+  }
+
   // Fetch both units in parallel
   const [bookings707, bookings1006] = await Promise.all([
-    fetchBookings(UNIT_707_ID),
-    fetchBookings(UNIT_1006_ID),
+    fetchBookings(UNIT_707_ID, arrival, departure),
+    fetchBookings(UNIT_1006_ID, arrival, departure),
   ]);
 
   const avail707  = analyzeAvailability(bookings707,  arrival, departure);
   const avail1006 = analyzeAvailability(bookings1006, arrival, departure);
+
+  if (avail707.status === "unknown" && avail1006.status === "unknown") {
+    return res.status(503).json({ error: "live availability could not be verified" });
+  }
 
   const orphan707  = avail707.status  === "available" ? detectOrphanDay(bookings707,  departure) : null;
   const orphan1006 = avail1006.status === "available" ? detectOrphanDay(bookings1006, departure) : null;
@@ -214,8 +234,8 @@ export default async function handler(req, res) {
   const both1006 = avail1006.status === "available";
   const part707  = avail707.status  === "partial";
   const part1006 = avail1006.status === "partial";
-  const none707  = avail707.status  === "booked" || avail707.status === "unknown";
-  const none1006 = avail1006.status === "booked" || avail1006.status === "unknown";
+  const none707  = avail707.status  === "booked";
+  const none1006 = avail1006.status === "booked";
 
   if (both707 && both1006) {
     recommendation = "BOTH_AVAILABLE";
@@ -229,8 +249,10 @@ export default async function handler(req, res) {
     recommendation = "ONLY_707_PARTIAL";
   } else if (part1006 && none707) {
     recommendation = "ONLY_1006_PARTIAL";
-  } else {
+  } else if (none707 && none1006) {
     recommendation = "NONE_AVAILABLE";
+  } else {
+    recommendation = "CHECK_INCOMPLETE";
   }
 
   return res.status(200).json({

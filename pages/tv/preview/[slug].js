@@ -1,11 +1,21 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.GUESTVIEW_SUPABASE_URL,
-  process.env.GUESTVIEW_SUPABASE_SERVICE_ROLE_KEY
-);
+function getSupabaseClient() {
+  const url = process.env.GUESTVIEW_SUPABASE_URL;
+  const serviceRoleKey = process.env.GUESTVIEW_SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!url || !serviceRoleKey) return null;
+
+  return createClient(url, serviceRoleKey);
+}
 
 export async function getServerSideProps({ params }) {
+  const supabase = getSupabaseClient();
+  if (!supabase) {
+    console.error('TV preview is unavailable because its database configuration is missing.');
+    return { notFound: true };
+  }
+
   const { slug } = params;
   try {
     const { data: unit } = await supabase

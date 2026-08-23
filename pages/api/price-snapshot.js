@@ -1,6 +1,6 @@
 // pages/api/price-snapshot.js
 // Pulls PriceLabs prices for both units (today → Dec 31) and upserts into Supabase
-// Called by: Vercel cron (midnight CST) + "lets go mf" secret trigger in chat.js
+// Called only by the authenticated Vercel cron (midnight CST).
 
 import { createClient } from '@supabase/supabase-js';
 
@@ -13,21 +13,29 @@ const LISTINGS = {
   '1006': { id: '410894', pms: 'ownerrez' },
 };
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_GUESTVIEW_SUPABASE_URL,
-  process.env.GUESTVIEW_SUPABASE_SERVICE_ROLE_KEY
-);
-
 export default async function handler(req, res) {
   // Allow cron (GET with secret header) or internal POST with secret
   const authHeader = req.headers['x-cron-secret'] || req.headers['authorization'];
-  const isAuthorized = authHeader === CRON_SECRET || authHeader === `Bearer ${CRON_SECRET}`;
+  // Fail closed when CRON_SECRET is absent. Without this guard, an absent
+  // header and absent environment variable both evaluate to `undefined`.
+  const isAuthorized = Boolean(
+    CRON_SECRET &&
+    authHeader &&
+    (authHeader === CRON_SECRET || authHeader === `Bearer ${CRON_SECRET}`)
+  );
 
   if (!isAuthorized) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
   try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_GUESTVIEW_SUPABASE_URL;
+    const supabaseServiceKey = process.env.GUESTVIEW_SUPABASE_SERVICE_ROLE_KEY;
+    if (!PRICELABS_API_KEY || !supabaseUrl || !supabaseServiceKey) {
+      return res.status(503).json({ error: 'Snapshot service is not configured' });
+    }
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
     const today = new Date();
     const start_date = today.toISOString().split('T')[0];
     const end_date = `${today.getFullYear()}-12-31`;

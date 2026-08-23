@@ -192,7 +192,7 @@ const BLOG_URLS = {
   explore:      "https://www.destincondogetaways.com/blog/destinexplore",
   fireworks:    "https://www.destincondogetaways.com/blog/destin-fireworks-2026",
   besttime:     "https://www.destincondogetaways.com/blog/best-time-to-visit-destin-florida",
-  itinerary:    "https://www.destincondogetaways.com/destin-vacation-itinerary-planner-574049367",
+  itinerary:    "https://www.destincondogetaways.com/destin-vacation-itinerary-planner",
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1849,7 +1849,7 @@ Examples:
       // ── Canada (common origins) ──
       toronto:"YYZ", montreal:"YUL", vancouver:"YVR", calgary:"YYC", ottawa:"YOW"
     };
-    
+
     // Valid origin IATA codes we accept when a guest types a bare code.
     // Whitelisting prevents random 3-letter words ("BTW", "ANY", "THE")
     // from being silently misread as an airport — the failure mode where a
@@ -1861,7 +1861,7 @@ Examples:
       "IAD","JFK","ORD","SFO","IAH","DFW","SLC","PDX","SAN","SMF","MKE","BUF","MSY",
       "MCO","TPA","FLL","PBI","RSW","SRQ","JAX","VPS","ECP","PNS","BHM","HSV","MOB"
     ]);
-    
+
     const extractOrigin = (text) => {
       const lower = text.toLowerCase();
       // 1) City names FIRST — longest key first so "kansas city" beats "kansas",
@@ -1882,9 +1882,9 @@ Examples:
       }
       return null;
     };
-    
-    
-    
+
+
+
     const flightOffered = messages.some(m => m.role === "assistant" && m.content && (m.content.includes("flying from") || m.content.includes("aviasales.com") || m.content.includes("Search Flights")));
     const flightLink = (dates && dates.arrival && dates.departure && adults) ? true : false;
 
@@ -2256,34 +2256,6 @@ Example tone (do NOT copy verbatim — vary naturally):
     if (!alertWasFired && stillStuckCode) {
       sendEmergencyDiscord(lastUser, sessionId, "🔐 Guest still cannot find door code");
       alertWasFired = true;
-    }
-
-    // ── SECRET OWNER TRIGGER — "lets go mf" forces fresh price snapshot ────────
-    if (/lets\s+go\s+mf/i.test(lastUser)) {
-      try {
-        const snapRes = await fetch(`https://destin-concierge-new.vercel.app/api/price-snapshot`, {
-          method: 'GET',
-          headers: { 'x-cron-secret': process.env.CRON_SECRET }
-        });
-        const snapData = await snapRes.json();
-        // Force immediate ISR rebuild of beach-deals so stamps appear right away
-        if (snapData.success) {
-          try {
-            await fetch(`https://deals.destincondogetaways.com/api/revalidate-deals`, {
-              method: 'POST',
-              headers: { 'x-revalidate-secret': process.env.CRON_SECRET }
-            });
-          } catch (e) {
-            console.error('[REVALIDATE] beach-deals revalidation failed:', e.message);
-          }
-        }
-        const snapReply = snapData.success
-          ? `✅ Price snapshot complete — saved ${snapData.saved} rows for ${snapData.captured_date}. Beach deals page refreshed. 💾`
-          : `⚠️ Snapshot ran but something felt off: ${snapData.error || 'unknown error'}`;
-        return res.status(200).json({ reply: snapReply, alertSent: false, pendingRelay: false, ozanAcked: false, ozanAckType: null, detectedIntent: 'INFO' });
-      } catch (e) {
-        return res.status(200).json({ reply: `⚠️ Snapshot failed: ${e.message}`, alertSent: false, pendingRelay: false, ozanAcked: false, ozanAckType: null, detectedIntent: 'INFO' });
-      }
     }
 
     // ── @ozan — guest wants direct chat with Ozan ─────────────────────────────
@@ -2971,7 +2943,7 @@ WEATHER DATA UNAVAILABLE: Real-time weather could not be fetched. Do NOT guess o
       // TripShock context always set — blog content is bonus, not required
       blogContext = `\n\nACTIVITIES REQUEST: Guest is asking about things to do, tours, or activities in Destin.\n${blogResult ? `LIVE BLOG CONTENT: ${blogResult.content}\nBlog link: ${blogResult.url}\n\n` : ""}TRIPSHOCK BOOKING:\n${tsCategory ? `- Specific activity detected (${tsCategory}): send this pre-filtered link: ${tsLink}` : `- No specific activity detected: send general link: ${tsGeneral}`}\n- ONE TripShock link only — never repeat it\n- Present naturally: write a casual sentence naming the activity, then paste the exact link provided above. NEVER write bracket placeholders like [activity] or [link] — only real URLs given in this context.\n\nCRITICAL RULES:\n- NEVER use the word "affiliate"\n- Prices are identical to booking direct — never imply otherwise\n- NEVER connect to DESTINY discount code — completely separate\n- If availability context is also present: answer the activity question FIRST, then add availability as a P.S. — never lead with booking links when guest asked about activities\n- Keep it casual and helpful, not salesy`;
     } else if (blogTopic === "itinerary") {
-      blogContext = `\n\nITINERARY REQUEST: Guest wants help planning their Destin trip. Send them straight to the Trip Planner with curiosity and excitement — NO questions, NO friction, just drop the link and let them explore.\n\nTone: make it sound like you're sending them to something cool they'll want to click. Like a friend saying "oh you HAVE to try this." Tease what it does without over-explaining.\n\nExample vibe (GPT should rephrase naturally): "Oh I've got something for this 👀 — we built an AI Trip Planner specifically for Destin. Pick your dates, your vibe, and it builds your whole itinerary. Worth a look: https://www.destincondogetaways.com/destin-vacation-itinerary-planner-574049367"\n\nCRITICAL RULES:\n- Drop the link immediately — do NOT ask questions first\n- No "Great news" opener — lead with curiosity/intrigue\n- Plain text URL, no markdown\n- Do NOT build the itinerary yourself — that's the planner's job`;
+      blogContext = `\n\nITINERARY REQUEST: Guest wants help planning their Destin trip. Send them straight to the Trip Planner with curiosity and excitement — NO questions, NO friction, just drop the link and let them explore.\n\nTone: make it sound like you're sending them to something cool they'll want to click. Like a friend saying "oh you HAVE to try this." Tease what it does without over-explaining.\n\nExample vibe (GPT should rephrase naturally): "Oh I've got something for this 👀 — we built an AI Trip Planner specifically for Destin. Pick your dates, your vibe, and it builds your whole itinerary. Worth a look: https://www.destincondogetaways.com/destin-vacation-itinerary-planner"\n\nCRITICAL RULES:\n- Drop the link immediately — do NOT ask questions first\n- No "Great news" opener — lead with curiosity/intrigue\n- Plain text URL, no markdown\n- Do NOT build the itinerary yourself — that's the planner's job`;
     } else if (blogTopic) {
       const blogResult = await fetchBlogContent(blogTopic);
       if (blogResult) {
@@ -3117,7 +3089,7 @@ AMENITIES ACCURACY RULE:
 ⚠️ CRITICAL INSTRUCTION — READ FIRST:
 Every single response MUST end with this exact line: INTENT: [MAINTENANCE or EMERGENCY or INFO]
 - INTENT: MAINTENANCE → guest is reporting something broken RIGHT NOW ("AC not cooling", "no water", "water pressure low", "TV not working", "toilet clogged", "Cox not working", "leak", "smell", "noise from unit")
-- INTENT: EMERGENCY → guest cannot enter unit or safety risk ("locked out", "door code not working", "flooding", "gas smell")  
+- INTENT: EMERGENCY → guest cannot enter unit or safety risk ("locked out", "door code not working", "flooding", "gas smell")
 - INTENT: INFO → everything else including any QUESTION about amenities ("is the AC good?", "do you have cable?", "what time is check-in?")
 KEY: Guest REPORTING a problem = MAINTENANCE. Guest ASKING a question = INFO.
 This line is mandatory. Never omit it. It must be the absolute last line of your response.
@@ -3150,7 +3122,7 @@ LDV BEACH SERVICE: When guests ask about renting beach chairs, umbrellas, kayaks
 UNIT 707 — 7th floor — Classic Coastal Vibe
 Bright, classic coastal style with beachy artwork and warm cozy atmosphere. Open living area with recliner, sofa queen pull-out, large smart TV. Updated kitchen with granite counters, stainless appliances, full cookware. Hamilton Beach FlexBrew coffee maker (compatible with K-Cup pods, single-serve pods, or ground coffee + full 12-cup carafe), air fryer, wireless phone charger. King bedroom + hallway bunk beds.
 
-UNIT 1006 — 10th floor — Fresh Coastal Vibe  
+UNIT 1006 — 10th floor — Fresh Coastal Vibe
 Fresh coastal feel with turquoise and sea-glass color pops, lighter finishes, bright and airy. Two smart TVs, sleeper sofa, hallway bunk beds. Same kitchen setup: Hamilton Beach FlexBrew, air fryer, wireless phone charger. WiFi smart lock entry.
 
 BOTH UNITS HAVE IDENTICAL AMENITIES — only floor level and decor style differ.

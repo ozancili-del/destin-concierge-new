@@ -230,7 +230,7 @@
       {
         "@type": "LocationFeatureSpecification",
         "name": "poolType",
-        "value": "Free"
+        "value": "Outdoor"
       }
     ],
     "bed": [
@@ -248,7 +248,7 @@
     "floorSize": {
       "@type": "QuantitativeValue",
       "value": 873.0,
-      "UnitCode": "SQFT"
+      "unitCode": "SQFT"
     }
   },
   "name": "Pelican Beach Resort Unit 707",
@@ -263,7 +263,7 @@
     "ratingValue": 4.93,
     "reviewCount": 136,
     "bestRating": 5,
-    "worstRating": 0
+    "worstRating": 1
   },
   "checkinTime": "16:00:00-04:00",
   "checkoutTime": "10:00:00-04:00",

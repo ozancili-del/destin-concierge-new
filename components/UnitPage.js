@@ -55,14 +55,19 @@ export default function UnitPage({ unit }) {
   const virtualTourUrl = String(unit.number) === "707"
     ? "https://kuula.co/share/collection/7Xtss?logo=0&info=0&fs=1&vr=1&sd=1&initload=0&autorotate=-0.47&autopalt=1&thumbs=1"
     : "https://kuula.co/share/collection/7XtwX?logo=0&info=0&fs=1&vr=1&sd=1&initload=0&autorotate=-0.47&autopalt=1&thumbs=1";
-  const reviewSchema = unit.reviews.map((review) => ({ "@type": "Review", author: { "@type": "Person", name: review.name }, reviewRating: { "@type": "Rating", ratingValue: 5, bestRating: 5 }, reviewBody: review.text }));
-  const imageSchema = photos.map((url, index) => ({ "@type": "ImageObject", contentUrl: url, url, caption: photoDescription(unit, index), name: photoDescription(unit, index) }));
+  // Keep structured data limited to facts we can verify. The visible guest
+  // excerpts only identify the stay month, not an exact publication date, so
+  // aggregateRating is retained and individual Review objects are omitted.
+  const imageSchema = photos.map((url, index) => {
+    const absoluteUrl = url.startsWith("http") ? url : `${liveSite}${url}`;
+    return { "@type": "ImageObject", contentUrl: absoluteUrl, url: absoluteUrl, caption: photoDescription(unit, index), name: photoDescription(unit, index) };
+  });
   const rental = {
     ...unit.schema,
     "@id": `${canonical}#rental`,
     url: canonical,
     image: imageSchema,
-    review: reviewSchema,
+    review: undefined,
     address: {
       "@type": "PostalAddress",
       streetAddress: "1002 US-98",
@@ -71,7 +76,7 @@ export default function UnitPage({ unit }) {
       postalCode: "32541",
       addressCountry: "US",
     },
-    geo: { "@type": "GeoCoordinates", latitude: 30.3935, longitude: -86.4958 },
+    geo: { "@type": "GeoCoordinates", latitude: unit.schema.latitude, longitude: unit.schema.longitude },
   };
   const structuredData = { "@context": "https://schema.org", "@graph": [rental,
     { "@type": "WebPage", "@id": `${canonical}#webpage`, url: canonical, name: unit.title, description: rental.description, mainEntity: { "@id": `${canonical}#rental` } },

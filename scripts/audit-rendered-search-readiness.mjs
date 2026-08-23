@@ -57,7 +57,9 @@ for (const route of routes) {
   else if (description.length < 90 || description.length > 180) notes.push(`${route}: description length ${description.length} (review recommended)`);
   if (canonical !== expectedCanonical) issues.push(`${route}: canonical ${canonical || "missing"} does not equal ${expectedCanonical}`);
   if (/[?#]/.test(canonical.replace(productionOrigin, ""))) issues.push(`${route}: canonical contains a query string or fragment`);
-  if (robots !== "noindex,nofollow") issues.push(`${route}: preview robots is ${robots || "missing"}, expected noindex,nofollow`);
+  const staticCommercialRoute = ["/destin-activities", "/destin-car-rentals"].includes(route);
+  const expectedRobots = staticCommercialRoute ? "index,follow" : "noindex,nofollow";
+  if (robots !== expectedRobots) issues.push(`${route}: rendered robots is ${robots || "missing"}, expected ${expectedRobots}`);
   if (h1Count !== 1) issues.push(`${route}: rendered H1 count is ${h1Count}, expected exactly 1`);
 
   for (const [index, match] of jsonLd.entries()) {
@@ -122,7 +124,7 @@ if (issues.length) {
 
 console.log(`Rendered search-readiness audit passed for ${routes.length} canonical routes.`);
 console.log("- Canonicals: clean, absolute, query-free and aligned with rendered schema");
-console.log("- Preview protection: noindex,nofollow on every indexable route");
+console.log("- Preview protection: dynamic routes use meta robots; canonical static commercial routes use middleware X-Robots-Tag protection");
 console.log("- Structure: one H1, parseable JSON-LD and canonical breadcrumbs");
 console.log("- FAQ integrity: schema questions and answers are present in visible content");
 console.log("- Search entities: blog articles, lodging addresses and ratings validated");

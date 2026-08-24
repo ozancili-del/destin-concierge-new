@@ -86,8 +86,12 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'maximum occupancy is 6 guests' });
   }
 
+  let stage = 'configuration';
   try {
+    ownerRezHeaders();
+    stage = 'listing-site';
     const listingSiteId = await findWebsiteListingSiteId();
+    stage = 'quote';
     const quote = await fetchJson(`${OWNERREZ_BASE}/quotes`, {
       method: 'POST',
       body: JSON.stringify({
@@ -120,9 +124,17 @@ export default async function handler(req, res) {
     });
   } catch (error) {
     console.error('OwnerRez quote probe failed:', error.message, error.details || '');
+    const reason = error.message === 'OWNERREZ_API_TOKEN is not configured'
+      ? 'configuration-missing'
+      : error.message === 'OwnerRez My Website listing source was not found'
+        ? 'listing-site-not-found'
+        : Number.isInteger(error.status)
+          ? `ownerrez-http-${error.status}`
+          : 'ownerrez-request-failed';
     return res.status(503).json({
       error: 'OwnerRez quote could not be generated',
       fallback: 'manual-estimate',
+      diagnostic: { stage, reason },
     });
   }
 }

@@ -2,161 +2,125 @@ import Head from "next/head";
 import Image from "next/image";
 import Script from "next/script";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
-import AvailabilitySearch from "../components/AvailabilitySearch";
+import { useEffect, useMemo, useState } from "react";
+import AvailabilityCalendar from "../components/AvailabilityCalendar";
 import SiteButton from "../components/SiteButton";
 import SiteFooter from "../components/SiteFooter";
 import SiteHeader from "../components/SiteHeader";
 import styles from "../styles/AvailabilityPage.module.css";
 
 const liveSite = "https://www.destincondogetaways.com";
-const calendarWidgetId = "91953f0c6e014ff585bffa8e87bad76e";
-
-const condos = [
-  { number: "707", label: "Classic Coastal · Seventh floor", href: "/pelican-beach-resort-unit-707", image: "/hub-beaches.webp", alt: "Gulf-front view from Pelican Beach Resort Unit 707" },
-  { number: "1006", label: "Fresh Coastal · Tenth floor", href: "/pelican-beach-resort-unit-1006", image: "/hub-beachcam.webp", alt: "Gulf-front setting of Pelican Beach Resort Unit 1006" },
-];
-
-function parseStayDate(value) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
-  const date = new Date(`${value}T12:00:00`);
-  if (Number.isNaN(date.getTime())) return null;
-  const [year, month, day] = value.split("-").map(Number);
-  return date.getFullYear() === year && date.getMonth() + 1 === month && date.getDate() === day ? date : null;
-}
-
-function validateSearch({ arrival, departure, adults, children, totalGuests }) {
-  const arrivalDate = parseStayDate(arrival);
-  const departureDate = parseStayDate(departure);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  if (!arrival || !departure) return "Choose both check-in and checkout dates.";
-  if (!arrivalDate || !departureDate) return "Choose valid check-in and checkout dates.";
-  if (arrivalDate < today) return "Check-in must be today or later.";
-  if (departureDate <= arrivalDate) return "Checkout must be after check-in.";
-  if (!Number.isInteger(adults) || adults < 1) return "Choose at least one adult.";
-  if (!Number.isInteger(children) || children < 0) return "Choose a valid number of children and infants.";
-  if (!Number.isInteger(totalGuests) || totalGuests !== adults + children) return "The guest count does not match the adults and children selected. Please search again.";
-  if (totalGuests > 6) return "Each condo accommodates a maximum of six people, including infants.";
-  return "";
-}
+const condos = {
+  "707": { label: "Classic Coastal · Seventh floor", href: "/pelican-beach-resort-unit-707", image: "/hub-beaches.webp", alt: "Gulf-front balcony view from Pelican Beach Resort Unit 707" },
+  "1006": { label: "Fresh Coastal · Tenth floor", href: "/pelican-beach-resort-unit-1006", image: "/hub-beachcam.webp", alt: "Panoramic Gulf view from Pelican Beach Resort Unit 1006" },
+};
+const money = value => Number(value).toLocaleString("en-US", { style: "currency", currency: "USD" });
+const nightsBetween = (arrival, departure) => arrival && departure ? Math.round((new Date(`${departure}T12:00:00`) - new Date(`${arrival}T12:00:00`)) / 86400000) : 0;
+function monthOffset(year, month, amount) { const date = new Date(year, month + amount, 1); return { year: date.getFullYear(), month: date.getMonth() }; }
 
 export default function AvailabilityPage() {
   const router = useRouter();
-  const arrival = typeof router.query.or_arrival === "string" ? router.query.or_arrival : "";
-  const departure = typeof router.query.or_departure === "string" ? router.query.or_departure : "";
-  const adults = Number.parseInt(router.query.or_adults, 10);
-  const children = Number.parseInt(router.query.or_children, 10);
-  const totalGuests = Number.parseInt(router.query.or_guests, 10);
-  const hasSearchInputs = Boolean(arrival || departure || router.query.or_adults || router.query.or_children || router.query.or_guests);
-  const validationError = hasSearchInputs ? validateSearch({ arrival, departure, adults, children, totalGuests }) : "";
-  const hasValidSearch = hasSearchInputs && !validationError;
-  const [liveResults, setLiveResults] = useState(null);
-  const [resultsError, setResultsError] = useState("");
-  const [showChangeSearch, setShowChangeSearch] = useState(false);
+  const today = new Date();
+  const [unit, setUnit] = useState(router.query.unit === "1006" ? "1006" : "707");
+  const [arrival, setArrival] = useState(/^\d{4}-\d{2}-\d{2}$/.test(router.query.or_arrival || "") ? router.query.or_arrival : "");
+  const [departure, setDeparture] = useState(/^\d{4}-\d{2}-\d{2}$/.test(router.query.or_departure || "") ? router.query.or_departure : "");
+  const [adults, setAdults] = useState(Math.max(1, Math.min(6, Number.parseInt(router.query.or_adults, 10) || Number.parseInt(router.query.or_guests, 10) || 2)));
+  const [children, setChildren] = useState(Math.max(0, Math.min(5, Number.parseInt(router.query.or_children, 10) || 0)));
+  const [infants, setInfants] = useState(0);
+  const [calendar, setCalendar] = useState({ booked: [], covered: [], rates: {}, minStays: {} });
+  const [calendarStatus, setCalendarStatus] = useState("loading");
+  const [calendarError, setCalendarError] = useState("");
+  const [selectionError, setSelectionError] = useState("");
+  const [quote, setQuote] = useState(null);
+  const [quoteStatus, setQuoteStatus] = useState("idle");
+  const [quoteError, setQuoteError] = useState("");
+  const [visibleYear, setVisibleYear] = useState(today.getFullYear());
+  const [visibleMonth, setVisibleMonth] = useState(today.getMonth());
+  const totalGuests = adults + children + infants;
+  const nights = nightsBetween(arrival, departure);
+  const availableMonths = useMemo(() => [...new Set(calendar.covered.map(date => date.slice(0, 7)))].sort(), [calendar.covered]);
+  const currentMonthKey = `${visibleYear}-${String(visibleMonth + 1).padStart(2, "0")}`;
+  const secondMonth = monthOffset(visibleYear, visibleMonth, 1);
+  const condo = condos[unit];
 
   useEffect(() => {
-    if (!hasValidSearch) {
-      setLiveResults(null);
-      setResultsError("");
-      return;
-    }
+    if (!router.isReady) return;
+    const queryAdults = Number.parseInt(router.query.or_adults, 10);
+    const queryChildren = Number.parseInt(router.query.or_children, 10);
+    const queryGuests = Number.parseInt(router.query.or_guests, 10);
+    if (/^\d{4}-\d{2}-\d{2}$/.test(router.query.or_arrival || "")) setArrival(router.query.or_arrival);
+    if (/^\d{4}-\d{2}-\d{2}$/.test(router.query.or_departure || "")) setDeparture(router.query.or_departure);
+    if (router.query.unit === "707" || router.query.unit === "1006") setUnit(router.query.unit);
+    if (Number.isFinite(queryAdults)) setAdults(Math.max(1, Math.min(6, queryAdults)));
+    else if (Number.isFinite(queryGuests)) setAdults(Math.max(1, Math.min(6, queryGuests)));
+    if (Number.isFinite(queryChildren)) setChildren(Math.max(0, Math.min(5, queryChildren)));
+  }, [router.isReady, router.query.unit, router.query.or_arrival, router.query.or_departure, router.query.or_adults, router.query.or_children, router.query.or_guests]);
+
+  useEffect(() => {
     const controller = new AbortController();
-    setLiveResults(null);
-    setResultsError("");
-    fetch(`/api/calendar?arrival=${encodeURIComponent(arrival)}&departure=${encodeURIComponent(departure)}`, { signal: controller.signal })
-      .then((response) => {
-        if (!response.ok) throw new Error("Availability could not be checked");
-        return response.json();
+    setCalendarStatus("loading"); setCalendarError(""); setSelectionError(""); setQuote(null); setQuoteStatus("idle");
+    fetch(`/api/availability?unit=${unit}`, { signal: controller.signal })
+      .then(async response => { const data = await response.json(); if (!response.ok || data.status !== "ok") throw new Error(data.error || "Calendar unavailable"); return data; })
+      .then(data => {
+        const covered = [...(data.covered || [])].sort();
+        setCalendar({ booked: data.booked || [], covered, rates: data.rates || {}, minStays: data.minStays || {} });
+        setCalendarStatus("ready");
+        if (covered.length && !covered.some(date => date.startsWith(currentMonthKey))) { const [year, month] = covered[0].split("-").map(Number); setVisibleYear(year); setVisibleMonth(month - 1); }
       })
-      .then(setLiveResults)
-      .catch((error) => {
-        if (error.name !== "AbortError") setResultsError("Live availability could not be loaded. Please try the search again.");
-      });
+      .catch(error => { if (error.name !== "AbortError") { setCalendarStatus("error"); setCalendarError("Live dates are refreshing. Please try again shortly or continue to the secure condo page."); } });
     return () => controller.abort();
-  }, [arrival, departure, hasValidSearch]);
+  }, [unit]);
 
-  const bookingQuery = new URLSearchParams({
-    or_arrival: arrival,
-    or_departure: departure,
-    or_adults: String(Number.isFinite(adults) ? adults : 2),
-    or_children: String(Number.isFinite(children) ? children : 0),
-    or_guests: String(totalGuests),
-  }).toString();
-  const availableCondos = liveResults ? condos.filter((condo) => liveResults[`unit${condo.number}`]?.status === "available") : [];
-  const unknownCondos = liveResults ? condos.filter((condo) => liveResults[`unit${condo.number}`]?.status === "unknown") : [];
+  useEffect(() => {
+    setQuote(null); setQuoteError("");
+    if (!arrival || !departure || nights < 1 || totalGuests < 1 || totalGuests > 6) { setQuoteStatus("idle"); return undefined; }
+    const controller = new AbortController(); setQuoteStatus("loading");
+    const timer = window.setTimeout(() => {
+      fetch("/api/ownerrez-quote", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ unit, arrival, departure, adults, children, infants }), signal: controller.signal })
+        .then(async response => { const data = await response.json(); if (!response.ok || data.source !== "ownerrez-test-quote") throw new Error(data.error || "Quote unavailable"); return data; })
+        .then(data => { setQuote(data); setQuoteStatus("ready"); })
+        .catch(error => { if (error.name !== "AbortError") { setQuoteStatus("error"); setQuoteError("The live total could not be verified for this stay. Adjust the dates or review the secure condo checkout."); } });
+    }, 450);
+    return () => { window.clearTimeout(timer); controller.abort(); };
+  }, [unit, arrival, departure, adults, children, infants, nights, totalGuests]);
 
-  const displayDate = (value) => {
-    if (!value) return "";
-    const date = new Date(`${value}T12:00:00`);
-    return Number.isNaN(date.getTime()) ? value : new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(date);
-  };
-  const structuredData = {
-    "@context": "https://schema.org",
-    "@graph": [
-      { "@type": "WebPage", "@id": `${liveSite}/availability#webpage`, url: `${liveSite}/availability`, name: "Destin Condo Availability at Pelican Beach Resort", description: "Check live availability for owner-managed Gulf-front condos at Pelican Beach Resort in Destin, Florida.", isPartOf: { "@id": `${liveSite}/#website` }, about: { "@id": `${liveSite}/#business` } },
-      { "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Home", item: liveSite }, { "@type": "ListItem", position: 2, name: "Availability", item: `${liveSite}/availability` }] },
-    ],
-  };
+  function selectDate(date) {
+    setSelectionError("");
+    if (!arrival || departure || date <= arrival) { setArrival(date); setDeparture(""); return; }
+    const blocked = calendar.booked.some(bookedDate => bookedDate >= arrival && bookedDate < date);
+    let cursor = new Date(`${arrival}T12:00:00`); const end = new Date(`${date}T12:00:00`); let uncovered = false;
+    while (cursor < end) { if (!calendar.covered.includes(cursor.toISOString().slice(0, 10))) { uncovered = true; break; } cursor.setDate(cursor.getDate() + 1); }
+    const minimum = Math.max(1, Number(calendar.minStays[arrival]) || 1);
+    if (blocked || uncovered) { setSelectionError(blocked ? "That stay crosses a booked night. Choose an earlier checkout date." : "Every night in that stay could not be confirmed. Choose another range."); return; }
+    if (nightsBetween(arrival, date) < minimum) { setSelectionError(`A ${minimum}-night minimum applies to that check-in date. Choose a later checkout date.`); return; }
+    setDeparture(date);
+  }
+  function navigateMonths(amount) { const next = monthOffset(visibleYear, visibleMonth, amount); setVisibleYear(next.year); setVisibleMonth(next.month); }
+  function changeUnit(nextUnit) { setUnit(nextUnit); setArrival(""); setDeparture(""); }
+
+  const firstMonth = availableMonths[0] || "";
+  const lastMonth = availableMonths[availableMonths.length - 1] || "";
+  const canGoPrevious = currentMonthKey > firstMonth;
+  const canGoNext = currentMonthKey < lastMonth;
+  const bookingQuery = new URLSearchParams({ or_arrival: arrival, or_departure: departure, or_adults: String(adults), or_children: String(children + infants), or_guests: String(totalGuests) }).toString();
+  const checkoutHref = `${condo.href}?${bookingQuery}#checkout`;
+  const calendarProps = { arrival, departure, bookedDates: calendar.booked, coveredDates: calendar.covered, rates: calendar.rates, availableMonths, onSelect: selectDate, onNav: navigateMonths, onJump: (year, month) => { setVisibleYear(year); setVisibleMonth(month); }, canGoPrevious, canGoNext };
+  const structuredData = { "@context": "https://schema.org", "@graph": [{ "@type": "WebPage", "@id": `${liveSite}/availability#webpage`, url: `${liveSite}/availability`, name: "Destin Condo Availability at Pelican Beach Resort", description: "Check live availability and exact direct-booking totals for Gulf-front condos at Pelican Beach Resort in Destin, Florida.", isPartOf: { "@id": `${liveSite}/#website` }, about: { "@id": `${liveSite}/#business` } }, { "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Home", item: liveSite }, { "@type": "ListItem", position: 2, name: "Availability", item: `${liveSite}/availability` }] }] };
 
   return <div className={styles.page}>
-    <Head>
-      <title>Destin Condo Availability | Pelican Beach Resort</title>
-      <meta name="description" content="Check live availability for Gulf-front Pelican Beach Resort condos in Destin. Compare exact condos, then review live pricing and book securely." />
-      <meta name="robots" content={process.env.NEXT_PUBLIC_DEPLOYMENT_ENV === "production" ? "index,follow" : "noindex,nofollow"} />
-      <meta name="viewport" content="width=device-width, initial-scale=1" />
-      <link rel="canonical" href={`${liveSite}/availability`} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
-    </Head>
-
+    <Head><title>Destin Condo Availability | Pelican Beach Resort</title><meta name="description" content="Check live dates and exact direct-booking totals for Gulf-front Pelican Beach Resort condos in Destin, including rent, discounts, fees and taxes." /><meta name="robots" content={process.env.NEXT_PUBLIC_DEPLOYMENT_ENV === "production" ? "index,follow" : "noindex,nofollow"} /><meta name="viewport" content="width=device-width, initial-scale=1" /><link rel="canonical" href={`${liveSite}/availability`} /><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} /></Head>
     {process.env.NEXT_PUBLIC_DEPLOYMENT_ENV !== "production" ? <div className={styles.preview}>Preview page | Production remains unchanged</div> : null}
-    <div className={styles.utility}><a href="/destin-condo-rental-reviews">Guest Reviews</a><a href="/guest-guide#faq">FAQ</a><a href="/guest-guide#policies">Policies</a><a href="/about">Contact</a></div>
-    <SiteHeader availabilityHref="#search" />
-
+    <div className={styles.utility}><a href="/destin-condo-rental-reviews">Guest Reviews</a><a href="/guest-guide#faq">FAQ</a><a href="/guest-guide#policies">Policies</a><a href="/about">Contact</a></div><SiteHeader availabilityHref="#live-calendar" />
     <main>
-      <section className={styles.hero}>
-        <div className={styles.heroCopy}><a href="/">Home</a><p className={styles.kicker}>Live Pelican Beach Resort availability</p><h1>Find the Gulf view that fits your dates.</h1><p>Search current calendars, pricing and the secure reservation flow in one place.</p><div className={styles.trust}><span>✓ Live dates</span><span>✓ Exact condo</span><span>✓ Secure checkout</span></div></div>
-        <div className={styles.heroImage}><Image src="/book-direct-banner-bg.webp" alt="Pelican Beach Resort overlooking the Gulf of Mexico in Destin Florida" fill priority sizes="(max-width: 900px) 100vw, 48vw" /></div>
+      <section className={styles.hero}><div className={styles.heroCopy}><a href="/">Home</a><p className={styles.kicker}>Live Pelican Beach Resort availability</p><h1>Choose your condo. See the complete total.</h1><p>Pick a condo, select open dates and enter every guest. The exact direct-booking total comes from the live reservation system before you continue to secure checkout.</p><div className={styles.trust}><span>✓ Live dates</span><span>✓ Exact fees &amp; taxes</span><span>✓ No reservation created</span></div></div><div className={styles.heroImage}><Image src="/book-direct-banner-bg.webp" alt="Pelican Beach Resort overlooking the Gulf of Mexico in Destin Florida" fill priority sizes="(max-width: 900px) 100vw, 48vw" /></div></section>
+      <section className={styles.bookingWorkspace} id="live-calendar">
+        <div className={styles.sectionIntro}><p className={styles.kicker}>Live availability and exact pricing</p><h2>Build your stay in three steps.</h2><p>The calendar displays the established website nightly rate after the automatic direct-booking discount and management fee. The quote below is the authoritative complete total.</p></div>
+        <div className={styles.step}><div className={styles.stepLabel}><span>1</span><div><strong>Choose the exact condo</strong><small>You always know which home you are booking.</small></div></div><div className={styles.unitTabs} role="group" aria-label="Choose condo">{Object.entries(condos).map(([number, data]) => <button type="button" key={number} className={unit === number ? styles.unitActive : ""} aria-pressed={unit === number} onClick={() => changeUnit(number)}><strong>Unit {number}</strong><span>{data.label}</span></button>)}</div></div>
+        <div className={styles.step}><div className={styles.stepLabel}><span>2</span><div><strong>Select check-in and checkout</strong><small>Choose arrival first, then departure. Click the month title to jump.</small></div></div>{calendarStatus === "loading" ? <div className={styles.calendarMessage}>Loading Unit {unit} live dates…</div> : null}{calendarError ? <div className={styles.error}>{calendarError}</div> : null}{calendarStatus === "ready" ? <div className={styles.twoCalendars}><AvailabilityCalendar year={visibleYear} month={visibleMonth} {...calendarProps} /><div className={styles.desktopSecondCalendar}><AvailabilityCalendar year={secondMonth.year} month={secondMonth.month} {...calendarProps} /></div></div> : null}{selectionError ? <p className={styles.selectionError} role="alert">{selectionError}</p> : null}<div className={styles.staySummary}><strong>{arrival || "Choose check-in"}</strong><span>→</span><strong>{departure || "Choose checkout"}</strong>{nights ? <em>{nights} night{nights === 1 ? "" : "s"}</em> : null}</div></div>
+        <div className={styles.step}><div className={styles.stepLabel}><span>3</span><div><strong>Add every guest</strong><small>Maximum six people, including infants.</small></div></div><div className={styles.guestGrid}><label>Adults<select value={adults} onChange={event => setAdults(Number(event.target.value))}>{[1,2,3,4,5,6].map(value => <option key={value}>{value}</option>)}</select></label><label>Children<select value={children} onChange={event => setChildren(Number(event.target.value))}>{[0,1,2,3,4,5].map(value => <option key={value}>{value}</option>)}</select></label><label>Infants<select value={infants} onChange={event => setInfants(Number(event.target.value))}>{[0,1,2,3,4,5].map(value => <option key={value}>{value}</option>)}</select></label></div>{totalGuests > 6 ? <p className={styles.selectionError} role="alert">Maximum occupancy is six guests, including infants.</p> : null}</div>
+        <section className={styles.quotePanel} aria-live="polite"><div className={styles.quoteCondo}><Image src={condo.image} alt={condo.alt} width={260} height={180} /><div><p>{condo.label}</p><h2>Unit {unit}</h2><span>{arrival && departure ? `${arrival} → ${departure} · ${nights} nights · ${totalGuests} guests` : "Choose dates to see the exact complete total."}</span></div></div><div className={styles.quoteDetails}>{quoteStatus === "idle" ? <p className={styles.quotePrompt}>Your exact total will appear here after dates and guests are complete.</p> : null}{quoteStatus === "loading" ? <p className={styles.quotePrompt}>Checking availability, rules, discounts, fees and taxes…</p> : null}{quoteStatus === "error" ? <><p className={styles.selectionError}>{quoteError}</p>{arrival && departure ? <SiteButton href={checkoutHref} variant="secondary">Review secure checkout</SiteButton> : null}</> : null}{quoteStatus === "ready" && quote ? <><p className={styles.quoteVerified}>✓ Live total verified · No reservation or hold created</p><div className={styles.chargeList}>{quote.charges.map((charge, index) => <div key={`${charge.description}-${index}`}><span>{charge.description}</span><strong>{charge.amount < 0 ? `−${money(Math.abs(charge.amount))}` : money(charge.amount)}</strong></div>)}</div><div className={styles.quoteTotal}><span>Complete total</span><strong>{money(quote.total)}</strong></div><SiteButton href={checkoutHref} variant="primary" size="large">Continue to secure booking</SiteButton><small className={styles.quoteFinePrint}>The next page preserves this condo, dates and guest count. Review the controlling policies and total before submitting payment.</small></> : null}</div></section>
       </section>
-
-      <section className={styles.searchSection} id="search">
-        <div className={styles.sectionIntro}><p className={styles.kicker}>{hasValidSearch ? "Live results" : "Start with your stay"}</p><h2>{hasValidSearch ? "Available condos for your dates." : "Check live availability in one search."}</h2><p>{hasValidSearch ? "Choose an available condo below to review its complete total and continue securely." : "Enter your arrival, departure and guest count below. Results come directly from the live reservation calendar."}</p></div>
-        {hasValidSearch && <div className={styles.searchSummary} aria-label="Current availability search">
-          <strong style={{ color: "#087789", fontSize: ".78rem", letterSpacing: ".08em", textTransform: "uppercase" }}>Your search</strong>
-          <span>{displayDate(arrival)} – {displayDate(departure)}</span>
-          <span>{Number.isFinite(adults) ? adults : totalGuests} {Number.isFinite(adults) && adults === 1 ? "adult" : "adults"}</span>
-          <span>{Number.isFinite(children) ? children : 0} children/infants</span>
-          <span>{totalGuests} total {totalGuests === 1 ? "guest" : "guests"}</span>
-          <button type="button" onClick={() => setShowChangeSearch((current) => !current)}>{showChangeSearch ? "Keep these dates" : "Change dates"}</button>
-        </div>}
-        {(!hasValidSearch || showChangeSearch) && <AvailabilitySearch id="availability-form" initialArrival={arrival} initialDeparture={departure} initialAdults={Number.isFinite(adults) ? adults : 2} initialChildren={Number.isFinite(children) ? children : 0} />}
-        {hasSearchInputs && validationError && <div className={styles.liveResults} aria-live="polite"><p className={styles.error}>{validationError}</p></div>}
-        {hasValidSearch && <div className={styles.liveResults} aria-live="polite">
-          {!liveResults && !resultsError && <p className={styles.loading}>Checking both live calendars…</p>}
-          {resultsError && <p className={styles.error}>{resultsError}</p>}
-          {liveResults && unknownCondos.length > 0 && <p className={styles.error}>One live calendar could not be verified. Only confirmed available results are shown; please retry before ruling out the other condo.</p>}
-          {liveResults && availableCondos.length > 0 && <><div className={styles.resultsHeading}><p className={styles.kicker}>Available for your stay</p><h3>Choose a condo to see the complete total.</h3><p>Dates and guest counts will carry into the secure unit checkout.</p></div><div className={styles.resultGrid}>{availableCondos.map((condo) => <article key={condo.number}><div className={styles.resultImage}><Image src={condo.image} alt={condo.alt} fill sizes="(max-width: 760px) 100vw, 50vw" /></div><div><p>{condo.label}</p><h4>Unit {condo.number}</h4><SiteButton href={`${condo.href}?${bookingQuery}#checkout`} variant="primary">See complete total</SiteButton></div></article>)}</div></>}
-          {liveResults && availableCondos.length === 0 && unknownCondos.length === 0 && <div className={styles.resultsHeading}><p className={styles.kicker}>No exact match</p><h3>Neither condo is open for the full date range.</h3><p>Try nearby dates above or ask Live Chat to help find the closest available stay.</p><SiteButton href="/destin-ai-concierge" variant="secondary">Ask Live Chat</SiteButton></div>}
-        </div>}
-        <p className={styles.discount}>Availability is checked live here. The selected unit page shows the complete current total—including rent, fees and taxes—before you reserve.</p>
-      </section>
-
-      <section className={styles.condos}>
-        <div className={styles.sectionIntro}><p className={styles.kicker}>Know exactly where you will stay</p><h2>Compare the condos before checkout.</h2><p>Both are Gulf-front, one-bedroom, two-bath homes at Pelican Beach Resort. Each sleeps up to six people, including infants.</p></div>
-        <div className={styles.condoGrid}>{condos.map((condo) => <article key={condo.number}><div className={styles.cardImage}><Image src={condo.image} alt={condo.alt} fill sizes="(max-width: 760px) 100vw, 50vw" /></div><div><p>{condo.label}</p><h3>Pelican Beach Resort Unit {condo.number}</h3><ul><li>1 bedroom</li><li>2 bathrooms</li><li>Sleeps up to 6</li></ul><SiteButton href={condo.href} variant="secondary">Explore Unit {condo.number}</SiteButton></div></article>)}</div>
-      </section>
-
-      <section className={styles.calendarSection}>
-        <div className={styles.sectionIntro}><p className={styles.kicker}>Calendar view</p><h2>See the broader availability pattern.</h2><p>Use the calendar to compare nearby dates. Select the exact stay in the search above before relying on availability or pricing.</p></div>
-        <div className={styles.calendarShell}><div className="ownerrez-widget" data-widget-type="Ribbon Calendar" data-widgetid={calendarWidgetId}></div></div>
-      </section>
-
-      <section className={styles.finalCta}><div><p className={styles.kickerLight}>Need help choosing?</p><h2>Ask about dates, layouts or the resort.</h2><p>Live Chat can help compare the condos. Secure checkout remains the final source for availability, totals and reservation terms.</p></div><SiteButton href="/destin-ai-concierge" variant="primary" size="large">Open Live Chat</SiteButton></section>
-    </main>
-
-    <SiteFooter />
-    <Script src="https://app.ownerrez.com/widget.js" strategy="afterInteractive" />
-    <Script src="/destiny-loader.js" strategy="lazyOnload" />
+      <section className={styles.condos}><div className={styles.sectionIntro}><p className={styles.kicker}>Compare before you decide</p><h2>Explore both Gulf-front condos.</h2><p>Review every photo, room detail, amenity and guest review before choosing dates.</p></div><div className={styles.condoGrid}>{Object.entries(condos).map(([number, data]) => <article key={number}><div className={styles.cardImage}><Image src={data.image} alt={data.alt} fill sizes="(max-width: 760px) 100vw, 50vw" /></div><div><p>{data.label}</p><h3>Pelican Beach Resort Unit {number}</h3><ul><li>1 bedroom</li><li>2 bathrooms</li><li>Sleeps up to 6</li></ul><SiteButton href={data.href} variant="secondary">Explore Unit {number}</SiteButton></div></article>)}</div></section>
+    </main><SiteFooter /><Script src="/destiny-loader.js" strategy="lazyOnload" />
   </div>;
 }

@@ -1585,7 +1585,7 @@ export default function BeachDeals({ deals }) {
             <a href="/blog/destinairport" className="plan-trip-pill">✈️ Which Airport</a>
             <a href="/blog/how-to-find-cheaper-flights-and-car-rentals" className="plan-trip-pill">🚗 Flights & Car Rentals</a>
             <a href="/blog/destin-fireworks-2026" className="plan-trip-pill">🎆 Fireworks 2026</a>
-            <a href="/blog/destin-events-2026" className="plan-trip-pill">📅 Events 2026</a>
+            <a href="/blog/destin-events" className="plan-trip-pill">📅 Destin events</a>
           </div>
         </div>
 

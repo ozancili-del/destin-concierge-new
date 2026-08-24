@@ -20,7 +20,7 @@ export default function BeachCam({ articleHtml, structuredData }) {
     related={[
       { label: "Conditions", title: "Destin weather and Gulf temperature", href: "/blog/destinweather" },
       { label: "Beaches", title: "Best beaches in Destin", href: "/blog/best-beaches-destin" },
-      { label: "Events", title: "Destin events calendar", href: "/blog/destin-events-2026" },
+      { label: "Events", title: "Destin events calendar", href: "/blog/destin-events" },
       { label: "Resort", title: "Pelican Beach Resort guide", href: "/pelican-beach-resort-destin" },
     ]}
   />;
@@ -56,7 +56,7 @@ export function getStaticProps() {
     .replaceAll("https://www.destincondogetaways.com/destin-live-beach-cam-574002656", "/beach-cam")
     .replaceAll("https://www.destincondogetaways.com/blog/destinweather", "/blog/destinweather")
     .replaceAll("https://www.destincondogetaways.com/blog/best-beaches-destin", "/blog/best-beaches-destin")
-    .replaceAll("https://www.destincondogetaways.com/blog/destin-events-2026", "/blog/destin-events-2026")
+    .replaceAll("https://www.destincondogetaways.com/blog/destin-events-2026", "/blog/destin-events")
     .replaceAll("https://www.destincondogetaways.com/pelican-beach-resort-destin-574048693", "/pelican-beach-resort-destin");
   return { props: { articleHtml, structuredData } };
 }

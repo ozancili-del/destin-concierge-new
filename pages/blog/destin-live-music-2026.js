@@ -70,7 +70,7 @@ export default function DestinLiveMusicGuide() {
         <li><strong>Ticketed show:</strong> buy through the official venue, confirm age rules and leave extra time for traffic.</li>
         <li><strong>Waterfront music:</strong> verify the daily performer, then pair it with the <a href="/blog/best-restaurants-destin">Destin restaurant guide</a>.</li>
         <li><strong>Outdoor event:</strong> check the <a href="/blog/destinweather">weather and Gulf conditions</a> before leaving.</li>
-        <li><strong>Full weekend:</strong> combine music with the <a href="/blog/destin-events-2026">current events calendar</a> and a <a href="/destin-vacation-itinerary-planner">personalized itinerary</a>.</li>
+        <li><strong>Full weekend:</strong> combine music with the <a href="/blog/destin-events">current events calendar</a> and a <a href="/destin-vacation-itinerary-planner">personalized itinerary</a>.</li>
       </ul>
 
       <h2>Stay near the music—and directly on the beach</h2>
@@ -81,7 +81,7 @@ export default function DestinLiveMusicGuide() {
       <p><em>Venue schedules and policies can change. Always use the linked official venue page as the final source.</em></p>
     </>}
     related={[
-      { label: "Events", title: "Destin events still ahead in 2026", href: "/blog/destin-events-2026" },
+      { label: "Events", title: "Destin and Emerald Coast events", href: "/blog/destin-events" },
       { label: "Food", title: "Best Destin restaurants for the same night", href: "/blog/best-restaurants-destin" },
       { label: "Nightlife", title: "Destin nightlife and evening guide", href: "/blog/destinnights" },
       { label: "Stay", title: "Check current beachfront availability", href: "/availability" },

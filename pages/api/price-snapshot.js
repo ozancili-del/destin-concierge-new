@@ -1,5 +1,5 @@
 // pages/api/price-snapshot.js
-// Pulls PriceLabs prices for both units (today → Dec 31) and upserts into Supabase
+// Pulls PriceLabs prices for both units (today → one year ahead) and upserts into Supabase
 // Called only by the authenticated Vercel cron (midnight CST).
 
 import { createClient } from '@supabase/supabase-js';
@@ -38,7 +38,9 @@ export default async function handler(req, res) {
 
     const today = new Date();
     const start_date = today.toISOString().split('T')[0];
-    const end_date = `${today.getFullYear()}-12-31`;
+    const coverageEnd = new Date(today);
+    coverageEnd.setUTCDate(coverageEnd.getUTCDate() + 365);
+    const end_date = coverageEnd.toISOString().split('T')[0];
     const captured_date = start_date;
 
     console.log(`[SNAPSHOT] Pulling prices ${start_date} → ${end_date}`);

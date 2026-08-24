@@ -2,6 +2,8 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import Head from "next/head";
 import ToolFooter from "../components/ToolFooter";
 
+// Historical website estimate. OwnerRez secure checkout remains authoritative.
+// Keep these values until each active OwnerRez surcharge/tax is reconciled.
 const CLEANING = 175;
 const TAX_RATE = 0.13;
 const ADMIN_RATE = 0.03;
@@ -25,7 +27,7 @@ function getNights(ci, co) {
   return Math.round((new Date(co) - new Date(ci)) / 86400000);
 }
 
-function OfferCalendar({ unit, year, month, arrival, departure, bookedDates, rates, onSelect, onNav }) {
+function OfferCalendar({ year, month, arrival, departure, bookedDates, coveredDates, rates, minStays, onSelect, onNav, canGoPrevious, canGoNext }) {
   const today = new Date(); today.setHours(0,0,0,0);
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -42,13 +44,14 @@ function OfferCalendar({ unit, year, month, arrival, departure, bookedDates, rat
   return (
     <div className="cal-card">
       <div className="cal-head">
-        <button className="cal-nav" onClick={() => onNav(-1)}>‹</button>
+        <button type="button" className="cal-nav" aria-label="Previous month" onClick={() => onNav(-1)} disabled={!canGoPrevious}>‹</button>
         <span className="cal-month-label">{MONTHS[month]} {year}</span>
-        <button className="cal-nav" onClick={() => onNav(1)}>›</button>
+        <button type="button" className="cal-nav" aria-label="Next month" onClick={() => onNav(1)} disabled={!canGoNext}>›</button>
       </div>
       <div className="cal-legend">
         <span><i className="legend-dot available-dot" />Open</span>
         <span><i className="legend-dot booked-dot" />Booked</span>
+        <span><i className="legend-dot unconfirmed-dot" />Not confirmed</span>
       </div>
       <div className="cal-grid">
         {["Su","Mo","Tu","We","Th","Fr","Sa"].map(d => <div key={d} className="day-name">{d}</div>)}
@@ -56,21 +59,31 @@ function OfferCalendar({ unit, year, month, arrival, departure, bookedDates, rat
           if (!d) return <div key={`e${i}`} />;
           const dateStr = fmt(d);
           const isPast = new Date(dateStr) < today;
+          const isCovered = coveredDates.includes(dateStr);
           const isBooked = bookedDates.includes(dateStr);
           const isArrival = dateStr === arrival;
           const isDeparture = dateStr === departure;
           const isInRange = arrival && departure && dateStr > arrival && dateStr < departure;
           let cls = "day";
-          if (isPast || isBooked) cls += isBooked ? " booked" : " past";
+          if (isPast || isBooked || !isCovered) cls += isBooked ? " booked" : " past";
           else if (isArrival || isDeparture) cls += " selected";
           else if (isInRange) cls += " in-range";
           else cls += " available";
-          const dayRate = !isPast && !isBooked && rates && rates[dateStr];
+          const dayRate = !isPast && !isBooked && isCovered && rates && rates[dateStr];
           return (
-            <div key={dateStr} className={cls} onClick={() => !(isPast || isBooked) && onSelect(dateStr)}>
+            <button
+              type="button"
+              key={dateStr}
+              className={cls}
+              disabled={isPast || isBooked || !isCovered}
+              aria-label={`${MONTHS[month]} ${d}, ${year}${isBooked ? ", booked" : !isCovered ? ", not confirmed" : dayRate ? `, open, $${dayRate} per night` : ", open"}`}
+              title={!isCovered && !isPast ? "Availability not yet confirmed" : undefined}
+              onClick={() => onSelect(dateStr)}
+            >
               <span className="day-num">{d}</span>
               {dayRate && <span className="day-rate">${dayRate}</span>}
-            </div>
+              {minStays?.[dateStr] > 1 && <span className="day-min">{minStays[dateStr]}n min</span>}
+            </button>
           );
         })}
       </div>
@@ -85,8 +98,11 @@ export default function OfferPage() {
   const [calYear, setCalYear] = useState(new Date().getFullYear());
   const [calMonth, setCalMonth] = useState(new Date().getMonth());
   const [bookedDates, setBookedDates] = useState([]);
+  const [coveredDates, setCoveredDates] = useState([]);
   const [rates, setRates] = useState({});
+  const [minStays, setMinStays] = useState({});
   const [loadingDates, setLoadingDates] = useState(false);
+  const [calendarError, setCalendarError] = useState("");
   const [adults, setAdults] = useState(2);
   const [children, setChildren] = useState(0);
   const [infants, setInfants] = useState(0);
@@ -99,6 +115,14 @@ export default function OfferPage() {
   const totalGuests = adults + children + infants;
   const nights = getNights(arrival, departure);
   const fees = rate && nights > 0 ? calcFees(Number(rate), nights, adults, children) : null;
+  const exactTotalHref = arrival && departure
+    ? `/pelican-beach-resort-unit-${unit}?or_arrival=${encodeURIComponent(arrival)}&or_departure=${encodeURIComponent(departure)}&or_adults=${adults}&or_children=${children}&or_guests=${totalGuests}`
+    : "";
+  const firstCoveredMonth = coveredDates.length ? coveredDates[0].slice(0, 7) : "";
+  const lastCoveredMonth = coveredDates.length ? coveredDates[coveredDates.length - 1].slice(0, 7) : "";
+  const visibleMonth = `${calYear}-${String(calMonth + 1).padStart(2, "0")}`;
+  const canGoPrevious = Boolean(firstCoveredMonth && visibleMonth > firstCoveredMonth);
+  const canGoNext = Boolean(lastCoveredMonth && visibleMonth < lastCoveredMonth);
 
   useEffect(() => {
     function handleScroll() {
@@ -111,24 +135,56 @@ export default function OfferPage() {
 
   useEffect(() => {
     setLoadingDates(true);
+    setCalendarError("");
+    setBookedDates([]);
+    setCoveredDates([]);
+    setRates({});
+    setMinStays({});
     fetch(`/api/availability?unit=${unit}`)
-      .then(r => r.json())
-      .then(d => { setBookedDates(d.booked || []); setRates(d.rates || {}); })
-      .catch(() => setBookedDates([]))
+      .then(async r => {
+        const data = await r.json();
+        if (!r.ok || data.status !== "ok") throw new Error(data.error || "Availability could not be verified");
+        return data;
+      })
+      .then(d => { setBookedDates(d.booked); setCoveredDates(d.covered); setRates(d.rates); setMinStays(d.minStays || {}); })
+      .catch(() => setCalendarError("Availability cannot be verified right now. No dates have been shown as open."))
       .finally(() => setLoadingDates(false));
     setArrival(""); setDeparture("");
   }, [unit]);
 
   function handleCalSelect(dateStr) {
+    setCalendarError("");
     if (!arrival || (arrival && departure)) {
       setArrival(dateStr); setDeparture("");
     } else {
-      if (dateStr > arrival) setDeparture(dateStr);
+      if (dateStr > arrival) {
+        const selectedNights = getNights(arrival, dateStr);
+        const requiredNights = Math.max(1, Number(minStays[arrival]) || 1);
+        if (selectedNights < requiredNights) {
+          setDeparture("");
+          setCalendarError(`A ${requiredNights}-night minimum applies to that check-in date.`);
+          return;
+        }
+        const blockedInsideRange = bookedDates.some(date => date >= arrival && date < dateStr);
+        const uncoveredInsideRange = coveredDates.some(Boolean) && (() => {
+          for (let date = new Date(`${arrival}T12:00:00`); date < new Date(`${dateStr}T12:00:00`); date.setDate(date.getDate() + 1)) {
+            if (!coveredDates.includes(date.toISOString().slice(0, 10))) return true;
+          }
+          return false;
+        })();
+        if (blockedInsideRange || uncoveredInsideRange) {
+          setDeparture("");
+          setCalendarError(blockedInsideRange ? "That stay crosses a booked night. Choose a checkout date before the blocked date." : "Every night in that stay could not be verified. Choose another range.");
+          return;
+        }
+        setDeparture(dateStr);
+      }
       else { setArrival(dateStr); setDeparture(""); }
     }
   }
 
   function handleNav(dir) {
+    if ((dir < 0 && !canGoPrevious) || (dir > 0 && !canGoNext)) return;
     let m = calMonth + dir, y = calYear;
     if (m > 11) { m = 0; y++; }
     if (m < 0) { m = 11; y--; }
@@ -158,7 +214,16 @@ export default function OfferPage() {
   async function handleSubmit() {
     if (!arrival || !departure || !rate || !name.trim() || !email.trim()) return;
     setStatus("sending");
+    setCalendarError("");
     try {
+      const availabilityResponse = await fetch(`/api/calendar?arrival=${encodeURIComponent(arrival)}&departure=${encodeURIComponent(departure)}`);
+      const availability = await availabilityResponse.json();
+      const selectedUnit = availability[`unit${unit}`];
+      if (!availabilityResponse.ok || selectedUnit?.status !== "available") {
+        setStatus("idle");
+        setCalendarError("Those dates are no longer confirmed available for this condo. Please choose another stay.");
+        return;
+      }
       const context = `Make an Offer | Unit ${unit} | ${arrival} to ${departure} | ${nights} nights | ${adults} adults, ${children} children, ${infants} infants | Proposed rate: $${rate}/night | Est. total: ${fees ? MONEY(fees.total) : "N/A"}`;
       const res = await fetch("/api/rate-inquiry", {
         method: "POST",
@@ -169,7 +234,7 @@ export default function OfferPage() {
     } catch { setStatus("error"); }
   }
 
-  const canSubmit = arrival && departure && rate && name.trim() && email.trim() && status !== "sending";
+  const canSubmit = arrival && departure && rate && name.trim() && email.trim() && !calendarError && !loadingDates && status !== "sending";
 
   return (
     <>
@@ -561,7 +626,7 @@ export default function OfferPage() {
             <div className="availability-copy">
               <div className="eyebrow">Beachfront availability</div>
               <h2>Start with the dates. Then make it yours.</h2>
-              <p>Green = open. Red = booked. Click arrival then departure to select your window.</p>
+              <p>Rates and date status come from the latest pricing-calendar snapshot. Select arrival and departure; availability is checked live again before your request is sent.</p>
             </div>
             <div>
               <div className="unit-toggle">
@@ -570,9 +635,12 @@ export default function OfferPage() {
               </div>
               {loadingDates ? (
                 <div className="cal-loading">Loading availability…</div>
+              ) : calendarError && coveredDates.length === 0 ? (
+                <div className="cal-loading" role="alert">{calendarError}</div>
               ) : (
-                <OfferCalendar unit={unit} year={calYear} month={calMonth} arrival={arrival} departure={departure} bookedDates={bookedDates} rates={rates} onSelect={handleCalSelect} onNav={handleNav} />
+                <OfferCalendar year={calYear} month={calMonth} arrival={arrival} departure={departure} bookedDates={bookedDates} coveredDates={coveredDates} rates={rates} minStays={minStays} onSelect={handleCalSelect} onNav={handleNav} canGoPrevious={canGoPrevious} canGoNext={canGoNext} />
               )}
+              {calendarError && coveredDates.length > 0 && <div className="cal-loading" role="alert">{calendarError}</div>}
               {arrival && (
                 <div className="date-display">
                   <span>{fmtDate(arrival)}</span>
@@ -660,6 +728,7 @@ export default function OfferPage() {
                         <div className="line-item"><span>Tax 13%</span><strong>{MONEY(fees.tax)}</strong></div>
                         <div className="line-item"><span>Admin 3%</span><strong>{MONEY(fees.admin)}</strong></div>
                         <div className="total-line"><span>Estimated total</span><strong>{MONEY(fees.total)}</strong></div>
+                        {exactTotalHref && <a className="exact-total-link" href={exactTotalHref}>See exact checkout total for these dates →</a>}
                       </>
                     ) : (
                       <div className="breakdown-empty">Enter dates and a nightly rate to see your total</div>
@@ -680,7 +749,7 @@ export default function OfferPage() {
                   <button type="button" className={`submit-btn${!canSubmit ? " disabled" : ""}`} onClick={handleSubmit} disabled={!canSubmit}>
                     {status === "sending" ? "Sending…" : status === "error" ? "Retry →" : "Send My Offer →"}
                   </button>
-                  <p className="fine-print">This is not a booking. We&apos;ll review and respond within a few hours. No charge until you confirm. An extra guest fee of $20/night applies for each guest beyond 4 (infants excluded). Final rates confirmed at checkout.</p>
+                  <p className="fine-print">This is not a booking. We&apos;ll review and respond within a few hours. No charge until you confirm. An extra guest fee of $20/night applies for each guest beyond 4 (infants excluded). Availability is rechecked before your request is sent; final rates and totals are confirmed at checkout.</p>
                 </div>
               </>
             )}
@@ -815,14 +884,21 @@ export default function OfferPage() {
         .cal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .cal-month-label { font-family: var(--heading); font-size: 1.1rem; font-weight: 700; letter-spacing: .04em; }
         .cal-nav { background: transparent; border: 1px solid var(--line); color: var(--white); border-radius: 8px; width: 28px; height: 28px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
-        .cal-nav:hover { border-color: var(--teal); color: var(--teal); }
+        .cal-nav:hover:not(:disabled) { border-color: var(--teal); color: var(--teal); }
+        .cal-nav:disabled { opacity: .28; cursor: not-allowed; }
         .cal-legend { display: flex; gap: 12px; font-size: .72rem; color: var(--muted); margin-bottom: 10px; }
         .legend-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
         .available-dot { background: var(--green); }
         .booked-dot { background: var(--red); }
+        .unconfirmed-dot { background: rgba(255,255,255,.25); }
         .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 5px; }
         .day-name { text-align: center; color: var(--muted); font-size: .68rem; font-weight: 900; text-transform: uppercase; padding-bottom: 3px; }
-        .day { aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; border-radius: 10px; font-size: .8rem; font-weight: 700; cursor: pointer; transition: .12s; padding: 2px 0; }
+        .day { width: 100%; aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; border: 0; border-radius: 10px; font: inherit; font-size: .8rem; font-weight: 700; cursor: pointer; transition: .12s; padding: 2px 0; }
+        .day:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+        .day-min { font-size: .52rem; line-height: 1; opacity: .82; white-space: nowrap; }
+        .quote-note { margin: 12px 0 8px; color: var(--muted); font-size: .78rem; line-height: 1.5; }
+        .exact-total-link { display: inline-flex; align-items: center; margin-top: 4px; padding: 9px 13px; border-radius: 999px; background: rgba(29,149,169,.12); color: #087f91; font-size: .82rem; font-weight: 900; text-decoration: none; }
+        .exact-total-link:hover { background: rgba(29,149,169,.2); }
         .day-num { font-size: .8rem; font-weight: 700; line-height: 1; }
         .day-rate { font-size: .6rem; font-weight: 600; opacity: .85; line-height: 1; }
         .day.available { background: rgba(94,227,139,.85); color: #0a2310; }

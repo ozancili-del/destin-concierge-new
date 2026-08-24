@@ -27,7 +27,10 @@ function getNights(ci, co) {
   return Math.round((new Date(co) - new Date(ci)) / 86400000);
 }
 
-function OfferCalendar({ year, month, arrival, departure, bookedDates, coveredDates, rates, onSelect, onNav, canGoPrevious, canGoNext }) {
+function OfferCalendar({ year, month, arrival, departure, bookedDates, coveredDates, rates, availableMonths, onSelect, onNav, onJump, canGoPrevious, canGoNext }) {
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const pickerRef = useRef(null);
+  const monthButtonRef = useRef(null);
   const today = new Date(); today.setHours(0,0,0,0);
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -36,6 +39,31 @@ function OfferCalendar({ year, month, arrival, departure, bookedDates, coveredDa
   for (let d = 1; d <= daysInMonth; d++) cells.push(d);
 
   const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const availableYears = [...new Set(availableMonths.map(value => Number(value.slice(0, 4))))];
+
+  useEffect(() => {
+    if (!pickerOpen) return undefined;
+    const focusTimer = window.requestAnimationFrame(() => {
+      const activeMonth = pickerRef.current?.querySelector(".month-grid button.active");
+      const firstMonth = pickerRef.current?.querySelector(".month-grid button");
+      (activeMonth || firstMonth)?.focus();
+    });
+    function closePicker(event) {
+      if (event.key === "Escape") {
+        setPickerOpen(false);
+        monthButtonRef.current?.focus();
+      } else if (event.type === "pointerdown" && !pickerRef.current?.contains(event.target)) {
+        setPickerOpen(false);
+      }
+    }
+    window.addEventListener("keydown", closePicker);
+    window.addEventListener("pointerdown", closePicker);
+    return () => {
+      window.cancelAnimationFrame(focusTimer);
+      window.removeEventListener("keydown", closePicker);
+      window.removeEventListener("pointerdown", closePicker);
+    };
+  }, [pickerOpen]);
 
   function fmt(d) {
     return `${year}-${String(month+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
@@ -45,7 +73,44 @@ function OfferCalendar({ year, month, arrival, departure, bookedDates, coveredDa
     <div className="cal-card">
       <div className="cal-head">
         <button type="button" className="cal-nav" aria-label="Previous month" onClick={() => onNav(-1)} disabled={!canGoPrevious}>‹</button>
-        <span className="cal-month-label">{MONTHS[month]} {year}</span>
+        <div className="cal-month-picker" ref={pickerRef}>
+          <button
+            type="button"
+            className="cal-month-label"
+            aria-label={`Choose month, current ${MONTHS[month]} ${year}`}
+            aria-expanded={pickerOpen}
+            aria-haspopup="dialog"
+            onClick={() => setPickerOpen(open => !open)}
+            ref={monthButtonRef}
+          >
+            {MONTHS[month]} {year}<span aria-hidden="true" className="month-chevron">⌄</span>
+          </button>
+          {pickerOpen && (
+            <div className="month-popover" role="dialog" aria-label="Choose an available month">
+              {availableYears.map(availableYear => (
+                <section className="month-year-group" key={availableYear} aria-labelledby={`month-year-${availableYear}`}>
+                  <h3 id={`month-year-${availableYear}`}>{availableYear}</h3>
+                  <div className="month-grid">
+                    {MONTHS.map((monthName, monthIndex) => {
+                      const key = `${availableYear}-${String(monthIndex + 1).padStart(2, "0")}`;
+                      if (!availableMonths.includes(key)) return null;
+                      const active = availableYear === year && monthIndex === month;
+                      return (
+                        <button
+                          type="button"
+                          key={key}
+                          className={active ? "active" : ""}
+                          aria-current={active ? "date" : undefined}
+                          onClick={() => { onJump(availableYear, monthIndex); setPickerOpen(false); monthButtonRef.current?.focus(); }}
+                        >{monthName.slice(0, 3)}</button>
+                      );
+                    })}
+                  </div>
+                </section>
+              ))}
+            </div>
+          )}
+        </div>
         <button type="button" className="cal-nav" aria-label="Next month" onClick={() => onNav(1)} disabled={!canGoNext}>›</button>
       </div>
       <div className="cal-legend">
@@ -121,6 +186,7 @@ export default function OfferPage() {
   const firstCoveredMonth = coveredDates.length ? coveredDates[0].slice(0, 7) : "";
   const lastCoveredMonth = coveredDates.length ? coveredDates[coveredDates.length - 1].slice(0, 7) : "";
   const visibleMonth = `${calYear}-${String(calMonth + 1).padStart(2, "0")}`;
+  const availableMonths = [...new Set(coveredDates.map(date => date.slice(0, 7)))].sort();
   const canGoPrevious = Boolean(firstCoveredMonth && visibleMonth > firstCoveredMonth);
   const canGoNext = Boolean(lastCoveredMonth && visibleMonth < lastCoveredMonth);
 
@@ -201,6 +267,13 @@ export default function OfferPage() {
     if (m > 11) { m = 0; y++; }
     if (m < 0) { m = 11; y--; }
     setCalMonth(m); setCalYear(y);
+  }
+
+  function handleMonthJump(year, month) {
+    const target = `${year}-${String(month + 1).padStart(2, "0")}`;
+    if (!availableMonths.includes(target)) return;
+    setCalYear(year);
+    setCalMonth(month);
   }
 
   function chgGuest(type, delta) {
@@ -650,7 +723,7 @@ export default function OfferPage() {
               ) : calendarError && coveredDates.length === 0 ? (
                 <div className="cal-loading" role="alert">{calendarError}</div>
               ) : (
-                <OfferCalendar year={calYear} month={calMonth} arrival={arrival} departure={departure} bookedDates={bookedDates} coveredDates={coveredDates} rates={rates} onSelect={handleCalSelect} onNav={handleNav} canGoPrevious={canGoPrevious} canGoNext={canGoNext} />
+                <OfferCalendar year={calYear} month={calMonth} arrival={arrival} departure={departure} bookedDates={bookedDates} coveredDates={coveredDates} rates={rates} availableMonths={availableMonths} onSelect={handleCalSelect} onNav={handleNav} onJump={handleMonthJump} canGoPrevious={canGoPrevious} canGoNext={canGoNext} />
               )}
               {calendarError && coveredDates.length > 0 && <div className="cal-loading" role="alert">{calendarError}</div>}
               {arrival && (
@@ -915,7 +988,20 @@ export default function OfferPage() {
         .cal-loading { color: var(--muted); font-size: .9rem; text-align: center; padding: 20px 0; }
         .cal-card { padding: 16px; border: 1px solid rgba(255,255,255,.14); border-radius: 24px; background: rgba(2,11,24,.6); backdrop-filter: blur(14px); }
         .cal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .cal-month-label { font-family: var(--heading); font-size: 1.1rem; font-weight: 700; letter-spacing: .04em; }
+        .cal-month-picker { position:relative; }
+        .cal-month-label { display:inline-flex; align-items:center; gap:7px; padding:6px 10px; border:1px solid transparent; border-radius:10px; background:transparent; color:var(--white); font-family: var(--heading); font-size: 1.1rem; font-weight: 700; letter-spacing: .04em; cursor:pointer; }
+        .cal-month-label:hover,.cal-month-label[aria-expanded="true"] { border-color:rgba(71,226,208,.55); background:rgba(71,226,208,.1); color:#84fff4; }
+        .cal-month-label:focus-visible { outline:3px solid var(--gold); outline-offset:2px; }
+        .month-chevron { font-family:Arial,sans-serif; font-size:.9rem; transition:transform .15s; }
+        .cal-month-label[aria-expanded="true"] .month-chevron { transform:rotate(180deg); }
+        .month-popover { position:absolute; z-index:20; top:calc(100% + 9px); left:50%; width:min(360px,calc(100vw - 52px)); max-height:min(440px,70vh); overflow:auto; transform:translateX(-50%); padding:16px; border:1px solid rgba(255,255,255,.2); border-radius:18px; background:#07182b; box-shadow:0 22px 60px rgba(0,0,0,.6); }
+        .month-year-group + .month-year-group { margin-top:14px; padding-top:14px; border-top:1px solid rgba(255,255,255,.12); }
+        .month-year-group h3 { margin:0 0 9px; color:#84fff4; font-family:var(--heading); font-size:1rem; letter-spacing:.08em; }
+        .month-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:7px; }
+        .month-grid button { min-height:40px; border:1px solid rgba(255,255,255,.14); border-radius:10px; background:rgba(255,255,255,.06); color:#e9f4ff; font-weight:800; cursor:pointer; }
+        .month-grid button:hover { border-color:var(--teal); background:rgba(71,226,208,.14); }
+        .month-grid button.active { border-color:var(--gold); background:var(--gold); color:var(--navy); }
+        .month-grid button:focus-visible { outline:3px solid var(--gold); outline-offset:2px; }
         .cal-nav { background: transparent; border: 1px solid var(--line); color: var(--white); border-radius: 8px; width: 28px; height: 28px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
         .cal-nav:hover:not(:disabled) { border-color: var(--teal); color: var(--teal); }
         .cal-nav:disabled { opacity: .28; cursor: not-allowed; }

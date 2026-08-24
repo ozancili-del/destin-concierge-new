@@ -2272,7 +2272,7 @@ Example tone (do NOT copy verbatim — vary naturally):
         await writeSessState(sessionId, { ozanActive: "PENDING", inviteToken });
       }
 
-      const enterChatUrl = `https://destin-concierge-new.vercel.app/ozan?s=${sessionId}&t=${inviteToken}`;
+      const enterChatUrl = `https://www.destincondogetaways.com/ozan?s=${sessionId}&t=${inviteToken}`;
       const ozanMsg = chatOzContent
         ? `💬 **Guest wants to talk:** "${chatOzContent}"`
         : "💬 **Guest is requesting to chat with you directly**";
@@ -2764,7 +2764,7 @@ Unit 1006: ${link1006hoa}`;
         availabilityStatus = `DATES:${dates.arrival}->${dates.departure} | 707:BOOKED | 1006:BOOKED`;
         // Both fully booked — check calendar for partial windows
         try {
-          const calRes = await fetch(`https://destin-concierge-new.vercel.app/api/calendar?arrival=${dates.arrival}&departure=${dates.departure}`);
+          const calRes = await fetch(`https://www.destincondogetaways.com/api/calendar?arrival=${dates.arrival}&departure=${dates.departure}`);
           if (calRes.ok) {
             const cal = await calRes.json();
             const u707 = cal.unit707;
@@ -2965,7 +2965,7 @@ WEATHER DATA UNAVAILABLE: Real-time weather could not be fetched. Do NOT guess o
     if (dates?.arrival && dates?.departure && !guestBooking) {
       try {
         const dropRes = await fetch(
-          `https://destin-concierge-new.vercel.app/api/price-drops?arrival=${dates.arrival}&departure=${dates.departure}`
+          `https://www.destincondogetaways.com/api/price-drops?arrival=${dates.arrival}&departure=${dates.departure}`
         );
         const dropData = await dropRes.json();
         const drops = [];

@@ -1303,7 +1303,6 @@ export default function BeachDeals({ deals }) {
         <title>Destin Beachfront Condo Deals | Pelican Beach Resort</title>
         <meta name="description" content="See current price drops for Gulf-front Pelican Beach Resort condos in Destin. Compare dates, check live availability and book direct." />
         <meta name="robots" content={process.env.NEXT_PUBLIC_DEPLOYMENT_ENV === "production" ? "index,follow" : "noindex,nofollow"} />
-        <meta name="keywords" content="Destin Florida beachfront condo rental, Pelican Beach Resort condo deals, Destin vacation rental price drops, book direct condo Destin FL, Gulf front condo Destin Florida" />
         <link rel="canonical" href="https://www.destincondogetaways.com/destin-condo-deals" />
         <meta property="og:title" content="Destin FL Beachfront Condo Price Drops — Book Direct &amp; Save up to 40%" />
         <meta property="og:description" content="Live price drops on two Gulf-front condos at Pelican Beach Resort, Destin FL. Skip Airbnb fees — book direct and save 10–20% instantly. Updated daily." />

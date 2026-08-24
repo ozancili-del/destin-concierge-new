@@ -1,0 +1,14 @@
+legacy_host,legacy_path,current_destination,rule_type
+deals.destincondogetaways.com,*,/destin-condo-deals,host-fallback
+deals.destincondogetaways.com,/beach-deals,/destin-condo-deals,exception
+deals.destincondogetaways.com,/rate-finder.html,/destin-condo-deals,exception
+deals.destincondogetaways.com,/blog/destinnights,/blog/destinnights,exception
+explore.destincondogetaways.com,*,/destin-hub,host-fallback
+explore.destincondogetaways.com,/destin-hub.html,/destin-hub,exception
+explore.destincondogetaways.com,/destin-car-rental.html,/destin-car-rentals,exception
+explore.destincondogetaways.com,/destin-tripshock.html,/destin-activities,exception
+explore.destincondogetaways.com,/blog/best-restaurants-destin-local-guide,/blog/best-restaurants-destin-local-guide,exception
+explore.destincondogetaways.com,/blog/destinweather,/blog/destinweather,exception
+explore.destincondogetaways.com,/pelican-beach-resort-unit-1006-orp5b6450ex,/pelican-beach-resort-unit-1006,exception
+offer.destincondogetaways.com,*,/destin-condo-special-offers,host-fallback
+sunbirds.destincondogetaways.com,*,/destin-snowbird-rentals,host-fallback

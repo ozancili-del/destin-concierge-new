@@ -11,16 +11,17 @@ function generateSessionId() {
   return "db_" + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 }
 
-export default function Concierge({ previewMode = false }) {
+export default function Concierge({ previewMode = false, nativePanel = false }) {
   const router = useRouter();
   const isEmbed = router.query.embed === "1";
-  const starterPrompts = previewMode ? [
+  const enhancedMode = previewMode || nativePanel;
+  const starterPrompts = enhancedMode ? [
     { label: "Check dates & prices", prompt: "Check availability and complete prices for my dates." },
     { label: "Choose my condo", prompt: "Help me compare Unit 707 and Unit 1006 and choose the best condo for my stay." },
     { label: "Plan a family trip", prompt: "Help me plan a Destin trip with children." },
     { label: "Find things to do", prompt: "Recommend the best Destin activities for my group." },
     { label: "Check beach conditions", prompt: "Help me check Destin weather, Gulf conditions, and beach safety." },
-    { label: "I’m already a guest", prompt: "I’m already staying with Destin Condo Getaways and need guest help." },
+    { label: "Find flights & rental cars", prompt: "Help me find flights and a rental car for my Destin stay." },
   ] : [
     { label: "Check condo availability", prompt: "Check condo availability" },
     { label: "Help plan a family trip", prompt: "Help plan a family trip" },
@@ -158,11 +159,11 @@ export default function Concierge({ previewMode = false }) {
 
   useEffect(() => {
     if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollTop = previewMode && log.length === 1 && !busy
+      scrollContainerRef.current.scrollTop = enhancedMode && log.length === 1 && !busy
         ? 0
         : scrollContainerRef.current.scrollHeight;
     }
-  }, [log, busy, previewMode]);
+  }, [log, busy, enhancedMode]);
 
   async function sendMessage(text) {
     if (!String(text || "").trim() || busy) return;
@@ -422,7 +423,7 @@ function getLinkButton(u){
   };
 
   const chat = (
-      <div style={{...styles.chatBox, ...(previewMode ? {minHeight:"min(720px, calc(100vh - 150px))"} : {})}}>
+      <div style={{...styles.chatBox, ...(enhancedMode ? {minHeight:nativePanel ? 680 : "min(720px, calc(100vh - 150px))"} : {})}}>
         {/* Header */}
         <div style={styles.header}>
           <div aria-hidden="true" style={{...styles.headerAvatar, background:"rgba(255,255,255,0.16)", fontSize:24}}>💬</div>
@@ -433,9 +434,9 @@ function getLinkButton(u){
         </div>
 
         {/* Messages */}
-        <div ref={scrollContainerRef} style={{...styles.messagesArea, ...(previewMode ? {height:"min(530px, calc(100vh - 292px))", minHeight:340} : {})}}>
-          {log.length === 1 && !busy && <div className={previewMode ? "db-starter-grid" : ""} style={{display:"flex",flexWrap:"wrap",gap:8,margin: previewMode ? "0 0 12px" : "0 0 8px 36px"}}>
-            {starterPrompts.map(({label, prompt}) => <button key={label} type="button" onClick={() => sendMessage(prompt)} style={{padding: previewMode ? "13px 14px" : "9px 12px",borderRadius: previewMode ? 12 : 999,border:"1px solid #b9d7da",background:"#fff",color:"#073b58",fontSize: previewMode ? 13 : 12,fontWeight:800,cursor:"pointer",textAlign:"left",boxShadow: previewMode ? "0 4px 12px rgba(7,59,88,.07)" : "none"}}>{label}<span aria-hidden="true" style={{float:"right",color:"#1597a8"}}> →</span></button>)}
+        <div ref={scrollContainerRef} style={{...styles.messagesArea, ...(enhancedMode ? {height:nativePanel ? 530 : "min(530px, calc(100vh - 292px))", minHeight:340} : {})}}>
+          {log.length === 1 && !busy && <div className={enhancedMode ? "db-starter-grid" : ""} style={{display:"flex",flexWrap:"wrap",gap:8,margin: enhancedMode ? "0 0 12px" : "0 0 8px 36px"}}>
+            {starterPrompts.map(({label, prompt}) => <button key={label} type="button" onClick={() => sendMessage(prompt)} style={{padding: enhancedMode ? "13px 14px" : "9px 12px",borderRadius: enhancedMode ? 12 : 999,border:"1px solid #b9d7da",background:"#fff",color:"#073b58",fontSize: enhancedMode ? 13 : 12,fontWeight:800,cursor:"pointer",textAlign:"left",boxShadow: enhancedMode ? "0 4px 12px rgba(7,59,88,.07)" : "none"}}>{label}<span aria-hidden="true" style={{float:"right",color:"#1597a8"}}> →</span></button>)}
           </div>}
           {log.map((m, i) => {
             if (m.role === "system") return (
@@ -505,9 +506,9 @@ function getLinkButton(u){
   );
 
   return (
-    <main className={previewMode ? "db-preview-page" : ""} style={{...styles.page, ...(previewMode ? {maxWidth:1180, padding:20} : {})}}>
-      {!isEmbed && !previewMode && <h1 style={styles.heading}>Destiny Blue — Your AI Concierge</h1>}
-      {previewMode ? <div className="db-preview-layout"><section className="db-preview-intro"><p className="db-eyebrow">YOUR DESTIN STARTING POINT</p><h1>What can I help you plan?</h1><p>Choose a starting point or ask your own question. Destiny will begin with that intent and guide you toward the next useful step.</p><div className="db-trust">Live availability · Local guidance · Ozan when needed</div></section><section>{chat}</section></div> : chat}
+    <main className={previewMode ? "db-preview-page" : nativePanel ? "db-native-panel" : ""} style={{...styles.page, ...(previewMode ? {maxWidth:1180, padding:20} : nativePanel ? {maxWidth:"none", padding:0} : {})}}>
+      {!isEmbed && !previewMode && !nativePanel && <h1 style={styles.heading}>Destiny Blue — Your AI Concierge</h1>}
+      {nativePanel ? chat : previewMode ? <div className="db-preview-layout"><section className="db-preview-intro"><p className="db-eyebrow">YOUR DESTIN STARTING POINT</p><h1>What can I help you plan?</h1><p>Choose a starting point or ask your own question. Destiny will begin with that intent and guide you toward the next useful step.</p><div className="db-trust">Live availability · Local guidance · Ozan when needed</div></section><section>{chat}</section></div> : chat}
 
       <style jsx global>{`
         @keyframes db-bounce {

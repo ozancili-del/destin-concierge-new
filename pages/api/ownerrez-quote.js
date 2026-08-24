@@ -32,24 +32,6 @@ async function fetchJson(url, options = {}) {
   return data;
 }
 
-async function findWebsiteListingSiteId() {
-  if (process.env.OWNERREZ_WEBSITE_LISTING_SITE_ID) {
-    return Number(process.env.OWNERREZ_WEBSITE_LISTING_SITE_ID);
-  }
-
-  const data = await fetchJson(`${OWNERREZ_BASE}/listing_sites?active=true&limit=100`);
-  const sites = data?.items || data || [];
-  const website = sites.find((site) => {
-    const haystack = [site?.name, site?.description, site?.url, site?.website]
-      .filter(Boolean)
-      .join(' ')
-      .toLowerCase();
-    return haystack.includes('my website') || haystack.includes('destincondogetaways.com');
-  });
-  if (!website?.id) throw new Error('OwnerRez My Website listing source was not found');
-  return Number(website.id);
-}
-
 function normalizeCharges(charges = []) {
   return charges.map((charge) => ({
     description: charge.description || charge.type || 'Charge',
@@ -89,8 +71,6 @@ export default async function handler(req, res) {
   let stage = 'configuration';
   try {
     ownerRezHeaders();
-    stage = 'listing-site';
-    const listingSiteId = await findWebsiteListingSiteId();
     stage = 'quote';
     const quote = await fetchJson(`${OWNERREZ_BASE}/quotes`, {
       method: 'POST',
@@ -102,7 +82,9 @@ export default async function handler(req, res) {
         children: Number(children),
         infants: Number(infants),
         pets: 0,
-        listing_site_id: listingSiteId,
+        // OwnerRez applies the website-scoped discount and surcharge rules by
+        // listing-site name. The v2 quote schema calls this field listing_site.
+        listing_site: process.env.OWNERREZ_WEBSITE_LISTING_SITE || 'My Website',
         generate_charges: true,
         generate_email: false,
         hold_dates: false,
@@ -118,7 +100,7 @@ export default async function handler(req, res) {
       unit: String(unit),
       arrival,
       departure,
-      listingSiteId,
+      listingSite: process.env.OWNERREZ_WEBSITE_LISTING_SITE || 'My Website',
       charges,
       total: Number(total.toFixed(2)),
     });
@@ -126,9 +108,7 @@ export default async function handler(req, res) {
     console.error('OwnerRez quote probe failed:', error.message, error.details || '');
     const reason = error.message === 'OWNERREZ_API_TOKEN is not configured'
       ? 'configuration-missing'
-      : error.message === 'OwnerRez My Website listing source was not found'
-        ? 'listing-site-not-found'
-        : Number.isInteger(error.status)
+      : Number.isInteger(error.status)
           ? `ownerrez-http-${error.status}`
           : 'ownerrez-request-failed';
     return res.status(503).json({

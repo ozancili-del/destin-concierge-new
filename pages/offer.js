@@ -27,7 +27,7 @@ function getNights(ci, co) {
   return Math.round((new Date(co) - new Date(ci)) / 86400000);
 }
 
-function OfferCalendar({ year, month, arrival, departure, bookedDates, coveredDates, rates, minStays, onSelect, onNav, canGoPrevious, canGoNext }) {
+function OfferCalendar({ year, month, arrival, departure, bookedDates, coveredDates, rates, onSelect, onNav, canGoPrevious, canGoNext }) {
   const today = new Date(); today.setHours(0,0,0,0);
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -82,7 +82,6 @@ function OfferCalendar({ year, month, arrival, departure, bookedDates, coveredDa
             >
               <span className="day-num">{d}</span>
               {dayRate && <span className="day-rate">${dayRate}</span>}
-              {minStays?.[dateStr] > 1 && <span className="day-min">{minStays[dateStr]}n min</span>}
             </button>
           );
         })}
@@ -103,6 +102,7 @@ export default function OfferPage() {
   const [minStays, setMinStays] = useState({});
   const [loadingDates, setLoadingDates] = useState(false);
   const [calendarError, setCalendarError] = useState("");
+  const [ruleNotice, setRuleNotice] = useState("");
   const [adults, setAdults] = useState(2);
   const [children, setChildren] = useState(0);
   const [infants, setInfants] = useState(0);
@@ -152,6 +152,15 @@ export default function OfferPage() {
     setArrival(""); setDeparture("");
   }, [unit]);
 
+  useEffect(() => {
+    if (!ruleNotice) return undefined;
+    function closeOnEscape(event) {
+      if (event.key === "Escape") setRuleNotice("");
+    }
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [ruleNotice]);
+
   function handleCalSelect(dateStr) {
     setCalendarError("");
     if (!arrival || (arrival && departure)) {
@@ -162,7 +171,10 @@ export default function OfferPage() {
         const requiredNights = Math.max(1, Number(minStays[arrival]) || 1);
         if (selectedNights < requiredNights) {
           setDeparture("");
-          setCalendarError(`A ${requiredNights}-night minimum applies to that check-in date.`);
+          const earliestCheckout = new Date(`${arrival}T12:00:00`);
+          earliestCheckout.setDate(earliestCheckout.getDate() + requiredNights);
+          const earliestCheckoutLabel = earliestCheckout.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+          setRuleNotice(`These dates require a minimum stay of ${requiredNights} nights. Please choose ${earliestCheckoutLabel} or a later date for checkout.`);
           return;
         }
         const blockedInsideRange = bookedDates.some(date => date >= arrival && date < dateStr);
@@ -639,7 +651,7 @@ export default function OfferPage() {
               ) : calendarError && coveredDates.length === 0 ? (
                 <div className="cal-loading" role="alert">{calendarError}</div>
               ) : (
-                <OfferCalendar year={calYear} month={calMonth} arrival={arrival} departure={departure} bookedDates={bookedDates} coveredDates={coveredDates} rates={rates} minStays={minStays} onSelect={handleCalSelect} onNav={handleNav} canGoPrevious={canGoPrevious} canGoNext={canGoNext} />
+                <OfferCalendar year={calYear} month={calMonth} arrival={arrival} departure={departure} bookedDates={bookedDates} coveredDates={coveredDates} rates={rates} onSelect={handleCalSelect} onNav={handleNav} canGoPrevious={canGoPrevious} canGoNext={canGoNext} />
               )}
               {calendarError && coveredDates.length > 0 && <div className="cal-loading" role="alert">{calendarError}</div>}
               {arrival && (
@@ -756,6 +768,27 @@ export default function OfferPage() {
             )}
           </section>
         </div>
+
+        {ruleNotice && (
+          <div className="rule-modal-backdrop" role="presentation" onMouseDown={() => setRuleNotice("")}>
+            <section
+              className="rule-modal"
+              role="alertdialog"
+              aria-modal="true"
+              aria-labelledby="stay-rule-title"
+              aria-describedby="stay-rule-copy"
+              onMouseDown={event => event.stopPropagation()}
+            >
+              <div className="rule-modal-icon" aria-hidden="true">🌙</div>
+              <div>
+                <div className="eyebrow">Stay requirement</div>
+                <h2 id="stay-rule-title">Choose a longer stay</h2>
+                <p id="stay-rule-copy">{ruleNotice}</p>
+              </div>
+              <button type="button" className="rule-modal-close" autoFocus onClick={() => setRuleNotice("")}>Choose another date</button>
+            </section>
+          </div>
+        )}
       </main>
       <ToolFooter />
 
@@ -896,7 +929,6 @@ export default function OfferPage() {
         .day-name { text-align: center; color: var(--muted); font-size: .68rem; font-weight: 900; text-transform: uppercase; padding-bottom: 3px; }
         .day { width: 100%; aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; border: 0; border-radius: 10px; font: inherit; font-size: .8rem; font-weight: 700; cursor: pointer; transition: .12s; padding: 2px 0; }
         .day:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
-        .day-min { font-size: .52rem; line-height: 1; opacity: .82; white-space: nowrap; }
         .quote-note { margin: 12px 0 8px; color: var(--muted); font-size: .78rem; line-height: 1.5; }
         .exact-total-link { display: inline-flex; align-items: center; margin-top: 4px; padding: 9px 13px; border-radius: 999px; background: rgba(29,149,169,.12); color: #087f91; font-size: .82rem; font-weight: 900; text-decoration: none; }
         .exact-total-link:hover { background: rgba(29,149,169,.2); }
@@ -911,6 +943,16 @@ export default function OfferPage() {
         .date-display { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: .9rem; color: var(--white); font-weight: 500; }
         .date-arrow { color: var(--teal); }
         .date-display em { color: var(--muted); font-style: normal; }
+
+        .rule-modal-backdrop { position:fixed; inset:0; z-index:1000; display:grid; place-items:center; padding:20px; background:rgba(1,8,18,.78); backdrop-filter:blur(8px); }
+        .rule-modal { width:min(460px,100%); display:grid; gap:18px; padding:28px; border:1px solid rgba(255,255,255,.18); border-radius:28px; background:linear-gradient(145deg,#0b2340,#061426); color:#fff; box-shadow:0 30px 90px rgba(0,0,0,.55); }
+        .rule-modal-icon { width:54px; height:54px; display:grid; place-items:center; border-radius:16px; background:rgba(255,209,102,.14); border:1px solid rgba(255,209,102,.4); font-size:25px; }
+        .rule-modal .eyebrow { margin-bottom:12px; }
+        .rule-modal h2 { margin:0 0 10px; font-family:var(--heading); font-size:2rem; line-height:1; }
+        .rule-modal p { margin:0; color:#d2dfec; line-height:1.65; }
+        .rule-modal-close { width:100%; padding:13px 18px; border:0; border-radius:999px; background:var(--gold); color:var(--navy); font-weight:900; cursor:pointer; }
+        .rule-modal-close:hover { filter:brightness(1.06); }
+        .rule-modal-close:focus-visible { outline:3px solid #fff; outline-offset:3px; }
 
         .form-side { padding: 34px; background: linear-gradient(145deg,rgba(7,24,44,.96),rgba(3,13,25,.99)); }
         .form-header { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; margin-bottom: 22px; }

@@ -48,7 +48,7 @@ export default function DestinEventsGuide() {
         <tr><td>November 7–25</td><td><a href="https://www.cityofdestin.com/103/CommunityFamily-Events">Pinfish Classic, Holiday Craft Show and baking programs</a></td><td>City events leading into Thanksgiving week.</td></tr>
         <tr><td>November 26</td><td>Thanksgiving Day</td><td>Reserve holiday meals early and verify restaurant hours using the <a href="/blog/best-restaurants-destin">Destin restaurant guide</a>.</td></tr>
         <tr><td>December 3–13</td><td><a href="https://www.cityofdestin.com/103/CommunityFamily-Events">Tree lighting, parade and holiday market</a></td><td>Christmas events plus the December 13 Destin Harbor lighted boat parade.</td></tr>
-        <tr><td>December 31</td><td><a href="https://thegoodlifedestin.com/where-to-watch-the-okaloosa-island-boardwalk-fireworks/">New Year&apos;s Eve and regional fireworks</a></td><td>Confirm venue schedules and parking before departure.</td></tr>
+        <tr><td>December 31</td><td><a href="/blog/destin-fireworks-2026">New Year&apos;s Eve and regional fireworks</a></td><td>Confirm venue schedules and parking before departure.</td></tr>
         <tr><td>January 2027</td><td>Pelican Plunge and winter programming</td><td><strong>Date pending:</strong> check the live regional calendars below.</td></tr>
         <tr><td>February 2027</td><td>Mardi Gras and Shrimp &amp; Grits traditions</td><td><strong>Dates pending:</strong> organizers have not published final 2027 schedules.</td></tr>
         <tr><td>March 2027</td><td>Mac &amp; Cheese Festival and spring events</td><td><strong>Dates pending:</strong> use the official calendar before booking around one event.</td></tr>
@@ -71,7 +71,7 @@ export default function DestinEventsGuide() {
       </ul>
 
       <h2>Thanksgiving, Christmas and New Year&apos;s planning</h2>
-      <p>Thanksgiving falls on November 26. Verified City of Destin dates include the Pinfish Classic on November 7, Holiday Craft Show November 13–14, holiday baking programs November 24–25, Christmas Tree Lighting December 3, Christmas Parade December 12 and Holly Jolly Holiday Market December 13. The <a href="https://thegoodlifedestin.com/destin-christmas-lighted-boat-parade/">Destin Harbor Lighted Boat Parade</a> is listed for December 13 at 6 p.m.</p>
+      <p>Thanksgiving falls on November 26. Verified City of Destin dates include the Pinfish Classic on November 7, Holiday Craft Show November 13–14, holiday baking programs November 24–25, Christmas Tree Lighting December 3, Christmas Parade December 12 and Holly Jolly Holiday Market December 13. The Destin Harbor Lighted Boat Parade is listed for December 13 at 6 p.m.; confirm the final schedule with the event organizer before leaving.</p>
       <p>For New Year&apos;s Eve, expect separate programs at HarborWalk, Baytowne Wharf and Okaloosa Island. The Okaloosa Island Boardwalk lists an 8 p.m. fireworks show; confirm the live venue schedule before choosing dinner or transportation.</p>
 
       <h2>January through March 2027</h2>
@@ -82,7 +82,6 @@ export default function DestinEventsGuide() {
         <li><a href="https://www.destinfwb.com/explore/events/">Destin–Fort Walton Beach official event calendar</a> for the broad regional schedule.</li>
         <li><a href="https://www.cityofdestin.com/103/CommunityFamily-Events">City of Destin community events</a> for verified municipal dates.</li>
         <li><a href="https://www.baytownewharf.com/what_to_do.php">Baytowne Wharf calendar</a> for Sandestin concerts, festivals and holiday programming.</li>
-        <li><a href="https://thegoodlifedestin.com/category/events/">The Good Life Destin</a> for local discovery and monthly context.</li>
       </ul>
       <p>The local guide helps find possibilities; the official city, venue or organizer page remains the final authority for time, admission and cancellation details.</p>
 

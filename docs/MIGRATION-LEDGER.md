@@ -1,17 +1,19 @@
 # Destin Condo Getaways Website Migration Ledger
 
-Last updated: August 17, 2026
-Working branch: `website/homepage-preview`
-Draft review vehicle: PR #10
-Production status: untouched
+Last updated: August 23, 2026
+Production branch: `main`
+Original migration review vehicle: PR #10
+Production status: live on Vercel at `https://www.destincondogetaways.com/`
 
 This is the authoritative operational record for the OwnerRez-hosted website to Vercel migration. A task is complete only when it is implemented, tested, and represented accurately here.
 
 ## Current position
 
-The replacement site is substantially built and remains in preview. Core pages, booking discovery, unit pages, blogs, supporting tools, responsive navigation, chat, SEO foundations, analytics instrumentation, and local assets have been migrated or rebuilt. The public domain still points to the existing production website.
+The OwnerRez-hosted public website has been replaced by the Vercel production site. The apex and `www` domains are live through Cloudflare DNS, canonical public routes are indexable, the production sitemap and robots directives are active, legacy URLs redirect to their intended destinations, and the core booking flow continues to use OwnerRez reservation data without exposing OwnerRez as guest-facing website terminology.
 
-The remaining work is principally launch assurance: GTM reconciliation, final sitemap/robots validation, redirect reconciliation, authenticated Google/Bing checks, full responsive and functional dry run, DNS cutover, and post-launch monitoring.
+Core pages, booking discovery, unit pages, blogs, supporting tools, responsive navigation, Destiny Blue chat, SEO/schema foundations, analytics instrumentation, and local assets have been migrated or rebuilt. Google Search Console and Bing Webmaster Tools have received the production sitemap and selected priority URL submissions. GTM version 21 removed the obsolete duplicate unit VacationRental schema while retaining analytics, Microsoft Clarity, Travelpayouts, and booking behavior.
+
+The project is now in post-launch stabilization rather than pre-launch migration. Remaining work consists of crawl/index monitoring, selective editorial maintenance, production analytics verification, live redirect/404 monitoring, and final confirmation that OwnerRez hosted-website billing can be cancelled without affecting the separately retained reservation services and widgets.
 
 ## Non-negotiable launch rules
 
@@ -214,6 +216,14 @@ Known environment note: a local full build can stop on an existing TV preview ro
 - Live `robots.txt` allows `/` and advertises `https://www.destincondogetaways.com/sitemap.xml`. It intentionally disallows only `/api/`, `/guestview/`, `/ozan`, and `/tv/`; these are non-search/private surfaces and are absent from the sitemap.
 - Result: **zero crawlability or indexability regressions across the canonical sitemap as of August 23, 2026**. Do not repeatedly submit all 46 URLs manually. Use the priority queue above, then allow sitemap discovery and monitor Google Page Indexing and Bing Site Explorer reports.
 
+### August 23, 2026 Bing post-cutover scan reconciliation
+
+- Bing Site Scan completed against 63 discovered URLs and reported three `/book` variants as "Blocked by robots.txt," three missing-alt warnings, one duplicate-canonical warning, and four duplicate-meta-description notices.
+- A fresh production-source and rendered-DOM reconciliation did **not** reproduce the content warnings: `/destin-condo-deals` and `/blog` had zero `<img>` elements without `alt`; `/blog/destinweather` and `/blog/how-to-find-cheaper-flights-and-car-rentals` each had exactly one `meta[name="description"]`; and the previously reported live-music canonical output had already been corrected.
+- Current `robots.txt` does not block `/book`. It allows `/` and blocks only `/api/`, `/guestview/`, `/ozan`, and `/tv/`. The `/book` route is intentionally `noindex,follow` and redirects guests to an indexable availability or canonical unit route. Bing's scanner can label this protected transaction-route behavior imprecisely; `/book` must not be added to the sitemap or made indexable merely to clear that scan row.
+- The scan therefore reflects a mixture of stale pre-cutover/GTM-era observations and an intentional non-indexable checkout helper. Re-run Bing Site Scan after Bing refreshes its crawl. Treat fresh URL Inspection and current rendered HTML as authoritative when an old scan conflicts with production output.
+- Google and Bing will continue discovering the canonical site through the sitemap and internal links without manual submission of every URL. Manual Google URL Inspection requests are acceleration signals only; indexing and recrawling remain asynchronous and quality-dependent.
+
 ## Current redirect inventory already in code
 
 The complete source-of-truth mapping is now maintained in `docs/REDIRECT-MASTER-MAP.md`, backed by `config/legacy-redirects.js`, host rules in `vercel.json`, and `npm run test:redirect-map`. It covers numbered OwnerRez URLs, duplicate aliases, former `.html` tools, historical Google/Bing 404s, retired public subdomains, and booking-query preservation. Guestview and app remain separate product surfaces.
@@ -246,6 +256,16 @@ This inventory is not yet considered launch-complete. It must be reconciled agai
 - `docs/GTM-GA4-AUDIT.md`.
 - Content reconciliation files under `docs/`.
 - Audit scripts under `scripts/` and test suites under `tests/`.
+
+## August 24, 2026 post-crawl focused cleanup
+
+- Reconciled the supplied Screaming Frog exports against current source instead of treating every crawler advisory as a defect.
+- Fixed the one confirmed internal 4xx asset reference on the virtual-tour page by replacing the missing `/hub-resort.png` with an existing migrated resort image.
+- Removed obsolete `meta keywords` tags from the deals and special-offer pages; modern search engines do not use them for ranking.
+- Added explicit descriptions, parent-page canonicals, and `noindex,follow` to three embedded helper documents so they support their full indexable parent pages without creating thin duplicate search results.
+- Removed remaining public dependencies on the old Vercel hostname from the Destin hub, embedded banners, rate/snowbird tools, Destiny chat links, and live calendar/price API calls. The quarantined TV project remains intentionally separate and unchanged.
+- Production build passed. Static link audit passed for 567 links across 67 routes/aliases; rendered HTTP audit passed for 73 internal routes with no 4xx/5xx responses; rendered search-readiness passed for all 46 canonical routes; booking-canonical, strategic-link, routing, SEO, and 193-asset audits passed.
+- Intentionally retained: `/book` as `noindex,follow`, clean canonicals for parameterized booking URLs, redirects required for migration continuity, and crawler-only notices that do not describe a live defect.
 
 ## August 18, 2026 final-candidate dry-run update
 

@@ -143,7 +143,7 @@ input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventD
     var link = document.createElement('link');
     link.id = 'db-disco-css';
     link.rel = 'stylesheet';
-    link.href = 'https://destin-concierge-new.vercel.app/disco.css';
+    link.href = '/disco.css';
     document.head.appendChild(link);
   }
   var banner = document.createElement('a');
@@ -175,7 +175,7 @@ input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventD
     'display:block;text-decoration:none;margin:0 0 16px;',
     'position:relative;overflow:hidden;border-radius:16px;',
     'min-height:160px;',
-    'background:url(https://destin-concierge-new.vercel.app/book-direct-banner-bg.webp) 60% center/cover no-repeat;',
+    'background:url(/book-direct-banner-bg.webp) 60% center/cover no-repeat;',
     'border:1.5px solid rgba(255,209,102,0.4);',
     'box-shadow:0 8px 32px rgba(0,0,0,0.35);'
   ].join('');
@@ -207,7 +207,7 @@ input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventD
     'display:block;text-decoration:none;margin:0 0 32px;',
     'position:relative;overflow:hidden;border-radius:16px;',
     'min-height:160px;',
-    'background:url(https://destin-concierge-new.vercel.app/snowbird-banner-bg.webp) 70% center/cover no-repeat;',
+    'background:url(/snowbird-banner-bg.webp) 70% center/cover no-repeat;',
     'border:1.5px solid rgba(255,209,102,0.4);',
     'box-shadow:0 8px 32px rgba(0,0,0,0.35);'
   ].join('');

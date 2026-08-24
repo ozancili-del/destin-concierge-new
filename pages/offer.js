@@ -177,7 +177,6 @@ export default function OfferPage() {
         <title>Make an Offer on a Destin Beachfront Condo</title>
         <meta name="description" content="Request owner review of your proposed rate for a Gulf-front Pelican Beach Resort condo in Destin. Submit dates, guests and your offer." />
         <meta name="robots" content={process.env.NEXT_PUBLIC_DEPLOYMENT_ENV === "production" ? "index,follow" : "noindex,nofollow"} />
-        <meta name="keywords" content="make offer Destin FL condo, name your price vacation rental Destin, Pelican Beach Resort condo deal, flexible pricing Destin Florida, book direct condo Destin FL discount" />
         <link rel="canonical" href="https://www.destincondogetaways.com/destin-condo-special-offers" />
 
         <meta property="og:title" content="Make an Offer — Destin Beachfront Condo, Pelican Beach Resort FL" />

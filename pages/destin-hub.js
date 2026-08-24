@@ -815,9 +815,9 @@ const TILES={
   gettinghere:{eyebrow:'Flights & Cars', title:'🚗✈️ Flights & Cars',   url:'/destin-car-rentals',blog:'/blog/how-to-find-cheaper-flights-and-car-rentals',blog2:'/blog/destincar'},
   deals:     {eyebrow:'Direct Booking',  title:'🏷️ Best Deals',         url:'/destin-condo-deals',blog:'/destin-condo-deals'},
   grocery:   {eyebrow:'Essentials',      title:'🛒 Groceries',          url:'/supermarket-map.html',blog:'/blog/destinsupermarkets'},
-  planner:   {eyebrow:'Plan Your Stay',  title:'🗺️ Trip Planner',       url:'https://destin-concierge-new.vercel.app/destin-itinerary-planner.html',blog:null},
-  activities:{eyebrow:'Things To Do',    title:'🐬 Activities & Tours', url:'https://destin-concierge-new.vercel.app/destin-tripshock.html',blog:null},
-  destiny:   {eyebrow:'AI Concierge',    title:'💬 Destiny Blue',       url:'https://destin-concierge-new.vercel.app/concierge',blog:null},
+  planner:   {eyebrow:'Plan Your Stay',  title:'🗺️ Trip Planner',       url:'/destin-vacation-itinerary-planner',blog:null},
+  activities:{eyebrow:'Things To Do',    title:'🐬 Activities & Tours', url:'/destin-activities',blog:null},
+  destiny:   {eyebrow:'AI Concierge',    title:'💬 Destiny Blue',       url:'/destin-ai-concierge',blog:null},
 };
 var currentTile=null,showingBlog=false;
 function openModal(key){

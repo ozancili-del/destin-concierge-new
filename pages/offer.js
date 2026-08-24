@@ -2,6 +2,8 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import Head from "next/head";
 import ToolFooter from "../components/ToolFooter";
 
+// Historical website estimate. OwnerRez secure checkout remains authoritative.
+// Keep these values until each active OwnerRez surcharge/tax is reconciled.
 const CLEANING = 175;
 const TAX_RATE = 0.13;
 const ADMIN_RATE = 0.03;
@@ -25,7 +27,10 @@ function getNights(ci, co) {
   return Math.round((new Date(co) - new Date(ci)) / 86400000);
 }
 
-function OfferCalendar({ unit, year, month, arrival, departure, bookedDates, rates, onSelect, onNav }) {
+function OfferCalendar({ year, month, arrival, departure, bookedDates, coveredDates, rates, availableMonths, onSelect, onNav, onJump, canGoPrevious, canGoNext }) {
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const pickerRef = useRef(null);
+  const monthButtonRef = useRef(null);
   const today = new Date(); today.setHours(0,0,0,0);
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -34,6 +39,31 @@ function OfferCalendar({ unit, year, month, arrival, departure, bookedDates, rat
   for (let d = 1; d <= daysInMonth; d++) cells.push(d);
 
   const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const availableYears = [...new Set(availableMonths.map(value => Number(value.slice(0, 4))))];
+
+  useEffect(() => {
+    if (!pickerOpen) return undefined;
+    const focusTimer = window.requestAnimationFrame(() => {
+      const activeMonth = pickerRef.current?.querySelector(".month-grid button.active");
+      const firstMonth = pickerRef.current?.querySelector(".month-grid button");
+      (activeMonth || firstMonth)?.focus();
+    });
+    function closePicker(event) {
+      if (event.key === "Escape") {
+        setPickerOpen(false);
+        monthButtonRef.current?.focus();
+      } else if (event.type === "pointerdown" && !pickerRef.current?.contains(event.target)) {
+        setPickerOpen(false);
+      }
+    }
+    window.addEventListener("keydown", closePicker);
+    window.addEventListener("pointerdown", closePicker);
+    return () => {
+      window.cancelAnimationFrame(focusTimer);
+      window.removeEventListener("keydown", closePicker);
+      window.removeEventListener("pointerdown", closePicker);
+    };
+  }, [pickerOpen]);
 
   function fmt(d) {
     return `${year}-${String(month+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
@@ -42,13 +72,51 @@ function OfferCalendar({ unit, year, month, arrival, departure, bookedDates, rat
   return (
     <div className="cal-card">
       <div className="cal-head">
-        <button className="cal-nav" onClick={() => onNav(-1)}>‹</button>
-        <span className="cal-month-label">{MONTHS[month]} {year}</span>
-        <button className="cal-nav" onClick={() => onNav(1)}>›</button>
+        <button type="button" className="cal-nav" aria-label="Previous month" onClick={() => onNav(-1)} disabled={!canGoPrevious}>‹</button>
+        <div className="cal-month-picker" ref={pickerRef}>
+          <button
+            type="button"
+            className="cal-month-label"
+            aria-label={`Choose month, current ${MONTHS[month]} ${year}`}
+            aria-expanded={pickerOpen}
+            aria-haspopup="dialog"
+            onClick={() => setPickerOpen(open => !open)}
+            ref={monthButtonRef}
+          >
+            {MONTHS[month]} {year}<span aria-hidden="true" className="month-chevron">⌄</span>
+          </button>
+          {pickerOpen && (
+            <div className="month-popover" role="dialog" aria-label="Choose an available month">
+              {availableYears.map(availableYear => (
+                <section className="month-year-group" key={availableYear} aria-labelledby={`month-year-${availableYear}`}>
+                  <h3 id={`month-year-${availableYear}`}>{availableYear}</h3>
+                  <div className="month-grid">
+                    {MONTHS.map((monthName, monthIndex) => {
+                      const key = `${availableYear}-${String(monthIndex + 1).padStart(2, "0")}`;
+                      if (!availableMonths.includes(key)) return null;
+                      const active = availableYear === year && monthIndex === month;
+                      return (
+                        <button
+                          type="button"
+                          key={key}
+                          className={active ? "active" : ""}
+                          aria-current={active ? "date" : undefined}
+                          onClick={() => { onJump(availableYear, monthIndex); setPickerOpen(false); monthButtonRef.current?.focus(); }}
+                        >{monthName.slice(0, 3)}</button>
+                      );
+                    })}
+                  </div>
+                </section>
+              ))}
+            </div>
+          )}
+        </div>
+        <button type="button" className="cal-nav" aria-label="Next month" onClick={() => onNav(1)} disabled={!canGoNext}>›</button>
       </div>
       <div className="cal-legend">
         <span><i className="legend-dot available-dot" />Open</span>
         <span><i className="legend-dot booked-dot" />Booked</span>
+        <span><i className="legend-dot unconfirmed-dot" />Not confirmed</span>
       </div>
       <div className="cal-grid">
         {["Su","Mo","Tu","We","Th","Fr","Sa"].map(d => <div key={d} className="day-name">{d}</div>)}
@@ -56,21 +124,30 @@ function OfferCalendar({ unit, year, month, arrival, departure, bookedDates, rat
           if (!d) return <div key={`e${i}`} />;
           const dateStr = fmt(d);
           const isPast = new Date(dateStr) < today;
+          const isCovered = coveredDates.includes(dateStr);
           const isBooked = bookedDates.includes(dateStr);
           const isArrival = dateStr === arrival;
           const isDeparture = dateStr === departure;
           const isInRange = arrival && departure && dateStr > arrival && dateStr < departure;
           let cls = "day";
-          if (isPast || isBooked) cls += isBooked ? " booked" : " past";
+          if (isPast || isBooked || !isCovered) cls += isBooked ? " booked" : " past";
           else if (isArrival || isDeparture) cls += " selected";
           else if (isInRange) cls += " in-range";
           else cls += " available";
-          const dayRate = !isPast && !isBooked && rates && rates[dateStr];
+          const dayRate = !isPast && !isBooked && isCovered && rates && rates[dateStr];
           return (
-            <div key={dateStr} className={cls} onClick={() => !(isPast || isBooked) && onSelect(dateStr)}>
+            <button
+              type="button"
+              key={dateStr}
+              className={cls}
+              disabled={isPast || isBooked || !isCovered}
+              aria-label={`${MONTHS[month]} ${d}, ${year}${isBooked ? ", booked" : !isCovered ? ", not confirmed" : dayRate ? `, open, $${dayRate} per night` : ", open"}`}
+              title={!isCovered && !isPast ? "Availability not yet confirmed" : undefined}
+              onClick={() => onSelect(dateStr)}
+            >
               <span className="day-num">{d}</span>
               {dayRate && <span className="day-rate">${dayRate}</span>}
-            </div>
+            </button>
           );
         })}
       </div>
@@ -85,8 +162,12 @@ export default function OfferPage() {
   const [calYear, setCalYear] = useState(new Date().getFullYear());
   const [calMonth, setCalMonth] = useState(new Date().getMonth());
   const [bookedDates, setBookedDates] = useState([]);
+  const [coveredDates, setCoveredDates] = useState([]);
   const [rates, setRates] = useState({});
+  const [minStays, setMinStays] = useState({});
   const [loadingDates, setLoadingDates] = useState(false);
+  const [calendarError, setCalendarError] = useState("");
+  const [ruleNotice, setRuleNotice] = useState("");
   const [adults, setAdults] = useState(2);
   const [children, setChildren] = useState(0);
   const [infants, setInfants] = useState(0);
@@ -99,6 +180,15 @@ export default function OfferPage() {
   const totalGuests = adults + children + infants;
   const nights = getNights(arrival, departure);
   const fees = rate && nights > 0 ? calcFees(Number(rate), nights, adults, children) : null;
+  const exactTotalHref = arrival && departure
+    ? `/pelican-beach-resort-unit-${unit}?or_arrival=${encodeURIComponent(arrival)}&or_departure=${encodeURIComponent(departure)}&or_adults=${adults}&or_children=${children}&or_guests=${totalGuests}`
+    : "";
+  const firstCoveredMonth = coveredDates.length ? coveredDates[0].slice(0, 7) : "";
+  const lastCoveredMonth = coveredDates.length ? coveredDates[coveredDates.length - 1].slice(0, 7) : "";
+  const visibleMonth = `${calYear}-${String(calMonth + 1).padStart(2, "0")}`;
+  const availableMonths = [...new Set(coveredDates.map(date => date.slice(0, 7)))].sort();
+  const canGoPrevious = Boolean(firstCoveredMonth && visibleMonth > firstCoveredMonth);
+  const canGoNext = Boolean(lastCoveredMonth && visibleMonth < lastCoveredMonth);
 
   useEffect(() => {
     function handleScroll() {
@@ -111,28 +201,79 @@ export default function OfferPage() {
 
   useEffect(() => {
     setLoadingDates(true);
+    setCalendarError("");
+    setBookedDates([]);
+    setCoveredDates([]);
+    setRates({});
+    setMinStays({});
     fetch(`/api/availability?unit=${unit}`)
-      .then(r => r.json())
-      .then(d => { setBookedDates(d.booked || []); setRates(d.rates || {}); })
-      .catch(() => setBookedDates([]))
+      .then(async r => {
+        const data = await r.json();
+        if (!r.ok || data.status !== "ok") throw new Error(data.error || "Availability could not be verified");
+        return data;
+      })
+      .then(d => { setBookedDates(d.booked); setCoveredDates(d.covered); setRates(d.rates); setMinStays(d.minStays || {}); })
+      .catch(() => setCalendarError("Availability cannot be verified right now. No dates have been shown as open."))
       .finally(() => setLoadingDates(false));
     setArrival(""); setDeparture("");
   }, [unit]);
 
+  useEffect(() => {
+    if (!ruleNotice) return undefined;
+    function closeOnEscape(event) {
+      if (event.key === "Escape") setRuleNotice("");
+    }
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [ruleNotice]);
+
   function handleCalSelect(dateStr) {
+    setCalendarError("");
     if (!arrival || (arrival && departure)) {
       setArrival(dateStr); setDeparture("");
     } else {
-      if (dateStr > arrival) setDeparture(dateStr);
+      if (dateStr > arrival) {
+        const selectedNights = getNights(arrival, dateStr);
+        const requiredNights = Math.max(1, Number(minStays[arrival]) || 1);
+        if (selectedNights < requiredNights) {
+          setDeparture("");
+          const earliestCheckout = new Date(`${arrival}T12:00:00`);
+          earliestCheckout.setDate(earliestCheckout.getDate() + requiredNights);
+          const earliestCheckoutLabel = earliestCheckout.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+          setRuleNotice(`These dates require a minimum stay of ${requiredNights} nights. Please choose ${earliestCheckoutLabel} or a later date for checkout.`);
+          return;
+        }
+        const blockedInsideRange = bookedDates.some(date => date >= arrival && date < dateStr);
+        const uncoveredInsideRange = coveredDates.some(Boolean) && (() => {
+          for (let date = new Date(`${arrival}T12:00:00`); date < new Date(`${dateStr}T12:00:00`); date.setDate(date.getDate() + 1)) {
+            if (!coveredDates.includes(date.toISOString().slice(0, 10))) return true;
+          }
+          return false;
+        })();
+        if (blockedInsideRange || uncoveredInsideRange) {
+          setDeparture("");
+          setCalendarError(blockedInsideRange ? "That stay crosses a booked night. Choose a checkout date before the blocked date." : "Every night in that stay could not be verified. Choose another range.");
+          return;
+        }
+        setDeparture(dateStr);
+      }
       else { setArrival(dateStr); setDeparture(""); }
     }
   }
 
   function handleNav(dir) {
+    if ((dir < 0 && !canGoPrevious) || (dir > 0 && !canGoNext)) return;
     let m = calMonth + dir, y = calYear;
     if (m > 11) { m = 0; y++; }
     if (m < 0) { m = 11; y--; }
     setCalMonth(m); setCalYear(y);
+  }
+
+  function handleMonthJump(year, month) {
+    const target = `${year}-${String(month + 1).padStart(2, "0")}`;
+    if (!availableMonths.includes(target)) return;
+    setCalYear(year);
+    setCalMonth(month);
   }
 
   function chgGuest(type, delta) {
@@ -158,7 +299,16 @@ export default function OfferPage() {
   async function handleSubmit() {
     if (!arrival || !departure || !rate || !name.trim() || !email.trim()) return;
     setStatus("sending");
+    setCalendarError("");
     try {
+      const availabilityResponse = await fetch(`/api/calendar?arrival=${encodeURIComponent(arrival)}&departure=${encodeURIComponent(departure)}`);
+      const availability = await availabilityResponse.json();
+      const selectedUnit = availability[`unit${unit}`];
+      if (!availabilityResponse.ok || selectedUnit?.status !== "available") {
+        setStatus("idle");
+        setCalendarError("Those dates are no longer confirmed available for this condo. Please choose another stay.");
+        return;
+      }
       const context = `Make an Offer | Unit ${unit} | ${arrival} to ${departure} | ${nights} nights | ${adults} adults, ${children} children, ${infants} infants | Proposed rate: $${rate}/night | Est. total: ${fees ? MONEY(fees.total) : "N/A"}`;
       const res = await fetch("/api/rate-inquiry", {
         method: "POST",
@@ -169,7 +319,7 @@ export default function OfferPage() {
     } catch { setStatus("error"); }
   }
 
-  const canSubmit = arrival && departure && rate && name.trim() && email.trim() && status !== "sending";
+  const canSubmit = arrival && departure && rate && name.trim() && email.trim() && !calendarError && !loadingDates && status !== "sending";
 
   return (
     <>
@@ -562,7 +712,7 @@ export default function OfferPage() {
             <div className="availability-copy">
               <div className="eyebrow">Beachfront availability</div>
               <h2>Start with the dates. Then make it yours.</h2>
-              <p>Green = open. Red = booked. Click arrival then departure to select your window.</p>
+              <p>Rates and date status come from the latest pricing-calendar snapshot. Select arrival and departure; availability is checked live again before your request is sent.</p>
             </div>
             <div>
               <div className="unit-toggle">
@@ -571,9 +721,12 @@ export default function OfferPage() {
               </div>
               {loadingDates ? (
                 <div className="cal-loading">Loading availability…</div>
+              ) : calendarError && coveredDates.length === 0 ? (
+                <div className="cal-loading" role="alert">{calendarError}</div>
               ) : (
-                <OfferCalendar unit={unit} year={calYear} month={calMonth} arrival={arrival} departure={departure} bookedDates={bookedDates} rates={rates} onSelect={handleCalSelect} onNav={handleNav} />
+                <OfferCalendar year={calYear} month={calMonth} arrival={arrival} departure={departure} bookedDates={bookedDates} coveredDates={coveredDates} rates={rates} availableMonths={availableMonths} onSelect={handleCalSelect} onNav={handleNav} onJump={handleMonthJump} canGoPrevious={canGoPrevious} canGoNext={canGoNext} />
               )}
+              {calendarError && coveredDates.length > 0 && <div className="cal-loading" role="alert">{calendarError}</div>}
               {arrival && (
                 <div className="date-display">
                   <span>{fmtDate(arrival)}</span>
@@ -661,6 +814,7 @@ export default function OfferPage() {
                         <div className="line-item"><span>Tax 13%</span><strong>{MONEY(fees.tax)}</strong></div>
                         <div className="line-item"><span>Admin 3%</span><strong>{MONEY(fees.admin)}</strong></div>
                         <div className="total-line"><span>Estimated total</span><strong>{MONEY(fees.total)}</strong></div>
+                        {exactTotalHref && <a className="exact-total-link" href={exactTotalHref}>See exact checkout total for these dates →</a>}
                       </>
                     ) : (
                       <div className="breakdown-empty">Enter dates and a nightly rate to see your total</div>
@@ -681,12 +835,33 @@ export default function OfferPage() {
                   <button type="button" className={`submit-btn${!canSubmit ? " disabled" : ""}`} onClick={handleSubmit} disabled={!canSubmit}>
                     {status === "sending" ? "Sending…" : status === "error" ? "Retry →" : "Send My Offer →"}
                   </button>
-                  <p className="fine-print">This is not a booking. We&apos;ll review and respond within a few hours. No charge until you confirm. An extra guest fee of $20/night applies for each guest beyond 4 (infants excluded). Final rates confirmed at checkout.</p>
+                  <p className="fine-print">This is not a booking. We&apos;ll review and respond within a few hours. No charge until you confirm. An extra guest fee of $20/night applies for each guest beyond 4 (infants excluded). Availability is rechecked before your request is sent; final rates and totals are confirmed at checkout.</p>
                 </div>
               </>
             )}
           </section>
         </div>
+
+        {ruleNotice && (
+          <div className="rule-modal-backdrop" role="presentation" onMouseDown={() => setRuleNotice("")}>
+            <section
+              className="rule-modal"
+              role="alertdialog"
+              aria-modal="true"
+              aria-labelledby="stay-rule-title"
+              aria-describedby="stay-rule-copy"
+              onMouseDown={event => event.stopPropagation()}
+            >
+              <div className="rule-modal-icon" aria-hidden="true">🌙</div>
+              <div>
+                <div className="eyebrow">Stay requirement</div>
+                <h2 id="stay-rule-title">Choose a longer stay</h2>
+                <p id="stay-rule-copy">{ruleNotice}</p>
+              </div>
+              <button type="button" className="rule-modal-close" autoFocus onClick={() => setRuleNotice("")}>Choose another date</button>
+            </section>
+          </div>
+        )}
       </main>
       <ToolFooter />
 
@@ -814,16 +989,35 @@ export default function OfferPage() {
         .cal-loading { color: var(--muted); font-size: .9rem; text-align: center; padding: 20px 0; }
         .cal-card { padding: 16px; border: 1px solid rgba(255,255,255,.14); border-radius: 24px; background: rgba(2,11,24,.6); backdrop-filter: blur(14px); }
         .cal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .cal-month-label { font-family: var(--heading); font-size: 1.1rem; font-weight: 700; letter-spacing: .04em; }
+        .cal-month-picker { position:relative; }
+        .cal-month-label { display:inline-flex; align-items:center; gap:7px; padding:6px 10px; border:1px solid transparent; border-radius:10px; background:transparent; color:var(--white); font-family: var(--heading); font-size: 1.1rem; font-weight: 700; letter-spacing: .04em; cursor:pointer; }
+        .cal-month-label:hover,.cal-month-label[aria-expanded="true"] { border-color:rgba(71,226,208,.55); background:rgba(71,226,208,.1); color:#84fff4; }
+        .cal-month-label:focus-visible { outline:3px solid var(--gold); outline-offset:2px; }
+        .month-chevron { font-family:Arial,sans-serif; font-size:.9rem; transition:transform .15s; }
+        .cal-month-label[aria-expanded="true"] .month-chevron { transform:rotate(180deg); }
+        .month-popover { position:absolute; z-index:20; top:calc(100% + 9px); left:50%; width:min(360px,calc(100vw - 52px)); max-height:min(440px,70vh); overflow:auto; transform:translateX(-50%); padding:16px; border:1px solid rgba(255,255,255,.2); border-radius:18px; background:#07182b; box-shadow:0 22px 60px rgba(0,0,0,.6); }
+        .month-year-group + .month-year-group { margin-top:14px; padding-top:14px; border-top:1px solid rgba(255,255,255,.12); }
+        .month-year-group h3 { margin:0 0 9px; color:#84fff4; font-family:var(--heading); font-size:1rem; letter-spacing:.08em; }
+        .month-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:7px; }
+        .month-grid button { min-height:40px; border:1px solid rgba(255,255,255,.14); border-radius:10px; background:rgba(255,255,255,.06); color:#e9f4ff; font-weight:800; cursor:pointer; }
+        .month-grid button:hover { border-color:var(--teal); background:rgba(71,226,208,.14); }
+        .month-grid button.active { border-color:var(--gold); background:var(--gold); color:var(--navy); }
+        .month-grid button:focus-visible { outline:3px solid var(--gold); outline-offset:2px; }
         .cal-nav { background: transparent; border: 1px solid var(--line); color: var(--white); border-radius: 8px; width: 28px; height: 28px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
-        .cal-nav:hover { border-color: var(--teal); color: var(--teal); }
+        .cal-nav:hover:not(:disabled) { border-color: var(--teal); color: var(--teal); }
+        .cal-nav:disabled { opacity: .28; cursor: not-allowed; }
         .cal-legend { display: flex; gap: 12px; font-size: .72rem; color: var(--muted); margin-bottom: 10px; }
         .legend-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
         .available-dot { background: var(--green); }
         .booked-dot { background: var(--red); }
+        .unconfirmed-dot { background: rgba(255,255,255,.25); }
         .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 5px; }
         .day-name { text-align: center; color: var(--muted); font-size: .68rem; font-weight: 900; text-transform: uppercase; padding-bottom: 3px; }
-        .day { aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; border-radius: 10px; font-size: .8rem; font-weight: 700; cursor: pointer; transition: .12s; padding: 2px 0; }
+        .day { width: 100%; aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; border: 0; border-radius: 10px; font: inherit; font-size: .8rem; font-weight: 700; cursor: pointer; transition: .12s; padding: 2px 0; }
+        .day:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+        .quote-note { margin: 12px 0 8px; color: var(--muted); font-size: .78rem; line-height: 1.5; }
+        .exact-total-link { display: inline-flex; align-items: center; margin-top: 4px; padding: 9px 13px; border-radius: 999px; background: rgba(29,149,169,.12); color: #087f91; font-size: .82rem; font-weight: 900; text-decoration: none; }
+        .exact-total-link:hover { background: rgba(29,149,169,.2); }
         .day-num { font-size: .8rem; font-weight: 700; line-height: 1; }
         .day-rate { font-size: .6rem; font-weight: 600; opacity: .85; line-height: 1; }
         .day.available { background: rgba(94,227,139,.85); color: #0a2310; }
@@ -835,6 +1029,16 @@ export default function OfferPage() {
         .date-display { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: .9rem; color: var(--white); font-weight: 500; }
         .date-arrow { color: var(--teal); }
         .date-display em { color: var(--muted); font-style: normal; }
+
+        .rule-modal-backdrop { position:fixed; inset:0; z-index:1000; display:grid; place-items:center; padding:20px; background:rgba(1,8,18,.78); backdrop-filter:blur(8px); }
+        .rule-modal { width:min(460px,100%); display:grid; gap:18px; padding:28px; border:1px solid rgba(255,255,255,.18); border-radius:28px; background:linear-gradient(145deg,#0b2340,#061426); color:#fff; box-shadow:0 30px 90px rgba(0,0,0,.55); }
+        .rule-modal-icon { width:54px; height:54px; display:grid; place-items:center; border-radius:16px; background:rgba(255,209,102,.14); border:1px solid rgba(255,209,102,.4); font-size:25px; }
+        .rule-modal .eyebrow { margin-bottom:12px; }
+        .rule-modal h2 { margin:0 0 10px; font-family:var(--heading); font-size:2rem; line-height:1; }
+        .rule-modal p { margin:0; color:#d2dfec; line-height:1.65; }
+        .rule-modal-close { width:100%; padding:13px 18px; border:0; border-radius:999px; background:var(--gold); color:var(--navy); font-weight:900; cursor:pointer; }
+        .rule-modal-close:hover { filter:brightness(1.06); }
+        .rule-modal-close:focus-visible { outline:3px solid #fff; outline-offset:3px; }
 
         .form-side { padding: 34px; background: linear-gradient(145deg,rgba(7,24,44,.96),rgba(3,13,25,.99)); }
         .form-header { display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; margin-bottom: 22px; }

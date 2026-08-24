@@ -11,14 +11,22 @@ function generateSessionId() {
   return "db_" + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 }
 
-export default function Concierge() {
+export default function Concierge({ previewMode = false, nativePanel = false }) {
   const router = useRouter();
   const isEmbed = router.query.embed === "1";
-  const starterPrompts = [
-    "Check condo availability",
-    "Help plan a family trip",
-    "What can we do in Destin?",
-    "I’m already staying and need help",
+  const enhancedMode = previewMode || nativePanel;
+  const starterPrompts = enhancedMode ? [
+    { label: "Check dates & prices", prompt: "Check availability and complete prices for my dates." },
+    { label: "Choose my condo", prompt: "Help me compare Unit 707 and Unit 1006 and choose the best condo for my stay." },
+    { label: "Plan a family trip", prompt: "Help me plan a Destin trip with children." },
+    { label: "Find things to do", prompt: "Recommend the best Destin activities for my group." },
+    { label: "Check beach conditions", prompt: "Help me check Destin weather, Gulf conditions, and beach safety." },
+    { label: "Find flights & rental cars", prompt: "Help me find flights and a rental car for my Destin stay." },
+  ] : [
+    { label: "Check condo availability", prompt: "Check condo availability" },
+    { label: "Help plan a family trip", prompt: "Help plan a family trip" },
+    { label: "What can we do in Destin?", prompt: "What can we do in Destin?" },
+    { label: "I’m already staying and need help", prompt: "I’m already staying and need help" },
   ];
   const [log, setLog] = useState([
     { role: "assistant", content: "Hey there! 👋 I'm Destiny Blue — I can check live availability for both units, build you a booking link in seconds, recommend dolphin tours and activities, or connect you straight to Ozan. What can I help you with? 😊" }
@@ -151,14 +159,15 @@ export default function Concierge() {
 
   useEffect(() => {
     if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollHeight;
+      scrollContainerRef.current.scrollTop = enhancedMode && log.length === 1 && !busy
+        ? 0
+        : scrollContainerRef.current.scrollHeight;
     }
-  }, [log, busy]);
+  }, [log, busy, enhancedMode]);
 
-  async function send(e) {
-    e.preventDefault();
-    if (!input.trim() || busy) return;
-    const text = input.trim();
+  async function sendMessage(text) {
+    if (!String(text || "").trim() || busy) return;
+    text = String(text).trim();
     setInput("");
     if (ozanIsActive || ozanInvited) {
       setLog(l => [...l, { role: "user", content: text }]);
@@ -213,6 +222,11 @@ export default function Concierge() {
       setBusy(false);
       setBusyMessage("");
     }
+  }
+
+  async function send(e) {
+    e.preventDefault();
+    await sendMessage(input);
   }
 
 const LINK_BUTTONS={
@@ -408,14 +422,11 @@ function getLinkButton(u){
     }
   };
 
-  return (
-    <main style={styles.page}>
-      {!isEmbed && <h1 style={styles.heading}>Destiny Blue — Your AI Concierge</h1>}
-
-      <div style={styles.chatBox}>
+  const chat = (
+      <div style={{...styles.chatBox, ...(enhancedMode ? {minHeight:nativePanel ? 680 : "min(720px, calc(100vh - 150px))"} : {})}}>
         {/* Header */}
         <div style={styles.header}>
-          <img src="/destiny_avatar.png" alt="Destiny Blue" style={{...styles.headerAvatar, objectFit:"cover", objectPosition:"center top"}} />
+          <div aria-hidden="true" style={{...styles.headerAvatar, background:"rgba(255,255,255,0.16)", fontSize:24}}>💬</div>
           <div>
             <p style={styles.headerName}>Destiny Blue</p>
             <p style={styles.headerSub}><span style={{color:"#8de1a8"}}>●</span> AI Concierge · Available now</p>
@@ -423,9 +434,9 @@ function getLinkButton(u){
         </div>
 
         {/* Messages */}
-        <div ref={scrollContainerRef} style={styles.messagesArea}>
-          {log.length === 1 && !busy && <div style={{display:"flex",flexWrap:"wrap",gap:8,margin:"0 0 8px 36px"}}>
-            {starterPrompts.map(prompt => <button key={prompt} type="button" onClick={() => setInput(prompt)} style={{padding:"9px 12px",borderRadius:999,border:"1px solid #c9dfe2",background:"#fff",color:"#073b58",fontSize:12,fontWeight:700,cursor:"pointer"}}>{prompt}</button>)}
+        <div ref={scrollContainerRef} style={{...styles.messagesArea, ...(enhancedMode ? {height:nativePanel ? 530 : "min(530px, calc(100vh - 292px))", minHeight:340} : {})}}>
+          {log.length === 1 && !busy && <div className={enhancedMode ? "db-starter-grid" : ""} style={{display:"flex",flexWrap:"wrap",gap:8,margin: enhancedMode ? "0 0 12px" : "0 0 8px 36px"}}>
+            {starterPrompts.map(({label, prompt}) => <button key={label} type="button" onClick={() => sendMessage(prompt)} style={{padding: enhancedMode ? "13px 14px" : "9px 12px",borderRadius: enhancedMode ? 12 : 999,border:"1px solid #b9d7da",background:"#fff",color:"#073b58",fontSize: enhancedMode ? 13 : 12,fontWeight:800,cursor:"pointer",textAlign:"left",boxShadow: enhancedMode ? "0 4px 12px rgba(7,59,88,.07)" : "none"}}>{label}<span aria-hidden="true" style={{float:"right",color:"#1597a8"}}> →</span></button>)}
           </div>}
           {log.map((m, i) => {
             if (m.role === "system") return (
@@ -484,7 +495,7 @@ function getLinkButton(u){
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(e); } }}
-            placeholder="Ask about availability, local restaurants, activities, plan your Destin trip or anything about Destin 😊"
+            placeholder="Ask Destiny anything about your stay…"
             style={styles.textarea}
           />
           <button type="submit" disabled={busy} style={{ ...styles.sendBtn, opacity: busy ? 0.6 : 1 }}>
@@ -492,12 +503,21 @@ function getLinkButton(u){
           </button>
         </form>
       </div>
+  );
 
-      <style>{`
+  return (
+    <main className={previewMode ? "db-preview-page" : nativePanel ? "db-native-panel" : ""} style={{...styles.page, ...(previewMode ? {maxWidth:1180, padding:20} : nativePanel ? {maxWidth:"none", padding:0} : {})}}>
+      {!isEmbed && !previewMode && !nativePanel && <h1 style={styles.heading}>Destiny Blue — Your AI Concierge</h1>}
+      {nativePanel ? chat : previewMode ? <div className="db-preview-layout"><section className="db-preview-intro"><p className="db-eyebrow">YOUR DESTIN STARTING POINT</p><h1>What can I help you plan?</h1><p>Choose a starting point or ask your own question. Destiny will begin with that intent and guide you toward the next useful step.</p><div className="db-trust">Live availability · Local guidance · Ozan when needed</div></section><section>{chat}</section></div> : chat}
+
+      <style jsx global>{`
         @keyframes db-bounce {
           0%, 60%, 100% { transform: translateY(0); }
           30% { transform: translateY(-5px); }
         }
+        .db-preview-layout{display:grid;grid-template-columns:minmax(250px,.72fr) minmax(480px,1.28fr);gap:28px;align-items:start}.db-preview-intro{padding:38px 18px 20px 4px;color:#073b58}.db-preview-intro h1{font-family:Georgia,serif;font-size:clamp(38px,5vw,64px);line-height:.98;margin:10px 0 22px}.db-preview-intro p{font-size:17px;line-height:1.65;color:#506b78}.db-eyebrow{font-size:12px!important;font-weight:900;letter-spacing:.15em;color:#1597a8!important}.db-trust{margin-top:28px;padding-top:20px;border-top:1px solid #c9dfe2;color:#315665;font-weight:800;line-height:1.6}.db-starter-grid{display:grid!important;grid-template-columns:1fr 1fr}.db-starter-grid button:hover,.db-starter-grid button:focus-visible{border-color:#1597a8!important;transform:translateY(-1px);box-shadow:0 7px 18px rgba(7,59,88,.12)!important;outline:3px solid rgba(21,151,168,.14)}
+        @media(max-width:760px){.db-preview-page{padding:0!important}.db-preview-layout{display:block}.db-preview-intro{padding:22px 18px 18px}.db-preview-intro h1{font-size:38px;margin:7px 0 12px}.db-preview-intro p{font-size:15px;line-height:1.5}.db-trust{display:none}.db-preview-layout>section:last-child>div{border-radius:18px 18px 0 0!important;box-shadow:none!important}.db-starter-grid{grid-template-columns:1fr 1fr}.db-starter-grid button{min-height:54px}.db-preview-layout textarea{font-size:16px!important}}
+        @media(max-width:420px){.db-starter-grid{grid-template-columns:1fr}.db-preview-intro h1{font-size:34px}}
       `}</style>
     </main>
   );

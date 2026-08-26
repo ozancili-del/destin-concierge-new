@@ -75,7 +75,6 @@ export default function GuestGuidePage() {
         address: { "@type": "PostalAddress", streetAddress: "1002 US-98", addressLocality: "Destin", addressRegion: "FL", postalCode: "32541", addressCountry: "US" },
         geo: { "@type": "GeoCoordinates", latitude: 30.3935, longitude: -86.4958 },
         checkinTime: "16:00", checkoutTime: "10:00", petsAllowed: false, smokingAllowed: false,
-        aggregateRating: { "@type": "AggregateRating", ratingValue: 4.94, reviewCount: 400, bestRating: 5, worstRating: 1 },
         sameAs: ["https://www.facebook.com/DestinCondoGetaways"]
       }
     ]

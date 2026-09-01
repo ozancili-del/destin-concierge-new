@@ -171,7 +171,8 @@ export default function VoiceLab() {
       setStatus("Listening — you can interrupt anytime.");
       const responseStatus = event.response?.status || "";
       if (["cancelled", "incomplete", "failed"].includes(responseStatus)) {
-        queueVoiceEvent({ eventType: responseStatus === "cancelled" ? "interrupted" : "error", role: "system", interrupted: responseStatus === "cancelled", providerEventId: event.response?.id || event.event_id || "", text: responseStatus });
+        const detail = event.response?.status_details?.reason || event.response?.status_details?.error?.code || "";
+        queueVoiceEvent({ eventType: responseStatus === "cancelled" ? "interrupted" : "error", role: "system", interrupted: responseStatus === "cancelled", providerEventId: event.response?.id || event.event_id || "", text: detail ? `${responseStatus}:${detail}` : responseStatus });
       }
     }
     if (event.type === "conversation.item.truncated") {

@@ -1,10 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { IMMEDIATE_VOICE_FACTS, VOICE_INSTRUCTIONS, VOICE_MODEL, VOICE_OUTPUT } from "../lib/destiny-agent/voice-experience.js";
+import { IMMEDIATE_VOICE_FACTS, VOICE_INSTRUCTIONS, VOICE_MAX_OUTPUT_TOKENS, VOICE_MODEL, VOICE_OUTPUT } from "../lib/destiny-agent/voice-experience.js";
 import { extractVoiceCompanionLinks } from "../lib/destiny-agent/voice-links.js";
 
 test("Voice Lab uses the friendlier normal-speed voice", () => {
   assert.equal(VOICE_MODEL, "gpt-realtime-2");
+  assert.equal(VOICE_MAX_OUTPUT_TOKENS, 900);
   assert.deepEqual(VOICE_OUTPUT, { voice: "marin", speed: 1 });
 });
 
@@ -13,7 +14,9 @@ test("Voice routing makes stable facts immediate and keeps fresh and protected c
   assert.match(VOICE_INSTRUCTIONS, /answer directly and immediately/i);
   assert.match(VOICE_INSTRUCTIONS, /Fresh checks: availability, weather, beach conditions, events, prices, and schedules/i);
   assert.match(VOICE_INSTRUCTIONS, /Protected checks: reservation details, door codes, maintenance actions/i);
-  assert.match(VOICE_INSTRUCTIONS, /do not say “let me check,” “please hold,”/i);
+  assert.match(VOICE_INSTRUCTIONS, /Before ask_destiny_brain, say one short, relevant acknowledgement/i);
+  assert.match(VOICE_INSTRUCTIONS, /Do not repeat the acknowledgement while the same lookup is pending/i);
+  assert.match(VOICE_INSTRUCTIONS, /Never say “including zero” to a guest/i);
   assert.match(VOICE_INSTRUCTIONS, /Do not automatically end replies with “Anything else\?”/i);
   assert.doesNotMatch(IMMEDIATE_VOICE_FACTS.pools, /three heated pools/i);
 });

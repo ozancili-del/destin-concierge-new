@@ -19,6 +19,7 @@ test("Voice Lab opens each connected call with one concise spoken introduction",
   assert.equal(event.response.metadata.destiny_kind, "opening_greeting");
   assert.deepEqual(event.response.output_modalities, ["audio"]);
   assert.deepEqual(event.response.tools, []);
+  assert.equal(event.response.max_output_tokens, 200);
   assert.match(event.response.instructions, /Say exactly this welcoming opening and nothing else/);
 });
 

@@ -49,6 +49,21 @@ The server-side booking guard appears to have failed closed correctly. The defec
 - **Potential implementation:** Add an immediate pre-tool spoken acknowledgement for slow specialist/full-agent routes, then a single timer-based spoken check-in if the operation crosses the long-wait threshold. Pair this with visual status and cancellation/interruption handling. Keep fast deterministic routes free of unnecessary filler.
 - **Regression coverage needed:** Slow success, slow failure, timeout, interruption, and cancellation; confirm acknowledgement plays promptly, no unverified result is spoken, and only one final answer is rendered.
 
+### Reproduction evidence — 2026-09-01
+
+Session `voice_mtizk2wy_5t2xuy` confirms that removing pre-tool filler fixed fast answers but exposed a threshold problem on genuinely slow lookups:
+
+- “Do you have pools?” and “How many lifts do you have?” used code-owned facts and answered in roughly one to two seconds without unnecessary filler. This behavior should remain.
+- “Do you have a cafeteria?” produced about 11 seconds of complete silence. The guest asked, “Hello, you are there?” before the lookup finished.
+- “Do you have a gym, sauna, or a steam room?” produced about eight seconds of silence. The guest again asked whether Destiny was still there.
+- The follow-up interruption caused duplicated work: the backend recorded the repeated question/result, then Realtime spoke a separate final summary.
+- The café answer was technically distinguishable (“not a cafeteria” but an on-site café), yet the wording sounded contradictory after the verified tool result had already said yes. The final spoken summary should lead with the useful guest answer: there is an on-site café, while clarifying only if necessary that it is not a traditional cafeteria.
+- The gym answer again ended with the canned “Anything else you'd like to know?” despite the new rhythm instruction, so this must be evaluated behaviorally rather than assumed fixed from prompt wording alone.
+
+The correct repair is not to restore “let me check” before every lookup. Introduce a short grace period for tool calls: allow fast results to answer naturally, but if a tool remains unresolved beyond the threshold, play one brief truthful acknowledgement such as “I’m still here—checking that for you.” Suppress that check-in if the final result is already ready, cancel it on interruption or tool failure, and ensure a guest’s “are you there?” does not launch a duplicate lookup for the same pending request.
+
+The same evidence suggests that stable on-site amenity facts—café/tiki bar and fitness center/sauna/steam room—are candidates for the immediate code-owned fact set after their wording is verified, further reducing unnecessary tool latency.
+
 ## Mobile activity links lose their individual labels
 
 - **Status:** Open; frontend rendering change required. Do not change production behavior yet.

@@ -2,6 +2,7 @@ import Head from "next/head";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import styles from "../styles/VoiceLab.module.css";
+import { extractVoiceCompanionLinks } from "../lib/destiny-agent/voice-links.js";
 
 const initialStatus = "Tap the call button when you're ready.";
 
@@ -15,6 +16,7 @@ export default function VoiceLab() {
   const [status, setStatus] = useState(initialStatus);
   const [phase, setPhase] = useState("idle");
   const [transcript, setTranscript] = useState([]);
+  const [companionLinks, setCompanionLinks] = useState([]);
   const peerRef = useRef(null);
   const channelRef = useRef(null);
   const streamRef = useRef(null);
@@ -123,6 +125,14 @@ export default function VoiceLab() {
       providerEventId: event.call_id || event.event_id || "",
       latencyMs: Date.now() - startedAt,
     });
+    const discoveredLinks = extractVoiceCompanionLinks(output);
+    if (discoveredLinks.length) {
+      setCompanionLinks(current => {
+        const byHref = new Map(current.map(link => [link.href, link]));
+        discoveredLinks.forEach(link => byHref.set(link.href, link));
+        return [...byHref.values()].slice(-6);
+      });
+    }
     channelRef.current?.send(JSON.stringify({
       type: "conversation.item.create",
       item: { type: "function_call_output", call_id: event.call_id, output: String(output) },
@@ -242,9 +252,12 @@ export default function VoiceLab() {
         <p className={styles.status}>{status}</p>
         <div className={styles.transcript} aria-live="polite">
           {transcript.length ? transcript.map((line, index) => <p key={`${line.role}-${index}`} className={line.role === "you" ? styles.you : styles.destiny}><strong>{line.role === "you" ? "You" : "Destiny"}</strong>{line.text}</p>) : <p className={styles.hint}>This transcript is only for testing. The final voice experience can hide it.</p>}
+          {companionLinks.length ? <div className={styles.companionLinks} aria-label="Links from Destiny">
+            {companionLinks.map(link => <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer">{link.label}<span aria-hidden="true"> ↗</span></a>)}
+          </div> : null}
         </div>
         <div className={styles.controls}>
-          <button type="button" className={styles.smallButton} onClick={() => setTranscript([])} aria-label="Clear transcript">⌫<span>Clear</span></button>
+          <button type="button" className={styles.smallButton} onClick={() => { setTranscript([]); setCompanionLinks([]); }} aria-label="Clear transcript and links">⌫<span>Clear</span></button>
           <button type="button" className={`${styles.callButton} ${phase !== "idle" ? styles.hangup : ""}`} onClick={startCall} disabled={phase === "connecting"} aria-label={phase === "idle" ? "Call Destiny Blue" : "End call"}>
             <span>{phase === "idle" ? "☎" : "×"}</span>
           </button>

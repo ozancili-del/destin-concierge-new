@@ -34,6 +34,9 @@
 .you { margin-left: 28px!important; border-bottom-right-radius: 5px!important; background: #26aac2; color: #fff; }
 .destiny { margin-right: 28px!important; border-bottom-left-radius: 5px!important; background: #fff; color: #274650; }
 .hint { padding: 14px 12px!important; background: transparent!important; box-shadow: none!important; color: #68848c; font-size: 11px!important; text-align: center; }
+.companionLinks { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 2px 4px; }
+.companionLinks a { padding: 7px 10px; border: 1px solid #16849b33; border-radius: 999px; background: #fff; box-shadow: 0 4px 10px #0e677414; color: #087c91; font-size: 11px; font-weight: 750; line-height: 1.2; text-decoration: none; }
+.companionLinks a:hover,.companionLinks a:focus-visible { border-color: #16849b88; background: #f3ffff; outline: none; }
 .controls { position: relative; flex: 0 0 auto; width: 100%; display: grid; grid-template-columns: 1fr 78px 1fr; align-items: center; padding-top: 6px; }
 .callButton { justify-self: center; width: clamp(58px,9dvh,72px); height: clamp(58px,9dvh,72px); border: 0; border-radius: 50%; background: linear-gradient(145deg,#24aebf,#087c91); box-shadow: 0 13px 25px #086b7e55,0 0 0 7px #fff9; color: #fff; cursor: pointer; }
 .callButton span { display: block; transform: rotate(-20deg); font-size: clamp(27px,4dvh,32px); }

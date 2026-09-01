@@ -385,7 +385,7 @@ async function fetchDestinWeather() {
   try {
     const apiKey = process.env.GOOGLE_WEATHER_API_KEY;
     if (!apiKey) { console.error("GOOGLE_WEATHER_API_KEY not set"); return null; }
-    const url = `https://weather.googleapis.com/v1/forecast/days:lookup?key=${apiKey}&location.latitude=30.3935&location.longitude=-86.4958&days=7&languageCode=en-US&unitsSystem=IMPERIAL`;
+    const url = `https://weather.googleapis.com/v1/forecast/days:lookup?key=${apiKey}&location.latitude=30.3845507&location.longitude=-86.4745732&days=7&languageCode=en-US&unitsSystem=IMPERIAL`;
     console.log("Calling Google Weather API...");
     const res = await fetch(url);
     if (!res.ok) { console.error("Google Weather error:", res.status, await res.text()); return null; }
@@ -3207,7 +3207,7 @@ Keep it natural and brief — just one sentence letting them know the tool is th
 RESORT MAP
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 - When a guest ASKS a question about any resort facility — pools, hot tubs, gym, fitness center, sauna, steam room, tennis, pickleball, grills, EV chargers, parking, Tiki Bar, café, or beach access — answer the question normally, then add this line at the end of your reply:
-  "You can also explore the full resort layout on our interactive map → https://www.destincondogetaways.com/pelican-beach-resort-destin-574048693"
+  "You can also explore the full resort layout on our interactive map → https://www.destincondogetaways.com/pelican-beach-resort-destin"
 - Only add the map link when the guest is ASKING (uses words like "where", "do you have", "is there", "how do I find", "what's the" etc.) — do NOT add it to casual statements or general conversation.
 - Add the map link at most ONCE per conversation — do not repeat it if already shared.
 

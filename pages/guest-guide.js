@@ -73,8 +73,9 @@ export default function GuestGuidePage() {
         description: "Owner-direct beachfront vacation rentals at Pelican Beach Resort in Destin, Florida.",
         telephone: "+1-972-357-4262", email: "ozan@destincondogetaways.com",
         address: { "@type": "PostalAddress", streetAddress: "1002 US-98", addressLocality: "Destin", addressRegion: "FL", postalCode: "32541", addressCountry: "US" },
-        geo: { "@type": "GeoCoordinates", latitude: 30.3935, longitude: -86.4958 },
+        geo: { "@type": "GeoCoordinates", latitude: 30.3845507, longitude: -86.4745732 },
         checkinTime: "16:00", checkoutTime: "10:00", petsAllowed: false, smokingAllowed: false,
+        aggregateRating: { "@type": "AggregateRating", ratingValue: 4.94, reviewCount: 400, bestRating: 5, worstRating: 1 },
         sameAs: ["https://www.facebook.com/DestinCondoGetaways"]
       }
     ]

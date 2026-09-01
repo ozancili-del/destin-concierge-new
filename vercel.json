@@ -2,6 +2,28 @@
   "redirects": [
     {
       "source": "/",
+      "destination": "https://www.destincondogetaways.com/",
+      "permanent": true,
+      "has": [
+        {
+          "type": "host",
+          "value": "destincondogetaways.com"
+        }
+      ]
+    },
+    {
+      "source": "/:path*",
+      "destination": "https://www.destincondogetaways.com/:path*",
+      "permanent": true,
+      "has": [
+        {
+          "type": "host",
+          "value": "destincondogetaways.com"
+        }
+      ]
+    },
+    {
+      "source": "/",
       "destination": "https://www.destincondogetaways.com/destin-snowbird-rentals",
       "permanent": true,
       "has": [

@@ -42,7 +42,7 @@ export default function ExpandedGuidePage({ slug }) {
     {"@type":"BreadcrumbList",itemListElement:[{"@type":"ListItem",position:1,name:"Home",item:liveSite},{"@type":"ListItem",position:2,name:"Destin Blog",item:`${liveSite}/blog`},{"@type":"ListItem",position:3,name:guide.shortTitle,item:canonical}]},
     {"@type":"FAQPage",mainEntity:guide.faqs.map(f=>({"@type":"Question",name:f.q,acceptedAnswer:{"@type":"Answer",text:f.a}}))},
     {"@type":"ItemList",name:guide.listName,itemListElement:guide.cards.map((card,index)=>({"@type":"ListItem",position:index+1,name:card.title,description:card.text.replace(/<[^>]+>/g,"")}))},
-    {"@type":"LodgingBusiness","@id":`${liveSite}/#business`,name:"Destin Condo Getaways",url:liveSite,telephone:"+1-972-357-4262",email:"ozan@destincondogetaways.com",address:{"@type":"PostalAddress",streetAddress:"1002 US-98",addressLocality:"Destin",addressRegion:"FL",postalCode:"32541",addressCountry:"US"},geo:{"@type":"GeoCoordinates",latitude:30.3935,longitude:-86.4958}}
+    {"@type":"LodgingBusiness","@id":`${liveSite}/#business`,name:"Destin Condo Getaways",url:liveSite,telephone:"+1-972-357-4262",email:"ozan@destincondogetaways.com",address:{"@type":"PostalAddress",streetAddress:"1002 US-98",addressLocality:"Destin",addressRegion:"FL",postalCode:"32541",addressCountry:"US"},geo:{"@type":"GeoCoordinates",latitude:30.3845507,longitude:-86.4745732}}
   ]};
   const body = <div className={guideStyles.guide} style={inline.guide}>
     <p className={guideStyles.byline} style={inline.byline}>By Ozan CILI, owner of Destin Condo Getaways · Published and updated August 16, 2026</p>

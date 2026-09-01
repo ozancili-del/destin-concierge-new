@@ -353,7 +353,7 @@ const NB='https://api.tidesandcurrents.noaa.gov/api/prod/datagetter';
 const NS='8729840';const NA='destincondogetaways';
 function nu(p){return NB+'?date=latest&station='+NS+'&product='+p+'&units=english&time_zone=lst&application='+NA+'&format=json';}
 function tu(){return NB+'?date=today&station='+NS+'&product=predictions&datum=MLLW&time_zone=lst&interval=hilo&units=english&application='+NA+'&format=json';}
-function omu(){return 'https://api.open-meteo.com/v1/forecast?latitude=30.3763&longitude=-86.4958&current=relative_humidity_2m,wind_speed_10m,wind_direction_10m&wind_speed_unit=mph&daily=sunrise,sunset&timezone=America%2FChicago';}
+function omu(){return 'https://api.open-meteo.com/v1/forecast?latitude=30.3763&longitude=-86.4745732&current=relative_humidity_2m,wind_speed_10m,wind_direction_10m&wind_speed_unit=mph&daily=sunrise,sunset&timezone=America%2FChicago';}
 function dc(d){return['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'][Math.round(d/22.5)%16];}
 function mi(mb){return(mb*0.02953).toFixed(2);}
 function pnt(str){if(!str)return null;const[dp,tp]=str.split(' ');const[y,mo,day]=dp.split('-').map(Number);const[h,m]=tp.split(':').map(Number);return new Date(y,mo-1,day,h,m);}

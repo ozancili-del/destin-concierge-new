@@ -36,7 +36,7 @@ export default function ReviewsPage() {
         "@type": "LodgingBusiness", "@id": liveSite + "/#business", name: "Destin Condo Getaways",
         url: liveSite, telephone: "+1-972-357-4262", email: "ozan@destincondogetaways.com",
         address: { "@type": "PostalAddress", streetAddress: "1002 US-98", addressLocality: "Destin", addressRegion: "FL", postalCode: "32541", addressCountry: "US" },
-        geo: { "@type": "GeoCoordinates", latitude: 30.3935, longitude: -86.4958 },
+        geo: { "@type": "GeoCoordinates", latitude: 30.3845507, longitude: -86.4745732 },
         aggregateRating: { "@type": "AggregateRating", ratingValue: 4.93, reviewCount: 173, bestRating: 5, worstRating: 1 },
         review: featuredReviews.map((review) => ({
           "@type": "Review", author: { "@type": "Person", name: review.name },

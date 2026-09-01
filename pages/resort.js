@@ -8,7 +8,7 @@ import styles from "../styles/Resort.module.css";
 
 const liveSite = "https://www.destincondogetaways.com";
 const resortAddress = { "@type": "PostalAddress", streetAddress: "1002 US Highway 98", addressLocality: "Destin", addressRegion: "FL", postalCode: "32541", addressCountry: "US" };
-const geo = { "@type": "GeoCoordinates", latitude: 30.39347, longitude: -86.49583 };
+const geo = { "@type": "GeoCoordinates", latitude: 30.3845507, longitude: -86.4745732 };
 
 const amenities = [
   ["Beachfront", "Private beach access with no road to cross"],
@@ -69,8 +69,8 @@ export default function Resort() {
     { "@type": "WebPage", "@id": `${liveSite}/pelican-beach-resort-destin#webpage`, name: "Pelican Beach Resort in Destin, Florida", description: "A complete guide to Pelican Beach Resort's beachfront location, pools, amenities and owner-direct condo rentals.", about: { "@id": `${liveSite}/#business` } },
     { "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Home", item: liveSite }, { "@type": "ListItem", position: 2, name: "Pelican Beach Resort", item: `${liveSite}/pelican-beach-resort-destin` }] },
     { "@type": "FAQPage", mainEntity: faqs.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })) }, business,
-    unitSchema(707, 7, "Classic Coastal", "/images/site/0f604abce3284748ba8d2150b7646863-large.webp", "pelican-beach-resort-unit-707-orp5b47b5ax"),
-    unitSchema(1006, 10, "Fresh Coastal", "/images/site/79fb2b20887c4f44b58c710a59420a30-large.webp", "pelican-beach-resort-unit-1006-orp5b6450ex"),
+    unitSchema(707, 7, "Classic Coastal", "/images/site/0f604abce3284748ba8d2150b7646863-large.webp", "pelican-beach-resort-unit-707"),
+    unitSchema(1006, 10, "Fresh Coastal", "/images/site/79fb2b20887c4f44b58c710a59420a30-large.webp", "pelican-beach-resort-unit-1006"),
   ] };
 
   return <div className={styles.page}>

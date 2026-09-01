@@ -457,7 +457,7 @@ function buildSchema(deals) {
     "name": "Destin Condo Getaways — Unit 707 Classic Coastal at Pelican Beach Resort",
     "description": "Beachfront 1-bedroom condo on the 7th floor of Pelican Beach Resort, Destin FL. Sleeps 6. Private Gulf-view balcony, full kitchen, 2 bathrooms. Direct booking saves 10% vs Airbnb and VRBO.",
     "url": "https://www.destincondogetaways.com/pelican-beach-resort-unit-707",
-    "telephone": "",
+    "telephone": "+1-972-357-4262",
     "address": {
       "@type": "PostalAddress",
       "streetAddress": "1002 US-98 East, Unit 707",
@@ -466,7 +466,7 @@ function buildSchema(deals) {
       "postalCode": "32541",
       "addressCountry": "US"
     },
-    "geo": { "@type": "GeoCoordinates", "latitude": 30.3935, "longitude": -86.4958 },
+    "geo": { "@type": "GeoCoordinates", "latitude": 30.3845507, "longitude": -86.4745732 },
     "image": "/images/site/0f604abce3284748ba8d2150b7646863-medium.webp",
     "priceRange": "$200–$600/night",
     "starRating": { "@type": "Rating", "ratingValue": 5 },

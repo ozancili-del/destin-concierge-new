@@ -69,10 +69,6 @@ It includes business identity, contact information, address, geo coordinates, am
 - Rich Results Test validity does not remove the need for content/schema consistency.
 - Self-referential business review markup must be reviewed against current Google guidelines; visible review content will still be preserved for users.
 
-## Active review-schema validation
-
-The controlled Guest Guide production test and the hold/expansion rules are recorded in `docs/SEARCH-CONSOLE-REVIEW-SCHEMA-VALIDATION.md`. Treat that file as the current decision record while Search Console validation is running; do not reintroduce Guest Guide rating schema or expand the cleanup without checking its status first.
-
 ## Content-preservation gate per page
 
 Before a page is marked migrated:

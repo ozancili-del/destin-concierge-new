@@ -57,6 +57,6 @@ export function getStaticProps() {
     .replaceAll("https://www.destincondogetaways.com/blog/destinweather", "/blog/destinweather")
     .replaceAll("https://www.destincondogetaways.com/blog/best-beaches-destin", "/blog/best-beaches-destin")
     .replaceAll("https://www.destincondogetaways.com/blog/destin-events-2026", "/blog/destin-events")
-    .replaceAll("https://www.destincondogetaways.com/pelican-beach-resort-destin-574048693", "/pelican-beach-resort-destin");
+    .replaceAll("https://www.destincondogetaways.com/pelican-beach-resort-destin", "/pelican-beach-resort-destin");
   return { props: { articleHtml, structuredData } };
 }

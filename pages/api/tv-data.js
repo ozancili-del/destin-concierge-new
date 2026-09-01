@@ -6,8 +6,8 @@ const OWNERREZ_USER = "ozan@destincondogetaways.com";
 const UNIT_707_PROPERTY_ID = "293722";
 const UNIT_1006_PROPERTY_ID = "410894";
 
-const DESTIN_LAT = 30.3935;
-const DESTIN_LNG = -86.4958;
+const DESTIN_LAT = 30.3845507;
+const DESTIN_LNG = -86.4745732;
 
 // NOAA station closest to Destin for tides (Pensacola)
 const NOAA_STATION = "8729840";

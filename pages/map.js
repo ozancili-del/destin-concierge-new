@@ -21,7 +21,7 @@ const nearby = [
 export default function MapPage() {
   const schema = { "@context": "https://schema.org", "@graph": [
     { "@type": "Map", "@id": `${liveSite}/map#map`, url: `${liveSite}/map`, name: "Pelican Beach Resort Map and Directions", about: { "@id": `${liveSite}/#business` } },
-    { "@type": "LodgingBusiness", "@id": `${liveSite}/#business`, name: "Destin Condo Getaways", address: { "@type": "PostalAddress", streetAddress: "1002 US-98", addressLocality: "Destin", addressRegion: "FL", postalCode: "32541", addressCountry: "US" }, geo: { "@type": "GeoCoordinates", latitude: 30.3935, longitude: -86.4958 }, hasMap: directions },
+    { "@type": "LodgingBusiness", "@id": `${liveSite}/#business`, name: "Destin Condo Getaways", address: { "@type": "PostalAddress", streetAddress: "1002 US-98", addressLocality: "Destin", addressRegion: "FL", postalCode: "32541", addressCountry: "US" }, geo: { "@type": "GeoCoordinates", latitude: 30.3845507, longitude: -86.4745732 }, hasMap: directions },
     { "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: "Home", item: liveSite }, { "@type": "ListItem", position: 2, name: "Map & Directions", item: `${liveSite}/map` }] },
   ] };
 

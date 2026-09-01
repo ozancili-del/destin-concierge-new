@@ -1,0 +1,72 @@
+.page {
+  width: 100%; min-height: 100vh; min-height: 100dvh; display: grid; place-items: center;
+  padding: 20px 14px; overflow: hidden;
+  background: radial-gradient(circle at 50% 8%,#1c6479 0,#0b3242 32%,#061d29 70%,#04151d 100%);
+  color: #f7fbfc; font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+.page,.page * { box-sizing: border-box; }
+.phone {
+  position: relative; width: min(390px,calc(100vw - 24px)); height: min(820px,calc(100dvh - 32px));
+  max-height: 100%; padding: 4px; border: 8px solid #11161a; border-radius: 54px;
+  background: #0d1418; box-shadow: 0 38px 90px #0009,0 0 0 2px #8d969a;
+}
+.screen {
+  position: relative; height: 100%; min-height: 0; overflow: hidden; display: flex; align-items: center;
+  flex-direction: column; padding: 52px 22px 16px; border-radius: 42px;
+  background: linear-gradient(180deg,#effbfd 0%,#d9f4f6 46%,#f8fbfb 100%); color: #12333e;
+}
+.screen:before { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at 50% 26%,#fff 0 3%,transparent 30%),linear-gradient(135deg,#28b7cf18,#e79e4922); }
+.island { position: absolute; z-index: 4; top: 17px; left: 50%; width: 116px; height: 31px; transform: translateX(-50%); display: flex; align-items: center; justify-content: flex-end; gap: 7px; padding-right: 15px; border-radius: 20px; background: #050708; }
+.island span { width: 8px; height: 8px; border-radius: 50%; background: #111c31; box-shadow: inset 0 0 3px #405aa1; }
+.island i { width: 5px; height: 5px; border-radius: 50%; background: #151b24; }
+.topbar { position: absolute; z-index: 3; top: 17px; left: 27px; right: 25px; display: flex; justify-content: space-between; color: #14272e; font-size: 12px; font-weight: 700; }
+.topbar div { display: flex; gap: 6px; letter-spacing: -2px; }
+.private { position: relative; flex: 0 0 auto; margin-top: 6px; padding: 5px 10px; border: 1px solid #16849b33; border-radius: 999px; background: #fff9; color: #126f82; font-size: 9px; font-weight: 800; letter-spacing: .14em; }
+.pulse { position: relative; flex: 0 0 auto; width: clamp(88px,17dvh,142px); height: clamp(88px,17dvh,142px); margin-top: clamp(10px,2.6dvh,25px); overflow: hidden; border: 6px solid #fff; border-radius: 50%; box-shadow: 0 15px 38px #147b9160,0 0 0 12px #50cadd22; transition: .3s; }
+.pulse.live { animation: pulse 2.2s infinite; }
+.pulse img { object-fit: cover; }
+.eyebrow { position: relative; flex: 0 0 auto; margin: clamp(9px,2dvh,20px) 0 4px; color: #16869b; font-size: 10px; font-weight: 850; letter-spacing: .2em; }
+.screen h1 { position: relative; flex: 0 0 auto; margin: 0; color: #123945; font-family: Georgia,serif; font-size: clamp(26px,4.2dvh,33px); line-height: 1.05; }
+.status { position: relative; flex: 0 0 auto; min-height: 34px; max-width: 280px; margin: 6px auto 7px; color: #42636d; font-size: 13px; line-height: 1.3; text-align: center; }
+.transcript { position: relative; flex: 1 1 auto; width: 100%; min-height: 64px; overflow: auto; overscroll-behavior: contain; padding: 3px 2px; scrollbar-width: thin; }
+.transcript p { margin: 6px 0; padding: 8px 11px; border-radius: 15px; box-shadow: 0 5px 12px #0e677414; font-size: 12px; line-height: 1.3; }
+.transcript strong { display: block; margin-bottom: 2px; font-size: 9px; text-transform: uppercase; letter-spacing: .1em; }
+.you { margin-left: 28px!important; border-bottom-right-radius: 5px!important; background: #26aac2; color: #fff; }
+.destiny { margin-right: 28px!important; border-bottom-left-radius: 5px!important; background: #fff; color: #274650; }
+.hint { padding: 14px 12px!important; background: transparent!important; box-shadow: none!important; color: #68848c; font-size: 11px!important; text-align: center; }
+.controls { position: relative; flex: 0 0 auto; width: 100%; display: grid; grid-template-columns: 1fr 78px 1fr; align-items: center; padding-top: 6px; }
+.callButton { justify-self: center; width: clamp(58px,9dvh,72px); height: clamp(58px,9dvh,72px); border: 0; border-radius: 50%; background: linear-gradient(145deg,#24aebf,#087c91); box-shadow: 0 13px 25px #086b7e55,0 0 0 7px #fff9; color: #fff; cursor: pointer; }
+.callButton span { display: block; transform: rotate(-20deg); font-size: clamp(27px,4dvh,32px); }
+.callButton:disabled { opacity: .6; }
+.callButton.hangup { background: linear-gradient(145deg,#f35e55,#ce2d2d); }
+.callButton.hangup span { transform: none; font-size: 40px; font-weight: 200; line-height: .8; }
+.smallButton { border: 0; background: transparent; color: #43646d; font-size: 22px; cursor: pointer; }
+.smallButton span { display: block; margin-top: 1px; font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+.disclosure { position: relative; flex: 0 0 auto; margin: 9px 0 4px; color: #6b858c; font-size: 8px; line-height: 1.2; text-align: center; }
+.homeIndicator { flex: 0 0 auto; width: 112px; height: 4px; margin-top: 3px; border-radius: 9px; background: #17282d; }
+@keyframes pulse { 0%,100% { box-shadow: 0 15px 38px #147b9160,0 0 0 12px #50cadd22; } 50% { box-shadow: 0 15px 38px #147b9190,0 0 0 20px #50cadd08; } }
+@media (max-width: 420px) {
+  .page { height: 100vh; height: 100dvh; min-height: 0; padding: 0; background: #071e28; }
+  .phone { width: 100%; height: 100%; max-width: none; max-height: none; padding: 0; border: 0; border-radius: 0; box-shadow: none; }
+  .screen { padding-top: max(48px,calc(env(safe-area-inset-top) + 40px)); padding-right: max(16px,env(safe-area-inset-right)); padding-bottom: max(8px,env(safe-area-inset-bottom)); padding-left: max(16px,env(safe-area-inset-left)); border-radius: 0; }
+  .island { top: max(10px,env(safe-area-inset-top)); }
+  .topbar { top: max(11px,env(safe-area-inset-top)); left: max(18px,env(safe-area-inset-left)); right: max(18px,env(safe-area-inset-right)); }
+}
+@media (max-height: 650px) {
+  .screen { padding-top: 44px; }
+  .private { padding-block: 4px; }
+  .pulse { width: 78px; height: 78px; margin-top: 7px; border-width: 4px; }
+  .eyebrow { margin-top: 7px; }
+  .screen h1 { font-size: 25px; }
+  .status { min-height: 28px; margin-block: 4px; font-size: 12px; }
+  .transcript { min-height: 52px; }
+  .callButton { width: 54px; height: 54px; }
+  .disclosure { margin-top: 6px; }
+}
+@media (max-height: 540px) {
+  .private,.eyebrow,.homeIndicator { display: none; }
+  .pulse { width: 64px; height: 64px; margin-top: 2px; }
+  .screen h1 { margin-top: 4px; font-size: 22px; }
+  .status { min-height: 24px; }
+  .controls { padding-top: 3px; }
+}

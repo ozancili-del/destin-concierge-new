@@ -1,5 +1,5 @@
 import { allowSameOriginRequest, enforceRateLimit } from "../../lib/public-api-security.js";
-import { VOICE_INSTRUCTIONS, VOICE_OUTPUT } from "../../lib/destiny-agent/voice-experience.js";
+import { VOICE_INSTRUCTIONS, VOICE_MODEL, VOICE_OUTPUT } from "../../lib/destiny-agent/voice-experience.js";
 
 export const config = { api: { bodyParser: false } };
 
@@ -26,7 +26,7 @@ export default async function handler(req, res) {
     if (!sdp.startsWith("v=0")) return res.status(400).json({ error: "Invalid WebRTC offer" });
     const session = {
       type: "realtime",
-      model: "gpt-realtime-1.5",
+      model: VOICE_MODEL,
       instructions: VOICE_INSTRUCTIONS,
       output_modalities: ["audio"],
       max_output_tokens: 420,

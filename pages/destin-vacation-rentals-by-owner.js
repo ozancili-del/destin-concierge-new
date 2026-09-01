@@ -28,6 +28,7 @@ const condos = [
     image: "/hub-beachcam.webp",
     alt: "Elevated Gulf of Mexico view from Pelican Beach Resort Unit 1006 in Destin",
     description: "A fresh coastal interior with a higher panoramic perspective over the Gulf.",
+    companionSite: "https://www.mypelicanbeach.com/",
   },
 ];
 
@@ -101,7 +102,7 @@ export default function CondoCollection() {
 
       <section className={styles.compare} id="compare">
         <div className={styles.sectionIntro}><p className={styles.kicker}>Compare the exact condos</p><h2>Same beachfront setting. Two distinct homes.</h2><p>Open either dedicated page for its complete photo gallery, room details, reviews, availability calendar and secure checkout.</p></div>
-        <div className={styles.condoGrid}>{condos.map((condo) => <article key={condo.number}><div className={styles.cardImage}><Image src={condo.image} alt={condo.alt} fill sizes="(max-width: 760px) 100vw, 50vw" /></div><div className={styles.cardBody}><p>{condo.floor} · {condo.style}</p><h3>Pelican Beach Resort Unit {condo.number}</h3><p className={styles.cardDescription}>{condo.description}</p><ul><li>1 bedroom · 2 bathrooms</li><li>873 square feet</li><li>Sleeps up to 6</li><li>Private Gulf-front balcony</li></ul><div className={styles.cardActions}><SiteButton href={condo.href} variant="secondary">Explore Unit {condo.number}</SiteButton><SiteButton href="#availability" variant="primary">Check dates</SiteButton></div></div></article>)}</div>
+        <div className={styles.condoGrid}>{condos.map((condo) => <article key={condo.number}><div className={styles.cardImage}><Image src={condo.image} alt={condo.alt} fill sizes="(max-width: 760px) 100vw, 50vw" /></div><div className={styles.cardBody}><p>{condo.floor} · {condo.style}</p><h3>Pelican Beach Resort Unit {condo.number}</h3><p className={styles.cardDescription}>{condo.description}</p>{condo.companionSite ? <p className={styles.cardDescription}>For more owner-informed resort context around this condo, visit <a href={condo.companionSite}>MyPelicanBeach</a>.</p> : null}<ul><li>1 bedroom · 2 bathrooms</li><li>873 square feet</li><li>Sleeps up to 6</li><li>Private Gulf-front balcony</li></ul><div className={styles.cardActions}><SiteButton href={condo.href} variant="secondary">Explore Unit {condo.number}</SiteButton><SiteButton href="#availability" variant="primary">Check dates</SiteButton></div></div></article>)}</div>
       </section>
 
       <section className={styles.features}><div className={styles.sectionIntro}><p className={styles.kicker}>What both condos include</p><h2>The practical details, collected in one place.</h2></div><div className={styles.featureGrid}>{sharedFeatures.map(([title, copy]) => <article key={title}><strong>{title}</strong><p>{copy}</p></article>)}</div></section>

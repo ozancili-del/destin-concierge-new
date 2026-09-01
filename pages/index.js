@@ -29,6 +29,7 @@ const condos = [
     description:
       "A bright tenth-floor escape with panoramic emerald-water views and sunset skies from your private balcony.",
     href: "/pelican-beach-resort-unit-1006",
+    companionSite: "https://www.mypelicanbeach.com/",
   },
 ];
 
@@ -219,6 +220,7 @@ export default function Home() {
                     </ul>
                     <p className={styles.cardCopy}>{condo.description}</p>
                     <a href={condo.href}>Explore Unit {condo.unit} <span>-&gt;</span></a>
+                    {condo.companionSite ? <a href={condo.companionSite}>Explore the owner-informed MyPelicanBeach guide <span>-&gt;</span></a> : null}
                   </div>
                 </article>
               ))}

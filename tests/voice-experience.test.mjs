@@ -29,6 +29,14 @@ test("Voice Lab sends the opening greeting from the data channel open lifecycle"
   assert.doesNotMatch(source, /session\.created[\s\S]{0,500}createVoiceOpeningGreetingEvent/);
 });
 
+test("Voice Lab prevents startup audio from interrupting its own greeting", async () => {
+  const source = await readFile(new URL("../pages/voice-lab.js", import.meta.url), "utf8");
+  assert.match(source, /stream\.getAudioTracks\(\)\.forEach\(track => \{ track\.enabled = false; \}\)/);
+  assert.match(source, /destiny_kind === "opening_greeting"[\s\S]{0,100}finishOpeningGreeting\(\)/);
+  assert.match(source, /finishOpeningGreeting[\s\S]{0,400}track\.enabled = true/);
+  assert.match(source, /setTimeout\(finishOpeningGreeting, 8000\)/);
+});
+
 test("Voice routing makes stable facts immediate and keeps fresh and protected checks", () => {
   assert.equal(Object.keys(IMMEDIATE_VOICE_FACTS).length, 7);
   assert.match(VOICE_INSTRUCTIONS, /answer directly and immediately/i);

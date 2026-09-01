@@ -31,6 +31,14 @@ export default function VoiceLab() {
   const pendingToolsRef = useRef(new Map());
   const progressResponsesRef = useRef(new Map());
   const openingGreetingSentRef = useRef(false);
+  const openingGreetingTimerRef = useRef(null);
+
+  const finishOpeningGreeting = () => {
+    clearTimeout(openingGreetingTimerRef.current);
+    openingGreetingTimerRef.current = null;
+    streamRef.current?.getAudioTracks().forEach(track => { track.enabled = true; });
+    setStatus("Listening — you can interrupt anytime.");
+  };
 
   const requestFinalToolAnswer = callId => {
     const pending = pendingToolsRef.current.get(callId);
@@ -128,6 +136,8 @@ export default function VoiceLab() {
     });
     pendingToolsRef.current.clear();
     progressResponsesRef.current.clear();
+    clearTimeout(openingGreetingTimerRef.current);
+    openingGreetingTimerRef.current = null;
     openingGreetingSentRef.current = false;
     setPhase("idle");
     setStatus("Call ended. Tap to talk again.");
@@ -232,6 +242,10 @@ export default function VoiceLab() {
     }
     if (event.type === "response.audio.delta" || event.type === "response.output_audio.delta") setStatus("Destiny is speaking…");
     if (event.type === "response.done") {
+      if (event.response?.metadata?.destiny_kind === "opening_greeting") {
+        finishOpeningGreeting();
+        return;
+      }
       const progressCallId = progressResponsesRef.current.get(event.response?.id);
       if (progressCallId) {
         progressResponsesRef.current.delete(event.response.id);
@@ -275,6 +289,7 @@ export default function VoiceLab() {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true }, video: false });
       streamRef.current = stream;
+      stream.getAudioTracks().forEach(track => { track.enabled = false; });
       const peer = new RTCPeerConnection();
       peerRef.current = peer;
       stream.getTracks().forEach(track => peer.addTrack(track, stream));
@@ -294,6 +309,7 @@ export default function VoiceLab() {
         openingGreetingSentRef.current = true;
         setStatus("Destiny is answering…");
         channel.send(JSON.stringify(createVoiceOpeningGreetingEvent()));
+        openingGreetingTimerRef.current = setTimeout(finishOpeningGreeting, 8000);
       };
       channel.onmessage = message => {
         try { handleEvent(JSON.parse(message.data)); } catch {}

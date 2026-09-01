@@ -21,6 +21,45 @@ export default function VoiceLab() {
   const audioRef = useRef(null);
   const historyRef = useRef([]);
   const sessionRef = useRef(`voice_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`);
+  const callRef = useRef(null);
+  const eventSequenceRef = useRef(0);
+  const seenProviderEventsRef = useRef(new Set());
+  const logQueueRef = useRef(Promise.resolve());
+
+  const queueVoiceEvent = (event, { beacon = false } = {}) => {
+    const callId = callRef.current;
+    if (!callId) return;
+    const sequence = ++eventSequenceRef.current;
+    const providerEventId = String(event.providerEventId || "").trim();
+    const eventId = `${callId}:${event.eventType}:${providerEventId || sequence}`;
+    const payload = {
+      sessionId: sessionRef.current,
+      callId,
+      eventId,
+      clientTimestamp: new Date().toISOString(),
+      ...event,
+    };
+    if (beacon && typeof navigator !== "undefined" && navigator.sendBeacon) {
+      navigator.sendBeacon("/api/destiny-voice-events", new Blob([JSON.stringify(payload)], { type: "application/json" }));
+      return;
+    }
+    logQueueRef.current = logQueueRef.current.then(async () => {
+      for (let attempt = 0; attempt < 3; attempt += 1) {
+        try {
+          const response = await fetch("/api/destiny-voice-events", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+            keepalive: true,
+          });
+          if (response.ok) return;
+          if (response.status >= 400 && response.status < 500 && response.status !== 429) return;
+        } catch {}
+        await new Promise(resolve => setTimeout(resolve, 250 * (attempt + 1)));
+      }
+      console.warn("[VOICE LOG] event was not stored", eventId);
+    });
+  };
 
   const addLine = (role, text) => {
     const clean = String(text || "").trim();
@@ -29,7 +68,8 @@ export default function VoiceLab() {
     historyRef.current = [...historyRef.current, { role, content: clean }].slice(-20);
   };
 
-  const stopCall = () => {
+  const stopCall = ({ reason = "user_ended", beacon = false } = {}) => {
+    if (callRef.current) queueVoiceEvent({ eventType: reason === "cancelled" ? "cancelled" : "call_ended", role: "system", text: reason }, { beacon });
     channelRef.current?.close();
     peerRef.current?.close();
     streamRef.current?.getTracks().forEach(track => track.stop());
@@ -37,18 +77,18 @@ export default function VoiceLab() {
     channelRef.current = null;
     peerRef.current = null;
     streamRef.current = null;
+    callRef.current = null;
     setPhase("idle");
     setStatus("Call ended. Tap to talk again.");
   };
 
-  useEffect(() => () => {
-    channelRef.current?.close();
-    peerRef.current?.close();
-    streamRef.current?.getTracks().forEach(track => track.stop());
-  }, []);
+  useEffect(() => () => stopCall({ reason: "page_unloaded", beacon: true }), []);
 
   const sendToolResult = async event => {
     let output;
+    const startedAt = Date.now();
+    const toolName = String(event.name || "unknown");
+    queueVoiceEvent({ eventType: "tool_call", role: "system", toolName, providerEventId: event.call_id || event.event_id || "" });
     try {
       const args = JSON.parse(event.arguments || "{}");
       if (event.name === "check_live_availability") {
@@ -75,6 +115,14 @@ export default function VoiceLab() {
     } catch {
       output = "The lookup failed. Please answer briefly without inventing any result.";
     }
+    queueVoiceEvent({
+      eventType: "tool_result",
+      role: "system",
+      toolName,
+      toolStatus: /failed|couldn.?t|unavailable|error/i.test(String(output)) ? "failed" : "completed",
+      providerEventId: event.call_id || event.event_id || "",
+      latencyMs: Date.now() - startedAt,
+    });
     channelRef.current?.send(JSON.stringify({
       type: "conversation.item.create",
       item: { type: "function_call_output", call_id: event.call_id, output: String(output) },
@@ -86,21 +134,46 @@ export default function VoiceLab() {
     if (event.type === "session.created") {
       setPhase("live");
       setStatus("Listening — just speak naturally.");
+      queueVoiceEvent({ eventType: "call_started", role: "system", providerEventId: event.event_id || event.session?.id || "" });
     }
     if (event.type === "input_audio_buffer.speech_started") setStatus("Listening…");
     if (event.type === "input_audio_buffer.speech_stopped") setStatus("Destiny is thinking…");
-    if (event.type === "conversation.item.input_audio_transcription.completed") addLine("you", event.transcript);
+    if (event.type === "conversation.item.input_audio_transcription.completed") {
+      const providerEventId = event.item_id || event.event_id || "";
+      const dedupeKey = `user:${providerEventId || event.transcript}`;
+      if (!seenProviderEventsRef.current.has(dedupeKey)) {
+        seenProviderEventsRef.current.add(dedupeKey);
+        addLine("you", event.transcript);
+        queueVoiceEvent({ eventType: "user_transcript", role: "user", text: event.transcript, turnId: event.item_id || "", providerEventId });
+      }
+    }
     if (event.type === "response.audio_transcript.done" || event.type === "response.output_audio_transcript.done") {
-      addLine("destiny", event.transcript);
+      const providerEventId = event.item_id || event.response_id || event.event_id || "";
+      const dedupeKey = `assistant:${providerEventId || event.transcript}`;
+      if (!seenProviderEventsRef.current.has(dedupeKey)) {
+        seenProviderEventsRef.current.add(dedupeKey);
+        addLine("destiny", event.transcript);
+        queueVoiceEvent({ eventType: "assistant_transcript", role: "assistant", text: event.transcript, turnId: event.item_id || event.response_id || "", providerEventId });
+      }
     }
     if (event.type === "response.audio.delta" || event.type === "response.output_audio.delta") setStatus("Destiny is speaking…");
-    if (event.type === "response.done") setStatus("Listening — you can interrupt anytime.");
+    if (event.type === "response.done") {
+      setStatus("Listening — you can interrupt anytime.");
+      const responseStatus = event.response?.status || "";
+      if (["cancelled", "incomplete", "failed"].includes(responseStatus)) {
+        queueVoiceEvent({ eventType: responseStatus === "cancelled" ? "interrupted" : "error", role: "system", interrupted: responseStatus === "cancelled", providerEventId: event.response?.id || event.event_id || "", text: responseStatus });
+      }
+    }
+    if (event.type === "conversation.item.truncated") {
+      queueVoiceEvent({ eventType: "interrupted", role: "system", interrupted: true, providerEventId: event.item_id || event.event_id || "" });
+    }
     if (event.type === "response.function_call_arguments.done") {
       setStatus("Checking that for you…");
       sendToolResult(event);
     }
     if (event.type === "error") {
       setStatus(event.error?.message || "The voice connection had a problem.");
+      queueVoiceEvent({ eventType: "error", role: "system", text: String(event.error?.message || "Realtime error"), providerEventId: event.event_id || "" });
     }
   };
 
@@ -108,6 +181,9 @@ export default function VoiceLab() {
     if (phase !== "idle") return stopCall();
     setPhase("connecting");
     setStatus("Connecting to Destiny…");
+    callRef.current = `call_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+    eventSequenceRef.current = 0;
+    seenProviderEventsRef.current = new Set();
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true }, video: false });
       streamRef.current = stream;
@@ -121,7 +197,7 @@ export default function VoiceLab() {
         }
       };
       peer.onconnectionstatechange = () => {
-        if (["failed", "disconnected", "closed"].includes(peer.connectionState)) stopCall();
+        if (["failed", "disconnected"].includes(peer.connectionState)) stopCall({ reason: peer.connectionState });
       };
       const channel = peer.createDataChannel("oai-events");
       channelRef.current = channel;
@@ -138,7 +214,8 @@ export default function VoiceLab() {
       if (!response.ok) throw new Error((await response.json().catch(() => null))?.error || "Voice conversation could not start");
       await peer.setRemoteDescription({ type: "answer", sdp: await response.text() });
     } catch (error) {
-      stopCall();
+      queueVoiceEvent({ eventType: "error", role: "system", text: String(error?.message || "Voice connection failed") });
+      stopCall({ reason: "connection_failed" });
       setStatus(error?.message === "Permission denied" ? "Microphone permission was denied." : (error?.message || "Voice conversation could not start."));
     }
   };

@@ -102,12 +102,16 @@
     document.head.appendChild(script);
   }
 
-  function scheduleMeasurementScripts() {
+  function loadMeasurementScripts() {
+    // Load GA4 immediately so short, non-interacting visits still reach the
+    // measurement queue. GTM is a secondary marketing/Clarity bridge and can
+    // remain deferred to protect the critical rendering path.
+    loadScript("https://www.googletagmanager.com/gtag/js?id=" + GA_ID, "dcg-ga4");
+
     var started = false;
     function start() {
       if (started) return;
       started = true;
-      loadScript("https://www.googletagmanager.com/gtag/js?id=" + GA_ID, "dcg-ga4");
       loadScript("https://www.googletagmanager.com/gtm.js?id=" + GTM_ID, "dcg-gtm");
     }
     function afterLoad() {
@@ -230,7 +234,7 @@
       linker: { domains: FIRST_PARTY_HOSTS }
     });
     dataLayer.push({ "gtm.start": Date.now(), event: "gtm.js" });
-    scheduleMeasurementScripts();
+    loadMeasurementScripts();
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", pageView, { once: true });

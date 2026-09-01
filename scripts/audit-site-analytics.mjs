@@ -37,8 +37,9 @@ for (const relative of trackedFiles) {
   }
 }
 
-function createBrowser(hostname) {
+function createBrowser(hostname, { deferTimers = false } = {}) {
   const scripts = [];
+  const timers = [];
   const listeners = {};
   const document = {
     title: "Analytics test",
@@ -59,12 +60,12 @@ function createBrowser(hostname) {
     },
     history: { pushState() {}, replaceState() {} },
     addEventListener(type, handler) { listeners[type] = handler; },
-    setTimeout(handler) { handler(); },
+    setTimeout(handler) { deferTimers ? timers.push(handler) : handler(); },
     dataLayer: []
   };
   const context = { window, document, URL, Object, Array, String, Number, Date, RegExp, FormData: class {}, console };
   vm.runInNewContext(source, context, { filename: analyticsPath });
-  return { window, document, scripts };
+  return { window, document, scripts, timers };
 }
 
 const preview = createBrowser("preview.example.com");
@@ -83,5 +84,13 @@ assert.equal(lead.lead_type, "inquiry");
 const production = createBrowser("www.destincondogetaways.com");
 assert.equal(production.window.DCGAnalytics.production, true);
 assert.deepEqual(production.scripts.map((script) => script.id).sort(), ["dcg-ga4", "dcg-gtm"]);
+
+const shortVisit = createBrowser("www.destincondogetaways.com", { deferTimers: true });
+assert.deepEqual(
+  shortVisit.scripts.map((script) => script.id),
+  ["dcg-ga4"],
+  "GA4 must load immediately even when the visitor leaves before deferred work runs"
+);
+assert.ok(shortVisit.timers.length > 0, "GTM should remain deferred off the critical path");
 
 console.log(`Analytics audit passed: ${trackedFiles.length} surfaces use one tracker; preview isolation and PII guards verified.`);

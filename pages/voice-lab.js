@@ -3,7 +3,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import styles from "../styles/VoiceLab.module.css";
 import { extractVoiceCompanionLinks } from "../lib/destiny-agent/voice-links.js";
-import { VOICE_TOOL_PROGRESS_DELAY_MS, VOICE_TOOL_PROGRESS_INSTRUCTIONS } from "../lib/destiny-agent/voice-experience.js";
+import { createVoiceOpeningGreetingEvent, VOICE_TOOL_PROGRESS_DELAY_MS, VOICE_TOOL_PROGRESS_INSTRUCTIONS } from "../lib/destiny-agent/voice-experience.js";
 
 const initialStatus = "Tap the call button when you're ready.";
 
@@ -30,6 +30,7 @@ export default function VoiceLab() {
   const logQueueRef = useRef(Promise.resolve());
   const pendingToolsRef = useRef(new Map());
   const progressResponsesRef = useRef(new Map());
+  const openingGreetingSentRef = useRef(false);
 
   const requestFinalToolAnswer = callId => {
     const pending = pendingToolsRef.current.get(callId);
@@ -127,6 +128,7 @@ export default function VoiceLab() {
     });
     pendingToolsRef.current.clear();
     progressResponsesRef.current.clear();
+    openingGreetingSentRef.current = false;
     setPhase("idle");
     setStatus("Call ended. Tap to talk again.");
   };
@@ -197,8 +199,12 @@ export default function VoiceLab() {
   const handleEvent = event => {
     if (event.type === "session.created") {
       setPhase("live");
-      setStatus("Listening — just speak naturally.");
+      setStatus("Destiny is answering…");
       queueVoiceEvent({ eventType: "call_started", role: "system", providerEventId: event.event_id || event.session?.id || "" });
+      if (!openingGreetingSentRef.current && channelRef.current?.readyState === "open") {
+        openingGreetingSentRef.current = true;
+        channelRef.current.send(JSON.stringify(createVoiceOpeningGreetingEvent()));
+      }
     }
     if (event.type === "response.created" && event.response?.metadata?.destiny_kind === "tool_progress") {
       const progressCallId = String(event.response.metadata.call_id || "");
@@ -269,6 +275,7 @@ export default function VoiceLab() {
     callRef.current = `call_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
     eventSequenceRef.current = 0;
     seenProviderEventsRef.current = new Set();
+    openingGreetingSentRef.current = false;
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true }, video: false });
       streamRef.current = stream;

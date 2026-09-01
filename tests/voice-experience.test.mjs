@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { IMMEDIATE_VOICE_FACTS, VOICE_INSTRUCTIONS, VOICE_MAX_OUTPUT_TOKENS, VOICE_MODEL, VOICE_OUTPUT, VOICE_TOOL_PROGRESS_DELAY_MS, VOICE_TOOL_PROGRESS_INSTRUCTIONS } from "../lib/destiny-agent/voice-experience.js";
+import { createVoiceOpeningGreetingEvent, IMMEDIATE_VOICE_FACTS, VOICE_INSTRUCTIONS, VOICE_MAX_OUTPUT_TOKENS, VOICE_MODEL, VOICE_OPENING_GREETING, VOICE_OUTPUT, VOICE_TOOL_PROGRESS_DELAY_MS, VOICE_TOOL_PROGRESS_INSTRUCTIONS } from "../lib/destiny-agent/voice-experience.js";
 import { extractVoiceCompanionLinks } from "../lib/destiny-agent/voice-links.js";
 
 test("Voice Lab uses the friendlier normal-speed voice", () => {
@@ -9,6 +9,16 @@ test("Voice Lab uses the friendlier normal-speed voice", () => {
   assert.equal(VOICE_TOOL_PROGRESS_DELAY_MS, 6000);
   assert.match(VOICE_TOOL_PROGRESS_INSTRUCTIONS, /I’m still here—still checking that for you/);
   assert.deepEqual(VOICE_OUTPUT, { voice: "marin", speed: 1 });
+});
+
+test("Voice Lab opens each connected call with one concise spoken introduction", () => {
+  const event = createVoiceOpeningGreetingEvent();
+  assert.equal(VOICE_OPENING_GREETING, "Hi, this is Destiny Blue with Destin Condo Getaways. How can I help you today?");
+  assert.equal(event.type, "response.create");
+  assert.equal(event.response.metadata.destiny_kind, "opening_greeting");
+  assert.deepEqual(event.response.output_modalities, ["audio"]);
+  assert.deepEqual(event.response.tools, []);
+  assert.match(event.response.instructions, /Say exactly this welcoming opening and nothing else/);
 });
 
 test("Voice routing makes stable facts immediate and keeps fresh and protected checks", () => {

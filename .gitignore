@@ -1,0 +1,11 @@
+node_modules/
+.npm-cache/
+.next/
+.migration-source/
+.vercel/
+.env*
+!.env.example
+*.log
+.DS_Store
+Thumbs.db
+

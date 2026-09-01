@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import { createVoiceOpeningGreetingEvent, IMMEDIATE_VOICE_FACTS, VOICE_INSTRUCTIONS, VOICE_MAX_OUTPUT_TOKENS, VOICE_MODEL, VOICE_OPENING_GREETING, VOICE_OUTPUT, VOICE_TOOL_PROGRESS_DELAY_MS, VOICE_TOOL_PROGRESS_INSTRUCTIONS } from "../lib/destiny-agent/voice-experience.js";
 import { extractVoiceCompanionLinks } from "../lib/destiny-agent/voice-links.js";
 
@@ -19,6 +20,13 @@ test("Voice Lab opens each connected call with one concise spoken introduction",
   assert.deepEqual(event.response.output_modalities, ["audio"]);
   assert.deepEqual(event.response.tools, []);
   assert.match(event.response.instructions, /Say exactly this welcoming opening and nothing else/);
+});
+
+test("Voice Lab sends the opening greeting from the data channel open lifecycle", async () => {
+  const source = await readFile(new URL("../pages/voice-lab.js", import.meta.url), "utf8");
+  assert.match(source, /channel\.onopen\s*=\s*\(\)\s*=>/);
+  assert.match(source, /channel\.send\(JSON\.stringify\(createVoiceOpeningGreetingEvent\(\)\)\)/);
+  assert.doesNotMatch(source, /session\.created[\s\S]{0,500}createVoiceOpeningGreetingEvent/);
 });
 
 test("Voice routing makes stable facts immediate and keeps fresh and protected checks", () => {

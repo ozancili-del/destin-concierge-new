@@ -201,10 +201,6 @@ export default function VoiceLab() {
       setPhase("live");
       setStatus("Destiny is answering…");
       queueVoiceEvent({ eventType: "call_started", role: "system", providerEventId: event.event_id || event.session?.id || "" });
-      if (!openingGreetingSentRef.current && channelRef.current?.readyState === "open") {
-        openingGreetingSentRef.current = true;
-        channelRef.current.send(JSON.stringify(createVoiceOpeningGreetingEvent()));
-      }
     }
     if (event.type === "response.created" && event.response?.metadata?.destiny_kind === "tool_progress") {
       const progressCallId = String(event.response.metadata.call_id || "");
@@ -293,6 +289,12 @@ export default function VoiceLab() {
       };
       const channel = peer.createDataChannel("oai-events");
       channelRef.current = channel;
+      channel.onopen = () => {
+        if (openingGreetingSentRef.current) return;
+        openingGreetingSentRef.current = true;
+        setStatus("Destiny is answering…");
+        channel.send(JSON.stringify(createVoiceOpeningGreetingEvent()));
+      };
       channel.onmessage = message => {
         try { handleEvent(JSON.parse(message.data)); } catch {}
       };

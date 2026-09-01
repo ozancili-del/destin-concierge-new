@@ -3,6 +3,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import styles from "../styles/VoiceLab.module.css";
 import { extractVoiceCompanionLinks } from "../lib/destiny-agent/voice-links.js";
+import { VOICE_TOOL_PROGRESS_DELAY_MS, VOICE_TOOL_PROGRESS_INSTRUCTIONS } from "../lib/destiny-agent/voice-experience.js";
 
 const initialStatus = "Tap the call button when you're ready.";
 
@@ -27,6 +28,46 @@ export default function VoiceLab() {
   const eventSequenceRef = useRef(0);
   const seenProviderEventsRef = useRef(new Set());
   const logQueueRef = useRef(Promise.resolve());
+  const pendingToolsRef = useRef(new Map());
+  const progressResponsesRef = useRef(new Map());
+
+  const requestFinalToolAnswer = callId => {
+    const pending = pendingToolsRef.current.get(callId);
+    if (pending) {
+      clearTimeout(pending.timer);
+      clearTimeout(pending.progressFailsafe);
+    }
+    channelRef.current?.send(JSON.stringify({
+      type: "response.create",
+      event_id: `final-${callId}`,
+    }));
+    pendingToolsRef.current.delete(callId);
+  };
+
+  const requestProgressCheckIn = callId => {
+    const pending = pendingToolsRef.current.get(callId);
+    if (!pending || pending.resolved || pending.progressRequested || !channelRef.current) return;
+    pending.progressRequested = true;
+    pending.progressFailsafe = setTimeout(() => {
+      const current = pendingToolsRef.current.get(callId);
+      if (!current) return;
+      current.progressFinished = true;
+      if (current.finalQueued) requestFinalToolAnswer(callId);
+    }, 10000);
+    channelRef.current.send(JSON.stringify({
+      type: "response.create",
+      event_id: `progress-${callId}`,
+      response: {
+        conversation: "none",
+        instructions: VOICE_TOOL_PROGRESS_INSTRUCTIONS,
+        tools: [],
+        tool_choice: "none",
+        output_modalities: ["audio"],
+        max_output_tokens: 60,
+        metadata: { destiny_kind: "tool_progress", call_id: callId },
+      },
+    }));
+  };
 
   const queueVoiceEvent = (event, { beacon = false } = {}) => {
     const callId = callRef.current;
@@ -80,6 +121,12 @@ export default function VoiceLab() {
     peerRef.current = null;
     streamRef.current = null;
     callRef.current = null;
+    pendingToolsRef.current.forEach(pending => {
+      clearTimeout(pending.timer);
+      clearTimeout(pending.progressFailsafe);
+    });
+    pendingToolsRef.current.clear();
+    progressResponsesRef.current.clear();
     setPhase("idle");
     setStatus("Call ended. Tap to talk again.");
   };
@@ -90,6 +137,10 @@ export default function VoiceLab() {
     let output;
     const startedAt = Date.now();
     const toolName = String(event.name || "unknown");
+    const callId = String(event.call_id || event.event_id || `tool-${Date.now()}`);
+    const pending = { resolved: false, progressRequested: false, progressFinished: false, progressResponseId: "", finalQueued: false, timer: null, progressFailsafe: null };
+    pending.timer = setTimeout(() => requestProgressCheckIn(callId), VOICE_TOOL_PROGRESS_DELAY_MS);
+    pendingToolsRef.current.set(callId, pending);
     queueVoiceEvent({ eventType: "tool_call", role: "system", toolName, providerEventId: event.call_id || event.event_id || "" });
     try {
       const args = JSON.parse(event.arguments || "{}");
@@ -125,6 +176,8 @@ export default function VoiceLab() {
       providerEventId: event.call_id || event.event_id || "",
       latencyMs: Date.now() - startedAt,
     });
+    pending.resolved = true;
+    clearTimeout(pending.timer);
     const discoveredLinks = extractVoiceCompanionLinks(output);
     if (discoveredLinks.length) {
       setCompanionLinks(current => {
@@ -137,7 +190,8 @@ export default function VoiceLab() {
       type: "conversation.item.create",
       item: { type: "function_call_output", call_id: event.call_id, output: String(output) },
     }));
-    channelRef.current?.send(JSON.stringify({ type: "response.create" }));
+    if (!pending.progressRequested || pending.progressFinished) requestFinalToolAnswer(callId);
+    else pending.finalQueued = true;
   };
 
   const handleEvent = event => {
@@ -145,6 +199,14 @@ export default function VoiceLab() {
       setPhase("live");
       setStatus("Listening — just speak naturally.");
       queueVoiceEvent({ eventType: "call_started", role: "system", providerEventId: event.event_id || event.session?.id || "" });
+    }
+    if (event.type === "response.created" && event.response?.metadata?.destiny_kind === "tool_progress") {
+      const progressCallId = String(event.response.metadata.call_id || "");
+      if (progressCallId) {
+        progressResponsesRef.current.set(event.response.id, progressCallId);
+        const pending = pendingToolsRef.current.get(progressCallId);
+        if (pending) pending.progressResponseId = event.response.id;
+      }
     }
     if (event.type === "input_audio_buffer.speech_started") setStatus("Listening…");
     if (event.type === "input_audio_buffer.speech_stopped") setStatus("Destiny is thinking…");
@@ -168,6 +230,18 @@ export default function VoiceLab() {
     }
     if (event.type === "response.audio.delta" || event.type === "response.output_audio.delta") setStatus("Destiny is speaking…");
     if (event.type === "response.done") {
+      const progressCallId = progressResponsesRef.current.get(event.response?.id);
+      if (progressCallId) {
+        progressResponsesRef.current.delete(event.response.id);
+        const pending = pendingToolsRef.current.get(progressCallId);
+        if (pending) {
+          pending.progressFinished = true;
+          clearTimeout(pending.progressFailsafe);
+        }
+        if (pending?.finalQueued) requestFinalToolAnswer(progressCallId);
+        else if (pending) setStatus("Still checking that for you…");
+        return;
+      }
       setStatus("Listening — you can interrupt anytime.");
       const responseStatus = event.response?.status || "";
       if (["cancelled", "incomplete", "failed"].includes(responseStatus)) {

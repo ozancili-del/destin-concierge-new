@@ -1,11 +1,13 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { IMMEDIATE_VOICE_FACTS, VOICE_INSTRUCTIONS, VOICE_MAX_OUTPUT_TOKENS, VOICE_MODEL, VOICE_OUTPUT } from "../lib/destiny-agent/voice-experience.js";
+import { IMMEDIATE_VOICE_FACTS, VOICE_INSTRUCTIONS, VOICE_MAX_OUTPUT_TOKENS, VOICE_MODEL, VOICE_OUTPUT, VOICE_TOOL_PROGRESS_DELAY_MS, VOICE_TOOL_PROGRESS_INSTRUCTIONS } from "../lib/destiny-agent/voice-experience.js";
 import { extractVoiceCompanionLinks } from "../lib/destiny-agent/voice-links.js";
 
 test("Voice Lab uses the friendlier normal-speed voice", () => {
   assert.equal(VOICE_MODEL, "gpt-realtime-2");
   assert.equal(VOICE_MAX_OUTPUT_TOKENS, 900);
+  assert.equal(VOICE_TOOL_PROGRESS_DELAY_MS, 6000);
+  assert.match(VOICE_TOOL_PROGRESS_INSTRUCTIONS, /I’m still here—still checking that for you/);
   assert.deepEqual(VOICE_OUTPUT, { voice: "marin", speed: 1 });
 });
 

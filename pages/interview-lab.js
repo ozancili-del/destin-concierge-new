@@ -39,15 +39,15 @@ export default function InterviewLab() {
     window.speechSynthesis.addEventListener?.("voiceschanged", load);
     return () => {
       window.speechSynthesis.removeEventListener?.("voiceschanged", load);
-      window.speechSynthesis.cancel();
+      window.speechSynthesis.cancel?.();
     };
   }, []);
 
-  useEffect(() => chatEnd.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), [messages, asking]);
+  useEffect(() => chatEnd.current?.scrollIntoView?.({ behavior: "smooth", block: "nearest" }), [messages, asking]);
 
   function stopPlayback() {
     playbackId.current += 1;
-    window.speechSynthesis?.cancel();
+    window.speechSynthesis?.cancel?.();
     setPlaying(false);
     setPaused(false);
     setSpeaker("");
@@ -63,7 +63,7 @@ export default function InterviewLab() {
       utterance.onstart = () => setSpeaker(role);
       utterance.onend = resolve;
       utterance.onerror = resolve;
-      window.speechSynthesis.speak(utterance);
+      window.speechSynthesis.speak?.(utterance);
     });
   }
 
@@ -83,8 +83,8 @@ export default function InterviewLab() {
 
   function togglePause() {
     if (!playing) return;
-    if (paused) window.speechSynthesis.resume();
-    else window.speechSynthesis.pause();
+    if (paused) window.speechSynthesis.resume?.();
+    else window.speechSynthesis.pause?.();
     setPaused(!paused);
   }
 

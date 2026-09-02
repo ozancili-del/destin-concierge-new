@@ -14,7 +14,12 @@ export async function getServerSideProps({ req, res, query }) {
   if (!hasInterviewLabAccess(req)) return { props: { locked: true, interviewStories: [] } };
 
   try {
-    const interviewStories = JSON.parse(process.env.INTERVIEW_STORIES_JSON || "[]");
+    const splitStories = Array.from({ length: 10 }, (_, index) => process.env[`INTERVIEW_STORY_${String(index + 1).padStart(2, "0")}`])
+      .filter(Boolean)
+      .map((value) => JSON.parse(value));
+    const interviewStories = splitStories.length === 10
+      ? splitStories
+      : JSON.parse(process.env.INTERVIEW_STORIES_JSON || "[]");
     if (!Array.isArray(interviewStories) || interviewStories.length !== 10) throw new Error("INVALID_STORY_PACK");
     return { props: { locked: false, interviewStories } };
   } catch {

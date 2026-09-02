@@ -17,6 +17,11 @@ function chooseVoices(voices) {
   return { interviewer, candidate };
 }
 
+function speechEngine() {
+  if (typeof window === "undefined") return null;
+  return window.speechSynthesis || null;
+}
+
 export default function InterviewLab() {
   const [selectedId, setSelectedId] = useState(interviewStories[0].id);
   const [voices, setVoices] = useState([]);
@@ -33,21 +38,26 @@ export default function InterviewLab() {
   const answer = useMemo(() => storyAnswer(story), [story]);
 
   useEffect(() => {
-    if (!("speechSynthesis" in window)) return;
-    const load = () => setVoices(window.speechSynthesis.getVoices());
+    const engine = speechEngine();
+    if (!engine || typeof engine.getVoices !== "function") return;
+    const load = () => setVoices(engine.getVoices());
     load();
-    window.speechSynthesis.addEventListener?.("voiceschanged", load);
+    if (typeof engine.addEventListener === "function") engine.addEventListener("voiceschanged", load);
     return () => {
-      window.speechSynthesis.removeEventListener?.("voiceschanged", load);
-      window.speechSynthesis.cancel?.();
+      if (typeof engine.removeEventListener === "function") engine.removeEventListener("voiceschanged", load);
+      if (typeof engine.cancel === "function") engine.cancel();
     };
   }, []);
 
-  useEffect(() => chatEnd.current?.scrollIntoView?.({ behavior: "smooth", block: "nearest" }), [messages, asking]);
+  useEffect(() => {
+    const target = chatEnd.current;
+    if (target && typeof target.scrollIntoView === "function") target.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }, [messages, asking]);
 
   function stopPlayback() {
     playbackId.current += 1;
-    window.speechSynthesis?.cancel?.();
+    const engine = speechEngine();
+    if (engine && typeof engine.cancel === "function") engine.cancel();
     setPlaying(false);
     setPaused(false);
     setSpeaker("");
@@ -63,15 +73,18 @@ export default function InterviewLab() {
       utterance.onstart = () => setSpeaker(role);
       utterance.onend = resolve;
       utterance.onerror = resolve;
-      window.speechSynthesis.speak?.(utterance);
+      const engine = speechEngine();
+      if (engine && typeof engine.speak === "function") engine.speak(utterance);
+      else resolve();
     });
   }
 
   async function playStory() {
-    if (!("speechSynthesis" in window)) return;
+    const engine = speechEngine();
+    if (!engine || typeof engine.getVoices !== "function" || typeof engine.speak !== "function") return;
     stopPlayback();
     const id = playbackId.current;
-    const selectedVoices = chooseVoices(voices.length ? voices : window.speechSynthesis.getVoices());
+    const selectedVoices = chooseVoices(voices.length ? voices : engine.getVoices());
     setPlaying(true);
     await speakLine(story.question, "Interviewer", selectedVoices.interviewer, id);
     if (id === playbackId.current) await speakLine(answer, "Candidate", selectedVoices.candidate, id);
@@ -83,15 +96,17 @@ export default function InterviewLab() {
 
   function togglePause() {
     if (!playing) return;
-    if (paused) window.speechSynthesis.resume?.();
-    else window.speechSynthesis.pause?.();
+    const engine = speechEngine();
+    if (!engine) return;
+    if (paused && typeof engine.resume === "function") engine.resume();
+    else if (!paused && typeof engine.pause === "function") engine.pause();
     setPaused(!paused);
   }
 
   function changeStory(id) {
     stopPlayback();
     setSelectedId(id);
-    setMessages([]);
+    setMessages((current) => current.length ? [] : current);
   }
 
   async function askCoach(event) {

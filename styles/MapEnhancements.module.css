@@ -1,70 +1,718 @@
-.explore3d {
-  padding: 100px clamp(22px, 7vw, 110px) 35px;
+.heroInner {
+  width: 100%;
+}
+.heroAddress {
+  margin: -7px 0 4px;
+  color: #ffffff !important;
+  font-size: 16px !important;
+}
+.heroAddress strong {
+  font-weight: 850;
 }
 
-.explore3dGrid {
-  max-width: 1160px;
-  margin: auto;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 18px;
-}
-
-.explore3dGrid > a {
-  min-height: 290px;
-  padding: 38px;
+.heroActions {
+  margin-top: 28px;
   display: flex;
-  flex-direction: column;
-  color: #fff;
-  text-decoration: none;
-  background: linear-gradient(145deg, #073b58, #0d6c7d);
-  border-radius: 4px;
-  box-shadow: 0 18px 45px rgba(7, 59, 88, 0.14);
-  transition: transform 0.2s, box-shadow 0.2s;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
-.explore3dGrid > a:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 22px 50px rgba(7, 59, 88, 0.2);
+.quickFacts,
+.section {
+  padding: 88px clamp(22px, 7vw, 110px);
 }
 
-.explore3dGrid span {
-  color: #a8edf0;
+.quickFacts {
+  padding-bottom: 52px;
+  background: #fffefb;
+}
+
+.sectionAlt {
+  background: #faf7f0;
+}
+
+.sectionInner {
+  width: min(1160px, 100%);
+  margin: 0 auto;
+}
+
+.sectionIntro {
+  max-width: 820px;
+  margin: 0 auto 42px;
+  text-align: center;
+}
+
+.sectionIntro h2,
+.mapCopy h2,
+.walkabilityGrid h2,
+.finalInner h2 {
+  margin: 10px 0 18px;
+  color: #073b58;
+  font: 700 clamp(32px, 4vw, 52px) / 1.08 Georgia, "Times New Roman", serif;
+  overflow-wrap: anywhere;
+}
+
+.sectionIntro > p:last-child,
+.mapCopy > p,
+.walkabilityGrid p,
+.finalInner p {
+  color: #617987;
+  font-size: 16px;
+  line-height: 1.75;
+}
+
+.eyebrow,
+.factLabel,
+.toolMeta,
+.unitMeta {
+  display: block;
+  color: #0b7584;
   font-size: 10px;
   font-weight: 900;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.13em;
+  line-height: 1.4;
   text-transform: uppercase;
 }
 
-.explore3dGrid h3 {
-  margin: 18px 0 12px;
-  font: 700 clamp(27px, 3vw, 38px)/1.12 Georgia, serif;
+.quickFactGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
 }
 
-.explore3dGrid p {
-  margin: 0 0 28px;
+.quickFact {
+  min-width: 0;
+  padding: 25px;
+  background: #ffffff;
+  border: 1px solid #e7e0d4;
+  border-top: 4px solid #1597a8;
+  border-radius: 12px;
+  box-shadow: 0 14px 35px rgba(7, 59, 88, 0.07);
+}
+
+.quickFact h3 {
+  margin: 12px 0 10px;
+  color: #073b58;
+  font: 700 22px / 1.22 Georgia, "Times New Roman", serif;
+  overflow-wrap: anywhere;
+}
+
+.quickFact p {
+  margin: 0;
+  color: #617987;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.approxNote {
+  margin: 18px 0 0;
+  padding: 15px 18px;
+  color: #4f6875;
+  background: #f5faf9;
+  border-left: 4px solid #d9a441;
+  border-radius: 7px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.availabilityWrap {
+  padding: 0 clamp(22px, 7vw, 110px) 70px;
+  background: #fffefb;
+}
+
+.availabilityWrap form {
+  left: auto;
+  width: min(1160px, 100%);
+  margin: 0 auto;
+  transform: none;
+}
+
+.toolGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.toolCard {
+  min-width: 0;
+  min-height: 410px;
+  padding: clamp(28px, 4vw, 42px);
+  display: flex;
+  flex-direction: column;
+  color: #ffffff;
+  text-decoration: none;
+  background:
+    radial-gradient(circle at 92% 8%, rgba(168, 237, 240, 0.22), transparent 32%),
+    linear-gradient(145deg, #073b58, #0d6c7d);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  box-shadow: 0 22px 55px rgba(7, 59, 88, 0.16);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.toolCardAlt {
+  background:
+    radial-gradient(circle at 92% 8%, rgba(255, 229, 174, 0.2), transparent 32%),
+    linear-gradient(145deg, #163b55, #8c4b25);
+}
+
+.toolCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 27px 60px rgba(7, 59, 88, 0.22);
+}
+
+.toolCard:focus-visible,
+.unitCard:focus-visible,
+.linkRow a:focus-visible,
+.textLink:focus-visible {
+  outline: 3px solid rgba(21, 151, 168, 0.35);
+  outline-offset: 4px;
+}
+
+.toolCard .toolMeta {
+  color: #a8edf0;
+}
+
+.toolCard h3 {
+  margin: 18px 0 14px;
+  color: #ffffff;
+  font: 700 clamp(29px, 3vw, 41px) / 1.08 Georgia, "Times New Roman", serif;
+  overflow-wrap: anywhere;
+}
+
+.toolCard p {
+  margin: 0 0 22px;
   color: #dce9ed;
   line-height: 1.7;
 }
 
-.explore3dGrid strong {
-  margin-top: auto;
-  color: #fff;
+.toolList {
+  margin: 0 0 28px;
+  padding-left: 20px;
+  color: #eef7f8;
+  line-height: 1.7;
 }
 
-@media (max-width: 980px) {
-  .explore3dGrid {
+.toolLink {
+  margin-top: auto;
+  color: #ffffff;
+  font-size: 15px;
+}
+
+.toolDisclaimer,
+.notice {
+  margin-top: 22px;
+  padding: 18px 21px;
+  color: #4f6875;
+  background: #ffffff;
+  border: 1px solid #e7e0d4;
+  border-left: 4px solid #d9a441;
+  border-radius: 9px;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.mapGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr);
+  gap: clamp(34px, 5vw, 70px);
+  align-items: center;
+}
+
+.mapFrame {
+  min-width: 0;
+  overflow: hidden;
+  background: #e9f0f1;
+  border: 1px solid #d7e1e3;
+  border-radius: 16px;
+  box-shadow: 0 20px 50px rgba(7, 59, 88, 0.12);
+}
+
+.mapFrame iframe {
+  display: block;
+  width: 100%;
+  min-height: 620px;
+  border: 0;
+}
+
+.mapCopy {
+  min-width: 0;
+}
+
+.orientationFlow {
+  margin: 26px 0;
+  display: grid;
+  gap: 9px;
+}
+
+.orientationFlow span {
+  position: relative;
+  padding: 13px 17px 13px 42px;
+  color: #073b58;
+  background: #f4f8f8;
+  border: 1px solid #d8e5e7;
+  border-radius: 9px;
+  font-weight: 800;
+}
+
+.orientationFlow span::before {
+  content: "→";
+  position: absolute;
+  left: 16px;
+  color: #c75227;
+  font-weight: 900;
+}
+
+.textLink {
+  color: #096f7e;
+  font-weight: 800;
+  text-decoration-thickness: 1px;
+}
+
+.unitGrid {
+  margin-top: 28px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.unitCard {
+  min-width: 0;
+  padding: 20px;
+  color: #073b58;
+  text-decoration: none;
+  background: #faf7f0;
+  border: 1px solid #e7e0d4;
+  border-radius: 10px;
+  transition: border-color 0.18s ease, transform 0.18s ease;
+}
+
+.unitCard:hover {
+  transform: translateY(-2px);
+  border-color: #8fb8c0;
+}
+
+.unitCard h3 {
+  margin: 9px 0;
+  font: 700 20px / 1.2 Georgia, "Times New Roman", serif;
+  overflow-wrap: anywhere;
+}
+
+.unitCard p {
+  margin: 0 0 13px;
+  color: #617987;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.unitCard strong {
+  color: #096f7e;
+  font-size: 13px;
+}
+
+.stepsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.stepCard {
+  min-width: 0;
+  padding: 25px;
+  background: #ffffff;
+  border: 1px solid #e7e0d4;
+  border-radius: 12px;
+}
+
+.stepNumber {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  color: #ffffff;
+  background: #c75227;
+  border-radius: 50%;
+  font-weight: 900;
+}
+
+.stepCard h3 {
+  margin: 18px 0 10px;
+  color: #073b58;
+  font: 700 22px / 1.2 Georgia, "Times New Roman", serif;
+}
+
+.stepCard p {
+  margin: 0;
+  color: #617987;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.tableWrap {
+  margin-top: 30px;
+  overflow-x: auto;
+  border: 1px solid #e0e6e7;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.dataTable {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+}
+
+.dataTable caption {
+  padding: 20px 22px;
+  color: #073b58;
+  text-align: left;
+  font: 700 23px / 1.25 Georgia, "Times New Roman", serif;
+}
+
+.dataTable th,
+.dataTable td {
+  padding: 17px 20px;
+  vertical-align: top;
+  text-align: left;
+  border-top: 1px solid #e7ecec;
+  line-height: 1.55;
+}
+
+.dataTable thead th {
+  color: #ffffff;
+  background: #073b58;
+  border-top: 0;
+  font-size: 13px;
+}
+
+.dataTable tbody th {
+  color: #073b58;
+  font-size: 14px;
+}
+
+.dataTable td {
+  color: #617987;
+  font-size: 14px;
+}
+
+.airportGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.airportCard {
+  min-width: 0;
+  padding: 28px;
+  background: #ffffff;
+  border: 1px solid #e1e8e9;
+  border-radius: 13px;
+  box-shadow: 0 14px 35px rgba(7, 59, 88, 0.06);
+}
+
+.airportCard h3 {
+  margin: 12px 0;
+  color: #073b58;
+  font: 700 26px / 1.17 Georgia, "Times New Roman", serif;
+  overflow-wrap: anywhere;
+}
+
+.airportCard p,
+.driverNote p {
+  margin: 0;
+  color: #617987;
+  line-height: 1.7;
+}
+
+.driverNote {
+  margin-top: 18px;
+  padding: 26px 28px;
+  background: #f4f8f8;
+  border-left: 4px solid #1597a8;
+  border-radius: 9px;
+}
+
+.driverNote h3 {
+  margin: 0 0 10px;
+  color: #073b58;
+  font: 700 23px / 1.2 Georgia, "Times New Roman", serif;
+}
+
+.driverNote a {
+  display: inline-block;
+  margin-top: 14px;
+}
+
+.nearbyGrid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 13px;
+}
+
+.nearbyCard {
+  min-width: 0;
+  padding: 23px;
+  background: #ffffff;
+  border-top: 4px solid #1597a8;
+  border-radius: 9px;
+  box-shadow: 0 12px 30px rgba(7, 59, 88, 0.06);
+}
+
+.distanceBadge {
+  display: inline-flex;
+  padding: 6px 9px;
+  color: #7a461f;
+  background: #fff1d6;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.nearbyCard h3 {
+  margin: 15px 0 10px;
+  color: #073b58;
+  font: 700 21px / 1.2 Georgia, "Times New Roman", serif;
+  overflow-wrap: anywhere;
+}
+
+.nearbyCard p {
+  margin: 0;
+  color: #617987;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.linkRow {
+  margin-top: 26px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.linkRow a {
+  padding: 12px 16px;
+  color: #073b58;
+  background: #ffffff;
+  border: 1px solid #bdd1d7;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.linkRow a:hover {
+  color: #ffffff;
+  background: #073b58;
+  border-color: #073b58;
+}
+
+.walkabilityGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+  gap: clamp(35px, 6vw, 80px);
+  align-items: start;
+}
+
+.callout {
+  padding: 28px;
+  color: #ffffff;
+  background: #073b58;
+  border-radius: 14px;
+  box-shadow: 0 20px 45px rgba(7, 59, 88, 0.16);
+}
+
+.callout h3 {
+  margin: 0 0 16px;
+  font: 700 25px / 1.2 Georgia, "Times New Roman", serif;
+}
+
+.callout ul {
+  margin: 0;
+  padding-left: 20px;
+  color: #dce9ed;
+  line-height: 1.75;
+}
+
+.faqGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 15px;
+}
+
+.faqItem {
+  min-width: 0;
+  padding: 25px;
+  background: #ffffff;
+  border: 1px solid #e7e0d4;
+  border-radius: 11px;
+}
+
+.faqItem h3 {
+  margin: 0 0 10px;
+  color: #073b58;
+  font: 700 21px / 1.3 Georgia, "Times New Roman", serif;
+  overflow-wrap: anywhere;
+}
+
+.faqItem p {
+  margin: 0;
+  color: #617987;
+  line-height: 1.68;
+}
+
+.finalSection {
+  padding: 78px clamp(22px, 7vw, 110px);
+  color: #ffffff;
+  background: #052f47;
+}
+
+.finalInner {
+  width: min(1160px, 100%);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
+  gap: 45px;
+  align-items: center;
+}
+
+.finalInner h2 {
+  color: #ffffff;
+}
+
+.finalInner p {
+  margin-bottom: 0;
+  color: #dce9ed;
+}
+
+.finalActions {
+  display: grid;
+  gap: 10px;
+}
+
+.finalActions a {
+  width: 100%;
+}
+
+.section[id] {
+  scroll-margin-top: 95px;
+}
+
+@media (max-width: 1120px) {
+  .quickFactGrid,
+  .stepsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .nearbyGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 920px) {
+  .toolGrid,
+  .mapGrid,
+  .walkabilityGrid,
+  .finalInner {
     grid-template-columns: 1fr;
   }
-}
 
-@media (max-width: 560px) {
-  .explore3d {
-    padding: 75px 20px 15px;
+  .toolCard {
+    min-height: 0;
   }
 
-  .explore3dGrid > a {
-    min-height: 0;
-    padding: 28px 24px;
+  .mapFrame iframe {
+    min-height: 500px;
+  }
+
+  .nearbyGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .finalActions {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .heroActions,
+  .linkRow {
+    flex-direction: column;
+  }
+
+  .heroActions a,
+  .linkRow a {
+    width: 100%;
+  }
+
+  .quickFacts,
+  .section {
+    padding: 68px 19px;
+  }
+
+  .quickFacts {
+    padding-bottom: 38px;
+  }
+
+  .availabilityWrap {
+    padding: 0 14px 55px;
+  }
+
+  .quickFactGrid,
+  .stepsGrid,
+  .airportGrid,
+  .nearbyGrid,
+  .faqGrid,
+  .unitGrid,
+  .finalActions {
+    grid-template-columns: 1fr;
+  }
+
+  .toolCard {
+    padding: 27px 23px;
+    border-radius: 13px;
+  }
+
+  .toolCard h3 {
+    font-size: 30px;
+  }
+
+  .mapFrame iframe {
+    min-height: 420px;
+  }
+
+  .orientationFlow span {
+    padding-left: 39px;
+    font-size: 14px;
+  }
+
+  .tableWrap {
+    margin-right: -5px;
+  }
+
+  .dataTable {
+    min-width: 700px;
+  }
+
+  .finalSection {
+    padding: 65px 20px;
+  }
+}
+
+@media (max-width: 400px) {
+  .sectionIntro h2,
+  .mapCopy h2,
+  .walkabilityGrid h2,
+  .finalInner h2 {
+    font-size: 31px;
+  }
+
+  .quickFact,
+  .stepCard,
+  .airportCard,
+  .faqItem {
+    padding: 21px;
   }
 }

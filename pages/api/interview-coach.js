@@ -1,8 +1,10 @@
 import OpenAI from "openai";
 import { allowSameOriginRequest, cleanText, enforceJsonSize, enforceRateLimit } from "../../lib/public-api-security.js";
+import { hasInterviewLabAccess } from "../../lib/interview-lab-auth.js";
 
 export default async function handler(req, res) {
   if (!allowSameOriginRequest(req, res, { methods: ["POST"] })) return;
+  if (!hasInterviewLabAccess(req)) return res.status(401).json({ error: "Interview Lab access required." });
   if (!enforceJsonSize(req, res, 24_000)) return;
   if (!enforceRateLimit(req, res, { scope: "interview-coach", limit: 30, windowMs: 60 * 60 * 1000 })) return;
 

@@ -1,12 +1,25 @@
 import Head from "next/head";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { interviewStories, storyAnswer } from "../data/interview-stories";
+import { storyAnswer } from "../data/interview-stories";
+import { grantInterviewLabAccess, hasInterviewLabAccess, isValidInterviewLabKey } from "../lib/interview-lab-auth";
 import styles from "../styles/InterviewLab.module.css";
 
-export async function getServerSideProps({ res }) {
+export async function getServerSideProps({ req, res, query }) {
   res.setHeader("X-Robots-Tag", "noindex, nofollow, noarchive, nosnippet");
   res.setHeader("Cache-Control", "private, no-store");
-  return { props: {} };
+  if (typeof query.key === "string" && isValidInterviewLabKey(query.key)) {
+    grantInterviewLabAccess(res);
+    return { redirect: { destination: "/interview-lab", permanent: false } };
+  }
+  if (!hasInterviewLabAccess(req)) return { props: { locked: true, interviewStories: [] } };
+
+  try {
+    const interviewStories = JSON.parse(process.env.INTERVIEW_STORIES_JSON || "[]");
+    if (!Array.isArray(interviewStories) || interviewStories.length !== 10) throw new Error("INVALID_STORY_PACK");
+    return { props: { locked: false, interviewStories } };
+  } catch {
+    return { props: { locked: false, interviewStories: [], configurationError: true } };
+  }
 }
 
 function chooseVoices(voices) {
@@ -22,7 +35,22 @@ function speechEngine() {
   return window.speechSynthesis || null;
 }
 
-export default function InterviewLab() {
+function LockedInterviewLab() {
+  return <div className={styles.page}>
+    <Head><title>Private Interview Rehearsal Lab</title><meta name="robots" content="noindex,nofollow,noarchive,nosnippet" /></Head>
+    <main className={styles.locked}>
+      <p>Private rehearsal workspace</p>
+      <h1>Interview Story Lab</h1>
+      <span>Enter your access code to continue.</span>
+      <form method="get" action="/interview-lab">
+        <input type="password" name="key" aria-label="Access code" autoComplete="current-password" required />
+        <button type="submit">Open story lab</button>
+      </form>
+    </main>
+  </div>;
+}
+
+function InterviewLabContent({ interviewStories }) {
   const [selectedId, setSelectedId] = useState(interviewStories[0].id);
   const [voices, setVoices] = useState([]);
   const [playing, setPlaying] = useState(false);
@@ -104,7 +132,12 @@ export default function InterviewLab() {
   }
 
   function changeStory(id) {
-    stopPlayback();
+    if (playing) stopPlayback();
+    else {
+      playbackId.current += 1;
+      setPaused(false);
+      setSpeaker("");
+    }
     setSelectedId(id);
     setMessages((current) => current.length ? [] : current);
   }
@@ -181,4 +214,10 @@ export default function InterviewLab() {
       </section>
     </main>
   </div>;
+}
+
+export default function InterviewLab(props) {
+  if (props.locked) return <LockedInterviewLab />;
+  if (props.configurationError || !props.interviewStories.length) return <div className={styles.page}><main className={styles.locked}><h1>Story pack unavailable</h1><p>The private story data is not configured yet.</p></main></div>;
+  return <InterviewLabContent {...props} />;
 }

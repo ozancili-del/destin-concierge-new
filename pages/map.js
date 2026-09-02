@@ -302,12 +302,17 @@ export default function MapPage() {
                 href="#interactive-3d-tools"
                 variant="light"
                 size="large"
+                className={mapStyles.heroSecondary}
               >
                 Explore the 3D maps
               </SiteButton>
             </div>
           </div>
         </section>
+
+        <div className={mapStyles.availabilityWrap}>
+          <AvailabilitySearch />
+        </div>
 
         <section className={mapStyles.quickFacts} aria-labelledby="location-facts">
           <div className={mapStyles.sectionInner}>
@@ -331,10 +336,6 @@ export default function MapPage() {
             </p>
           </div>
         </section>
-
-        <div className={mapStyles.availabilityWrap}>
-          <AvailabilitySearch />
-        </div>
 
         <section
           className={`${mapStyles.section} ${mapStyles.sectionAlt}`}

@@ -17,18 +17,34 @@
   gap: 12px;
 }
 
+.heroSecondary {
+  color: #ffffff !important;
+  background: rgba(8, 117, 132, 0.72) !important;
+  border-color: rgba(177, 238, 236, 0.72) !important;
+  backdrop-filter: blur(8px);
+}
+
+.heroSecondary:hover {
+  background: #087584 !important;
+  border-color: #b1eeec !important;
+}
+
 .quickFacts,
 .section {
   padding: 88px clamp(22px, 7vw, 110px);
 }
 
+.section {
+  background: #f2faf9;
+}
+
 .quickFacts {
   padding-bottom: 52px;
-  background: #fffefb;
+  background: linear-gradient(135deg, #fff8e9 0%, #f4fbf8 100%);
 }
 
 .sectionAlt {
-  background: #faf7f0;
+  background: linear-gradient(145deg, #e5f5f3 0%, #fff4df 100%);
 }
 
 .sectionInner {
@@ -83,7 +99,7 @@
 .quickFact {
   min-width: 0;
   padding: 25px;
-  background: #ffffff;
+  background: rgba(255, 253, 246, 0.92);
   border: 1px solid #e7e0d4;
   border-top: 4px solid #1597a8;
   border-radius: 12px;
@@ -116,15 +132,8 @@
 }
 
 .availabilityWrap {
-  padding: 0 clamp(22px, 7vw, 110px) 70px;
-  background: #fffefb;
-}
-
-.availabilityWrap form {
-  left: auto;
-  width: min(1160px, 100%);
-  margin: 0 auto;
-  transform: none;
+  padding: 0 clamp(22px, 7vw, 110px) 36px;
+  background: linear-gradient(135deg, #fff8e9 0%, #f4fbf8 100%);
 }
 
 .toolGrid {
@@ -194,9 +203,48 @@
 }
 
 .toolLink {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  width: fit-content;
   margin-top: auto;
-  color: #ffffff;
+  padding: 13px 18px;
+  color: #073b58;
+  background: linear-gradient(135deg, #fff7d6, #f2c65f);
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 999px;
+  box-shadow: 0 0 0 0 rgba(242, 198, 95, 0.5), 0 10px 28px rgba(2, 29, 44, 0.3);
   font-size: 15px;
+  animation: toolCtaPulse 2.3s ease-in-out infinite;
+}
+
+.toolLink::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: -60%;
+  bottom: -60%;
+  left: -45%;
+  width: 28%;
+  background: rgba(255, 255, 255, 0.82);
+  filter: blur(2px);
+  transform: rotate(18deg);
+  animation: toolCtaShine 2.3s ease-in-out infinite;
+}
+
+.toolCard:hover .toolLink {
+  background: linear-gradient(135deg, #ffffff, #ffd970);
+}
+
+@keyframes toolCtaPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(242, 198, 95, 0.42), 0 10px 28px rgba(2, 29, 44, 0.3); }
+  50% { box-shadow: 0 0 0 8px rgba(242, 198, 95, 0), 0 14px 34px rgba(2, 29, 44, 0.38); }
+}
+
+@keyframes toolCtaShine {
+  0%, 34% { left: -45%; opacity: 0; }
+  45% { opacity: 0.9; }
+  68%, 100% { left: 125%; opacity: 0; }
 }
 
 .toolDisclaimer,
@@ -204,7 +252,7 @@
   margin-top: 22px;
   padding: 18px 21px;
   color: #4f6875;
-  background: #ffffff;
+  background: #fffaf0;
   border: 1px solid #e7e0d4;
   border-left: 4px solid #d9a441;
   border-radius: 9px;
@@ -281,7 +329,7 @@
   padding: 20px;
   color: #073b58;
   text-decoration: none;
-  background: #faf7f0;
+  background: #e9f7f5;
   border: 1px solid #e7e0d4;
   border-radius: 10px;
   transition: border-color 0.18s ease, transform 0.18s ease;
@@ -319,7 +367,7 @@
 .stepCard {
   min-width: 0;
   padding: 25px;
-  background: #ffffff;
+  background: #fffaf0;
   border: 1px solid #e7e0d4;
   border-radius: 12px;
 }
@@ -404,7 +452,7 @@
 .airportCard {
   min-width: 0;
   padding: 28px;
-  background: #ffffff;
+  background: #f7fcfb;
   border: 1px solid #e1e8e9;
   border-radius: 13px;
   box-shadow: 0 14px 35px rgba(7, 59, 88, 0.06);
@@ -452,7 +500,7 @@
 .nearbyCard {
   min-width: 0;
   padding: 23px;
-  background: #ffffff;
+  background: #fffaf0;
   border-top: 4px solid #1597a8;
   border-radius: 9px;
   box-shadow: 0 12px 30px rgba(7, 59, 88, 0.06);
@@ -545,7 +593,7 @@
 .faqItem {
   min-width: 0;
   padding: 25px;
-  background: #ffffff;
+  background: #f9fdfc;
   border: 1px solid #e7e0d4;
   border-radius: 11px;
 }
@@ -714,5 +762,12 @@
   .airportCard,
   .faqItem {
     padding: 21px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toolLink,
+  .toolLink::after {
+    animation: none;
   }
 }

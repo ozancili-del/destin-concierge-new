@@ -1,0 +1,70 @@
+.explore3d {
+  padding: 100px clamp(22px, 7vw, 110px) 35px;
+}
+
+.explore3dGrid {
+  max-width: 1160px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.explore3dGrid > a {
+  min-height: 290px;
+  padding: 38px;
+  display: flex;
+  flex-direction: column;
+  color: #fff;
+  text-decoration: none;
+  background: linear-gradient(145deg, #073b58, #0d6c7d);
+  border-radius: 4px;
+  box-shadow: 0 18px 45px rgba(7, 59, 88, 0.14);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.explore3dGrid > a:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 22px 50px rgba(7, 59, 88, 0.2);
+}
+
+.explore3dGrid span {
+  color: #a8edf0;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.explore3dGrid h3 {
+  margin: 18px 0 12px;
+  font: 700 clamp(27px, 3vw, 38px)/1.12 Georgia, serif;
+}
+
+.explore3dGrid p {
+  margin: 0 0 28px;
+  color: #dce9ed;
+  line-height: 1.7;
+}
+
+.explore3dGrid strong {
+  margin-top: auto;
+  color: #fff;
+}
+
+@media (max-width: 980px) {
+  .explore3dGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .explore3d {
+    padding: 75px 20px 15px;
+  }
+
+  .explore3dGrid > a {
+    min-height: 0;
+    padding: 28px 24px;
+  }
+}

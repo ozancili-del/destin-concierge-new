@@ -1,0 +1,169 @@
+import Head from "next/head";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { interviewStories, storyAnswer } from "../data/interview-stories";
+import styles from "../styles/InterviewLab.module.css";
+
+export async function getServerSideProps({ res }) {
+  res.setHeader("X-Robots-Tag", "noindex, nofollow, noarchive, nosnippet");
+  res.setHeader("Cache-Control", "private, no-store");
+  return { props: {} };
+}
+
+function chooseVoices(voices) {
+  const english = voices.filter((voice) => /^en[-_]/i.test(voice.lang));
+  const pool = english.length ? english : voices;
+  const interviewer = pool.find((voice) => /Daniel|Alex|Google UK English Male|Microsoft David/i.test(voice.name)) || pool[0];
+  const candidate = pool.find((voice) => voice !== interviewer && /Samantha|Ava|Karen|Google US English|Microsoft Jenny/i.test(voice.name)) || pool.find((voice) => voice !== interviewer) || interviewer;
+  return { interviewer, candidate };
+}
+
+export default function InterviewLab() {
+  const [selectedId, setSelectedId] = useState(interviewStories[0].id);
+  const [voices, setVoices] = useState([]);
+  const [playing, setPlaying] = useState(false);
+  const [paused, setPaused] = useState(false);
+  const [speaker, setSpeaker] = useState("");
+  const [messages, setMessages] = useState([]);
+  const [question, setQuestion] = useState("");
+  const [asking, setAsking] = useState(false);
+  const playbackId = useRef(0);
+  const chatEnd = useRef(null);
+
+  const story = useMemo(() => interviewStories.find((item) => item.id === selectedId) || interviewStories[0], [selectedId]);
+  const answer = useMemo(() => storyAnswer(story), [story]);
+
+  useEffect(() => {
+    if (!("speechSynthesis" in window)) return;
+    const load = () => setVoices(window.speechSynthesis.getVoices());
+    load();
+    window.speechSynthesis.addEventListener?.("voiceschanged", load);
+    return () => {
+      window.speechSynthesis.removeEventListener?.("voiceschanged", load);
+      window.speechSynthesis.cancel();
+    };
+  }, []);
+
+  useEffect(() => chatEnd.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), [messages, asking]);
+
+  function stopPlayback() {
+    playbackId.current += 1;
+    window.speechSynthesis?.cancel();
+    setPlaying(false);
+    setPaused(false);
+    setSpeaker("");
+  }
+
+  function speakLine(text, role, voice, id) {
+    return new Promise((resolve) => {
+      if (id !== playbackId.current) return resolve();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.voice = voice || null;
+      utterance.rate = role === "Interviewer" ? 0.98 : 0.94;
+      utterance.pitch = role === "Interviewer" ? 0.94 : 1.02;
+      utterance.onstart = () => setSpeaker(role);
+      utterance.onend = resolve;
+      utterance.onerror = resolve;
+      window.speechSynthesis.speak(utterance);
+    });
+  }
+
+  async function playStory() {
+    if (!("speechSynthesis" in window)) return;
+    stopPlayback();
+    const id = playbackId.current;
+    const selectedVoices = chooseVoices(voices.length ? voices : window.speechSynthesis.getVoices());
+    setPlaying(true);
+    await speakLine(story.question, "Interviewer", selectedVoices.interviewer, id);
+    if (id === playbackId.current) await speakLine(answer, "Candidate", selectedVoices.candidate, id);
+    if (id === playbackId.current) {
+      setPlaying(false);
+      setSpeaker("");
+    }
+  }
+
+  function togglePause() {
+    if (!playing) return;
+    if (paused) window.speechSynthesis.resume();
+    else window.speechSynthesis.pause();
+    setPaused(!paused);
+  }
+
+  function changeStory(id) {
+    stopPlayback();
+    setSelectedId(id);
+    setMessages([]);
+  }
+
+  async function askCoach(event) {
+    event.preventDefault();
+    const cleanQuestion = question.trim();
+    if (!cleanQuestion || asking) return;
+    const previous = messages.slice(-6);
+    setMessages((current) => [...current, { role: "user", content: cleanQuestion }]);
+    setQuestion("");
+    setAsking(true);
+    try {
+      const response = await fetch("/api/interview-coach", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: cleanQuestion, storyTitle: `${story.label}: ${story.competency}`, story: `${story.question}\n\n${answer}`, history: previous }),
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || "Request failed");
+      setMessages((current) => [...current, { role: "assistant", content: payload.answer }]);
+    } catch (error) {
+      setMessages((current) => [...current, { role: "assistant", content: error.message || "The coach is unavailable." }]);
+    } finally {
+      setAsking(false);
+    }
+  }
+
+  return <div className={styles.page}>
+    <Head>
+      <title>Private Interview Rehearsal Lab</title>
+      <meta name="robots" content="noindex,nofollow,noarchive,nosnippet" />
+      <meta name="googlebot" content="noindex,nofollow,noarchive,nosnippet" />
+    </Head>
+
+    <header className={styles.header}>
+      <p>Private rehearsal workspace</p>
+      <h1>Interview Story Lab</h1>
+      <span>Choose a STAR story, listen to the mock exchange, then challenge it with your coach.</span>
+    </header>
+
+    <main className={styles.main}>
+      <section className={styles.selector} aria-labelledby="story-picker-title">
+        <div><span>Story library</span><h2 id="story-picker-title">Select your rehearsal</h2></div>
+        <select value={selectedId} onChange={(event) => changeStory(event.target.value)} aria-label="Select interview story">
+          {interviewStories.map((item) => <option value={item.id} key={item.id}>{item.label} · {item.competency}</option>)}
+        </select>
+      </section>
+
+      <article className={styles.story}>
+        <div className={styles.storyTop}><div><span>{story.label}</span><h2>{story.competency}</h2></div><span className={styles.status}>{speaker ? `${speaker} speaking` : playing ? "Preparing audio" : "Ready"}</span></div>
+        <div className={`${styles.bubble} ${styles.interviewer}`}><strong>Interviewer</strong><p>{story.question}</p></div>
+        <div className={`${styles.bubble} ${styles.candidate}`}><strong>Your STAR answer</strong><p>{answer}</p></div>
+        <div className={styles.controls}>
+          <button className={styles.play} type="button" onClick={playStory}>{playing ? "Restart" : "▶ Play conversation"}</button>
+          <button type="button" onClick={togglePause} disabled={!playing}>{paused ? "Resume" : "Pause"}</button>
+          <button type="button" onClick={stopPlayback} disabled={!playing}>Stop</button>
+        </div>
+        <p className={styles.voiceNote}>Audio uses two voices available on this device. On iPhone, tap Play once to authorize speech.</p>
+      </article>
+
+      <section className={styles.coach} aria-labelledby="coach-title">
+        <div className={styles.coachHeading}><span>GPT-5.6 Sol</span><h2 id="coach-title">Question your interview coach</h2><p>Ask for likely follow-ups, weak points, a shorter version, stronger metrics, or a mock challenge.</p></div>
+        <div className={styles.messages} aria-live="polite">
+          {!messages.length && <div className={styles.promptIdeas}><button onClick={() => setQuestion("What are the three most likely follow-up questions?")}>Likely follow-ups</button><button onClick={() => setQuestion("Where does this story sound weak or vague?")}>Find weak points</button><button onClick={() => setQuestion("Help me make this sound natural in two minutes.")}>Two-minute version</button></div>}
+          {messages.map((message, index) => <div className={message.role === "user" ? styles.userMessage : styles.coachMessage} key={`${message.role}-${index}`}><strong>{message.role === "user" ? "You" : "Coach"}</strong><p>{message.content}</p></div>)}
+          {asking && <div className={styles.thinking}>Coach is reviewing this story…</div>}
+          <div ref={chatEnd} />
+        </div>
+        <form className={styles.chatForm} onSubmit={askCoach}>
+          <textarea value={question} onChange={(event) => setQuestion(event.target.value)} placeholder="Ask about this story…" maxLength={1600} rows={3} aria-label="Question for interview coach" />
+          <button type="submit" disabled={asking || !question.trim()}>{asking ? "Thinking…" : "Ask coach"}</button>
+        </form>
+      </section>
+    </main>
+  </div>;
+}

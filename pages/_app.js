@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import "../public/dcg-core.js";
 import "../styles/globals.css";
 
-const CHAT_EXCLUDED_ROUTES = ["/concierge", "/destin-ai-concierge", "/voice-lab", "/ozan", "/app", "/guestview", "/tv"];
+const CHAT_EXCLUDED_ROUTES = ["/concierge", "/destin-ai-concierge", "/voice-lab", "/interview-lab", "/ozan", "/app", "/guestview", "/tv"];
 
 function shouldLoadChat(pathname) {
   return !CHAT_EXCLUDED_ROUTES.some((route) => pathname === route || pathname.startsWith(`${route}/`));

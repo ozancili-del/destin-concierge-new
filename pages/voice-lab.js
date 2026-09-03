@@ -43,7 +43,8 @@ export default function VoiceLab() {
   const requestFinalToolAnswer = callId => {
     const pending = pendingToolsRef.current.get(callId);
     if (pending) {
-      clearTimeout(pending.timer);
+      clearTimeout(pending.silenceTimer);
+      clearTimeout(pending.fallbackTimer);
       clearTimeout(pending.progressFailsafe);
     }
     channelRef.current?.send(JSON.stringify({
@@ -56,6 +57,8 @@ export default function VoiceLab() {
   const requestProgressCheckIn = callId => {
     const pending = pendingToolsRef.current.get(callId);
     if (!pending || pending.resolved || pending.progressRequested || !channelRef.current) return;
+    clearTimeout(pending.silenceTimer);
+    clearTimeout(pending.fallbackTimer);
     pending.progressRequested = true;
     pending.progressFailsafe = setTimeout(() => {
       const current = pendingToolsRef.current.get(callId);
@@ -123,8 +126,8 @@ export default function VoiceLab() {
   const armProgressTimer = (callId, delayMs = VOICE_TOOL_PROGRESS_SILENCE_MS) => {
     const pending = pendingToolsRef.current.get(callId);
     if (!pending || pending.resolved || pending.progressRequested) return;
-    clearTimeout(pending.timer);
-    pending.timer = setTimeout(() => requestProgressCheckIn(callId), Math.max(0, delayMs));
+    clearTimeout(pending.silenceTimer);
+    pending.silenceTimer = setTimeout(() => requestProgressCheckIn(callId), Math.max(0, delayMs));
   };
 
   const handlePendingPresenceCheck = () => {
@@ -148,7 +151,8 @@ export default function VoiceLab() {
     streamRef.current = null;
     callRef.current = null;
     pendingToolsRef.current.forEach(pending => {
-      clearTimeout(pending.timer);
+      clearTimeout(pending.silenceTimer);
+      clearTimeout(pending.fallbackTimer);
       clearTimeout(pending.progressFailsafe);
     });
     pendingToolsRef.current.clear();
@@ -170,12 +174,12 @@ export default function VoiceLab() {
     let args = {};
     try { args = JSON.parse(event.arguments || "{}"); } catch {}
     const label = voiceLookupLabel(args.query || event.name);
-    const pending = { resolved: false, progressRequested: false, progressFinished: false, progressResponseId: "", finalQueued: false, guestCheckIn: false, label, timer: null, progressFailsafe: null };
+    const pending = { resolved: false, progressRequested: false, progressFinished: false, progressResponseId: "", finalQueued: false, guestCheckIn: false, silenceClockStarted: false, label, silenceTimer: null, fallbackTimer: null, progressFailsafe: null };
     pendingToolsRef.current.set(callId, pending);
     // The function call can arrive before its acknowledgement finishes playing.
     // Start conservatively, then let the next playback-stop event begin the
     // guest-experienced silence window for this lookup.
-    armProgressTimer(callId, VOICE_TOOL_PROGRESS_FALLBACK_MS);
+    pending.fallbackTimer = setTimeout(() => requestProgressCheckIn(callId), VOICE_TOOL_PROGRESS_FALLBACK_MS);
     queueVoiceEvent({ eventType: "tool_call", role: "system", toolName, providerEventId: event.call_id || event.event_id || "" });
     try {
       if (event.name === "check_live_availability") {
@@ -211,7 +215,8 @@ export default function VoiceLab() {
       latencyMs: Date.now() - startedAt,
     });
     pending.resolved = true;
-    clearTimeout(pending.timer);
+    clearTimeout(pending.silenceTimer);
+    clearTimeout(pending.fallbackTimer);
     const discoveredLinks = extractVoiceCompanionLinks(output);
     if (discoveredLinks.length) {
       setCompanionLinks(current => {
@@ -270,7 +275,10 @@ export default function VoiceLab() {
     if (event.type === "response.audio.delta" || event.type === "response.output_audio.delta") setStatus("Destiny is speaking…");
     if (event.type === "output_audio_buffer.stopped") {
       pendingToolsRef.current.forEach((pending, pendingCallId) => {
-        if (!pending.resolved && !pending.progressRequested) armProgressTimer(pendingCallId);
+        if (!pending.resolved && !pending.progressRequested && !pending.silenceClockStarted) {
+          pending.silenceClockStarted = true;
+          armProgressTimer(pendingCallId);
+        }
       });
     }
     if (event.type === "response.done") {

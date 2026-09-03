@@ -120,7 +120,9 @@ test("Voice Lab measures quiet time from audio playback and intercepts pending p
   const source = await readFile(new URL("../pages/voice-lab.js", import.meta.url), "utf8");
   assert.match(source, /event\.type === "output_audio_buffer\.stopped"/);
   assert.match(source, /armProgressTimer\(pendingCallId\)/);
-  assert.match(source, /armProgressTimer\(callId, VOICE_TOOL_PROGRESS_FALLBACK_MS\)/);
+  assert.match(source, /fallbackTimer = setTimeout\(\(\) => requestProgressCheckIn\(callId\), VOICE_TOOL_PROGRESS_FALLBACK_MS\)/);
+  assert.match(source, /!pending\.silenceClockStarted[\s\S]{0,120}pending\.silenceClockStarted = true/);
+  assert.match(source, /clearTimeout\(pending\.silenceTimer\)[\s\S]{0,100}clearTimeout\(pending\.fallbackTimer\)/);
   assert.doesNotMatch(source, /elapsedSinceAudioStopped/);
   assert.match(source, /max_output_tokens: 240/);
   assert.match(source, /isVoicePresenceCheck\(event\.transcript\)[\s\S]{0,100}handlePendingPresenceCheck\(\)/);

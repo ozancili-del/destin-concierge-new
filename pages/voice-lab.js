@@ -129,7 +129,7 @@ export default function VoiceLab() {
       tools: [],
       tool_choice: "none",
       output_modalities: ["audio"],
-      max_output_tokens: 120,
+      max_output_tokens: 300,
     }, { toolCallId: callId, turnId: pending.turnId, waveId: pending.originResponseId });
   };
 
@@ -199,7 +199,7 @@ export default function VoiceLab() {
       tools: [],
       tool_choice: "none",
       output_modalities: ["audio"],
-      max_output_tokens: 100,
+      max_output_tokens: 300,
     }, { toolCallId: pendingCallId, turnId: pending.turnId, waveId: pending.originResponseId });
     pending.guestCheckIn = true;
     pending.progressRequested = true;

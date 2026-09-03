@@ -140,7 +140,7 @@ test("Voice Lab measures quiet time from audio playback and intercepts pending p
   assert.match(source, /event\.type === "output_audio_buffer\.stopped"/);
   assert.match(source, /armProgressTimer\(pendingCallId\)/);
   assert.doesNotMatch(source, /VOICE_TOOL_PROGRESS_FALLBACK_MS|progressFailsafe/);
-  assert.match(source, /max_output_tokens: 120/);
+  assert.equal((source.match(/max_output_tokens: 300/g) || []).length, 2, "progress and presence audio need enough budget to finish cleanly");
   assert.match(source, /classification === "presence"/);
   assert.match(source, /response_id: effect\.responseId/);
   assert.match(source, /type: "output_audio_buffer\.clear"/);

@@ -138,6 +138,9 @@ test("Voice Lab measures quiet time from audio playback and intercepts pending p
   assert.match(realtimeSource, /create_response:\s*false/);
   assert.match(realtimeSource, /interrupt_response:\s*false/);
   assert.match(source, /setTimeout\([\s\S]{0,500}VOICE_BARGE_IN_CONFIRM_MS/);
+  assert.match(source, /ignored_untranscribed_audio_while_lookup_pending/);
+  assert.match(source, /ignored_empty_audio_transcript/);
+  assert.doesNotMatch(source, /pendingCommittedTurnsRef\.current\.delete\(turnId\);\s*supersedePendingTools\(\);\s*requestTurnResponse\(turnId\)/);
 });
 
 test("all active Destiny policy sources use the confirmed 30-day commercial terms", async () => {

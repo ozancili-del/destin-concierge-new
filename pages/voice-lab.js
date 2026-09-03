@@ -405,14 +405,27 @@ export default function VoiceLab() {
         turn.classificationTimer = setTimeout(() => {
           if (callEpochRef.current !== ownedEpoch || !pendingCommittedTurnsRef.current.has(turnId)) return;
           pendingCommittedTurnsRef.current.delete(turnId);
-          supersedePendingTools();
-          requestTurnResponse(turnId);
+          queueVoiceEvent({ eventType: "cancelled", role: "system", text: "ignored_untranscribed_audio_while_lookup_pending", turnId, providerEventId: turnId });
         }, 2000);
         pendingCommittedTurnsRef.current.set(turnId, turn);
       }
     }
     if (event.type === "conversation.item.input_audio_transcription.completed") {
+      const pendingTurn = pendingCommittedTurnsRef.current.get(event.item_id);
+      const cleanTranscript = String(event.transcript || "").trim();
+      if (!cleanTranscript) {
+        if (pendingTurn) {
+          clearTimeout(pendingTurn.classificationTimer);
+          pendingCommittedTurnsRef.current.delete(event.item_id);
+        }
+        queueVoiceEvent({ eventType: "cancelled", role: "system", text: "ignored_empty_audio_transcript", turnId: event.item_id || "", providerEventId: event.item_id || event.event_id || "" });
+        return;
+      }
       if (isVoiceTranscriptionArtifact(event.transcript)) {
+        if (pendingTurn) {
+          clearTimeout(pendingTurn.classificationTimer);
+          pendingCommittedTurnsRef.current.delete(event.item_id);
+        }
         queueVoiceEvent({ eventType: "cancelled", role: "system", text: "suppressed_transcription_artifact", turnId: event.item_id || "", providerEventId: event.item_id || event.event_id || "" });
         return;
       }
@@ -423,7 +436,6 @@ export default function VoiceLab() {
         addLine("you", event.transcript);
         queueVoiceEvent({ eventType: "user_transcript", role: "user", text: event.transcript, turnId: event.item_id || "", providerEventId });
       }
-      const pendingTurn = pendingCommittedTurnsRef.current.get(event.item_id);
       if (pendingTurn) {
         clearTimeout(pendingTurn.classificationTimer);
         pendingCommittedTurnsRef.current.delete(event.item_id);

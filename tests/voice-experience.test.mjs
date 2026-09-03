@@ -1,15 +1,14 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import { buildVoiceInstructions, createVoiceCallIdentity, createVoiceOpeningGreetingEvent, IMMEDIATE_VOICE_FACTS, isVoicePresenceCheck, isVoiceTranscriptionArtifact, voiceLookupLabel, voiceProgressInstructions, VOICE_INSTRUCTIONS, VOICE_MAX_OUTPUT_TOKENS, VOICE_MODEL, VOICE_OPENING_GREETING, VOICE_OUTPUT, VOICE_TOOL_PROGRESS_FALLBACK_MS, VOICE_TOOL_PROGRESS_SILENCE_MS } from "../lib/destiny-agent/voice-experience.js";
+import { buildVoiceInstructions, createVoiceCallIdentity, createVoiceOpeningGreetingEvent, IMMEDIATE_VOICE_FACTS, isVoicePresenceCheck, isVoiceTranscriptionArtifact, voiceLookupLabel, voiceProgressInstructions, VOICE_INSTRUCTIONS, VOICE_MAX_OUTPUT_TOKENS, VOICE_MODEL, VOICE_OPENING_GREETING, VOICE_OUTPUT, VOICE_TOOL_PROGRESS_SILENCE_MS } from "../lib/destiny-agent/voice-experience.js";
 import { extractVoiceCompanionLinks } from "../lib/destiny-agent/voice-links.js";
 
 test("Voice Lab uses the friendlier normal-speed voice", () => {
   assert.equal(VOICE_MODEL, "gpt-realtime-2");
   assert.equal(VOICE_MAX_OUTPUT_TOKENS, 900);
   assert.equal(VOICE_TOOL_PROGRESS_SILENCE_MS, 6500);
-  assert.equal(VOICE_TOOL_PROGRESS_FALLBACK_MS, 11000);
-  assert.match(voiceProgressInstructions("those restaurant options"), /Checking those restaurant options is taking a little longer/);
+  assert.match(voiceProgressInstructions("those restaurant options"), /I’m still checking those restaurant options for you/);
   assert.deepEqual(VOICE_OUTPUT, { voice: "marin", speed: 1 });
 });
 
@@ -27,16 +26,15 @@ test("Voice Lab opens each connected call with one concise spoken introduction",
 test("Voice Lab sends the opening greeting from the data channel open lifecycle", async () => {
   const source = await readFile(new URL("../pages/voice-lab.js", import.meta.url), "utf8");
   assert.match(source, /channel\.onopen\s*=\s*\(\)\s*=>/);
-  assert.match(source, /channel\.send\(JSON\.stringify\(createVoiceOpeningGreetingEvent\(\)\)\)/);
+  assert.match(source, /coordinatorRef\.current\.request\("opening", opening\.response/);
   assert.doesNotMatch(source, /session\.created[\s\S]{0,500}createVoiceOpeningGreetingEvent/);
 });
 
 test("Voice Lab prevents startup audio from interrupting its own greeting", async () => {
   const source = await readFile(new URL("../pages/voice-lab.js", import.meta.url), "utf8");
   assert.match(source, /stream\.getAudioTracks\(\)\.forEach\(track => \{ track\.enabled = false; \}\)/);
-  assert.match(source, /destiny_kind === "opening_greeting"[\s\S]{0,100}finishOpeningGreeting\(\)/);
   assert.match(source, /finishOpeningGreeting[\s\S]{0,400}track\.enabled = true/);
-  assert.match(source, /setTimeout\(finishOpeningGreeting, 8000\)/);
+  assert.match(source, /activeLease\(\)\?\.kind === "opening"[\s\S]{0,100}interrupt\("opening_timeout"\)/);
 });
 
 test("each Voice Lab call receives a fresh session and clears browser conversation state", async () => {
@@ -122,15 +120,18 @@ test("slow lookup progress is contextual and presence checks are narrow", () => 
 
 test("Voice Lab measures quiet time from audio playback and intercepts pending presence checks", async () => {
   const source = await readFile(new URL("../pages/voice-lab.js", import.meta.url), "utf8");
+  const realtimeSource = await readFile(new URL("../pages/api/destiny-realtime.js", import.meta.url), "utf8");
   assert.match(source, /event\.type === "output_audio_buffer\.stopped"/);
   assert.match(source, /armProgressTimer\(pendingCallId\)/);
-  assert.match(source, /fallbackTimer = setTimeout\(\(\) => requestProgressCheckIn\(callId\), VOICE_TOOL_PROGRESS_FALLBACK_MS\)/);
-  assert.match(source, /!pending\.silenceClockStarted[\s\S]{0,120}pending\.silenceClockStarted = true/);
-  assert.match(source, /clearTimeout\(pending\.silenceTimer\)[\s\S]{0,100}clearTimeout\(pending\.fallbackTimer\)/);
-  assert.doesNotMatch(source, /elapsedSinceAudioStopped/);
-  assert.match(source, /max_output_tokens: 240/);
-  assert.match(source, /isVoicePresenceCheck\(event\.transcript\)[\s\S]{0,100}handlePendingPresenceCheck\(\)/);
-  assert.match(source, /type: "response\.cancel"/);
+  assert.doesNotMatch(source, /VOICE_TOOL_PROGRESS_FALLBACK_MS|progressFailsafe/);
+  assert.match(source, /max_output_tokens: 120/);
+  assert.match(source, /isVoicePresenceCheck\(event\.transcript\)\) handlePendingPresenceCheck\(\)/);
+  assert.match(source, /response_id: effect\.responseId/);
+  assert.match(source, /type: "output_audio_buffer\.clear"/);
+  assert.match(source, /expectedCallIds[\s\S]{0,500}wave\.callIds\.add\(callId\)/);
+  assert.match(source, /wave\.progressRequested && !wave\.progressTerminal/);
+  assert.match(source, /effect\.type === "dropped"/);
+  assert.match(realtimeSource, /create_response:\s*false/);
 });
 
 test("all active Destiny policy sources use the confirmed 30-day commercial terms", async () => {

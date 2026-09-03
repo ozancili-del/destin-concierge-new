@@ -34,7 +34,7 @@ export default async function handler(req, res) {
         input: {
           transcription: { model: "gpt-4o-mini-transcribe", language: "en" },
           noise_reduction: { type: "near_field" },
-          turn_detection: { type: "semantic_vad", eagerness: "high", create_response: true, interrupt_response: true },
+          turn_detection: { type: "semantic_vad", eagerness: "high", create_response: false, interrupt_response: true },
         },
         output: VOICE_OUTPUT,
       },

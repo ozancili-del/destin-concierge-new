@@ -2,8 +2,9 @@ import Head from "next/head";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import styles from "../styles/VoiceLab.module.css";
+import { VoiceResponseCoordinator } from "../lib/destiny-agent/voice-coordinator.js";
 import { extractVoiceCompanionLinks } from "../lib/destiny-agent/voice-links.js";
-import { createVoiceCallIdentity, createVoiceOpeningGreetingEvent, isVoicePresenceCheck, isVoiceTranscriptionArtifact, voiceLookupLabel, voiceProgressInstructions, VOICE_TOOL_PROGRESS_FALLBACK_MS, VOICE_TOOL_PROGRESS_SILENCE_MS } from "../lib/destiny-agent/voice-experience.js";
+import { createVoiceCallIdentity, createVoiceOpeningGreetingEvent, isVoicePresenceCheck, isVoiceTranscriptionArtifact, voiceLookupLabel, voiceProgressInstructions, VOICE_TOOL_PROGRESS_SILENCE_MS } from "../lib/destiny-agent/voice-experience.js";
 
 const initialStatus = "Tap the call button when you're ready.";
 
@@ -29,9 +30,24 @@ export default function VoiceLab() {
   const seenProviderEventsRef = useRef(new Set());
   const logQueueRef = useRef(Promise.resolve());
   const pendingToolsRef = useRef(new Map());
-  const progressResponsesRef = useRef(new Map());
+  const toolWavesRef = useRef(new Map());
+  const completedResponseIdsRef = useRef(new Set());
+  const callEpochRef = useRef(0);
+  const pendingCommittedTurnsRef = useRef(new Map());
+  const coordinatorEffectRef = useRef(() => {});
+  const coordinatorRef = useRef(null);
+  if (!coordinatorRef.current) coordinatorRef.current = new VoiceResponseCoordinator({ emit: effect => coordinatorEffectRef.current(effect) });
   const openingGreetingSentRef = useRef(false);
   const openingGreetingTimerRef = useRef(null);
+  const cancellationWatchdogRef = useRef(null);
+
+  const armCancellationWatchdog = interruptedLease => {
+    clearTimeout(cancellationWatchdogRef.current);
+    cancellationWatchdogRef.current = setTimeout(() => {
+      const active = coordinatorRef.current.activeLease();
+      if (active && active.requestToken === interruptedLease?.requestToken) stopCall({ reason: "audio_cancellation_timeout" });
+    }, 4000);
+  };
 
   const finishOpeningGreeting = () => {
     clearTimeout(openingGreetingTimerRef.current);
@@ -40,45 +56,42 @@ export default function VoiceLab() {
     setStatus("Listening — you can interrupt anytime.");
   };
 
-  const requestFinalToolAnswer = callId => {
-    const pending = pendingToolsRef.current.get(callId);
-    if (pending) {
-      clearTimeout(pending.silenceTimer);
-      clearTimeout(pending.fallbackTimer);
-      clearTimeout(pending.progressFailsafe);
-    }
-    channelRef.current?.send(JSON.stringify({
-      type: "response.create",
-      event_id: `final-${callId}`,
-    }));
-    pendingToolsRef.current.delete(callId);
+  const requestFinalToolAnswer = waveId => {
+    const wave = toolWavesRef.current.get(waveId);
+    if (!wave || wave.finalRequested || wave.superseded) return;
+    const pending = [...wave.callIds].map(callId => pendingToolsRef.current.get(callId)).find(Boolean);
+    if (!pending) return;
+    wave.callIds.forEach(callId => clearTimeout(pendingToolsRef.current.get(callId)?.silenceTimer));
+    wave.finalRequested = true;
+    coordinatorRef.current.request("tool_final", {}, { toolCallId: pending.callId, turnId: waveId, waveId });
+  };
+
+  const maybeFinalizeToolWave = waveId => {
+    const wave = toolWavesRef.current.get(waveId);
+    if (!wave || !wave.sealed || wave.superseded || wave.finalRequested) return;
+    const calls = [...wave.callIds].map(callId => pendingToolsRef.current.get(callId));
+    if (!calls.length || calls.some(pending => !pending || (!pending.resolved && !pending.superseded))) return;
+    if (wave.progressRequested && !wave.progressTerminal) wave.finalQueued = true;
+    else requestFinalToolAnswer(waveId);
   };
 
   const requestProgressCheckIn = callId => {
     const pending = pendingToolsRef.current.get(callId);
-    if (!pending || pending.resolved || pending.progressRequested || !channelRef.current) return;
+    if (!pending || pending.resolved || pending.superseded || pending.progressRequested || !channelRef.current) return;
+    const wave = toolWavesRef.current.get(pending.originResponseId);
+    if (!wave || wave.progressRequested || wave.superseded) return;
     clearTimeout(pending.silenceTimer);
-    clearTimeout(pending.fallbackTimer);
     pending.progressRequested = true;
-    pending.progressFailsafe = setTimeout(() => {
-      const current = pendingToolsRef.current.get(callId);
-      if (!current) return;
-      current.progressFinished = true;
-      if (current.finalQueued) requestFinalToolAnswer(callId);
-    }, 10000);
-    channelRef.current.send(JSON.stringify({
-      type: "response.create",
-      event_id: `progress-${callId}`,
-      response: {
-        conversation: "none",
-        instructions: voiceProgressInstructions(pending.label),
-        tools: [],
-        tool_choice: "none",
-        output_modalities: ["audio"],
-        max_output_tokens: 240,
-        metadata: { destiny_kind: "tool_progress", call_id: callId },
-      },
-    }));
+    wave.progressRequested = true;
+    wave.progressCallId = callId;
+    coordinatorRef.current.request("tool_progress", {
+      conversation: "none",
+      instructions: voiceProgressInstructions(pending.label),
+      tools: [],
+      tool_choice: "none",
+      output_modalities: ["audio"],
+      max_output_tokens: 120,
+    }, { toolCallId: callId, turnId: pending.turnId });
   };
 
   const queueVoiceEvent = (event, { beacon = false } = {}) => {
@@ -125,18 +138,33 @@ export default function VoiceLab() {
 
   const armProgressTimer = (callId, delayMs = VOICE_TOOL_PROGRESS_SILENCE_MS) => {
     const pending = pendingToolsRef.current.get(callId);
-    if (!pending || pending.resolved || pending.progressRequested) return;
+    if (!pending || pending.resolved || pending.superseded || pending.progressRequested) return;
     clearTimeout(pending.silenceTimer);
-    pending.silenceTimer = setTimeout(() => requestProgressCheckIn(callId), Math.max(0, delayMs));
+    const ownedEpoch = callEpochRef.current;
+    const timerGeneration = ++pending.timerGeneration;
+    pending.silenceTimer = setTimeout(() => {
+      const current = pendingToolsRef.current.get(callId);
+      if (callEpochRef.current !== ownedEpoch || !current || current.timerGeneration !== timerGeneration) return;
+      requestProgressCheckIn(callId);
+    }, Math.max(0, delayMs));
   };
 
   const handlePendingPresenceCheck = () => {
-    const pendingEntry = [...pendingToolsRef.current.entries()].find(([, pending]) => !pending.resolved);
+    const pendingEntry = [...pendingToolsRef.current.entries()].find(([, pending]) => !pending.resolved && !pending.superseded);
     if (!pendingEntry) return false;
     const [pendingCallId, pending] = pendingEntry;
-    channelRef.current?.send(JSON.stringify({ type: "response.cancel" }));
-    armProgressTimer(pendingCallId, 0);
+    clearTimeout(pending.silenceTimer);
+    coordinatorRef.current.interrupt("presence_check");
+    coordinatorRef.current.request("presence", {
+      conversation: "none",
+      instructions: voiceProgressInstructions(pending.label),
+      tools: [],
+      tool_choice: "none",
+      output_modalities: ["audio"],
+      max_output_tokens: 100,
+    }, { toolCallId: pendingCallId, turnId: pending.turnId });
     pending.guestCheckIn = true;
+    pending.progressRequested = true;
     return true;
   };
 
@@ -152,13 +180,19 @@ export default function VoiceLab() {
     callRef.current = null;
     pendingToolsRef.current.forEach(pending => {
       clearTimeout(pending.silenceTimer);
-      clearTimeout(pending.fallbackTimer);
-      clearTimeout(pending.progressFailsafe);
+      pending.abortController?.abort();
     });
     pendingToolsRef.current.clear();
-    progressResponsesRef.current.clear();
+    toolWavesRef.current.clear();
+    completedResponseIdsRef.current.clear();
+    pendingCommittedTurnsRef.current.forEach(turn => clearTimeout(turn.classificationTimer));
+    pendingCommittedTurnsRef.current.clear();
     clearTimeout(openingGreetingTimerRef.current);
     openingGreetingTimerRef.current = null;
+    clearTimeout(cancellationWatchdogRef.current);
+    cancellationWatchdogRef.current = null;
+    coordinatorRef.current.end();
+    callEpochRef.current += 1;
     openingGreetingSentRef.current = false;
     setPhase("idle");
     setStatus("Call ended. Tap to talk again.");
@@ -169,17 +203,23 @@ export default function VoiceLab() {
   const sendToolResult = async event => {
     let output;
     const startedAt = Date.now();
+    const ownedEpoch = callEpochRef.current;
     const toolName = String(event.name || "unknown");
     const callId = String(event.call_id || event.event_id || `tool-${Date.now()}`);
+    if (pendingToolsRef.current.has(callId)) return;
     let args = {};
     try { args = JSON.parse(event.arguments || "{}"); } catch {}
     const label = voiceLookupLabel(args.query || event.name);
-    const pending = { resolved: false, progressRequested: false, progressFinished: false, progressResponseId: "", finalQueued: false, guestCheckIn: false, silenceClockStarted: false, label, silenceTimer: null, fallbackTimer: null, progressFailsafe: null };
+    const abortController = new AbortController();
+    const originResponseId = String(event.response_id || `tool-wave-${callId}`);
+    const pending = { callId, resolved: false, superseded: false, progressRequested: false, guestCheckIn: false, label, turnId: originResponseId, originResponseId, silenceTimer: null, timerGeneration: 0, abortController };
     pendingToolsRef.current.set(callId, pending);
-    // The function call can arrive before its acknowledgement finishes playing.
-    // Start conservatively, then let the next playback-stop event begin the
-    // guest-experienced silence window for this lookup.
-    pending.fallbackTimer = setTimeout(() => requestProgressCheckIn(callId), VOICE_TOOL_PROGRESS_FALLBACK_MS);
+    let wave = toolWavesRef.current.get(originResponseId);
+    if (!wave) {
+      wave = { callIds: new Set(), sealed: completedResponseIdsRef.current.has(originResponseId), progressRequested: false, progressTerminal: false, progressCallId: null, finalQueued: false, finalRequested: false, superseded: false };
+      toolWavesRef.current.set(originResponseId, wave);
+    }
+    wave.callIds.add(callId);
     queueVoiceEvent({ eventType: "tool_call", role: "system", toolName, providerEventId: event.call_id || event.event_id || "" });
     try {
       if (event.name === "check_live_availability") {
@@ -187,6 +227,7 @@ export default function VoiceLab() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(args),
+          signal: abortController.signal,
         });
         const data = await response.json();
         output = data.reply || data.error || "Live availability could not be checked.";
@@ -197,15 +238,18 @@ export default function VoiceLab() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ messages, sessionId: sessionRef.current, voiceMode: true, pageSource: "voice-lab" }),
+          signal: abortController.signal,
         });
         const data = await response.json();
         output = data.reply || data.message || "I couldn't retrieve that information.";
       } else {
         output = "That action is not available in this voice test.";
       }
-    } catch {
+    } catch (error) {
+      if (error?.name === "AbortError" || pending.superseded || ownedEpoch !== callEpochRef.current) return;
       output = "The lookup failed. Please answer briefly without inventing any result.";
     }
+    if (ownedEpoch !== callEpochRef.current || pending.superseded || callRef.current == null) return;
     queueVoiceEvent({
       eventType: "tool_result",
       role: "system",
@@ -216,7 +260,6 @@ export default function VoiceLab() {
     });
     pending.resolved = true;
     clearTimeout(pending.silenceTimer);
-    clearTimeout(pending.fallbackTimer);
     const discoveredLinks = extractVoiceCompanionLinks(output);
     if (discoveredLinks.length) {
       setCompanionLinks(current => {
@@ -229,8 +272,95 @@ export default function VoiceLab() {
       type: "conversation.item.create",
       item: { type: "function_call_output", call_id: event.call_id, output: String(output) },
     }));
-    if (!pending.progressRequested || pending.progressFinished) requestFinalToolAnswer(callId);
-    else pending.finalQueued = true;
+    if (!coordinatorRef.current.hasLease() && !wave.progressRequested) armProgressTimer(callId);
+    maybeFinalizeToolWave(originResponseId);
+  };
+
+  const requestTurnResponse = turnId => {
+    coordinatorRef.current.request("turn", {}, { turnId });
+  };
+
+  const supersedePendingTools = () => {
+    pendingToolsRef.current.forEach((pending, pendingCallId) => {
+      if (pending.resolved) return;
+      pending.superseded = true;
+      pending.timerGeneration += 1;
+      clearTimeout(pending.silenceTimer);
+      pending.abortController?.abort();
+      channelRef.current?.send(JSON.stringify({
+        type: "conversation.item.create",
+        item: { type: "function_call_output", call_id: pendingCallId, output: "The guest moved to a new request. Do not answer the superseded lookup." },
+      }));
+      const wave = toolWavesRef.current.get(pending.originResponseId);
+      if (wave) wave.superseded = true;
+    });
+  };
+
+  coordinatorEffectRef.current = effect => {
+    if (effect.type === "dropped") {
+      if (effect.job.kind === "tool_progress") {
+        const pending = pendingToolsRef.current.get(effect.job.context.toolCallId);
+        const wave = toolWavesRef.current.get(pending?.originResponseId);
+        if (pending) pending.progressRequested = false;
+        if (wave) wave.progressRequested = false;
+      }
+      if (effect.job.kind === "tool_final") {
+        const wave = toolWavesRef.current.get(effect.job.context.waveId);
+        if (wave) {
+          wave.finalRequested = false;
+          wave.finalQueued = true;
+        }
+      }
+      return;
+    }
+    if (effect.type === "send_response") {
+      channelRef.current?.send(JSON.stringify({
+        type: "response.create",
+        event_id: `response-${effect.job.requestToken}`,
+        response: effect.job.response,
+      }));
+      return;
+    }
+    if (effect.type === "send_cancel") {
+      channelRef.current?.send(JSON.stringify({
+        type: "response.cancel",
+        event_id: `cancel-${effect.responseId}`,
+        response_id: effect.responseId,
+      }));
+      return;
+    }
+    if (effect.type === "clear_audio") {
+      channelRef.current?.send(JSON.stringify({
+        type: "output_audio_buffer.clear",
+        event_id: `clear-${effect.responseId}`,
+      }));
+      return;
+    }
+    if (effect.type !== "released") return;
+    clearTimeout(cancellationWatchdogRef.current);
+    cancellationWatchdogRef.current = null;
+    const { lease } = effect;
+    if (lease.kind === "opening") {
+      finishOpeningGreeting();
+      return;
+    }
+    if (lease.kind === "tool_progress" || lease.kind === "presence") {
+      const pending = pendingToolsRef.current.get(lease.context.toolCallId);
+      const wave = toolWavesRef.current.get(pending?.originResponseId);
+      if (wave) wave.progressTerminal = true;
+      if (wave?.finalQueued) requestFinalToolAnswer(pending.originResponseId);
+      else if (pending && !pending.resolved) setStatus("Still checking that for you…");
+      return;
+    }
+    if (lease.kind === "tool_final") {
+      const wave = toolWavesRef.current.get(lease.context.waveId);
+      wave?.callIds.forEach(callId => pendingToolsRef.current.delete(callId));
+      toolWavesRef.current.delete(lease.context.waveId);
+    }
+    if (!lease.interrupted && !coordinatorRef.current.hasLease()) setStatus("Listening — you can interrupt anytime.");
+    pendingToolsRef.current.forEach((pending, pendingCallId) => {
+      if (!pending.resolved && pending.originResponseId === lease.responseId) armProgressTimer(pendingCallId);
+    });
   };
 
   const handleEvent = event => {
@@ -239,16 +369,35 @@ export default function VoiceLab() {
       setStatus("Destiny is answering…");
       queueVoiceEvent({ eventType: "call_started", role: "system", providerEventId: event.event_id || event.session?.id || "" });
     }
-    if (event.type === "response.created" && event.response?.metadata?.destiny_kind === "tool_progress") {
-      const progressCallId = String(event.response.metadata.call_id || "");
-      if (progressCallId) {
-        progressResponsesRef.current.set(event.response.id, progressCallId);
-        const pending = pendingToolsRef.current.get(progressCallId);
-        if (pending) pending.progressResponseId = event.response.id;
+    if (event.type === "response.created") coordinatorRef.current.responseCreated(event.response);
+    if (event.type === "input_audio_buffer.speech_started") {
+      setStatus("Listening…");
+      pendingToolsRef.current.forEach(pending => {
+        pending.timerGeneration += 1;
+        clearTimeout(pending.silenceTimer);
+      });
+      if (coordinatorRef.current.interrupt("guest_speech")) {
+        const interruptedLease = coordinatorRef.current.activeLease();
+        armCancellationWatchdog(interruptedLease);
       }
     }
-    if (event.type === "input_audio_buffer.speech_started") setStatus("Listening…");
     if (event.type === "input_audio_buffer.speech_stopped") setStatus("Destiny is thinking…");
+    if (event.type === "input_audio_buffer.committed") {
+      const turnId = String(event.item_id || event.event_id || `turn-${Date.now()}`);
+      const hasPendingLookup = [...pendingToolsRef.current.values()].some(pending => !pending.resolved && !pending.superseded);
+      if (!hasPendingLookup) requestTurnResponse(turnId);
+      else {
+        const ownedEpoch = callEpochRef.current;
+        const turn = { turnId, classificationTimer: null };
+        turn.classificationTimer = setTimeout(() => {
+          if (callEpochRef.current !== ownedEpoch || !pendingCommittedTurnsRef.current.has(turnId)) return;
+          pendingCommittedTurnsRef.current.delete(turnId);
+          supersedePendingTools();
+          requestTurnResponse(turnId);
+        }, 2000);
+        pendingCommittedTurnsRef.current.set(turnId, turn);
+      }
+    }
     if (event.type === "conversation.item.input_audio_transcription.completed") {
       if (isVoiceTranscriptionArtifact(event.transcript)) {
         queueVoiceEvent({ eventType: "cancelled", role: "system", text: "suppressed_transcription_artifact", turnId: event.item_id || "", providerEventId: event.item_id || event.event_id || "" });
@@ -261,7 +410,16 @@ export default function VoiceLab() {
         addLine("you", event.transcript);
         queueVoiceEvent({ eventType: "user_transcript", role: "user", text: event.transcript, turnId: event.item_id || "", providerEventId });
       }
-      if (isVoicePresenceCheck(event.transcript)) handlePendingPresenceCheck();
+      const pendingTurn = pendingCommittedTurnsRef.current.get(event.item_id);
+      if (pendingTurn) {
+        clearTimeout(pendingTurn.classificationTimer);
+        pendingCommittedTurnsRef.current.delete(event.item_id);
+        if (isVoicePresenceCheck(event.transcript)) handlePendingPresenceCheck();
+        else {
+          supersedePendingTools();
+          requestTurnResponse(event.item_id);
+        }
+      }
     }
     if (event.type === "response.audio_transcript.done" || event.type === "response.output_audio_transcript.done") {
       const providerEventId = event.item_id || event.response_id || event.event_id || "";
@@ -273,32 +431,26 @@ export default function VoiceLab() {
       }
     }
     if (event.type === "response.audio.delta" || event.type === "response.output_audio.delta") setStatus("Destiny is speaking…");
-    if (event.type === "output_audio_buffer.stopped") {
-      pendingToolsRef.current.forEach((pending, pendingCallId) => {
-        if (!pending.resolved && !pending.progressRequested && !pending.silenceClockStarted) {
-          pending.silenceClockStarted = true;
-          armProgressTimer(pendingCallId);
-        }
-      });
-    }
+    if (event.type === "output_audio_buffer.started") coordinatorRef.current.audioStarted(event.response_id);
+    if (event.type === "output_audio_buffer.stopped") coordinatorRef.current.audioStopped(event.response_id);
+    if (event.type === "output_audio_buffer.cleared") coordinatorRef.current.audioCleared(event.response_id);
     if (event.type === "response.done") {
-      if (event.response?.metadata?.destiny_kind === "opening_greeting") {
-        finishOpeningGreeting();
-        return;
-      }
-      const progressCallId = progressResponsesRef.current.get(event.response?.id);
-      if (progressCallId) {
-        progressResponsesRef.current.delete(event.response.id);
-        const pending = pendingToolsRef.current.get(progressCallId);
-        if (pending) {
-          pending.progressFinished = true;
-          clearTimeout(pending.progressFailsafe);
+      coordinatorRef.current.responseDone(event.response);
+      const responseId = String(event.response?.id || "");
+      if (responseId) {
+        completedResponseIdsRef.current.add(responseId);
+        const expectedCallIds = (event.response?.output || []).filter(item => item?.type === "function_call" && item.call_id).map(item => String(item.call_id));
+        let wave = toolWavesRef.current.get(responseId);
+        if (!wave && expectedCallIds.length) {
+          wave = { callIds: new Set(), sealed: false, progressRequested: false, progressTerminal: false, progressCallId: null, finalQueued: false, finalRequested: false, superseded: false };
+          toolWavesRef.current.set(responseId, wave);
         }
-        if (pending?.finalQueued) requestFinalToolAnswer(progressCallId);
-        else if (pending) setStatus("Still checking that for you…");
-        return;
+        if (wave) {
+          expectedCallIds.forEach(callId => wave.callIds.add(callId));
+          wave.sealed = true;
+          maybeFinalizeToolWave(responseId);
+        }
       }
-      setStatus("Listening — you can interrupt anytime.");
       const responseStatus = event.response?.status || "";
       if (["cancelled", "incomplete", "failed"].includes(responseStatus)) {
         const detail = event.response?.status_details?.reason || event.response?.status_details?.error?.code || "";
@@ -323,6 +475,8 @@ export default function VoiceLab() {
     setPhase("connecting");
     setStatus("Connecting to Destiny…");
     const identity = createVoiceCallIdentity();
+    callEpochRef.current += 1;
+    coordinatorRef.current.start(callEpochRef.current);
     sessionRef.current = identity.sessionId;
     callRef.current = identity.callId;
     historyRef.current = [];
@@ -341,7 +495,10 @@ export default function VoiceLab() {
       peer.ontrack = ({ streams }) => {
         if (audioRef.current) {
           audioRef.current.srcObject = streams[0];
-          audioRef.current.play().catch(() => {});
+          audioRef.current.play().catch(() => {
+            queueVoiceEvent({ eventType: "error", role: "system", text: "remote_audio_play_failed" });
+            stopCall({ reason: "remote_audio_play_failed" });
+          });
         }
       };
       peer.onconnectionstatechange = () => {
@@ -353,8 +510,16 @@ export default function VoiceLab() {
         if (openingGreetingSentRef.current) return;
         openingGreetingSentRef.current = true;
         setStatus("Destiny is answering…");
-        channel.send(JSON.stringify(createVoiceOpeningGreetingEvent()));
-        openingGreetingTimerRef.current = setTimeout(finishOpeningGreeting, 8000);
+        const opening = createVoiceOpeningGreetingEvent();
+        coordinatorRef.current.request("opening", opening.response, { turnId: "opening" });
+        const ownedEpoch = callEpochRef.current;
+        openingGreetingTimerRef.current = setTimeout(() => {
+          if (callEpochRef.current !== ownedEpoch) return;
+          if (coordinatorRef.current.activeLease()?.kind === "opening") {
+            coordinatorRef.current.interrupt("opening_timeout");
+            armCancellationWatchdog(coordinatorRef.current.activeLease());
+          }
+        }, 8000);
       };
       channel.onmessage = message => {
         try { handleEvent(JSON.parse(message.data)); } catch {}

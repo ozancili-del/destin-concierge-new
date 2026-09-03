@@ -32,7 +32,7 @@ export default async function handler(req, res) {
       max_output_tokens: VOICE_MAX_OUTPUT_TOKENS,
       audio: {
         input: {
-          transcription: { model: "gpt-4o-mini-transcribe" },
+          transcription: { model: "gpt-4o-mini-transcribe", language: "en" },
           noise_reduction: { type: "near_field" },
           turn_detection: { type: "semantic_vad", eagerness: "high", create_response: true, interrupt_response: true },
         },

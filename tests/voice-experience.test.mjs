@@ -51,11 +51,11 @@ test("each Voice Lab call receives a fresh session and clears browser conversati
   assert.match(source, /historyRef\.current = \[\];[\s\S]{0,150}setTranscript\(\[\]\);[\s\S]{0,150}setCompanionLinks\(\[\]\)/);
 });
 
-test("Realtime transcription does not seed or force the recognizer with guest-like text", async () => {
+test("Realtime transcription favors English without seeding guest-like text", async () => {
   const source = await readFile(new URL("../pages/api/destiny-realtime.js", import.meta.url), "utf8");
-  assert.match(source, /transcription:\s*\{\s*model:\s*"gpt-4o-mini-transcribe"\s*\}/);
+  assert.match(source, /transcription:\s*\{\s*model:\s*"gpt-4o-mini-transcribe",\s*language:\s*"en"\s*\}/);
+  assert.doesNotMatch(source, /transcription:\s*\{[^}]*prompt:/);
   assert.doesNotMatch(source, /transcription:[^\n]+prompt:/);
-  assert.doesNotMatch(source, /transcription:[^\n]+language:/);
 });
 
 test("known transcription-hint echoes are suppressed narrowly", () => {

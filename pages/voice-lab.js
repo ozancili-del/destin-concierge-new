@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import styles from "../styles/VoiceLab.module.css";
 import { VoiceResponseCoordinator } from "../lib/destiny-agent/voice-coordinator.js";
 import { extractVoiceCompanionLinks } from "../lib/destiny-agent/voice-links.js";
-import { createVoiceCallIdentity, createVoiceOpeningGreetingEvent, isVoicePresenceCheck, isVoiceTranscriptionArtifact, voiceLookupLabel, voiceProgressInstructions, VOICE_TOOL_PROGRESS_SILENCE_MS } from "../lib/destiny-agent/voice-experience.js";
+import { createVoiceCallIdentity, createVoiceOpeningGreetingEvent, isVoicePresenceCheck, isVoiceTranscriptionArtifact, voiceLookupLabel, voiceProgressInstructions, VOICE_BARGE_IN_CONFIRM_MS, VOICE_TOOL_PROGRESS_SILENCE_MS } from "../lib/destiny-agent/voice-experience.js";
 
 const initialStatus = "Tap the call button when you're ready.";
 
@@ -40,6 +40,7 @@ export default function VoiceLab() {
   const openingGreetingSentRef = useRef(false);
   const openingGreetingTimerRef = useRef(null);
   const cancellationWatchdogRef = useRef(null);
+  const bargeInTimerRef = useRef(null);
 
   const armCancellationWatchdog = interruptedLease => {
     clearTimeout(cancellationWatchdogRef.current);
@@ -191,6 +192,8 @@ export default function VoiceLab() {
     openingGreetingTimerRef.current = null;
     clearTimeout(cancellationWatchdogRef.current);
     cancellationWatchdogRef.current = null;
+    clearTimeout(bargeInTimerRef.current);
+    bargeInTimerRef.current = null;
     coordinatorRef.current.end();
     callEpochRef.current += 1;
     openingGreetingSentRef.current = false;
@@ -376,12 +379,22 @@ export default function VoiceLab() {
         pending.timerGeneration += 1;
         clearTimeout(pending.silenceTimer);
       });
-      if (coordinatorRef.current.interrupt("guest_speech")) {
+      clearTimeout(bargeInTimerRef.current);
+      const ownedEpoch = callEpochRef.current;
+      bargeInTimerRef.current = setTimeout(() => {
+        bargeInTimerRef.current = null;
+        if (callEpochRef.current !== ownedEpoch) return;
         const interruptedLease = coordinatorRef.current.activeLease();
-        armCancellationWatchdog(interruptedLease);
-      }
+        if (coordinatorRef.current.interrupt("guest_speech")) armCancellationWatchdog(interruptedLease);
+      }, VOICE_BARGE_IN_CONFIRM_MS);
     }
-    if (event.type === "input_audio_buffer.speech_stopped") setStatus("Destiny is thinking…");
+    if (event.type === "input_audio_buffer.speech_stopped") {
+      if (bargeInTimerRef.current) {
+        clearTimeout(bargeInTimerRef.current);
+        bargeInTimerRef.current = null;
+      }
+      if (!coordinatorRef.current.hasLease()) setStatus("Destiny is thinking…");
+    }
     if (event.type === "input_audio_buffer.committed") {
       const turnId = String(event.item_id || event.event_id || `turn-${Date.now()}`);
       const hasPendingLookup = [...pendingToolsRef.current.values()].some(pending => !pending.resolved && !pending.superseded);

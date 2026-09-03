@@ -72,10 +72,12 @@ test("Voice receives Central date context and next-occurrence date behavior", ()
 });
 
 test("Voice routing makes stable facts immediate and keeps fresh and protected checks", () => {
-  assert.equal(Object.keys(IMMEDIATE_VOICE_FACTS).length, 10);
+  assert.equal(Object.keys(IMMEDIATE_VOICE_FACTS).length, 11);
   assert.match(IMMEDIATE_VOICE_FACTS.wellness, /fitness center.*sauna.*steam room/i);
   assert.match(IMMEDIATE_VOICE_FACTS.recreation, /tennis.*pickleball.*grills/i);
   assert.match(IMMEDIATE_VOICE_FACTS.foodAndDrink, /café.*Tiki Bar.*hours must be checked/i);
+  assert.match(IMMEDIATE_VOICE_FACTS.resortServices, /24-hour front desk.*security.*accessible parking.*vending.*Pool bracelets/i);
+  assert.match(IMMEDIATE_VOICE_FACTS.amenities, /Laundry.*quarters or credit cards/i);
   assert.match(VOICE_INSTRUCTIONS, /answer directly and immediately/i);
   assert.match(VOICE_INSTRUCTIONS, /Fresh checks: availability, weather, beach conditions, restaurant or event hours/i);
   assert.match(VOICE_INSTRUCTIONS, /Stable resort amenities listed above do not/i);

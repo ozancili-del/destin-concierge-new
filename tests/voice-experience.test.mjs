@@ -1,14 +1,14 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import { buildVoiceInstructions, createVoiceCallIdentity, createVoiceOpeningGreetingEvent, IMMEDIATE_VOICE_FACTS, isVoicePresenceCheck, isVoiceTranscriptionArtifact, voiceLookupLabel, voiceProgressInstructions, VOICE_BARGE_IN_CONFIRM_MS, VOICE_INSTRUCTIONS, VOICE_MAX_OUTPUT_TOKENS, VOICE_MODEL, VOICE_OPENING_GREETING, VOICE_OUTPUT, VOICE_TOOL_PROGRESS_SILENCE_MS } from "../lib/destiny-agent/voice-experience.js";
+import { buildVoiceInstructions, classifyVoiceUtterance, createVoiceCallIdentity, createVoiceOpeningGreetingEvent, IMMEDIATE_VOICE_FACTS, isStableVoiceStopPartial, isVoicePresenceCheck, isVoiceTranscriptionArtifact, voiceLookupLabel, voiceProgressInstructions, VOICE_INPUT_CLASSIFICATION_TIMEOUT_MS, VOICE_INSTRUCTIONS, VOICE_MAX_OUTPUT_TOKENS, VOICE_MODEL, VOICE_OPENING_GREETING, VOICE_OUTPUT, VOICE_TOOL_PROGRESS_SILENCE_MS } from "../lib/destiny-agent/voice-experience.js";
 import { extractVoiceCompanionLinks } from "../lib/destiny-agent/voice-links.js";
 
 test("Voice Lab uses the friendlier normal-speed voice", () => {
   assert.equal(VOICE_MODEL, "gpt-realtime-2");
   assert.equal(VOICE_MAX_OUTPUT_TOKENS, 900);
   assert.equal(VOICE_TOOL_PROGRESS_SILENCE_MS, 5000);
-  assert.equal(VOICE_BARGE_IN_CONFIRM_MS, 200);
+  assert.equal(VOICE_INPUT_CLASSIFICATION_TIMEOUT_MS, 2400);
   assert.match(voiceProgressInstructions("those restaurant options"), /I’m still checking those restaurant options for you/);
   assert.deepEqual(VOICE_OUTPUT, { voice: "marin", speed: 1 });
 });
@@ -34,7 +34,7 @@ test("Voice Lab sends the opening greeting from the data channel open lifecycle"
 test("Voice Lab prevents startup audio from interrupting its own greeting", async () => {
   const source = await readFile(new URL("../pages/voice-lab.js", import.meta.url), "utf8");
   assert.match(source, /stream\.getAudioTracks\(\)\.forEach\(track => \{ track\.enabled = false; \}\)/);
-  assert.match(source, /finishOpeningGreeting[\s\S]{0,400}track\.enabled = true/);
+  assert.match(source, /finishOpeningGreeting[\s\S]{0,400}track\.enabled = !userDesiredMutedRef\.current/);
   assert.match(source, /activeLease\(\)\?\.kind === "opening"[\s\S]{0,100}interrupt\("opening_timeout"\)/);
 });
 
@@ -45,7 +45,8 @@ test("each Voice Lab call receives a fresh session and clears browser conversati
   assert.notEqual(first.callId, second.callId);
 
   const source = await readFile(new URL("../pages/voice-lab.js", import.meta.url), "utf8");
-  assert.match(source, /const identity = createVoiceCallIdentity\(\);[\s\S]{0,250}sessionRef\.current = identity\.sessionId/);
+  assert.match(source, /const identity = createVoiceCallIdentity\(\)/);
+  assert.match(source, /sessionRef\.current = identity\.sessionId/);
   assert.match(source, /sessionRef\.current = identity\.sessionId;[\s\S]{0,250}historyRef\.current = \[\]/);
   assert.match(source, /historyRef\.current = \[\];[\s\S]{0,150}setTranscript\(\[\]\);[\s\S]{0,150}setCompanionLinks\(\[\]\)/);
 });
@@ -122,6 +123,17 @@ test("slow lookup progress is contextual and presence checks are narrow", () => 
   assert.equal(isVoicePresenceCheck("Are you there and can you find another restaurant?"), false);
 });
 
+test("voice utterance classification never treats duration alone as guest intent", () => {
+  assert.equal(classifyVoiceUtterance(""), "noise");
+  assert.equal(classifyVoiceUtterance("Destiny, Destin, Pelican Beach Resort, condo, Unit 707, Unit 1006, Ozan"), "noise");
+  assert.equal(classifyVoiceUtterance("Are you still there?"), "presence");
+  assert.equal(classifyVoiceUtterance("Please stop"), "interrupt_only");
+  assert.equal(classifyVoiceUtterance("Never mind"), "cancel_task");
+  assert.equal(classifyVoiceUtterance("What is the weather in November?"), "substantive");
+  assert.equal(isStableVoiceStopPartial("stop"), true);
+  assert.equal(isStableVoiceStopPartial("stop by the restaurant"), false);
+});
+
 test("Voice Lab measures quiet time from audio playback and intercepts pending presence checks", async () => {
   const source = await readFile(new URL("../pages/voice-lab.js", import.meta.url), "utf8");
   const realtimeSource = await readFile(new URL("../pages/api/destiny-realtime.js", import.meta.url), "utf8");
@@ -129,7 +141,7 @@ test("Voice Lab measures quiet time from audio playback and intercepts pending p
   assert.match(source, /armProgressTimer\(pendingCallId\)/);
   assert.doesNotMatch(source, /VOICE_TOOL_PROGRESS_FALLBACK_MS|progressFailsafe/);
   assert.match(source, /max_output_tokens: 120/);
-  assert.match(source, /isVoicePresenceCheck\(event\.transcript\)\) handlePendingPresenceCheck\(\)/);
+  assert.match(source, /classification === "presence"/);
   assert.match(source, /response_id: effect\.responseId/);
   assert.match(source, /type: "output_audio_buffer\.clear"/);
   assert.match(source, /expectedCallIds[\s\S]{0,500}wave\.callIds\.add\(callId\)/);
@@ -137,8 +149,9 @@ test("Voice Lab measures quiet time from audio playback and intercepts pending p
   assert.match(source, /effect\.type === "dropped"/);
   assert.match(realtimeSource, /create_response:\s*false/);
   assert.match(realtimeSource, /interrupt_response:\s*false/);
-  assert.match(source, /setTimeout\([\s\S]{0,500}VOICE_BARGE_IN_CONFIRM_MS/);
-  assert.match(source, /ignored_untranscribed_audio_while_lookup_pending/);
+  assert.doesNotMatch(source, /VOICE_BARGE_IN_CONFIRM_MS/);
+  assert.match(source, /coordinatorRef\.current\.speechStarted\(candidateId\)/);
+  assert.match(source, /coordinatorRef\.current\.restoreSpeech/);
   assert.match(source, /ignored_empty_audio_transcript/);
   assert.doesNotMatch(source, /pendingCommittedTurnsRef\.current\.delete\(turnId\);\s*supersedePendingTools\(\);\s*requestTurnResponse\(turnId\)/);
 });

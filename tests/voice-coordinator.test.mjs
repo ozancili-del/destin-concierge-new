@@ -57,17 +57,20 @@ test("an exact interruption cancels generation and clears WebRTC audio", () => {
   assert.equal(h.coordinator.hasLease(), false);
 });
 
-test("guest interruption drops queued speech instead of playing a stale reply", () => {
+test("a provisional cough ducks and restores without cancelling or dropping work", () => {
   const h = harness();
   h.coordinator.request("turn", {});
   h.bindLatest("resp_turn");
   h.coordinator.request("tool_progress", { conversation: "none" });
   h.coordinator.request("tool_final", {});
-  h.coordinator.interrupt("guest_speech");
-  assert.deepEqual(h.effects.filter(effect => effect.type === "dropped").map(effect => effect.job.kind), ["tool_progress", "tool_final"]);
-  h.coordinator.responseDone({ id: "resp_turn", status: "cancelled", output: audioOutput });
-  h.coordinator.audioCleared("resp_turn");
-  assert.equal(h.sent().length, 1, "no stale queued response may start after interruption");
+  h.coordinator.speechStarted("cough_1");
+  h.coordinator.restoreSpeech("cough_1", "empty_transcript");
+  assert.equal(h.effects.filter(effect => effect.type === "duck_audio").length, 1);
+  assert.equal(h.effects.filter(effect => effect.type === "restore_audio").length, 1);
+  assert.equal(h.effects.filter(effect => effect.type === "send_cancel").length, 0);
+  assert.equal(h.effects.filter(effect => effect.type === "clear_audio").length, 0);
+  assert.equal(h.effects.filter(effect => effect.type === "dropped").length, 0);
+  assert.equal(h.coordinator.hasLease(), true);
 });
 
 test("cancellation before response.created is applied once the response ID is known", () => {
@@ -121,4 +124,53 @@ test("a response proven to contain no audio releases without a playback event", 
   h.bindLatest("resp_tool_only", { startAudio: false });
   h.coordinator.responseDone({ id: "resp_tool_only", status: "completed", output: [{ type: "function_call" }] });
   assert.equal(h.coordinator.hasLease(), false);
+});
+
+test("response binding requires exact Destiny metadata", () => {
+  const h = harness();
+  h.coordinator.request("turn", {});
+  assert.equal(h.coordinator.responseCreated({ id: "resp_unowned", metadata: {} }), false);
+  assert.equal(h.coordinator.activeLease().responseId, null);
+  assert.equal(h.effects.some(effect => effect.type === "contain_unowned" && effect.responseId === "resp_unowned"), true);
+});
+
+test("an unsolicited clear cannot release the active lease", () => {
+  const h = harness();
+  h.coordinator.request("turn", {});
+  h.bindLatest("resp_turn");
+  h.coordinator.responseDone({ id: "resp_turn", status: "completed", output: audioOutput });
+  assert.equal(h.coordinator.audioCleared("resp_turn"), false);
+  assert.equal(h.coordinator.hasLease(), true);
+});
+
+test("release effects can request another response without reentrant lease corruption", () => {
+  const effects = [];
+  let coordinator;
+  coordinator = new VoiceResponseCoordinator({ emit: effect => {
+    effects.push(effect);
+    if (effect.type === "released") coordinator.request("followup", {});
+  } });
+  coordinator.start(1);
+  coordinator.request("turn", {});
+  const first = effects.find(effect => effect.type === "send_response");
+  coordinator.responseCreated({ id: "resp_turn", metadata: first.job.response.metadata });
+  coordinator.audioStarted("resp_turn");
+  coordinator.responseDone({ id: "resp_turn", status: "completed", output: audioOutput });
+  coordinator.audioStopped("resp_turn");
+  const sent = effects.filter(effect => effect.type === "send_response");
+  assert.equal(sent.length, 2);
+  assert.equal(coordinator.activeLease().kind, "followup");
+});
+
+test("confirmed stop cancels speech but preserves queued task output", () => {
+  const h = harness();
+  h.coordinator.request("turn", {});
+  h.bindLatest("resp_turn");
+  h.coordinator.request("tool_final", {}, { taskId: "weather" });
+  h.coordinator.speechStarted("stop_1");
+  h.coordinator.confirmInterruption("stop_1", "interrupt_only", { dropQueued: false });
+  assert.equal(h.effects.filter(effect => effect.type === "dropped").length, 0);
+  h.coordinator.responseDone({ id: "resp_turn", status: "cancelled", output: audioOutput });
+  h.coordinator.audioCleared("resp_turn");
+  assert.equal(h.sent().at(-1).job.kind, "tool_final");
 });

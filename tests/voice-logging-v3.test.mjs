@@ -56,6 +56,17 @@ test("voice event endpoint treats a retried stable event ID as success", async (
   assert.deepEqual(res.body, { ok: true, duplicate: true });
 });
 
+test("voice event endpoint accepts lifecycle classification and duck telemetry", async () => {
+  const calls = [];
+  const handler = createVoiceEventHandler({ servicesClient: { async logVoiceEvent(event) { calls.push(event); return { ok: true }; } } });
+  for (const [index, eventType] of ["audio_duck_started", "audio_duck_restored", "candidate_classified", "candidate_timed_out", "late_transcript_ignored", "transcription_failed"].entries()) {
+    const res = apiResponse();
+    await handler(request({ ...validEvent, eventId: `call_1:${eventType}:${index}`, eventType, role: "system", text: eventType }, `198.51.100.${index + 1}`), res);
+    assert.equal(res.statusCode, 201, eventType);
+  }
+  assert.equal(calls.length, 6);
+});
+
 test("voice event endpoint rejects missing transcript text and malformed identity", async () => {
   const servicesClient = { async logVoiceEvent() { throw new Error("must not run"); } };
   const handler = createVoiceEventHandler({ servicesClient });

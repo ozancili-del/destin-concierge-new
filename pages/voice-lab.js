@@ -3,8 +3,9 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import styles from "../styles/VoiceLab.module.css";
 import { VoiceResponseCoordinator } from "../lib/destiny-agent/voice-coordinator.js";
+import { VoiceAudioOutputController } from "../lib/destiny-agent/voice-audio-output.js";
 import { extractVoiceCompanionLinks } from "../lib/destiny-agent/voice-links.js";
-import { createVoiceCallIdentity, createVoiceOpeningGreetingEvent, isVoicePresenceCheck, isVoiceTranscriptionArtifact, voiceLookupLabel, voiceProgressInstructions, VOICE_BARGE_IN_CONFIRM_MS, VOICE_TOOL_PROGRESS_SILENCE_MS } from "../lib/destiny-agent/voice-experience.js";
+import { classifyVoiceUtterance, createVoiceCallIdentity, createVoiceOpeningGreetingEvent, isStableVoiceStopPartial, isVoiceTranscriptionArtifact, voiceLookupLabel, voiceProgressInstructions, VOICE_INPUT_CLASSIFICATION_TIMEOUT_MS, VOICE_TOOL_PROGRESS_SILENCE_MS } from "../lib/destiny-agent/voice-experience.js";
 
 const initialStatus = "Tap the call button when you're ready.";
 
@@ -23,6 +24,7 @@ export default function VoiceLab() {
   const channelRef = useRef(null);
   const streamRef = useRef(null);
   const audioRef = useRef(null);
+  const audioOutputRef = useRef(null);
   const historyRef = useRef([]);
   const sessionRef = useRef(null);
   const callRef = useRef(null);
@@ -30,17 +32,22 @@ export default function VoiceLab() {
   const seenProviderEventsRef = useRef(new Set());
   const logQueueRef = useRef(Promise.resolve());
   const pendingToolsRef = useRef(new Map());
+  const toolCallTombstonesRef = useRef(new Set());
   const toolWavesRef = useRef(new Map());
   const completedResponseIdsRef = useRef(new Set());
   const callEpochRef = useRef(0);
   const pendingCommittedTurnsRef = useRef(new Map());
+  const activeCandidateRef = useRef(null);
+  const transportIdRef = useRef(null);
+  const userDesiredMutedRef = useRef(false);
   const coordinatorEffectRef = useRef(() => {});
   const coordinatorRef = useRef(null);
   if (!coordinatorRef.current) coordinatorRef.current = new VoiceResponseCoordinator({ emit: effect => coordinatorEffectRef.current(effect) });
   const openingGreetingSentRef = useRef(false);
   const openingGreetingTimerRef = useRef(null);
   const cancellationWatchdogRef = useRef(null);
-  const bargeInTimerRef = useRef(null);
+  const disconnectGraceTimerRef = useRef(null);
+  const setupAbortRef = useRef(null);
 
   const armCancellationWatchdog = interruptedLease => {
     clearTimeout(cancellationWatchdogRef.current);
@@ -53,7 +60,7 @@ export default function VoiceLab() {
   const finishOpeningGreeting = () => {
     clearTimeout(openingGreetingTimerRef.current);
     openingGreetingTimerRef.current = null;
-    streamRef.current?.getAudioTracks().forEach(track => { track.enabled = true; });
+    streamRef.current?.getAudioTracks().forEach(track => { track.enabled = !userDesiredMutedRef.current; });
     setStatus("Listening — you can interrupt anytime.");
   };
 
@@ -72,8 +79,35 @@ export default function VoiceLab() {
     if (!wave || !wave.sealed || wave.superseded || wave.finalRequested) return;
     const calls = [...wave.callIds].map(callId => pendingToolsRef.current.get(callId));
     if (!calls.length || calls.some(pending => !pending || (!pending.resolved && !pending.superseded))) return;
-    if (wave.progressRequested && !wave.progressTerminal) wave.finalQueued = true;
-    else requestFinalToolAnswer(waveId);
+    if (!wave.outputsSent) {
+      const orderedCallIds = wave.expectedCallIds?.length ? wave.expectedCallIds : [...wave.callIds];
+      orderedCallIds.forEach((callId, ordinal) => {
+        const pending = pendingToolsRef.current.get(callId);
+        if (!pending || pending.outputSent) return;
+        pending.outputSent = true;
+        channelRef.current?.send(JSON.stringify({
+          type: "conversation.item.create",
+          event_id: `tool-output-${callId}-${ordinal}`,
+          item: { type: "function_call_output", call_id: callId, output: String(pending.output) },
+        }));
+      });
+      wave.outputsSent = true;
+    }
+    if (wave.progressRequested && !wave.progressTerminal) {
+      const active = coordinatorRef.current.activeLease();
+      const ownsActiveProgress = active && ["tool_progress", "presence"].includes(active.kind) && active.context?.waveId === waveId;
+      if (!ownsActiveProgress) {
+        coordinatorRef.current.invalidateQueued(job => ["tool_progress", "presence"].includes(job.kind) && job.context?.waveId === waveId, "result_ready");
+        wave.progressTerminal = true;
+        requestFinalToolAnswer(waveId);
+      } else {
+        wave.finalQueued = true;
+        if (active.playbackStatus !== "playing") {
+          coordinatorRef.current.interrupt("progress_superseded_by_result", { dropQueued: false });
+          armCancellationWatchdog(active);
+        }
+      }
+    } else requestFinalToolAnswer(waveId);
   };
 
   const requestProgressCheckIn = callId => {
@@ -92,7 +126,7 @@ export default function VoiceLab() {
       tool_choice: "none",
       output_modalities: ["audio"],
       max_output_tokens: 120,
-    }, { toolCallId: callId, turnId: pending.turnId });
+    }, { toolCallId: callId, turnId: pending.turnId, waveId: pending.originResponseId });
   };
 
   const queueVoiceEvent = (event, { beacon = false } = {}) => {
@@ -155,7 +189,6 @@ export default function VoiceLab() {
     if (!pendingEntry) return false;
     const [pendingCallId, pending] = pendingEntry;
     clearTimeout(pending.silenceTimer);
-    coordinatorRef.current.interrupt("presence_check");
     coordinatorRef.current.request("presence", {
       conversation: "none",
       instructions: voiceProgressInstructions(pending.label),
@@ -163,7 +196,7 @@ export default function VoiceLab() {
       tool_choice: "none",
       output_modalities: ["audio"],
       max_output_tokens: 100,
-    }, { toolCallId: pendingCallId, turnId: pending.turnId });
+    }, { toolCallId: pendingCallId, turnId: pending.turnId, waveId: pending.originResponseId });
     pending.guestCheckIn = true;
     pending.progressRequested = true;
     return true;
@@ -171,19 +204,31 @@ export default function VoiceLab() {
 
   const stopCall = ({ reason = "user_ended", beacon = false } = {}) => {
     if (callRef.current) queueVoiceEvent({ eventType: reason === "cancelled" ? "cancelled" : "call_ended", role: "system", text: reason }, { beacon });
-    channelRef.current?.close();
-    peerRef.current?.close();
-    streamRef.current?.getTracks().forEach(track => track.stop());
-    if (audioRef.current) audioRef.current.srcObject = null;
+    callEpochRef.current += 1;
+    transportIdRef.current = null;
+    coordinatorRef.current.end();
+    const channel = channelRef.current;
+    const peer = peerRef.current;
+    const stream = streamRef.current;
+    const audioOutput = audioOutputRef.current;
+    setupAbortRef.current?.abort();
+    setupAbortRef.current = null;
     channelRef.current = null;
     peerRef.current = null;
     streamRef.current = null;
+    audioOutputRef.current = null;
     callRef.current = null;
+    channel?.close();
+    peer?.close();
+    stream?.getTracks().forEach(track => track.stop());
+    audioOutput?.close();
+    if (audioRef.current) audioRef.current.srcObject = null;
     pendingToolsRef.current.forEach(pending => {
       clearTimeout(pending.silenceTimer);
       pending.abortController?.abort();
     });
     pendingToolsRef.current.clear();
+    toolCallTombstonesRef.current.clear();
     toolWavesRef.current.clear();
     completedResponseIdsRef.current.clear();
     pendingCommittedTurnsRef.current.forEach(turn => clearTimeout(turn.classificationTimer));
@@ -192,10 +237,9 @@ export default function VoiceLab() {
     openingGreetingTimerRef.current = null;
     clearTimeout(cancellationWatchdogRef.current);
     cancellationWatchdogRef.current = null;
-    clearTimeout(bargeInTimerRef.current);
-    bargeInTimerRef.current = null;
-    coordinatorRef.current.end();
-    callEpochRef.current += 1;
+    clearTimeout(disconnectGraceTimerRef.current);
+    disconnectGraceTimerRef.current = null;
+    activeCandidateRef.current = null;
     openingGreetingSentRef.current = false;
     setPhase("idle");
     setStatus("Call ended. Tap to talk again.");
@@ -209,17 +253,18 @@ export default function VoiceLab() {
     const ownedEpoch = callEpochRef.current;
     const toolName = String(event.name || "unknown");
     const callId = String(event.call_id || event.event_id || `tool-${Date.now()}`);
-    if (pendingToolsRef.current.has(callId)) return;
+    if (pendingToolsRef.current.has(callId) || toolCallTombstonesRef.current.has(callId)) return;
+    toolCallTombstonesRef.current.add(callId);
     let args = {};
     try { args = JSON.parse(event.arguments || "{}"); } catch {}
     const label = voiceLookupLabel(args.query || event.name);
     const abortController = new AbortController();
     const originResponseId = String(event.response_id || `tool-wave-${callId}`);
-    const pending = { callId, resolved: false, superseded: false, progressRequested: false, guestCheckIn: false, label, turnId: originResponseId, originResponseId, silenceTimer: null, timerGeneration: 0, abortController };
+    const pending = { callId, resolved: false, superseded: false, progressRequested: false, guestCheckIn: false, label, turnId: originResponseId, originResponseId, silenceTimer: null, timerGeneration: 0, abortController, output: null, outputSent: false };
     pendingToolsRef.current.set(callId, pending);
     let wave = toolWavesRef.current.get(originResponseId);
     if (!wave) {
-      wave = { callIds: new Set(), sealed: completedResponseIdsRef.current.has(originResponseId), progressRequested: false, progressTerminal: false, progressCallId: null, finalQueued: false, finalRequested: false, superseded: false };
+      wave = { callIds: new Set(), expectedCallIds: [], outputsSent: false, sealed: completedResponseIdsRef.current.has(originResponseId), progressRequested: false, progressTerminal: false, progressCallId: null, finalQueued: false, finalRequested: false, superseded: false };
       toolWavesRef.current.set(originResponseId, wave);
     }
     wave.callIds.add(callId);
@@ -236,7 +281,10 @@ export default function VoiceLab() {
         output = data.reply || data.error || "Live availability could not be checked.";
       } else if (event.name === "ask_destiny_brain") {
         const question = String(args.query || "").trim();
-        const messages = [...historyRef.current, { role: "user", content: question }].slice(-20);
+        const lastHistory = historyRef.current.at(-1);
+        const messages = (lastHistory?.role === "user" && lastHistory.content.trim() === question
+          ? [...historyRef.current]
+          : [...historyRef.current, { role: "user", content: question }]).slice(-20);
         const response = await fetch("/api/destiny-chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -262,6 +310,7 @@ export default function VoiceLab() {
       latencyMs: Date.now() - startedAt,
     });
     pending.resolved = true;
+    pending.output = output;
     clearTimeout(pending.silenceTimer);
     const discoveredLinks = extractVoiceCompanionLinks(output);
     if (discoveredLinks.length) {
@@ -271,10 +320,6 @@ export default function VoiceLab() {
         return [...byHref.values()].slice(-6);
       });
     }
-    channelRef.current?.send(JSON.stringify({
-      type: "conversation.item.create",
-      item: { type: "function_call_output", call_id: event.call_id, output: String(output) },
-    }));
     if (!coordinatorRef.current.hasLease() && !wave.progressRequested) armProgressTimer(callId);
     maybeFinalizeToolWave(originResponseId);
   };
@@ -283,23 +328,51 @@ export default function VoiceLab() {
     coordinatorRef.current.request("turn", {}, { turnId });
   };
 
-  const supersedePendingTools = () => {
+  const supersedeForegroundTool = () => {
+    const candidates = [...pendingToolsRef.current.entries()].filter(([, pending]) => !pending.superseded);
+    const foreground = candidates.at(-1);
+    if (!foreground) return false;
+    const [, foregroundPending] = foreground;
+    const targetWaveId = foregroundPending.originResponseId;
+    coordinatorRef.current.invalidateQueued(job => job.context?.waveId === targetWaveId || job.context?.turnId === targetWaveId, "task_superseded");
     pendingToolsRef.current.forEach((pending, pendingCallId) => {
-      if (pending.resolved) return;
+      if (pending.originResponseId !== targetWaveId || pending.superseded) return;
       pending.superseded = true;
       pending.timerGeneration += 1;
       clearTimeout(pending.silenceTimer);
       pending.abortController?.abort();
-      channelRef.current?.send(JSON.stringify({
-        type: "conversation.item.create",
-        item: { type: "function_call_output", call_id: pendingCallId, output: "The guest moved to a new request. Do not answer the superseded lookup." },
-      }));
+      if (!pending.outputSent) {
+        pending.outputSent = true;
+        channelRef.current?.send(JSON.stringify({
+          type: "conversation.item.create",
+          event_id: `tool-output-superseded-${pendingCallId}`,
+          item: { type: "function_call_output", call_id: pendingCallId, output: "The guest moved to a new request. Do not answer the superseded lookup." },
+        }));
+      }
       const wave = toolWavesRef.current.get(pending.originResponseId);
       if (wave) wave.superseded = true;
     });
+    return true;
   };
 
   coordinatorEffectRef.current = effect => {
+    if (effect.type === "duck_audio") {
+      audioOutputRef.current?.duck();
+      queueVoiceEvent({ eventType: "audio_duck_started", role: "system", text: effect.candidateId || "" });
+      return;
+    }
+    if (effect.type === "restore_audio") {
+      audioOutputRef.current?.restore();
+      queueVoiceEvent({ eventType: "audio_duck_restored", role: "system", text: effect.reason || "" });
+      return;
+    }
+    if (effect.type === "contain_unowned") {
+      channelRef.current?.send(JSON.stringify({ type: "response.cancel", event_id: `contain-cancel-${effect.responseId}`, response_id: effect.responseId }));
+      channelRef.current?.send(JSON.stringify({ type: "output_audio_buffer.clear", event_id: `contain-clear-${effect.responseId}` }));
+      queueVoiceEvent({ eventType: "error", role: "system", text: "unowned_response_detected", providerEventId: effect.responseId });
+      stopCall({ reason: "unowned_response_detected" });
+      return;
+    }
     if (effect.type === "dropped") {
       if (effect.job.kind === "tool_progress") {
         const pending = pendingToolsRef.current.get(effect.job.context.toolCallId);
@@ -379,45 +452,53 @@ export default function VoiceLab() {
         pending.timerGeneration += 1;
         clearTimeout(pending.silenceTimer);
       });
-      clearTimeout(bargeInTimerRef.current);
-      const ownedEpoch = callEpochRef.current;
-      bargeInTimerRef.current = setTimeout(() => {
-        bargeInTimerRef.current = null;
-        if (callEpochRef.current !== ownedEpoch) return;
-        const interruptedLease = coordinatorRef.current.activeLease();
-        if (coordinatorRef.current.interrupt("guest_speech")) armCancellationWatchdog(interruptedLease);
-      }, VOICE_BARGE_IN_CONFIRM_MS);
+      const candidateId = String(event.item_id || event.event_id || `candidate-${Date.now()}`);
+      activeCandidateRef.current = { candidateId, partial: "", interruptionConfirmed: false };
+      coordinatorRef.current.speechStarted(candidateId);
     }
     if (event.type === "input_audio_buffer.speech_stopped") {
-      if (bargeInTimerRef.current) {
-        clearTimeout(bargeInTimerRef.current);
-        bargeInTimerRef.current = null;
-      }
       if (!coordinatorRef.current.hasLease()) setStatus("Destiny is thinking…");
     }
     if (event.type === "input_audio_buffer.committed") {
       const turnId = String(event.item_id || event.event_id || `turn-${Date.now()}`);
-      const hasPendingLookup = [...pendingToolsRef.current.values()].some(pending => !pending.resolved && !pending.superseded);
-      if (!hasPendingLookup) requestTurnResponse(turnId);
-      else {
-        const ownedEpoch = callEpochRef.current;
-        const turn = { turnId, classificationTimer: null };
-        turn.classificationTimer = setTimeout(() => {
-          if (callEpochRef.current !== ownedEpoch || !pendingCommittedTurnsRef.current.has(turnId)) return;
-          pendingCommittedTurnsRef.current.delete(turnId);
-          queueVoiceEvent({ eventType: "cancelled", role: "system", text: "ignored_untranscribed_audio_while_lookup_pending", turnId, providerEventId: turnId });
-        }, 2000);
-        pendingCommittedTurnsRef.current.set(turnId, turn);
+      const ownedEpoch = callEpochRef.current;
+      const candidateId = activeCandidateRef.current?.candidateId || turnId;
+      const turn = { turnId, candidateId, classificationTimer: null };
+      turn.classificationTimer = setTimeout(() => {
+        if (callEpochRef.current !== ownedEpoch || pendingCommittedTurnsRef.current.get(turnId) !== turn) return;
+        turn.timedOut = true;
+        turn.classificationTimer = null;
+        coordinatorRef.current.restoreSpeech(candidateId, "transcription_timeout");
+        if (activeCandidateRef.current?.candidateId === candidateId) activeCandidateRef.current = null;
+        queueVoiceEvent({ eventType: "candidate_timed_out", role: "system", text: "preserved_without_semantic_evidence", turnId, providerEventId: turnId });
+      }, VOICE_INPUT_CLASSIFICATION_TIMEOUT_MS);
+      pendingCommittedTurnsRef.current.set(turnId, turn);
+    }
+    if (event.type === "conversation.item.input_audio_transcription.delta") {
+      const candidate = activeCandidateRef.current;
+      if (!candidate || candidate.interruptionConfirmed) return;
+      candidate.partial += String(event.delta || "");
+      if (isStableVoiceStopPartial(candidate.partial)) {
+        const interruptedLease = coordinatorRef.current.activeLease();
+        candidate.interruptionConfirmed = coordinatorRef.current.confirmInterruption(candidate.candidateId, "stable_stop_partial", { dropQueued: false });
+        if (candidate.interruptionConfirmed) armCancellationWatchdog(interruptedLease);
       }
     }
     if (event.type === "conversation.item.input_audio_transcription.completed") {
       const pendingTurn = pendingCommittedTurnsRef.current.get(event.item_id);
+      if (pendingTurn?.timedOut) {
+        pendingCommittedTurnsRef.current.delete(event.item_id);
+        queueVoiceEvent({ eventType: "late_transcript_ignored", role: "system", text: "classification_deadline_passed", turnId: event.item_id || "", providerEventId: event.event_id || "" });
+        return;
+      }
       const cleanTranscript = String(event.transcript || "").trim();
       if (!cleanTranscript) {
         if (pendingTurn) {
           clearTimeout(pendingTurn.classificationTimer);
           pendingCommittedTurnsRef.current.delete(event.item_id);
         }
+        coordinatorRef.current.restoreSpeech(pendingTurn?.candidateId || activeCandidateRef.current?.candidateId, "empty_transcript");
+        activeCandidateRef.current = null;
         queueVoiceEvent({ eventType: "cancelled", role: "system", text: "ignored_empty_audio_transcript", turnId: event.item_id || "", providerEventId: event.item_id || event.event_id || "" });
         return;
       }
@@ -426,6 +507,8 @@ export default function VoiceLab() {
           clearTimeout(pendingTurn.classificationTimer);
           pendingCommittedTurnsRef.current.delete(event.item_id);
         }
+        coordinatorRef.current.restoreSpeech(pendingTurn?.candidateId || activeCandidateRef.current?.candidateId, "known_transcription_artifact");
+        activeCandidateRef.current = null;
         queueVoiceEvent({ eventType: "cancelled", role: "system", text: "suppressed_transcription_artifact", turnId: event.item_id || "", providerEventId: event.item_id || event.event_id || "" });
         return;
       }
@@ -439,12 +522,39 @@ export default function VoiceLab() {
       if (pendingTurn) {
         clearTimeout(pendingTurn.classificationTimer);
         pendingCommittedTurnsRef.current.delete(event.item_id);
-        if (isVoicePresenceCheck(event.transcript)) handlePendingPresenceCheck();
-        else {
-          supersedePendingTools();
-          requestTurnResponse(event.item_id);
-        }
       }
+      const candidateId = pendingTurn?.candidateId || activeCandidateRef.current?.candidateId;
+      const classification = classifyVoiceUtterance(event.transcript);
+      queueVoiceEvent({ eventType: "candidate_classified", role: "system", text: classification, turnId: event.item_id || "", providerEventId: event.event_id || "" });
+      if (classification === "noise") coordinatorRef.current.restoreSpeech(candidateId, "noise_or_artifact");
+      else if (classification === "presence") {
+        const interruptedLease = coordinatorRef.current.activeLease();
+        if (!activeCandidateRef.current?.interruptionConfirmed && coordinatorRef.current.confirmInterruption(candidateId, "presence_check", { dropQueued: false })) armCancellationWatchdog(interruptedLease);
+        if (!handlePendingPresenceCheck()) requestTurnResponse(event.item_id);
+      } else if (classification === "interrupt_only") {
+        const interruptedLease = coordinatorRef.current.activeLease();
+        if (!activeCandidateRef.current?.interruptionConfirmed && coordinatorRef.current.confirmInterruption(candidateId, "interrupt_only", { dropQueued: false })) armCancellationWatchdog(interruptedLease);
+      } else if (classification === "cancel_task") {
+        const interruptedLease = coordinatorRef.current.activeLease();
+        if (!activeCandidateRef.current?.interruptionConfirmed && coordinatorRef.current.confirmInterruption(candidateId, "cancel_task", { dropQueued: false })) armCancellationWatchdog(interruptedLease);
+        supersedeForegroundTool();
+      } else {
+        const interruptedLease = coordinatorRef.current.activeLease();
+        if (!activeCandidateRef.current?.interruptionConfirmed && coordinatorRef.current.confirmInterruption(candidateId, "substantive_guest_turn", { dropQueued: false })) armCancellationWatchdog(interruptedLease);
+        supersedeForegroundTool();
+        requestTurnResponse(event.item_id);
+      }
+      activeCandidateRef.current = null;
+    }
+    if (event.type === "conversation.item.input_audio_transcription.failed") {
+      const pendingTurn = pendingCommittedTurnsRef.current.get(event.item_id);
+      if (pendingTurn) {
+        clearTimeout(pendingTurn.classificationTimer);
+        pendingCommittedTurnsRef.current.delete(event.item_id);
+      }
+      coordinatorRef.current.restoreSpeech(pendingTurn?.candidateId || activeCandidateRef.current?.candidateId, "transcription_failed");
+      activeCandidateRef.current = null;
+      queueVoiceEvent({ eventType: "transcription_failed", role: "system", text: event.error?.message || "input_transcription_failed", turnId: event.item_id || "", providerEventId: event.event_id || "" });
     }
     if (event.type === "response.audio_transcript.done" || event.type === "response.output_audio_transcript.done") {
       const providerEventId = event.item_id || event.response_id || event.event_id || "";
@@ -467,11 +577,12 @@ export default function VoiceLab() {
         const expectedCallIds = (event.response?.output || []).filter(item => item?.type === "function_call" && item.call_id).map(item => String(item.call_id));
         let wave = toolWavesRef.current.get(responseId);
         if (!wave && expectedCallIds.length) {
-          wave = { callIds: new Set(), sealed: false, progressRequested: false, progressTerminal: false, progressCallId: null, finalQueued: false, finalRequested: false, superseded: false };
+          wave = { callIds: new Set(), expectedCallIds: [], outputsSent: false, sealed: false, progressRequested: false, progressTerminal: false, progressCallId: null, finalQueued: false, finalRequested: false, superseded: false };
           toolWavesRef.current.set(responseId, wave);
         }
         if (wave) {
           expectedCallIds.forEach(callId => wave.callIds.add(callId));
+          wave.expectedCallIds = expectedCallIds;
           wave.sealed = true;
           maybeFinalizeToolWave(responseId);
         }
@@ -501,7 +612,12 @@ export default function VoiceLab() {
     setStatus("Connecting to Destiny…");
     const identity = createVoiceCallIdentity();
     callEpochRef.current += 1;
-    coordinatorRef.current.start(callEpochRef.current);
+    const ownedEpoch = callEpochRef.current;
+    const transportId = `transport_${identity.callId}`;
+    transportIdRef.current = transportId;
+    const setupAbort = new AbortController();
+    setupAbortRef.current = setupAbort;
+    coordinatorRef.current.start(ownedEpoch);
     sessionRef.current = identity.sessionId;
     callRef.current = identity.callId;
     historyRef.current = [];
@@ -510,36 +626,59 @@ export default function VoiceLab() {
     eventSequenceRef.current = 0;
     seenProviderEventsRef.current = new Set();
     openingGreetingSentRef.current = false;
+    userDesiredMutedRef.current = false;
+    const ownsCall = () => callEpochRef.current === ownedEpoch && transportIdRef.current === transportId && !setupAbort.signal.aborted;
     try {
+      const audioOutput = new VoiceAudioOutputController({
+        audioElement: audioRef.current,
+        onError: code => queueVoiceEvent({ eventType: "error", role: "system", text: code }),
+      });
+      audioOutputRef.current = audioOutput;
+      await audioOutput.prepare();
+      if (!ownsCall()) return audioOutput.close();
       const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true }, video: false });
+      if (!ownsCall()) {
+        stream.getTracks().forEach(track => track.stop());
+        return;
+      }
       streamRef.current = stream;
       stream.getAudioTracks().forEach(track => { track.enabled = false; });
       const peer = new RTCPeerConnection();
       peerRef.current = peer;
       stream.getTracks().forEach(track => peer.addTrack(track, stream));
       peer.ontrack = ({ streams }) => {
-        if (audioRef.current) {
-          audioRef.current.srcObject = streams[0];
-          audioRef.current.play().catch(() => {
-            queueVoiceEvent({ eventType: "error", role: "system", text: "remote_audio_play_failed" });
-            stopCall({ reason: "remote_audio_play_failed" });
-          });
-        }
+        if (!ownsCall()) return;
+        audioOutput.attach(streams[0]).then(mode => {
+          if (ownsCall()) queueVoiceEvent({ eventType: "audio_path_attached", role: "system", text: mode });
+        }).catch(() => {
+          if (!ownsCall()) return;
+          queueVoiceEvent({ eventType: "error", role: "system", text: "remote_audio_play_failed" });
+          stopCall({ reason: "remote_audio_play_failed" });
+        });
       };
       peer.onconnectionstatechange = () => {
-        if (["failed", "disconnected"].includes(peer.connectionState)) stopCall({ reason: peer.connectionState });
+        if (!ownsCall()) return;
+        if (peer.connectionState === "disconnected") {
+          setStatus("Voice connection interrupted—reconnecting…");
+          clearTimeout(disconnectGraceTimerRef.current);
+          disconnectGraceTimerRef.current = setTimeout(() => {
+            if (ownsCall() && peer.connectionState === "disconnected") stopCall({ reason: "disconnected" });
+          }, 2500);
+        } else if (peer.connectionState === "connected") {
+          clearTimeout(disconnectGraceTimerRef.current);
+          disconnectGraceTimerRef.current = null;
+        } else if (peer.connectionState === "failed") stopCall({ reason: "failed" });
       };
       const channel = peer.createDataChannel("oai-events");
       channelRef.current = channel;
       channel.onopen = () => {
-        if (openingGreetingSentRef.current) return;
+        if (!ownsCall() || openingGreetingSentRef.current) return;
         openingGreetingSentRef.current = true;
         setStatus("Destiny is answering…");
         const opening = createVoiceOpeningGreetingEvent();
         coordinatorRef.current.request("opening", opening.response, { turnId: "opening" });
-        const ownedEpoch = callEpochRef.current;
         openingGreetingTimerRef.current = setTimeout(() => {
-          if (callEpochRef.current !== ownedEpoch) return;
+          if (!ownsCall()) return;
           if (coordinatorRef.current.activeLease()?.kind === "opening") {
             coordinatorRef.current.interrupt("opening_timeout");
             armCancellationWatchdog(coordinatorRef.current.activeLease());
@@ -547,18 +686,27 @@ export default function VoiceLab() {
         }, 8000);
       };
       channel.onmessage = message => {
+        if (!ownsCall()) return;
         try { handleEvent(JSON.parse(message.data)); } catch {}
       };
       const offer = await peer.createOffer();
+      if (!ownsCall()) return;
       await peer.setLocalDescription(offer);
+      if (!ownsCall()) return;
       const response = await fetch("/api/destiny-realtime", {
         method: "POST",
         headers: { "Content-Type": "application/sdp" },
         body: offer.sdp,
+        signal: setupAbort.signal,
       });
+      if (!ownsCall()) return;
       if (!response.ok) throw new Error((await response.json().catch(() => null))?.error || "Voice conversation could not start");
-      await peer.setRemoteDescription({ type: "answer", sdp: await response.text() });
+      const answer = await response.text();
+      if (!ownsCall()) return;
+      await peer.setRemoteDescription({ type: "answer", sdp: answer });
+      if (ownsCall()) setupAbortRef.current = null;
     } catch (error) {
+      if (error?.name === "AbortError" || !ownsCall()) return;
       queueVoiceEvent({ eventType: "error", role: "system", text: String(error?.message || "Voice connection failed") });
       stopCall({ reason: "connection_failed" });
       setStatus(error?.message === "Permission denied" ? "Microphone permission was denied." : (error?.message || "Voice conversation could not start."));
@@ -596,7 +744,11 @@ export default function VoiceLab() {
           <button type="button" className={`${styles.callButton} ${phase !== "idle" ? styles.hangup : ""}`} onClick={startCall} disabled={phase === "connecting"} aria-label={phase === "idle" ? "Call Destiny Blue" : "End call"}>
             <span>{phase === "idle" ? "☎" : "×"}</span>
           </button>
-          <button type="button" className={styles.smallButton} onClick={() => streamRef.current?.getAudioTracks().forEach(track => { track.enabled = !track.enabled; setStatus(track.enabled ? "Listening…" : "Microphone muted."); })} aria-label="Mute microphone">♩<span>Mute</span></button>
+          <button type="button" className={styles.smallButton} onClick={() => {
+            userDesiredMutedRef.current = !userDesiredMutedRef.current;
+            streamRef.current?.getAudioTracks().forEach(track => { track.enabled = !userDesiredMutedRef.current; });
+            setStatus(userDesiredMutedRef.current ? "Microphone muted." : "Listening…");
+          }} aria-label="Mute microphone">♩<span>Mute</span></button>
         </div>
         <p className={styles.disclosure}>You are speaking with an AI. For emergencies, call 911.</p>
         <div className={styles.homeIndicator}></div>

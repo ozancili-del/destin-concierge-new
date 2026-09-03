@@ -5,6 +5,9 @@ const services = createServices();
 const EVENT_TYPES = new Set([
   "call_started", "call_ended", "user_transcript", "assistant_transcript",
   "tool_call", "tool_result", "interrupted", "cancelled", "error",
+  "audio_path_attached", "audio_duck_started", "audio_duck_restored",
+  "candidate_classified", "candidate_timed_out", "late_transcript_ignored",
+  "transcription_failed",
 ]);
 
 function cleanId(value, max = 160) {

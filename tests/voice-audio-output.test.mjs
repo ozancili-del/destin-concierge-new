@@ -55,3 +55,21 @@ test("audio element fallback remains available when Web Audio is unsupported", a
     if (previousWebkit) globalThis.webkitAudioContext = previousWebkit;
   }
 });
+
+test("mobile playback deliberately uses the native audio element even when Web Audio exists", async () => {
+  const previous = globalThis.AudioContext;
+  globalThis.AudioContext = FakeAudioContext;
+  const audioElement = { srcObject: null, volume: 1, played: false, async play() { this.played = true; }, pause() {} };
+  try {
+    const controller = new VoiceAudioOutputController({ audioElement, preferElementPlayback: true });
+    assert.equal(await controller.prepare(), false);
+    assert.equal(await controller.attach({ id: "remote" }), "element");
+    assert.equal(audioElement.played, true);
+    controller.duck();
+    assert.equal(audioElement.volume, 0.22);
+    controller.restore();
+    assert.equal(audioElement.volume, 1);
+  } finally {
+    globalThis.AudioContext = previous;
+  }
+});

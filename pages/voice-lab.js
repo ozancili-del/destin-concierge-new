@@ -632,6 +632,7 @@ export default function VoiceLab() {
       const audioOutput = new VoiceAudioOutputController({
         audioElement: audioRef.current,
         onError: code => queueVoiceEvent({ eventType: "error", role: "system", text: code }),
+        preferElementPlayback: /Android|iPhone|iPad|iPod/i.test(navigator.userAgent),
       });
       audioOutputRef.current = audioOutput;
       await audioOutput.prepare();

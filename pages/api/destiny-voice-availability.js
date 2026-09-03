@@ -40,7 +40,7 @@ export default async function handler(req, res) {
       ? `${open.map(unit => `Unit ${unit.unit}`).join(" and ")} ${open.length === 1 ? "is" : "are"} available.`
       : "Both Unit 707 and Unit 1006 are booked for those dates.";
     const links = open.map(unit => `Unit ${unit.unit}: ${unit.bookingUrl}`).join("\n");
-    const reply = `Live OwnerRez availability for ${arrival} through ${departure}, ${adults} ${adults === 1 ? "adult" : "adults"} and ${children} ${children === 1 ? "child" : "children"}: ${status}${links ? `\n\n${links}` : ""}`;
+    const reply = `Live availability for ${arrival} through ${departure}, ${adults} ${adults === 1 ? "adult" : "adults"} and ${children} ${children === 1 ? "child" : "children"}: ${status}${links ? `\n\n${links}` : ""}`;
 
     res.setHeader("Cache-Control", "private, no-store");
     return res.status(200).json({ reply, units, query: { arrival, departure, adults, children }, checkedAt: new Date().toISOString() });

@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import { createVoiceOpeningGreetingEvent, IMMEDIATE_VOICE_FACTS, VOICE_INSTRUCTIONS, VOICE_MAX_OUTPUT_TOKENS, VOICE_MODEL, VOICE_OPENING_GREETING, VOICE_OUTPUT, VOICE_TOOL_PROGRESS_DELAY_MS, VOICE_TOOL_PROGRESS_INSTRUCTIONS } from "../lib/destiny-agent/voice-experience.js";
+import { buildVoiceInstructions, createVoiceCallIdentity, createVoiceOpeningGreetingEvent, IMMEDIATE_VOICE_FACTS, isVoiceTranscriptionArtifact, VOICE_INSTRUCTIONS, VOICE_MAX_OUTPUT_TOKENS, VOICE_MODEL, VOICE_OPENING_GREETING, VOICE_OUTPUT, VOICE_TOOL_PROGRESS_DELAY_MS, VOICE_TOOL_PROGRESS_INSTRUCTIONS } from "../lib/destiny-agent/voice-experience.js";
 import { extractVoiceCompanionLinks } from "../lib/destiny-agent/voice-links.js";
 
 test("Voice Lab uses the friendlier normal-speed voice", () => {
@@ -38,6 +38,38 @@ test("Voice Lab prevents startup audio from interrupting its own greeting", asyn
   assert.match(source, /setTimeout\(finishOpeningGreeting, 8000\)/);
 });
 
+test("each Voice Lab call receives a fresh session and clears browser conversation state", async () => {
+  const first = createVoiceCallIdentity(1_000, 0.123456789);
+  const second = createVoiceCallIdentity(2_000, 0.987654321);
+  assert.notEqual(first.sessionId, second.sessionId);
+  assert.notEqual(first.callId, second.callId);
+
+  const source = await readFile(new URL("../pages/voice-lab.js", import.meta.url), "utf8");
+  assert.match(source, /const identity = createVoiceCallIdentity\(\);[\s\S]{0,250}sessionRef\.current = identity\.sessionId/);
+  assert.match(source, /sessionRef\.current = identity\.sessionId;[\s\S]{0,250}historyRef\.current = \[\]/);
+  assert.match(source, /historyRef\.current = \[\];[\s\S]{0,150}setTranscript\(\[\]\);[\s\S]{0,150}setCompanionLinks\(\[\]\)/);
+});
+
+test("Realtime transcription does not seed or force the recognizer with guest-like text", async () => {
+  const source = await readFile(new URL("../pages/api/destiny-realtime.js", import.meta.url), "utf8");
+  assert.match(source, /transcription:\s*\{\s*model:\s*"gpt-4o-mini-transcribe"\s*\}/);
+  assert.doesNotMatch(source, /transcription:[^\n]+prompt:/);
+  assert.doesNotMatch(source, /transcription:[^\n]+language:/);
+});
+
+test("known transcription-hint echoes are suppressed narrowly", () => {
+  assert.equal(isVoiceTranscriptionArtifact("Destiny, Destin, Pelican Beach Resort, condo, Unit 707, Unit 1006, Ozan"), true);
+  assert.equal(isVoiceTranscriptionArtifact("Destiny Destin Pelican Beach Resort condo Unit 707 Unit 1006 Ozan."), true);
+  assert.equal(isVoiceTranscriptionArtifact("Tell me about Unit 707"), false);
+});
+
+test("Voice receives Central date context and next-occurrence date behavior", () => {
+  const instructions = buildVoiceInstructions(new Date("2026-09-03T12:00:00Z"));
+  assert.match(instructions, /2026-09-03/);
+  assert.match(instructions, /month and day without a year, use the next upcoming occurrence/i);
+  assert.match(instructions, /Ask for the year only when/i);
+});
+
 test("Voice routing makes stable facts immediate and keeps fresh and protected checks", () => {
   assert.equal(Object.keys(IMMEDIATE_VOICE_FACTS).length, 7);
   assert.match(VOICE_INSTRUCTIONS, /answer directly and immediately/i);
@@ -48,6 +80,37 @@ test("Voice routing makes stable facts immediate and keeps fresh and protected c
   assert.match(VOICE_INSTRUCTIONS, /Never say “including zero” to a guest/i);
   assert.match(VOICE_INSTRUCTIONS, /Do not automatically end replies with “Anything else\?”/i);
   assert.doesNotMatch(IMMEDIATE_VOICE_FACTS.pools, /three heated pools/i);
+  assert.match(VOICE_INSTRUCTIONS, /English is the default and locked conversation language/i);
+  assert.match(VOICE_INSTRUCTIONS, /does not by itself authorize a language switch/i);
+  assert.match(VOICE_INSTRUCTIONS, /Never infer a language switch from an accent/i);
+  assert.match(VOICE_INSTRUCTIONS, /sentence that is mainly English/i);
+  assert.match(VOICE_INSTRUCTIONS, /stay in English and ask a normal content clarification/i);
+  assert.match(VOICE_INSTRUCTIONS, /explicitly asks to speak another language/i);
+  assert.match(VOICE_INSTRUCTIONS, /coherent complete utterance is primarily non-English/i);
+  assert.match(VOICE_INSTRUCTIONS, /Would you like to continue in \[language\], or stay in English\?/i);
+  assert.match(VOICE_INSTRUCTIONS, /If the language is uncertain, do not guess its name/i);
+  assert.match(VOICE_INSTRUCTIONS, /If speech is clearly not addressed to you, do not respond/i);
+  assert.match(VOICE_INSTRUCTIONS, /cannot use the internet/i);
+  assert.match(VOICE_INSTRUCTIONS, /Never mention internal vendors or booking-platform names/i);
+});
+
+test("all active Destiny policy sources use the confirmed 30-day commercial terms", async () => {
+  const sources = await Promise.all([
+    readFile(new URL("../lib/destiny-agent/knowledge-v1.js", import.meta.url), "utf8"),
+    readFile(new URL("../lib/destiny/knowledge.js", import.meta.url), "utf8"),
+    readFile(new URL("../pages/api/chat.js", import.meta.url), "utf8"),
+  ]);
+  for (const source of sources) {
+    assert.match(source, /remaining balance is due 30 days before arrival/i);
+    assert.match(source, /Cancelling more than 30 days before arrival forfeits/i);
+    assert.doesNotMatch(source, /45 days before arrival|within 45 days|45\+ days/i);
+  }
+});
+
+test("Voice availability output does not expose the internal booking platform", async () => {
+  const source = await readFile(new URL("../pages/api/destiny-voice-availability.js", import.meta.url), "utf8");
+  assert.match(source, /const reply = `Live availability for/);
+  assert.doesNotMatch(source, /const reply = `Live OwnerRez availability/);
 });
 
 test("Voice companion links allow, label, and deduplicate trusted URLs", () => {

@@ -3,7 +3,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import styles from "../styles/VoiceLab.module.css";
 import { extractVoiceCompanionLinks } from "../lib/destiny-agent/voice-links.js";
-import { createVoiceOpeningGreetingEvent, VOICE_TOOL_PROGRESS_DELAY_MS, VOICE_TOOL_PROGRESS_INSTRUCTIONS } from "../lib/destiny-agent/voice-experience.js";
+import { createVoiceCallIdentity, createVoiceOpeningGreetingEvent, isVoiceTranscriptionArtifact, VOICE_TOOL_PROGRESS_DELAY_MS, VOICE_TOOL_PROGRESS_INSTRUCTIONS } from "../lib/destiny-agent/voice-experience.js";
 
 const initialStatus = "Tap the call button when you're ready.";
 
@@ -23,7 +23,7 @@ export default function VoiceLab() {
   const streamRef = useRef(null);
   const audioRef = useRef(null);
   const historyRef = useRef([]);
-  const sessionRef = useRef(`voice_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`);
+  const sessionRef = useRef(null);
   const callRef = useRef(null);
   const eventSequenceRef = useRef(0);
   const seenProviderEventsRef = useRef(new Set());
@@ -223,6 +223,10 @@ export default function VoiceLab() {
     if (event.type === "input_audio_buffer.speech_started") setStatus("Listening…");
     if (event.type === "input_audio_buffer.speech_stopped") setStatus("Destiny is thinking…");
     if (event.type === "conversation.item.input_audio_transcription.completed") {
+      if (isVoiceTranscriptionArtifact(event.transcript)) {
+        queueVoiceEvent({ eventType: "cancelled", role: "system", text: "suppressed_transcription_artifact", turnId: event.item_id || "", providerEventId: event.item_id || event.event_id || "" });
+        return;
+      }
       const providerEventId = event.item_id || event.event_id || "";
       const dedupeKey = `user:${providerEventId || event.transcript}`;
       if (!seenProviderEventsRef.current.has(dedupeKey)) {
@@ -282,7 +286,12 @@ export default function VoiceLab() {
     if (phase !== "idle") return stopCall();
     setPhase("connecting");
     setStatus("Connecting to Destiny…");
-    callRef.current = `call_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+    const identity = createVoiceCallIdentity();
+    sessionRef.current = identity.sessionId;
+    callRef.current = identity.callId;
+    historyRef.current = [];
+    setTranscript([]);
+    setCompanionLinks([]);
     eventSequenceRef.current = 0;
     seenProviderEventsRef.current = new Set();
     openingGreetingSentRef.current = false;

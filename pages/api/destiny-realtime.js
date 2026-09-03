@@ -1,5 +1,5 @@
 import { allowSameOriginRequest, enforceRateLimit } from "../../lib/public-api-security.js";
-import { VOICE_INSTRUCTIONS, VOICE_MAX_OUTPUT_TOKENS, VOICE_MODEL, VOICE_OUTPUT } from "../../lib/destiny-agent/voice-experience.js";
+import { buildVoiceInstructions, VOICE_MAX_OUTPUT_TOKENS, VOICE_MODEL, VOICE_OUTPUT } from "../../lib/destiny-agent/voice-experience.js";
 
 export const config = { api: { bodyParser: false } };
 
@@ -27,12 +27,12 @@ export default async function handler(req, res) {
     const session = {
       type: "realtime",
       model: VOICE_MODEL,
-      instructions: VOICE_INSTRUCTIONS,
+      instructions: buildVoiceInstructions(new Date()),
       output_modalities: ["audio"],
       max_output_tokens: VOICE_MAX_OUTPUT_TOKENS,
       audio: {
         input: {
-          transcription: { model: "gpt-4o-mini-transcribe", language: "en", prompt: "Destiny, Destin, Pelican Beach Resort, condo, Unit 707, Unit 1006, Ozan" },
+          transcription: { model: "gpt-4o-mini-transcribe" },
           noise_reduction: { type: "near_field" },
           turn_detection: { type: "semantic_vad", eagerness: "high", create_response: true, interrupt_response: true },
         },

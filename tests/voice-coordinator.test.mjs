@@ -174,3 +174,17 @@ test("confirmed stop cancels speech but preserves queued task output", () => {
   h.coordinator.audioCleared("resp_turn");
   assert.equal(h.sent().at(-1).job.kind, "tool_final");
 });
+
+test("a cancellation acknowledgement timeout recovers the response without ending the call", () => {
+  const h = harness();
+  h.coordinator.request("turn", {});
+  h.bindLatest("resp_turn");
+  h.coordinator.request("tool_final", {}, { taskId: "weather" });
+  h.coordinator.speechStarted("cough_1");
+  h.coordinator.confirmInterruption("cough_1", "substantive_guest_turn", { dropQueued: false });
+  const interrupted = h.coordinator.activeLease();
+  assert.equal(h.coordinator.recoverCancellationTimeout(interrupted.requestToken), true);
+  assert.equal(h.effects.some(effect => effect.type === "recovered" && effect.reason === "cancellation_timeout"), true);
+  assert.equal(h.sent().at(-1).job.kind, "tool_final");
+  assert.equal(h.coordinator.activeLease().kind, "tool_final");
+});

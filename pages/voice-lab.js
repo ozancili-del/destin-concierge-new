@@ -53,7 +53,11 @@ export default function VoiceLab() {
     clearTimeout(cancellationWatchdogRef.current);
     cancellationWatchdogRef.current = setTimeout(() => {
       const active = coordinatorRef.current.activeLease();
-      if (active && active.requestToken === interruptedLease?.requestToken) stopCall({ reason: "audio_cancellation_timeout" });
+      if (active && active.requestToken === interruptedLease?.requestToken) {
+        coordinatorRef.current.recoverCancellationTimeout(active.requestToken);
+        queueVoiceEvent({ eventType: "error", role: "system", text: "audio_cancellation_timeout_recovered", providerEventId: active.responseId || "" });
+        setStatus("Listening — you can continue.");
+      }
     }, 4000);
   };
 
@@ -412,6 +416,7 @@ export default function VoiceLab() {
       }));
       return;
     }
+    if (effect.type === "recovered") return;
     if (effect.type !== "released") return;
     clearTimeout(cancellationWatchdogRef.current);
     cancellationWatchdogRef.current = null;

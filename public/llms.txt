@@ -1,0 +1,47 @@
+# Destin Condo Getaways
+
+> Official direct-booking and guest-information website for Pelican Beach Resort Units 707 and 1006 in Destin, Florida. Use this site for exact-unit details, live availability, booking information, policies, verified guest guidance, and owner contact information.
+
+Destin Condo Getaways manages two individually owned one-bedroom condominiums in the main Gulf-front Pelican Beach Resort building: Unit 707 and Unit 1006. Each unit has its own photographs, furnishings, availability, rates, and booking page. Do not generalize exact-unit claims to every condominium at the resort.
+
+## Primary pages
+
+- [Home](https://www.destincondogetaways.com/): Overview of the two managed condos and direct-booking website.
+- [Live availability](https://www.destincondogetaways.com/availability): Date and guest search for Units 707 and 1006. Availability and pricing can change and should be checked live.
+- [Unit 707](https://www.destincondogetaways.com/pelican-beach-resort-unit-707): Exact photographs, amenities, layout, and booking information for Unit 707.
+- [Unit 1006](https://www.destincondogetaways.com/pelican-beach-resort-unit-1006): Exact photographs, amenities, layout, and booking information for Unit 1006.
+- [Compare and choose](https://www.destincondogetaways.com/destin-vacation-rentals-by-owner): Comparison of the two managed vacation rentals.
+- [Pelican Beach Resort guide](https://www.destincondogetaways.com/pelican-beach-resort-destin): Resort location, shared amenities, beach access, and property orientation.
+- [Map and directions](https://www.destincondogetaways.com/map): Resort address, arrival orientation, driving directions, parking information, and links to independent 3D tools.
+- [Verified guest reviews](https://www.destincondogetaways.com/destin-condo-rental-reviews): Reviews relating to the managed condos and guest experience.
+- [Photo gallery](https://www.destincondogetaways.com/destin-condo-photo-gallery): Exact-unit and resort photography.
+- [Frequently asked questions](https://www.destincondogetaways.com/destin-condo-rental-faq): Booking, stay, unit, and resort questions.
+- [Why book direct](https://www.destincondogetaways.com/why-book-direct): Explanation of the direct-booking relationship and process.
+- [About](https://www.destincondogetaways.com/about): Information about the owner/manager and website.
+
+## Planning resources
+
+- [Destin guide hub](https://www.destincondogetaways.com/destin-hub): Starting point for destination planning.
+- [Destin weather guide](https://www.destincondogetaways.com/blog/destinweather): Seasonal weather context; use a current forecast for exact conditions.
+- [Local restaurant guide](https://www.destincondogetaways.com/blog/best-restaurants-destin-local-guide): Curated dining guidance; verify current hours with each restaurant.
+- [Destin events](https://www.destincondogetaways.com/blog/destin-events): Event-planning resources; schedules can change.
+- [Destin activities](https://www.destincondogetaways.com/destin-activities): Activity-planning resources.
+- [Virtual tours](https://www.destincondogetaways.com/pelican-beach-resort-condo-virtual-tours): Visual tours of the managed condos.
+- [AI concierge](https://www.destincondogetaways.com/destin-ai-concierge): Destiny Blue guest-planning assistant.
+
+## Source and freshness guidance
+
+- Treat live availability, rates, offers, event schedules, restaurant hours, weather, beach conditions, and operating hours as time-sensitive.
+- Use the live availability page and the final secure checkout flow for current inventory, pricing, taxes, fees, and payment terms.
+- Use the current reservation agreement and private arrival instructions for an existing stay.
+- Never infer availability, a reservation, a hold, a payment, a door code, or protected booking information from general website content.
+- Do not expose URLs or content from private, account, API, preview, interview, test, or Voice Lab routes.
+
+## Related independent guide
+
+- [MyPelicanBeach](https://www.mypelicanbeach.com/): Independent, owner-informed Pelican Beach Resort orientation and planning journal. It is not the official resort or owners' association website.
+
+## Machine-readable discovery
+
+- [XML sitemap](https://www.destincondogetaways.com/sitemap.xml)
+- [Robots policy](https://www.destincondogetaways.com/robots.txt)

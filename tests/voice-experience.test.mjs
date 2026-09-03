@@ -1,14 +1,15 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import { buildVoiceInstructions, createVoiceCallIdentity, createVoiceOpeningGreetingEvent, IMMEDIATE_VOICE_FACTS, isVoiceTranscriptionArtifact, VOICE_INSTRUCTIONS, VOICE_MAX_OUTPUT_TOKENS, VOICE_MODEL, VOICE_OPENING_GREETING, VOICE_OUTPUT, VOICE_TOOL_PROGRESS_DELAY_MS, VOICE_TOOL_PROGRESS_INSTRUCTIONS } from "../lib/destiny-agent/voice-experience.js";
+import { buildVoiceInstructions, createVoiceCallIdentity, createVoiceOpeningGreetingEvent, IMMEDIATE_VOICE_FACTS, isVoicePresenceCheck, isVoiceTranscriptionArtifact, voiceLookupLabel, voiceProgressInstructions, VOICE_INSTRUCTIONS, VOICE_MAX_OUTPUT_TOKENS, VOICE_MODEL, VOICE_OPENING_GREETING, VOICE_OUTPUT, VOICE_TOOL_PROGRESS_FALLBACK_MS, VOICE_TOOL_PROGRESS_SILENCE_MS } from "../lib/destiny-agent/voice-experience.js";
 import { extractVoiceCompanionLinks } from "../lib/destiny-agent/voice-links.js";
 
 test("Voice Lab uses the friendlier normal-speed voice", () => {
   assert.equal(VOICE_MODEL, "gpt-realtime-2");
   assert.equal(VOICE_MAX_OUTPUT_TOKENS, 900);
-  assert.equal(VOICE_TOOL_PROGRESS_DELAY_MS, 6000);
-  assert.match(VOICE_TOOL_PROGRESS_INSTRUCTIONS, /I’m still here—still checking that for you/);
+  assert.equal(VOICE_TOOL_PROGRESS_SILENCE_MS, 6500);
+  assert.equal(VOICE_TOOL_PROGRESS_FALLBACK_MS, 11000);
+  assert.match(voiceProgressInstructions("those restaurant options"), /Checking those restaurant options is taking a little longer/);
   assert.deepEqual(VOICE_OUTPUT, { voice: "marin", speed: 1 });
 });
 
@@ -71,14 +72,20 @@ test("Voice receives Central date context and next-occurrence date behavior", ()
 });
 
 test("Voice routing makes stable facts immediate and keeps fresh and protected checks", () => {
-  assert.equal(Object.keys(IMMEDIATE_VOICE_FACTS).length, 7);
+  assert.equal(Object.keys(IMMEDIATE_VOICE_FACTS).length, 10);
+  assert.match(IMMEDIATE_VOICE_FACTS.wellness, /fitness center.*sauna.*steam room/i);
+  assert.match(IMMEDIATE_VOICE_FACTS.recreation, /tennis.*pickleball.*grills/i);
+  assert.match(IMMEDIATE_VOICE_FACTS.foodAndDrink, /café.*Tiki Bar.*hours must be checked/i);
   assert.match(VOICE_INSTRUCTIONS, /answer directly and immediately/i);
-  assert.match(VOICE_INSTRUCTIONS, /Fresh checks: availability, weather, beach conditions, events, prices, and schedules/i);
+  assert.match(VOICE_INSTRUCTIONS, /Fresh checks: availability, weather, beach conditions, restaurant or event hours/i);
+  assert.match(VOICE_INSTRUCTIONS, /Stable resort amenities listed above do not/i);
   assert.match(VOICE_INSTRUCTIONS, /Protected checks: reservation details, door codes, maintenance actions/i);
   assert.match(VOICE_INSTRUCTIONS, /Before ask_destiny_brain, say one short, relevant acknowledgement/i);
   assert.match(VOICE_INSTRUCTIONS, /Do not repeat the acknowledgement while the same lookup is pending/i);
   assert.match(VOICE_INSTRUCTIONS, /Never say “including zero” to a guest/i);
-  assert.match(VOICE_INSTRUCTIONS, /Do not automatically end replies with “Anything else\?”/i);
+  assert.match(VOICE_INSTRUCTIONS, /Do not automatically end every reply with “Anything else\?”/i);
+  assert.match(VOICE_INSTRUCTIONS, /occasionally offer one short, topic-specific invitation/i);
+  assert.match(VOICE_INSTRUCTIONS, /connect the answers naturally/i);
   assert.doesNotMatch(IMMEDIATE_VOICE_FACTS.pools, /three heated pools/i);
   assert.match(VOICE_INSTRUCTIONS, /English is the default and locked conversation language/i);
   assert.match(VOICE_INSTRUCTIONS, /does not by itself authorize a language switch/i);
@@ -92,6 +99,28 @@ test("Voice routing makes stable facts immediate and keeps fresh and protected c
   assert.match(VOICE_INSTRUCTIONS, /If speech is clearly not addressed to you, do not respond/i);
   assert.match(VOICE_INSTRUCTIONS, /cannot use the internet/i);
   assert.match(VOICE_INSTRUCTIONS, /Never mention internal vendors or booking-platform names/i);
+});
+
+test("slow lookup progress is contextual and presence checks are narrow", () => {
+  assert.equal(voiceLookupLabel("What will the weather be tonight?"), "the latest weather information");
+  assert.equal(voiceLookupLabel("Find three Italian restaurants"), "those restaurant options");
+  assert.equal(voiceLookupLabel("What events are scheduled this weekend?"), "the current event information");
+  assert.equal(voiceLookupLabel("Please check my reservation"), "your request");
+  assert.equal(voiceLookupLabel("Tell me more"), "the information you asked for");
+  for (const phrase of ["Hello?", "Are you still there?", "Still checking?", "Can you hear me?", "What happened?"]) {
+    assert.equal(isVoicePresenceCheck(phrase), true, phrase);
+  }
+  assert.equal(isVoicePresenceCheck("Never mind, what is the weather?"), false);
+  assert.equal(isVoicePresenceCheck("Are you there and can you find another restaurant?"), false);
+});
+
+test("Voice Lab measures quiet time from audio playback and intercepts pending presence checks", async () => {
+  const source = await readFile(new URL("../pages/voice-lab.js", import.meta.url), "utf8");
+  assert.match(source, /event\.type === "output_audio_buffer\.stopped"/);
+  assert.match(source, /armProgressTimer\(pendingCallId\)/);
+  assert.match(source, /VOICE_TOOL_PROGRESS_FALLBACK_MS/);
+  assert.match(source, /isVoicePresenceCheck\(event\.transcript\)[\s\S]{0,100}handlePendingPresenceCheck\(\)/);
+  assert.match(source, /type: "response\.cancel"/);
 });
 
 test("all active Destiny policy sources use the confirmed 30-day commercial terms", async () => {

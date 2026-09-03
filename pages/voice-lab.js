@@ -3,7 +3,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import styles from "../styles/VoiceLab.module.css";
 import { extractVoiceCompanionLinks } from "../lib/destiny-agent/voice-links.js";
-import { createVoiceCallIdentity, createVoiceOpeningGreetingEvent, isVoiceTranscriptionArtifact, VOICE_TOOL_PROGRESS_DELAY_MS, VOICE_TOOL_PROGRESS_INSTRUCTIONS } from "../lib/destiny-agent/voice-experience.js";
+import { createVoiceCallIdentity, createVoiceOpeningGreetingEvent, isVoicePresenceCheck, isVoiceTranscriptionArtifact, voiceLookupLabel, voiceProgressInstructions, VOICE_TOOL_PROGRESS_FALLBACK_MS, VOICE_TOOL_PROGRESS_SILENCE_MS } from "../lib/destiny-agent/voice-experience.js";
 
 const initialStatus = "Tap the call button when you're ready.";
 
@@ -30,6 +30,7 @@ export default function VoiceLab() {
   const logQueueRef = useRef(Promise.resolve());
   const pendingToolsRef = useRef(new Map());
   const progressResponsesRef = useRef(new Map());
+  const lastAudioStoppedAtRef = useRef(0);
   const openingGreetingSentRef = useRef(false);
   const openingGreetingTimerRef = useRef(null);
 
@@ -68,7 +69,7 @@ export default function VoiceLab() {
       event_id: `progress-${callId}`,
       response: {
         conversation: "none",
-        instructions: VOICE_TOOL_PROGRESS_INSTRUCTIONS,
+        instructions: voiceProgressInstructions(pending.label),
         tools: [],
         tool_choice: "none",
         output_modalities: ["audio"],
@@ -120,6 +121,23 @@ export default function VoiceLab() {
     historyRef.current = [...historyRef.current, { role, content: clean }].slice(-20);
   };
 
+  const armProgressTimer = (callId, delayMs = VOICE_TOOL_PROGRESS_SILENCE_MS) => {
+    const pending = pendingToolsRef.current.get(callId);
+    if (!pending || pending.resolved || pending.progressRequested) return;
+    clearTimeout(pending.timer);
+    pending.timer = setTimeout(() => requestProgressCheckIn(callId), Math.max(0, delayMs));
+  };
+
+  const handlePendingPresenceCheck = () => {
+    const pendingEntry = [...pendingToolsRef.current.entries()].find(([, pending]) => !pending.resolved);
+    if (!pendingEntry) return false;
+    const [pendingCallId, pending] = pendingEntry;
+    channelRef.current?.send(JSON.stringify({ type: "response.cancel" }));
+    armProgressTimer(pendingCallId, 0);
+    pending.guestCheckIn = true;
+    return true;
+  };
+
   const stopCall = ({ reason = "user_ended", beacon = false } = {}) => {
     if (callRef.current) queueVoiceEvent({ eventType: reason === "cancelled" ? "cancelled" : "call_ended", role: "system", text: reason }, { beacon });
     channelRef.current?.close();
@@ -150,12 +168,18 @@ export default function VoiceLab() {
     const startedAt = Date.now();
     const toolName = String(event.name || "unknown");
     const callId = String(event.call_id || event.event_id || `tool-${Date.now()}`);
-    const pending = { resolved: false, progressRequested: false, progressFinished: false, progressResponseId: "", finalQueued: false, timer: null, progressFailsafe: null };
-    pending.timer = setTimeout(() => requestProgressCheckIn(callId), VOICE_TOOL_PROGRESS_DELAY_MS);
+    let args = {};
+    try { args = JSON.parse(event.arguments || "{}"); } catch {}
+    const label = voiceLookupLabel(args.query || event.name);
+    const pending = { resolved: false, progressRequested: false, progressFinished: false, progressResponseId: "", finalQueued: false, guestCheckIn: false, label, timer: null, progressFailsafe: null };
     pendingToolsRef.current.set(callId, pending);
+    const elapsedSinceAudioStopped = Date.now() - lastAudioStoppedAtRef.current;
+    const initialDelay = lastAudioStoppedAtRef.current > 0 && elapsedSinceAudioStopped < VOICE_TOOL_PROGRESS_FALLBACK_MS
+      ? Math.max(VOICE_TOOL_PROGRESS_SILENCE_MS - elapsedSinceAudioStopped, 0)
+      : VOICE_TOOL_PROGRESS_FALLBACK_MS;
+    armProgressTimer(callId, initialDelay);
     queueVoiceEvent({ eventType: "tool_call", role: "system", toolName, providerEventId: event.call_id || event.event_id || "" });
     try {
-      const args = JSON.parse(event.arguments || "{}");
       if (event.name === "check_live_availability") {
         const response = await fetch("/api/destiny-voice-availability", {
           method: "POST",
@@ -234,6 +258,7 @@ export default function VoiceLab() {
         addLine("you", event.transcript);
         queueVoiceEvent({ eventType: "user_transcript", role: "user", text: event.transcript, turnId: event.item_id || "", providerEventId });
       }
+      if (isVoicePresenceCheck(event.transcript)) handlePendingPresenceCheck();
     }
     if (event.type === "response.audio_transcript.done" || event.type === "response.output_audio_transcript.done") {
       const providerEventId = event.item_id || event.response_id || event.event_id || "";
@@ -245,6 +270,12 @@ export default function VoiceLab() {
       }
     }
     if (event.type === "response.audio.delta" || event.type === "response.output_audio.delta") setStatus("Destiny is speaking…");
+    if (event.type === "output_audio_buffer.stopped") {
+      lastAudioStoppedAtRef.current = Date.now();
+      pendingToolsRef.current.forEach((pending, pendingCallId) => {
+        if (!pending.resolved && !pending.progressRequested) armProgressTimer(pendingCallId);
+      });
+    }
     if (event.type === "response.done") {
       if (event.response?.metadata?.destiny_kind === "opening_greeting") {
         finishOpeningGreeting();
@@ -294,6 +325,7 @@ export default function VoiceLab() {
     setCompanionLinks([]);
     eventSequenceRef.current = 0;
     seenProviderEventsRef.current = new Set();
+    lastAudioStoppedAtRef.current = 0;
     openingGreetingSentRef.current = false;
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true }, video: false });

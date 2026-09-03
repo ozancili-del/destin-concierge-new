@@ -7,7 +7,7 @@ import { extractVoiceCompanionLinks } from "../lib/destiny-agent/voice-links.js"
 test("Voice Lab uses the friendlier normal-speed voice", () => {
   assert.equal(VOICE_MODEL, "gpt-realtime-2");
   assert.equal(VOICE_MAX_OUTPUT_TOKENS, 900);
-  assert.equal(VOICE_TOOL_PROGRESS_SILENCE_MS, 6500);
+  assert.equal(VOICE_TOOL_PROGRESS_SILENCE_MS, 5000);
   assert.match(voiceProgressInstructions("those restaurant options"), /I’m still checking those restaurant options for you/);
   assert.deepEqual(VOICE_OUTPUT, { voice: "marin", speed: 1 });
 });
@@ -66,6 +66,7 @@ test("Voice receives Central date context and next-occurrence date behavior", ()
   const instructions = buildVoiceInstructions(new Date("2026-09-03T12:00:00Z"));
   assert.match(instructions, /2026-09-03/);
   assert.match(instructions, /month and day without a year, use the next upcoming occurrence/i);
+  assert.match(instructions, /Never explain this year-inference rule to the guest in advance/i);
   assert.match(instructions, /Ask for the year only when/i);
 });
 

@@ -5,7 +5,7 @@ import styles from "../styles/VoiceLab.module.css";
 import { VoiceResponseCoordinator } from "../lib/destiny-agent/voice-coordinator.js";
 import { VoiceAudioOutputController } from "../lib/destiny-agent/voice-audio-output.js";
 import { extractVoiceCompanionLinks } from "../lib/destiny-agent/voice-links.js";
-import { classifyVoiceUtterance, createVoiceCallIdentity, createVoiceOpeningGreetingEvent, isStableVoiceStopPartial, isVoiceTranscriptionArtifact, resolveVoiceModel, voiceLookupLabel, voiceProgressInstructions, VOICE_INPUT_CLASSIFICATION_TIMEOUT_MS, VOICE_MODEL, VOICE_TOOL_PROGRESS_SILENCE_MS } from "../lib/destiny-agent/voice-experience.js";
+import { classifyVoiceUtterance, createVoiceCallIdentity, createVoiceOpeningGreetingEvent, inferExpectedVoiceReply, isDirectedVoiceUtterance, isExpectedVoiceReply, isStableVoiceStopPartial, isVoiceTranscriptionArtifact, resolveVoiceModel, voiceLookupLabel, voiceProgressInstructions, VOICE_INPUT_CLASSIFICATION_TIMEOUT_MS, VOICE_MODEL, VOICE_TOOL_PROGRESS_SILENCE_MS } from "../lib/destiny-agent/voice-experience.js";
 
 const initialStatus = "Tap the call button when you're ready.";
 
@@ -53,6 +53,8 @@ export default function VoiceLab() {
   const openingGreetingSentRef = useRef(false);
   const openingGreetingTimerRef = useRef(null);
   const cancellationWatchdogRef = useRef(null);
+  const historySyncTimerRef = useRef(null);
+  const expectedReplyRef = useRef(null);
   const disconnectGraceTimerRef = useRef(null);
   const setupAbortRef = useRef(null);
 
@@ -61,9 +63,7 @@ export default function VoiceLab() {
     cancellationWatchdogRef.current = setTimeout(() => {
       const active = coordinatorRef.current.activeLease();
       if (active && active.requestToken === interruptedLease?.requestToken) {
-        coordinatorRef.current.recoverCancellationTimeout(active.requestToken);
-        queueVoiceEvent({ eventType: "error", role: "system", text: "audio_cancellation_timeout_recovered", providerEventId: active.responseId || "" });
-        setStatus("Listening — you can continue.");
+        coordinatorRef.current.probeCancellation(active.requestToken);
       }
     }, 4000);
   };
@@ -71,6 +71,9 @@ export default function VoiceLab() {
   const finishOpeningGreeting = () => {
     clearTimeout(openingGreetingTimerRef.current);
     openingGreetingTimerRef.current = null;
+    clearTimeout(historySyncTimerRef.current);
+    historySyncTimerRef.current = null;
+    expectedReplyRef.current = null;
     streamRef.current?.getAudioTracks().forEach(track => { track.enabled = !userDesiredMutedRef.current; });
     setStatus("Listening — you can interrupt anytime.");
   };
@@ -226,6 +229,7 @@ export default function VoiceLab() {
       callEpoch: callEpochRef.current,
       transportId: transportIdRef.current || "",
       voiceModel: voiceModelRef.current,
+      clearInitiator: lease.clearInitiator || "",
       responseId: lease.responseId || "",
       requestToken: lease.requestToken || "",
       leaseKind: lease.kind || "",
@@ -312,7 +316,10 @@ export default function VoiceLab() {
     toolCallTombstonesRef.current.clear();
     toolWavesRef.current.clear();
     completedResponseIdsRef.current.clear();
-    pendingCommittedTurnsRef.current.forEach(turn => clearTimeout(turn.classificationTimer));
+    pendingCommittedTurnsRef.current.forEach(turn => {
+      clearTimeout(turn.classificationTimer);
+      clearTimeout(turn.decisionRetireTimer);
+    });
     pendingCommittedTurnsRef.current.clear();
     clearTimeout(openingGreetingTimerRef.current);
     openingGreetingTimerRef.current = null;
@@ -510,11 +517,34 @@ export default function VoiceLab() {
       }));
       return;
     }
+    if (effect.type === "probe_sent") {
+      queueVoiceEvent({ eventType: "cancellation_probe", role: "system", text: effect.reason, providerEventId: telemetryLease.responseId || "" });
+      armCancellationWatchdog(effect.lease);
+      return;
+    }
+    if (effect.type === "retire_connection") {
+      queueVoiceEvent({ eventType: "connection_retired", role: "system", text: effect.reason, providerEventId: telemetryLease.responseId || "" }, { beacon: true });
+      stopCall({ reason: "ownership_uncertain", beacon: true });
+      setStatus("The voice connection paused safely. Tap to continue.");
+      return;
+    }
+    if (effect.type === "repair_required") {
+      queueVoiceEvent({ eventType: "repair_requested", role: "system", text: effect.reason, providerEventId: telemetryLease.responseId || "" });
+      coordinatorRef.current.request("repair", {
+        instructions: "The previous assistant audio was automatically cut off by a likely false interruption or background sound. Ignore that non-directed sound and naturally continue the answer from the point the guest may not have heard. Do not restart from the beginning, respond to the noise, or claim the guest heard the missing audio.",
+        tools: [],
+        tool_choice: "none",
+        output_modalities: ["audio"],
+        max_output_tokens: 500,
+      }, { turnId: effect.lease?.context?.turnId || "", taskId: effect.lease?.context?.taskId || "", waveId: effect.lease?.context?.waveId || "" });
+      return;
+    }
     if (effect.type === "recovered") return;
     if (effect.type !== "released") return;
     clearTimeout(cancellationWatchdogRef.current);
     cancellationWatchdogRef.current = null;
     const { lease } = effect;
+    if (lease.repairRequired && !lease.interrupted) return;
     if (lease.kind === "opening") {
       finishOpeningGreeting();
       return;
@@ -568,14 +598,18 @@ export default function VoiceLab() {
       const turnId = String(event.item_id || event.event_id || `turn-${Date.now()}`);
       const ownedEpoch = callEpochRef.current;
       const candidateId = activeCandidateRef.current?.candidateId || turnId;
-      const turn = { turnId, candidateId, classificationTimer: null };
+      const turn = { turnId, candidateId, classificationTimer: null, decisionRetireTimer: null };
       turn.classificationTimer = setTimeout(() => {
         if (callEpochRef.current !== ownedEpoch || pendingCommittedTurnsRef.current.get(turnId) !== turn) return;
         turn.timedOut = true;
         turn.classificationTimer = null;
-        coordinatorRef.current.restoreSpeech(candidateId, "transcription_timeout");
-        if (activeCandidateRef.current?.candidateId === candidateId) activeCandidateRef.current = null;
-        queueVoiceEvent({ eventType: "candidate_timed_out", role: "system", text: "preserved_without_semantic_evidence", turnId, providerEventId: turnId });
+        queueVoiceEvent({ eventType: "candidate_timed_out", role: "system", text: "decision_barrier_retained_awaiting_transcript", turnId, providerEventId: turnId });
+        turn.decisionRetireTimer = setTimeout(() => {
+          if (callEpochRef.current !== ownedEpoch || pendingCommittedTurnsRef.current.get(turnId) !== turn) return;
+          queueVoiceEvent({ eventType: "connection_retired", role: "system", text: "transcript_state_unproven", turnId, providerEventId: turnId }, { beacon: true });
+          stopCall({ reason: "transcript_state_unproven", beacon: true });
+          setStatus("The voice connection paused safely. Tap to continue.");
+        }, 8000);
       }, VOICE_INPUT_CLASSIFICATION_TIMEOUT_MS);
       pendingCommittedTurnsRef.current.set(turnId, turn);
       queueVoiceEvent({ eventType: "audio_committed", role: "system", providerEventId: event.event_id || "", turnId, candidateId });
@@ -600,14 +634,13 @@ export default function VoiceLab() {
     if (event.type === "conversation.item.input_audio_transcription.completed") {
       const pendingTurn = pendingCommittedTurnsRef.current.get(event.item_id);
       if (pendingTurn?.timedOut) {
-        pendingCommittedTurnsRef.current.delete(event.item_id);
-        queueVoiceEvent({ eventType: "late_transcript_ignored", role: "system", text: "classification_deadline_passed", turnId: event.item_id || "", providerEventId: event.event_id || "" });
-        return;
+        queueVoiceEvent({ eventType: "late_transcript_received", role: "system", text: "processed_after_classification_deadline", turnId: event.item_id || "", providerEventId: event.event_id || "" });
       }
       const cleanTranscript = String(event.transcript || "").trim();
       if (!cleanTranscript) {
         if (pendingTurn) {
           clearTimeout(pendingTurn.classificationTimer);
+          clearTimeout(pendingTurn.decisionRetireTimer);
           pendingCommittedTurnsRef.current.delete(event.item_id);
         }
         coordinatorRef.current.restoreSpeech(pendingTurn?.candidateId || activeCandidateRef.current?.candidateId, "empty_transcript");
@@ -618,6 +651,7 @@ export default function VoiceLab() {
       if (isVoiceTranscriptionArtifact(event.transcript)) {
         if (pendingTurn) {
           clearTimeout(pendingTurn.classificationTimer);
+          clearTimeout(pendingTurn.decisionRetireTimer);
           pendingCommittedTurnsRef.current.delete(event.item_id);
         }
         coordinatorRef.current.restoreSpeech(pendingTurn?.candidateId || activeCandidateRef.current?.candidateId, "known_transcription_artifact");
@@ -634,12 +668,18 @@ export default function VoiceLab() {
       }
       if (pendingTurn) {
         clearTimeout(pendingTurn.classificationTimer);
+        clearTimeout(pendingTurn.decisionRetireTimer);
         pendingCommittedTurnsRef.current.delete(event.item_id);
       }
       const candidateId = pendingTurn?.candidateId || activeCandidateRef.current?.candidateId;
-      const classification = classifyVoiceUtterance(event.transcript);
+      let classification = classifyVoiceUtterance(event.transcript);
+      const leaseBeforeDecision = coordinatorRef.current.activeLease();
+      const duringPlayback = Boolean(leaseBeforeDecision && !leaseBeforeDecision.playbackTerminal);
+      const answersExpectedQuestion = isExpectedVoiceReply(event.transcript, expectedReplyRef.current?.kind);
+      if (classification === "uncertain" && (answersExpectedQuestion || isDirectedVoiceUtterance(event.transcript, { duringPlayback }) || !leaseBeforeDecision)) classification = "substantive";
       queueVoiceEvent({ eventType: "candidate_classified", role: "system", text: classification, turnId: event.item_id || "", providerEventId: event.event_id || "" });
       if (classification === "noise") coordinatorRef.current.restoreSpeech(candidateId, "noise_or_artifact");
+      else if (classification === "uncertain") coordinatorRef.current.restoreSpeech(candidateId, "uncertain_non_directed_audio");
       else if (classification === "presence") {
         const interruptedLease = coordinatorRef.current.activeLease();
         if (!activeCandidateRef.current?.interruptionConfirmed && coordinatorRef.current.confirmInterruption(candidateId, "presence_check", { dropQueued: false })) armCancellationWatchdog(interruptedLease);
@@ -652,6 +692,7 @@ export default function VoiceLab() {
         if (!activeCandidateRef.current?.interruptionConfirmed && coordinatorRef.current.confirmInterruption(candidateId, "cancel_task", { dropQueued: false })) armCancellationWatchdog(interruptedLease);
         supersedeForegroundTool();
       } else {
+        expectedReplyRef.current = null;
         const interruptedLease = coordinatorRef.current.activeLease();
         if (!activeCandidateRef.current?.interruptionConfirmed && coordinatorRef.current.confirmInterruption(candidateId, "substantive_guest_turn", { dropQueued: false })) armCancellationWatchdog(interruptedLease);
         supersedeForegroundTool();
@@ -663,6 +704,7 @@ export default function VoiceLab() {
       const pendingTurn = pendingCommittedTurnsRef.current.get(event.item_id);
       if (pendingTurn) {
         clearTimeout(pendingTurn.classificationTimer);
+        clearTimeout(pendingTurn.decisionRetireTimer);
         pendingCommittedTurnsRef.current.delete(event.item_id);
       }
       coordinatorRef.current.restoreSpeech(pendingTurn?.candidateId || activeCandidateRef.current?.candidateId, "transcription_failed");
@@ -674,6 +716,9 @@ export default function VoiceLab() {
       const dedupeKey = `assistant:${providerEventId || event.transcript}`;
       if (!seenProviderEventsRef.current.has(dedupeKey)) {
         seenProviderEventsRef.current.add(dedupeKey);
+        coordinatorRef.current.assistantItem(event.response_id, event.item_id);
+        const expectedKind = inferExpectedVoiceReply(event.transcript);
+        expectedReplyRef.current = expectedKind ? { kind: expectedKind, responseId: event.response_id || "", itemId: event.item_id || "" } : null;
         addLine("destiny", event.transcript);
         queueVoiceEvent({ eventType: "assistant_transcript", role: "assistant", text: event.transcript, turnId: event.item_id || event.response_id || "", providerEventId });
       }
@@ -681,7 +726,15 @@ export default function VoiceLab() {
     if (event.type === "response.audio.delta" || event.type === "response.output_audio.delta") setStatus("Destiny is speaking…");
     if (event.type === "output_audio_buffer.started") { coordinatorRef.current.audioStarted(event.response_id); queueVoiceEvent({ eventType: "audio_playback_started", role: "system", providerEventId: event.event_id || "", responseId: event.response_id || "", playbackState: "playing" }); }
     if (event.type === "output_audio_buffer.stopped") { coordinatorRef.current.audioStopped(event.response_id); queueVoiceEvent({ eventType: "audio_playback_stopped", role: "system", providerEventId: event.event_id || "", responseId: event.response_id || "", playbackState: "stopped" }); }
-    if (event.type === "output_audio_buffer.cleared") { coordinatorRef.current.audioCleared(event.response_id); queueVoiceEvent({ eventType: "audio_playback_cleared", role: "system", providerEventId: event.event_id || "", responseId: event.response_id || "", playbackState: "cleared" }); }
+    if (event.type === "output_audio_buffer.cleared") {
+      const initiator = coordinatorRef.current.activeLease()?.clearRequested ? "client_ack" : "provider";
+      coordinatorRef.current.audioCleared(event.response_id, { initiator });
+      queueVoiceEvent({ eventType: "audio_playback_cleared", role: "system", providerEventId: event.event_id || "", responseId: event.response_id || "", playbackState: "cleared", clearInitiator: initiator });
+      if (initiator === "provider") {
+        clearTimeout(historySyncTimerRef.current);
+        historySyncTimerRef.current = setTimeout(() => coordinatorRef.current.retireIfHistoryPending(event.response_id), 4000);
+      }
+    }
     if (event.type === "response.done") {
       coordinatorRef.current.responseDone(event.response);
       queueVoiceEvent({ eventType: "response_done", role: "system", providerEventId: event.event_id || "", responseId: event.response?.id || "", generationState: event.response?.status || "", reason: event.response?.status_details?.reason || event.response?.status_details?.error?.code || "" });
@@ -708,6 +761,9 @@ export default function VoiceLab() {
       }
     }
     if (event.type === "conversation.item.truncated") {
+      clearTimeout(historySyncTimerRef.current);
+      historySyncTimerRef.current = null;
+      coordinatorRef.current.historyTruncated(event.item_id);
       queueVoiceEvent({ eventType: "interrupted", role: "system", interrupted: true, providerEventId: event.item_id || event.event_id || "" });
     }
     if (event.type === "response.function_call_arguments.done") {

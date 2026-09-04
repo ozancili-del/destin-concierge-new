@@ -14,6 +14,8 @@ const EVENT_TYPES = new Set([
   "audio_playback_stopped", "audio_playback_cleared", "cancel_requested",
   "audio_clear_requested", "coordinator_state", "lease_bound",
   "lease_released", "lease_queued", "lease_dropped", "tool_wave_state",
+  "effective_session_config", "late_transcript_received", "cancellation_probe",
+  "connection_retired", "repair_requested",
 ]);
 
 function cleanId(value, max = 160) {
@@ -93,6 +95,8 @@ function normalizeVoiceEvent(body = {}) {
       waveId: cleanId(body.waveId, 240),
       reason: cleanText(body.reason, 240),
       queueDepth: Number.isInteger(body.queueDepth) && body.queueDepth >= 0 ? body.queueDepth : null,
+      voiceModel: cleanId(body.voiceModel, 80),
+      clearInitiator: cleanId(body.clearInitiator, 40),
     };
 }
 

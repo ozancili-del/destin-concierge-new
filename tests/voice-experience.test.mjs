@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import { buildVoiceInstructions, classifyVoiceUtterance, createVoiceCallIdentity, createVoiceOpeningGreetingEvent, IMMEDIATE_VOICE_FACTS, isStableVoiceStopPartial, isVoicePresenceCheck, isVoiceTranscriptionArtifact, resolveVoiceModel, voiceLookupLabel, voiceProgressInstructions, VOICE_EXPERIMENT_MODELS, VOICE_INPUT_CLASSIFICATION_TIMEOUT_MS, VOICE_INSTRUCTIONS, VOICE_MAX_OUTPUT_TOKENS, VOICE_MODEL, VOICE_OPENING_GREETING, VOICE_OUTPUT, VOICE_TOOL_PROGRESS_SILENCE_MS } from "../lib/destiny-agent/voice-experience.js";
+import { buildVoiceInstructions, classifyVoiceUtterance, createVoiceCallIdentity, createVoiceOpeningGreetingEvent, IMMEDIATE_VOICE_FACTS, inferExpectedVoiceReply, isDirectedVoiceUtterance, isExpectedVoiceReply, isStableVoiceStopPartial, isVoicePresenceCheck, isVoiceTranscriptionArtifact, resolveVoiceModel, voiceLookupLabel, voiceProgressInstructions, VOICE_EXPERIMENT_MODELS, VOICE_INPUT_CLASSIFICATION_TIMEOUT_MS, VOICE_INSTRUCTIONS, VOICE_MAX_OUTPUT_TOKENS, VOICE_MODEL, VOICE_OPENING_GREETING, VOICE_OUTPUT, VOICE_TOOL_PROGRESS_SILENCE_MS } from "../lib/destiny-agent/voice-experience.js";
 import { extractVoiceCompanionLinks } from "../lib/destiny-agent/voice-links.js";
 
 test("Voice Lab uses the friendlier normal-speed voice", () => {
@@ -65,6 +65,14 @@ test("known transcription-hint echoes are suppressed narrowly", () => {
   assert.equal(isVoiceTranscriptionArtifact("Destiny, Destin, Pelican Beach Resort, condo, Unit 707, Unit 1006, Ozan"), true);
   assert.equal(isVoiceTranscriptionArtifact("Destiny Destin Pelican Beach Resort condo Unit 707 Unit 1006 Ozan."), true);
   assert.equal(isVoiceTranscriptionArtifact("Tell me about Unit 707"), false);
+});
+
+test("short replies only become directed when they answer a known question", () => {
+  assert.equal(inferExpectedVoiceReply("How many adults and children are traveling?"), "party");
+  assert.equal(isExpectedVoiceReply("Two", "party"), true);
+  assert.equal(inferExpectedVoiceReply("Would you prefer Unit 707 or Unit 1006?"), "choice");
+  assert.equal(isExpectedVoiceReply("707", "choice"), true);
+  assert.equal(isExpectedVoiceReply("Uh", "party"), false);
 });
 
 test("Voice receives Central date context and next-occurrence date behavior", () => {
@@ -132,7 +140,12 @@ test("voice utterance classification never treats duration alone as guest intent
   assert.equal(classifyVoiceUtterance("Are you still there?"), "presence");
   assert.equal(classifyVoiceUtterance("Please stop"), "interrupt_only");
   assert.equal(classifyVoiceUtterance("Never mind"), "cancel_task");
-  assert.equal(classifyVoiceUtterance("What is the weather in November?"), "substantive");
+  assert.equal(classifyVoiceUtterance("What is the weather in November?"), "uncertain");
+  assert.equal(classifyVoiceUtterance("어? 어."), "uncertain");
+  assert.equal(isDirectedVoiceUtterance("What is the weather in November?"), true);
+  assert.equal(isDirectedVoiceUtterance("What is the weather in November?", { duringPlayback: true }), true);
+  assert.equal(isDirectedVoiceUtterance("어? 어.", { duringPlayback: true }), false);
+  assert.equal(isDirectedVoiceUtterance("Two", { duringPlayback: false }), false);
   assert.equal(isStableVoiceStopPartial("stop"), true);
   assert.equal(isStableVoiceStopPartial("stop by the restaurant"), false);
 });

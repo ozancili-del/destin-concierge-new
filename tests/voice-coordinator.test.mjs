@@ -134,12 +134,32 @@ test("response binding requires exact Destiny metadata", () => {
   assert.equal(h.effects.some(effect => effect.type === "contain_unowned" && effect.responseId === "resp_unowned"), true);
 });
 
-test("an unsolicited clear cannot release the active lease", () => {
+test("a provider clear is accepted but held behind the input-decision barrier", () => {
   const h = harness();
   h.coordinator.request("turn", {});
   h.bindLatest("resp_turn");
   h.coordinator.responseDone({ id: "resp_turn", status: "completed", output: audioOutput });
-  assert.equal(h.coordinator.audioCleared("resp_turn"), false);
+  h.coordinator.assistantItem("resp_turn", "item_turn");
+  h.coordinator.speechStarted("noise_1");
+  assert.equal(h.coordinator.audioCleared("resp_turn", { initiator: "provider" }), true);
+  assert.equal(h.coordinator.hasLease(), true);
+  h.coordinator.restoreSpeech("noise_1", "uncertain_non_directed_audio");
+  assert.equal(h.coordinator.hasLease(), true, "provider history must synchronize before repair");
+  h.coordinator.historyTruncated("item_turn");
+  assert.equal(h.coordinator.hasLease(), false);
+  assert.equal(h.effects.some(effect => effect.type === "repair_required"), true);
+});
+
+test("missing provider truncation retires rather than releasing uncertain ownership", () => {
+  const h = harness();
+  h.coordinator.request("turn", {});
+  h.bindLatest("resp_turn");
+  h.coordinator.responseDone({ id: "resp_turn", status: "completed", output: audioOutput });
+  h.coordinator.speechStarted("noise_1");
+  h.coordinator.audioCleared("resp_turn", { initiator: "provider" });
+  h.coordinator.restoreSpeech("noise_1", "uncertain_non_directed_audio");
+  assert.equal(h.coordinator.retireIfHistoryPending("resp_turn"), true);
+  assert.equal(h.effects.some(effect => effect.type === "retire_connection" && effect.reason === "history_sync_unproven"), true);
   assert.equal(h.coordinator.hasLease(), true);
 });
 
@@ -175,7 +195,7 @@ test("confirmed stop cancels speech but preserves queued task output", () => {
   assert.equal(h.sent().at(-1).job.kind, "tool_final");
 });
 
-test("a cancellation acknowledgement timeout recovers the response without ending the call", () => {
+test("cancellation uncertainty probes once and then retires without releasing queued audio", () => {
   const h = harness();
   h.coordinator.request("turn", {});
   h.bindLatest("resp_turn");
@@ -183,8 +203,10 @@ test("a cancellation acknowledgement timeout recovers the response without endin
   h.coordinator.speechStarted("cough_1");
   h.coordinator.confirmInterruption("cough_1", "substantive_guest_turn", { dropQueued: false });
   const interrupted = h.coordinator.activeLease();
-  assert.equal(h.coordinator.recoverCancellationTimeout(interrupted.requestToken), true);
-  assert.equal(h.effects.some(effect => effect.type === "recovered" && effect.reason === "cancellation_timeout"), true);
-  assert.equal(h.sent().at(-1).job.kind, "tool_final");
-  assert.equal(h.coordinator.activeLease().kind, "tool_final");
+  assert.equal(h.coordinator.probeCancellation(interrupted.requestToken), true);
+  assert.equal(h.effects.some(effect => effect.type === "probe_sent"), true);
+  assert.equal(h.coordinator.activeLease().kind, "turn");
+  assert.equal(h.coordinator.probeCancellation(interrupted.requestToken), true);
+  assert.equal(h.effects.some(effect => effect.type === "retire_connection"), true);
+  assert.equal(h.coordinator.activeLease().kind, "turn");
 });

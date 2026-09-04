@@ -4,8 +4,9 @@ import { useEffect, useRef, useState } from "react";
 import styles from "../styles/VoiceLab.module.css";
 import { VoiceResponseCoordinator } from "../lib/destiny-agent/voice-coordinator.js";
 import { VoiceAudioOutputController } from "../lib/destiny-agent/voice-audio-output.js";
+import { audioRms, createClientVoiceGate } from "../lib/destiny-agent/client-voice-gate.js";
 import { extractVoiceCompanionLinks } from "../lib/destiny-agent/voice-links.js";
-import { classifyVoiceUtterance, createVoiceCallIdentity, createVoiceOpeningGreetingEvent, inferExpectedVoiceReply, isDirectedVoiceUtterance, isExpectedVoiceReply, isStableVoiceStopPartial, isVoiceTranscriptionArtifact, resolveVoiceModel, voiceLookupLabel, voiceProgressInstructions, VOICE_INPUT_CLASSIFICATION_TIMEOUT_MS, VOICE_MODEL, VOICE_TOOL_PROGRESS_SILENCE_MS } from "../lib/destiny-agent/voice-experience.js";
+import { classifyVoiceUtterance, createVoiceCallIdentity, createVoiceOpeningGreetingEvent, inferExpectedVoiceReply, isDirectedVoiceUtterance, isExpectedVoiceReply, isVoiceTranscriptionArtifact, resolveVoiceModel, voiceLookupLabel, voiceProgressInstructions, VOICE_INPUT_CLASSIFICATION_TIMEOUT_MS, VOICE_MODEL, VOICE_TOOL_PROGRESS_SILENCE_MS } from "../lib/destiny-agent/voice-experience.js";
 
 const initialStatus = "Tap the call button when you're ready.";
 
@@ -26,6 +27,10 @@ export default function VoiceLab() {
   const streamRef = useRef(null);
   const audioRef = useRef(null);
   const audioOutputRef = useRef(null);
+  const inputAudioContextRef = useRef(null);
+  const inputAnalyserRef = useRef(null);
+  const inputAnalysisTimerRef = useRef(null);
+  const clientVoiceGateRef = useRef(null);
   const historyRef = useRef([]);
   const sessionRef = useRef(null);
   const callRef = useRef(null);
@@ -58,6 +63,74 @@ export default function VoiceLab() {
   const disconnectGraceTimerRef = useRef(null);
   const setupAbortRef = useRef(null);
 
+  const sendInputEvent = event => {
+    const channel = channelRef.current;
+    if (!channel || channel.readyState !== "open") return false;
+    channel.send(JSON.stringify(event));
+    return true;
+  };
+
+  const clearQuietInput = () => {
+    if (userDesiredMutedRef.current || !streamRef.current?.getAudioTracks().some(track => track.enabled)) return;
+    sendInputEvent({ type: "input_audio_buffer.clear", event_id: `input-clear-${Date.now()}` });
+  };
+
+  const startClientVoiceGate = async stream => {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) throw new Error("This browser does not support safe voice interruption.");
+    const context = new AudioContextClass();
+    const analyser = context.createAnalyser();
+    analyser.fftSize = 1024;
+    analyser.smoothingTimeConstant = 0.2;
+    context.createMediaStreamSource(stream).connect(analyser);
+    await context.resume();
+    const samples = new Float32Array(analyser.fftSize);
+    const gate = createClientVoiceGate({
+      onQuietClear: clearQuietInput,
+      onStart: ({ threshold, noiseFloor }) => {
+        if (userDesiredMutedRef.current) return;
+        const candidateId = `client-${callEpochRef.current}-${Date.now()}`;
+        const activeLease = coordinatorRef.current.activeLease();
+        activeCandidateRef.current = {
+          candidateId,
+          partial: "",
+          interruptionConfirmed: false,
+          coordinatorArmed: false,
+          startedDuringPlayback: Boolean(activeLease && !activeLease.playbackTerminal),
+        };
+        pendingToolsRef.current.forEach(pending => {
+          pending.timerGeneration += 1;
+          clearTimeout(pending.silenceTimer);
+        });
+        setStatus(coordinatorRef.current.hasLease() ? "Destiny is speaking…" : "Listening…");
+        queueVoiceEvent({ eventType: "client_vad_started", role: "system", text: `threshold=${threshold.toFixed(4)};noise=${noiseFloor.toFixed(4)}`, candidateId });
+      },
+      onStop: ({ durationMs, commit }) => {
+        const candidate = activeCandidateRef.current;
+        if (!candidate) return;
+        queueVoiceEvent({ eventType: "client_vad_stopped", role: "system", text: `duration_ms=${Math.round(durationMs)};commit=${commit}`, candidateId: candidate.candidateId });
+        if (!commit) {
+          activeCandidateRef.current = null;
+          clearQuietInput();
+          return;
+        }
+        if (sendInputEvent({ type: "input_audio_buffer.commit", event_id: `input-commit-${candidate.candidateId}` })) {
+          candidate.awaitingTranscript = true;
+          queueVoiceEvent({ eventType: "input_commit_requested", role: "system", text: "client_voice_gate", candidateId: candidate.candidateId });
+          if (!coordinatorRef.current.hasLease()) setStatus("Destiny is thinking…");
+        }
+      },
+    });
+    inputAudioContextRef.current = context;
+    inputAnalyserRef.current = analyser;
+    clientVoiceGateRef.current = gate;
+    inputAnalysisTimerRef.current = setInterval(() => {
+      if (context.state !== "running" || activeCandidateRef.current?.awaitingTranscript) return;
+      analyser.getFloatTimeDomainData(samples);
+      gate.sample(audioRms(samples));
+    }, 50);
+  };
+
   const armCancellationWatchdog = interruptedLease => {
     clearTimeout(cancellationWatchdogRef.current);
     cancellationWatchdogRef.current = setTimeout(() => {
@@ -75,6 +148,8 @@ export default function VoiceLab() {
     historySyncTimerRef.current = null;
     expectedReplyRef.current = null;
     streamRef.current?.getAudioTracks().forEach(track => { track.enabled = !userDesiredMutedRef.current; });
+    clientVoiceGateRef.current?.reset();
+    clearQuietInput();
     setStatus("Listening — you can interrupt anytime.");
   };
 
@@ -296,17 +371,24 @@ export default function VoiceLab() {
     const peer = peerRef.current;
     const stream = streamRef.current;
     const audioOutput = audioOutputRef.current;
+    const inputAudioContext = inputAudioContextRef.current;
     setupAbortRef.current?.abort();
     setupAbortRef.current = null;
     channelRef.current = null;
     peerRef.current = null;
     streamRef.current = null;
     audioOutputRef.current = null;
+    inputAudioContextRef.current = null;
+    inputAnalyserRef.current = null;
+    clientVoiceGateRef.current = null;
+    clearInterval(inputAnalysisTimerRef.current);
+    inputAnalysisTimerRef.current = null;
     callRef.current = null;
     channel?.close();
     peer?.close();
     stream?.getTracks().forEach(track => track.stop());
     audioOutput?.close();
+    inputAudioContext?.close().catch(() => {});
     if (audioRef.current) audioRef.current.srcObject = null;
     pendingToolsRef.current.forEach(pending => {
       clearTimeout(pending.silenceTimer);
@@ -586,7 +668,8 @@ export default function VoiceLab() {
         clearTimeout(pending.silenceTimer);
       });
       const candidateId = String(event.item_id || event.event_id || `candidate-${Date.now()}`);
-      activeCandidateRef.current = { candidateId, partial: "", interruptionConfirmed: false };
+      activeCandidateRef.current = { candidateId, partial: "", interruptionConfirmed: false, startedDuringPlayback: true };
+      // Defensive fallback only. Production sessions use the client voice gate.
       coordinatorRef.current.speechStarted(candidateId);
       queueVoiceEvent({ eventType: "vad_started", role: "system", providerEventId: event.event_id || "", candidateId });
     }
@@ -598,7 +681,7 @@ export default function VoiceLab() {
       const turnId = String(event.item_id || event.event_id || `turn-${Date.now()}`);
       const ownedEpoch = callEpochRef.current;
       const candidateId = activeCandidateRef.current?.candidateId || turnId;
-      const turn = { turnId, candidateId, classificationTimer: null, decisionRetireTimer: null };
+      const turn = { turnId, candidateId, startedDuringPlayback: Boolean(activeCandidateRef.current?.startedDuringPlayback), classificationTimer: null, decisionRetireTimer: null };
       turn.classificationTimer = setTimeout(() => {
         if (callEpochRef.current !== ownedEpoch || pendingCommittedTurnsRef.current.get(turnId) !== turn) return;
         turn.timedOut = true;
@@ -621,16 +704,6 @@ export default function VoiceLab() {
         queueVoiceEvent({ eventType: "transcription_started", role: "system", providerEventId: event.event_id || "", turnId: event.item_id || "", candidateId: pendingTurn.candidateId || "" });
       }
     }
-    if (event.type === "conversation.item.input_audio_transcription.delta") {
-      const candidate = activeCandidateRef.current;
-      if (!candidate || candidate.interruptionConfirmed) return;
-      candidate.partial += String(event.delta || "");
-      if (isStableVoiceStopPartial(candidate.partial)) {
-        const interruptedLease = coordinatorRef.current.activeLease();
-        candidate.interruptionConfirmed = coordinatorRef.current.confirmInterruption(candidate.candidateId, "stable_stop_partial", { dropQueued: false });
-        if (candidate.interruptionConfirmed) armCancellationWatchdog(interruptedLease);
-      }
-    }
     if (event.type === "conversation.item.input_audio_transcription.completed") {
       const pendingTurn = pendingCommittedTurnsRef.current.get(event.item_id);
       if (pendingTurn?.timedOut) {
@@ -645,6 +718,8 @@ export default function VoiceLab() {
         }
         coordinatorRef.current.restoreSpeech(pendingTurn?.candidateId || activeCandidateRef.current?.candidateId, "empty_transcript");
         activeCandidateRef.current = null;
+        clientVoiceGateRef.current?.reset();
+        clearQuietInput();
         queueVoiceEvent({ eventType: "cancelled", role: "system", text: "ignored_empty_audio_transcript", turnId: event.item_id || "", providerEventId: event.item_id || event.event_id || "" });
         return;
       }
@@ -656,6 +731,8 @@ export default function VoiceLab() {
         }
         coordinatorRef.current.restoreSpeech(pendingTurn?.candidateId || activeCandidateRef.current?.candidateId, "known_transcription_artifact");
         activeCandidateRef.current = null;
+        clientVoiceGateRef.current?.reset();
+        clearQuietInput();
         queueVoiceEvent({ eventType: "cancelled", role: "system", text: "suppressed_transcription_artifact", turnId: event.item_id || "", providerEventId: event.item_id || event.event_id || "" });
         return;
       }
@@ -674,7 +751,7 @@ export default function VoiceLab() {
       const candidateId = pendingTurn?.candidateId || activeCandidateRef.current?.candidateId;
       let classification = classifyVoiceUtterance(event.transcript);
       const leaseBeforeDecision = coordinatorRef.current.activeLease();
-      const duringPlayback = Boolean(leaseBeforeDecision && !leaseBeforeDecision.playbackTerminal);
+      const duringPlayback = Boolean(pendingTurn?.startedDuringPlayback || (leaseBeforeDecision && !leaseBeforeDecision.playbackTerminal));
       const answersExpectedQuestion = isExpectedVoiceReply(event.transcript, expectedReplyRef.current?.kind);
       if (classification === "uncertain" && (answersExpectedQuestion || isDirectedVoiceUtterance(event.transcript, { duringPlayback }) || !leaseBeforeDecision)) classification = "substantive";
       queueVoiceEvent({ eventType: "candidate_classified", role: "system", text: classification, turnId: event.item_id || "", providerEventId: event.event_id || "" });
@@ -682,23 +759,29 @@ export default function VoiceLab() {
       else if (classification === "uncertain") coordinatorRef.current.restoreSpeech(candidateId, "uncertain_non_directed_audio");
       else if (classification === "presence") {
         const interruptedLease = coordinatorRef.current.activeLease();
+        coordinatorRef.current.speechStarted(candidateId);
         if (!activeCandidateRef.current?.interruptionConfirmed && coordinatorRef.current.confirmInterruption(candidateId, "presence_check", { dropQueued: false })) armCancellationWatchdog(interruptedLease);
         if (!handlePendingPresenceCheck()) requestTurnResponse(event.item_id);
       } else if (classification === "interrupt_only") {
         const interruptedLease = coordinatorRef.current.activeLease();
+        coordinatorRef.current.speechStarted(candidateId);
         if (!activeCandidateRef.current?.interruptionConfirmed && coordinatorRef.current.confirmInterruption(candidateId, "interrupt_only", { dropQueued: false })) armCancellationWatchdog(interruptedLease);
       } else if (classification === "cancel_task") {
         const interruptedLease = coordinatorRef.current.activeLease();
+        coordinatorRef.current.speechStarted(candidateId);
         if (!activeCandidateRef.current?.interruptionConfirmed && coordinatorRef.current.confirmInterruption(candidateId, "cancel_task", { dropQueued: false })) armCancellationWatchdog(interruptedLease);
         supersedeForegroundTool();
       } else {
         expectedReplyRef.current = null;
         const interruptedLease = coordinatorRef.current.activeLease();
+        coordinatorRef.current.speechStarted(candidateId);
         if (!activeCandidateRef.current?.interruptionConfirmed && coordinatorRef.current.confirmInterruption(candidateId, "substantive_guest_turn", { dropQueued: false })) armCancellationWatchdog(interruptedLease);
         supersedeForegroundTool();
         requestTurnResponse(event.item_id);
       }
       activeCandidateRef.current = null;
+      clientVoiceGateRef.current?.reset();
+      clearQuietInput();
     }
     if (event.type === "conversation.item.input_audio_transcription.failed") {
       const pendingTurn = pendingCommittedTurnsRef.current.get(event.item_id);
@@ -709,6 +792,8 @@ export default function VoiceLab() {
       }
       coordinatorRef.current.restoreSpeech(pendingTurn?.candidateId || activeCandidateRef.current?.candidateId, "transcription_failed");
       activeCandidateRef.current = null;
+      clientVoiceGateRef.current?.reset();
+      clearQuietInput();
       queueVoiceEvent({ eventType: "transcription_failed", role: "system", text: event.error?.message || "input_transcription_failed", turnId: event.item_id || "", providerEventId: event.event_id || "" });
     }
     if (event.type === "response.audio_transcript.done" || event.type === "response.output_audio_transcript.done") {
@@ -808,13 +893,15 @@ export default function VoiceLab() {
       audioOutputRef.current = audioOutput;
       await audioOutput.prepare();
       if (!ownsCall()) return audioOutput.close();
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true }, video: false });
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 }, video: false });
       if (!ownsCall()) {
         stream.getTracks().forEach(track => track.stop());
         return;
       }
       streamRef.current = stream;
       stream.getAudioTracks().forEach(track => { track.enabled = false; });
+      await startClientVoiceGate(stream);
+      if (!ownsCall()) return;
       const peer = new RTCPeerConnection();
       peerRef.current = peer;
       stream.getTracks().forEach(track => peer.addTrack(track, stream));

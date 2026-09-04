@@ -35,7 +35,10 @@ export default async function handler(req, res) {
         input: {
           transcription: { model: "gpt-4o-mini-transcribe", language: "en" },
           noise_reduction: { type: "near_field" },
-          turn_detection: { type: "semantic_vad", eagerness: "high", create_response: false, interrupt_response: false },
+          // The browser owns turn boundaries. Provider VAD clears WebRTC output as
+          // soon as it detects sound, before a cough/noise transcript can be
+          // classified. Manual commits let us validate the transcript first.
+          turn_detection: null,
         },
         output: VOICE_OUTPUT,
       },

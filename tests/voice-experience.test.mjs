@@ -150,7 +150,7 @@ test("voice utterance classification never treats duration alone as guest intent
   assert.equal(isStableVoiceStopPartial("stop by the restaurant"), false);
 });
 
-test("Voice Lab measures quiet time from audio playback and intercepts pending presence checks", async () => {
+test("Voice Lab owns input turns, measures playback quiet time, and intercepts pending presence checks", async () => {
   const source = await readFile(new URL("../pages/voice-lab.js", import.meta.url), "utf8");
   const realtimeSource = await readFile(new URL("../pages/api/destiny-realtime.js", import.meta.url), "utf8");
   assert.match(source, /event\.type === "output_audio_buffer\.stopped"/);
@@ -163,8 +163,10 @@ test("Voice Lab measures quiet time from audio playback and intercepts pending p
   assert.match(source, /expectedCallIds[\s\S]{0,500}wave\.callIds\.add\(callId\)/);
   assert.match(source, /wave\.progressRequested && !wave\.progressTerminal/);
   assert.match(source, /effect\.type === "dropped"/);
-  assert.match(realtimeSource, /create_response:\s*false/);
-  assert.match(realtimeSource, /interrupt_response:\s*false/);
+  assert.match(realtimeSource, /turn_detection:\s*null/);
+  assert.match(source, /type: "input_audio_buffer\.commit"/);
+  assert.match(source, /createClientVoiceGate/);
+  assert.match(source, /pendingTurn\?\.startedDuringPlayback/);
   assert.doesNotMatch(source, /VOICE_BARGE_IN_CONFIRM_MS/);
   assert.match(source, /coordinatorRef\.current\.speechStarted\(candidateId\)/);
   assert.match(source, /coordinatorRef\.current\.restoreSpeech/);

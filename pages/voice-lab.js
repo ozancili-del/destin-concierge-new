@@ -20,6 +20,7 @@ export default function VoiceLab() {
   const [phase, setPhase] = useState("idle");
   const [transcript, setTranscript] = useState([]);
   const [companionLinks, setCompanionLinks] = useState([]);
+  const [telemetryHealth, setTelemetryHealth] = useState({ storedThrough: 0, failure: "" });
   const peerRef = useRef(null);
   const channelRef = useRef(null);
   const streamRef = useRef(null);
@@ -34,6 +35,8 @@ export default function VoiceLab() {
   const logQueueRef = useRef(Promise.resolve());
   const logBufferRef = useRef([]);
   const logFlushTimerRef = useRef(null);
+  const logRetryTimerRef = useRef(null);
+  const logInFlightRef = useRef(new Map());
   const pendingToolsRef = useRef(new Map());
   const toolCallTombstonesRef = useRef(new Set());
   const toolWavesRef = useRef(new Map());
@@ -142,27 +145,66 @@ export default function VoiceLab() {
     const events = logBufferRef.current.splice(0, 12);
     if (!events.length) return;
     const body = JSON.stringify({ events });
+    const batchId = `${events[0].eventId}:${events[events.length - 1].eventId}`;
+    let beaconAccepted = true;
     if (beacon && typeof navigator !== "undefined" && navigator.sendBeacon) {
-      navigator.sendBeacon("/api/destiny-voice-events", new Blob([body], { type: "application/json" }));
+      const accepted = navigator.sendBeacon("/api/destiny-voice-events", new Blob([body], { type: "application/json" }));
+      if (!accepted) {
+        beaconAccepted = false;
+        logBufferRef.current.unshift(...events);
+        setTelemetryHealth(current => ({ ...current, failure: "browser_rejected_beacon" }));
+      }
     } else {
+      logInFlightRef.current.set(batchId, events);
       logQueueRef.current = logQueueRef.current.then(async () => {
+        let lastStatus = 0;
+        let lastReason = "network_error";
         for (let attempt = 0; attempt < 3; attempt += 1) {
           try {
             const response = await fetch("/api/destiny-voice-events", {
               method: "POST", headers: { "Content-Type": "application/json" }, body, keepalive: true,
             });
-            if (response.ok) return;
-            if (response.status >= 400 && response.status < 500 && response.status !== 429) return;
+            lastStatus = response.status;
+            const result = await response.json().catch(() => ({}));
+            lastReason = result.reason || result.error || `http_${response.status}`;
+            if (response.ok) {
+              logInFlightRef.current.delete(batchId);
+              const storedThrough = Math.max(...events.map(item => Number(item.sequence) || 0));
+              setTelemetryHealth({ storedThrough, failure: "" });
+              try { localStorage.setItem("destinyVoiceTelemetryCheckpoint", JSON.stringify({ callId: events[0].callId, storedThrough, at: new Date().toISOString() })); } catch {}
+              return;
+            }
+            if (response.status >= 400 && response.status < 500 && response.status !== 429) {
+              logInFlightRef.current.delete(batchId);
+              setTelemetryHealth(current => ({ ...current, failure: `${response.status}:${lastReason}` }));
+              try { localStorage.setItem("destinyVoiceTelemetryDeadLetter", JSON.stringify({ status: response.status, reason: lastReason, events })); } catch {}
+              return;
+            }
           } catch {}
           await new Promise(resolve => setTimeout(resolve, 250 * (attempt + 1)));
         }
-        console.warn("[VOICE LOG] event batch was not stored", events.map(item => item.eventId));
+        logInFlightRef.current.delete(batchId);
+        const queuedIds = new Set(logBufferRef.current.map(item => item.eventId));
+        logBufferRef.current.unshift(...events.filter(item => !queuedIds.has(item.eventId)));
+        const failure = `${lastStatus || "network"}:${lastReason}`;
+        setTelemetryHealth(current => ({ ...current, failure }));
+        console.warn("[VOICE LOG] event batch retained for retry", failure, events.map(item => item.eventId));
+        clearTimeout(logRetryTimerRef.current);
+        logRetryTimerRef.current = setTimeout(() => flushVoiceEvents(), 2500);
       });
     }
     if (logBufferRef.current.length) {
-      if (beacon) flushVoiceEvents({ beacon: true });
+      if (beacon && beaconAccepted) flushVoiceEvents({ beacon: true });
       else logFlushTimerRef.current = setTimeout(() => flushVoiceEvents(), 150);
     }
+  };
+
+  const beaconOutstandingVoiceEvents = () => {
+    if (typeof navigator === "undefined" || !navigator.sendBeacon) return;
+    const outstanding = [...logInFlightRef.current.values()].flat();
+    const known = new Set(logBufferRef.current.map(item => item.eventId));
+    outstanding.forEach(item => { if (!known.has(item.eventId)) logBufferRef.current.unshift(item); });
+    flushVoiceEvents({ beacon: true });
   };
 
   const queueVoiceEvent = (event, { beacon = false } = {}) => {
@@ -240,6 +282,7 @@ export default function VoiceLab() {
 
   const stopCall = ({ reason = "user_ended", beacon = false } = {}) => {
     if (callRef.current) queueVoiceEvent({ eventType: reason === "cancelled" ? "cancelled" : "call_ended", role: "system", text: reason }, { beacon });
+    if (beacon) beaconOutstandingVoiceEvents();
     callEpochRef.current += 1;
     transportIdRef.current = null;
     coordinatorRef.current.end();
@@ -827,6 +870,7 @@ export default function VoiceLab() {
           }} aria-label="Mute microphone">♩<span>Mute</span></button>
         </div>
         <p className={styles.disclosure}>You are speaking with an AI. For emergencies, call 911.</p>
+        <p className={styles.telemetryHealth} aria-live="polite">Telemetry: #{telemetryHealth.storedThrough || 0}{telemetryHealth.failure ? ` · retrying (${telemetryHealth.failure})` : " stored"}</p>
         <div className={styles.homeIndicator}></div>
       </div>
     </section>

@@ -41,7 +41,7 @@ export function createVoiceEventHandler({ servicesClient = services } = {}) {
     const result = normalized.length > 1 && typeof servicesClient.logVoiceEvents === "function"
       ? await servicesClient.logVoiceEvents(normalized)
       : await servicesClient.logVoiceEvent(normalized[0]);
-    if (!result?.ok) return res.status(503).json({ error: "Voice event could not be stored" });
+    if (!result?.ok) return res.status(503).json({ error: "Voice event could not be stored", reason: cleanText(result?.reason || `store_http_${result?.status || "unknown"}`, 120) });
     const responseBody = { ok: true, duplicate: result.duplicate === true };
     if (Array.isArray(body.events)) responseBody.stored = result.stored ?? normalized.length;
     return res.status(result.duplicate ? 200 : 201).json(responseBody);

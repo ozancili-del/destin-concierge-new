@@ -143,11 +143,12 @@ test("voice event endpoint rejects missing transcript text and malformed identit
 });
 
 test("voice event endpoint reports durable-store failure without pretending success", async () => {
-  const handler = createVoiceEventHandler({ servicesClient: { async logVoiceEvent() { return { ok: false, reason: "down" }; } } });
+  const handler = createVoiceEventHandler({ servicesClient: { async logVoiceEvent() { return { ok: false, reason: "sheets_append_failed" }; } } });
   const res = apiResponse();
   await handler(request(validEvent), res);
   assert.equal(res.statusCode, 503);
   assert.match(res.body.error, /could not be stored/i);
+  assert.equal(res.body.reason, "sheets_append_failed");
 });
 
 test("voice event service appends a role-specific row with review metadata", async () => {

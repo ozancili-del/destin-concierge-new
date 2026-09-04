@@ -1,11 +1,14 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import { buildVoiceInstructions, classifyVoiceUtterance, createVoiceCallIdentity, createVoiceOpeningGreetingEvent, IMMEDIATE_VOICE_FACTS, isStableVoiceStopPartial, isVoicePresenceCheck, isVoiceTranscriptionArtifact, voiceLookupLabel, voiceProgressInstructions, VOICE_INPUT_CLASSIFICATION_TIMEOUT_MS, VOICE_INSTRUCTIONS, VOICE_MAX_OUTPUT_TOKENS, VOICE_MODEL, VOICE_OPENING_GREETING, VOICE_OUTPUT, VOICE_TOOL_PROGRESS_SILENCE_MS } from "../lib/destiny-agent/voice-experience.js";
+import { buildVoiceInstructions, classifyVoiceUtterance, createVoiceCallIdentity, createVoiceOpeningGreetingEvent, IMMEDIATE_VOICE_FACTS, isStableVoiceStopPartial, isVoicePresenceCheck, isVoiceTranscriptionArtifact, resolveVoiceModel, voiceLookupLabel, voiceProgressInstructions, VOICE_EXPERIMENT_MODELS, VOICE_INPUT_CLASSIFICATION_TIMEOUT_MS, VOICE_INSTRUCTIONS, VOICE_MAX_OUTPUT_TOKENS, VOICE_MODEL, VOICE_OPENING_GREETING, VOICE_OUTPUT, VOICE_TOOL_PROGRESS_SILENCE_MS } from "../lib/destiny-agent/voice-experience.js";
 import { extractVoiceCompanionLinks } from "../lib/destiny-agent/voice-links.js";
 
 test("Voice Lab uses the friendlier normal-speed voice", () => {
   assert.equal(VOICE_MODEL, "gpt-realtime-2");
+  assert.deepEqual(VOICE_EXPERIMENT_MODELS, ["gpt-realtime-2", "gpt-realtime-2.1"]);
+  assert.equal(resolveVoiceModel("gpt-realtime-2.1"), "gpt-realtime-2.1");
+  assert.equal(resolveVoiceModel("not-an-allowed-model"), VOICE_MODEL);
   assert.equal(VOICE_MAX_OUTPUT_TOKENS, 900);
   assert.equal(VOICE_TOOL_PROGRESS_SILENCE_MS, 5000);
   assert.equal(VOICE_INPUT_CLASSIFICATION_TIMEOUT_MS, 2400);

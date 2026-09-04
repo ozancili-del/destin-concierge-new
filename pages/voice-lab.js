@@ -5,7 +5,7 @@ import styles from "../styles/VoiceLab.module.css";
 import { VoiceResponseCoordinator } from "../lib/destiny-agent/voice-coordinator.js";
 import { VoiceAudioOutputController } from "../lib/destiny-agent/voice-audio-output.js";
 import { extractVoiceCompanionLinks } from "../lib/destiny-agent/voice-links.js";
-import { classifyVoiceUtterance, createVoiceCallIdentity, createVoiceOpeningGreetingEvent, isStableVoiceStopPartial, isVoiceTranscriptionArtifact, voiceLookupLabel, voiceProgressInstructions, VOICE_INPUT_CLASSIFICATION_TIMEOUT_MS, VOICE_TOOL_PROGRESS_SILENCE_MS } from "../lib/destiny-agent/voice-experience.js";
+import { classifyVoiceUtterance, createVoiceCallIdentity, createVoiceOpeningGreetingEvent, isStableVoiceStopPartial, isVoiceTranscriptionArtifact, resolveVoiceModel, voiceLookupLabel, voiceProgressInstructions, VOICE_INPUT_CLASSIFICATION_TIMEOUT_MS, VOICE_MODEL, VOICE_TOOL_PROGRESS_SILENCE_MS } from "../lib/destiny-agent/voice-experience.js";
 
 const initialStatus = "Tap the call button when you're ready.";
 
@@ -45,6 +45,7 @@ export default function VoiceLab() {
   const pendingCommittedTurnsRef = useRef(new Map());
   const activeCandidateRef = useRef(null);
   const transportIdRef = useRef(null);
+  const voiceModelRef = useRef(VOICE_MODEL);
   const userDesiredMutedRef = useRef(false);
   const coordinatorEffectRef = useRef(() => {});
   const coordinatorRef = useRef(null);
@@ -224,6 +225,7 @@ export default function VoiceLab() {
       monotonicMs: Math.max(0, Math.round(performance.now() - callStartedMonotonicRef.current)),
       callEpoch: callEpochRef.current,
       transportId: transportIdRef.current || "",
+      voiceModel: voiceModelRef.current,
       responseId: lease.responseId || "",
       requestToken: lease.requestToken || "",
       leaseKind: lease.kind || "",
@@ -813,7 +815,10 @@ export default function VoiceLab() {
       if (!ownsCall()) return;
       const response = await fetch("/api/destiny-realtime", {
         method: "POST",
-        headers: { "Content-Type": "application/sdp" },
+        headers: {
+          "Content-Type": "application/sdp",
+          "X-Destiny-Voice-Model": resolveVoiceModel(new URLSearchParams(window.location.search).get("model")),
+        },
         body: offer.sdp,
         signal: setupAbort.signal,
       });
@@ -821,6 +826,8 @@ export default function VoiceLab() {
       if (!response.ok) throw new Error((await response.json().catch(() => null))?.error || "Voice conversation could not start");
       const answer = await response.text();
       if (!ownsCall()) return;
+      voiceModelRef.current = resolveVoiceModel(response.headers.get("x-destiny-voice-model"));
+      queueVoiceEvent({ eventType: "effective_session_config", role: "system", text: `model=${voiceModelRef.current}`, voiceModel: voiceModelRef.current });
       await peer.setRemoteDescription({ type: "answer", sdp: answer });
       if (ownsCall()) setupAbortRef.current = null;
     } catch (error) {

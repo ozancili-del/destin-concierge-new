@@ -1,5 +1,5 @@
 import { allowSameOriginRequest, enforceRateLimit } from "../../lib/public-api-security.js";
-import { buildVoiceInstructions, VOICE_MAX_OUTPUT_TOKENS, VOICE_MODEL, VOICE_OUTPUT } from "../../lib/destiny-agent/voice-experience.js";
+import { buildVoiceInstructions, resolveVoiceModel, VOICE_MAX_OUTPUT_TOKENS, VOICE_MODEL, VOICE_OUTPUT } from "../../lib/destiny-agent/voice-experience.js";
 
 export const config = { api: { bodyParser: false } };
 
@@ -24,9 +24,10 @@ export default async function handler(req, res) {
   try {
     const sdp = await readSdp(req);
     if (!sdp.startsWith("v=0")) return res.status(400).json({ error: "Invalid WebRTC offer" });
+    const model = resolveVoiceModel(req.headers["x-destiny-voice-model"], resolveVoiceModel(process.env.DESTINY_VOICE_MODEL, VOICE_MODEL));
     const session = {
       type: "realtime",
-      model: VOICE_MODEL,
+      model,
       instructions: buildVoiceInstructions(new Date()),
       output_modalities: ["audio"],
       max_output_tokens: VOICE_MAX_OUTPUT_TOKENS,
@@ -84,6 +85,7 @@ export default async function handler(req, res) {
     }
     res.setHeader("Content-Type", "application/sdp");
     res.setHeader("Cache-Control", "private, no-store");
+    res.setHeader("X-Destiny-Voice-Model", model);
     return res.status(200).send(body);
   } catch (error) {
     if (error?.message === "TOO_LARGE") return res.status(413).json({ error: "WebRTC offer is too large" });

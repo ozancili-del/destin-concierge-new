@@ -6,7 +6,7 @@ import { VoiceResponseCoordinator } from "../lib/destiny-agent/voice-coordinator
 import { VoiceAudioOutputController } from "../lib/destiny-agent/voice-audio-output.js";
 import { audioRms, createClientVoiceGate } from "../lib/destiny-agent/client-voice-gate.js";
 import { extractVoiceCompanionLinks } from "../lib/destiny-agent/voice-links.js";
-import { classifyVoiceUtterance, createVoiceCallIdentity, createVoiceOpeningGreetingEvent, inferExpectedVoiceReply, isDirectedVoiceUtterance, isExpectedVoiceReply, isVoiceTranscriptionArtifact, resolveVoiceModel, voiceLookupLabel, voiceProgressInstructions, VOICE_INPUT_CLASSIFICATION_TIMEOUT_MS, VOICE_MODEL, VOICE_TOOL_PROGRESS_SILENCE_MS } from "../lib/destiny-agent/voice-experience.js";
+import { classifyVoiceUtterance, createVoiceCallIdentity, createVoiceOpeningGreetingEvent, inferExpectedVoiceReply, isDirectedVoiceUtterance, isExpectedVoiceReply, isLikelyAssistantEcho, isVoiceTranscriptionArtifact, resolveVoiceModel, voiceLookupLabel, voiceProgressInstructions, VOICE_INPUT_CLASSIFICATION_TIMEOUT_MS, VOICE_MODEL, VOICE_TOOL_PROGRESS_SILENCE_MS } from "../lib/destiny-agent/voice-experience.js";
 
 const initialStatus = "Tap the call button when you're ready.";
 
@@ -31,6 +31,8 @@ export default function VoiceLab() {
   const inputAnalyserRef = useRef(null);
   const inputAnalysisTimerRef = useRef(null);
   const clientVoiceGateRef = useRef(null);
+  const forcedCandidateStopTimerRef = useRef(null);
+  const latestAssistantTranscriptRef = useRef("");
   const historyRef = useRef([]);
   const sessionRef = useRef(null);
   const callRef = useRef(null);
@@ -98,6 +100,12 @@ export default function VoiceLab() {
           coordinatorArmed: false,
           startedDuringPlayback: Boolean(activeLease && !activeLease.playbackTerminal),
         };
+        if (activeCandidateRef.current.startedDuringPlayback) {
+          audioOutputRef.current?.duck();
+          queueVoiceEvent({ eventType: "audio_duck_started", role: "system", text: "client_candidate_acoustic_isolation", candidateId });
+          clearTimeout(forcedCandidateStopTimerRef.current);
+          forcedCandidateStopTimerRef.current = setTimeout(() => clientVoiceGateRef.current?.forceStop(), 2600);
+        }
         pendingToolsRef.current.forEach(pending => {
           pending.timerGeneration += 1;
           clearTimeout(pending.silenceTimer);
@@ -105,12 +113,16 @@ export default function VoiceLab() {
         setStatus(coordinatorRef.current.hasLease() ? "Destiny is speaking…" : "Listening…");
         queueVoiceEvent({ eventType: "client_vad_started", role: "system", text: `threshold=${threshold.toFixed(4)};noise=${noiseFloor.toFixed(4)}`, candidateId });
       },
-      onStop: ({ durationMs, commit }) => {
+      onStop: ({ durationMs, commit, forced = false }) => {
+        clearTimeout(forcedCandidateStopTimerRef.current);
+        forcedCandidateStopTimerRef.current = null;
         const candidate = activeCandidateRef.current;
         if (!candidate) return;
-        queueVoiceEvent({ eventType: "client_vad_stopped", role: "system", text: `duration_ms=${Math.round(durationMs)};commit=${commit}`, candidateId: candidate.candidateId });
+        queueVoiceEvent({ eventType: "client_vad_stopped", role: "system", text: `duration_ms=${Math.round(durationMs)};commit=${commit};forced=${forced}`, candidateId: candidate.candidateId });
         if (!commit) {
           activeCandidateRef.current = null;
+          audioOutputRef.current?.restore();
+          queueVoiceEvent({ eventType: "audio_duck_restored", role: "system", text: "brief_audio_impulse_discarded", candidateId: candidate.candidateId });
           clearQuietInput();
           return;
         }
@@ -383,6 +395,8 @@ export default function VoiceLab() {
     clientVoiceGateRef.current = null;
     clearInterval(inputAnalysisTimerRef.current);
     inputAnalysisTimerRef.current = null;
+    clearTimeout(forcedCandidateStopTimerRef.current);
+    forcedCandidateStopTimerRef.current = null;
     callRef.current = null;
     channel?.close();
     peer?.close();
@@ -410,6 +424,7 @@ export default function VoiceLab() {
     clearTimeout(disconnectGraceTimerRef.current);
     disconnectGraceTimerRef.current = null;
     activeCandidateRef.current = null;
+    latestAssistantTranscriptRef.current = "";
     openingGreetingSentRef.current = false;
     setPhase("idle");
     setStatus("Call ended. Tap to talk again.");
@@ -752,6 +767,7 @@ export default function VoiceLab() {
       let classification = classifyVoiceUtterance(event.transcript);
       const leaseBeforeDecision = coordinatorRef.current.activeLease();
       const duringPlayback = Boolean(pendingTurn?.startedDuringPlayback || (leaseBeforeDecision && !leaseBeforeDecision.playbackTerminal));
+      if (duringPlayback && isLikelyAssistantEcho(event.transcript, latestAssistantTranscriptRef.current)) classification = "noise";
       const answersExpectedQuestion = isExpectedVoiceReply(event.transcript, expectedReplyRef.current?.kind);
       if (classification === "uncertain" && (answersExpectedQuestion || isDirectedVoiceUtterance(event.transcript, { duringPlayback }) || !leaseBeforeDecision)) classification = "substantive";
       queueVoiceEvent({ eventType: "candidate_classified", role: "system", text: classification, turnId: event.item_id || "", providerEventId: event.event_id || "" });
@@ -802,6 +818,7 @@ export default function VoiceLab() {
       if (!seenProviderEventsRef.current.has(dedupeKey)) {
         seenProviderEventsRef.current.add(dedupeKey);
         coordinatorRef.current.assistantItem(event.response_id, event.item_id);
+        latestAssistantTranscriptRef.current = String(event.transcript || "");
         const expectedKind = inferExpectedVoiceReply(event.transcript);
         expectedReplyRef.current = expectedKind ? { kind: expectedKind, responseId: event.response_id || "", itemId: event.item_id || "" } : null;
         addLine("destiny", event.transcript);

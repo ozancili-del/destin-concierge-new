@@ -31,6 +31,18 @@ test("brief impulse is discarded rather than committed", () => {
   assert.deepEqual(events, ["start", "discard"]);
 });
 
+test("a candidate can be force-committed when speaker echo prevents silence", () => {
+  const events = [];
+  const gate = createClientVoiceGate({ onStop: event => events.push(event) });
+  gate.reset(0);
+  gate.sample(0.04, 50);
+  gate.sample(0.04, 100);
+  assert.equal(gate.forceStop(2700), true);
+  assert.equal(events[0].commit, true);
+  assert.equal(events[0].forced, true);
+  assert.equal(gate.forceStop(2800), false);
+});
+
 test("audioRms reports silence and signal energy", () => {
   assert.equal(audioRms(new Float32Array([0, 0, 0])), 0);
   assert.ok(Math.abs(audioRms(new Float32Array([0.5, -0.5])) - 0.5) < 0.0001);

@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import { buildVoiceInstructions, classifyVoiceUtterance, createVoiceCallIdentity, createVoiceOpeningGreetingEvent, IMMEDIATE_VOICE_FACTS, inferExpectedVoiceReply, isDirectedVoiceUtterance, isExpectedVoiceReply, isStableVoiceStopPartial, isVoicePresenceCheck, isVoiceTranscriptionArtifact, resolveVoiceModel, voiceLookupLabel, voiceProgressInstructions, VOICE_EXPERIMENT_MODELS, VOICE_INPUT_CLASSIFICATION_TIMEOUT_MS, VOICE_INSTRUCTIONS, VOICE_MAX_OUTPUT_TOKENS, VOICE_MODEL, VOICE_OPENING_GREETING, VOICE_OUTPUT, VOICE_TOOL_PROGRESS_SILENCE_MS } from "../lib/destiny-agent/voice-experience.js";
+import { buildVoiceInstructions, classifyVoiceUtterance, createVoiceCallIdentity, createVoiceOpeningGreetingEvent, IMMEDIATE_VOICE_FACTS, inferExpectedVoiceReply, isDirectedVoiceUtterance, isExpectedVoiceReply, isLikelyAssistantEcho, isStableVoiceStopPartial, isVoicePresenceCheck, isVoiceTranscriptionArtifact, resolveVoiceModel, voiceLookupLabel, voiceProgressInstructions, VOICE_EXPERIMENT_MODELS, VOICE_INPUT_CLASSIFICATION_TIMEOUT_MS, VOICE_INSTRUCTIONS, VOICE_MAX_OUTPUT_TOKENS, VOICE_MODEL, VOICE_OPENING_GREETING, VOICE_OUTPUT, VOICE_TOOL_PROGRESS_SILENCE_MS } from "../lib/destiny-agent/voice-experience.js";
 import { extractVoiceCompanionLinks } from "../lib/destiny-agent/voice-links.js";
 
 test("Voice Lab uses the friendlier normal-speed voice", () => {
@@ -73,6 +73,13 @@ test("short replies only become directed when they answer a known question", () 
   assert.equal(inferExpectedVoiceReply("Would you prefer Unit 707 or Unit 1006?"), "choice");
   assert.equal(isExpectedVoiceReply("707", "choice"), true);
   assert.equal(isExpectedVoiceReply("Uh", "party"), false);
+});
+
+test("speaker-loopback text is recognized without suppressing unrelated guest speech", () => {
+  const assistant = "Destin has bright white sand, clear emerald water, and a laid-back atmosphere.";
+  assert.equal(isLikelyAssistantEcho("bright white sand and clear emerald water", assistant), true);
+  assert.equal(isLikelyAssistantEcho("Wait, tell me about the swimming pools instead", assistant), false);
+  assert.equal(isLikelyAssistantEcho("okay", assistant), false);
 });
 
 test("Voice receives Central date context and next-occurrence date behavior", () => {

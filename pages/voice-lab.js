@@ -29,6 +29,7 @@ export default function VoiceLab() {
   const sessionRef = useRef(null);
   const callRef = useRef(null);
   const eventSequenceRef = useRef(0);
+  const callStartedMonotonicRef = useRef(0);
   const seenProviderEventsRef = useRef(new Set());
   const logQueueRef = useRef(Promise.resolve());
   const pendingToolsRef = useRef(new Map());
@@ -139,10 +140,27 @@ export default function VoiceLab() {
     const sequence = ++eventSequenceRef.current;
     const providerEventId = String(event.providerEventId || "").trim();
     const eventId = `${callId}:${event.eventType}:${providerEventId || sequence}`;
+    const snapshot = coordinatorRef.current.snapshot();
+    const lease = snapshot.lease || {};
     const payload = {
+      schemaVersion: 2,
       sessionId: sessionRef.current,
       callId,
       eventId,
+      sequence,
+      monotonicMs: Math.max(0, Math.round(performance.now() - callStartedMonotonicRef.current)),
+      callEpoch: callEpochRef.current,
+      transportId: transportIdRef.current || "",
+      responseId: lease.responseId || "",
+      requestToken: lease.requestToken || "",
+      leaseKind: lease.kind || "",
+      playbackState: lease.playbackStatus || "",
+      generationState: lease.generationStatus || "",
+      candidateId: snapshot.candidate?.candidateId || "",
+      taskId: lease.context?.taskId || "",
+      waveId: lease.context?.waveId || "",
+      turnId: lease.context?.turnId || "",
+      queueDepth: snapshot.queueDepth,
       clientTimestamp: new Date().toISOString(),
       ...event,
     };
@@ -360,6 +378,23 @@ export default function VoiceLab() {
   };
 
   coordinatorEffectRef.current = effect => {
+    const telemetryLease = effect.lease || effect.owner || effect.job || {};
+    const lifecycleTypes = {
+      state: "coordinator_state", queued: "lease_queued", dropped: "lease_dropped",
+      bound: "lease_bound", released: "lease_released", send_response: "response_requested",
+      send_cancel: "cancel_requested", clear_audio: "audio_clear_requested",
+    };
+    if (lifecycleTypes[effect.type]) {
+      queueVoiceEvent({
+        eventType: lifecycleTypes[effect.type], role: "system",
+        text: String(effect.state || effect.reason || effect.type),
+        reason: String(effect.reason || ""), responseId: String(effect.responseId || telemetryLease.responseId || ""),
+        requestToken: String(telemetryLease.requestToken || ""), leaseKind: String(telemetryLease.kind || ""),
+        coordinatorState: String(effect.state || ""), playbackState: String(telemetryLease.playbackStatus || ""),
+        generationState: String(telemetryLease.generationStatus || ""), taskId: String(telemetryLease.context?.taskId || ""),
+        waveId: String(telemetryLease.context?.waveId || ""), turnId: String(telemetryLease.context?.turnId || ""),
+      });
+    }
     if (effect.type === "duck_audio") {
       audioOutputRef.current?.duck();
       queueVoiceEvent({ eventType: "audio_duck_started", role: "system", text: effect.candidateId || "" });
@@ -450,7 +485,11 @@ export default function VoiceLab() {
       setStatus("Destiny is answering…");
       queueVoiceEvent({ eventType: "call_started", role: "system", providerEventId: event.event_id || event.session?.id || "" });
     }
-    if (event.type === "response.created") coordinatorRef.current.responseCreated(event.response);
+    if (event.type === "response.created") {
+      coordinatorRef.current.responseCreated(event.response);
+      const lease = coordinatorRef.current.activeLease();
+      queueVoiceEvent({ eventType: "response_created", role: "system", providerEventId: event.event_id || "", responseId: event.response?.id || "", requestToken: event.response?.metadata?.destiny_request_token || lease?.requestToken || "", leaseKind: event.response?.metadata?.destiny_kind || lease?.kind || "", generationState: event.response?.status || lease?.generationStatus || "" });
+    }
     if (event.type === "input_audio_buffer.speech_started") {
       setStatus("Listening…");
       pendingToolsRef.current.forEach(pending => {
@@ -460,8 +499,10 @@ export default function VoiceLab() {
       const candidateId = String(event.item_id || event.event_id || `candidate-${Date.now()}`);
       activeCandidateRef.current = { candidateId, partial: "", interruptionConfirmed: false };
       coordinatorRef.current.speechStarted(candidateId);
+      queueVoiceEvent({ eventType: "vad_started", role: "system", providerEventId: event.event_id || "", candidateId });
     }
     if (event.type === "input_audio_buffer.speech_stopped") {
+      queueVoiceEvent({ eventType: "vad_stopped", role: "system", providerEventId: event.event_id || "", candidateId: activeCandidateRef.current?.candidateId || "" });
       if (!coordinatorRef.current.hasLease()) setStatus("Destiny is thinking…");
     }
     if (event.type === "input_audio_buffer.committed") {
@@ -478,6 +519,14 @@ export default function VoiceLab() {
         queueVoiceEvent({ eventType: "candidate_timed_out", role: "system", text: "preserved_without_semantic_evidence", turnId, providerEventId: turnId });
       }, VOICE_INPUT_CLASSIFICATION_TIMEOUT_MS);
       pendingCommittedTurnsRef.current.set(turnId, turn);
+      queueVoiceEvent({ eventType: "audio_committed", role: "system", providerEventId: event.event_id || "", turnId, candidateId });
+    }
+    if (event.type === "conversation.item.input_audio_transcription.delta") {
+      const pendingTurn = pendingCommittedTurnsRef.current.get(event.item_id);
+      if (pendingTurn && !pendingTurn.transcriptionStartedLogged) {
+        pendingTurn.transcriptionStartedLogged = true;
+        queueVoiceEvent({ eventType: "transcription_started", role: "system", providerEventId: event.event_id || "", turnId: event.item_id || "", candidateId: pendingTurn.candidateId || "" });
+      }
     }
     if (event.type === "conversation.item.input_audio_transcription.delta") {
       const candidate = activeCandidateRef.current;
@@ -571,11 +620,12 @@ export default function VoiceLab() {
       }
     }
     if (event.type === "response.audio.delta" || event.type === "response.output_audio.delta") setStatus("Destiny is speaking…");
-    if (event.type === "output_audio_buffer.started") coordinatorRef.current.audioStarted(event.response_id);
-    if (event.type === "output_audio_buffer.stopped") coordinatorRef.current.audioStopped(event.response_id);
-    if (event.type === "output_audio_buffer.cleared") coordinatorRef.current.audioCleared(event.response_id);
+    if (event.type === "output_audio_buffer.started") { coordinatorRef.current.audioStarted(event.response_id); queueVoiceEvent({ eventType: "audio_playback_started", role: "system", providerEventId: event.event_id || "", responseId: event.response_id || "", playbackState: "playing" }); }
+    if (event.type === "output_audio_buffer.stopped") { coordinatorRef.current.audioStopped(event.response_id); queueVoiceEvent({ eventType: "audio_playback_stopped", role: "system", providerEventId: event.event_id || "", responseId: event.response_id || "", playbackState: "stopped" }); }
+    if (event.type === "output_audio_buffer.cleared") { coordinatorRef.current.audioCleared(event.response_id); queueVoiceEvent({ eventType: "audio_playback_cleared", role: "system", providerEventId: event.event_id || "", responseId: event.response_id || "", playbackState: "cleared" }); }
     if (event.type === "response.done") {
       coordinatorRef.current.responseDone(event.response);
+      queueVoiceEvent({ eventType: "response_done", role: "system", providerEventId: event.event_id || "", responseId: event.response?.id || "", generationState: event.response?.status || "", reason: event.response?.status_details?.reason || event.response?.status_details?.error?.code || "" });
       const responseId = String(event.response?.id || "");
       if (responseId) {
         completedResponseIdsRef.current.add(responseId);
@@ -616,19 +666,20 @@ export default function VoiceLab() {
     setPhase("connecting");
     setStatus("Connecting to Destiny…");
     const identity = createVoiceCallIdentity();
+    callStartedMonotonicRef.current = performance.now();
     callEpochRef.current += 1;
     const ownedEpoch = callEpochRef.current;
     const transportId = `transport_${identity.callId}`;
     transportIdRef.current = transportId;
     const setupAbort = new AbortController();
     setupAbortRef.current = setupAbort;
-    coordinatorRef.current.start(ownedEpoch);
     sessionRef.current = identity.sessionId;
     callRef.current = identity.callId;
     historyRef.current = [];
     setTranscript([]);
     setCompanionLinks([]);
     eventSequenceRef.current = 0;
+    coordinatorRef.current.start(ownedEpoch);
     seenProviderEventsRef.current = new Set();
     openingGreetingSentRef.current = false;
     userDesiredMutedRef.current = false;
@@ -664,6 +715,7 @@ export default function VoiceLab() {
       };
       peer.onconnectionstatechange = () => {
         if (!ownsCall()) return;
+        queueVoiceEvent({ eventType: "transport_state", role: "system", text: peer.connectionState, coordinatorState: peer.connectionState });
         if (peer.connectionState === "disconnected") {
           setStatus("Voice connection interrupted—reconnecting…");
           clearTimeout(disconnectGraceTimerRef.current);
@@ -677,8 +729,11 @@ export default function VoiceLab() {
       };
       const channel = peer.createDataChannel("oai-events");
       channelRef.current = channel;
+      channel.onclose = () => { if (ownsCall()) queueVoiceEvent({ eventType: "data_channel_state", role: "system", text: "closed", coordinatorState: "closed" }); };
+      channel.onerror = () => { if (ownsCall()) queueVoiceEvent({ eventType: "data_channel_state", role: "system", text: "error", coordinatorState: "error" }); };
       channel.onopen = () => {
         if (!ownsCall() || openingGreetingSentRef.current) return;
+        queueVoiceEvent({ eventType: "data_channel_state", role: "system", text: "open", coordinatorState: "open" });
         openingGreetingSentRef.current = true;
         setStatus("Destiny is answering…");
         const opening = createVoiceOpeningGreetingEvent();

@@ -67,6 +67,54 @@ test("voice event endpoint accepts lifecycle classification and duck telemetry",
   assert.equal(calls.length, 6);
 });
 
+test("voice event endpoint preserves versioned lifecycle correlation fields", async () => {
+  const calls = [];
+  const handler = createVoiceEventHandler({ servicesClient: { async logVoiceEvent(event) { calls.push(event); return { ok: true }; } } });
+  const res = apiResponse();
+  await handler(request({
+    ...validEvent,
+    eventId: "call_1:response_created:42",
+    eventType: "response_created",
+    role: "system",
+    text: "response.created",
+    schemaVersion: 2,
+    sequence: 42,
+    monotonicMs: 1234.4,
+    callEpoch: 7,
+    transportId: "transport_call_1",
+    responseId: "resp_1",
+    requestToken: "voice_7_3",
+    leaseKind: "tool_final",
+    coordinatorState: "playing",
+    playbackState: "playing",
+    generationState: "in_progress",
+    candidateId: "candidate_4",
+    taskId: "task_5",
+    waveId: "wave_6",
+    reason: "bound",
+  }), res);
+  assert.equal(res.statusCode, 201);
+  assert.deepEqual({
+    schemaVersion: calls[0].schemaVersion,
+    sequence: calls[0].sequence,
+    monotonicMs: calls[0].monotonicMs,
+    callEpoch: calls[0].callEpoch,
+    transportId: calls[0].transportId,
+    responseId: calls[0].responseId,
+    requestToken: calls[0].requestToken,
+    playbackState: calls[0].playbackState,
+  }, {
+    schemaVersion: 2,
+    sequence: 42,
+    monotonicMs: 1234,
+    callEpoch: 7,
+    transportId: "transport_call_1",
+    responseId: "resp_1",
+    requestToken: "voice_7_3",
+    playbackState: "playing",
+  });
+});
+
 test("voice event endpoint rejects missing transcript text and malformed identity", async () => {
   const servicesClient = { async logVoiceEvent() { throw new Error("must not run"); } };
   const handler = createVoiceEventHandler({ servicesClient });
@@ -115,6 +163,39 @@ test("voice event service appends a role-specific row with review metadata", asy
   assert.equal(row[3], "");
   assert.equal(row[5], "VOICE_USER_TRANSCRIPT");
   assert.equal(JSON.parse(row[6]).voiceEventId, validEvent.eventId);
+});
+
+test("voice event service writes lifecycle correlation into column G metadata", async () => {
+  const { privateKey } = generateKeyPairSync("rsa", { modulusLength: 2048 });
+  const fetchCalls = [];
+  const fetchImpl = async (url, options = {}) => {
+    fetchCalls.push({ url: String(url), options });
+    if (String(url).includes("oauth2.googleapis.com/token")) return response({ json: { access_token: "token" } });
+    if (String(url).includes("Sheet1!G:G")) return response({ json: { values: [] } });
+    if (String(url).includes("Sheet1!A1:append")) return response({ status: 200 });
+    throw new Error(`Unmocked URL: ${url}`);
+  };
+  const services = createServices({
+    fetchImpl,
+    env: {
+      GOOGLE_SHEET_ID: "sheet",
+      GOOGLE_SERVICE_ACCOUNT_EMAIL: "service@example.test",
+      GOOGLE_PRIVATE_KEY: privateKey.export({ type: "pkcs8", format: "pem" }),
+    },
+    logger: { log() {}, error() {} },
+  });
+  const result = await services.logVoiceEvent({ ...validEvent, schemaVersion: 2, sequence: 9, monotonicMs: 876, callEpoch: 3, transportId: "transport_3", responseId: "resp_9", requestToken: "voice_3_9", playbackState: "stopped" });
+  assert.equal(result.ok, true);
+  const append = fetchCalls.find(call => call.url.includes("Sheet1!A1:append"));
+  const metadata = JSON.parse(JSON.parse(append.options.body).values[0][6]);
+  assert.equal(metadata.schemaVersion, 2);
+  assert.equal(metadata.sequence, 9);
+  assert.equal(metadata.monotonicMs, 876);
+  assert.equal(metadata.callEpoch, 3);
+  assert.equal(metadata.transportId, "transport_3");
+  assert.equal(metadata.responseId, "resp_9");
+  assert.equal(metadata.requestToken, "voice_3_9");
+  assert.equal(metadata.playbackState, "stopped");
 });
 
 test("voice event service suppresses a duplicate before append", async () => {

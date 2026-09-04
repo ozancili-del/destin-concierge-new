@@ -24,10 +24,31 @@ function cleanId(value, max = 160) {
 export function createVoiceEventHandler({ servicesClient = services } = {}) {
   return async function handler(req, res) {
     if (!allowSameOriginRequest(req, res, { methods: ["POST"] })) return;
-    if (!enforceJsonSize(req, res, 20_000)) return;
+    if (!enforceJsonSize(req, res, 100_000)) return;
     if (!enforceRateLimit(req, res, { scope: "destiny-voice-events", limit: 240, windowMs: 10 * 60 * 1000 })) return;
 
     const body = req.body || {};
+    const bodies = Array.isArray(body.events) ? body.events.slice(0, 20) : [body];
+    if (!bodies.length || (Array.isArray(body.events) && body.events.length > 20)) {
+      return res.status(400).json({ error: "Invalid voice event batch" });
+    }
+    const normalized = [];
+    for (const item of bodies) {
+      const event = normalizeVoiceEvent(item);
+      if (!event) return res.status(400).json({ error: "Invalid voice event" });
+      normalized.push(event);
+    }
+    const result = normalized.length > 1 && typeof servicesClient.logVoiceEvents === "function"
+      ? await servicesClient.logVoiceEvents(normalized)
+      : await servicesClient.logVoiceEvent(normalized[0]);
+    if (!result?.ok) return res.status(503).json({ error: "Voice event could not be stored" });
+    const responseBody = { ok: true, duplicate: result.duplicate === true };
+    if (Array.isArray(body.events)) responseBody.stored = result.stored ?? normalized.length;
+    return res.status(result.duplicate ? 200 : 201).json(responseBody);
+  };
+}
+
+function normalizeVoiceEvent(body = {}) {
     const sessionId = cleanId(body.sessionId);
     const callId = cleanId(body.callId);
     const eventId = cleanId(body.eventId, 240);
@@ -36,13 +57,13 @@ export function createVoiceEventHandler({ servicesClient = services } = {}) {
     const text = cleanText(body.text, 12_000, { multiline: true });
 
     if (!sessionId || !callId || !eventId || !EVENT_TYPES.has(eventType)) {
-      return res.status(400).json({ error: "Invalid voice event" });
+      return null;
     }
     if ((eventType === "user_transcript" || eventType === "assistant_transcript") && !text) {
-      return res.status(400).json({ error: "Transcript text is required" });
+      return null;
     }
 
-    const result = await servicesClient.logVoiceEvent({
+    return {
       sessionId,
       callId,
       eventId,
@@ -72,10 +93,7 @@ export function createVoiceEventHandler({ servicesClient = services } = {}) {
       waveId: cleanId(body.waveId, 240),
       reason: cleanText(body.reason, 240),
       queueDepth: Number.isInteger(body.queueDepth) && body.queueDepth >= 0 ? body.queueDepth : null,
-    });
-    if (!result?.ok) return res.status(503).json({ error: "Voice event could not be stored" });
-    return res.status(result.duplicate ? 200 : 201).json({ ok: true, duplicate: result.duplicate === true });
-  };
+    };
 }
 
 export default createVoiceEventHandler();

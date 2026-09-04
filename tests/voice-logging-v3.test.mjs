@@ -115,6 +115,22 @@ test("voice event endpoint preserves versioned lifecycle correlation fields", as
   });
 });
 
+test("voice event endpoint stores a lifecycle batch in one service operation", async () => {
+  const batches = [];
+  const handler = createVoiceEventHandler({ servicesClient: {
+    async logVoiceEvent() { throw new Error("single logger must not run"); },
+    async logVoiceEvents(events) { batches.push(events); return { ok: true, stored: events.length }; },
+  } });
+  const res = apiResponse();
+  await handler(request({ events: [
+    { ...validEvent, eventId: "call_1:vad_started:1", eventType: "vad_started", role: "system", text: "" },
+    { ...validEvent, eventId: "call_1:vad_stopped:2", eventType: "vad_stopped", role: "system", text: "" },
+  ] }), res);
+  assert.equal(res.statusCode, 201);
+  assert.equal(res.body.stored, 2);
+  assert.equal(batches[0].length, 2);
+});
+
 test("voice event endpoint rejects missing transcript text and malformed identity", async () => {
   const servicesClient = { async logVoiceEvent() { throw new Error("must not run"); } };
   const handler = createVoiceEventHandler({ servicesClient });

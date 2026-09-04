@@ -32,6 +32,8 @@ export default function VoiceLab() {
   const callStartedMonotonicRef = useRef(0);
   const seenProviderEventsRef = useRef(new Set());
   const logQueueRef = useRef(Promise.resolve());
+  const logBufferRef = useRef([]);
+  const logFlushTimerRef = useRef(null);
   const pendingToolsRef = useRef(new Map());
   const toolCallTombstonesRef = useRef(new Set());
   const toolWavesRef = useRef(new Map());
@@ -134,6 +136,35 @@ export default function VoiceLab() {
     }, { toolCallId: callId, turnId: pending.turnId, waveId: pending.originResponseId });
   };
 
+  const flushVoiceEvents = ({ beacon = false } = {}) => {
+    clearTimeout(logFlushTimerRef.current);
+    logFlushTimerRef.current = null;
+    const events = logBufferRef.current.splice(0, 12);
+    if (!events.length) return;
+    const body = JSON.stringify({ events });
+    if (beacon && typeof navigator !== "undefined" && navigator.sendBeacon) {
+      navigator.sendBeacon("/api/destiny-voice-events", new Blob([body], { type: "application/json" }));
+    } else {
+      logQueueRef.current = logQueueRef.current.then(async () => {
+        for (let attempt = 0; attempt < 3; attempt += 1) {
+          try {
+            const response = await fetch("/api/destiny-voice-events", {
+              method: "POST", headers: { "Content-Type": "application/json" }, body, keepalive: true,
+            });
+            if (response.ok) return;
+            if (response.status >= 400 && response.status < 500 && response.status !== 429) return;
+          } catch {}
+          await new Promise(resolve => setTimeout(resolve, 250 * (attempt + 1)));
+        }
+        console.warn("[VOICE LOG] event batch was not stored", events.map(item => item.eventId));
+      });
+    }
+    if (logBufferRef.current.length) {
+      if (beacon) flushVoiceEvents({ beacon: true });
+      else logFlushTimerRef.current = setTimeout(() => flushVoiceEvents(), 150);
+    }
+  };
+
   const queueVoiceEvent = (event, { beacon = false } = {}) => {
     const callId = callRef.current;
     if (!callId) return;
@@ -164,26 +195,9 @@ export default function VoiceLab() {
       clientTimestamp: new Date().toISOString(),
       ...event,
     };
-    if (beacon && typeof navigator !== "undefined" && navigator.sendBeacon) {
-      navigator.sendBeacon("/api/destiny-voice-events", new Blob([JSON.stringify(payload)], { type: "application/json" }));
-      return;
-    }
-    logQueueRef.current = logQueueRef.current.then(async () => {
-      for (let attempt = 0; attempt < 3; attempt += 1) {
-        try {
-          const response = await fetch("/api/destiny-voice-events", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-            keepalive: true,
-          });
-          if (response.ok) return;
-          if (response.status >= 400 && response.status < 500 && response.status !== 429) return;
-        } catch {}
-        await new Promise(resolve => setTimeout(resolve, 250 * (attempt + 1)));
-      }
-      console.warn("[VOICE LOG] event was not stored", eventId);
-    });
+    logBufferRef.current.push(payload);
+    if (beacon || logBufferRef.current.length >= 12) flushVoiceEvents({ beacon });
+    else if (!logFlushTimerRef.current) logFlushTimerRef.current = setTimeout(() => flushVoiceEvents(), 350);
   };
 
   const addLine = (role, text) => {

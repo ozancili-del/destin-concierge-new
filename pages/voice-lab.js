@@ -801,6 +801,7 @@ export default function VoiceLab() {
       <div className={styles.island}><span></span><i></i></div>
       <div className={styles.screen}>
         <div className={styles.topbar}><span>9:41</span><div><span>●●●</span><span>⌁</span><span>▰</span></div></div>
+        {phase !== "idle" ? <button type="button" className={styles.topHangup} onClick={() => stopCall()} aria-label="End call">End</button> : null}
         <div className={styles.private}>PRIVATE VOICE LAB</div>
         <div className={`${styles.pulse} ${phase === "live" ? styles.live : ""}`}>
           <Image src="/destiny_avatar.png" alt="Destiny Blue" fill priority sizes="144px" />

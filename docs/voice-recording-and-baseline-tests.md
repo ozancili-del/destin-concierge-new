@@ -5,19 +5,35 @@ classifier, coordinator, tool routing and playback controller are unchanged.
 
 ## Recording a real call
 
-Open `/voice-lab` on the intended private preview. Obtain participants' permission,
+Use the stable private recording preview URL. Unlock cloud saving once per device
+with the upload-only code. Obtain participants' permission,
 then press **Start recorded test call**. That one button connects and records;
 no checkbox or second call-button press is needed. The phone icon remains an
 unrecorded-call option. If recording is unsupported, the recorded call does not start.
-End the call normally, then download the ZIP. Save it to a private laptop folder,
-for example `outputs/voice-tests/` in this checkout (gitignored). The browser's
-normal download location applies; the website cannot silently choose a laptop path.
-There is no audio upload/storage endpoint. Normal OpenAI voice processing and
-existing Sheet transcript/event logging still apply. The new audio copy stays in
-browser memory; closing/reloading the tab can lose it. Download before another run.
+Audio chunks are saved to IndexedDB and uploaded during the recording through
+`/api/voice-recordings` to the separate private Supabase bucket
+`destiny-private-voice-tests`. Server-side AES-GCM encryption additionally protects
+stored bytes; the download key remains server-side and on the owner's laptop.
+The phone receives an upload-only, HTTP-only, seven-day cookie. The service-role
+key never reaches the browser. Normal OpenAI processing and Sheet logging continue.
 
-Recording is limited to 3 minutes or approximately 16 MB. Hitting a limit ends the
-recorded test call. Files include guest audio, received Destiny audio, `run.json`,
+The laptop downloader (`scripts/sync-voice-recordings.mjs`) retrieves and assembles
+recordings into `outputs/voice-tests/inbox/`. A recurring Codex task runs it while
+the host is available. Nothing connects directly from the phone to the laptop.
+The laptop must be awake and Codex available; otherwise the private store buffers
+recordings until the next successful run. A manual ZIP button remains available.
+
+Pending chunks retry when the SAME origin is reopened. Mobile OS shutdown,
+private browsing, quota exhaustion or clearing site data can still lose unsynced
+audio, especially the final seconds. Browser storage is best effort, not a backup
+guarantee. Uploaded chunks survive closing the tab. Incomplete calls are recovered
+from their latest checkpoint after five minutes without updates. Supabase copies
+older than seven days are purged by the downloader only after it verifies a local
+archive exists; retention can be longer while the laptop is offline. Local archives
+are never automatically deleted. Usage is private-lab only, not public production.
+
+Recording is limited to 3 minutes or approximately 16 MB. Hitting a limit saves
+and stops ONLY the recorder; the conversation continues. Files include guest audio, received Destiny audio, `run.json`,
 `events.json`, and an observational `report.json`. MIME/container is selected by
 browser support (WebM/Opus or MP4). Start offsets share the call's monotonic clock.
 

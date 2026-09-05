@@ -5,6 +5,7 @@ import styles from "../styles/VoiceLab.module.css";
 import { VoiceResponseCoordinator } from "../lib/destiny-agent/voice-coordinator.js";
 import { VoiceAudioOutputController } from "../lib/destiny-agent/voice-audio-output.js";
 import { VoiceTestCapture } from "../lib/destiny-agent/voice-test-capture.js";
+import { VoiceRecordingOutbox } from "../lib/destiny-agent/voice-recording-outbox.js";
 import { VoiceFixtureRunner } from "../lib/destiny-agent/voice-fixture-runner.js";
 import { audioRms, createClientVoiceGate } from "../lib/destiny-agent/client-voice-gate.js";
 import { extractVoiceCompanionLinks } from "../lib/destiny-agent/voice-links.js";
@@ -19,6 +20,25 @@ export async function getServerSideProps({ res }) {
 }
 
 export default function VoiceLab({ buildRevision }) {
+  const [cloudEnabled, setCloudEnabled] = useState(false);
+  const [cloudCode, setCloudCode] = useState("");
+  const [cloudStatus, setCloudStatus] = useState("Unlock automatic private saving once on each device.");
+  const outboxRef = useRef(null);
+  useEffect(() => {
+    const outbox = new VoiceRecordingOutbox(setCloudStatus);
+    outboxRef.current = outbox;
+    fetch("/api/voice-recordings?op=status").then(r => r.json()).then(data => {
+      if (data.enabled) { setCloudEnabled(true); outbox.start(); }
+    }).catch(() => {});
+    return () => { outbox.close(); };
+  }, []);
+  const unlockCloud = async () => {
+    try {
+      const response = await fetch("/api/voice-recordings?op=login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ code: cloudCode }) });
+      if (!response.ok) throw new Error("Could not unlock private saving. Check the code.");
+      setCloudCode(""); setCloudEnabled(true); outboxRef.current?.start();
+    } catch (error) { setCloudStatus(error.message); }
+  };
   const [captureStatus, setCaptureStatus] = useState("");
   const [downloadReady, setDownloadReady] = useState(false);
   const [suiteFiles, setSuiteFiles] = useState([]);
@@ -905,6 +925,11 @@ export default function VoiceLab({ buildRevision }) {
   };
 
   const startCall = async (options = {}) => {
+    if ((options.record || options.testStream) && !cloudEnabled) {
+      setCloudStatus("Unlock automatic saving before starting a recorded call.");
+      options.testStream?.getTracks().forEach(track => track.stop());
+      return;
+    }
     if (testStartingRef.current && !options.testStream) return;
     if (phase !== "idle") return stopCall();
     setPhase("connecting");
@@ -929,7 +954,17 @@ export default function VoiceLab({ buildRevision }) {
         captureRef.current = new VoiceTestCapture({
           metadata: { ...identity, buildRevision, userAgent: navigator.userAgent, startedAt: new Date().toISOString(), syntheticInput: !!options.testStream },
           now: () => Math.round(performance.now() - captureOrigin),
-          onLimit: () => stopCall({ reason: "recording_limit" }),
+          persist: cloudEnabled ? ((id => (file, blob) => outboxRef.current?.save(id, file, blob))(crypto.randomUUID().replaceAll("-", ""))) : null,
+          onLimit: () => {
+            queueVoiceEvent({ eventType: "recording_stopped", role: "system", text: "recording_limit_call_continues" });
+            const capture = captureRef.current;
+            captureRef.current = null;
+            capture?.stop().then(() => {
+              completedCaptureRef.current = capture;
+              setDownloadReady(true);
+              setCaptureStatus("Recording limit reached; your call continues. Recorded audio is saved separately.");
+            });
+          },
         });
         setCaptureStatus("Recording locally (maximum 3 minutes).");
       } catch (error) {
@@ -1113,8 +1148,9 @@ export default function VoiceLab({ buildRevision }) {
         <h1>Destiny Blue</h1>
         <p className={styles.status}>{status}</p>
         {phase === "idle" ? <div className={styles.recordStart}>
-          <button type="button" disabled={suitePreparing} onClick={() => startCall({ record: true })}>Start recorded test call</button>
-          <small>Records both voices locally · 3-minute limit. Obtain everyone’s permission.</small>
+          <button type="button" disabled={suitePreparing || !cloudEnabled} onClick={() => startCall({ record: true })}>Start recorded test call</button>
+          {!cloudEnabled ? <small>First unlock automatic saving below with your private recording code.</small> : null}
+          <small>Records both voices · 3-minute recording limit, call continues. Obtain everyone’s permission.</small>
         </div> : null}
         <div className={styles.transcript} aria-live="polite">
           {transcript.length ? transcript.map((line, index) => <p key={`${line.role}-${index}`} className={line.role === "you" ? styles.you : styles.destiny}><strong>{line.role === "you" ? "You" : "Destiny"}</strong>{line.text}</p>) : <p className={styles.hint}>This transcript is only for testing. The final voice experience can hide it.</p>}
@@ -1138,16 +1174,21 @@ export default function VoiceLab({ buildRevision }) {
         <div className={styles.homeIndicator}></div>
       </div>
     </section>
-    <details className={styles.testTools}>
+    <details className={styles.testTools} open={!cloudEnabled || undefined}>
       <summary>Recording & automated audio tests</summary>
-      <p>Private testing only. Obtain everyone’s permission before recording. Audio stays in this tab until you download it; normal voice processing and existing transcript logging still apply.</p>
+      <p>Private testing only. With automatic saving unlocked, both voices and diagnostics are saved on this device and uploaded to private storage for your laptop. Normal voice processing and transcript logging still apply.</p>
+      {!cloudEnabled ? <div>
+        <label>Private recording code <input type="password" value={cloudCode} onChange={e => setCloudCode(e.target.value)} autoComplete="off" /></label>
+        <button type="button" onClick={unlockCloud} disabled={!cloudCode || phase !== "idle"}>Enable automatic private saving</button>
+      </div> : <p>Automatic private saving enabled on this device.</p>}
+      <p role="status">{cloudStatus}</p>
       <p>“Start recorded test call” connects and records in one tap. The phone-icon button starts an unrecorded call.</p>
-      <p>End the call, then download the ZIP to your laptop. Closing the browser can lose the recording. The Destiny file is received audio, not a physical speaker recording.</p>
+      <p>Cloud saving requires the one-time code above. Until unlocked, recording remains memory-only. Uploaded chunks survive closing; pending local chunks retry when this same URL is reopened. Private browsing or clearing browser data can erase pending chunks. The Destiny file is received audio, not physical speaker output.</p>
       <button type="button" disabled={!downloadReady} onClick={downloadCapture}>Download last recording ZIP</button>
       <hr />
       <p>Automated caller: select a suite JSON and its audio clips together. One run uses the live voice API (normal usage charges), stops after 2 minutes, and does not use your microphone. Keep this tab foregrounded. No automatic reruns.</p>
       <input type="file" multiple accept=".json,.wav,.mp3,.m4a,.webm,.ogg" disabled={phase !== "idle"} onChange={event => setSuiteFiles(Array.from(event.target.files || []))} aria-label="Test suite and audio fixtures" />
-      <button type="button" disabled={phase !== "idle" || suitePreparing || !suiteFiles.length} onClick={runAudioSuite}>Run & record audio suite</button>
+      <button type="button" disabled={phase !== "idle" || suitePreparing || !cloudEnabled || !suiteFiles.length} onClick={runAudioSuite}>Run & record audio suite</button>
       <p role="status">{captureStatus}</p>
       <small>Build: {buildRevision?.slice(0, 12)}</small>
     </details>

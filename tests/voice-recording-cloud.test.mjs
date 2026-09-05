@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { validRecordingId, validRecordingFile, recordingCookie, recordingUploader, recordingReader, sealRecording, openRecording } from "../lib/voice-recording-access.js";
 import { VoiceTestCapture } from "../lib/destiny-agent/voice-test-capture.js";
+import { VoiceRecordingOutbox } from "../lib/destiny-agent/voice-recording-outbox.js";
 
 test("recording storage paths reject traversal and unbounded chunks", () => {
   assert.ok(validRecordingId("a".repeat(32)));
@@ -45,4 +46,44 @@ test("recording limits finalize persisted audio without owning call termination"
   const page = readFileSync(new URL("../pages/voice-lab.js", import.meta.url), "utf8");
   assert.doesNotMatch(page, /onLimit:\s*\(\) => stopCall/);
   assert.match(page, /recording_limit_call_continues/);
+});
+
+test("pending audio survives an outbox instance closing and retries without deletion on failure", async () => {
+  const previousIdb = globalThis.indexedDB, previousFetch = globalThis.fetch;
+  const records = new Map(); let uploads = 0;
+  globalThis.indexedDB = { open() {
+    const request = {};
+    setTimeout(() => {
+      request.result = { close() {}, transaction() {
+        const tx = {};
+        const requestFor = result => {
+          const req = { result };
+          setTimeout(() => { req.onsuccess?.(); setTimeout(() => tx.oncomplete?.(), 0); }, 0);
+          return req;
+        };
+        tx.objectStore = () => ({
+          put: item => { records.set(item.key, item); return requestFor(item.key); },
+          getAll: () => requestFor([...records.values()]),
+          get: key => requestFor(records.get(key)),
+          delete: key => { records.delete(key); return requestFor(undefined); },
+        });
+        return tx;
+      } };
+      request.onsuccess();
+    }, 0);
+    return request;
+  } };
+  const first = new VoiceRecordingOutbox();
+  let second;
+  try {
+    globalThis.fetch = async () => { uploads++; return { ok: false }; };
+    first.save("a".repeat(32), "guest-00000.bin", new Blob(["test audio"]));
+    await new Promise(resolve => setTimeout(resolve, 40));
+    assert.equal(records.size, 1); assert.ok(uploads >= 1);
+    first.close();
+    globalThis.fetch = async () => ({ ok: true });
+    second = new VoiceRecordingOutbox();
+    await second.flush();
+    assert.equal(records.size, 0);
+  } finally { first.close(); second?.close(); globalThis.indexedDB = previousIdb; globalThis.fetch = previousFetch; }
 });

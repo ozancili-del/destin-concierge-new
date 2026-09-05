@@ -416,7 +416,7 @@ export default function VoiceLab({ buildRevision }) {
       capture.stop().then(() => {
         completedCaptureRef.current = capture;
         setDownloadReady(true);
-        setCaptureStatus("Recording ready. Download before closing this tab.");
+        setCaptureStatus(cloudEnabled ? "Recording finished; automatic private sync continues. Manual ZIP also available." : "Recording ready. Download before closing this tab.");
       });
     }
     fixtureRunnerRef.current?.close();
@@ -966,7 +966,7 @@ export default function VoiceLab({ buildRevision }) {
             });
           },
         });
-        setCaptureStatus("Recording locally (maximum 3 minutes).");
+        setCaptureStatus("Recording with automatic private saving (maximum 3 minutes; call continues afterward).");
       } catch (error) {
         setCaptureStatus(error.message);
         stopCall({ reason: "recorder_unavailable" });

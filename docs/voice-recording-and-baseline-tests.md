@@ -5,8 +5,10 @@ classifier, coordinator, tool routing and playback controller are unchanged.
 
 ## Recording a real call
 
-Open `/voice-lab` on the intended private preview. Expand **Recording & automated
-audio tests**, obtain participants' permission, and enable recording before calling.
+Open `/voice-lab` on the intended private preview. Obtain participants' permission,
+then press **Start recorded test call**. That one button connects and records;
+no checkbox or second call-button press is needed. The phone icon remains an
+unrecorded-call option. If recording is unsupported, the recorded call does not start.
 End the call normally, then download the ZIP. Save it to a private laptop folder,
 for example `outputs/voice-tests/` in this checkout (gitignored). The browser's
 normal download location applies; the website cannot silently choose a laptop path.

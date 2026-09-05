@@ -11,6 +11,14 @@ test("synthetic caller starts after greeting without waiting for provider VAD", 
   assert.ok(openingComplete.indexOf("track.enabled =") < openingComplete.indexOf("fixtureRunnerRef"));
 });
 
+test("recorded call uses an explicit one-click flag, not asynchronous checkbox state", () => {
+  const page = readFileSync(new URL("../pages/voice-lab.js", import.meta.url), "utf8");
+  assert.match(page, /onClick=\{\(\) => startCall\(\{ record: true \}\)\}/);
+  assert.match(page, /if \(options\.record \|\| options\.testStream\)/);
+  assert.doesNotMatch(page, /recordEnabled|setRecordEnabled/);
+  assert.match(page, /No recorded call was started/);
+});
+
 test("ZIP stores correct CRC and directory offsets", async () => {
   assert.equal(crc32(new TextEncoder().encode("123456789")), 0xcbf43926);
   const bytes = new Uint8Array(await (await makeDiagnosticZip({ "run.json": "{}" })).arrayBuffer());

@@ -19,7 +19,6 @@ export async function getServerSideProps({ res }) {
 }
 
 export default function VoiceLab({ buildRevision }) {
-  const [recordEnabled, setRecordEnabled] = useState(false);
   const [captureStatus, setCaptureStatus] = useState("");
   const [downloadReady, setDownloadReady] = useState(false);
   const [suiteFiles, setSuiteFiles] = useState([]);
@@ -924,7 +923,7 @@ export default function VoiceLab({ buildRevision }) {
     setTranscript([]);
     setCompanionLinks([]);
     eventSequenceRef.current = 0;
-    if (recordEnabled || options.testStream) {
+    if (options.record || options.testStream) {
       try {
         const captureOrigin = callStartedMonotonicRef.current;
         captureRef.current = new VoiceTestCapture({
@@ -935,7 +934,9 @@ export default function VoiceLab({ buildRevision }) {
         setCaptureStatus("Recording locally (maximum 3 minutes).");
       } catch (error) {
         setCaptureStatus(error.message);
-        if (options.testStream) { stopCall({ reason: "recorder_unavailable" }); return; }
+        stopCall({ reason: "recorder_unavailable" });
+        setStatus("Recording is unavailable in this browser. No recorded call was started.");
+        return;
       }
     }
     coordinatorRef.current.start(ownedEpoch);
@@ -1111,6 +1112,10 @@ export default function VoiceLab({ buildRevision }) {
         <p className={styles.eyebrow}>AI CONCIERGE</p>
         <h1>Destiny Blue</h1>
         <p className={styles.status}>{status}</p>
+        {phase === "idle" ? <div className={styles.recordStart}>
+          <button type="button" disabled={suitePreparing} onClick={() => startCall({ record: true })}>Start recorded test call</button>
+          <small>Records both voices locally · 3-minute limit. Obtain everyone’s permission.</small>
+        </div> : null}
         <div className={styles.transcript} aria-live="polite">
           {transcript.length ? transcript.map((line, index) => <p key={`${line.role}-${index}`} className={line.role === "you" ? styles.you : styles.destiny}><strong>{line.role === "you" ? "You" : "Destiny"}</strong>{line.text}</p>) : <p className={styles.hint}>This transcript is only for testing. The final voice experience can hide it.</p>}
           {companionLinks.length ? <div className={styles.companionLinks} aria-label="Links from Destiny">
@@ -1136,7 +1141,7 @@ export default function VoiceLab({ buildRevision }) {
     <details className={styles.testTools}>
       <summary>Recording & automated audio tests</summary>
       <p>Private testing only. Obtain everyone’s permission before recording. Audio stays in this tab until you download it; normal voice processing and existing transcript logging still apply.</p>
-      <label><input type="checkbox" checked={recordEnabled} disabled={phase !== "idle"} onChange={event => setRecordEnabled(event.target.checked)} /> Record my next call locally (3-minute limit)</label>
+      <p>“Start recorded test call” connects and records in one tap. The phone-icon button starts an unrecorded call.</p>
       <p>End the call, then download the ZIP to your laptop. Closing the browser can lose the recording. The Destiny file is received audio, not a physical speaker recording.</p>
       <button type="button" disabled={!downloadReady} onClick={downloadCapture}>Download last recording ZIP</button>
       <hr />

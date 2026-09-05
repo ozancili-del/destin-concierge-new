@@ -1,7 +1,15 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { crc32, makeDiagnosticZip, VoiceTestCapture, summarizeVoiceTest } from "../lib/destiny-agent/voice-test-capture.js";
 import { validateVoiceSuite, VoiceFixtureRunner } from "../lib/destiny-agent/voice-fixture-runner.js";
+
+test("synthetic caller starts after greeting without waiting for provider VAD", () => {
+  const page = readFileSync(new URL("../pages/voice-lab.js", import.meta.url), "utf8");
+  const openingComplete = page.slice(page.indexOf("const finishOpeningGreeting ="), page.indexOf("const requestFinalToolAnswer ="));
+  assert.match(openingComplete, /fixtureRunnerRef\.current\?\.event\(\{ eventType: "listening" \}\)/);
+  assert.ok(openingComplete.indexOf("track.enabled =") < openingComplete.indexOf("fixtureRunnerRef"));
+});
 
 test("ZIP stores correct CRC and directory offsets", async () => {
   assert.equal(crc32(new TextEncoder().encode("123456789")), 0xcbf43926);

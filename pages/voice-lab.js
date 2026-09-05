@@ -174,6 +174,7 @@ export default function VoiceLab({ buildRevision }) {
     clientVoiceGateRef.current?.reset();
     clearQuietInput();
     setStatus("Listening — you can interrupt anytime.");
+    fixtureRunnerRef.current?.event({ eventType: "listening" });
   };
 
   const requestFinalToolAnswer = waveId => {
@@ -703,8 +704,7 @@ export default function VoiceLab({ buildRevision }) {
       queueVoiceEvent({ eventType: "response_created", role: "system", providerEventId: event.event_id || "", responseId: event.response?.id || "", requestToken: event.response?.metadata?.destiny_request_token || lease?.requestToken || "", leaseKind: event.response?.metadata?.destiny_kind || lease?.kind || "", generationState: event.response?.status || lease?.generationStatus || "" });
     }
     if (event.type === "input_audio_buffer.speech_started") {
-    setStatus("Listening…");
-    fixtureRunnerRef.current?.event({ eventType: "listening" });
+      setStatus("Listening…");
       pendingToolsRef.current.forEach(pending => {
         pending.timerGeneration += 1;
         clearTimeout(pending.silenceTimer);

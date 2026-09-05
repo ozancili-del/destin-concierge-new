@@ -22,7 +22,7 @@ export async function getServerSideProps({ res }) {
 export default function VoiceLab({ buildRevision }) {
   const [cloudEnabled, setCloudEnabled] = useState(false);
   const [cloudCode, setCloudCode] = useState("");
-  const [cloudStatus, setCloudStatus] = useState("Unlock automatic private saving once on each device.");
+  const [cloudStatus, setCloudStatus] = useState("Unlock automatic private saving on this device (remembered for 7 days).");
   const outboxRef = useRef(null);
   useEffect(() => {
     const outbox = new VoiceRecordingOutbox(setCloudStatus);
@@ -1183,7 +1183,7 @@ export default function VoiceLab({ buildRevision }) {
       </div> : <p>Automatic private saving enabled on this device.</p>}
       <p role="status">{cloudStatus}</p>
       <p>“Start recorded test call” connects and records in one tap. The phone-icon button starts an unrecorded call.</p>
-      <p>Cloud saving requires the one-time code above. Until unlocked, recording remains memory-only. Uploaded chunks survive closing; pending local chunks retry when this same URL is reopened. Private browsing or clearing browser data can erase pending chunks. The Destiny file is received audio, not physical speaker output.</p>
+      <p>Recorded calls require the private code above (remembered for 7 days). Uploaded chunks survive closing; pending local chunks retry when this same URL is reopened. Private browsing or clearing browser data can erase pending chunks. The Destiny file is received audio, not physical speaker output.</p>
       <button type="button" disabled={!downloadReady} onClick={downloadCapture}>Download last recording ZIP</button>
       <hr />
       <p>Automated caller: select a suite JSON and its audio clips together. One run uses the live voice API (normal usage charges), stops after 2 minutes, and does not use your microphone. Keep this tab foregrounded. No automatic reruns.</p>

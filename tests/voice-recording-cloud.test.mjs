@@ -78,7 +78,8 @@ test("pending audio survives an outbox instance closing and retries without dele
   try {
     globalThis.fetch = async () => { uploads++; return { ok: false }; };
     first.save("a".repeat(32), "guest-00000.bin", new Blob(["test audio"]));
-    await new Promise(resolve => setTimeout(resolve, 40));
+    await first.saving;
+    for (let i = 0; i < 100 && (first.busy || uploads === 0); i++) await new Promise(resolve => setTimeout(resolve, 10));
     assert.equal(records.size, 1); assert.ok(uploads >= 1);
     first.close();
     globalThis.fetch = async () => ({ ok: true });

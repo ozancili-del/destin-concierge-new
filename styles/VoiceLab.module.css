@@ -14,13 +14,19 @@
 .recordStart button { width: 100%; padding: 10px; border: 0; border-radius: 12px; background: #126f82; color: white; font-weight: 700; cursor: pointer; }
 .recordStart button:disabled { opacity: .5; cursor: default; }
 .recordStart small { display: block; margin-top: 5px; font-size: 10px; line-height: 1.3; }
+.recordUnlock { display: grid; gap: 8px; margin-bottom: 12px; padding: 12px; border: 2px solid #126f82; border-radius: 12px; background: #fff; text-align: left; }
+.recordUnlock label { color: #12333e; font-size: 14px; font-weight: 700; }
+.recordUnlock input { width: 100%; min-height: 44px; padding: 10px; border: 2px solid #42636d; border-radius: 8px; background: #fff; color: #12333e; font-size: 16px; }
+.recordUnlock input:focus { outline: 3px solid #26aac2; outline-offset: 2px; }
+.recordUnlock input::placeholder { color: #526b73; opacity: 1; }
+.recordUnlock button { min-height: 44px; }
 .phone {
   position: relative; width: min(390px,calc(100vw - 24px)); height: min(820px,calc(100dvh - 32px));
   max-height: 100%; padding: 4px; border: 8px solid #11161a; border-radius: 54px;
   background: #0d1418; box-shadow: 0 38px 90px #0009,0 0 0 2px #8d969a;
 }
 .screen {
-  position: relative; height: 100%; min-height: 0; overflow: hidden; display: flex; align-items: center;
+  position: relative; height: 100%; min-height: 0; overflow: auto; display: flex; align-items: center;
   flex-direction: column; padding: 52px 22px 16px; border-radius: 42px;
   background: linear-gradient(180deg,#effbfd 0%,#d9f4f6 46%,#f8fbfb 100%); color: #12333e;
 }
@@ -60,8 +66,8 @@
 .homeIndicator { flex: 0 0 auto; width: 112px; height: 4px; margin-top: 3px; border-radius: 9px; background: #17282d; }
 @keyframes pulse { 0%,100% { box-shadow: 0 15px 38px #147b9160,0 0 0 12px #50cadd22; } 50% { box-shadow: 0 15px 38px #147b9190,0 0 0 20px #50cadd08; } }
 @media (max-width: 420px) {
-  .page { height: 100vh; height: 100dvh; min-height: 0; padding: 0; background: #071e28; }
-  .phone { width: 100%; height: 100%; max-width: none; max-height: none; padding: 0; border: 0; border-radius: 0; box-shadow: none; }
+  .page { min-height: 100dvh; padding: 0; overflow: visible; background: #071e28; }
+  .phone { width: 100%; height: 100dvh; max-width: none; max-height: none; padding: 0; border: 0; border-radius: 0; box-shadow: none; }
   .screen { padding-top: max(48px,calc(env(safe-area-inset-top) + 40px)); padding-right: max(16px,env(safe-area-inset-right)); padding-bottom: max(8px,env(safe-area-inset-bottom)); padding-left: max(16px,env(safe-area-inset-left)); border-radius: 0; }
   .island { top: max(10px,env(safe-area-inset-top)); }
   .topbar { top: max(11px,env(safe-area-inset-top)); left: max(18px,env(safe-area-inset-left)); right: max(18px,env(safe-area-inset-right)); }

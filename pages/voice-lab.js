@@ -1148,8 +1148,13 @@ export default function VoiceLab({ buildRevision }) {
         <h1>Destiny Blue</h1>
         <p className={styles.status}>{status}</p>
         {phase === "idle" ? <div className={styles.recordStart}>
+          {!cloudEnabled ? <form className={styles.recordUnlock} onSubmit={event => { event.preventDefault(); if (cloudCode.trim()) unlockCloud(); }}>
+            <label htmlFor="recording-code">Private recording code</label>
+            <input id="recording-code" type="password" value={cloudCode} onChange={event => setCloudCode(event.target.value)} placeholder="Enter your code here" autoComplete="off" autoCapitalize="none" spellCheck={false} />
+            <button type="submit" disabled={!cloudCode.trim()}>Unlock recording</button>
+            <small role="status">{cloudStatus}</small>
+          </form> : null}
           <button type="button" disabled={suitePreparing || !cloudEnabled} onClick={() => startCall({ record: true })}>Start recorded test call</button>
-          {!cloudEnabled ? <small>First unlock automatic saving below with your private recording code.</small> : null}
           <small>Records both voices · 3-minute recording limit, call continues. Obtain everyone’s permission.</small>
         </div> : null}
         <div className={styles.transcript} aria-live="polite">
@@ -1177,10 +1182,7 @@ export default function VoiceLab({ buildRevision }) {
     <details className={styles.testTools} open={!cloudEnabled || undefined}>
       <summary>Recording & automated audio tests</summary>
       <p>Private testing only. With automatic saving unlocked, both voices and diagnostics are saved on this device and uploaded to private storage for your laptop. Normal voice processing and transcript logging still apply.</p>
-      {!cloudEnabled ? <div>
-        <label>Private recording code <input type="password" value={cloudCode} onChange={e => setCloudCode(e.target.value)} autoComplete="off" /></label>
-        <button type="button" onClick={unlockCloud} disabled={!cloudCode || phase !== "idle"}>Enable automatic private saving</button>
-      </div> : <p>Automatic private saving enabled on this device.</p>}
+      {cloudEnabled ? <p>Automatic private saving enabled on this device.</p> : <p>Enter your private recording code in the box above “Start recorded test call”.</p>}
       <p role="status">{cloudStatus}</p>
       <p>“Start recorded test call” connects and records in one tap. The phone-icon button starts an unrecorded call.</p>
       <p>Recorded calls require the private code above (remembered for 7 days). Uploaded chunks survive closing; pending local chunks retry when this same URL is reopened. Private browsing or clearing browser data can erase pending chunks. The Destiny file is received audio, not physical speaker output.</p>

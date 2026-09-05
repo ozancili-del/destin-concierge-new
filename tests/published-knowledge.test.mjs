@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  inferPublishedKnowledgeTopics,
   rankPublishedKnowledge,
   resetPublishedKnowledgeCacheForTests,
   searchPublishedKnowledge,
@@ -74,4 +75,43 @@ test("ranking never renders draft facts", () => {
   assert.equal(result.snippets.length, 1);
   assert.match(result.snippets[0].text, /Pazzo Italiano serves Italian food/);
   assert.doesNotMatch(result.snippets[0].text, /unapproved claim/);
+});
+
+test("voice knowledge topic inference covers stable HQ domains without using a model", () => {
+  const cases = [
+    ["Where are the EV chargers?", ["amenities"]],
+    ["Recommend Italian restaurants", ["restaurants"]],
+    ["What is November weather usually like?", ["seasonal-weather"]],
+    ["How do check-in and parking tags work?", ["arrival-and-logistics"]],
+    ["Can I bring a wagon and cooler to the beach?", ["beach-and-services"]],
+    ["Is the route wheelchair accessible?", ["accessibility"]],
+    ["Do you provide a Pack n Play?", ["family-planning"]],
+    ["What is the cancellation and deposit policy?", ["booking-and-assistance"]],
+    ["Compare Unit 707 and Unit 1006", ["unit-707", "unit-1006", "condo-comparison"]],
+    ["How many floors and elevators are in the building?", ["resort-and-buildings"]],
+    ["Where can I buy groceries and coffee?", ["everyday-essentials"]],
+    ["What can we do on a rainy day?", ["rainy-day-options"]],
+    ["Suggest a fishing or dolphin cruise activity", ["activities"]],
+    ["What festivals and live music events are there?", ["events"]],
+    ["How far is the airport and do we need a rental car?", ["transport"]],
+    ["Who is the owner and how do I contact Ozan?", ["identity-and-scope"]],
+    ["What should a couple do for a romantic anniversary?", ["couples-and-quieter-stays"]],
+    ["Suggest a day trip to 30A or Fort Walton", ["nearby-areas-and-day-trips"]],
+    ["What do I do in an emergency or if I am locked out?", ["safety-and-assistance"]],
+  ];
+  for (const [query, expected] of cases) {
+    const actual = inferPublishedKnowledgeTopics(query);
+    for (const topic of expected) assert.ok(actual.includes(topic), `${query} -> ${actual.join(",")}`);
+  }
+});
+
+test("strict voice retrieval excludes unrelated entries even inside selected topics", () => {
+  const result = rankPublishedKnowledge(bundle, {
+    query: "Italian restaurant",
+    topics: inferPublishedKnowledgeTopics("Italian restaurant"),
+    limit: 4,
+    requireMatch: true,
+  });
+  assert.equal(result.snippets.length, 1);
+  assert.equal(result.snippets[0].entryId, "pazzo");
 });

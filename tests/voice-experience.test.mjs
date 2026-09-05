@@ -100,8 +100,13 @@ test("Voice routing makes stable facts immediate and keeps fresh and protected c
   assert.match(IMMEDIATE_VOICE_FACTS.amenities, /Laundry.*quarters or credit cards/i);
   assert.match(IMMEDIATE_VOICE_FACTS.arrivalTimes, /check-in is 4:00 PM Central Time.*checkout is 10:00 AM Central Time/i);
   assert.match(VOICE_INSTRUCTIONS, /answer directly and immediately/i);
-  assert.match(VOICE_INSTRUCTIONS, /Fresh checks: availability, weather, beach conditions, restaurant or event hours/i);
-  assert.match(VOICE_INSTRUCTIONS, /Stable resort amenities listed above do not/i);
+  assert.match(VOICE_INSTRUCTIONS, /Approved stable knowledge: use get_approved_knowledge immediately/i);
+  assert.match(VOICE_INSTRUCTIONS, /typical monthly or seasonal climate/i);
+  assert.match(VOICE_INSTRUCTIONS, /established local or restaurant recommendations/i);
+  assert.match(VOICE_INSTRUCTIONS, /Call this tool silently/i);
+  assert.match(VOICE_INSTRUCTIONS, /Fresh checks: availability, near-term weather forecasts/i);
+  assert.match(VOICE_INSTRUCTIONS, /current restaurant hours or closures/i);
+  assert.match(VOICE_INSTRUCTIONS, /These are not live searches/i);
   assert.match(VOICE_INSTRUCTIONS, /Protected checks: reservation details, door codes, maintenance actions/i);
   assert.match(VOICE_INSTRUCTIONS, /Before ask_destiny_brain, say one short, relevant acknowledgement/i);
   assert.match(VOICE_INSTRUCTIONS, /Do not repeat the acknowledgement while the same lookup is pending/i);
@@ -126,6 +131,19 @@ test("Voice routing makes stable facts immediate and keeps fresh and protected c
   assert.match(VOICE_INSTRUCTIONS, /If speech is clearly not addressed to you, do not respond/i);
   assert.match(VOICE_INSTRUCTIONS, /cannot use the internet/i);
   assert.match(VOICE_INSTRUCTIONS, /Never mention internal vendors or booking-platform names/i);
+});
+
+test("Realtime exposes a direct approved-knowledge fast path and the Voice Lab executes it", async () => {
+  const realtimeSource = await readFile(new URL("../pages/api/destiny-realtime.js", import.meta.url), "utf8");
+  const labSource = await readFile(new URL("../pages/voice-lab.js", import.meta.url), "utf8");
+  const endpointSource = await readFile(new URL("../pages/api/destiny-voice-knowledge.js", import.meta.url), "utf8");
+  assert.match(realtimeSource, /name: "get_approved_knowledge"/);
+  assert.match(realtimeSource, /Do not use for stable facts or established recommendations available through get_approved_knowledge/i);
+  assert.match(labSource, /event\.name === "get_approved_knowledge"/);
+  assert.match(labSource, /fetch\("\/api\/destiny-voice-knowledge"/);
+  assert.match(endpointSource, /inferPublishedKnowledgeTopics\(query\)/);
+  assert.match(endpointSource, /searchPublishedKnowledge\(\{ query, topics, limit: 4, requireMatch: true \}\)/);
+  assert.doesNotMatch(endpointSource, /OPENAI_API_KEY|responses\.create|chat\.completions/);
 });
 
 test("slow lookup progress is contextual and presence checks are narrow", () => {

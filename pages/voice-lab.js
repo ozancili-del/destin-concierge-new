@@ -510,6 +510,15 @@ export default function VoiceLab({ buildRevision }) {
         });
         const data = await response.json();
         output = data.reply || data.error || "Live availability could not be checked.";
+      } else if (event.name === "get_approved_knowledge") {
+        const response = await fetch("/api/destiny-voice-knowledge", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query: String(args.query || "").trim() }),
+          signal: abortController.signal,
+        });
+        const data = await response.json();
+        output = data.reply || data.error || "I couldn't find that in the approved knowledge.";
       } else if (event.name === "ask_destiny_brain") {
         const question = String(args.query || "").trim();
         const lastHistory = historyRef.current.at(-1);

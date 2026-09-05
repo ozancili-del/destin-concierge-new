@@ -5,6 +5,11 @@
   color: #f7fbfc; font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
 }
 .page,.page * { box-sizing: border-box; }
+.testTools { width: min(640px, 100%); margin: 24px auto; padding: 20px; border: 1px solid #5babb7; border-radius: 16px; background: #123e4e; line-height: 1.5; }
+.testTools summary { cursor: pointer; font-weight: 700; }
+.testTools button { margin: 10px 8px 10px 0; padding: 12px; border: 0; border-radius: 8px; background: #b9f5e8; color: #12333e; cursor: pointer; }
+.testTools button:disabled { opacity: .5; cursor: default; }
+.testTools input[type=file] { max-width: 100%; }
 .phone {
   position: relative; width: min(390px,calc(100vw - 24px)); height: min(820px,calc(100dvh - 32px));
   max-height: 100%; padding: 4px; border: 8px solid #11161a; border-radius: 54px;

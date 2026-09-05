@@ -1,0 +1,7 @@
+{
+  "steps": [
+    { "file": "amenities.wav", "after": "listening", "delayMs": 1000 },
+    { "file": "interrupt.wav", "after": "audio_playback_started", "delayMs": 1200 },
+    { "file": "weather.wav", "after": "audio_playback_stopped", "delayMs": 1200 }
+  ]
+}

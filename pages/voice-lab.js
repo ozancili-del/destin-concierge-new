@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import styles from "../styles/VoiceLab.module.css";
 import { VoiceResponseCoordinator } from "../lib/destiny-agent/voice-coordinator.js";
 import { VoiceAudioOutputController } from "../lib/destiny-agent/voice-audio-output.js";
+import { VoiceTestCapture } from "../lib/destiny-agent/voice-test-capture.js";
+import { VoiceFixtureRunner } from "../lib/destiny-agent/voice-fixture-runner.js";
 import { audioRms, createClientVoiceGate } from "../lib/destiny-agent/client-voice-gate.js";
 import { extractVoiceCompanionLinks } from "../lib/destiny-agent/voice-links.js";
 import { classifyVoiceUtterance, createVoiceCallIdentity, createVoiceOpeningGreetingEvent, inferExpectedVoiceReply, isDirectedVoiceUtterance, isExpectedVoiceReply, isLikelyAssistantEcho, isVoiceTranscriptionArtifact, resolveVoiceModel, voiceLookupLabel, voiceProgressInstructions, VOICE_INPUT_CLASSIFICATION_TIMEOUT_MS, VOICE_MODEL, VOICE_TOOL_PROGRESS_SILENCE_MS } from "../lib/destiny-agent/voice-experience.js";
@@ -13,10 +15,19 @@ const initialStatus = "Tap the call button when you're ready.";
 export async function getServerSideProps({ res }) {
   res.setHeader("X-Robots-Tag", "noindex, nofollow, noarchive, nosnippet");
   res.setHeader("Cache-Control", "private, no-store");
-  return { props: {} };
+  return { props: { buildRevision: process.env.VERCEL_GIT_COMMIT_SHA || "local-uncommitted" } };
 }
 
-export default function VoiceLab() {
+export default function VoiceLab({ buildRevision }) {
+  const [recordEnabled, setRecordEnabled] = useState(false);
+  const [captureStatus, setCaptureStatus] = useState("");
+  const [downloadReady, setDownloadReady] = useState(false);
+  const [suiteFiles, setSuiteFiles] = useState([]);
+  const [suitePreparing, setSuitePreparing] = useState(false);
+  const captureRef = useRef(null);
+  const completedCaptureRef = useRef(null);
+  const fixtureRunnerRef = useRef(null);
+  const testStartingRef = useRef(false);
   const [status, setStatus] = useState(initialStatus);
   const [phase, setPhase] = useState("idle");
   const [transcript, setTranscript] = useState([]);
@@ -331,6 +342,9 @@ export default function VoiceLab() {
       ...event,
     };
     logBufferRef.current.push(payload);
+    // Diagnostic observers must never interrupt the live conversation path.
+    try { captureRef.current?.event(payload); } catch {}
+    try { fixtureRunnerRef.current?.event(payload); } catch {}
     if (beacon || logBufferRef.current.length >= 12) flushVoiceEvents({ beacon });
     else if (!logFlushTimerRef.current) logFlushTimerRef.current = setTimeout(() => flushVoiceEvents(), 350);
   };
@@ -375,6 +389,18 @@ export default function VoiceLab() {
 
   const stopCall = ({ reason = "user_ended", beacon = false } = {}) => {
     if (callRef.current) queueVoiceEvent({ eventType: reason === "cancelled" ? "cancelled" : "call_ended", role: "system", text: reason }, { beacon });
+    const capture = captureRef.current;
+    captureRef.current = null;
+    if (capture) {
+      setCaptureStatus("Finishing local recording…");
+      capture.stop().then(() => {
+        completedCaptureRef.current = capture;
+        setDownloadReady(true);
+        setCaptureStatus("Recording ready. Download before closing this tab.");
+      });
+    }
+    fixtureRunnerRef.current?.close();
+    fixtureRunnerRef.current = null;
     if (beacon) beaconOutstandingVoiceEvents();
     callEpochRef.current += 1;
     transportIdRef.current = null;
@@ -677,7 +703,8 @@ export default function VoiceLab() {
       queueVoiceEvent({ eventType: "response_created", role: "system", providerEventId: event.event_id || "", responseId: event.response?.id || "", requestToken: event.response?.metadata?.destiny_request_token || lease?.requestToken || "", leaseKind: event.response?.metadata?.destiny_kind || lease?.kind || "", generationState: event.response?.status || lease?.generationStatus || "" });
     }
     if (event.type === "input_audio_buffer.speech_started") {
-      setStatus("Listening…");
+    setStatus("Listening…");
+    fixtureRunnerRef.current?.event({ eventType: "listening" });
       pendingToolsRef.current.forEach(pending => {
         pending.timerGeneration += 1;
         clearTimeout(pending.silenceTimer);
@@ -878,7 +905,8 @@ export default function VoiceLab() {
     }
   };
 
-  const startCall = async () => {
+  const startCall = async (options = {}) => {
+    if (testStartingRef.current && !options.testStream) return;
     if (phase !== "idle") return stopCall();
     setPhase("connecting");
     setStatus("Connecting to Destiny…");
@@ -896,6 +924,20 @@ export default function VoiceLab() {
     setTranscript([]);
     setCompanionLinks([]);
     eventSequenceRef.current = 0;
+    if (recordEnabled || options.testStream) {
+      try {
+        const captureOrigin = callStartedMonotonicRef.current;
+        captureRef.current = new VoiceTestCapture({
+          metadata: { ...identity, buildRevision, userAgent: navigator.userAgent, startedAt: new Date().toISOString(), syntheticInput: !!options.testStream },
+          now: () => Math.round(performance.now() - captureOrigin),
+          onLimit: () => stopCall({ reason: "recording_limit" }),
+        });
+        setCaptureStatus("Recording locally (maximum 3 minutes).");
+      } catch (error) {
+        setCaptureStatus(error.message);
+        if (options.testStream) { stopCall({ reason: "recorder_unavailable" }); return; }
+      }
+    }
     coordinatorRef.current.start(ownedEpoch);
     seenProviderEventsRef.current = new Set();
     openingGreetingSentRef.current = false;
@@ -910,12 +952,16 @@ export default function VoiceLab() {
       audioOutputRef.current = audioOutput;
       await audioOutput.prepare();
       if (!ownsCall()) return audioOutput.close();
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 }, video: false });
+      const stream = options.testStream || await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 }, video: false });
       if (!ownsCall()) {
         stream.getTracks().forEach(track => track.stop());
         return;
       }
       streamRef.current = stream;
+      try { captureRef.current?.attach("guest", stream); } catch (error) {
+        captureRef.current?.event({ eventType: "recording_error", text: `guest: ${error.message}` });
+        setCaptureStatus("Guest audio recording failed; see diagnostic events.");
+      }
       stream.getAudioTracks().forEach(track => { track.enabled = false; });
       await startClientVoiceGate(stream);
       if (!ownsCall()) return;
@@ -924,6 +970,10 @@ export default function VoiceLab() {
       stream.getTracks().forEach(track => peer.addTrack(track, stream));
       peer.ontrack = ({ streams }) => {
         if (!ownsCall()) return;
+        try { captureRef.current?.attach("destiny-received", streams[0]); } catch (error) {
+          captureRef.current?.event({ eventType: "recording_error", text: `destiny: ${error.message}` });
+          setCaptureStatus("Destiny audio recording failed; see diagnostic events.");
+        }
         audioOutput.attach(streams[0]).then(mode => {
           if (ownsCall()) queueVoiceEvent({ eventType: "audio_path_attached", role: "system", text: mode });
         }).catch(() => {
@@ -967,7 +1017,17 @@ export default function VoiceLab() {
       };
       channel.onmessage = message => {
         if (!ownsCall()) return;
-        try { handleEvent(JSON.parse(message.data)); } catch {}
+        try {
+          const event = JSON.parse(message.data);
+          if (event.type === "session.created" || event.type === "session.updated") {
+            // Deliberate allowlist: no credentials, SDP, instructions or tool schemas.
+            const session = event.session || {};
+            captureRef.current?.event({ eventType: "provider_session_config", model: session.model,
+              input: { transcription: session.audio?.input?.transcription, noise_reduction: session.audio?.input?.noise_reduction, turn_detection: session.audio?.input?.turn_detection },
+              output: { voice: session.audio?.output?.voice, speed: session.audio?.output?.speed } });
+          }
+          handleEvent(event);
+        } catch {}
       };
       const offer = await peer.createOffer();
       if (!ownsCall()) return;
@@ -996,6 +1056,38 @@ export default function VoiceLab() {
       stopCall({ reason: "connection_failed" });
       setStatus(error?.message === "Permission denied" ? "Microphone permission was denied." : (error?.message || "Voice conversation could not start."));
     }
+  };
+
+  const runAudioSuite = async () => {
+    if (phase !== "idle" || testStartingRef.current) return;
+    testStartingRef.current = true;
+    setSuitePreparing(true);
+    setCaptureStatus("Preparing local fixtures…");
+    let runner;
+    try {
+      runner = new VoiceFixtureRunner({
+        emit: event => queueVoiceEvent({ ...event, role: "system" }),
+        onFinish: reason => stopCall({ reason }),
+      });
+      const manifest = suiteFiles.find(file => file.name.endsWith(".json"));
+      if (!manifest || manifest.size > 32000) throw new Error("Select suite.json and its audio clips together");
+      const testStream = await runner.prepare(JSON.parse(await manifest.text()), suiteFiles);
+      fixtureRunnerRef.current = runner;
+      await startCall({ testStream });
+    } catch (error) { runner?.close(); setCaptureStatus(error.message); }
+    finally { testStartingRef.current = false; setSuitePreparing(false); }
+  };
+
+  const downloadCapture = async () => {
+    try {
+      const capture = completedCaptureRef.current;
+      if (!capture) return;
+      const url = URL.createObjectURL(await capture.zip());
+      const link = document.createElement("a");
+      link.href = url; link.download = `${capture.metadata.callId}-diagnostics.zip`;
+      document.body.appendChild(link); link.click(); link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+    } catch (error) { setCaptureStatus(`Export failed: ${error.message}`); }
   };
 
   return <main className={styles.page}>
@@ -1027,7 +1119,7 @@ export default function VoiceLab() {
         </div>
         <div className={styles.controls}>
           <button type="button" className={styles.smallButton} onClick={() => { setTranscript([]); setCompanionLinks([]); }} aria-label="Clear transcript and links">⌫<span>Clear</span></button>
-          <button type="button" className={`${styles.callButton} ${phase !== "idle" ? styles.hangup : ""}`} onClick={startCall} disabled={phase === "connecting"} aria-label={phase === "idle" ? "Call Destiny Blue" : "End call"}>
+          <button type="button" className={`${styles.callButton} ${phase !== "idle" ? styles.hangup : ""}`} onClick={startCall} disabled={phase === "connecting" || suitePreparing} aria-label={phase === "idle" ? "Call Destiny Blue" : "End call"}>
             <span>{phase === "idle" ? "☎" : "×"}</span>
           </button>
           <button type="button" className={styles.smallButton} onClick={() => {
@@ -1041,6 +1133,19 @@ export default function VoiceLab() {
         <div className={styles.homeIndicator}></div>
       </div>
     </section>
+    <details className={styles.testTools}>
+      <summary>Recording & automated audio tests</summary>
+      <p>Private testing only. Obtain everyone’s permission before recording. Audio stays in this tab until you download it; normal voice processing and existing transcript logging still apply.</p>
+      <label><input type="checkbox" checked={recordEnabled} disabled={phase !== "idle"} onChange={event => setRecordEnabled(event.target.checked)} /> Record my next call locally (3-minute limit)</label>
+      <p>End the call, then download the ZIP to your laptop. Closing the browser can lose the recording. The Destiny file is received audio, not a physical speaker recording.</p>
+      <button type="button" disabled={!downloadReady} onClick={downloadCapture}>Download last recording ZIP</button>
+      <hr />
+      <p>Automated caller: select a suite JSON and its audio clips together. One run uses the live voice API (normal usage charges), stops after 2 minutes, and does not use your microphone. Keep this tab foregrounded. No automatic reruns.</p>
+      <input type="file" multiple accept=".json,.wav,.mp3,.m4a,.webm,.ogg" disabled={phase !== "idle"} onChange={event => setSuiteFiles(Array.from(event.target.files || []))} aria-label="Test suite and audio fixtures" />
+      <button type="button" disabled={phase !== "idle" || suitePreparing || !suiteFiles.length} onClick={runAudioSuite}>Run & record audio suite</button>
+      <p role="status">{captureStatus}</p>
+      <small>Build: {buildRevision?.slice(0, 12)}</small>
+    </details>
     <audio ref={audioRef} autoPlay playsInline />
   </main>;
 }

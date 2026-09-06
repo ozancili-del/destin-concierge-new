@@ -293,3 +293,29 @@ test("airport category returns only the three airports in owner-defined order", 
   assert.deepEqual(panamaCity.snippets.map(item => item.entryId), ["transport_northwest_florida_beaches_international_airport_ecp"]);
   assert.equal(contextualizePublishedKnowledgeQuery("What about the pools?", "What airports serve Destin?"), "What about the pools?");
 });
+
+test("broad recommendations obey explicit HQ ranks before lexical relevance", () => {
+  const ranked = (id, name, rank, tags, categories = ["restaurant"]) => ({
+    id,
+    name,
+    publication_status: "approved",
+    recommendation_categories: categories,
+    recommendation_rankings: Object.fromEntries(categories.map(category => [category, rank])),
+    retrieval_tags: tags,
+    facts: [{ claim: `${name} is an approved Destin choice.`, publication_status: "approved" }],
+    recommendation_notes: [],
+  });
+  const rankedBundle = { topics: [{ topic_id: "restaurants", title: "Restaurants", entries: [
+    ranked("back_porch", "The Back Porch", 1, ["seafood"]),
+    ranked("mimmos", "Mimmo's", 2, ["Italian"]),
+    ranked("mcguires", "McGuire's Irish Pub", 3, ["Irish pub"]),
+    ranked("beach_walk", "Beach Walk Cafe", 8, ["restaurant", "recommendation", "dining", "food"]),
+  ] }] };
+  const result = rankPublishedKnowledge(rankedBundle, {
+    query: "Give me restaurant recommendations",
+    topics: ["restaurants"],
+    limit: 3,
+    requireMatch: true,
+  });
+  assert.deepEqual(result.snippets.map(item => item.entryId), ["back_porch", "mimmos", "mcguires"]);
+});

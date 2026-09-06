@@ -1,6 +1,17 @@
 import { inferPublishedKnowledgeTopics, searchPublishedKnowledge } from "../../lib/destiny-agent/published-knowledge.js";
 import { allowSameOriginRequest, cleanText, enforceJsonSize, enforceRateLimit } from "../../lib/public-api-security.js";
 
+const BROAD_RECOMMENDATION = /\b(?:recommend|suggest|restaurants?|places? to eat|beaches|things to do|activities|attractions|shops?|shopping|grocer(?:y|ies)|supermarkets?|spas?|options?|other ones?)\b/i;
+
+export function requestedRecommendationCount(query) {
+  const value = String(query || "");
+  if (!BROAD_RECOMMENDATION.test(value)) return null;
+  const explicit = value.match(/\b(?:give|show|list|name|recommend|suggest|offer)\s+(?:me\s+)?(?:about\s+)?([1-5]|one|two|three|four|five)\b/i)?.[1]?.toLowerCase()
+    || value.match(/\b([1-5]|one|two|three|four|five)\s+(?:different\s+)?(?:restaurants?|places?|options?|choices?|recommendations?|beaches|activities|attractions|shops?|grocer(?:y|ies)|supermarkets?|spas?)\b/i)?.[1]?.toLowerCase();
+  const number = { one: 1, two: 2, three: 3, four: 4, five: 5 }[explicit] || Number(explicit);
+  return Number.isFinite(number) ? number : 3;
+}
+
 export default async function handler(req, res) {
   if (!allowSameOriginRequest(req, res, { methods: ["POST"] })) return;
   if (!enforceJsonSize(req, res, 6_000)) return;
@@ -10,7 +21,8 @@ export default async function handler(req, res) {
   if (query.length < 2) return res.status(400).json({ error: "A complete knowledge question is required." });
 
   const topics = inferPublishedKnowledgeTopics(query);
-  const result = await searchPublishedKnowledge({ query, topics, limit: 4, requireMatch: true });
+  const requestedCount = requestedRecommendationCount(query);
+  const result = await searchPublishedKnowledge({ query, topics, limit: requestedCount ? Math.max(requestedCount, 5) : 4, requireMatch: true });
   if (result.source !== "published" || !result.snippets.length) {
     return res.status(404).json({
       error: "The approved Destiny Knowledge HQ does not contain a reliable answer for that question.",
@@ -18,15 +30,18 @@ export default async function handler(req, res) {
     });
   }
 
-  const facts = result.snippets.map(item => item.text).filter(Boolean);
+  const selected = requestedCount ? result.snippets.slice(0, requestedCount) : result.snippets;
+  const facts = selected.map(item => item.text).filter(Boolean);
+  const candidates = selected.map(item => ({ id: item.entryId, name: item.name, topic: item.topicId, detail: item.text })).filter(item => item.name);
   const links = Array.isArray(result.urls) ? result.urls : [];
   const reply = [
     "Approved Destiny Knowledge HQ results:",
-    ...facts.map(fact => `- ${fact}`),
+    ...candidates.map(candidate => `- ${candidate.name}: ${candidate.detail}`),
     ...(links.length ? ["Useful companion links:", ...links.map(link => `- ${link}`)] : []),
-    "Answer the guest naturally and concisely from these results. Do not claim that changing information is current unless the results explicitly say so.",
+    requestedCount ? `The guest requested recommendations. Name every one of the ${candidates.length} distinct candidates above, with one useful differentiator each. Do not collapse the list to one option and do not invent padding.` : "Answer the guest naturally and concisely from these results.",
+    "Do not claim that changing information is current unless the results explicitly say so.",
   ].join("\n");
 
   res.setHeader("Cache-Control", "private, no-store");
-  return res.status(200).json({ reply, facts, links, topics, revision: result.revision || null, source: "published" });
+  return res.status(200).json({ reply, facts, candidates, requestedCount, resultCount: candidates.length, coverageGap: Boolean(requestedCount && candidates.length < requestedCount), links, topics, revision: result.revision || null, source: "published" });
 }

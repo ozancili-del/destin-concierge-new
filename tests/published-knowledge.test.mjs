@@ -115,3 +115,15 @@ test("strict voice retrieval excludes unrelated entries even inside selected top
   assert.equal(result.snippets.length, 1);
   assert.equal(result.snippets[0].entryId, "pazzo");
 });
+
+test("ranking preserves distinct named choices for plural recommendations", () => {
+  const restaurantBundle = structuredClone(bundle);
+  restaurantBundle.topics[1].entries.push(...["Mimmo's", "Fat Clemenza's", "Nonna's"].map((name, index) => ({
+    id: `italian_${index}`, name, publication_status: "approved", retrieval_tags: ["Italian"],
+    facts: [{ claim: `${name} is an Italian restaurant.`, publication_status: "approved" }],
+    recommendation_notes: [{ text: `Consider ${name} for a different Italian fit.`, publication_status: "approved" }],
+  })));
+  const result = rankPublishedKnowledge(restaurantBundle, { query: "Recommend Italian restaurant options", topics: ["restaurants"], limit: 5, requireMatch: true });
+  assert.equal(result.snippets.length, 4);
+  assert.deepEqual(new Set(result.snippets.map((item) => item.name)).size, 4);
+});

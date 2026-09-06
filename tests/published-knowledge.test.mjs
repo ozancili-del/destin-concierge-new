@@ -276,6 +276,15 @@ test("server-owned routing keeps stable owner facts fast and dynamic claims live
   assert.equal(classifyPublishedKnowledgeRoute("Is Unit 707 available November 1?"), "availability");
 });
 
+test("server-owned routing ignores negated live metadata in stable tool prompts", () => {
+  assert.equal(classifyPublishedKnowledgeRoute("Recommend established local restaurants, not live hours."), "knowledge");
+  assert.equal(classifyPublishedKnowledgeRoute("Typical January weather. Stable climate guidance only; no current forecast."), "knowledge");
+  assert.equal(classifyPublishedKnowledgeRoute("Provide historical seasonal weather without a live forecast."), "knowledge");
+  assert.equal(classifyPublishedKnowledgeRoute("Do not include current hours; recommend three Italian restaurants."), "knowledge");
+  assert.equal(classifyPublishedKnowledgeRoute("What is the current forecast for tomorrow?"), "live");
+  assert.equal(classifyPublishedKnowledgeRoute("What are Pazzo's current hours?"), "live");
+});
+
 test("natural recommendation and family phrasing reaches typed categories", () => {
   assert.equal(isBroadPublishedKnowledgeRecommendation("Where should we eat?", ["restaurants"]), true);
   assert.equal(isBroadPublishedKnowledgeRecommendation("What can we do with toddlers?", ["activities", "family-planning"]), true);

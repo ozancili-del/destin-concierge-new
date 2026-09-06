@@ -25,6 +25,12 @@ function cleanId(value, max = 160) {
   return /^[a-zA-Z0-9._:-]+$/.test(id) ? id : "";
 }
 
+function cleanIdList(value, maxItems = 20) {
+  return [...new Set((Array.isArray(value) ? value : [])
+    .map(item => cleanId(item, 120))
+    .filter(Boolean))].slice(0, maxItems);
+}
+
 export function createVoiceEventHandler({ servicesClient = services } = {}) {
   return async function handler(req, res) {
     if (!allowSameOriginRequest(req, res, { methods: ["POST"] })) return;
@@ -99,6 +105,20 @@ function normalizeVoiceEvent(body = {}) {
       queueDepth: Number.isInteger(body.queueDepth) && body.queueDepth >= 0 ? body.queueDepth : null,
       voiceModel: cleanId(body.voiceModel, 80),
       clearInitiator: cleanId(body.clearInitiator, 40),
+      traceId: cleanId(body.traceId),
+      subrequestId: cleanId(body.subrequestId),
+      requestedRoute: cleanId(body.requestedRoute, 80),
+      executedRoute: cleanId(body.executedRoute, 80),
+      domainStatus: cleanId(body.domainStatus, 40),
+      knowledgeRevision: cleanId(body.knowledgeRevision, 160),
+      knowledgeSource: cleanId(body.knowledgeSource, 80),
+      cacheState: cleanId(body.cacheState, 40),
+      fallbackReason: cleanId(body.fallbackReason, 120),
+      httpStatus: Number.isInteger(body.httpStatus) && body.httpStatus >= 100 && body.httpStatus <= 599 ? body.httpStatus : null,
+      nestedLatencyMs: Number.isFinite(body.nestedLatencyMs) && body.nestedLatencyMs >= 0 ? Math.round(body.nestedLatencyMs) : null,
+      nestedToolNames: cleanIdList(body.nestedToolNames),
+      resolvedIds: cleanIdList(body.resolvedIds),
+      unresolvedIds: cleanIdList(body.unresolvedIds),
     };
 }
 

@@ -127,3 +127,18 @@ test("ranking preserves distinct named choices for plural recommendations", () =
   assert.equal(result.snippets.length, 4);
   assert.deepEqual(new Set(result.snippets.map((item) => item.name)).size, 4);
 });
+
+test("transport, spa, and requested counts route without incidental count-word bias", () => {
+  assert.deepEqual(inferPublishedKnowledgeTopics("Do I need a car in Destin?"), ["transport"]);
+  assert.deepEqual(inferPublishedKnowledgeTopics("Give me transportation options"), ["transport"]);
+  assert.ok(inferPublishedKnowledgeTopics("Recommend three spas").includes("couples-and-quieter-stays"));
+});
+
+test("a car-need question prefers the trip guidance over a generic transport list", () => {
+  const transportBundle = { topics: [{ topic_id: "transport", title: "Transport", entries: [
+    { id: "transport_car_choice", name: "No car, rideshare or rental car", publication_status: "approved", retrieval_tags: ["car", "choice"], facts: [{ claim: "Choose based on the trip shape.", publication_status: "approved" }], recommendation_notes: [] },
+    { id: "transport_rental_car", name: "Rental car", publication_status: "approved", retrieval_tags: ["rental car"], facts: [{ claim: "Rental cars are available.", publication_status: "approved" }], recommendation_notes: [] },
+  ] }] };
+  const result = rankPublishedKnowledge(transportBundle, { query: "Do I need a car in Destin?", topics: ["transport"], limit: 5, requireMatch: true });
+  assert.deepEqual(result.snippets.map((item) => item.entryId), ["transport_car_choice"]);
+});

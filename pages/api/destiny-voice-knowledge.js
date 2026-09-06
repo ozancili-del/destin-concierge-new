@@ -72,6 +72,34 @@ export default async function handler(req, res) {
   }
 
   const selected = requestedCount ? result.snippets.slice(0, requestedCount) : result.snippets;
+  const topicMismatch = topics.length
+    ? selected.find(item => !topics.includes(item.topicId))
+    : null;
+  const categoryMismatch = recommendationCategory.startsWith("restaurant")
+    ? selected.find(item => item.topicId !== "restaurants")
+    : null;
+  if (topicMismatch || categoryMismatch) {
+    res.setHeader("Cache-Control", "private, no-store");
+    return res.status(502).json({
+      error: "The knowledge result did not match the guest's requested category.",
+      route: "knowledge",
+      topics,
+      recommendationCategory,
+      rejectedCandidate: (topicMismatch || categoryMismatch)?.entryId || "",
+      domain: createDomainResult({
+        traceId, turnId, subrequestId,
+        status: "error",
+        requestedRoute: "knowledge",
+        executedRoute: "published-knowledge",
+        httpStatus: 502,
+        revision: result.revision || "",
+        source: result.source || "",
+        cacheState: result.cacheState || "",
+        fallbackReason: "knowledge_category_mismatch",
+        unresolved: ["knowledge_category"],
+      }),
+    });
+  }
   const facts = selected.map(item => item.text).filter(Boolean);
   const candidates = selected.map(item => ({ id: item.entryId, name: item.name, topic: item.topicId, detail: item.text })).filter(item => item.name);
   const links = Array.isArray(result.urls) ? result.urls : [];

@@ -136,9 +136,10 @@ const AUTHORITY_CASES = Object.freeze([
   ["R33", "No, check their hours, not their prices.", { focusedEntityIds: ["restaurant_boshamps"] }, ["live"], ["venue_status"], ["opening_status"]],
   ["R34", "I want no seafood; suggest Italian places.", {}, ["knowledge"], ["recommendations"], ["restaurant-italian"]],
   ["R35", "Give me the same three again.", { activeCategory: "restaurant", previousAnswerFrame: true }, ["cached_answer"], ["repeat"], ["previous_answer"]],
+  ["R36", "Do you know the rate for the EV chargers?", {}, ["knowledge"], ["approved_dated_fact"], ["session_fee", "energy_fee", "idle_fee", "idle_cap", "idle_exemption"]],
 ]);
 
-test("all 35 authority decision fixtures produce the required route, intent, and fields", async t => {
+test("all authority decision fixtures produce the required route, intent, and fields", async t => {
   for (const [id, text, context, routes, intents, fields] of AUTHORITY_CASES) {
     await t.test(id, () => {
       const routed = plan(text, context);

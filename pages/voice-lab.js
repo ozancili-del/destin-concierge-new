@@ -66,6 +66,7 @@ export default function VoiceLab({ buildRevision }) {
   const latestAssistantTranscriptRef = useRef("");
   const historyRef = useRef([]);
   const lastKnowledgeCandidateIdsRef = useRef([]);
+  const latestAcceptedTurnRef = useRef(null);
   const sessionRef = useRef(null);
   const callRef = useRef(null);
   const eventSequenceRef = useRef(0);
@@ -490,7 +491,16 @@ export default function VoiceLab({ buildRevision }) {
     toolCallTombstonesRef.current.add(callId);
     let args = {};
     try { args = JSON.parse(event.arguments || "{}"); } catch {}
-    const label = voiceLookupLabel(args.query || event.name);
+    const acceptedTurn = latestAcceptedTurnRef.current;
+    const modelQuery = String(args.query || "").trim();
+    const authoritativeQuestion = String(acceptedTurn?.text || modelQuery).trim();
+    const authoritativeRoutes = Array.isArray(acceptedTurn?.routerShadow?.summary?.routes)
+      ? acceptedTurn.routerShadow.summary.routes
+      : [];
+    const forcePublishedKnowledge = event.name === "ask_destiny_brain"
+      && authoritativeRoutes.length === 1
+      && authoritativeRoutes[0] === "knowledge";
+    const label = voiceLookupLabel(authoritativeQuestion || event.name);
     const abortController = new AbortController();
     const originResponseId = String(event.response_id || `tool-wave-${callId}`);
     const traceId = `voice:${callRef.current}:${callId}`.slice(0, 160);
@@ -507,7 +517,22 @@ export default function VoiceLab({ buildRevision }) {
       toolWavesRef.current.set(originResponseId, wave);
     }
     wave.callIds.add(callId);
-    queueVoiceEvent({ eventType: "tool_call", role: "system", toolName, providerEventId: event.call_id || event.event_id || "", traceId, subrequestId, requestedRoute });
+    queueVoiceEvent({
+      eventType: "tool_call",
+      role: "system",
+      toolName,
+      text: JSON.stringify({
+        modelQuery,
+        authoritativeQuestion,
+        authoritativeTurnId: acceptedTurn?.turnId || "",
+        authoritativeRoutes,
+        forcedRoute: forcePublishedKnowledge ? "knowledge" : "",
+      }),
+      providerEventId: event.call_id || event.event_id || "",
+      traceId,
+      subrequestId,
+      requestedRoute,
+    });
     try {
       if (event.name === "check_live_availability") {
         const response = await fetch("/api/destiny-voice-availability", {
@@ -525,7 +550,7 @@ export default function VoiceLab({ buildRevision }) {
         execution.unresolvedIds = Array.isArray(data.domain?.unresolved) ? data.domain.unresolved : [];
         output = data.reply || data.error || "Live availability could not be checked.";
       } else if (event.name === "get_approved_knowledge") {
-        const question = String(args.query || "").trim();
+        const question = authoritativeQuestion;
         const priorQuery = [...historyRef.current].reverse().find(message => (
           message?.role === "user" && String(message.content || "").trim() && String(message.content || "").trim() !== question
         ))?.content || "";
@@ -573,8 +598,33 @@ export default function VoiceLab({ buildRevision }) {
           }
           output = data.reply || data.error || "I couldn't find that in the approved knowledge.";
         }
+      } else if (forcePublishedKnowledge) {
+        const question = authoritativeQuestion;
+        const priorQuery = [...historyRef.current].reverse().find(message => (
+          message?.role === "user" && String(message.content || "").trim() && String(message.content || "").trim() !== question
+        ))?.content || "";
+        const response = await fetch("/api/destiny-voice-knowledge", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query: question, priorQuery, excludeCandidateIds: lastKnowledgeCandidateIdsRef.current, traceId, turnId: acceptedTurn?.turnId || originResponseId, subrequestId }),
+          signal: abortController.signal,
+        });
+        const data = await response.json();
+        execution.httpStatus = response.status;
+        execution.executedRoute = data.domain?.executedRoute || "published-knowledge";
+        execution.domainStatus = data.domain?.status || (response.ok ? "complete" : "error");
+        execution.knowledgeRevision = data.domain?.revision || data.revision || "";
+        execution.knowledgeSource = data.domain?.source || data.source || "";
+        execution.cacheState = data.domain?.cacheState || "";
+        execution.fallbackReason = response.ok ? "model_route_overridden_by_authoritative_plan" : (data.domain?.fallbackReason || "authoritative_knowledge_failed");
+        execution.resolvedIds = Array.isArray(data.domain?.resolved) ? data.domain.resolved : [];
+        execution.unresolvedIds = Array.isArray(data.domain?.unresolved) ? data.domain.unresolved : [];
+        if (response.ok && Array.isArray(data.candidates)) {
+          lastKnowledgeCandidateIdsRef.current = data.candidates.map(candidate => String(candidate?.id || "")).filter(Boolean).slice(0, 12);
+        }
+        output = data.reply || data.error || "I couldn't find that in the approved knowledge.";
       } else if (event.name === "ask_destiny_brain") {
-        const question = String(args.query || "").trim();
+        const question = authoritativeQuestion;
         const lastHistory = historyRef.current.at(-1);
         const messages = (lastHistory?.role === "user" && lastHistory.content.trim() === question
           ? [...historyRef.current]
@@ -929,6 +979,11 @@ export default function VoiceLab({ buildRevision }) {
               : null,
           },
         });
+        latestAcceptedTurnRef.current = {
+          turnId: event.item_id || providerEventId,
+          text: event.transcript,
+          routerShadow,
+        };
         queueVoiceEvent({
           eventType: "router_shadow",
           role: "system",
@@ -1048,6 +1103,7 @@ export default function VoiceLab({ buildRevision }) {
     callRef.current = identity.callId;
     historyRef.current = [];
     lastKnowledgeCandidateIdsRef.current = [];
+    latestAcceptedTurnRef.current = null;
     setTranscript([]);
     setCompanionLinks([]);
     eventSequenceRef.current = 0;

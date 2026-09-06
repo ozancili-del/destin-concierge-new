@@ -170,6 +170,9 @@ test("voice utterance classification never treats duration alone as guest intent
   assert.equal(classifyVoiceUtterance("어? 어."), "uncertain");
   assert.equal(isDirectedVoiceUtterance("What is the weather in November?"), true);
   assert.equal(isDirectedVoiceUtterance("What is the weather in November?", { duringPlayback: true }), true);
+  assert.equal(isDirectedVoiceUtterance("Restaurants will you recommend?", { duringPlayback: true }), true);
+  assert.equal(isDirectedVoiceUtterance("Amenities do you have?", { duringPlayback: true }), true);
+  assert.equal(isDirectedVoiceUtterance("Pools can we use?", { duringPlayback: true }), true);
   assert.equal(isDirectedVoiceUtterance("어? 어.", { duringPlayback: true }), false);
   assert.equal(isDirectedVoiceUtterance("Two", { duringPlayback: false }), false);
   assert.equal(isStableVoiceStopPartial("stop"), true);

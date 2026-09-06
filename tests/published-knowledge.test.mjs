@@ -90,6 +90,7 @@ test("voice knowledge topic inference covers stable HQ domains without using a m
     ["Compare Unit 707 and Unit 1006", ["unit-707", "unit-1006", "condo-comparison"]],
     ["How many floors and elevators are in the building?", ["resort-and-buildings"]],
     ["Where can I buy groceries and coffee?", ["everyday-essentials"]],
+    ["What should I pack and bring to Destin?", ["everyday-essentials"]],
     ["What can we do on a rainy day?", ["rainy-day-options"]],
     ["Suggest a fishing or dolphin cruise activity", ["activities"]],
     ["What festivals and live music events are there?", ["events"]],

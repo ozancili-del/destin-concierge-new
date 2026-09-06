@@ -1,4 +1,5 @@
 import { classifyPublishedKnowledgeRoute, contextualizePublishedKnowledgeQuery, inferPublishedKnowledgeTopics, inferPublishedRecommendationCategory, isBroadPublishedKnowledgeRecommendation, isGenericPublishedKnowledgeFollowUp, searchPublishedKnowledge } from "../../lib/destiny-agent/published-knowledge.js";
+import { cleanDomainId, createDomainResult } from "../../lib/destiny-domain/contracts.js";
 import { allowSameOriginRequest, cleanText, enforceJsonSize, enforceRateLimit } from "../../lib/public-api-security.js";
 
 export function requestedRecommendationCount(query, topics = inferPublishedKnowledgeTopics(query)) {
@@ -17,6 +18,9 @@ export default async function handler(req, res) {
 
   const query = cleanText(req.body?.query, 500);
   const priorQuery = cleanText(req.body?.priorQuery, 500);
+  const traceId = cleanDomainId(req.body?.traceId);
+  const turnId = cleanDomainId(req.body?.turnId);
+  const subrequestId = cleanDomainId(req.body?.subrequestId);
   const excludeCandidateIds = isGenericPublishedKnowledgeFollowUp(query)
     ? [...new Set((Array.isArray(req.body?.excludeCandidateIds) ? req.body.excludeCandidateIds : [])
       .map(value => cleanText(value, 120))
@@ -32,6 +36,15 @@ export default async function handler(req, res) {
     return res.status(409).json({
       error: route === "availability" ? "This request requires the availability tool." : "This request requires a live or protected-information check.",
       route,
+      domain: createDomainResult({
+        traceId, turnId, subrequestId,
+        status: "partial",
+        requestedRoute: "knowledge",
+        executedRoute: "route-classifier",
+        httpStatus: 409,
+        fallbackReason: `requires_${route}`,
+        unresolved: [route],
+      }),
     });
   }
 
@@ -43,6 +56,18 @@ export default async function handler(req, res) {
     return res.status(404).json({
       error: "The approved Destiny Knowledge HQ does not contain a reliable answer for that question.",
       status: result.status,
+      domain: createDomainResult({
+        traceId, turnId, subrequestId,
+        status: "unavailable",
+        requestedRoute: "knowledge",
+        executedRoute: "published-knowledge",
+        httpStatus: 404,
+        revision: result.revision || "",
+        source: result.source || "",
+        cacheState: result.cacheState || "",
+        fallbackReason: result.status || "no_match",
+        unresolved: ["knowledge"],
+      }),
     });
   }
 
@@ -59,5 +84,22 @@ export default async function handler(req, res) {
   ].join("\n");
 
   res.setHeader("Cache-Control", "private, no-store");
-  return res.status(200).json({ reply, facts, candidates, requestedCount, resultCount: candidates.length, coverageGap: Boolean(requestedCount && candidates.length < requestedCount), links, topics, recommendationCategory, route: "knowledge", revision: result.revision || null, source: "published" });
+  return res.status(200).json({
+    reply, facts, candidates, requestedCount, resultCount: candidates.length,
+    coverageGap: Boolean(requestedCount && candidates.length < requestedCount),
+    links, topics, recommendationCategory, route: "knowledge",
+    revision: result.revision || null, source: "published",
+    domain: createDomainResult({
+      traceId, turnId, subrequestId,
+      status: requestedCount && candidates.length < requestedCount ? "partial" : "complete",
+      requestedRoute: "knowledge",
+      executedRoute: "published-knowledge",
+      httpStatus: 200,
+      revision: result.revision || "",
+      source: "published",
+      cacheState: result.cacheState || "",
+      resolved: candidates.map(candidate => candidate.id),
+      unresolved: requestedCount && candidates.length < requestedCount ? ["recommendation_coverage"] : [],
+    }),
+  });
 }

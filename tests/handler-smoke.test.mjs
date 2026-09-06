@@ -51,6 +51,11 @@ test("normal POST enters the Responses agent loop and returns a trace", async ()
     headers: {},
     body: {
       sessionId: "smoke-session",
+      traceId: "trace_smoke",
+      turnId: "turn_smoke",
+      subrequestId: "sub_smoke",
+      voiceMode: true,
+      enforcedRoute: "live",
       messages: [{ role: "user", content: "How many bedrooms do the condos have?" }],
     },
   };
@@ -63,4 +68,8 @@ test("normal POST enters the Responses agent loop and returns a trace", async ()
   assert.equal(openaiCalls[0].parallel_tool_calls, true);
   assert.equal(res.body.debug.agentic, true);
   assert.equal(res.body.debug.api, "responses");
+  assert.equal(res.body.domain.traceId, "trace_smoke");
+  assert.equal(res.body.domain.requestedRoute, "live");
+  assert.equal(res.body.domain.executedRoute, "chat-agent");
+  assert.equal(res.body.domain.fallbackReason, "client_route_hint_observed_not_enforced");
 });

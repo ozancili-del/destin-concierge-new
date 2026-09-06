@@ -492,7 +492,13 @@ export default function VoiceLab({ buildRevision }) {
     const label = voiceLookupLabel(args.query || event.name);
     const abortController = new AbortController();
     const originResponseId = String(event.response_id || `tool-wave-${callId}`);
-    const pending = { callId, resolved: false, superseded: false, progressRequested: false, guestCheckIn: false, label, turnId: originResponseId, originResponseId, silenceTimer: null, timerGeneration: 0, abortController, output: null, outputSent: false };
+    const traceId = `voice:${callRef.current}:${callId}`.slice(0, 160);
+    const subrequestId = `${originResponseId}:${callId}`.slice(0, 160);
+    const requestedRoute = event.name === "get_approved_knowledge" ? "knowledge"
+      : event.name === "check_live_availability" ? "availability"
+        : event.name === "ask_destiny_brain" ? "chat-agent" : "unsupported";
+    const execution = { requestedRoute, executedRoute: requestedRoute, domainStatus: "error", httpStatus: null, knowledgeRevision: "", knowledgeSource: "", cacheState: "", fallbackReason: "", nestedLatencyMs: null, nestedToolNames: [], resolvedIds: [], unresolvedIds: [] };
+    const pending = { callId, traceId, subrequestId, resolved: false, superseded: false, progressRequested: false, guestCheckIn: false, label, turnId: originResponseId, originResponseId, silenceTimer: null, timerGeneration: 0, abortController, output: null, outputSent: false };
     pendingToolsRef.current.set(callId, pending);
     let wave = toolWavesRef.current.get(originResponseId);
     if (!wave) {
@@ -500,16 +506,22 @@ export default function VoiceLab({ buildRevision }) {
       toolWavesRef.current.set(originResponseId, wave);
     }
     wave.callIds.add(callId);
-    queueVoiceEvent({ eventType: "tool_call", role: "system", toolName, providerEventId: event.call_id || event.event_id || "" });
+    queueVoiceEvent({ eventType: "tool_call", role: "system", toolName, providerEventId: event.call_id || event.event_id || "", traceId, subrequestId, requestedRoute });
     try {
       if (event.name === "check_live_availability") {
         const response = await fetch("/api/destiny-voice-availability", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(args),
+          body: JSON.stringify({ ...args, traceId, turnId: originResponseId, subrequestId }),
           signal: abortController.signal,
         });
         const data = await response.json();
+        execution.httpStatus = response.status;
+        execution.executedRoute = data.domain?.executedRoute || "ownerrez-availability";
+        execution.domainStatus = data.domain?.status || (response.ok ? "complete" : "error");
+        execution.fallbackReason = data.domain?.fallbackReason || "";
+        execution.resolvedIds = Array.isArray(data.domain?.resolved) ? data.domain.resolved : [];
+        execution.unresolvedIds = Array.isArray(data.domain?.unresolved) ? data.domain.unresolved : [];
         output = data.reply || data.error || "Live availability could not be checked.";
       } else if (event.name === "get_approved_knowledge") {
         const question = String(args.query || "").trim();
@@ -519,22 +531,40 @@ export default function VoiceLab({ buildRevision }) {
         const response = await fetch("/api/destiny-voice-knowledge", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ query: question, priorQuery, excludeCandidateIds: lastKnowledgeCandidateIdsRef.current }),
+          body: JSON.stringify({ query: question, priorQuery, excludeCandidateIds: lastKnowledgeCandidateIdsRef.current, traceId, turnId: originResponseId, subrequestId }),
           signal: abortController.signal,
         });
         const data = await response.json();
+        execution.httpStatus = response.status;
+        execution.executedRoute = data.domain?.executedRoute || "published-knowledge";
+        execution.domainStatus = data.domain?.status || (response.ok ? "complete" : "error");
+        execution.knowledgeRevision = data.domain?.revision || data.revision || "";
+        execution.knowledgeSource = data.domain?.source || data.source || "";
+        execution.cacheState = data.domain?.cacheState || "";
+        execution.fallbackReason = data.domain?.fallbackReason || "";
+        execution.resolvedIds = Array.isArray(data.domain?.resolved) ? data.domain.resolved : [];
+        execution.unresolvedIds = Array.isArray(data.domain?.unresolved) ? data.domain.unresolved : [];
         if (response.status === 409 && ["live", "availability"].includes(data.route)) {
           const lastHistory = historyRef.current.at(-1);
           const messages = (lastHistory?.role === "user" && lastHistory.content.trim() === question
             ? [...historyRef.current]
             : [...historyRef.current, { role: "user", content: question }]).slice(-20);
+          const nestedStartedAt = Date.now();
           const liveResponse = await fetch("/api/destiny-chat", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ messages, sessionId: sessionRef.current, voiceMode: true, pageSource: "voice-lab", enforcedRoute: data.route }),
+            body: JSON.stringify({ messages, sessionId: sessionRef.current, voiceMode: true, pageSource: "voice-lab", enforcedRoute: data.route, traceId, turnId: originResponseId, subrequestId, requestedRoute: data.route }),
             signal: abortController.signal,
           });
           const liveData = await liveResponse.json();
+          execution.nestedLatencyMs = Date.now() - nestedStartedAt;
+          execution.httpStatus = liveResponse.status;
+          execution.executedRoute = liveData.domain?.executedRoute || "chat-agent";
+          execution.domainStatus = liveData.domain?.status || (liveResponse.ok ? "complete" : "error");
+          execution.fallbackReason = data.domain?.fallbackReason || `knowledge_409_to_${data.route}`;
+          execution.nestedToolNames = Array.isArray(liveData.debug?.toolNames) ? liveData.debug.toolNames : [];
+          execution.resolvedIds = Array.isArray(liveData.domain?.resolved) ? liveData.domain.resolved : [];
+          execution.unresolvedIds = Array.isArray(liveData.domain?.unresolved) ? liveData.domain.unresolved : [];
           output = liveData.reply || liveData.message || "I couldn't complete that live check.";
         } else {
           if (response.ok && Array.isArray(data.candidates)) {
@@ -548,19 +578,32 @@ export default function VoiceLab({ buildRevision }) {
         const messages = (lastHistory?.role === "user" && lastHistory.content.trim() === question
           ? [...historyRef.current]
           : [...historyRef.current, { role: "user", content: question }]).slice(-20);
+        const nestedStartedAt = Date.now();
         const response = await fetch("/api/destiny-chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ messages, sessionId: sessionRef.current, voiceMode: true, pageSource: "voice-lab" }),
+          body: JSON.stringify({ messages, sessionId: sessionRef.current, voiceMode: true, pageSource: "voice-lab", traceId, turnId: originResponseId, subrequestId, requestedRoute: "chat-agent" }),
           signal: abortController.signal,
         });
         const data = await response.json();
+        execution.nestedLatencyMs = Date.now() - nestedStartedAt;
+        execution.httpStatus = response.status;
+        execution.executedRoute = data.domain?.executedRoute || "chat-agent";
+        execution.domainStatus = data.domain?.status || (response.ok ? "complete" : "error");
+        execution.nestedToolNames = Array.isArray(data.debug?.toolNames) ? data.debug.toolNames : [];
+        execution.resolvedIds = Array.isArray(data.domain?.resolved) ? data.domain.resolved : [];
+        execution.unresolvedIds = Array.isArray(data.domain?.unresolved) ? data.domain.unresolved : [];
         output = data.reply || data.message || "I couldn't retrieve that information.";
       } else {
+        execution.domainStatus = "denied";
+        execution.executedRoute = "unsupported";
+        execution.fallbackReason = "tool_not_available";
         output = "That action is not available in this voice test.";
       }
     } catch (error) {
       if (error?.name === "AbortError" || pending.superseded || ownedEpoch !== callEpochRef.current) return;
+      execution.domainStatus = "error";
+      execution.fallbackReason = "request_exception";
       output = "The lookup failed. Please answer briefly without inventing any result.";
     }
     if (ownedEpoch !== callEpochRef.current || pending.superseded || callRef.current == null) return;
@@ -568,9 +611,12 @@ export default function VoiceLab({ buildRevision }) {
       eventType: "tool_result",
       role: "system",
       toolName,
-      toolStatus: /failed|couldn.?t|unavailable|error/i.test(String(output)) ? "failed" : "completed",
+      toolStatus: ["complete", "partial"].includes(execution.domainStatus) ? "completed" : "failed",
       providerEventId: event.call_id || event.event_id || "",
       latencyMs: Date.now() - startedAt,
+      traceId,
+      subrequestId,
+      ...execution,
     });
     pending.resolved = true;
     pending.output = output;

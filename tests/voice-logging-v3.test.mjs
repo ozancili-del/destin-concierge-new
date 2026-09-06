@@ -92,6 +92,20 @@ test("voice event endpoint preserves versioned lifecycle correlation fields", as
     taskId: "task_5",
     waveId: "wave_6",
     reason: "bound",
+    traceId: "trace_7",
+    subrequestId: "subrequest_7",
+    requestedRoute: "knowledge",
+    executedRoute: "chat-agent",
+    domainStatus: "complete",
+    knowledgeRevision: "knowledge_7",
+    knowledgeSource: "published",
+    cacheState: "miss",
+    fallbackReason: "knowledge_409_to_live",
+    httpStatus: 200,
+    nestedLatencyMs: 15432.6,
+    nestedToolNames: ["get_weather", "get_weather", "bad tool"],
+    resolvedIds: ["weather_result"],
+    unresolvedIds: ["current_flags"],
   }), res);
   assert.equal(res.statusCode, 201);
   assert.deepEqual({
@@ -103,6 +117,14 @@ test("voice event endpoint preserves versioned lifecycle correlation fields", as
     responseId: calls[0].responseId,
     requestToken: calls[0].requestToken,
     playbackState: calls[0].playbackState,
+    traceId: calls[0].traceId,
+    executedRoute: calls[0].executedRoute,
+    domainStatus: calls[0].domainStatus,
+    httpStatus: calls[0].httpStatus,
+    nestedLatencyMs: calls[0].nestedLatencyMs,
+    nestedToolNames: calls[0].nestedToolNames,
+    resolvedIds: calls[0].resolvedIds,
+    unresolvedIds: calls[0].unresolvedIds,
   }, {
     schemaVersion: 2,
     sequence: 42,
@@ -112,6 +134,14 @@ test("voice event endpoint preserves versioned lifecycle correlation fields", as
     responseId: "resp_1",
     requestToken: "voice_7_3",
     playbackState: "playing",
+    traceId: "trace_7",
+    executedRoute: "chat-agent",
+    domainStatus: "complete",
+    httpStatus: 200,
+    nestedLatencyMs: 15433,
+    nestedToolNames: ["get_weather"],
+    resolvedIds: ["weather_result"],
+    unresolvedIds: ["current_flags"],
   });
 });
 
@@ -201,7 +231,7 @@ test("voice event service writes lifecycle correlation into column G metadata", 
     },
     logger: { log() {}, error() {} },
   });
-  const result = await services.logVoiceEvent({ ...validEvent, schemaVersion: 2, sequence: 9, monotonicMs: 876, callEpoch: 3, transportId: "transport_3", responseId: "resp_9", requestToken: "voice_3_9", playbackState: "stopped" });
+  const result = await services.logVoiceEvent({ ...validEvent, schemaVersion: 2, sequence: 9, monotonicMs: 876, callEpoch: 3, transportId: "transport_3", responseId: "resp_9", requestToken: "voice_3_9", playbackState: "stopped", traceId: "trace_9", subrequestId: "sub_9", requestedRoute: "knowledge", executedRoute: "published-knowledge", domainStatus: "complete", knowledgeRevision: "revision_9", knowledgeSource: "published", cacheState: "hit", httpStatus: 200, nestedLatencyMs: 0, nestedToolNames: ["published_knowledge"], resolvedIds: ["restaurant_1"], unresolvedIds: [] });
   assert.equal(result.ok, true);
   const append = fetchCalls.find(call => call.url.includes("Sheet1!A1:append"));
   const metadata = JSON.parse(JSON.parse(append.options.body).values[0][6]);
@@ -213,6 +243,18 @@ test("voice event service writes lifecycle correlation into column G metadata", 
   assert.equal(metadata.responseId, "resp_9");
   assert.equal(metadata.requestToken, "voice_3_9");
   assert.equal(metadata.playbackState, "stopped");
+  assert.equal(metadata.traceId, "trace_9");
+  assert.equal(metadata.subrequestId, "sub_9");
+  assert.equal(metadata.requestedRoute, "knowledge");
+  assert.equal(metadata.executedRoute, "published-knowledge");
+  assert.equal(metadata.domainStatus, "complete");
+  assert.equal(metadata.knowledgeRevision, "revision_9");
+  assert.equal(metadata.cacheState, "hit");
+  assert.equal(metadata.httpStatus, 200);
+  assert.equal(metadata.nestedLatencyMs, 0);
+  assert.deepEqual(metadata.nestedToolNames, ["published_knowledge"]);
+  assert.deepEqual(metadata.resolvedIds, ["restaurant_1"]);
+  assert.deepEqual(metadata.unresolvedIds, []);
 });
 
 test("voice event service suppresses a duplicate before append", async () => {

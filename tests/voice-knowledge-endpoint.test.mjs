@@ -58,6 +58,9 @@ test("private voice knowledge endpoint returns approved HQ facts without an Open
     assert.equal(res.statusCode, 200);
     assert.equal(res.body.source, "published");
     assert.equal(res.body.revision, "owner-approved-1");
+    assert.equal(res.body.domain.status, "complete");
+    assert.equal(res.body.domain.executedRoute, "published-knowledge");
+    assert.equal(res.body.domain.cacheState, "miss");
     assert.match(res.body.reply, /upper garage level/i);
   } finally {
     globalThis.fetch = originalFetch;
@@ -67,6 +70,24 @@ test("private voice knowledge endpoint returns approved HQ facts without an Open
     else process.env.DESTINY_PUBLISHED_KNOWLEDGE_URL = originalUrl;
     resetPublishedKnowledgeCacheForTests();
   }
+});
+
+test("voice knowledge endpoint reports route handoff without hiding it as a knowledge result", async () => {
+  const req = {
+    method: "POST",
+    headers: { host: "voice.test", origin: "https://voice.test" },
+    socket: { remoteAddress: "127.0.0.79" },
+    body: { query: "What is the weather tomorrow?", traceId: "trace_weather", turnId: "turn_weather", subrequestId: "sub_weather" },
+  };
+  const res = responseRecorder();
+  await handler(req, res);
+  assert.equal(res.statusCode, 409);
+  assert.equal(res.body.route, "live");
+  assert.equal(res.body.domain.status, "partial");
+  assert.equal(res.body.domain.requestedRoute, "knowledge");
+  assert.equal(res.body.domain.executedRoute, "route-classifier");
+  assert.equal(res.body.domain.fallbackReason, "requires_live");
+  assert.equal(res.body.domain.traceId, "trace_weather");
 });
 
 test("broad recommendations default to three unless the guest asks for another count", () => {

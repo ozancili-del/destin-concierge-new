@@ -141,7 +141,7 @@ test("Realtime exposes a direct approved-knowledge fast path and the Voice Lab e
   assert.match(realtimeSource, /Do not use for stable facts or established recommendations available through get_approved_knowledge/i);
   assert.match(labSource, /event\.name === "get_approved_knowledge"/);
   assert.match(labSource, /fetch\("\/api\/destiny-voice-knowledge"/);
-  assert.match(labSource, /JSON\.stringify\(\{ query: question, priorQuery, excludeCandidateIds: lastKnowledgeCandidateIdsRef\.current \}\)/);
+  assert.match(labSource, /JSON\.stringify\(\{ query: question, priorQuery, excludeCandidateIds: lastKnowledgeCandidateIdsRef\.current, traceId, turnId: originResponseId, subrequestId \}\)/);
   assert.match(endpointSource, /inferPublishedKnowledgeTopics\(retrievalQuery\)/);
   assert.match(endpointSource, /searchPublishedKnowledge\(\{ query: retrievalQuery, topics, limit: requestedCount \? Math\.max\(requestedCount, 5\) : 4, requireMatch: true, excludeEntryIds: excludeCandidateIds \}\)/);
   assert.doesNotMatch(endpointSource, /OPENAI_API_KEY|responses\.create|chat\.completions/);
@@ -217,6 +217,7 @@ test("Voice availability output does not expose the internal booking platform", 
   const source = await readFile(new URL("../pages/api/destiny-voice-availability.js", import.meta.url), "utf8");
   assert.match(source, /const reply = `Live availability for/);
   assert.doesNotMatch(source, /const reply = `Live OwnerRez availability/);
+  assert.match(source, /executedRoute: "ownerrez-availability"/);
 });
 
 test("Voice companion links allow, label, and deduplicate trusted URLs", () => {

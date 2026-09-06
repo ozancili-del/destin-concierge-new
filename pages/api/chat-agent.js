@@ -12,6 +12,7 @@ import {
 import { createServices } from "../../lib/destiny-agent/services.js";
 import { runAgentTurn } from "../../lib/destiny-agent/orchestrator.js";
 import { evaluateGuestReply } from "../../lib/destiny-agent/response-evaluator.js";
+import { createDomainResult } from "../../lib/destiny-domain/contracts.js";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const services = createServices();
@@ -88,6 +89,22 @@ function summarizeToolStatus(toolResults) {
   return "INFO";
 }
 
+function chatDomain(body = {}, overrides = {}) {
+  const requestedRoute = body.requestedRoute || body.enforcedRoute || "chat-agent";
+  return createDomainResult({
+    traceId: body.traceId,
+    turnId: body.turnId,
+    subrequestId: body.subrequestId,
+    status: "complete",
+    requestedRoute,
+    executedRoute: "chat-agent",
+    httpStatus: 200,
+    fallbackReason: body.enforcedRoute ? "client_route_hint_observed_not_enforced" : "",
+    resolved: ["chat_response"],
+    ...overrides,
+  });
+}
+
 export function createHandler({ openaiClient = openai, servicesClient = services } = {}) {
   return async function handler(req, res) {
     const openai = openaiClient;
@@ -121,7 +138,7 @@ export function createHandler({ openaiClient = openai, servicesClient = services
     if (messages.length === 0 && PAGE_SOURCE_GREETINGS[pageSource]) {
       const greeting = PAGE_SOURCE_GREETINGS[pageSource];
       await services.logToSheets(sessionId, `__${pageSource}_open__`, greeting, "", "INFO", "");
-      return res.status(200).json({ reply: greeting, alertSent: false, pendingRelay: false, ozanAcked: false, ozanAckType: null, detectedIntent: "INFO", debug: { endpoint: "agent-v3", greeting: pageSource } });
+      return res.status(200).json({ reply: greeting, alertSent: false, pendingRelay: false, ozanAcked: false, ozanAckType: null, detectedIntent: "INFO", domain: chatDomain(req.body), debug: { endpoint: "agent-v3", greeting: pageSource } });
     }
 
     const [sessionData, sessState] = await Promise.all([
@@ -146,6 +163,7 @@ export function createHandler({ openaiClient = openai, servicesClient = services
         ozanAcked: ozanAcknowledged,
         ozanAckType,
         detectedIntent: "OZAN_ACTIVE",
+        domain: chatDomain(req.body, { resolved: ["owner_chat_relay"] }),
         debug: { endpoint: "agent-v3", ownerChatActive: true },
       });
     }
@@ -178,18 +196,18 @@ export function createHandler({ openaiClient = openai, servicesClient = services
               services.writeSessState(sessionId, { v2State: state }),
               services.logToSheets(sessionId, "__existing_guest_open__", reply, `${booking.arrival} to ${booking.departure}`, "EXISTING_GUEST", ""),
             ]);
-            return res.status(200).json({ reply, guestBooking: booking, alertSent: false, pendingRelay: false, ozanAcked: ozanAcknowledged, ozanAckType, detectedIntent: "INFO", debug: { endpoint: "agent-v3", existingGuest: true, legacyUnsignedLink: authorization.legacy } });
+            return res.status(200).json({ reply, guestBooking: booking, alertSent: false, pendingRelay: false, ozanAcked: ozanAcknowledged, ozanAckType, detectedIntent: "INFO", domain: chatDomain(req.body, { resolved: ["existing_guest_greeting"] }), debug: { endpoint: "agent-v3", existingGuest: true, legacyUnsignedLink: authorization.legacy } });
           }
         }
       } else if (messages.length === 0) {
         const reply = `I couldn’t verify that booking link. Please contact Ozan at ${OWNER_CONTACT.phone} or ${OWNER_CONTACT.email} so he can help securely.`;
-        return res.status(200).json({ reply, alertSent: false, pendingRelay: false, ozanAcked: ozanAcknowledged, ozanAckType, detectedIntent: "INFO", debug: { endpoint: "agent-v3", existingGuestAuthorization: authorization.reason } });
+        return res.status(200).json({ reply, alertSent: false, pendingRelay: false, ozanAcked: ozanAcknowledged, ozanAckType, detectedIntent: "INFO", domain: chatDomain(req.body, { status: "denied", fallbackReason: authorization.reason || "guest_link_denied", resolved: [], unresolved: ["existing_guest_access"] }), debug: { endpoint: "agent-v3", existingGuestAuthorization: authorization.reason } });
       }
     }
 
     if (!latestUser) {
       const reply = "Hey there! 🌊 What can I help you with in Destin today?";
-      return res.status(200).json({ reply, alertSent: state.flags.alertSent, pendingRelay: state.ownerChat.relayPending, ozanAcked: ozanAcknowledged, ozanAckType, detectedIntent: "INFO", debug: { endpoint: "agent-v3", emptyTurn: true } });
+      return res.status(200).json({ reply, alertSent: state.flags.alertSent, pendingRelay: state.ownerChat.relayPending, ozanAcked: ozanAcknowledged, ozanAckType, detectedIntent: "INFO", domain: chatDomain(req.body, { status: "clarify", resolved: [], unresolved: ["guest_question"] }), debug: { endpoint: "agent-v3", emptyTurn: true } });
     }
 
     const conversation = mergeConversationHistory(sessionData.history, messages);
@@ -243,6 +261,7 @@ export function createHandler({ openaiClient = openai, servicesClient = services
       ozanAcked: ozanAcknowledged,
       ozanAckType,
       detectedIntent: result.detectedIntent,
+      domain: chatDomain(req.body),
       debug: debugEnabled ? {
         endpoint: "agent-v3",
         model: result.debug.model,
@@ -284,6 +303,7 @@ export function createHandler({ openaiClient = openai, servicesClient = services
       ozanAcked: false,
       ozanAckType: null,
       detectedIntent: "INFO",
+      domain: chatDomain(req.body, { status: "error", fallbackReason: "agent_exception", resolved: [], unresolved: ["chat_response"] }),
       debug: { endpoint: "agent-v3", error: error.message },
     });
   }

@@ -342,3 +342,23 @@ test("broad recommendations obey explicit HQ ranks before lexical relevance", ()
   });
   assert.deepEqual(result.snippets.map(item => item.entryId), ["back_porch", "mimmos", "mcguires"]);
 });
+
+test("default production knowledge retries through the stable project domain", async () => {
+  resetPublishedKnowledgeCacheForTests();
+  const requested = [];
+  const result = await searchPublishedKnowledge({
+    query: "Recommend restaurants",
+    topics: ["restaurants"],
+    limit: 3,
+    requireMatch: true,
+    env: { DESTINY_PUBLISHED_KNOWLEDGE_ENABLED: "true" },
+    fetchImpl: async url => {
+      requested.push(new URL(url).origin);
+      if (requested.length === 1) return { ok: false, status: 404 };
+      return { ok: true, json: async () => bundle };
+    },
+  });
+  assert.deepEqual(requested, ["https://www.mypelicanbeach.com", "https://mydestinstay.vercel.app"]);
+  assert.equal(result.status, "success");
+  assert.equal(result.source, "published");
+});

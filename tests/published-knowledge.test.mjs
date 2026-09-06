@@ -64,7 +64,12 @@ test("published retrieval uses the approved snapshot when enabled", async () => 
     query: "Do you have an EV charger?",
     topics: ["resort"],
     env: { DESTINY_PUBLISHED_KNOWLEDGE_ENABLED: "true", DESTINY_PUBLISHED_KNOWLEDGE_URL: "https://knowledge.test/bundle" },
-    fetchImpl: async () => ({ ok: true, json: async () => bundle }),
+    fetchImpl: async url => {
+      const requested = new URL(url);
+      assert.equal(`${requested.origin}${requested.pathname}`, "https://knowledge.test/bundle");
+      assert.match(requested.searchParams.get("knowledge_window") || "", /^\d+$/);
+      return { ok: true, json: async () => bundle };
+    },
   });
   assert.equal(result.source, "published");
   assert.equal(result.revision, "6339a434");

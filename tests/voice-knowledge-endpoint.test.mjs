@@ -23,7 +23,9 @@ test("private voice knowledge endpoint returns approved HQ facts without an Open
   process.env.DESTINY_PUBLISHED_KNOWLEDGE_ENABLED = "true";
   process.env.DESTINY_PUBLISHED_KNOWLEDGE_URL = "https://knowledge.test/bundle";
   globalThis.fetch = async url => {
-    assert.equal(url, "https://knowledge.test/bundle");
+    const requested = new URL(url);
+    assert.equal(`${requested.origin}${requested.pathname}`, "https://knowledge.test/bundle");
+    assert.match(requested.searchParams.get("knowledge_window") || "", /^\d+$/);
     return {
       ok: true,
       json: async () => ({

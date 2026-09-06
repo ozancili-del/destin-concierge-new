@@ -4,6 +4,7 @@ import {
   contextualizePublishedKnowledgeQuery,
   inferPublishedKnowledgeTopics,
   isBroadPublishedKnowledgeRecommendation,
+  isGenericPublishedKnowledgeFollowUp,
   rankPublishedKnowledge,
   resetPublishedKnowledgeCacheForTests,
   searchPublishedKnowledge,
@@ -186,12 +187,28 @@ test("recommendation topic vocabulary and generic follow-ups remain aligned", ()
     assert.equal(isBroadPublishedKnowledgeRecommendation(query, topics), true, query);
   }
   const followUp = contextualizePublishedKnowledgeQuery("What other ones?", "Recommend Italian restaurants");
+  assert.equal(isGenericPublishedKnowledgeFollowUp("What other ones?"), true);
   assert.match(followUp, /Italian restaurants.*other ones/i);
   assert.deepEqual(inferPublishedKnowledgeTopics(followUp), ["restaurants"]);
   const genericFollowUp = contextualizePublishedKnowledgeQuery("What other options do you have?", "Recommend restaurants");
   const genericFollowUpResult = rankPublishedKnowledge(bundle, { query: genericFollowUp, topics: inferPublishedKnowledgeTopics(genericFollowUp), limit: 3, requireMatch: true });
   assert.equal(genericFollowUpResult.snippets.length, 1);
   assert.equal(contextualizePublishedKnowledgeQuery("What other amenities are there?", "Recommend Italian restaurants"), "What other amenities are there?");
+});
+
+test("generic recommendation follow-ups can exclude choices already returned", () => {
+  const restaurantBundle = structuredClone(bundle);
+  restaurantBundle.topics[1].entries.push(...["Mimmo's", "Fat Clemenza's", "Nonna's", "Capriccio", "Boshamps"].map((name, index) => ({
+    id: `more_${index}`, name, publication_status: "approved", retrieval_tags: ["restaurant"],
+    facts: [{ claim: `${name} is a Destin restaurant.`, publication_status: "approved" }], recommendation_notes: [],
+  })));
+  const first = rankPublishedKnowledge(restaurantBundle, { query: "Recommend restaurants", topics: ["restaurants"], limit: 3, requireMatch: true });
+  const second = rankPublishedKnowledge(restaurantBundle, {
+    query: contextualizePublishedKnowledgeQuery("What other ones?", "Recommend restaurants"),
+    topics: ["restaurants"], limit: 3, requireMatch: true, excludeEntryIds: first.snippets.map(item => item.entryId),
+  });
+  assert.equal(second.snippets.length, 3);
+  assert.equal(second.snippets.some(item => first.snippets.some(previous => previous.entryId === item.entryId)), false);
 });
 
 test("transport, spa, and requested counts route without incidental count-word bias", () => {

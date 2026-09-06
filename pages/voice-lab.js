@@ -64,6 +64,7 @@ export default function VoiceLab({ buildRevision }) {
   const forcedCandidateStopTimerRef = useRef(null);
   const latestAssistantTranscriptRef = useRef("");
   const historyRef = useRef([]);
+  const lastKnowledgeCandidateIdsRef = useRef([]);
   const sessionRef = useRef(null);
   const callRef = useRef(null);
   const eventSequenceRef = useRef(0);
@@ -518,10 +519,13 @@ export default function VoiceLab({ buildRevision }) {
         const response = await fetch("/api/destiny-voice-knowledge", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ query: question, priorQuery }),
+          body: JSON.stringify({ query: question, priorQuery, excludeCandidateIds: lastKnowledgeCandidateIdsRef.current }),
           signal: abortController.signal,
         });
         const data = await response.json();
+        if (response.ok && Array.isArray(data.candidates)) {
+          lastKnowledgeCandidateIdsRef.current = data.candidates.map(candidate => String(candidate?.id || "")).filter(Boolean).slice(0, 12);
+        }
         output = data.reply || data.error || "I couldn't find that in the approved knowledge.";
       } else if (event.name === "ask_destiny_brain") {
         const question = String(args.query || "").trim();
@@ -958,6 +962,7 @@ export default function VoiceLab({ buildRevision }) {
     sessionRef.current = identity.sessionId;
     callRef.current = identity.callId;
     historyRef.current = [];
+    lastKnowledgeCandidateIdsRef.current = [];
     setTranscript([]);
     setCompanionLinks([]);
     eventSequenceRef.current = 0;

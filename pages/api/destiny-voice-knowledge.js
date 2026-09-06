@@ -1,4 +1,4 @@
-import { contextualizePublishedKnowledgeQuery, inferPublishedKnowledgeTopics, isBroadPublishedKnowledgeRecommendation, searchPublishedKnowledge } from "../../lib/destiny-agent/published-knowledge.js";
+import { contextualizePublishedKnowledgeQuery, inferPublishedKnowledgeTopics, isBroadPublishedKnowledgeRecommendation, isGenericPublishedKnowledgeFollowUp, searchPublishedKnowledge } from "../../lib/destiny-agent/published-knowledge.js";
 import { allowSameOriginRequest, cleanText, enforceJsonSize, enforceRateLimit } from "../../lib/public-api-security.js";
 
 export function requestedRecommendationCount(query, topics = inferPublishedKnowledgeTopics(query)) {
@@ -17,12 +17,18 @@ export default async function handler(req, res) {
 
   const query = cleanText(req.body?.query, 500);
   const priorQuery = cleanText(req.body?.priorQuery, 500);
+  const excludeCandidateIds = isGenericPublishedKnowledgeFollowUp(query)
+    ? [...new Set((Array.isArray(req.body?.excludeCandidateIds) ? req.body.excludeCandidateIds : [])
+      .map(value => cleanText(value, 120))
+      .filter(value => /^[a-z0-9_-]+$/i.test(value)))]
+      .slice(0, 12)
+    : [];
   if (query.length < 2) return res.status(400).json({ error: "A complete knowledge question is required." });
 
   const retrievalQuery = contextualizePublishedKnowledgeQuery(query, priorQuery);
   const topics = inferPublishedKnowledgeTopics(retrievalQuery);
   const requestedCount = requestedRecommendationCount(query, topics);
-  const result = await searchPublishedKnowledge({ query: retrievalQuery, topics, limit: requestedCount ? Math.max(requestedCount, 5) : 4, requireMatch: true });
+  const result = await searchPublishedKnowledge({ query: retrievalQuery, topics, limit: requestedCount ? Math.max(requestedCount, 5) : 4, requireMatch: true, excludeEntryIds: excludeCandidateIds });
   if (result.source !== "published" || !result.snippets.length) {
     return res.status(404).json({
       error: "The approved Destiny Knowledge HQ does not contain a reliable answer for that question.",

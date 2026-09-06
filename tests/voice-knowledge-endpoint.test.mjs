@@ -91,9 +91,10 @@ test("recommendation endpoint returns three named candidates and a hard response
   resetPublishedKnowledgeCacheForTests();
   process.env.DESTINY_PUBLISHED_KNOWLEDGE_ENABLED = "true";
   process.env.DESTINY_PUBLISHED_KNOWLEDGE_URL = "https://knowledge.test/recommendations";
+  const restaurantNames = ["Pazzo", "Mimmo's", "Fat Clemenza's", "Nonna's", "Capriccio", "Boshamps"];
   globalThis.fetch = async () => ({ ok: true, json: async () => ({
     revision: "three-options", manifest: { schema_version: "1.0" }, topics: [{
-      topic_id: "restaurants", title: "Restaurants", entries: ["Pazzo", "Mimmo's", "Fat Clemenza's", "Nonna's"].map((name, index) => ({
+      topic_id: "restaurants", title: "Restaurants", entries: restaurantNames.map((name, index) => ({
         id: `italian_${index}`, name, publication_status: "approved", retrieval_tags: ["Italian"],
         facts: [{ claim: `${name} is an Italian option.`, publication_status: "approved" }],
         recommendation_notes: [{ text: `Consider ${name} for Italian food.`, publication_status: "approved" }],
@@ -110,9 +111,19 @@ test("recommendation endpoint returns three named candidates and a hard response
       assert.equal(res.body.resultCount, 3, query);
       assert.equal(res.body.coverageGap, false, query);
       assert.equal(new Set(res.body.candidates.map((item) => item.name)).size, 3, query);
-      assert.ok(res.body.candidates.every((item) => ["Pazzo", "Mimmo's", "Fat Clemenza's", "Nonna's"].includes(item.name)), query);
+      assert.ok(res.body.candidates.every((item) => restaurantNames.includes(item.name)), query);
       assert.match(res.body.reply, /Name every one of the 3 distinct candidates/i, query);
     }
+    const firstReq = { method: "POST", headers: { host: "voice.test", origin: "https://voice.test" }, socket: { remoteAddress: "127.0.0.94" }, body: { query: "Recommend restaurants" } };
+    const firstRes = responseRecorder();
+    await handler(firstReq, firstRes);
+    const firstIds = firstRes.body.candidates.map(item => item.id);
+    const moreReq = { method: "POST", headers: { host: "voice.test", origin: "https://voice.test" }, socket: { remoteAddress: "127.0.0.95" }, body: { query: "What other ones?", priorQuery: "Recommend restaurants", excludeCandidateIds: [...firstIds, "../../invalid"] } };
+    const moreRes = responseRecorder();
+    await handler(moreReq, moreRes);
+    assert.equal(moreRes.statusCode, 200);
+    assert.equal(moreRes.body.resultCount, 3);
+    assert.equal(moreRes.body.candidates.some(item => firstIds.includes(item.id)), false);
   } finally {
     globalThis.fetch = originalFetch;
     if (originalEnabled === undefined) delete process.env.DESTINY_PUBLISHED_KNOWLEDGE_ENABLED; else process.env.DESTINY_PUBLISHED_KNOWLEDGE_ENABLED = originalEnabled;

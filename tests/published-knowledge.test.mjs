@@ -127,6 +127,26 @@ test("strict voice retrieval excludes unrelated entries even inside selected top
   assert.equal(result.snippets[0].entryId, "pazzo");
 });
 
+test("question scaffolding cannot tie unrelated factual entries", () => {
+  const amenitiesBundle = structuredClone(bundle);
+  amenitiesBundle.topics[0].entries[0].retrieval_tags.push("EV charging");
+  amenitiesBundle.topics[0].entries.push({
+    id: "pools",
+    name: "Pools",
+    publication_status: "approved",
+    guest_questions: ["Does the resort have pools?"],
+    facts: [{ claim: "The resort has pools.", publication_status: "approved" }],
+    recommendation_notes: [],
+  });
+  const result = rankPublishedKnowledge(amenitiesBundle, {
+    query: "What does EV charging cost?",
+    topics: ["amenities"],
+    limit: 4,
+    requireMatch: true,
+  });
+  assert.deepEqual(result.snippets.map(item => item.entryId), ["ev_chargers"]);
+});
+
 test("ranking preserves distinct named choices for plural recommendations", () => {
   const restaurantBundle = structuredClone(bundle);
   restaurantBundle.topics[1].entries.push(...["Mimmo's", "Fat Clemenza's", "Nonna's"].map((name, index) => ({

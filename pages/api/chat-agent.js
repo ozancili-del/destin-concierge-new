@@ -13,6 +13,7 @@ import { createServices } from "../../lib/destiny-agent/services.js";
 import { runAgentTurn } from "../../lib/destiny-agent/orchestrator.js";
 import { evaluateGuestReply } from "../../lib/destiny-agent/response-evaluator.js";
 import { createDomainResult } from "../../lib/destiny-domain/contracts.js";
+import { buildRouterShadow } from "../../lib/destiny-domain/shadow-router.js";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const services = createServices();
@@ -210,6 +211,28 @@ export function createHandler({ openaiClient = openai, servicesClient = services
       return res.status(200).json({ reply, alertSent: state.flags.alertSent, pendingRelay: state.ownerChat.relayPending, ozanAcked: ozanAcknowledged, ozanAckType, detectedIntent: "INFO", domain: chatDomain(req.body, { status: "clarify", resolved: [], unresolved: ["guest_question"] }), debug: { endpoint: "agent-v3", emptyTurn: true } });
     }
 
+    const routerShadow = buildRouterShadow({
+      channel: "chat",
+      text: latestUser,
+      sessionId,
+      turnId: req.body?.turnId || `chat-${Date.now()}`,
+      context: {
+        version: Number(sessState?.version || 0),
+        profile: state.existingGuest.authorized ? "chat_verified_guest" : "chat_public_guest",
+        revision: process.env.DESTINY_KNOWLEDGE_REVISION || "runtime-unpinned-shadow",
+        activeCategory: state.meta?.activeCategory || null,
+        focusedEntityIds: state.meta?.focusedEntityIds || [],
+        offeredEntityIds: state.meta?.offeredEntityIds || [],
+        expectedReply: state.awaiting?.field
+          ? { planId: state.awaiting.planId || "chat-current", field: state.awaiting.field, allowedValues: state.awaiting.allowedValues || [] }
+          : null,
+        booking: state.booking,
+        priceAdapterEnabled: false,
+        flightAdapterEnabled: false,
+      },
+    });
+    console.info("DESTINY_ROUTER_SHADOW", JSON.stringify(routerShadow.summary));
+
     const conversation = mergeConversationHistory(sessionData.history, messages);
     const result = await runAgentTurn({
       openai,
@@ -273,6 +296,7 @@ export function createHandler({ openaiClient = openai, servicesClient = services
         responseDiagnostics: result.debug.responseDiagnostics,
         agentError: result.debug.agentError,
         validation: result.debug.validation,
+        routerShadow: routerShadow.summary,
         state: {
           mode: state.mode,
           booking: state.booking,
@@ -289,6 +313,7 @@ export function createHandler({ openaiClient = openai, servicesClient = services
         toolNames: result.debug.toolCalls.map(call => call.name),
         toolRounds: result.debug.toolRounds,
         validationOk: result.debug.validation?.ok === true,
+        routerShadow: routerShadow.summary,
       },
     });
   } catch (error) {

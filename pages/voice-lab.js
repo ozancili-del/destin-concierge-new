@@ -10,6 +10,7 @@ import { VoiceFixtureRunner } from "../lib/destiny-agent/voice-fixture-runner.js
 import { audioRms, createClientVoiceGate } from "../lib/destiny-agent/client-voice-gate.js";
 import { extractVoiceCompanionLinks } from "../lib/destiny-agent/voice-links.js";
 import { classifyVoiceUtterance, createVoiceCallIdentity, createVoiceOpeningGreetingEvent, inferExpectedVoiceReply, isDirectedVoiceUtterance, isExpectedVoiceReply, isLikelyAssistantEcho, isVoiceTranscriptionArtifact, resolveVoiceModel, voiceLookupLabel, voiceProgressInstructions, VOICE_INPUT_CLASSIFICATION_TIMEOUT_MS, VOICE_MODEL, VOICE_TOOL_PROGRESS_SILENCE_MS } from "../lib/destiny-agent/voice-experience.js";
+import { buildRouterShadow } from "../lib/destiny-domain/shadow-router.js";
 
 const initialStatus = "Tap the call button when you're ready.";
 
@@ -912,6 +913,29 @@ export default function VoiceLab({ buildRevision }) {
         if (!activeCandidateRef.current?.interruptionConfirmed && coordinatorRef.current.confirmInterruption(candidateId, "cancel_task", { dropQueued: false })) armCancellationWatchdog(interruptedLease);
         supersedeForegroundTool();
       } else {
+        const routerShadow = buildRouterShadow({
+          channel: "voice",
+          text: event.transcript,
+          sessionId: sessionRef.current,
+          turnId: event.item_id || providerEventId,
+          sequence: eventSequenceRef.current + 1,
+          context: {
+            version: eventSequenceRef.current,
+            profile: "voice_lab_guest",
+            revision: buildRevision,
+            offeredEntityIds: lastKnowledgeCandidateIdsRef.current,
+            expectedReply: expectedReplyRef.current?.kind
+              ? { planId: "voice-current", field: expectedReplyRef.current.kind, allowedValues: [] }
+              : null,
+          },
+        });
+        queueVoiceEvent({
+          eventType: "router_shadow",
+          role: "system",
+          text: JSON.stringify(routerShadow.summary),
+          turnId: event.item_id || "",
+          providerEventId: event.event_id || "",
+        });
         expectedReplyRef.current = null;
         const interruptedLease = coordinatorRef.current.activeLease();
         coordinatorRef.current.speechStarted(candidateId);

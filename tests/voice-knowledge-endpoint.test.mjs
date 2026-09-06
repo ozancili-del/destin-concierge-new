@@ -71,6 +71,8 @@ test("broad recommendations default to three unless the guest asks for another c
   assert.equal(requestedRecommendationCount("Recommend Italian restaurants"), 3);
   assert.equal(requestedRecommendationCount("Give me two beach options"), 2);
   assert.equal(requestedRecommendationCount("Recommend restaurants for two adults"), 3);
+  assert.equal(requestedRecommendationCount("What airports can I use for Destin?"), 3);
+  assert.equal(requestedRecommendationCount("Give me two airport options"), 2);
   assert.equal(requestedRecommendationCount("Where are the EV chargers?"), null);
 });
 

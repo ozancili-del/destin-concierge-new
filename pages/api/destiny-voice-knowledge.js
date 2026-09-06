@@ -1,13 +1,13 @@
-import { inferPublishedKnowledgeTopics, searchPublishedKnowledge } from "../../lib/destiny-agent/published-knowledge.js";
+import { contextualizePublishedKnowledgeQuery, inferPublishedKnowledgeTopics, searchPublishedKnowledge } from "../../lib/destiny-agent/published-knowledge.js";
 import { allowSameOriginRequest, cleanText, enforceJsonSize, enforceRateLimit } from "../../lib/public-api-security.js";
 
-const BROAD_RECOMMENDATION = /\b(?:recommend|suggest|restaurants?|places? to eat|beaches|things to do|activities|attractions|shops?|shopping|grocer(?:y|ies)|supermarkets?|spas?|options?|other ones?)\b/i;
+const BROAD_RECOMMENDATION = /\b(?:recommend|suggest|restaurants?|places? to eat|beaches|things to do|activities|attractions|shops?|shopping|grocer(?:y|ies)|supermarkets?|spas?|airports?|options?|other ones?)\b/i;
 
 export function requestedRecommendationCount(query) {
   const value = String(query || "");
   if (!BROAD_RECOMMENDATION.test(value)) return null;
   const explicit = value.match(/\b(?:give|show|list|name|recommend|suggest|offer)\s+(?:me\s+)?(?:about\s+)?([1-5]|one|two|three|four|five)\b/i)?.[1]?.toLowerCase()
-    || value.match(/\b([1-5]|one|two|three|four|five)\s+(?:different\s+)?(?:restaurants?|places?|options?|choices?|recommendations?|beaches|activities|attractions|shops?|grocer(?:y|ies)|supermarkets?|spas?)\b/i)?.[1]?.toLowerCase();
+    || value.match(/\b([1-5]|one|two|three|four|five)\s+(?:different\s+)?(?:restaurants?|places?|options?|choices?|recommendations?|beaches|activities|attractions|shops?|grocer(?:y|ies)|supermarkets?|spas?|airports?)\b/i)?.[1]?.toLowerCase();
   const number = { one: 1, two: 2, three: 3, four: 4, five: 5 }[explicit] || Number(explicit);
   return Number.isFinite(number) ? number : 3;
 }
@@ -18,11 +18,13 @@ export default async function handler(req, res) {
   if (!enforceRateLimit(req, res, { scope: "destiny-voice-knowledge", limit: 60, windowMs: 10 * 60 * 1000 })) return;
 
   const query = cleanText(req.body?.query, 500);
+  const priorQuery = cleanText(req.body?.priorQuery, 500);
   if (query.length < 2) return res.status(400).json({ error: "A complete knowledge question is required." });
 
-  const topics = inferPublishedKnowledgeTopics(query);
+  const retrievalQuery = contextualizePublishedKnowledgeQuery(query, priorQuery);
+  const topics = inferPublishedKnowledgeTopics(retrievalQuery);
   const requestedCount = requestedRecommendationCount(query);
-  const result = await searchPublishedKnowledge({ query, topics, limit: requestedCount ? Math.max(requestedCount, 5) : 4, requireMatch: true });
+  const result = await searchPublishedKnowledge({ query: retrievalQuery, topics, limit: requestedCount ? Math.max(requestedCount, 5) : 4, requireMatch: true });
   if (result.source !== "published" || !result.snippets.length) {
     return res.status(404).json({
       error: "The approved Destiny Knowledge HQ does not contain a reliable answer for that question.",

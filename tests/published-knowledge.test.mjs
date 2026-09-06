@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  contextualizePublishedKnowledgeQuery,
   inferPublishedKnowledgeTopics,
   rankPublishedKnowledge,
   resetPublishedKnowledgeCacheForTests,
@@ -142,4 +143,27 @@ test("a car-need question prefers the trip guidance over a generic transport lis
   ] }] };
   const result = rankPublishedKnowledge(transportBundle, { query: "Do I need a car in Destin?", topics: ["transport"], limit: 5, requireMatch: true });
   assert.deepEqual(result.snippets.map((item) => item.entryId), ["transport_car_choice"]);
+});
+
+test("airport category returns only the three airports in owner-defined order", () => {
+  const airport = (id, name, tags = ["airport"]) => ({ id, name, publication_status: "approved", retrieval_tags: tags, facts: [{ claim: `${name} serves Destin trips.`, publication_status: "approved" }], recommendation_notes: [{ text: `Consider ${name}.`, publication_status: "approved" }] });
+  const transportBundle = { topics: [{ topic_id: "transport", title: "Transport", entries: [
+    airport("transport_airports", "Airports serving Destin trips"),
+    airport("transport_northwest_florida_beaches_international_airport_ecp", "Northwest Florida Beaches International Airport (ECP)", ["airport", "Panama City"]),
+    airport("transport_destin_fort_walton_beach_airport_vps", "Destin–Fort Walton Beach Airport (VPS)"),
+    airport("transport_pensacola_international_airport_pns", "Pensacola International Airport (PNS)"),
+    airport("transport_uber_and_lyft", "Uber and Lyft", ["rideshare"]),
+  ] }] };
+  const broad = rankPublishedKnowledge(transportBundle, { query: "What airports serve Destin?", topics: ["transport"], limit: 5, requireMatch: true });
+  assert.deepEqual(broad.snippets.map(item => item.entryId), [
+    "transport_destin_fort_walton_beach_airport_vps",
+    "transport_pensacola_international_airport_pns",
+    "transport_northwest_florida_beaches_international_airport_ecp",
+  ]);
+  const followUp = contextualizePublishedKnowledgeQuery("What about Pensacola?", "What airports serve Destin?");
+  const pensacola = rankPublishedKnowledge(transportBundle, { query: followUp, topics: inferPublishedKnowledgeTopics(followUp), limit: 4, requireMatch: true });
+  assert.deepEqual(pensacola.snippets.map(item => item.entryId), ["transport_pensacola_international_airport_pns"]);
+  const panamaCity = rankPublishedKnowledge(transportBundle, { query: "Panama City airport", topics: ["transport"], limit: 4, requireMatch: true });
+  assert.deepEqual(panamaCity.snippets.map(item => item.entryId), ["transport_northwest_florida_beaches_international_airport_ecp"]);
+  assert.equal(contextualizePublishedKnowledgeQuery("What about the pools?", "What airports serve Destin?"), "What about the pools?");
 });

@@ -511,10 +511,14 @@ export default function VoiceLab({ buildRevision }) {
         const data = await response.json();
         output = data.reply || data.error || "Live availability could not be checked.";
       } else if (event.name === "get_approved_knowledge") {
+        const question = String(args.query || "").trim();
+        const priorQuery = [...historyRef.current].reverse().find(message => (
+          message?.role === "user" && String(message.content || "").trim() && String(message.content || "").trim() !== question
+        ))?.content || "";
         const response = await fetch("/api/destiny-voice-knowledge", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ query: String(args.query || "").trim() }),
+          body: JSON.stringify({ query: question, priorQuery }),
           signal: abortController.signal,
         });
         const data = await response.json();

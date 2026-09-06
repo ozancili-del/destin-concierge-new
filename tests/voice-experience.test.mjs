@@ -141,8 +141,9 @@ test("Realtime exposes a direct approved-knowledge fast path and the Voice Lab e
   assert.match(realtimeSource, /Do not use for stable facts or established recommendations available through get_approved_knowledge/i);
   assert.match(labSource, /event\.name === "get_approved_knowledge"/);
   assert.match(labSource, /fetch\("\/api\/destiny-voice-knowledge"/);
-  assert.match(endpointSource, /inferPublishedKnowledgeTopics\(query\)/);
-  assert.match(endpointSource, /searchPublishedKnowledge\(\{ query, topics, limit: requestedCount \? Math\.max\(requestedCount, 5\) : 4, requireMatch: true \}\)/);
+  assert.match(labSource, /JSON\.stringify\(\{ query: question, priorQuery \}\)/);
+  assert.match(endpointSource, /inferPublishedKnowledgeTopics\(retrievalQuery\)/);
+  assert.match(endpointSource, /searchPublishedKnowledge\(\{ query: retrievalQuery, topics, limit: requestedCount \? Math\.max\(requestedCount, 5\) : 4, requireMatch: true \}\)/);
   assert.doesNotMatch(endpointSource, /OPENAI_API_KEY|responses\.create|chat\.completions/);
 });
 

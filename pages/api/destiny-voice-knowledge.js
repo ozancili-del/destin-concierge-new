@@ -1,4 +1,4 @@
-import { contextualizePublishedKnowledgeQuery, inferPublishedKnowledgeTopics, isBroadPublishedKnowledgeRecommendation, isGenericPublishedKnowledgeFollowUp, searchPublishedKnowledge } from "../../lib/destiny-agent/published-knowledge.js";
+import { classifyPublishedKnowledgeRoute, contextualizePublishedKnowledgeQuery, inferPublishedKnowledgeTopics, inferPublishedRecommendationCategory, isBroadPublishedKnowledgeRecommendation, isGenericPublishedKnowledgeFollowUp, searchPublishedKnowledge } from "../../lib/destiny-agent/published-knowledge.js";
 import { allowSameOriginRequest, cleanText, enforceJsonSize, enforceRateLimit } from "../../lib/public-api-security.js";
 
 export function requestedRecommendationCount(query, topics = inferPublishedKnowledgeTopics(query)) {
@@ -26,7 +26,17 @@ export default async function handler(req, res) {
   if (query.length < 2) return res.status(400).json({ error: "A complete knowledge question is required." });
 
   const retrievalQuery = contextualizePublishedKnowledgeQuery(query, priorQuery);
+  const route = classifyPublishedKnowledgeRoute(retrievalQuery);
+  if (route !== "knowledge") {
+    res.setHeader("Cache-Control", "private, no-store");
+    return res.status(409).json({
+      error: route === "availability" ? "This request requires the availability tool." : "This request requires a live or protected-information check.",
+      route,
+    });
+  }
+
   const topics = inferPublishedKnowledgeTopics(retrievalQuery);
+  const recommendationCategory = inferPublishedRecommendationCategory(retrievalQuery, topics);
   const requestedCount = requestedRecommendationCount(query, topics);
   const result = await searchPublishedKnowledge({ query: retrievalQuery, topics, limit: requestedCount ? Math.max(requestedCount, 5) : 4, requireMatch: true, excludeEntryIds: excludeCandidateIds });
   if (result.source !== "published" || !result.snippets.length) {
@@ -49,5 +59,5 @@ export default async function handler(req, res) {
   ].join("\n");
 
   res.setHeader("Cache-Control", "private, no-store");
-  return res.status(200).json({ reply, facts, candidates, requestedCount, resultCount: candidates.length, coverageGap: Boolean(requestedCount && candidates.length < requestedCount), links, topics, revision: result.revision || null, source: "published" });
+  return res.status(200).json({ reply, facts, candidates, requestedCount, resultCount: candidates.length, coverageGap: Boolean(requestedCount && candidates.length < requestedCount), links, topics, recommendationCategory, route: "knowledge", revision: result.revision || null, source: "published" });
 }

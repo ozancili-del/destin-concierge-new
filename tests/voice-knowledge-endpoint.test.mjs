@@ -96,6 +96,7 @@ test("recommendation endpoint returns three named candidates and a hard response
     revision: "three-options", manifest: { schema_version: "1.0" }, topics: [{
       topic_id: "restaurants", title: "Restaurants", entries: restaurantNames.map((name, index) => ({
         id: `italian_${index}`, name, publication_status: "approved", retrieval_tags: ["Italian"],
+        recommendation_categories: ["restaurant", "restaurant-italian"],
         facts: [{ claim: `${name} is an Italian option.`, publication_status: "approved" }],
         recommendation_notes: [{ text: `Consider ${name} for Italian food.`, publication_status: "approved" }],
       })),

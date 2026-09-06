@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  classifyPublishedKnowledgeRoute,
   contextualizePublishedKnowledgeQuery,
   inferPublishedKnowledgeTopics,
   isBroadPublishedKnowledgeRecommendation,
@@ -35,6 +36,7 @@ const bundle = {
         id: "pazzo",
         name: "Pazzo Italiano",
         publication_status: "approved",
+        recommendation_categories: ["restaurant", "restaurant-italian"],
         retrieval_tags: ["Italian", "pasta"],
         facts: [
           { claim: "Pazzo Italiano serves Italian food.", publication_status: "approved" },
@@ -129,6 +131,7 @@ test("ranking preserves distinct named choices for plural recommendations", () =
   const restaurantBundle = structuredClone(bundle);
   restaurantBundle.topics[1].entries.push(...["Mimmo's", "Fat Clemenza's", "Nonna's"].map((name, index) => ({
     id: `italian_${index}`, name, publication_status: "approved", retrieval_tags: ["Italian"],
+    recommendation_categories: ["restaurant", "restaurant-italian"],
     facts: [{ claim: `${name} is an Italian restaurant.`, publication_status: "approved" }],
     recommendation_notes: [{ text: `Consider ${name} for a different Italian fit.`, publication_status: "approved" }],
   })));
@@ -141,6 +144,7 @@ test("equivalent generic recommendation phrasing does not become a required lexi
   const restaurantBundle = structuredClone(bundle);
   restaurantBundle.topics[1].entries.push(...["Mimmo's", "Fat Clemenza's", "Nonna's"].map((name, index) => ({
     id: `generic_${index}`, name, publication_status: "approved", retrieval_tags: ["restaurant"],
+    recommendation_categories: ["restaurant"],
     facts: [{ claim: `${name} serves guests in Destin.`, publication_status: "approved" }],
     recommendation_notes: [{ text: `Consider ${name} for its own dining fit.`, publication_status: "approved" }],
   })));
@@ -163,6 +167,7 @@ test("generic recommendation cleanup preserves meaningful qualifiers", () => {
   const restaurantBundle = structuredClone(bundle);
   restaurantBundle.topics[1].entries.push({
     id: "seafood", name: "Seafood Place", publication_status: "approved", retrieval_tags: ["seafood"],
+    recommendation_categories: ["restaurant", "restaurant-seafood"],
     facts: [{ claim: "Seafood Place serves seafood.", publication_status: "approved" }], recommendation_notes: [],
   });
   const italian = rankPublishedKnowledge(restaurantBundle, { query: "Give me Italian restaurant recommendations", topics: ["restaurants"], limit: 3, requireMatch: true });
@@ -200,6 +205,7 @@ test("generic recommendation follow-ups can exclude choices already returned", (
   const restaurantBundle = structuredClone(bundle);
   restaurantBundle.topics[1].entries.push(...["Mimmo's", "Fat Clemenza's", "Nonna's", "Capriccio", "Boshamps"].map((name, index) => ({
     id: `more_${index}`, name, publication_status: "approved", retrieval_tags: ["restaurant"],
+    recommendation_categories: ["restaurant"],
     facts: [{ claim: `${name} is a Destin restaurant.`, publication_status: "approved" }], recommendation_notes: [],
   })));
   const first = rankPublishedKnowledge(restaurantBundle, { query: "Recommend restaurants", topics: ["restaurants"], limit: 3, requireMatch: true });
@@ -217,6 +223,25 @@ test("transport, spa, and requested counts route without incidental count-word b
   assert.ok(inferPublishedKnowledgeTopics("Recommend three spas").includes("couples-and-quieter-stays"));
 });
 
+test("server-owned routing keeps stable owner facts fast and dynamic claims live", () => {
+  assert.equal(classifyPublishedKnowledgeRoute("What does EV charging cost?"), "knowledge");
+  assert.equal(classifyPublishedKnowledgeRoute("What are the 2026 beach-chair rates?"), "knowledge");
+  assert.equal(classifyPublishedKnowledgeRoute("What is November usually like?"), "knowledge");
+  assert.equal(classifyPublishedKnowledgeRoute("Will it rain tomorrow?"), "live");
+  assert.equal(classifyPublishedKnowledgeRoute("Is Pazzo open now?"), "live");
+  assert.equal(classifyPublishedKnowledgeRoute("What events are happening this weekend?"), "live");
+  assert.equal(classifyPublishedKnowledgeRoute("Is Unit 707 available November 1?"), "availability");
+});
+
+test("natural recommendation and family phrasing reaches typed categories", () => {
+  assert.equal(isBroadPublishedKnowledgeRecommendation("Where should we eat?", ["restaurants"]), true);
+  assert.equal(isBroadPublishedKnowledgeRecommendation("What can we do with toddlers?", ["activities", "family-planning"]), true);
+  assert.deepEqual(inferPublishedKnowledgeTopics("What can we do with toddlers?"), ["activities", "family-planning"]);
+  assert.ok(inferPublishedKnowledgeTopics("What does EV charging cost?").includes("amenities"));
+  assert.match(contextualizePublishedKnowledgeQuery("What about kids?", "Recommend things to do"), /Recommend things to do.*What about kids/i);
+  assert.equal(contextualizePublishedKnowledgeQuery("What about pools?", "What airports serve Destin?"), "What about pools?");
+});
+
 test("a car-need question prefers the trip guidance over a generic transport list", () => {
   const transportBundle = { topics: [{ topic_id: "transport", title: "Transport", entries: [
     { id: "transport_car_choice", name: "No car, rideshare or rental car", publication_status: "approved", retrieval_tags: ["car", "choice"], facts: [{ claim: "Choose based on the trip shape.", publication_status: "approved" }], recommendation_notes: [] },
@@ -227,13 +252,13 @@ test("a car-need question prefers the trip guidance over a generic transport lis
 });
 
 test("airport category returns only the three airports in owner-defined order", () => {
-  const airport = (id, name, tags = ["airport"]) => ({ id, name, publication_status: "approved", retrieval_tags: tags, facts: [{ claim: `${name} serves Destin trips.`, publication_status: "approved" }], recommendation_notes: [{ text: `Consider ${name}.`, publication_status: "approved" }] });
+  const airport = (id, name, tags = ["airport"], categories = ["airports"]) => ({ id, name, publication_status: "approved", recommendation_categories: categories, retrieval_tags: tags, facts: [{ claim: `${name} serves Destin trips.`, publication_status: "approved" }], recommendation_notes: [{ text: `Consider ${name}.`, publication_status: "approved" }] });
   const transportBundle = { topics: [{ topic_id: "transport", title: "Transport", entries: [
-    airport("transport_airports", "Airports serving Destin trips"),
+    airport("transport_airports", "Airports serving Destin trips", ["airport"], []),
     airport("transport_northwest_florida_beaches_international_airport_ecp", "Northwest Florida Beaches International Airport (ECP)", ["airport", "Panama City"]),
     airport("transport_destin_fort_walton_beach_airport_vps", "Destin–Fort Walton Beach Airport (VPS)"),
     airport("transport_pensacola_international_airport_pns", "Pensacola International Airport (PNS)"),
-    airport("transport_uber_and_lyft", "Uber and Lyft", ["rideshare"]),
+    airport("transport_uber_and_lyft", "Uber and Lyft", ["rideshare"], ["transportation"]),
   ] }] };
   const broad = rankPublishedKnowledge(transportBundle, { query: "What airports serve Destin?", topics: ["transport"], limit: 5, requireMatch: true });
   assert.deepEqual(broad.snippets.map(item => item.entryId), [

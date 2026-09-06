@@ -523,10 +523,25 @@ export default function VoiceLab({ buildRevision }) {
           signal: abortController.signal,
         });
         const data = await response.json();
-        if (response.ok && Array.isArray(data.candidates)) {
-          lastKnowledgeCandidateIdsRef.current = data.candidates.map(candidate => String(candidate?.id || "")).filter(Boolean).slice(0, 12);
+        if (response.status === 409 && ["live", "availability"].includes(data.route)) {
+          const lastHistory = historyRef.current.at(-1);
+          const messages = (lastHistory?.role === "user" && lastHistory.content.trim() === question
+            ? [...historyRef.current]
+            : [...historyRef.current, { role: "user", content: question }]).slice(-20);
+          const liveResponse = await fetch("/api/destiny-chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ messages, sessionId: sessionRef.current, voiceMode: true, pageSource: "voice-lab", enforcedRoute: data.route }),
+            signal: abortController.signal,
+          });
+          const liveData = await liveResponse.json();
+          output = liveData.reply || liveData.message || "I couldn't complete that live check.";
+        } else {
+          if (response.ok && Array.isArray(data.candidates)) {
+            lastKnowledgeCandidateIdsRef.current = data.candidates.map(candidate => String(candidate?.id || "")).filter(Boolean).slice(0, 12);
+          }
+          output = data.reply || data.error || "I couldn't find that in the approved knowledge.";
         }
-        output = data.reply || data.error || "I couldn't find that in the approved knowledge.";
       } else if (event.name === "ask_destiny_brain") {
         const question = String(args.query || "").trim();
         const lastHistory = historyRef.current.at(-1);

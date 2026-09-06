@@ -71,6 +71,12 @@ test("private voice knowledge endpoint returns approved HQ facts without an Open
 
 test("broad recommendations default to three unless the guest asks for another count", () => {
   assert.equal(requestedRecommendationCount("Recommend Italian restaurants"), 3);
+  assert.equal(requestedRecommendationCount("Give me restaurant recommendations"), 3);
+  assert.equal(requestedRecommendationCount("Can you suggest some restaurants?"), 3);
+  assert.equal(requestedRecommendationCount("What are the best places to eat?"), 3);
+  assert.equal(requestedRecommendationCount("Give me beach recommendations"), 3);
+  assert.equal(requestedRecommendationCount("Suggest some things to do"), 3);
+  assert.equal(requestedRecommendationCount("Give me shopping recommendations"), 3);
   assert.equal(requestedRecommendationCount("Give me two beach options"), 2);
   assert.equal(requestedRecommendationCount("Recommend restaurants for two adults"), 3);
   assert.equal(requestedRecommendationCount("What airports can I use for Destin?"), 3);
@@ -95,16 +101,18 @@ test("recommendation endpoint returns three named candidates and a hard response
     }],
   }) });
   try {
-    const req = { method: "POST", headers: { host: "voice.test", origin: "https://voice.test" }, socket: { remoteAddress: "127.0.0.88" }, body: { query: "Recommend Italian restaurants" } };
-    const res = responseRecorder();
-    await handler(req, res);
-    assert.equal(res.statusCode, 200);
-    assert.equal(res.body.requestedCount, 3);
-    assert.equal(res.body.resultCount, 3);
-    assert.equal(res.body.coverageGap, false);
-    assert.equal(new Set(res.body.candidates.map((item) => item.name)).size, 3);
-    assert.ok(res.body.candidates.every((item) => ["Pazzo", "Mimmo's", "Fat Clemenza's", "Nonna's"].includes(item.name)));
-    assert.match(res.body.reply, /Name every one of the 3 distinct candidates/i);
+    for (const [index, query] of ["Recommend Italian restaurants", "Give me restaurant recommendations", "Can you suggest some restaurants?"].entries()) {
+      const req = { method: "POST", headers: { host: "voice.test", origin: "https://voice.test" }, socket: { remoteAddress: `127.0.0.${88 + index}` }, body: { query } };
+      const res = responseRecorder();
+      await handler(req, res);
+      assert.equal(res.statusCode, 200, query);
+      assert.equal(res.body.requestedCount, 3, query);
+      assert.equal(res.body.resultCount, 3, query);
+      assert.equal(res.body.coverageGap, false, query);
+      assert.equal(new Set(res.body.candidates.map((item) => item.name)).size, 3, query);
+      assert.ok(res.body.candidates.every((item) => ["Pazzo", "Mimmo's", "Fat Clemenza's", "Nonna's"].includes(item.name)), query);
+      assert.match(res.body.reply, /Name every one of the 3 distinct candidates/i, query);
+    }
   } finally {
     globalThis.fetch = originalFetch;
     if (originalEnabled === undefined) delete process.env.DESTINY_PUBLISHED_KNOWLEDGE_ENABLED; else process.env.DESTINY_PUBLISHED_KNOWLEDGE_ENABLED = originalEnabled;

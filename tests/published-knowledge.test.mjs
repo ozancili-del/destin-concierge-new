@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   contextualizePublishedKnowledgeQuery,
   inferPublishedKnowledgeTopics,
+  isBroadPublishedKnowledgeRecommendation,
   rankPublishedKnowledge,
   resetPublishedKnowledgeCacheForTests,
   searchPublishedKnowledge,
@@ -133,6 +134,64 @@ test("ranking preserves distinct named choices for plural recommendations", () =
   const result = rankPublishedKnowledge(restaurantBundle, { query: "Recommend Italian restaurant options", topics: ["restaurants"], limit: 5, requireMatch: true });
   assert.equal(result.snippets.length, 4);
   assert.deepEqual(new Set(result.snippets.map((item) => item.name)).size, 4);
+});
+
+test("equivalent generic recommendation phrasing does not become a required lexical match", () => {
+  const restaurantBundle = structuredClone(bundle);
+  restaurantBundle.topics[1].entries.push(...["Mimmo's", "Fat Clemenza's", "Nonna's"].map((name, index) => ({
+    id: `generic_${index}`, name, publication_status: "approved", retrieval_tags: ["restaurant"],
+    facts: [{ claim: `${name} serves guests in Destin.`, publication_status: "approved" }],
+    recommendation_notes: [{ text: `Consider ${name} for its own dining fit.`, publication_status: "approved" }],
+  })));
+  for (const query of [
+    "Give me restaurant recommendations",
+    "Can you suggest some restaurants?",
+    "What restaurants do you recommend?",
+    "What are the best places to eat?",
+    "Please give me a few good restaurant options",
+  ]) {
+    const topics = inferPublishedKnowledgeTopics(query);
+    assert.deepEqual(topics, ["restaurants"], query);
+    assert.equal(isBroadPublishedKnowledgeRecommendation(query, topics), true, query);
+    const result = rankPublishedKnowledge(restaurantBundle, { query, topics, limit: 3, requireMatch: true });
+    assert.equal(result.snippets.length, 3, query);
+  }
+});
+
+test("generic recommendation cleanup preserves meaningful qualifiers", () => {
+  const restaurantBundle = structuredClone(bundle);
+  restaurantBundle.topics[1].entries.push({
+    id: "seafood", name: "Seafood Place", publication_status: "approved", retrieval_tags: ["seafood"],
+    facts: [{ claim: "Seafood Place serves seafood.", publication_status: "approved" }], recommendation_notes: [],
+  });
+  const italian = rankPublishedKnowledge(restaurantBundle, { query: "Give me Italian restaurant recommendations", topics: ["restaurants"], limit: 3, requireMatch: true });
+  assert.deepEqual(italian.snippets.map(item => item.entryId), ["pazzo"]);
+  const missing = rankPublishedKnowledge(restaurantBundle, { query: "Recommend vegan restaurants", topics: ["restaurants"], limit: 3, requireMatch: true });
+  assert.equal(missing.snippets.length, 0, "an unsupported qualifier must not fall back to unrelated restaurants");
+});
+
+test("recommendation topic vocabulary and generic follow-ups remain aligned", () => {
+  const cases = [
+    ["What are the best places to eat?", "restaurants"],
+    ["Suggest some things to do", "activities"],
+    ["Give me shopping recommendations", "activities"],
+    ["Recommend grocery stores", "everyday-essentials"],
+    ["Give me spa recommendations", "couples-and-quieter-stays"],
+    ["Give me beach recommendations", "nearby-areas-and-day-trips"],
+    ["What airports can I use?", "transport"],
+  ];
+  for (const [query, expectedTopic] of cases) {
+    const topics = inferPublishedKnowledgeTopics(query);
+    assert.ok(topics.includes(expectedTopic), `${query} -> ${topics.join(",")}`);
+    assert.equal(isBroadPublishedKnowledgeRecommendation(query, topics), true, query);
+  }
+  const followUp = contextualizePublishedKnowledgeQuery("What other ones?", "Recommend Italian restaurants");
+  assert.match(followUp, /Italian restaurants.*other ones/i);
+  assert.deepEqual(inferPublishedKnowledgeTopics(followUp), ["restaurants"]);
+  const genericFollowUp = contextualizePublishedKnowledgeQuery("What other options do you have?", "Recommend restaurants");
+  const genericFollowUpResult = rankPublishedKnowledge(bundle, { query: genericFollowUp, topics: inferPublishedKnowledgeTopics(genericFollowUp), limit: 3, requireMatch: true });
+  assert.equal(genericFollowUpResult.snippets.length, 1);
+  assert.equal(contextualizePublishedKnowledgeQuery("What other amenities are there?", "Recommend Italian restaurants"), "What other amenities are there?");
 });
 
 test("transport, spa, and requested counts route without incidental count-word bias", () => {

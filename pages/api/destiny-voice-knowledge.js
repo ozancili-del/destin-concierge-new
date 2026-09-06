@@ -1,11 +1,9 @@
-import { contextualizePublishedKnowledgeQuery, inferPublishedKnowledgeTopics, searchPublishedKnowledge } from "../../lib/destiny-agent/published-knowledge.js";
+import { contextualizePublishedKnowledgeQuery, inferPublishedKnowledgeTopics, isBroadPublishedKnowledgeRecommendation, searchPublishedKnowledge } from "../../lib/destiny-agent/published-knowledge.js";
 import { allowSameOriginRequest, cleanText, enforceJsonSize, enforceRateLimit } from "../../lib/public-api-security.js";
 
-const BROAD_RECOMMENDATION = /\b(?:recommend|suggest|restaurants?|places? to eat|beaches|things to do|activities|attractions|shops?|shopping|grocer(?:y|ies)|supermarkets?|spas?|airports?|options?|other ones?)\b/i;
-
-export function requestedRecommendationCount(query) {
+export function requestedRecommendationCount(query, topics = inferPublishedKnowledgeTopics(query)) {
   const value = String(query || "");
-  if (!BROAD_RECOMMENDATION.test(value)) return null;
+  if (!isBroadPublishedKnowledgeRecommendation(value, topics)) return null;
   const explicit = value.match(/\b(?:give|show|list|name|recommend|suggest|offer)\s+(?:me\s+)?(?:about\s+)?([1-5]|one|two|three|four|five)\b/i)?.[1]?.toLowerCase()
     || value.match(/\b([1-5]|one|two|three|four|five)\s+(?:different\s+)?(?:restaurants?|places?|options?|choices?|recommendations?|beaches|activities|attractions|shops?|grocer(?:y|ies)|supermarkets?|spas?|airports?)\b/i)?.[1]?.toLowerCase();
   const number = { one: 1, two: 2, three: 3, four: 4, five: 5 }[explicit] || Number(explicit);
@@ -23,7 +21,7 @@ export default async function handler(req, res) {
 
   const retrievalQuery = contextualizePublishedKnowledgeQuery(query, priorQuery);
   const topics = inferPublishedKnowledgeTopics(retrievalQuery);
-  const requestedCount = requestedRecommendationCount(query);
+  const requestedCount = requestedRecommendationCount(query, topics);
   const result = await searchPublishedKnowledge({ query: retrievalQuery, topics, limit: requestedCount ? Math.max(requestedCount, 5) : 4, requireMatch: true });
   if (result.source !== "published" || !result.snippets.length) {
     return res.status(404).json({

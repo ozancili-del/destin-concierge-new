@@ -147,6 +147,29 @@ test("question scaffolding cannot tie unrelated factual entries", () => {
   assert.deepEqual(result.snippets.map(item => item.entryId), ["ev_chargers"]);
 });
 
+test("specific fact questions retain matching approved detail beyond the generic voice summary", () => {
+  const detailBundle = structuredClone(bundle);
+  const entry = detailBundle.topics[0].entries[0];
+  entry.retrieval_tags.push("charging", "cost");
+  entry.voice_ready = {
+    summary: "The resort has paid EV charging.",
+    differentiator: "The chargers are in the covered garage.",
+    caveat: "Availability can change.",
+  };
+  entry.facts.push({
+    claim: "Current pricing is a $1 session fee plus $0.50 per kWh, with a $10-per-hour idle fee capped at $30.",
+    publication_status: "approved",
+  });
+  const result = rankPublishedKnowledge(detailBundle, {
+    query: "What does EV charging cost?",
+    topics: ["amenities"],
+    limit: 4,
+    requireMatch: true,
+  });
+  assert.match(result.snippets[0].text, /\$1 session fee/);
+  assert.match(result.snippets[0].text, /\$0\.50 per kWh/);
+});
+
 test("ranking preserves distinct named choices for plural recommendations", () => {
   const restaurantBundle = structuredClone(bundle);
   restaurantBundle.topics[1].entries.push(...["Mimmo's", "Fat Clemenza's", "Nonna's"].map((name, index) => ({

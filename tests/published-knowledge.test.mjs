@@ -170,6 +170,31 @@ test("specific fact questions retain matching approved detail beyond the generic
   assert.match(result.snippets[0].text, /\$0\.50 per kWh/);
 });
 
+test("factual retrieval can find approved claims stored under entity topics", () => {
+  const crossTopicBundle = {
+    topics: [{
+      topic_id: "everyday-essentials",
+      entries: [{
+        id: "essentials-guide", name: "Arrival basics", publication_status: "approved",
+        retrieval_tags: ["starter supplies"], guest_questions: ["Are starter supplies included?"],
+        facts: [{ claim: "Both condos have full kitchens.", publication_status: "published" }],
+        voice_ready: { summary: "Both condos have full kitchens.", caveat: "Ask about a specific starter item." },
+      }],
+    }, ...["707", "1006"].map(unit => ({
+      topic_id: `unit-${unit}`,
+      entries: [{
+        id: `unit${unit}_core`, name: `Unit ${unit} core details`, publication_status: "approved",
+        facts: [{ claim: `Unit ${unit} provides starter quantities of toilet paper, hand soap, shampoo, and conditioner.`, publication_status: "approved" }],
+      }],
+    }))],
+  };
+  const result = rankPublishedKnowledge(crossTopicBundle, {
+    query: "What toiletries are provided?", topics: ["everyday-essentials"], limit: 4, requireMatch: true,
+  });
+  assert.deepEqual(result.snippets.map(item => item.entryId), ["unit1006_core", "unit707_core"]);
+  assert.match(result.snippets[0].text, /toilet paper/);
+});
+
 test("ranking preserves distinct named choices for plural recommendations", () => {
   const restaurantBundle = structuredClone(bundle);
   restaurantBundle.topics[1].entries.push(...["Mimmo's", "Fat Clemenza's", "Nonna's"].map((name, index) => ({

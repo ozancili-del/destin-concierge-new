@@ -72,7 +72,7 @@ export default async function handler(req, res) {
   }
 
   const selected = requestedCount ? result.snippets.slice(0, requestedCount) : result.snippets;
-  const topicMismatch = topics.length
+  const topicMismatch = requestedCount && topics.length
     ? selected.find(item => !topics.includes(item.topicId))
     : null;
   const categoryMismatch = recommendationCategory.startsWith("restaurant")

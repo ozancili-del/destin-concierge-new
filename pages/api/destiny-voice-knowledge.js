@@ -1,5 +1,6 @@
 import { classifyPublishedKnowledgeRoute, contextualizePublishedKnowledgeQuery, inferPublishedKnowledgeTopics, inferPublishedRecommendationCategory, isBroadPublishedKnowledgeRecommendation, isGenericPublishedKnowledgeFollowUp, searchPublishedKnowledge } from "../../lib/destiny-agent/published-knowledge.js";
 import { cleanDomainId, createDomainResult } from "../../lib/destiny-domain/contracts.js";
+import { isKnownRestaurantMention } from "../../lib/destiny-domain/entity-index.js";
 import { allowSameOriginRequest, cleanText, enforceJsonSize, enforceRateLimit } from "../../lib/public-api-security.js";
 
 export function requestedRecommendationCount(query, topics = inferPublishedKnowledgeTopics(query)) {
@@ -30,8 +31,9 @@ export default async function handler(req, res) {
   if (query.length < 2) return res.status(400).json({ error: "A complete knowledge question is required." });
 
   const retrievalQuery = contextualizePublishedKnowledgeQuery(query, priorQuery);
+  const knownRestaurant = isKnownRestaurantMention(retrievalQuery);
   const route = classifyPublishedKnowledgeRoute(retrievalQuery);
-  if (route !== "knowledge") {
+  if (route !== "knowledge" && !(route === "live" && knownRestaurant)) {
     res.setHeader("Cache-Control", "private, no-store");
     return res.status(409).json({
       error: route === "availability" ? "This request requires the availability tool." : "This request requires a live or protected-information check.",
@@ -48,7 +50,10 @@ export default async function handler(req, res) {
     });
   }
 
-  const topics = inferPublishedKnowledgeTopics(retrievalQuery);
+  const inferredTopics = inferPublishedKnowledgeTopics(retrievalQuery);
+  const topics = knownRestaurant && !inferredTopics.includes("restaurants")
+    ? ["restaurants", ...inferredTopics]
+    : inferredTopics;
   const recommendationCategory = inferPublishedRecommendationCategory(retrievalQuery, topics);
   const requestedCount = requestedRecommendationCount(query, topics);
   const result = await searchPublishedKnowledge({ query: retrievalQuery, topics, limit: requestedCount ? Math.max(requestedCount, 5) : 4, requireMatch: true, excludeEntryIds: excludeCandidateIds });
@@ -56,6 +61,9 @@ export default async function handler(req, res) {
     return res.status(404).json({
       error: "The approved Destiny Knowledge HQ does not contain a reliable answer for that question.",
       status: result.status,
+      topics,
+      unknownRestaurant: topics.includes("restaurants") && !knownRestaurant,
+      knownRestaurantUnavailable: topics.includes("restaurants") && knownRestaurant,
       domain: createDomainResult({
         traceId, turnId, subrequestId,
         status: "unavailable",

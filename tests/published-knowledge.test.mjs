@@ -296,7 +296,7 @@ test("server-owned routing keeps stable owner facts fast and dynamic claims live
   assert.equal(classifyPublishedKnowledgeRoute("What are the 2026 beach-chair rates?"), "knowledge");
   assert.equal(classifyPublishedKnowledgeRoute("What is November usually like?"), "knowledge");
   assert.equal(classifyPublishedKnowledgeRoute("Will it rain tomorrow?"), "live");
-  assert.equal(classifyPublishedKnowledgeRoute("Is Pazzo open now?"), "live");
+  assert.equal(classifyPublishedKnowledgeRoute("Is Pazzo restaurant open now?"), "knowledge");
   assert.equal(classifyPublishedKnowledgeRoute("What events are happening this weekend?"), "live");
   assert.equal(classifyPublishedKnowledgeRoute("Is Unit 707 available November 1?"), "availability");
 });

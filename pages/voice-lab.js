@@ -68,7 +68,7 @@ export default function VoiceLab({ buildRevision }) {
   const lastKnowledgeCandidateIdsRef = useRef([]);
   const latestAcceptedTurnRef = useRef(null);
   const activeGatewayRef = useRef(null);
-  const routerContextRef = useRef({ version: 0, activeCategory: null, focusedEntityIds: [], offeredEntityIds: [], booking: null, latestAnswerId: null });
+  const routerContextRef = useRef({ version: 0, activeCategory: null, focusedEntityIds: [], offeredEntityIds: [], booking: null, latestAnswerId: null, pendingExternalRestaurantSearch: null });
   const sessionRef = useRef(null);
   const callRef = useRef(null);
   const eventSequenceRef = useRef(0);
@@ -738,6 +738,22 @@ export default function VoiceLab({ buildRevision }) {
       const conversationalOnly = routes.length === 1 && ["conversational", "cached_answer", "clarify"].includes(routes[0]);
       const referralOnly = routes.length === 1 && routes[0] === "refer";
       const availabilityTurn = subrequests.length === 1 && subrequests[0]?.intent === "availability";
+      const externalRestaurantResearch = subrequests.length === 1 && subrequests[0]?.intent === "restaurant_research";
+
+      if (externalRestaurantResearch) {
+        const pendingQuery = context.pendingExternalRestaurantSearch;
+        routerContextRef.current = { ...context, version: context.version + 1, pendingExternalRestaurantSearch: null };
+        const response = await fetch("/api/destiny-restaurant-search", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query: pendingQuery, traceId, turnId, subrequestId: subrequests[0]?.id }),
+          signal: abortController.signal,
+        });
+        const data = await response.json();
+        if (!stillOwnsTurn()) return;
+        logResult({ status: data.domain?.status || (response.ok ? "complete" : "error"), executedRoute: "external-restaurant-search", httpStatus: response.status });
+        speak("external-restaurant-search", data.reply || data.error || "The restaurant search did not complete. Suggest contacting the restaurant directly.");
+        return;
+      }
 
       if (knowledgeOnly || knowledgeAndReferral) {
         const priorQuery = [...historyRef.current].reverse().find(message => message?.role === "user" && String(message.content || "").trim() !== guestText)?.content || "";
@@ -763,6 +779,15 @@ export default function VoiceLab({ buildRevision }) {
           return;
         }
         logResult({ status: data.domain?.status || "unavailable", executedRoute: "knowledge", httpStatus: response.status, fallbackReason: data.domain?.fallbackReason || "knowledge_gap" });
+        if (data.unknownRestaurant) {
+          routerContextRef.current = { ...context, version: context.version + 1, pendingExternalRestaurantSearch: guestText };
+          speak("restaurant-search-confirmation", "Explain that this restaurant is not in Destiny's approved local guide. Say that an online search may take up to about 20 seconds, then ask whether the guest wants you to search. Do not search yet.", { maxOutputTokens: 300 });
+          return;
+        }
+        if (data.knownRestaurantUnavailable) {
+          speak("restaurant-direct-confirmation", "Explain briefly that Destiny cannot guarantee that operational detail. Tell the guest to confirm it directly with the restaurant using the stored contact or official link when available. Do not run a web search.", { maxOutputTokens: 300 });
+          return;
+        }
         speak("knowledge-unavailable", "Explain briefly that this is not in the approved Destiny knowledge yet. Do not search elsewhere or invent an answer. Offer the normal inquiry/contact route.", { maxOutputTokens: 300 });
         return;
       }
@@ -795,6 +820,9 @@ export default function VoiceLab({ buildRevision }) {
 
       if (conversationalOnly) {
         const route = routes[0];
+        if (context.pendingExternalRestaurantSearch) {
+          routerContextRef.current = { ...context, version: context.version + 1, pendingExternalRestaurantSearch: null };
+        }
         const answer = route === "cached_answer" ? "Repeat or continue the most recent answer from the conversation without introducing a new subject."
           : route === "conversational" ? "Respond briefly and naturally to the guest's conversational message."
             : `Ask one concise clarification question for: ${subrequests.flatMap(item => item.fields).join(", ") || "the guest's request"}.`;
@@ -1117,6 +1145,7 @@ export default function VoiceLab({ buildRevision }) {
             expectedReply: expectedReplyRef.current?.kind
               ? { planId: "voice-current", field: expectedReplyRef.current.kind, allowedValues: [] }
               : null,
+            pendingExternalRestaurantSearch: currentRouterContext.pendingExternalRestaurantSearch,
           },
         });
         latestAcceptedTurnRef.current = {
@@ -1251,7 +1280,7 @@ export default function VoiceLab({ buildRevision }) {
     latestAcceptedTurnRef.current = null;
     activeGatewayRef.current?.abortController?.abort();
     activeGatewayRef.current = null;
-    routerContextRef.current = { version: 0, activeCategory: null, focusedEntityIds: [], offeredEntityIds: [], booking: null, latestAnswerId: null };
+    routerContextRef.current = { version: 0, activeCategory: null, focusedEntityIds: [], offeredEntityIds: [], booking: null, latestAnswerId: null, pendingExternalRestaurantSearch: null };
     setTranscript([]);
     setCompanionLinks([]);
     eventSequenceRef.current = 0;

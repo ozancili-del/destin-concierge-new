@@ -72,10 +72,29 @@ test("context controls follow-ups, repeats, and short expected-slot answers", ()
 
 test("mixed requests create scoped subrequests and dependencies", () => {
   const mixed = plan("Recommend Italian places and check whether the first is open now.");
-  assert.deepEqual(mixed.subrequests.map(item => item.route), ["knowledge", "live"]);
-  assert.deepEqual(mixed.subrequests[1].dependsOn, ["s1"]);
+  assert.deepEqual(mixed.subrequests.map(item => item.route), ["knowledge"]);
   const venues = plan("Are Boshamps and The Back Porch open now?");
-  assert.deepEqual(venues.subrequests.map(item => item.entities.subjectIds), [["restaurant_boshamps"], ["restaurant_back_porch"]]);
+  assert.deepEqual(venues.subrequests.map(item => item.route), ["knowledge"]);
+});
+
+test("unknown restaurant research requires an explicit second-turn confirmation", () => {
+  const pending = { pendingExternalRestaurantSearch: "Tell me about an unlisted restaurant." };
+  const confirmed = plan("Yes, please.", pending).subrequests[0];
+  assert.equal(confirmed.intent, "restaurant_research");
+  assert.equal(confirmed.route, "live");
+  assert.deepEqual(confirmed.fields, ["external_restaurant_research"]);
+  assert.equal(plan("No thanks.", pending).subrequests[0].route, "conversational");
+});
+
+test("known restaurant operational questions never escape to a live lookup", () => {
+  for (const question of [
+    "Does Boshamps have a table available tonight?",
+    "What is the wait time at Boshamps?",
+    "Can Boshamps guarantee a gluten-free meal?",
+  ]) {
+    const routed = plan(question).subrequests[0];
+    assert.equal(routed.route, "knowledge", question);
+  }
 });
 
 test("unsupported protected and price capabilities fail closed", () => {
@@ -127,8 +146,8 @@ const AUTHORITY_CASES = Object.freeze([
   ["R12", "Actually Italian.", { activeCategory: "restaurant-seafood" }, ["knowledge"], ["recommendations"], ["restaurant-italian"]],
   ["R13", "Only one, please.", { activeCategory: "restaurant" }, ["knowledge"], ["recommendations"], ["restaurant"]],
   ["R14", "Where should we eat?", {}, ["knowledge"], ["recommendations"], ["restaurant"]],
-  ["R15", "Recommend Italian places and check whether the first is open now.", {}, ["knowledge", "live"], ["recommendations", "venue_status"], ["restaurant-italian", "opening_status"]],
-  ["R16", "Are Boshamps and The Back Porch open now?", {}, ["live", "live"], ["venue_status", "venue_status"], ["opening_status"]],
+  ["R15", "Recommend Italian places and check whether the first is open now.", {}, ["knowledge"], ["recommendations"], ["restaurant-italian"]],
+  ["R16", "Are Boshamps and The Back Porch open now?", {}, ["knowledge"], ["place_detail"], ["stored_normal_hours"]],
   ["R17", "Is it close?", { focusedEntityIds: ["restaurant_boshamps"] }, ["knowledge"], ["place_detail"], ["distance_minutes"]],
   ["R18", "Is it close?", { focusedEntityIds: ["restaurant_boshamps", "restaurant_back_porch"] }, ["clarify"], ["unknown"], ["subject"]],
   ["R19", "Two.", { expectedReply: { planId: "p", field: "adults", allowedValues: [] } }, ["clarify"], ["availability"], ["adults"]],
@@ -145,7 +164,7 @@ const AUTHORITY_CASES = Object.freeze([
   ["R30", "What is Boshamps' distance?", {}, ["knowledge"], ["place_detail"], ["distance_minutes"]],
   ["R31", "Merhaba, Kasım ayında hava genelde nasıl?", {}, ["knowledge"], ["seasonal_climate"], ["seasonal_weather"]],
   ["R32", "What airports should we consider and can you check flights from Denver?", {}, ["knowledge", "refer"], ["recommendations", "live_travel"], ["airports", "flight_inventory"]],
-  ["R33", "No, check their hours, not their prices.", { focusedEntityIds: ["restaurant_boshamps"] }, ["live"], ["venue_status"], ["opening_status"]],
+  ["R33", "No, check their hours, not their prices.", { focusedEntityIds: ["restaurant_boshamps"] }, ["knowledge"], ["place_detail"], ["stored_normal_hours"]],
   ["R34", "I want no seafood; suggest Italian places.", {}, ["knowledge"], ["recommendations"], ["restaurant-italian"]],
   ["R35", "Give me the same three again.", { activeCategory: "restaurant", previousAnswerFrame: true }, ["cached_answer"], ["repeat"], ["previous_answer"]],
   ["R36", "Do you know the rate for the EV chargers?", {}, ["knowledge"], ["approved_dated_fact"], ["session_fee", "energy_fee", "idle_fee", "idle_cap", "idle_exemption"]],

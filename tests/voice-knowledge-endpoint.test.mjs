@@ -90,6 +90,38 @@ test("voice knowledge endpoint reports route handoff without hiding it as a know
   assert.equal(res.body.domain.traceId, "trace_weather");
 });
 
+test("known restaurant hours stay on the published HQ route even when phrased as open now", async () => {
+  const originalFetch = globalThis.fetch;
+  const originalEnabled = process.env.DESTINY_PUBLISHED_KNOWLEDGE_ENABLED;
+  const originalUrl = process.env.DESTINY_PUBLISHED_KNOWLEDGE_URL;
+  resetPublishedKnowledgeCacheForTests();
+  process.env.DESTINY_PUBLISHED_KNOWLEDGE_ENABLED = "true";
+  process.env.DESTINY_PUBLISHED_KNOWLEDGE_URL = "https://knowledge.test/restaurants";
+  globalThis.fetch = async () => ({ ok: true, json: async () => ({
+    revision: "restaurant-static-1", manifest: { schema_version: "1.0" }, topics: [{
+      topic_id: "restaurants", title: "Restaurants", entries: [{
+        id: "restaurant_pazzo", name: "Pazzo Italiano", publication_status: "approved",
+        retrieval_tags: ["Pazzo", "Italian", "hours", "open"],
+        facts: [{ claim: "Pazzo Italiano's stored normal hours are available in the approved guide.", publication_status: "approved" }],
+      }],
+    }],
+  }) });
+  try {
+    const req = { method: "POST", headers: { host: "voice.test", origin: "https://voice.test" }, socket: { remoteAddress: "127.0.0.96" }, body: { query: "Is Pazzo open now?" } };
+    const res = responseRecorder();
+    await handler(req, res);
+    assert.equal(res.statusCode, 200);
+    assert.equal(res.body.route, "knowledge");
+    assert.deepEqual(res.body.topics, ["restaurants"]);
+    assert.equal(res.body.source, "published");
+  } finally {
+    globalThis.fetch = originalFetch;
+    if (originalEnabled === undefined) delete process.env.DESTINY_PUBLISHED_KNOWLEDGE_ENABLED; else process.env.DESTINY_PUBLISHED_KNOWLEDGE_ENABLED = originalEnabled;
+    if (originalUrl === undefined) delete process.env.DESTINY_PUBLISHED_KNOWLEDGE_URL; else process.env.DESTINY_PUBLISHED_KNOWLEDGE_URL = originalUrl;
+    resetPublishedKnowledgeCacheForTests();
+  }
+});
+
 test("broad recommendations default to three unless the guest asks for another count", () => {
   assert.equal(requestedRecommendationCount("Recommend Italian restaurants"), 3);
   assert.equal(requestedRecommendationCount("Give me restaurant recommendations"), 3);

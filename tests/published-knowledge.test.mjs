@@ -276,6 +276,12 @@ test("server-owned routing keeps stable owner facts fast and dynamic claims live
   assert.equal(classifyPublishedKnowledgeRoute("Is Unit 707 available November 1?"), "availability");
 });
 
+test("the knowledge boundary rejects protected reservation actions in either word order", () => {
+  assert.equal(classifyPublishedKnowledgeRoute("Please cancel my reservation"), "live");
+  assert.equal(classifyPublishedKnowledgeRoute("Can you look up our booking?"), "live");
+  assert.equal(classifyPublishedKnowledgeRoute("What is the cancellation policy?"), "knowledge");
+});
+
 test("server-owned routing ignores negated live metadata in stable tool prompts", () => {
   assert.equal(classifyPublishedKnowledgeRoute("Recommend established local restaurants, not live hours."), "knowledge");
   assert.equal(classifyPublishedKnowledgeRoute("Typical January weather. Stable climate guidance only; no current forecast."), "knowledge");

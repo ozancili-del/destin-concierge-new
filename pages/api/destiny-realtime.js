@@ -42,43 +42,10 @@ export default async function handler(req, res) {
         },
         output: VOICE_OUTPUT,
       },
-      tools: [{
-        type: "function",
-        name: "check_live_availability",
-        description: "Directly check both condos in live OwnerRez for one party of no more than six guests. Use immediately when exact dates, adults, and children are known. Zero children is valid and must not be reconfirmed.",
-        parameters: {
-          type: "object",
-          properties: {
-            arrival: { type: "string", description: "Check-in date in YYYY-MM-DD format." },
-            departure: { type: "string", description: "Check-out date in YYYY-MM-DD format." },
-            adults: { type: "integer", minimum: 1, maximum: 6 },
-            children: { type: "integer", minimum: 0, maximum: 5 },
-          },
-          required: ["arrival", "departure", "adults", "children"],
-          additionalProperties: false,
-        },
-      }, {
-        type: "function",
-        name: "get_approved_knowledge",
-        description: "Quickly retrieve approved stable facts from Destiny Knowledge HQ without a live web search or the full concierge agent. Use for condo and resort facts, amenities, policies, arrival logistics, parking, EV chargers, accessibility guidance, general seasonal climate, and established local or restaurant recommendations. Include relevant context from earlier turns in the query. Do not use for live availability, near-term forecasts, current restaurant hours or closures, current events, changing prices or schedules, protected reservation details, or actions.",
-        parameters: {
-          type: "object",
-          properties: { query: { type: "string", description: "The guest's complete stable-fact question, including the subject of a follow-up such as where the EV chargers are located." } },
-          required: ["query"],
-          additionalProperties: false,
-        },
-      }, {
-        type: "function",
-        name: "ask_destiny_brain",
-        description: "Consult the full Destiny agent for live, changing, protected, or action-oriented work: near-term weather, current beach conditions, current hours or closures, events, prices, complex booking requests, guest support, and reservations. Do not use for stable facts or established recommendations available through get_approved_knowledge.",
-        parameters: {
-          type: "object",
-          properties: { query: { type: "string", description: "The guest's complete current question, including relevant context from the conversation." } },
-          required: ["query"],
-          additionalProperties: false,
-        },
-      }],
-      tool_choice: "auto",
+      // The application-owned turn gateway is the only routing authority.
+      // Realtime renders its result and never selects or invokes business tools.
+      tools: [],
+      tool_choice: "none",
     };
     const boundary = `----destiny-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
     const multipart = Buffer.from([

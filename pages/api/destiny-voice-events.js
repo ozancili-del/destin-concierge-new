@@ -17,7 +17,8 @@ const EVENT_TYPES = new Set([
   "effective_session_config", "late_transcript_received", "cancellation_probe",
   "connection_retired", "repair_requested",
   "client_vad_started", "client_vad_stopped", "input_buffer_cleared",
-  "input_commit_requested", "router_shadow",
+  "input_commit_requested", "router_shadow", "router_active",
+  "turn_gateway_result", "turn_gateway_fallback",
 ]);
 
 function cleanId(value, max = 160) {

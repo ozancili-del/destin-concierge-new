@@ -318,6 +318,8 @@ test("airport category returns only the three airports in owner-defined order", 
     "transport_pensacola_international_airport_pns",
     "transport_northwest_florida_beaches_international_airport_ecp",
   ]);
+  const singular = rankPublishedKnowledge(transportBundle, { query: "Which airport should I use for Destin?", topics: ["transport"], limit: 5, requireMatch: true });
+  assert.deepEqual(singular.snippets.map(item => item.entryId), broad.snippets.map(item => item.entryId));
   const followUp = contextualizePublishedKnowledgeQuery("What about Pensacola?", "What airports serve Destin?");
   const pensacola = rankPublishedKnowledge(transportBundle, { query: followUp, topics: inferPublishedKnowledgeTopics(followUp), limit: 4, requireMatch: true });
   assert.deepEqual(pensacola.snippets.map(item => item.entryId), ["transport_pensacola_international_airport_pns"]);

@@ -51,7 +51,8 @@ test("each Voice Lab call receives a fresh session and clears browser conversati
   assert.match(source, /const identity = createVoiceCallIdentity\(\)/);
   assert.match(source, /sessionRef\.current = identity\.sessionId/);
   assert.match(source, /sessionRef\.current = identity\.sessionId;[\s\S]{0,250}historyRef\.current = \[\]/);
-  assert.match(source, /historyRef\.current = \[\];[\s\S]{0,150}setTranscript\(\[\]\);[\s\S]{0,150}setCompanionLinks\(\[\]\)/);
+  assert.match(source, /historyRef\.current = \[\];[\s\S]{0,600}setTranscript\(\[\]\);[\s\S]{0,150}setCompanionLinks\(\[\]\)/);
+  assert.match(source, /routerContextRef\.current = \{ version: 0, activeCategory: null/);
 });
 
 test("Realtime transcription favors English without seeding guest-like text", async () => {
@@ -91,7 +92,7 @@ test("Voice receives Central date context and next-occurrence date behavior", ()
   assert.match(instructions, /Ask for the year only when/i);
 });
 
-test("Voice routing makes stable facts immediate and keeps fresh and protected checks", () => {
+test("Voice rendering stays conversational while the application owns all routing", () => {
   assert.equal(Object.keys(IMMEDIATE_VOICE_FACTS).length, 12);
   assert.match(IMMEDIATE_VOICE_FACTS.wellness, /fitness center.*sauna.*steam room/i);
   assert.match(IMMEDIATE_VOICE_FACTS.recreation, /tennis.*pickleball.*grills/i);
@@ -99,17 +100,10 @@ test("Voice routing makes stable facts immediate and keeps fresh and protected c
   assert.match(IMMEDIATE_VOICE_FACTS.resortServices, /24-hour front desk.*security.*accessible parking.*vending.*Pool bracelets/i);
   assert.match(IMMEDIATE_VOICE_FACTS.amenities, /Laundry.*quarters or credit cards/i);
   assert.match(IMMEDIATE_VOICE_FACTS.arrivalTimes, /check-in is 4:00 PM Central Time.*checkout is 10:00 AM Central Time/i);
-  assert.match(VOICE_INSTRUCTIONS, /answer directly and immediately/i);
-  assert.match(VOICE_INSTRUCTIONS, /Approved stable knowledge: use get_approved_knowledge immediately/i);
-  assert.match(VOICE_INSTRUCTIONS, /typical monthly or seasonal climate/i);
-  assert.match(VOICE_INSTRUCTIONS, /established local or restaurant recommendations/i);
-  assert.match(VOICE_INSTRUCTIONS, /Call this tool silently/i);
-  assert.match(VOICE_INSTRUCTIONS, /Fresh checks: availability, near-term weather forecasts/i);
-  assert.match(VOICE_INSTRUCTIONS, /current restaurant hours or closures/i);
-  assert.match(VOICE_INSTRUCTIONS, /These are not live searches/i);
-  assert.match(VOICE_INSTRUCTIONS, /Protected checks: reservation details, door codes, maintenance actions/i);
-  assert.match(VOICE_INSTRUCTIONS, /Before ask_destiny_brain, say one short, relevant acknowledgement/i);
-  assert.match(VOICE_INSTRUCTIONS, /Do not repeat the acknowledgement while the same lookup is pending/i);
+  assert.match(VOICE_INSTRUCTIONS, /application owns routing and supplies an authoritative instruction/i);
+  assert.match(VOICE_INSTRUCTIONS, /You have no business tools/i);
+  assert.match(VOICE_INSTRUCTIONS, /Never choose a data source/i);
+  assert.match(VOICE_INSTRUCTIONS, /Speak only the useful guest-facing result provided for that turn/i);
   assert.match(VOICE_INSTRUCTIONS, /Never say “including zero” to a guest/i);
   assert.match(VOICE_INSTRUCTIONS, /Do not automatically end every reply with “Anything else\?”/i);
   assert.match(VOICE_INSTRUCTIONS, /occasionally offer one short, topic-specific invitation/i);
@@ -129,26 +123,36 @@ test("Voice routing makes stable facts immediate and keeps fresh and protected c
   assert.match(VOICE_INSTRUCTIONS, /ask briefly in the established language whether the guest wants to switch or continue/i);
   assert.match(VOICE_INSTRUCTIONS, /If the language is uncertain, do not guess its name/i);
   assert.match(VOICE_INSTRUCTIONS, /If speech is clearly not addressed to you, do not respond/i);
-  assert.match(VOICE_INSTRUCTIONS, /cannot use the internet/i);
+  assert.match(VOICE_INSTRUCTIONS, /claim to be checking something unless the current response instruction explicitly says a live lookup is in progress/i);
   assert.match(VOICE_INSTRUCTIONS, /Never mention internal vendors or booking-platform names/i);
 });
 
-test("Realtime exposes a direct approved-knowledge fast path and the Voice Lab executes it", async () => {
+test("one application gateway routes accepted turns and Realtime only renders", async () => {
   const realtimeSource = await readFile(new URL("../pages/api/destiny-realtime.js", import.meta.url), "utf8");
   const labSource = await readFile(new URL("../pages/voice-lab.js", import.meta.url), "utf8");
   const endpointSource = await readFile(new URL("../pages/api/destiny-voice-knowledge.js", import.meta.url), "utf8");
-  assert.match(realtimeSource, /name: "get_approved_knowledge"/);
-  assert.match(realtimeSource, /Do not use for stable facts or established recommendations available through get_approved_knowledge/i);
-  assert.match(labSource, /event\.name === "get_approved_knowledge"/);
+  assert.match(realtimeSource, /tools: \[\]/);
+  assert.match(realtimeSource, /tool_choice: "none"/);
+  assert.doesNotMatch(realtimeSource, /name: "(?:get_approved_knowledge|ask_destiny_brain|check_live_availability)"/);
+  assert.match(labSource, /buildRouterDecision/);
+  assert.match(labSource, /executeAuthoritativeTurn/);
   assert.match(labSource, /fetch\("\/api\/destiny-voice-knowledge"/);
-  assert.match(labSource, /const authoritativeQuestion = String\(acceptedTurn\?\.text \|\| modelQuery\)\.trim\(\)/);
-  assert.match(labSource, /query: question, priorQuery, excludeCandidateIds: lastKnowledgeCandidateIdsRef\.current/);
-  assert.match(labSource, /forcePublishedKnowledge/);
-  assert.match(labSource, /model_route_overridden_by_authoritative_plan/);
+  assert.match(labSource, /query: guestText, priorQuery, excludeCandidateIds: context\.offeredEntityIds/);
+  assert.match(labSource, /eventType: "router_active"/);
+  assert.match(labSource, /eventType: "turn_gateway_result"/);
+  assert.match(labSource, /Do not choose a tool, perform another lookup, change the route/);
   assert.match(endpointSource, /inferPublishedKnowledgeTopics\(retrievalQuery\)/);
   assert.match(endpointSource, /searchPublishedKnowledge\(\{ query: retrievalQuery, topics, limit: requestedCount \? Math\.max\(requestedCount, 5\) : 4, requireMatch: true, excludeEntryIds: excludeCandidateIds \}\)/);
   assert.match(endpointSource, /knowledge_category_mismatch/);
   assert.doesNotMatch(endpointSource, /OPENAI_API_KEY|responses\.create|chat\.completions/);
+});
+
+test("an approved-knowledge miss cannot silently reopen the unrestricted chat path", async () => {
+  const labSource = await readFile(new URL("../pages/voice-lab.js", import.meta.url), "utf8");
+  assert.match(labSource, /knowledge-unavailable/);
+  assert.match(labSource, /Do not search elsewhere or invent an answer/);
+  assert.match(labSource, /knowledgeAndReferral/);
+  assert.match(labSource, /if \(referralOnly\)/);
 });
 
 test("slow lookup progress is contextual and presence checks are narrow", () => {

@@ -6,6 +6,7 @@ import { assembleAnswerFrame } from "../lib/destiny-domain/assemble-answer.js";
 import { executePlan } from "../lib/destiny-domain/execute-plan.js";
 import { InMemoryShadowPlanStore } from "../lib/destiny-domain/plan-store.js";
 import { authorizeSubrequest } from "../lib/destiny-domain/policy.js";
+import { buildRouterDecision } from "../lib/destiny-domain/shadow-router.js";
 
 function plan(text, context = {}) {
   return routeRequest(createRouterInput({
@@ -98,6 +99,17 @@ test("airports are a stable ordered knowledge recommendation; flight lookup is s
 test("availability retains explicit dates and zero children without reconfirming them", () => {
   const request = plan("Any availability November 1 to 18 for two adults, no children?").subrequests[0];
   assert.deepEqual(request.booking, { arrival: "2026-11-01", departure: "2026-11-18", adults: 2, children: 0 });
+});
+
+test("the active router owns stable facts, contextual recommendations, and booking continuation", () => {
+  for (const question of ["Tell me about the pools", "Where do I park?", "Does Unit 1006 have laundry?"]) {
+    assert.deepEqual(summary(question).routes, ["knowledge"], question);
+  }
+  assert.deepEqual(summary("I want a cheap one", { activeCategory: "restaurant-sushi-asian", offeredEntityIds: ["restaurant_domo_izakaya"] }).fields, ["restaurant-sushi-asian"]);
+  assert.deepEqual(summary("November 1 to 18 for two adults, no children", { booking: {} }).routes, ["availability"]);
+  const active = buildRouterDecision({ channel: "voice", text: "Recommend restaurants", sessionId: "s", turnId: "t", context: { profile: "voice_lab_guest", revision: "r" } });
+  assert.equal(active.summary.shadow, false);
+  assert.deepEqual(active.summary.routes, ["knowledge"]);
 });
 
 const AUTHORITY_CASES = Object.freeze([

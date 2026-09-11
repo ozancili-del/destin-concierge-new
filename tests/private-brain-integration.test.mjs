@@ -144,7 +144,14 @@ test('private Realtime uses only a renderer, transcriber and server-only credent
   const handler=createPrivateRealtimeHandler({env,fetchImpl:async(url,options)=>{calls++;assert.equal(url,'https://api.openai.com/v1/realtime/calls');const session=JSON.parse(options.body.get('session'));assert.deepEqual(session.tools,[]);assert.equal(session.tool_choice,'none');assert.doesNotMatch(JSON.stringify(session),/synthetic-test-token/);assert.match(session.instructions,/verbatim/);return {ok:true,text:async()=> 'v=0\r\nmock-answer'};}});
   const req={method:'POST',socket:{remoteAddress:'127.0.0.1'},headers:{host:'localhost:3000',origin:'http://localhost:3000','content-type':'application/sdp'},async *[Symbol.asyncIterator](){yield Buffer.from('v=0\r\nmock-offer');}},res=responseMock();
   await handler(req,res);assert.equal(res.statusCode,200);assert.equal(calls,1);
-  for(const changed of [{...env,VERCEL_ENV:'preview'},{...env,DESTINY_PRIVATE_RUNTIME:'0'},{...env,DESTINY_PRIVATE_MODEL_CALLS:'0'}]){const r=responseMock();await createPrivateRealtimeHandler({env:changed,fetchImpl:()=>{throw Error('must not call');}})(req,r);assert.ok([404,503].includes(r.statusCode));}
+  for(const changed of [{...env,DESTINY_PRIVATE_RUNTIME:'0'},{...env,DESTINY_PRIVATE_MODEL_CALLS:'0'}]){const r=responseMock();await createPrivateRealtimeHandler({env:changed,fetchImpl:()=>{throw Error('must not call');}})(req,r);assert.ok([404,503].includes(r.statusCode));}
+  const previewEnv={VERCEL_ENV:'preview',OPENAI_API_KEY:'synthetic-test-token'};
+  const previewReq={...req,socket:{remoteAddress:'10.0.0.1'},headers:{host:'destiny-preview.vercel.app',origin:'https://destiny-preview.vercel.app','x-vercel-id':'iad1::synthetic','content-type':'application/sdp'}};
+  const previewResponse=responseMock();
+  await createPrivateRealtimeHandler({env:previewEnv,fetchImpl:async(_url,options)=>{const session=JSON.parse(options.body.get('session'));assert.deepEqual(session.tools,[]);assert.match(session.instructions,/do not read URLs/i);return {ok:true,text:async()=> 'v=0\r\npreview-answer'};}})(previewReq,previewResponse);
+  assert.equal(previewResponse.statusCode,200);
+  for(const changedReq of [{...previewReq,headers:{...previewReq.headers,origin:'https://evil.example'}},{...previewReq,headers:{...previewReq.headers,'x-vercel-id':''}}]){const r=responseMock();await createPrivateRealtimeHandler({env:previewEnv,fetchImpl:()=>{throw Error('must not call');}})(changedReq,r);assert.equal(r.statusCode,404);}
+  const productionResponse=responseMock();await createPrivateRealtimeHandler({env:{VERCEL_ENV:'production',OPENAI_API_KEY:'synthetic-test-token'},fetchImpl:()=>{throw Error('must not call');}})(previewReq,productionResponse);assert.equal(productionResponse.statusCode,404);
 });
 test('Next derived forwarding headers are allowed; caller forwarding and altered derived values are denied',()=>{
   const env={DESTINY_PRIVATE_RUNTIME:'1'},req={socket:{remoteAddress:'127.0.0.1'},rawHeaders:['Host','localhost:3000'],headers:{host:'localhost:3000','x-forwarded-for':'127.0.0.1','x-forwarded-host':'localhost:3000','x-forwarded-proto':'http','x-forwarded-port':'3000'}};

@@ -12,9 +12,9 @@ import { extractVoiceCompanionLinks } from "../lib/destiny-agent/voice-links.js"
 import { classifyVoiceUtterance, createVoiceCallIdentity, createVoiceOpeningGreetingEvent, inferExpectedVoiceReply, isDirectedVoiceUtterance, isExpectedVoiceReply, isLikelyAssistantEcho, isVoiceTranscriptionArtifact, resolveVoiceModel, voiceLookupLabel, voiceProgressInstructions, VOICE_INPUT_CLASSIFICATION_TIMEOUT_MS, VOICE_MODEL, VOICE_TOOL_PROGRESS_SILENCE_MS } from "../lib/destiny-agent/voice-experience.js";
 import { buildRouterDecision } from "../lib/destiny-domain/shadow-router.js";
 import {isPrivatePeer} from '../lib/destiny-brain/boundary.js';
-import PrivateVoicePreview from '../components/PrivateVoicePreview';
 
 const initialStatus = "Tap the call button when you're ready.";
+const PRIVATE_PREVIEW_SESSION_KEY = 'destiny_private_preview_session_v1';
 
 export async function getServerSideProps({ req, res }) {
   res.setHeader("X-Robots-Tag", "noindex, nofollow, noarchive, nosnippet");
@@ -23,8 +23,8 @@ export async function getServerSideProps({ req, res }) {
   return { props: { buildRevision: process.env.VERCEL_GIT_COMMIT_SHA || "local-uncommitted", privateRuntimeEnabled,hosted,privateModelCallsEnabled:hosted?!!process.env.OPENAI_API_KEY:process.env.DESTINY_PRIVATE_MODEL_CALLS==='1'&&!!process.env.OPENAI_API_KEY } };
 }
 
-export default function VoiceLab(props){if(props.privateRuntimeEnabled)return <PrivateVoicePreview enabled={props.privateModelCallsEnabled} hosted={props.hosted}/>;return <LegacyVoiceLab {...props}/>;}
-function LegacyVoiceLab({ buildRevision, privateRuntimeEnabled=false,privateModelCallsEnabled=false }) {
+export default function VoiceLab(props){return <LegacyVoiceLab {...props}/>;}
+function LegacyVoiceLab({ buildRevision, privateRuntimeEnabled=false,privateModelCallsEnabled=false,hosted=false }) {
   const [cloudEnabled, setCloudEnabled] = useState(false);
   const [cloudCode, setCloudCode] = useState("");
   const [cloudStatus, setCloudStatus] = useState("Unlock automatic private saving on this device (remembered for 7 days).");
@@ -76,6 +76,8 @@ function LegacyVoiceLab({ buildRevision, privateRuntimeEnabled=false,privateMode
   const activeGatewayRef = useRef(null);
   const routerContextRef = useRef({ version: 0, activeCategory: null, focusedEntityIds: [], offeredEntityIds: [], booking: null, latestAnswerId: null, pendingExternalRestaurantSearch: null });
   const sessionRef = useRef(null);
+  const privateSessionTokenRef = useRef(null);
+  const privateSessionVersionRef = useRef(null);
   const callRef = useRef(null);
   const eventSequenceRef = useRef(0);
   const callStartedMonotonicRef = useRef(0);
@@ -105,6 +107,11 @@ function LegacyVoiceLab({ buildRevision, privateRuntimeEnabled=false,privateMode
   const expectedReplyRef = useRef(null);
   const disconnectGraceTimerRef = useRef(null);
   const setupAbortRef = useRef(null);
+
+  useEffect(() => {
+    if (!privateRuntimeEnabled || typeof window === 'undefined') return;
+    privateSessionTokenRef.current = window.sessionStorage.getItem(PRIVATE_PREVIEW_SESSION_KEY);
+  }, [privateRuntimeEnabled]);
 
   const sendInputEvent = event => {
     const channel = channelRef.current;
@@ -748,14 +755,22 @@ function LegacyVoiceLab({ buildRevision, privateRuntimeEnabled=false,privateMode
     };
     try {
       if(privateRuntimeEnabled){
+        const privateBody={text:guestText,turnId,pageContext:{source:'voice-lab',url:'/voice-lab'}};
+        if(hosted&&privateSessionTokenRef.current)privateBody.sessionToken=privateSessionTokenRef.current;
+        if(hosted&&Number.isInteger(privateSessionVersionRef.current))privateBody.version=privateSessionVersionRef.current;
         const response=await fetch('/api/destiny-private-voice',{
           method:'POST',headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({text:guestText,turnId,pageContext:{source:'voice-lab',url:'/voice-lab'}}),signal:abortController.signal,
+          body:JSON.stringify(privateBody),signal:abortController.signal,
         });
         const result=await response.json();
         if(!stillOwnsTurn())return;
         logResult({status:result.status||'unavailable',executedRoute:'shared-private-runtime',httpStatus:response.status,revision:result.revision||'',decisionId:result.decisionId||'',authoritativeVoiceScript:result.reply||'',presentationPolicy:result.presentation?.policy||'',physicalAcceptance:'pending_owner_review',domainTrace:result.trace});
         if(!response.ok){speak('unavailable','The private service could not complete that request. Please try again.');return;}
+        if(hosted&&result.sessionToken){
+          privateSessionTokenRef.current=result.sessionToken;
+          privateSessionVersionRef.current=Number.isInteger(result.version)?result.version:null;
+          window.sessionStorage.setItem(PRIVATE_PREVIEW_SESSION_KEY,result.sessionToken);
+        }
         // The server validates link provenance. Replace previous links so a
         // corrected date/party cannot leave an old booking link visible.
         setCompanionLinks((result.links||[]).map(href=>({href,label:extractVoiceCompanionLinks(href)[0]?.label||'Open source'})));
@@ -1518,7 +1533,7 @@ function LegacyVoiceLab({ buildRevision, privateRuntimeEnabled=false,privateMode
         <p className={styles.eyebrow}>AI CONCIERGE</p>
         <h1>Destiny Blue</h1>
         <p className={styles.status}>{status}</p>
-        {phase === "idle" ? <div className={styles.recordStart}>
+        {phase === "idle"&&!privateRuntimeEnabled ? <div className={styles.recordStart}>
           {!cloudEnabled ? <form className={styles.recordUnlock} onSubmit={event => { event.preventDefault(); if (cloudCode.trim()) unlockCloud(); }}>
             <label htmlFor="recording-code">Private recording code</label>
             <input id="recording-code" type="password" value={cloudCode} onChange={event => setCloudCode(event.target.value)} placeholder="Enter your code here" autoComplete="off" autoCapitalize="none" spellCheck={false} />

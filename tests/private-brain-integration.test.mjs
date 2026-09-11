@@ -17,7 +17,7 @@ import {isPrivatePeer} from '../lib/destiny-brain/boundary.js';
 import approval from '../lib/destiny-brain/ACCEPTED-SOURCE.json' with {type:'json'};
 
 // Explicit nonbillable mocks. No real model, owner, reservation or guest data.
-const envelope=JSON.parse(await fs.readFile(new URL('../../../outputs/migration-phase9-discovery/COMPILED-ENVELOPE.json',import.meta.url),'utf8'));
+const envelope=JSON.parse(await fs.readFile(new URL('../lib/destiny-brain/accepted/preview-envelope.json',import.meta.url),'utf8'));
 const finish=text=>({id:'mock-response',status:'completed',output:[],output_text:text,usage:{input_tokens:100,output_tokens:10}});
 const tool=(name,args)=>({id:'mock-tool',status:'completed',output:[{type:'function_call',call_id:'mock-call',name,arguments:JSON.stringify(args)}]});
 async function fixture(t,{respond=()=>finish('Hello! How can I help?'),clientEnabled=true,reviewLogger=null}={}){

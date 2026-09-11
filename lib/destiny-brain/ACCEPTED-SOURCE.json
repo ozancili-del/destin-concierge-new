@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "manifest": "6b38eca4ad4ca586e56cc4ddc7e9d7bad938f78a501d0b51be9e53456aa09aa7",
+  "envelopeRevision": "6d09ed7fca63fe4ec5f17f20b9288a2e59bfa57b4d8653036e12de09f9b8434d",
+  "hqRevision": "6a657b60e125511ee88111cbb6a3845f7f9bb0d9c6abee0e971934f407ff0fdb",
+  "sourceRevision": "f9158dcf27cec1f00b7995cc7dda9eba231c001546b22124fea0e5da15cffb9c",
+  "files": [
+    {
+      "path": "runtime.mjs",
+      "sha256": "0a2d4cd1c8727a8ce7f0f7d9c652a4b5621bd3715650a8fbca06d826e8a5c653"
+    },
+    {
+      "path": "knowledge.mjs",
+      "sha256": "08e73ffc19c7552e4b0ee2e982403aec7833ae846f97796d394fe0727aa3d82e"
+    },
+    {
+      "path": "kernel.mjs",
+      "sha256": "c25d41ebc51e4c0d3880fa3bab8a4c726f37f2a27e220d0812f1efd50439b4c9"
+    },
+    {
+      "path": "input-provenance.mjs",
+      "sha256": "90c0f6cc0733f83e0bd0d7e9239840f5b85e3f1a78a7079794342d36a5102390"
+    },
+    {
+      "path": "vendor/business.mjs",
+      "sha256": "ee7350e72f631001e5a678e0ea9a697d920dae7a295afc3bc4bf022471f6f147"
+    },
+    {
+      "path": "public-knowledge.mjs",
+      "sha256": "77af8ba2c89597f60f578ca71a0d62322015bf5893754e960dd68ac0876d0c6b"
+    },
+    {
+      "path": "compact-index.mjs",
+      "sha256": "7e0d8ce64182d8a4b52ff8e529c607a5be23f59f8f6825e2fd04a060fd4c3693"
+    },
+    {
+      "path": "index-metadata.json",
+      "sha256": "f31ff289dde59c7c5c907ed9e65eafe5274a0d57317ad4726ca3a4596bbba7f6"
+    },
+    {
+      "path": "links.mjs",
+      "sha256": "979229d65c0e47de8fb3a5e35a041d638443388f6194933f820b134152bacc84"
+    },
+    {
+      "path": "vendor/privacy.mjs",
+      "sha256": "7d9e2c389218a445d8b098a1e0cb462389922de92fcde563bbf65867412b74c2"
+    },
+    {
+      "path": "vendor/artifact.mjs",
+      "sha256": "23294fb086b59c33287ae318dbb589c1d6217ac18f6e3e0210a39273b1577730"
+    },
+    {
+      "path": "composition-guidance.mjs",
+      "sha256": "3a2ddf628f83f5eebab680e0a924ca71be922078eff1db63022c8b4fc36a4f90"
+    },
+    {
+      "path": "policy.mjs",
+      "sha256": "390bf8382e851dec7c7ab68ece97f02a33cac82506846dce6b3ffdd40e453e13"
+    },
+    {
+      "path": "interpret.mjs",
+      "sha256": "7f8d0f5b7b7c70daed34199c423f4df203116d3c6eda207b4569a07dc50d3eb2"
+    },
+    {
+      "path": "vendor/owner-rules.mjs",
+      "sha256": "bb65fddc5de60bab61ff2163e24e33163af2fbe9d1be3feeb65962232c6c2418"
+    },
+    {
+      "path": "schema.mjs",
+      "sha256": "bffa565dec8971245c089a88ec9334cd58734fd5a67070d7f0d82229b9a4df99"
+    },
+    {
+      "path": "actions.mjs",
+      "sha256": "8e80d0d0626dc460ffd19a55cc7f3c8338bdccb57d3fb695245b9fa0c8802c50"
+    },
+    {
+      "path": "booking.mjs",
+      "sha256": "f0cf061fc10cfd562993381c35dbe80b1da9e97e67e9f7acd26734b6bd6d6a98"
+    },
+    {
+      "path": "adapters.mjs",
+      "sha256": "270bef213a0077a95c0a5b52e6c03aa04935c86c51fe98afd749a58698f41d7b"
+    },
+    {
+      "path": "answer.mjs",
+      "sha256": "2137603b9c4e6fae3f443c3100d86104cda92db2e8cd3c6bac65d00c953d3f8e"
+    },
+    {
+      "path": "owner-context.mjs",
+      "sha256": "f404b7307011a8d6166c344173129d148d40c12add3d06f48e87d2bb446f670c"
+    },
+    {
+      "path": "approved-owner-contract.json",
+      "sha256": "d369442d06930ad16ce1c0ce93bde041e7432a3babca65a69337316b646f4e79"
+    },
+    {
+      "path": "owner-decisions.json",
+      "sha256": "6863d6fb4767c07ee21dbc35d77de00e6a3aca7e99055a75a98c9be42dfa5098"
+    }
+  ],
+  "runtimeChanges": [
+    "Owner-approved booking intake asks for dates and adult/child counts, checks both units by default, and does not ask for a unit preference unless the guest names one.",
+    "A protected Vercel Preview adapter uses signed browser session state, read-only availability, clean on-screen link labels, and URL-free voice speech.",
+    "Synthetic private Chat and Voice review turns are logged without credentials, reservation records, or real guest personal data."
+  ],
+  "scope": "private local and protected Vercel preview; external guest writes unavailable"
+}

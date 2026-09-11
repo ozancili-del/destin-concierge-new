@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "sourceRevision": "f9158dcf27cec1f00b7995cc7dda9eba231c001546b22124fea0e5da15cffb9c",
+  "authority": "published_hq_with_explicit_owner_corrections",
+  "ownerTopics": [
+    "owner-decisions"
+  ],
+  "presentationIds": [
+    "R04",
+    "R05",
+    "R06",
+    "R07",
+    "R08",
+    "R09",
+    "R10",
+    "R11",
+    "R12",
+    "R13"
+  ],
+  "behaviorIds": [
+    "unknown-entity-search",
+    "marketplace-changes",
+    "baby-equipment",
+    "weather-evidence"
+  ],
+  "packageIds": [
+    "owner_current_decisions"
+  ],
+  "presentationHash": "ffb1c04b06c600a06ba6fdb87cdbedba82905fa07dac66c1117e1d051a0ae9f9",
+  "behaviorHash": "b1d114d197de4b3d999d5830e0191970034a4f565f31179fd649643902b09f89",
+  "packagesHash": "d90c055c12460e3dbe0e618c402cd0e39bec35e39085fb0be3b9d3be6df76d1d",
+  "sourceArtifactHash": "6a657b60e125511ee88111cbb6a3845f7f9bb0d9c6abee0e971934f407ff0fdb"
+}

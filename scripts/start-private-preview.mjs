@@ -1,0 +1,11 @@
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {spawn} from 'node:child_process';
+const [root,port='3219']=process.argv.slice(2);
+if(process.env.VERCEL_ENV||!path.isAbsolute(root||'')||!/^\d{4,5}$/.test(port)||Number(port)>65535)throw Error('Usage: start-private-preview.mjs ABSOLUTE_STORE [PORT]; local host only');
+const app=fileURLToPath(new URL('..',import.meta.url));
+const env={...process.env,DESTINY_PRIVATE_RUNTIME:'1',DESTINY_PRIVATE_STORE:root,DESTINY_PRIVATE_MODEL_CALLS:process.env.DESTINY_PRIVATE_MODEL_CALLS==='1'?'1':'0',NEXT_TELEMETRY_DISABLED:'1'};
+console.log(JSON.stringify({chat:`http://127.0.0.1:${port}/destiny-private`,voice:`http://127.0.0.1:${port}/voice-lab`,modelCallsEnabled:env.DESTINY_PRIVATE_MODEL_CALLS==='1',externalWritesEnabled:false}));
+const child=spawn(process.execPath,['node_modules/next/dist/bin/next','start','-H','127.0.0.1','-p',port],{cwd:app,env,stdio:'inherit',windowsHide:true});
+child.once('exit',code=>process.exit(code??1));
+process.on('SIGINT',()=>child.kill('SIGINT'));process.on('SIGTERM',()=>child.kill('SIGTERM'));

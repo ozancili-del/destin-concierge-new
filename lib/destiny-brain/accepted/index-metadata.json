@@ -1,0 +1,1804 @@
+{
+  "schemaVersion": 1,
+  "artifactRevision": "6a657b60e125511ee88111cbb6a3845f7f9bb0d9c6abee0e971934f407ff0fdb",
+  "sourceRevision": "f9158dcf27cec1f00b7995cc7dda9eba231c001546b22124fea0e5da15cffb9c",
+  "role": "Discovery subject metadata only. Load HQ packages for facts; this index is not factual evidence.",
+  "entries": [
+    {
+      "id": "access_building",
+      "sourceHash": "adf78d65ba301c59a92fd78d3e2588fccba0c2846f0c96abbc737149af865014",
+      "aliases": [
+        "step-free access",
+        "elevators"
+      ],
+      "coverage": "Parking-to-lobby routes, elevators and the distinction between building access and condo interiors."
+    },
+    {
+      "id": "access_other_needs",
+      "sourceHash": "9cec17a65e82efe362b5daa27ca4114bd4e46c1dc27156498ae3d67f7830e5d6",
+      "aliases": [
+        "specific needs",
+        "accommodations"
+      ],
+      "coverage": "Individual mobility needs, disability accommodations, pet requests and quiet-stay expectations."
+    },
+    {
+      "id": "access_parking",
+      "sourceHash": "465f09e0c3fce9be8b532ef28d43f367112247603ca55dd01116209e707990e5",
+      "aliases": [
+        "accessible parking",
+        "parking route"
+      ],
+      "coverage": "Accessible parking and the route into the building."
+    },
+    {
+      "id": "access_pools_beach",
+      "sourceHash": "d3bb1d68f28e9441c4b6c5b186da36f8c00d950676c466a6796765eed1080031",
+      "aliases": [
+        "beach wheelchair",
+        "ramp",
+        "pool access"
+      ],
+      "coverage": "Pool, boardwalk and sand access, temporary ramp coordination and mobility limitations."
+    },
+    {
+      "id": "access_unit_interiors",
+      "sourceHash": "173cc9ca56ab9c2cdaa8fada416d23a13ae054825a04f12cd61c29629bd8981f",
+      "aliases": [
+        "doorway clearance",
+        "bathroom access"
+      ],
+      "coverage": "Interior accessibility, doorway and bathroom clearances, bed access and obtaining specific measurements."
+    },
+    {
+      "id": "activity_air_force_armament_museum",
+      "sourceHash": "c3be4534fcf66b02907b13b093a17779451317381d78ad89e52c9f74c117823a",
+      "aliases": [
+        "aviation",
+        "aircraft museum"
+      ],
+      "coverage": "Indoor and outdoor aircraft exhibits, visiting hours, admission, location, contact and parking."
+    },
+    {
+      "id": "activity_amc_destin_commons",
+      "sourceHash": "27df09c5f8a1d6322ecac88b37ff866116d57b4fa44da71b9645bf9274d2e536",
+      "aliases": [
+        "movies",
+        "cinema"
+      ],
+      "coverage": "Cinema formats, reserved seating, captions, sensory screenings, location and contact."
+    },
+    {
+      "id": "activity_baytowne",
+      "sourceHash": "cb52de9f950fb569fb1c650ca827a994b5346c17d1088c0009cc16eb26161ccc",
+      "aliases": [
+        "village entertainment",
+        "zipline"
+      ],
+      "coverage": "Village shopping, dining, entertainment, zipline participation, seasonal events, visiting access, parking and travel."
+    },
+    {
+      "id": "activity_big_kahunas",
+      "sourceHash": "c10b3c3625d4c5aa6408969d1e8be9927d52954e24282f1a1fdaa9007eb0754b",
+      "aliases": [
+        "water park",
+        "adventure park"
+      ],
+      "coverage": "Water and adventure attractions, seasonal schedules, participation limits, lifejackets, tickets, parking, accessibility and travel."
+    },
+    {
+      "id": "activity_concierge_policy",
+      "sourceHash": "d9a316e88d5b24e349571733207465b69df447b0a7b2e27ac205d1e6d6340ae9",
+      "aliases": [
+        "activity service scope"
+      ],
+      "coverage": "No guest-facing package content."
+    },
+    {
+      "id": "activity_destin_commons",
+      "sourceHash": "5159b7f79dcd2ac2c9b469374108bc4871553edaea174fa1f21297bb255c251c",
+      "aliases": [
+        "shopping center",
+        "splash play",
+        "rainy-day outings"
+      ],
+      "coverage": "Open-air shopping and dining, indoor cinema and bowling, children's play, splash area, parking, accessibility and travel."
+    },
+    {
+      "id": "activity_destin_museum",
+      "sourceHash": "ef7a5f87a1c6a7a401ca5d69bfcc4fbebb54edcab949c47dd1e27abef0cebc5e",
+      "aliases": [
+        "fishing history",
+        "local museum"
+      ],
+      "coverage": "Local fishing history, artifacts, children's area, visiting hours, supervision, admission and travel."
+    },
+    {
+      "id": "activity_escapology",
+      "sourceHash": "918577ee553004209eb9fc8075cdc19e040ce32d946b341b4d2791d752b58a5a",
+      "aliases": [
+        "private escape games",
+        "children's escape room"
+      ],
+      "coverage": "Private escape games, children's participation, waivers, game duration, booking, arrival and location."
+    },
+    {
+      "id": "activity_gulf_coast_escape",
+      "sourceHash": "00069ed73829b1a69d04b9493f69609c31017b049e62641125c18a33c091350c",
+      "aliases": [
+        "harbor escape room",
+        "group puzzles"
+      ],
+      "coverage": "Private escape games, age and waiver requirements, group participation, hours, booking, prices and travel."
+    },
+    {
+      "id": "activity_gulfarium",
+      "sourceHash": "0f9e4ba095d8385e34a4339ca91348d76cdcdbca9ad2427e317be69166cdeefe",
+      "aliases": [
+        "marine park",
+        "animal encounters"
+      ],
+      "coverage": "Marine exhibits, shows, separately booked encounters, outdoor exposure, hours, admission, participation, accessibility and parking."
+    },
+    {
+      "id": "activity_harborwalk",
+      "sourceHash": "9ec978c5457d8374ecb705f6d4703d89b0e5a462bd8c74ff53046e0354921ae3",
+      "aliases": [
+        "harbor promenade",
+        "marina excursions"
+      ],
+      "coverage": "Harbor shopping, dining, promenade and excursions, outdoor setting, individual business hours, parking and travel."
+    },
+    {
+      "id": "activity_henderson",
+      "sourceHash": "f421678e0f51a84ccf1077563729af8b2d9d0c7d711e102da9a0097c7d3edb38",
+      "aliases": [
+        "state park",
+        "beach nature trails"
+      ],
+      "coverage": "Gulf beach and nature trails, day-use access, reservations, hours, admission, pets, accessibility and parking."
+    },
+    {
+      "id": "activity_hurricane_lanes",
+      "sourceHash": "505614fba4f5c8e720ef1b163258d1ab96d25d77491b9c704718f2e5dd06607b",
+      "aliases": [
+        "bowling",
+        "arcade",
+        "pool tables"
+      ],
+      "coverage": "Indoor bowling, arcade and pool tables, food, family and group suitability, hours, reservations, prices and travel."
+    },
+    {
+      "id": "activity_library",
+      "sourceHash": "26b65c7fd5dff7548111a5547ed2b2cee7beb8f9359e8714ecc8d3dd479a0ebd",
+      "aliases": [
+        "library",
+        "children's programs"
+      ],
+      "coverage": "Reading, children's programs, computers, guest passes, registration, visiting hours, parking and location."
+    },
+    {
+      "id": "activity_science_center",
+      "sourceHash": "efb87a559d638bd866f0e9270dbd39ef75a4075d3ded444b1ff0d168dfab2790",
+      "aliases": [
+        "hands-on science",
+        "science museum"
+      ],
+      "coverage": "Indoor and outdoor science exhibits, seasonal hours, accessibility, admission, ages, parking and location."
+    },
+    {
+      "id": "amenity_courts",
+      "sourceHash": "d83fb3897cccaff79455b26b8ecf42a9c9f9442708f42e1bf3c5d7f09ac19b3d",
+      "aliases": [
+        "tennis",
+        "pickleball"
+      ],
+      "coverage": "Resort tennis and pickleball courts and their location."
+    },
+    {
+      "id": "amenity_fitness_wellness",
+      "sourceHash": "1c3208c2f03bfdbd06a034ccf0a378a14388833c1d145dd0ec2d0b7780372316",
+      "aliases": [
+        "gym",
+        "fitness",
+        "sauna",
+        "steam room"
+      ],
+      "coverage": "Resort fitness and wellness facilities, included guest amenities and resort-fee scope."
+    },
+    {
+      "id": "amenity_food_service",
+      "sourceHash": "9c1dd22fe95bc402ebbbe3c96de12cdbd1c1d58d080c761c630a9567eb8456c8",
+      "aliases": [
+        "cafe",
+        "Tiki Bar",
+        "on-site food"
+      ],
+      "coverage": "On-property cafe, breakfast and lunch, seasonal Tiki Bar, separate payment and operator hours."
+    },
+    {
+      "id": "amenity_grills_games",
+      "sourceHash": "c181aadf964b6c7539b02240bc4cdc032eb2bb128ec2e90aca51ad3b72dece5a",
+      "aliases": [
+        "barbecue",
+        "gas grills",
+        "games"
+      ],
+      "coverage": "Shared outdoor gas grills, game areas, seating and vending."
+    },
+    {
+      "id": "amenity_laundry",
+      "sourceHash": "e910e85e2feb3b87b33b9c4bdc3329079c9908276f0ca4b2941a22dc55448f82",
+      "aliases": [
+        "washer",
+        "dryer",
+        "laundromat"
+      ],
+      "coverage": "Shared floor laundry, machine payment methods and alternate-floor options."
+    },
+    {
+      "id": "amenity_parking_ev",
+      "sourceHash": "7e97d3c6273aea988d6e8919278094c824d39e2860f26abe8e4b0a3e08990828",
+      "aliases": [
+        "EV charging",
+        "electric car",
+        "parking permit"
+      ],
+      "coverage": "Garage parking, accessible spaces, EV chargers, connector types, payment, permits, adapters and idle fees."
+    },
+    {
+      "id": "amenity_pools",
+      "sourceHash": "db5dd9de93ce2e60bd4d83fd042e45fbaa5d2311466897f6106d7c88887b2b8a",
+      "aliases": [
+        "swimming",
+        "heated pool",
+        "hot tubs"
+      ],
+      "coverage": "Pool and hot-tub inventory, locations, heating, wristbands, hours and temporary closures."
+    },
+    {
+      "id": "area_destin_harbor",
+      "sourceHash": "7fc0648836d3b7922697c13aa31b2401808e29744ee62e942ea0b100d9760c13",
+      "aliases": [
+        "harbor district",
+        "HarborWalk area"
+      ],
+      "coverage": "Harbor district versus Gulf beach, outdoor setting, travel, pets and parking."
+    },
+    {
+      "id": "area_fort_walton",
+      "sourceHash": "905b7a09aa1e3ff1b4a29b8f89081c243f3e1f13e0277f53fa4114b6d09bc80b",
+      "aliases": [
+        "city day trip",
+        "Landing park"
+      ],
+      "coverage": "Fort Walton Beach outings, Landing park facilities and hours, science activities, travel, pets and accessibility."
+    },
+    {
+      "id": "area_miramar",
+      "sourceHash": "d708ff412f3a84ddd6e7bb851a2e3c81f338da0c546a8fdab7d7baf1f8342193",
+      "aliases": [
+        "Miramar area",
+        "Commons area"
+      ],
+      "coverage": "Miramar Beach and Destin Commons as separate destinations, travel and accessibility scope."
+    },
+    {
+      "id": "area_okaloosa",
+      "sourceHash": "a40122455df75431817578a2ef4ded9c5310de26d4390a6e6dd7a11f9ebb3627",
+      "aliases": [
+        "island day trip",
+        "Boardwalk"
+      ],
+      "coverage": "Gulf and bay outings, Boardwalk dining and pavilions, Gulfarium, facilities, wheelchair access and parking."
+    },
+    {
+      "id": "area_sandestin_baytowne",
+      "sourceHash": "9e9a21c56cd6649a071a40418effb0027705649251ce2ddc458cf256b774b161",
+      "aliases": [
+        "Baytowne village",
+        "Sandestin outings"
+      ],
+      "coverage": "Village dining, shopping and events, pets, public entry, parking and travel."
+    },
+    {
+      "id": "area_south_walton",
+      "sourceHash": "ce301c33a4e0c318994161c7c7f04dc72bfa8410b015042017b21461b11f62fa",
+      "aliases": [
+        "30A",
+        "South Walton beaches"
+      ],
+      "coverage": "Coastal communities, public beach-access directory, accessibility, facilities, dog permits and parking."
+    },
+    {
+      "id": "arrival_first_day_plan",
+      "sourceHash": "50d741412124caf3ff4fc59aa2b9b61275d274b6a045232606a177f49b16cd6d",
+      "aliases": [
+        "arrival-day planning",
+        "first-day groceries"
+      ],
+      "coverage": "Travel and contact planning, groceries, traffic and arrival-day activity timing."
+    },
+    {
+      "id": "arrival_sequence",
+      "sourceHash": "2e22f854a5e8a78e625315b1fe2d71c36dac7f7381927f05200155ce6a51d882",
+      "aliases": [
+        "arrival instructions",
+        "gate",
+        "unloading"
+      ],
+      "coverage": "Secure arrival-message timing, front desk and security, early arrival, access activation, gate and unloading troubleshooting."
+    },
+    {
+      "id": "beach_access_main",
+      "sourceHash": "65d0dcf7de506fae2fae917319e53912b76c8a49a1724d494a621f9d7f0d9324",
+      "aliases": [
+        "direct beach route",
+        "boardwalk"
+      ],
+      "coverage": "Main-building route to the beach, road crossing and access limitations."
+    },
+    {
+      "id": "beach_crab_island",
+      "sourceHash": "623ec11be40d2955e3c48e5d979e2769a182213d200d8d7e1d9a20e900164744",
+      "aliases": [
+        "sandbar",
+        "boat excursion"
+      ],
+      "coverage": "Crab Island boat access, departure docks, operator amenities, pets, boarding, toilets and public contacts."
+    },
+    {
+      "id": "beach_crystal_beach",
+      "sourceHash": "e5608ffb730b88c8bac50990fb82a97a351be58bcd549b4af8b9ec7d21db5090",
+      "aliases": [
+        "Crystal Beach access",
+        "neighborhood beach"
+      ],
+      "coverage": "Beach neighborhood versus named access, facilities, hours, wheelchair service, location, travel and parking."
+    },
+    {
+      "id": "beach_day_preparation",
+      "sourceHash": "748b359d3f8064f498b5b1f202c8f45d90c1e53e0c9d472a28f08396876c066b",
+      "aliases": [
+        "beach packing",
+        "sun protection"
+      ],
+      "coverage": "Beach-day packing, sun and heat protection and confirming condo equipment."
+    },
+    {
+      "id": "beach_flags_safety",
+      "sourceHash": "53b89ee731bb7e7a17b01311aac88fbe1068a31564e3c5bbb7f3c2974ff78da0",
+      "aliases": [
+        "beach flags",
+        "rip currents",
+        "water closure"
+      ],
+      "coverage": "Flag meanings, water restrictions, rip currents, lightning and current beach-safety and weather sources."
+    },
+    {
+      "id": "beach_fort_walton_beach_john_beasley_park",
+      "sourceHash": "787919c8c4884f485042d0fae2ce420b58428888d778bc7082ac66d6c80f1140",
+      "aliases": [
+        "Beasley Park",
+        "picnic beach"
+      ],
+      "coverage": "Beach and picnic facilities, restrooms, showers, wheelchair access, hours and location."
+    },
+    {
+      "id": "beach_grayton_beach_state_park",
+      "sourceHash": "c6f31f7e6492af1329e813d72764523a62561462a3c36db83fb37c12bac7d88f",
+      "aliases": [
+        "Grayton",
+        "coastal lake"
+      ],
+      "coverage": "Beach, lake paddling and trails, day use versus reserved stays, accessibility, pets, fees and travel."
+    },
+    {
+      "id": "beach_james_lee_park",
+      "sourceHash": "59e4695c97213c37ab4f4d1af633cf3d80d499aec642864ad92f6157d0bb8ad6",
+      "aliases": [
+        "James Lee beach",
+        "family beach park"
+      ],
+      "coverage": "Beach park, picnic areas, playground, pavilions, restrooms, wheelchair entrance, hours and parking."
+    },
+    {
+      "id": "beach_june_white_decker_beach_park",
+      "sourceHash": "69aba5837f1d54c6638da6d96756fc6bf83a8647e352155368fa66f020c47979",
+      "aliases": [
+        "June Decker",
+        "public beach access"
+      ],
+      "coverage": "Public beach access, restrooms, showers, bicycles, wheelchair access, hours, parking and contact."
+    },
+    {
+      "id": "beach_miramar_beach",
+      "sourceHash": "b3fe22feac717ef939b8b6f689152d0f5dcea7e6819db0f873ca59bbee9523b0",
+      "aliases": [
+        "Miramar public beach",
+        "access 49"
+      ],
+      "coverage": "Beach access, facilities, lifeguards, flags, accessibility, hours, dog permits and parking."
+    },
+    {
+      "id": "beach_navarre_beach",
+      "sourceHash": "9800699913ee3cc1dec6c6cf437bee809c050f12775a87a691fa1660f1a8b1d5",
+      "aliases": [
+        "Navarre pier",
+        "beach day trip"
+      ],
+      "coverage": "Beach and pier outings, pavilions, wheelchair loans, pier fees, parking and contact."
+    },
+    {
+      "id": "beach_norriego_point",
+      "sourceHash": "874fb6723f89cc48a51144a4c16263524693c592a2a5678129e0150f663fd295",
+      "aliases": [
+        "lagoon",
+        "snorkeling",
+        "East Pass"
+      ],
+      "coverage": "Lagoon play and snorkeling, material East Pass hazards, facilities, hours, directions and parking."
+    },
+    {
+      "id": "beach_personal_equipment",
+      "sourceHash": "32e47b5c225684dbd6a08de27d93a65164176967733f83cf3bcfc35abdc18ad0",
+      "aliases": [
+        "personal beach gear",
+        "chairs",
+        "umbrella",
+        "wagon"
+      ],
+      "coverage": "Provided personal chairs and umbrella, placement relative to commercial rows, cooler, tent, glass and overnight-equipment rules."
+    },
+    {
+      "id": "beach_service_rental",
+      "sourceHash": "f5164c20e2a7e8ba83003fdf8e53b3aabefe50d8759bf14e70148c15c04a97fb",
+      "aliases": [
+        "LDV",
+        "beach rentals",
+        "chair service"
+      ],
+      "coverage": "Commercial beach-chair and umbrella service versus condo equipment, seasonality, rental rates, front-row requests and reservations."
+    },
+    {
+      "id": "beach_topsail_hill_preserve_state_park",
+      "sourceHash": "c07c11886cbad91baf53b3292686a93a4ba430c3a6b514cd3295fc5d6c5d6ba3",
+      "aliases": [
+        "Topsail",
+        "tram beach"
+      ],
+      "coverage": "Beach tram and paths, nature and lake trails, hours, accessibility, wheelchair access, pets, admission and travel."
+    },
+    {
+      "id": "booking_cancellation",
+      "sourceHash": "cb0de2a1d2a7688afc0d06ff4aa81f6ed78ef2171c4db9ce650b91ce457fc3ee",
+      "aliases": [
+        "cancellation",
+        "evacuation refund"
+      ],
+      "coverage": "Cancellation handling, platform terms and evacuation refunds."
+    },
+    {
+      "id": "booking_eligibility_restrictions",
+      "sourceHash": "eec378cb0af23187ebf80a6594e0fd28c1f876ea353cb0e6b6ebe2a152faf1f4",
+      "aliases": [
+        "occupancy",
+        "age restriction",
+        "pets",
+        "visitors"
+      ],
+      "coverage": "Guest counts, age eligibility, pets, smoking, visitors, parties and combined-unit capacity."
+    },
+    {
+      "id": "booking_payment_terms",
+      "sourceHash": "e6765f96b0245c56923b7a76959d65eb8e72560e3813b6294dd937d316cdb013",
+      "aliases": [
+        "deposit",
+        "balance",
+        "cleaning charge"
+      ],
+      "coverage": "Direct-booking deposit, refund timing, balance, cleaning and tax, additional guests and optional insurance."
+    },
+    {
+      "id": "booking_process",
+      "sourceHash": "df4702044c070e8f93b8c57b2263226db070d9059054b5753649a4db53162886",
+      "aliases": [
+        "book direct",
+        "availability",
+        "winter stays"
+      ],
+      "coverage": "Unit pages, availability and inquiry flow, secure checkout, deals, guides and winter monthly stays."
+    },
+    {
+      "id": "booking_third_party",
+      "sourceHash": "6195f2b7c0ea00eca2d4cfc86f589cd8f83c8922b6753a04695132fd86bc9a29",
+      "aliases": [
+        "platform booking",
+        "third-party reservation"
+      ],
+      "coverage": "Booking-platform terms, changes and cancellation handling."
+    },
+    {
+      "id": "building_main_pelican",
+      "sourceHash": "77e85927071947e37a3a62cf19db6729ac7b88c9f1760357e6e68e4d3da9ed4d",
+      "aliases": [
+        "main tower",
+        "Gulf-front building"
+      ],
+      "coverage": "Main-building floors, orientation and unit locations."
+    },
+    {
+      "id": "building_terrace",
+      "sourceHash": "2b5d29a0d2968715f816641e66336496a497ef0069f6329e5e23be59513d71b0",
+      "aliases": [
+        "Terrace building",
+        "separate building"
+      ],
+      "coverage": "Terrace location relative to the main Gulf-front building and the hosted condos."
+    },
+    {
+      "id": "capabilities_supported",
+      "sourceHash": "14e9353cecdf21d8b0746f4cf636ec62953e7734105f445f90cab65bdf9fb70b",
+      "aliases": [
+        "trip quiz",
+        "activity guide"
+      ],
+      "coverage": "Month-based trip quiz and public activity-marketplace browsing guide."
+    },
+    {
+      "id": "capabilities_unsupported",
+      "sourceHash": "78aeba246c4bc1b9f89eea83a7880c7ed4cd4df263d9b9ba7a4a6cb0a961e2b8",
+      "aliases": [
+        "restricted services"
+      ],
+      "coverage": "No guest-facing package content."
+    },
+    {
+      "id": "checkin_checkout",
+      "sourceHash": "5e6e60a1e92749d18192c0e5d59ab61ef8b69074d52f45352dec2df6c7cbc737",
+      "aliases": [
+        "arrival time",
+        "departure time"
+      ],
+      "coverage": "Standard check-in and checkout times."
+    },
+    {
+      "id": "comparison_707_1006",
+      "sourceHash": "9f0d8926fad7de032df0d2249bd4cb10971d6a3a843417449cd6e1b60675b7b9",
+      "aliases": [
+        "compare condos",
+        "707 versus 1006"
+      ],
+      "coverage": "Unit floors, styles, layouts, capacity, bathrooms and view perspective."
+    },
+    {
+      "id": "couples_condo_use",
+      "sourceHash": "6b3e2bf2359a8f41f9475b2f2bac6039934e27e5e7c2b311b9f7941a10ea9f2c",
+      "aliases": [
+        "couples stay",
+        "bedroom privacy"
+      ],
+      "coverage": "Couples' use of the enclosed bedroom, balcony and bathrooms, and quiet-stay expectations."
+    },
+    {
+      "id": "couples_dining",
+      "sourceHash": "b87c16967edc582fbe9130339eb1c67c31b1012828da6b8df933eb45e2028ec8",
+      "aliases": [
+        "romantic dining",
+        "waterfront dinner"
+      ],
+      "coverage": "Relaxed and special-occasion waterfront seafood dinner choices."
+    },
+    {
+      "id": "couples_low_effort",
+      "sourceHash": "9a4497179b225875ec9d00ae083e7d5a41210a4a34370230e8341d8deb906a4f",
+      "aliases": [
+        "quiet outings",
+        "scenic day"
+      ],
+      "coverage": "Low-effort scenic outings, beach and museum options, restaurants, condo amenities and spa guide."
+    },
+    {
+      "id": "departure_process",
+      "sourceHash": "a777e2484a6dd05348f9062bd5737a38369a51363a5fa520ed173f974594b517",
+      "aliases": [
+        "checkout checklist",
+        "lost items"
+      ],
+      "coverage": "Secure departure checklist, checkout timing, quiet, furniture and returning forgotten belongings."
+    },
+    {
+      "id": "elevators_luggage",
+      "sourceHash": "634681cabe18a59fb4cf9160ad81928a11c1b039995a99be0df11f3078bc8d53",
+      "aliases": [
+        "luggage carts",
+        "stairs",
+        "lockers"
+      ],
+      "coverage": "Elevators, stairs, luggage-cart locations and use, and rentable lockers."
+    },
+    {
+      "id": "essential_aldi_destin",
+      "sourceHash": "025380e13fabd863cb2e19433486f10139d5de76b4214e4c31e01ca940219c2b",
+      "aliases": [
+        "ALDI",
+        "former Winn-Dixie"
+      ],
+      "coverage": "Grocery-store identity and location, travel, hours and stock confirmation."
+    },
+    {
+      "id": "essential_be_my_shopper",
+      "sourceHash": "ae1b1d9dabd8e6e531d26c5bcd82b29318bc27dbefe6b4fb4888248c76576097",
+      "aliases": [
+        "grocery shopper",
+        "delivery service"
+      ],
+      "coverage": "Independent grocery-shopping delivery, contact and front-desk delivery handling."
+    },
+    {
+      "id": "essential_condo_basics",
+      "sourceHash": "eeb2afd850635813faf13cf78b15632acd51b5837d41c96f201f3df189ecded8",
+      "aliases": [
+        "kitchen equipment",
+        "arrival essentials"
+      ],
+      "coverage": "Kitchen appliances, cookware and basic supplies, variable inventory and grocery guides."
+    },
+    {
+      "id": "essential_destin_euro_market",
+      "sourceHash": "6d94ae5bcc0cb03a2c8c8867fed22e46b693cb34400c762533db47145fd17ecb",
+      "aliases": [
+        "European groceries",
+        "Euro Market"
+      ],
+      "coverage": "European groceries, meats, cheese and sweets, location, hours, contact, ordering, accessibility and parking.",
+      "displayName": "Destin Euro Market"
+    },
+    {
+      "id": "essential_destin_ice_seafood_market_deli",
+      "sourceHash": "f156fa5467f29ceb665378b65fdde68559bf86a978da941d8c1e0aec3b0a320b",
+      "aliases": [
+        "seafood market",
+        "fish deli"
+      ],
+      "coverage": "Seafood market and deli, prepared food, packing and shipping, delivery scope, hours, ordering and travel."
+    },
+    {
+      "id": "essential_eastpass",
+      "sourceHash": "92cda78942cd0b2ace09e6bcdf371c5411ba65b089b62d9d824b9510fc08b30b",
+      "aliases": [
+        "coffee",
+        "breakfast cafe"
+      ],
+      "coverage": "Coffee, breakfast and lunch, indoor and outdoor seating, location, contact, ordering, parking and accessibility."
+    },
+    {
+      "id": "essential_freshmarket",
+      "sourceHash": "1a52c39b1d3d2291e996c9792ab15bb3a073a9c1cc12d22ece2ac369a56bd067",
+      "aliases": [
+        "specialty groceries",
+        "prepared meals"
+      ],
+      "coverage": "Specialty groceries, prepared meals, meats and cheese, catering, pickup and delivery, hours and travel."
+    },
+    {
+      "id": "essential_grocery_delivery_to_units",
+      "sourceHash": "3cddd3e693e666ed3ba97ddf6ec59cfdcde3702c184dd37e87335dde4a26efab",
+      "aliases": [
+        "grocery drop-off",
+        "cold food"
+      ],
+      "coverage": "Delivery to the condos, delivery timing, cold-food handling and front-desk storage scope."
+    },
+    {
+      "id": "essential_merchant_information_boundary",
+      "sourceHash": "9c17d6f206b6759baf0865bb23f8cc8286894898084dd121a5cd9a9793e6a37d",
+      "aliases": [
+        "stock checks",
+        "merchant fulfillment"
+      ],
+      "coverage": "Independent merchant stock, prescriptions, fulfillment and holiday confirmation, and unknown-business search consent."
+    },
+    {
+      "id": "essential_publix",
+      "sourceHash": "d356547b3bbf36127dd592ebe8c5c53060a6caed1b3cda96edc134b378ee3eec",
+      "aliases": [
+        "Main Street Publix",
+        "pharmacy"
+      ],
+      "coverage": "Grocery departments and pharmacy, separate retail and pharmacy hours, location, contact, pickup and delivery."
+    },
+    {
+      "id": "essential_publix_at_destin_commons",
+      "sourceHash": "14840904ca7bd97d34f2ef881ef1717015b2997bf5299fc380f4de0ad3286c2b",
+      "aliases": [
+        "Paradise Key Publix",
+        "pharmacy"
+      ],
+      "coverage": "Branch identity, groceries and pharmacy, separate hours, catering, curbside service and delivery."
+    },
+    {
+      "id": "essential_target",
+      "sourceHash": "f43711703a590c69f696ce7d077cba98335f83507f9728f52e53f480e25b5730",
+      "aliases": [
+        "Target",
+        "CVS",
+        "household supplies"
+      ],
+      "coverage": "Groceries, household and beach supplies, pharmacy and cafe, pickup, drive-up, delivery and departmental hours."
+    },
+    {
+      "id": "essential_trip_packing_basics",
+      "sourceHash": "4417cc7ce7b2be93b7fb549334554eb9aa9fe5910a129849e950a8db2b109dbd",
+      "aliases": [
+        "packing list",
+        "travel essentials"
+      ],
+      "coverage": "Sun protection, layers, rain gear, medicines, identification, chargers and critical baby items."
+    },
+    {
+      "id": "essential_walgreens",
+      "sourceHash": "5fdbe98d24b5a235ca9387bf13a20985e7acf1f5351aee1015fd0ce8b415a26c",
+      "aliases": [
+        "Walgreens",
+        "prescriptions"
+      ],
+      "coverage": "Pharmacy, health and travel essentials, location, contact and secure prescription fulfillment."
+    },
+    {
+      "id": "essential_walmart",
+      "sourceHash": "4423d548d5f5d57b7dc13c27529bbf0183a2069dd6e2e6406b14e259d254226d",
+      "aliases": [
+        "Walmart",
+        "supermarket"
+      ],
+      "coverage": "Groceries, household, baby and beach supplies, pharmacy, bakery and deli, pickup, delivery and department hours."
+    },
+    {
+      "id": "essential_wholefoods",
+      "sourceHash": "2d0eddab40a7e609281af241c04b10b07ac982fed76b1fb249fc84e7db2e58a4",
+      "aliases": [
+        "Whole Foods",
+        "prepared food"
+      ],
+      "coverage": "Groceries, prepared foods, meat, cheese and sushi, pickup, delivery, hours and travel."
+    },
+    {
+      "id": "events_baytowne",
+      "sourceHash": "0c1fd83c329faa43142dfd25f60f9403b3610ff5d0299d5c51e7931b63e990a3",
+      "aliases": [
+        "Baytowne events",
+        "village calendar"
+      ],
+      "coverage": "Village event calendar and eastbound outing planning."
+    },
+    {
+      "id": "events_boardwalk",
+      "sourceHash": "54e77ee9caece6914570edaaa2c06fc783df522843101e4b45a3524364f5b12d",
+      "aliases": [
+        "Boardwalk events",
+        "island calendar"
+      ],
+      "coverage": "Boardwalk and Okaloosa Island events, organizer dates, parking and cancellations."
+    },
+    {
+      "id": "events_current_guides",
+      "sourceHash": "4d4dce43a5ac9d440becc41ba421243455588c5ff20e0e54fbf1c820d0ca6e02",
+      "aliases": [
+        "events guide",
+        "fireworks",
+        "live music"
+      ],
+      "coverage": "Consolidated event, fireworks and music guides and final organizer details."
+    },
+    {
+      "id": "events_fishing_rodeo",
+      "sourceHash": "7fd18fe9784e74244553de94eb4d0a3bd70b4b2ee1b3bd4f6675f1aa639e9ecd",
+      "aliases": [
+        "fishing tournament",
+        "rodeo"
+      ],
+      "coverage": "Recurring harbor fishing event, registration, categories and current-year official information."
+    },
+    {
+      "id": "events_harborwalk",
+      "sourceHash": "a758476d66ff93556ed31a42f93b716b2393efc313091aec914c4cf88394abf4",
+      "aliases": [
+        "HarborWalk events",
+        "harbor calendar"
+      ],
+      "coverage": "Harbor event calendar, dining and marina outings, parking and cancellations."
+    },
+    {
+      "id": "family_beach_pool",
+      "sourceHash": "368b4455d93b1a654d2200566a680d6c465d026aeb3a03c3bb3270f7f3e66bd8",
+      "aliases": [
+        "children at beach",
+        "family pools"
+      ],
+      "coverage": "Family beach and pool planning, children, flags and weather."
+    },
+    {
+      "id": "family_equipment",
+      "sourceHash": "ff1466d4a7573cb168bf5313b994ecb50a611434fd42fc7e7ed774eb0e57beb0",
+      "aliases": [
+        "strollers",
+        "wagons",
+        "family gear"
+      ],
+      "coverage": "Family games and books, strollers, wagons and boardwalk versus sand limitations."
+    },
+    {
+      "id": "family_layout",
+      "sourceHash": "38766371fe01d84d4337543c1cbaf49b96a7108f46eab283ecb02130e4a905d2",
+      "aliases": [
+        "family sleeping",
+        "bunks",
+        "sofa bed"
+      ],
+      "coverage": "King bed, hallway bunks and sleeper sofa, bathrooms, occupancy, comfort and upper-bunk child safety."
+    },
+    {
+      "id": "family_meals",
+      "sourceHash": "e16caed299a823fe348f4ca2e1564dc38769af28c6d18528d6154ae16aff53bd",
+      "aliases": [
+        "family cooking",
+        "grocery routine"
+      ],
+      "coverage": "Full-kitchen family meals and grocery routines."
+    },
+    {
+      "id": "family_packing",
+      "sourceHash": "b6fe3102a6646a58e3707276a842c1b497aadb113306a0b42bfcc04eefce8c48",
+      "aliases": [
+        "parents' packing",
+        "children's beach items"
+      ],
+      "coverage": "Sun, heat and beach packing for children and variable condo gear."
+    },
+    {
+      "id": "family_travel_critical_items",
+      "sourceHash": "b08a11bc60cc5ad184daca6540f4c393c438c8c7327099a96051c35907b3ed91",
+      "aliases": [
+        "baby essentials",
+        "Pack n Play"
+      ],
+      "coverage": "Critical family travel items, medicines, carry-on needs and supplied baby equipment."
+    },
+    {
+      "id": "first_beach_day_basics",
+      "sourceHash": "6be7866498409ac904cd87a2af6c56ea6e6cb9a993883f7234d0c60d3aa436fa",
+      "aliases": [
+        "first beach day",
+        "changing conditions"
+      ],
+      "coverage": "Flags, water safety, sun protection, valuables and changing beach conditions."
+    },
+    {
+      "id": "human_assistance_booking",
+      "sourceHash": "1663b0ea8d15a8f257cdd8084918c99dafe84569acc8c0247f0e7888ba862efe",
+      "aliases": [
+        "host help",
+        "Ozan",
+        "private booking help"
+      ],
+      "coverage": "Contacting Ozan for payments, refunds, private reservation changes and access assistance."
+    },
+    {
+      "id": "identity_destiny_blue",
+      "sourceHash": "bf1967f5f0429c2b6a7781391ac5b67838c74c8ffefcf5ac3dcfb1ae1a1e21ef",
+      "aliases": [
+        "Destiny identity",
+        "host identity"
+      ],
+      "coverage": "Assistant representation, hosted condos, independent guide and Ozan's hosting background."
+    },
+    {
+      "id": "parking_guest",
+      "sourceHash": "b9e0e01ca5b27a2460005ca38f7ba05a44640b1117573370e582294cc07e7290",
+      "aliases": [
+        "guest vehicles",
+        "garage parking"
+      ],
+      "coverage": "Per-unit guest vehicle allowance, covered and open parking and reserved-space scope."
+    },
+    {
+      "id": "public_contact_routes",
+      "sourceHash": "06cae82320fafa0a80f0b068a97cde7ec636bfaa716edcb74e8e139615ffcf4e",
+      "aliases": [
+        "public contacts",
+        "security contact"
+      ],
+      "coverage": "Public host and security contacts, private-assistance routes, beach camera and reviews.",
+      "displayName": "Public contact routes"
+    },
+    {
+      "id": "rain_lightning",
+      "sourceHash": "52066d29a10b70ddd695f68aa05886efbb9c8a532667353b99601b0a6f3ad722",
+      "aliases": [
+        "thunder",
+        "lightning shelter"
+      ],
+      "coverage": "Lightning shelter, unsafe exposed locations and waiting after thunder."
+    },
+    {
+      "id": "rain_passing_shower",
+      "sourceHash": "d25491652fccbe09e8db8ce8ef9d7b72452b78cb310fcc3dcf161f13bc776309",
+      "aliases": [
+        "brief rain",
+        "passing showers"
+      ],
+      "coverage": "Flexible condo and indoor breaks during passing rain without thunder."
+    },
+    {
+      "id": "rain_prolonged",
+      "sourceHash": "d20821361180ad1888b108f0cb3cc9aa147754135192411ca288b9c8e354e45f",
+      "aliases": [
+        "rainy-day activities",
+        "indoor outings"
+      ],
+      "coverage": "Indoor alternatives and the outdoor portions of shopping and marine-park outings."
+    },
+    {
+      "id": "rain_rough_surf_heat",
+      "sourceHash": "d76bd0309d2c6dc0ca8bbb4d577dd4defb5acec18e19739771a98a1537ada3fc",
+      "aliases": [
+        "rough surf",
+        "extreme heat"
+      ],
+      "coverage": "Cooler indoor alternatives when Gulf conditions or heat make outdoor plans unsuitable."
+    },
+    {
+      "id": "rain_severe_weather",
+      "sourceHash": "618851ed94ddd37543529e12385eb16f2496da78c8e79b5a4691b789b311c9fd",
+      "aliases": [
+        "tropical storm",
+        "severe weather"
+      ],
+      "coverage": "Official severe-weather and tropical guidance."
+    },
+    {
+      "id": "resort_identity",
+      "sourceHash": "e69ec464b9ea2176c13fb87279ffcd21c77e3c61ab0f5bdaf08f3df52b000aa9",
+      "aliases": [
+        "resort address",
+        "Gulf-front property"
+      ],
+      "coverage": "Resort identity, address, building history and beach relationship."
+    },
+    {
+      "id": "resort_visual_tools",
+      "sourceHash": "59930261fcfd2ee57441539baa389d3e2327797d5949fb7a5062db3ae738cf42",
+      "aliases": [
+        "resort map",
+        "virtual tour",
+        "condo finder"
+      ],
+      "coverage": "Resort maps, virtual tours and independent visual orientation tools."
+    },
+    {
+      "id": "restaurant_aegean_greek_restaurant",
+      "sourceHash": "66c5d2c15f5c2e25207b744961bac463c853d904398219829097e125223e6d98",
+      "aliases": [
+        "Greek",
+        "Mediterranean breakfast"
+      ],
+      "coverage": "Greek and Mediterranean dining, breakfast, setting, hours, location, contact and pricing guidance."
+    },
+    {
+      "id": "restaurant_aj_s_seafood_oyster_bar",
+      "sourceHash": "3ac31907a60072cb38892dd528025c4fb0df966393393ff764d2363bc3cdda97",
+      "aliases": [
+        "oysters",
+        "lively harbor dining"
+      ],
+      "coverage": "Harbor seafood and oysters, atmosphere, hours, location, contact and pricing guidance."
+    },
+    {
+      "id": "restaurant_back_porch",
+      "sourceHash": "069a4e09b7b03e132eda22149df4f54e6fe17063c692054c2c30095db8bf32c3",
+      "aliases": [
+        "beachfront seafood",
+        "amberjack"
+      ],
+      "coverage": "Casual beachfront seafood, seating approach, hours, location, contact and pricing information."
+    },
+    {
+      "id": "restaurant_beach_walk_caf",
+      "sourceHash": "b97a3df4dbd3d638b8433abb71c3f6dc95ae0fc8f6167e8dbd1604afc6baa8db",
+      "aliases": [
+        "fine beachfront dinner",
+        "brunch"
+      ],
+      "coverage": "Contemporary American seafood, beachfront setting, meal periods, reservations, location and pricing guidance."
+    },
+    {
+      "id": "restaurant_boathouse_oyster_bar",
+      "sourceHash": "554208ee125a940cd4d0cf2ad4da4b0151340b04c8588b39c1c6a06d2c274e7a",
+      "aliases": [
+        "oyster bar",
+        "harbor music"
+      ],
+      "coverage": "Harbor oysters and gumbo, live music, hours, location, contact and pricing guidance."
+    },
+    {
+      "id": "restaurant_boshamps",
+      "sourceHash": "d6c4bbc88a61ed7f62f9f596792013645ae6815835f2204f7cbb19df2c22817d",
+      "aliases": [
+        "Southern seafood",
+        "harbor deck"
+      ],
+      "coverage": "Southern seafood, harbor setting, hours, location, contact and pricing guidance."
+    },
+    {
+      "id": "restaurant_brotulas",
+      "sourceHash": "3aade34c3b6ba6a8732a43576cd93119703a3e05dd4ae3ac6331c720bfdbda16",
+      "aliases": [
+        "steamed seafood",
+        "seafood boils"
+      ],
+      "coverage": "Harbor seafood, steamed and boiled dishes, brunch, reservations, location and pricing guidance."
+    },
+    {
+      "id": "restaurant_camille_s_at_crystal_beach",
+      "sourceHash": "de3af347d6b98f42491bd3c598a1698e912152fd865f703199a9226791432298",
+      "aliases": [
+        "cafe and sushi",
+        "Crystal Beach dining"
+      ],
+      "coverage": "Daytime cafe versus upstairs seafood and sushi dining, hours, seasonal reservations, location and pricing guidance."
+    },
+    {
+      "id": "restaurant_capriccio_caf",
+      "sourceHash": "de5afb6888f1752ed79cf1b24c503003c981a3151f6f80544ced5539f29c8237",
+      "aliases": [
+        "coffee",
+        "crepes",
+        "breakfast"
+      ],
+      "coverage": "Italian coffee, crepes and sandwiches, breakfast and kitchen hours, ordering, location and pricing guidance."
+    },
+    {
+      "id": "restaurant_commelfo_restaurant",
+      "sourceHash": "347e43fb2822bab1b09ec587ba896d7b723125051617b4555ff699656af240ab",
+      "aliases": [
+        "European dining",
+        "all-day restaurant"
+      ],
+      "coverage": "European and American dining, meal periods, reservations, location, contact and pricing guidance."
+    },
+    {
+      "id": "restaurant_crab_trap_destin",
+      "sourceHash": "4ccd71fc5296f89c1fe1058d0d76a9929e946841d9a55dabf8d42797aff1df76",
+      "aliases": [
+        "family beachfront dining",
+        "seafood"
+      ],
+      "coverage": "Beachfront family seafood dining, seating, hours, location, contact and pricing guidance."
+    },
+    {
+      "id": "restaurant_crackings",
+      "sourceHash": "99530adbc8261b688fc7f0abc54d1a52d9c17f7448a251c98bb530ab5a21d063",
+      "aliases": [
+        "breakfast",
+        "brunch",
+        "waitlist"
+      ],
+      "coverage": "Breakfast and brunch, waitlist, hours, location, contact and pricing guidance."
+    },
+    {
+      "id": "restaurant_deweys",
+      "sourceHash": "23708d8dbf2f54ae686ed0e6f150bcfa64d0d50dd4b7445a469f3b96cf981541",
+      "aliases": [
+        "casual seafood",
+        "local seafood"
+      ],
+      "coverage": "Casual seafood, family history, hours, location, contact and pricing guidance."
+    },
+    {
+      "id": "restaurant_domo_izakaya",
+      "sourceHash": "0374f2249cddd9533648f2a94edcf3b3ec513c2212ba8d2b728164ba88c21f54",
+      "aliases": [
+        "Domo"
+      ],
+      "coverage": "Restaurant identity only."
+    },
+    {
+      "id": "restaurant_donut_hole_bakery_caf",
+      "sourceHash": "5826f1b63d27277f2316d921d3751eac5b9caaaec9087b85168452c7311745ac",
+      "aliases": [
+        "donuts",
+        "bakery",
+        "diner"
+      ],
+      "coverage": "Donuts, bakery, breakfast and pies, hours, phone, location and pricing guidance."
+    },
+    {
+      "id": "restaurant_edge",
+      "sourceHash": "347bccb3a2d55a0208a6de2f45a40ec3de946e7c9bcb8f5a2400eeabfb6eb344",
+      "aliases": [
+        "SkyBar",
+        "rooftop sunset"
+      ],
+      "coverage": "Harbor seafood, rooftop bar and sunset setting, brunch, reservation scope and pricing guidance."
+    },
+    {
+      "id": "restaurant_fat_clemenza_s",
+      "sourceHash": "b04e08800f5bd7ea6cb9f3178328d2bc732f8db197d625fa22de0037e94c9545",
+      "aliases": [
+        "wood-fired pizza",
+        "Italian dining"
+      ],
+      "coverage": "Italian pizza, pasta and calzones, hours, reservations, location and pricing guidance."
+    },
+    {
+      "id": "restaurant_fudpucker_s_beachside_bar_grill",
+      "sourceHash": "29491a7dde941480f89f4f43424ac959462d200214164b3133a44d86989702b3",
+      "aliases": [
+        "alligator attraction",
+        "family restaurant"
+      ],
+      "coverage": "American seafood, alligator attraction, arcade and family setting, location and pricing guidance."
+    },
+    {
+      "id": "restaurant_harbordocks",
+      "sourceHash": "559fd74991dfffd00b55bbe0eaeff680e58f45f8189a658d2935d580bc88f973",
+      "aliases": [
+        "sushi",
+        "Thai",
+        "harbor dining"
+      ],
+      "coverage": "Harbor seafood, sushi and Thai food, hours, location, contact and pricing guidance."
+    },
+    {
+      "id": "restaurant_harryts",
+      "sourceHash": "fa42e586fed0c0fec38350c32a6ee2e49b368efc4902eea96844b69c70620131",
+      "aliases": [
+        "waterfront casual dining",
+        "lighthouse"
+      ],
+      "coverage": "HarborWalk American seafood, waterfront setting, hours, location, contact and pricing guidance."
+    },
+    {
+      "id": "restaurant_jackacuda_s_seafood_sushi",
+      "sourceHash": "12aeef3a09c56b7f2c74fbca1f5b81ee96477c41e9bbc7de3a394688f3df08c6",
+      "aliases": [
+        "seafood and sushi",
+        "harbor restaurant"
+      ],
+      "coverage": "Seafood and sushi, harbor setting, hours, location, contact and pricing guidance."
+    },
+    {
+      "id": "restaurant_lagniappe",
+      "sourceHash": "7fb79e7e03b47c4c82bd2732fba8a569e745ecb3d4b1e2191435163fc6dc5e37",
+      "aliases": [
+        "Cajun",
+        "Creole",
+        "romantic seafood"
+      ],
+      "coverage": "Creole and Cajun seafood, waterfront dinner setting, seating, hours and pricing guidance."
+    },
+    {
+      "id": "restaurant_marina_cafe",
+      "sourceHash": "87c4e4666d78332d386c4612a7a0c7a300183ae9b87c3211a216a79751c663b5",
+      "aliases": [
+        "harbor-view dinner",
+        "steak and seafood"
+      ],
+      "coverage": "Seafood, steak and pasta, harbor views, dinner reservations, location and pricing guidance."
+    },
+    {
+      "id": "restaurant_mcguire_s_irish_pub",
+      "sourceHash": "983a0bc4cc305435d488c47247cb391a135b957dac413b1b8bd69928ae3ac9bd",
+      "aliases": [
+        "Irish pub",
+        "steak",
+        "late dining"
+      ],
+      "coverage": "Irish pub food, steaks, music, late hours, seating and pricing guidance."
+    },
+    {
+      "id": "restaurant_mcguires_sushi",
+      "sourceHash": "c0ed616e3f933a57ea70001bd90b9f0b60835693e7c41116541a7398f16faad6",
+      "aliases": [
+        "McGuires Sushi"
+      ],
+      "coverage": "Restaurant identity only."
+    },
+    {
+      "id": "restaurant_mimmos",
+      "sourceHash": "9f191475fa2620c487e06ff7ac8a0007c6bf4dda1b683fa53a81cc406bf41a1a",
+      "aliases": [
+        "Italian nearby",
+        "pasta and pizza"
+      ],
+      "coverage": "Italian pasta and pizza, nearby location, reservations, hours and pricing guidance."
+    },
+    {
+      "id": "restaurant_nonna_s_ristorante",
+      "sourceHash": "a3b51c8311697953e4d33f07e73a1554a356ffb986a821c22131813a5260125a",
+      "aliases": [
+        "Italian harbor dining",
+        "pizza"
+      ],
+      "coverage": "Italian pizza and pasta, harbor setting, reservations, location and pricing guidance."
+    },
+    {
+      "id": "restaurant_osaka_japanese_hibachi_sushi_bar",
+      "sourceHash": "148d10fb805b01ef7c5902760744b9a90c69efc1e312b5a0dcabe3f9d3bfdb3c",
+      "aliases": [
+        "hibachi",
+        "sushi",
+        "group dining"
+      ],
+      "coverage": "Japanese hibachi and sushi, entertainment and group suitability, hours, location and pricing guidance."
+    },
+    {
+      "id": "restaurant_outcast_sushi",
+      "sourceHash": "318079198803e8c542fae76fe269897751bb8eeb2345d8fdaf0a7b3ab10522e7",
+      "aliases": [
+        "Outcast"
+      ],
+      "coverage": "Restaurant identity only."
+    },
+    {
+      "id": "restaurant_pazzo",
+      "sourceHash": "1c72dfabbb8d82eb649c3f513f551f3549c16318a685b3aeaf6ee51daab8f811",
+      "aliases": [
+        "Italian",
+        "wood-fired pizza"
+      ],
+      "coverage": "Italian pizza and pasta, travel, reservations, hours, location and pricing guidance."
+    },
+    {
+      "id": "restaurant_pompano_joe_s",
+      "sourceHash": "4ad991982b485755947233b23654249490a5db390a592e5a156002c601785332",
+      "aliases": [
+        "Caribbean seafood",
+        "Miramar beachfront"
+      ],
+      "coverage": "Caribbean seafood, beachfront setting, outdoor dining, happy hour, seating and pricing guidance."
+    },
+    {
+      "id": "restaurant_red_onion_organic_restaurant",
+      "sourceHash": "6d91232e78d38a405bc5816124da227977077db7b439ea2644c7391bc2a12160",
+      "aliases": [
+        "Mediterranean",
+        "organic dining"
+      ],
+      "coverage": "Mediterranean dining, vegetarian choices, reservations, hours, location and pricing guidance."
+    },
+    {
+      "id": "restaurant_ruby_slipper",
+      "sourceHash": "5bef265c8f49d1dea746d24fff609506774dd14d3e5c68012b7eac827b68eb2d",
+      "aliases": [
+        "Southern brunch",
+        "New Orleans breakfast"
+      ],
+      "coverage": "New Orleans and Southern brunch, waitlist, hours, location and pricing guidance."
+    },
+    {
+      "id": "restaurant_runtime_authority",
+      "sourceHash": "25e29e34b6c348a7940f025e625b98f523b62a6395fe7f894dfe228f259a82d1",
+      "aliases": [
+        "restaurant service scope"
+      ],
+      "coverage": "No guest-facing package content."
+    },
+    {
+      "id": "restaurant_seagar_s_prime_steaks_seafood",
+      "sourceHash": "cd9075de35771e92e5e669b0e5b6ad09fc8c2ca78ff805ca480e371ab87f270f",
+      "aliases": [
+        "fine steakhouse",
+        "wine",
+        "Hilton dining"
+      ],
+      "coverage": "Prime steak and seafood, fine dining and wine, reservations, location and pricing guidance."
+    },
+    {
+      "id": "restaurant_sushimoto",
+      "sourceHash": "a6a9e372be76b472448f752162f6be4abb282b787cf1fcf5bdfb9cb001d04845",
+      "aliases": [
+        "Japanese fusion",
+        "sushi restaurant"
+      ],
+      "coverage": "Japanese sushi and fusion dining, small setting, seating, hours, location and pricing guidance."
+    },
+    {
+      "id": "restaurant_thai_delights_restaurant",
+      "sourceHash": "e05feac4da18787c2c7baa0aeec822a29ab713afb7991d9931b7b62e6ddfe258",
+      "aliases": [
+        "Thai",
+        "vegetarian dining"
+      ],
+      "coverage": "Casual Thai dining, vegetarian and children's menu choices, hours, phone, location and pricing guidance."
+    },
+    {
+      "id": "restaurant_the_harbor_tavern",
+      "sourceHash": "cfe0c21b327025f0862f0a2a8572d14dc0f6e43002d94e024d8b7f0ad268d9be",
+      "aliases": [
+        "harbor tavern",
+        "burgers",
+        "bowls"
+      ],
+      "coverage": "Casual harbor bar, burgers and Mediterranean bowls, hours, location and pricing guidance."
+    },
+    {
+      "id": "restaurant_the_local_market",
+      "sourceHash": "cb7ca63affefe0b1ef081ead5fe637456e82c2dfbfe96318dd8436b37e3809b0",
+      "aliases": [
+        "market cafe",
+        "breakfast and lunch"
+      ],
+      "coverage": "Cafe identity versus grocery store, coffee, breakfast and lunch, hours, location and contact."
+    },
+    {
+      "id": "restaurant_ume_sushi",
+      "sourceHash": "0969be921d74fccb4651b7d7885d1cd61105c94134b31f956d3de2d4e7f1e658",
+      "aliases": [
+        "UME"
+      ],
+      "coverage": "Restaurant identity only."
+    },
+    {
+      "id": "restaurant_zen_japanese_grill_sushi",
+      "sourceHash": "f131792d5df0bc8996016b685072612a883bd9c212b49bfea90f1b6200b3eadd",
+      "aliases": [
+        "ZEN"
+      ],
+      "coverage": "Restaurant identity only."
+    },
+    {
+      "id": "safety_beach",
+      "sourceHash": "2ae2cf37d3780f9d782394d1881344fcee82221937b5dcecb26ae2d7477ecf9b",
+      "aliases": [
+        "Gulf hazards",
+        "water safety"
+      ],
+      "coverage": "Beach flags, swimming restrictions and rip currents."
+    },
+    {
+      "id": "safety_emergency",
+      "sourceHash": "c44b4ddde76ec5bb55893c6c42aa7c1b0b705cf4f10c9907afc9012dea420c39",
+      "aliases": [
+        "emergency",
+        "911"
+      ],
+      "coverage": "Immediate emergencies, contacting responders and providing location and unit details."
+    },
+    {
+      "id": "safety_medical_boundary",
+      "sourceHash": "a37317ce417d548cb485f3e5a5c7bb6215eeeb1544ee7a3beda1c407a4787f7b",
+      "aliases": [
+        "medical questions",
+        "health assistance"
+      ],
+      "coverage": "No guest-facing package content."
+    },
+    {
+      "id": "safety_property_issue",
+      "sourceHash": "18dbc8fff594dd8f672eab9856b18e19663381f60e18ea9a94bd57507329d389",
+      "aliases": [
+        "urgent maintenance",
+        "internet problem"
+      ],
+      "coverage": "Urgent property hazards, secure host assistance and internet or television troubleshooting contacts."
+    },
+    {
+      "id": "safety_weather",
+      "sourceHash": "e64b8d57ad19282e0b1cec5c6aa64ab2ed3b62fe5d71a7ddf5f22bb2019ead3a",
+      "aliases": [
+        "storm safety",
+        "evacuation"
+      ],
+      "coverage": "Official weather, evacuation, shelter and tropical-weather sources."
+    },
+    {
+      "id": "shared_condo_features_and_operations",
+      "sourceHash": "fc9148f74078698c52f65c26b399eb07600db13614a334c4b67b407c317892e1",
+      "aliases": [
+        "housekeeping",
+        "mid-stay cleaning",
+        "condo supplies",
+        "appliances"
+      ],
+      "coverage": "Mid-stay housekeeping and fees; towels and shared laundry; starter supplies; kitchen, coffee maker, ice, dishwasher, disposal and refrigerator; thermostat and balcony precautions; Wi-Fi, workspace, smart TV and Cox setup; dining seats, Pack n Play, chairs and umbrella."
+    },
+    {
+      "id": "shopping_silver_sands",
+      "sourceHash": "e0a884d91be08669e08b9a2ed6274835b36a32385cb8c7dfe2e7ba9d44b70c41",
+      "aliases": [
+        "outlet shopping",
+        "designer outlets"
+      ],
+      "coverage": "Designer outlet shopping and outdoor walking in rainy conditions."
+    },
+    {
+      "id": "spa_concierge_scope_and_routing",
+      "sourceHash": "bbfd1e24fb24c3fc5545fc847c8a1409b6fd69c7200dbf25513c8691b9b54ac1",
+      "aliases": [
+        "spa appointments",
+        "spa guide"
+      ],
+      "coverage": "Direct spa appointments, walk-ins, accessibility, health requirements and cancellation questions."
+    },
+    {
+      "id": "spa_emerald_sanctuary_miramar",
+      "sourceHash": "c1c1b765449e65a98749869efcf85d1f5e787f1294e4dc724e8026c9c181d5f8",
+      "aliases": [
+        "Miramar Plaza spa",
+        "Emerald Sanctuary"
+      ],
+      "coverage": "Branch location, services, hours, upstairs versus ground-floor access, contact and travel."
+    },
+    {
+      "id": "spa_emerald_sanctuary_summer_lake",
+      "sourceHash": "5a616128a39a8fd24b9a57809e86916bd0ad59dabbda9ba30e7f9054ec230dc2",
+      "aliases": [
+        "Summer Lake spa",
+        "Emerald Sanctuary"
+      ],
+      "coverage": "Original branch location, services, hours, contact and travel."
+    },
+    {
+      "id": "spa_om_relaxation_spa",
+      "sourceHash": "4540c4c566bea3b8562ede26b28140b6f38626d42475887463fa1684ec0c68ae",
+      "aliases": [
+        "independent day spa",
+        "couples massage"
+      ],
+      "coverage": "Day-spa setting, couples and aromatherapy treatments, location, hours, contact, travel and pricing guidance."
+    },
+    {
+      "id": "spa_ruyi_massage",
+      "sourceHash": "fbdbfb266a00579dd671f91c39a9248fd127324f9e050a96e26353bb15f4cc5c",
+      "aliases": [
+        "body massage",
+        "foot massage",
+        "Thai massage"
+      ],
+      "coverage": "Body, foot, Thai and couples massage, hours, location, contact, travel and pricing guidance."
+    },
+    {
+      "id": "spa_serenity_by_the_sea",
+      "sourceHash": "95871171b06543f8a14ebd0a2639a4aaaa32456b23d6bbbac685a8caf5e91336",
+      "aliases": [
+        "Hilton spa",
+        "non-hotel spa visit"
+      ],
+      "coverage": "Spa and salon services, couples options, non-hotel access, lounge, separate facilities, hours and pricing guidance."
+    },
+    {
+      "id": "spa_spa_lilliana",
+      "sourceHash": "c697221e945e39bd34bef0d205d7b2354fcd4e638828eab01ef184c346134c81",
+      "aliases": [
+        "Hotel Effie spa",
+        "couples treatments"
+      ],
+      "coverage": "Hotel spa services, couples options, hotel-amenity access scope, hours, contact, travel and pricing guidance."
+    },
+    {
+      "id": "spa_surfside_spa",
+      "sourceHash": "0e4d5f84d9b46bf683b3d2f031f51f5cdd999f230627aa940e252f1caa78d23b",
+      "aliases": [
+        "Surfside massage",
+        "public spa"
+      ],
+      "coverage": "Massage services, couples options, non-guest access, location, contact, travel and pricing guidance."
+    },
+    {
+      "id": "spa_the_henderson_spa",
+      "sourceHash": "89ef9e84897198d9f32728556ed1732d21f0eaf23870341166977f587fba854d",
+      "aliases": [
+        "Henderson massage",
+        "spa pool access"
+      ],
+      "coverage": "Resort spa identity, couples setting, treatments, same-day pool access, hours, contact and pricing guidance."
+    },
+    {
+      "id": "spa_the_spa_at_emerald_grande",
+      "sourceHash": "4e8894137262ab69d3eeca3969925ba3088d1369a093a2ef1bed2d1bedeb0a81",
+      "aliases": [
+        "harbor spa",
+        "steam and sauna"
+      ],
+      "coverage": "Harbor-side spa services, steam, sauna and lounge, visitor parking and amenity-access questions, hours and travel."
+    },
+    {
+      "id": "spa_the_spa_at_silver_shells",
+      "sourceHash": "5554a3dc96d34e234ce0b3fbf5c90e62c4959e1499199d47fdb51313dbb2ab25",
+      "aliases": [
+        "Silver Shells day spa",
+        "public spa"
+      ],
+      "coverage": "Public day-spa access, treatments, steam and sauna, pool and Jacuzzi features, hours and contact."
+    },
+    {
+      "id": "stay_safety_basics",
+      "sourceHash": "631923b6a7612d17701185b75f65abd379babdd6c4d7017b6b8d8adbde3dbd09",
+      "aliases": [
+        "smoking areas",
+        "noise problem",
+        "safety help"
+      ],
+      "coverage": "Designated smoking areas, active noise concerns, changing beach conditions, emergencies and prompt property-problem reporting."
+    },
+    {
+      "id": "transport_airports",
+      "sourceHash": "8229ac5e2c4e55d77a5771f8a2c9c8feb6c743315fe18621aba3a41b6eee1c4f",
+      "aliases": [
+        "airport comparison",
+        "flight planning"
+      ],
+      "coverage": "Airport choice, flight and ground-transport tradeoffs, travel guide and airport-drive presentation."
+    },
+    {
+      "id": "transport_bikes_and_scooters",
+      "sourceHash": "d85e8c7bdc8aadbfa0f54cce35f2cebe4d449ce1d12740f238fa40047f23cbe1",
+      "aliases": [
+        "bicycle",
+        "scooter"
+      ],
+      "coverage": "Short local trips versus wider itineraries and highway travel."
+    },
+    {
+      "id": "transport_car_choice",
+      "sourceHash": "4323028943d0998c8794a5923c1be883a41b1436cb07bb7ce5c3c1c9002e733f",
+      "aliases": [
+        "no car",
+        "rental versus rideshare"
+      ],
+      "coverage": "Resort-centered stays, rental-car flexibility, rideshare availability and live pricing."
+    },
+    {
+      "id": "transport_destin_fort_walton_beach_airport_vps",
+      "sourceHash": "e0ffb22eaa3c48cd0e9c171496fdb17f4b1db7a038b7cf3b472a7c7bc4839758",
+      "aliases": [
+        "VPS airport",
+        "closest commercial airport"
+      ],
+      "coverage": "Airport proximity, normal travel distance and time, convenience and traffic variability."
+    },
+    {
+      "id": "transport_match_to_itinerary",
+      "sourceHash": "8a1517d66480e52179fa20122958e5e2b217705e56c280d2c2c4222e8f702c18",
+      "aliases": [
+        "transport itinerary",
+        "multiple stops"
+      ],
+      "coverage": "Transportation for groceries, dining, beaches and day trips, busy-period rideshare and parking limits."
+    },
+    {
+      "id": "transport_northwest_florida_beaches_international_airport_ecp",
+      "sourceHash": "d2c90c730359824397327ec31ca2575decc4ae331932891621c1132b5e3dadb9",
+      "aliases": [
+        "ECP airport",
+        "Panama City airport"
+      ],
+      "coverage": "Airport travel distance and time and flight-schedule or trip-price tradeoffs."
+    },
+    {
+      "id": "transport_pensacola_international_airport_pns",
+      "sourceHash": "60d0fec8d3ba313d0af55166675d7048d89c33149aff5e71a1b58b06f6398246",
+      "aliases": [
+        "PNS airport",
+        "Pensacola flights"
+      ],
+      "coverage": "Airport travel distance and time, flight selection and airfare tradeoffs."
+    },
+    {
+      "id": "transport_public",
+      "sourceHash": "3bbaa26e93146d1849b1f07fb217969952bb297a419dd0fa8a0e2407bacbf4fe",
+      "aliases": [
+        "bus",
+        "public transit",
+        "Emerald Coast Rider"
+      ],
+      "coverage": "Transit routes, stops, schedules, fares, accessibility and official information sources."
+    },
+    {
+      "id": "transport_rental_car",
+      "sourceHash": "e5b3efd52995e6893df8b5cab8479aa0fea60d0cfe346ae5674e00a4f6c48429",
+      "aliases": [
+        "car hire",
+        "DiscoverCars"
+      ],
+      "coverage": "Rental-car suitability, full trip cost, getting-around guide and sponsored comparison link."
+    },
+    {
+      "id": "transport_turo_car_sharing",
+      "sourceHash": "7909a294b08e83db639b0c0638bc6b78fd3ce6a149c390a7c9addfc1277e3597",
+      "aliases": [
+        "Turo",
+        "car sharing"
+      ],
+      "coverage": "Peer-to-peer car sharing, delivery, insurance, mileage and full-price comparisons."
+    },
+    {
+      "id": "transport_uber_and_lyft",
+      "sourceHash": "024f3a090e48cc6c97e81ef77accb7c508c19837e75fcc6f276e678fab88330d",
+      "aliases": [
+        "Uber",
+        "Lyft",
+        "rideshare"
+      ],
+      "coverage": "Short-stay rideshare, variable availability and surge pricing, airport and busy-weekend planning."
+    },
+    {
+      "id": "transport_walkability",
+      "sourceHash": "43a2602ac0740a2b32231e9854053198f7de8715f0796fff7144757108611f65",
+      "aliases": [
+        "walking",
+        "sidewalks",
+        "road crossing"
+      ],
+      "coverage": "Direct beach walking route and destination-specific sidewalks, crossings, traffic, weather and mobility needs."
+    },
+    {
+      "id": "unit1006_core",
+      "sourceHash": "dbf62939769205fc0c94177c051d25ede11d7add87672772862cd758cf07d06c",
+      "aliases": [
+        "1006",
+        "Fresh Coastal",
+        "condo layout"
+      ],
+      "coverage": "Floor, decor, Gulf balcony, sleeping layout, bathrooms, occupancy, kitchen, appliances, interior accessibility, Wi-Fi and calls."
+    },
+    {
+      "id": "unit1006_public_links",
+      "sourceHash": "4004da973540974e8c45b943430f32249fa4b0cef9b1b71320f21188620d009c",
+      "aliases": [
+        "1006 booking page",
+        "1006 availability"
+      ],
+      "coverage": "Public unit page and exact-unit live availability and booking route."
+    },
+    {
+      "id": "unit707_core",
+      "sourceHash": "c35eb7e949757120dcc35728be5eabc4b45bae60ed6976e0c5982abe64d65afd",
+      "aliases": [
+        "707",
+        "Classic Coastal",
+        "condo layout"
+      ],
+      "coverage": "Floor, decor, Gulf balcony, sleeping layout, bathrooms, occupancy, kitchen, appliances, interior accessibility, Wi-Fi and calls."
+    },
+    {
+      "id": "unit707_public_links",
+      "sourceHash": "04f65c2faa31f516d1cb1d839bb6d671da94d420913eacd635c91f56853d25a9",
+      "aliases": [
+        "707 booking page",
+        "707 availability"
+      ],
+      "coverage": "Public unit page and exact-unit live availability and booking route."
+    },
+    {
+      "id": "weather_april",
+      "sourceHash": "22e74db1f55bf0e2efba1e046800d6713c9613af52ae8311d3b4100308a02def",
+      "aliases": [
+        "April climate",
+        "April rain"
+      ],
+      "coverage": "Typical April temperature highs and lows and monthly rainfall averages."
+    },
+    {
+      "id": "weather_august",
+      "sourceHash": "62ffdec76718693dd362879dfb05fcf93efc6e319d6c33c122c2ff8bc6bde9cf",
+      "aliases": [
+        "August climate",
+        "August rain"
+      ],
+      "coverage": "Typical August temperature highs and lows and monthly rainfall averages."
+    },
+    {
+      "id": "weather_climate_vs_forecast",
+      "sourceHash": "6cad329e430171dbfc53f71c0f9f436224f83d64f7c48335296472d795133c7c",
+      "aliases": [
+        "climate versus forecast",
+        "water temperature",
+        "tides"
+      ],
+      "coverage": "Historical climate reference, exact-date forecasts and hazards, regional water-temperature and tide-location scope."
+    },
+    {
+      "id": "weather_december",
+      "sourceHash": "086aa1bfa358993ef16fb30e4405f5ca3c26b3e93e122656588c0e3720b2d0e6",
+      "aliases": [
+        "December climate",
+        "December rain"
+      ],
+      "coverage": "Typical December temperature highs and lows and monthly rainfall averages."
+    },
+    {
+      "id": "weather_february",
+      "sourceHash": "a6c67341c7ff1c6f23740849b36ebaa6fb68f70a0d022aafe5a2b22ceeb29d08",
+      "aliases": [
+        "February climate",
+        "February rain"
+      ],
+      "coverage": "Typical February temperature highs and lows and monthly rainfall averages."
+    },
+    {
+      "id": "weather_january",
+      "sourceHash": "924fceadacb39bf74468878ce3eb4f9e0972b76ae70b4829747eefe5e14487a0",
+      "aliases": [
+        "January climate",
+        "January rain"
+      ],
+      "coverage": "Typical January temperature highs and lows and monthly rainfall averages."
+    },
+    {
+      "id": "weather_july",
+      "sourceHash": "9694cf8c4fc63d265a13afdceaa31360a7c2558744fb4f7916cbfcdb9d0d2bb6",
+      "aliases": [
+        "July climate",
+        "July rain"
+      ],
+      "coverage": "Typical July temperature highs and lows and monthly rainfall averages."
+    },
+    {
+      "id": "weather_june",
+      "sourceHash": "31ad1030eac6000a32e4a2c1c7c8fe90d6aa57b2bacd38189e7ec19eb98e8a02",
+      "aliases": [
+        "June climate",
+        "June rain"
+      ],
+      "coverage": "Typical June temperature highs and lows and monthly rainfall averages."
+    },
+    {
+      "id": "weather_march",
+      "sourceHash": "59d92e28dde1c2210e2a3349d9e0d15a6091519f78f74f71d5dce0f33b16994b",
+      "aliases": [
+        "March climate",
+        "March rain"
+      ],
+      "coverage": "Typical March temperature highs and lows and monthly rainfall averages."
+    },
+    {
+      "id": "weather_may",
+      "sourceHash": "0df3001302402330a85ba8f1f6dc62f9f951c0954e81ed0dc8db801d41fe8297",
+      "aliases": [
+        "May climate",
+        "May rain"
+      ],
+      "coverage": "Typical May temperature highs and lows and monthly rainfall averages."
+    },
+    {
+      "id": "weather_november",
+      "sourceHash": "ccd8aeff6d8a833beb3ef5d74a2008e880456517f552fc83951be00162a1b9dc",
+      "aliases": [
+        "November climate",
+        "November rain"
+      ],
+      "coverage": "Typical November temperature highs and lows and monthly rainfall averages."
+    },
+    {
+      "id": "weather_october",
+      "sourceHash": "d551f740007bc7c377b9ae50b40040fb0385e2a31a54fac0b1c486572ac2d7cd",
+      "aliases": [
+        "October climate",
+        "October rain"
+      ],
+      "coverage": "Typical October temperature highs and lows and monthly rainfall averages."
+    },
+    {
+      "id": "weather_september",
+      "sourceHash": "e4e56adc87fd55038db644c272c51e05bcb207e8d4bfa3a1647cb9eaba77ec2c",
+      "aliases": [
+        "September climate",
+        "September rain"
+      ],
+      "coverage": "Typical September temperature highs and lows and monthly rainfall averages."
+    },
+    {
+      "id": "owner_current_decisions",
+      "sourceHash": "28715fcfa65d7a5b1cf806e2f7996e578bfab0f088beb9123d75841bc4917a1a",
+      "aliases": [
+        "building and resort rules",
+        "shared owner facts"
+      ],
+      "coverage": "Building distinction, internet, pools, pets and accommodations, smoking, parking, EV chargers, beach-equipment placement and arrival timing.",
+      "displayName": "Shared resort and condo facts"
+    }
+  ]
+}

@@ -11,6 +11,7 @@ import {evaluationCases,runPublicationGate} from '../lib/destiny-runtime/publica
 import {makeMockServices} from '../tests/test-helpers.mjs';
 
 const [artifactFile,evaluationsFile,outputFile]=process.argv.slice(2);
+throw new Error('Legacy v1 gate retired: it does not evaluate the recovered model-led runtime. Use the bounded recovery comparison. A new full paid run requires explicit approval and a v2-bound receipt.');
 if(!artifactFile||!evaluationsFile||!outputFile)throw new Error('Usage: node --experimental-default-type=module scripts/run-private-publication-gate.mjs artifact.json evaluations.json report.json');
 const artifact=assertArtifact(JSON.parse(await fs.readFile(artifactFile,'utf8')));
 const evaluations=JSON.parse(await fs.readFile(evaluationsFile,'utf8'));

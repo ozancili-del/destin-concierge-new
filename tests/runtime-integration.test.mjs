@@ -8,6 +8,7 @@ import {digest} from '../lib/destiny-runtime/artifact.js';
 import {LocalArtifactStore,LocalSessionStore,PinnedArtifactReader} from '../lib/destiny-runtime/local-store.js';
 import {createPrivateHandler} from '../lib/destiny-runtime/private-handler.js';
 import {executeTurn} from '../lib/destiny-runtime/execute.js';
+import {executeConversation} from '../lib/destiny-runtime/conversation-v2.js';
 import {searchArtifact,renderKnowledge} from '../lib/destiny-runtime/retrieve.js';
 import {createDefaultState,STATIC_URLS,TRIPSHOCK_CATEGORIES} from '../lib/destiny-agent/business.js';
 import {interpreterInstructions} from '../lib/destiny-runtime/semantic.js';
@@ -72,13 +73,13 @@ test('partial live beach sources preserve all alerts and the changeable-conditio
   const r=await run('Beach conditions',[a('beach_conditions')],{services});assert.equal(r.result.status,'partial');assert.match(r.result.reply,/Storm warning/);assert.match(r.result.reply,/Follow posted flags/);assert.match(r.result.reply,/does not guarantee safe swimming/);assert.match(r.result.reply,/could not be verified/);
 });
 
-async function serverFixture(t){
+async function serverFixture(t,overrides={}){
   const root=await fs.mkdtemp(path.join(os.tmpdir(),'destiny-private-http-'));
   const store=new LocalArtifactStore(root);await store.put(artifact);
   let calls=0;
   const interpreter=async()=>{calls++;return interpret([a('recommendations',{category:'airports',requestedCount:3})])();};
   const common={reader:new PinnedArtifactReader(store),sessions:new LocalSessionStore(path.join(root,'sessions')),interpreter,services:makeMockServices(),candidateRevision:revision,enabled:true,sessionKey:'http-fixture-session-signing-key-only-1234'};
-  const handlers=Object.fromEntries(['chat','voice'].map(channel=>[channel,createPrivateHandler({...common,channel})]));
+  const handlers=Object.fromEntries(['chat','voice'].map(channel=>[channel,createPrivateHandler({...common,...overrides,channel})]));
   const server=http.createServer(async(req,res)=>{
     const buffers=[];for await(const b of req)buffers.push(b);req.body=JSON.parse(Buffer.concat(buffers).toString());
     res.status=n=>{res.statusCode=n;return res;};res.json=obj=>{res.setHeader('content-type','application/json');res.end(JSON.stringify(obj));};
@@ -102,4 +103,18 @@ test('lost-response retry replays before version check and cannot execute tools 
   const retry=await f.post('chat',body,cookie),again=await retry.json();assert.equal(retry.status,200);assert.equal(again.replayed,true);assert.equal(data.traceId,again.traceId);assert.equal(f.calls(),1);
   const collision=await f.post('chat',{...body,text:'Different question'},cookie);assert.equal(collision.status,409);
   const stale=await f.post('chat',{...body,turnId:'new-turn'},cookie);assert.equal(stale.status,409);assert.equal(f.calls(),1);
+});
+
+test('recovered HTTP Chat and Voice share the stored frozen decision and execute a replay only once',async t=>{
+  let calls=0;
+  const scopedOpenAI={responses:{async create(){calls++;return {id:'shared-response',status:'completed',output:[],output_text:'Hello! How can I help with your stay?'};}}};
+  const f=await serverFixture(t,{executor:executeConversation,scopedOpenAI});
+  const body={text:'Hi',turnId:'shared-turn',version:0};
+  const first=await f.post('chat',body),cookie=first.headers.get('set-cookie').split(';')[0],chat=await first.json();
+  assert.equal(first.status,200);assert.equal(chat.channel,'chat');
+  const response=await f.post('voice',body,cookie),voice=await response.json();
+  assert.equal(response.status,200);assert.equal(voice.channel,'voice');assert.equal(voice.replayed,true);
+  assert.equal(chat.decisionId,voice.decisionId);assert.deepEqual(chat.outcomes,voice.outcomes);assert.equal(chat.reply,voice.reply);assert.equal(calls,1);
+  const next=await f.post('voice',{text:'Thanks',turnId:'next-turn',version:1},cookie);
+  assert.equal(next.status,200);assert.equal((await next.json()).version,2);assert.equal(calls,2);
 });

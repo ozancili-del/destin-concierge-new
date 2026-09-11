@@ -11,6 +11,8 @@ import {createBrainServer} from '../lib/destiny-brain/server.js';
 import {createBrainReadServices} from '../lib/destiny-brain/read-services.js';
 import {createPrivateRealtimeHandler} from '../lib/destiny-brain/realtime.js';
 import {domainAdapters} from '../lib/destiny-brain/accepted/adapters.mjs';
+import {Actions} from '../lib/destiny-brain/accepted/actions.mjs';
+import {hydrate} from '../lib/destiny-brain/accepted/kernel.mjs';
 import {isPrivatePeer} from '../lib/destiny-brain/boundary.js';
 import approval from '../lib/destiny-brain/ACCEPTED-SOURCE.json' with {type:'json'};
 
@@ -125,6 +127,16 @@ test('read-only adapter exposes no write or guest-record methods and permits onl
 test('real OwnerRez adapter projects synthetic provider records to booleans only',async()=>{
   const services=createBrainReadServices({env:{OWNERREZ_API_TOKEN:'synthetic-test-token'},fetchImpl:async(_url,options)=>{assert.equal(options.method,undefined);return {ok:true,json:async()=>({items:[{arrival:'2027-02-01',departure:'2027-02-04',status:'active',guestName:'SYNTHETIC_DO_NOT_FORWARD',payment:'SYNTHETIC'}]})};}});
   const result=await services.checkBothUnits('2027-02-02','2027-02-03');assert.deepEqual(result,{'707':false,'1006':false});assert.doesNotMatch(JSON.stringify(result),/SYNTHETIC/);
+});
+test('checking both condos keeps the full guest party on each alternative link',async()=>{
+  const clock={now:'2026-09-11T17:00:00.000Z',timeZone:'America/Chicago',locale:'en-US'};
+  const state=hydrate({booking:{arrival:'2026-11-01',departure:'2026-11-14',adults:2,children:0,totalGuests:2}});
+  const outcome={id:'both-options',kind:'availability',unit_ids:['707','1006'],booking_operation:'refresh',dates:{status:'resolved',precision:'exact',start:'2026-11-01',end:'2026-11-14',source:'guest_exact'},unit_scope:'two'};
+  const engine=new Actions({state,clock,outcomes:[outcome],services:{checkBothUnits:async()=>({'707':true,'1006':true})}});
+  const result=await engine.execute('check_availability',{outcome_id:'both-options'});
+  assert.equal(result.data.requiresTwoUnits,false);
+  assert.equal(result.links.length,2);
+  for(const link of result.links){assert.deepEqual(link.party,{adults:2,children:0,total:2});assert.match(link.url,/or_adults=2/);assert.match(link.url,/or_guests=2/);}
 });
 function responseMock(){const res=new EventEmitter();res.headers={};res.setHeader=(k,v)=>res.headers[k]=v;res.status=n=>{res.statusCode=n;return res;};res.json=res.send=data=>{res.body=data;return res;};return res;}
 test('private Realtime uses only a renderer, transcriber and server-only credential',async()=>{

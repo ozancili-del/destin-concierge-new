@@ -14,7 +14,7 @@ test("synthetic caller starts after greeting without waiting for provider VAD", 
 test("recorded call uses an explicit one-click flag, not asynchronous checkbox state", () => {
   const page = readFileSync(new URL("../pages/voice-lab.js", import.meta.url), "utf8");
   assert.match(page, /onClick=\{\(\) => startCall\(\{ record: true \}\)\}/);
-  assert.match(page, /if \(options\.record \|\| options\.testStream\)/);
+  assert.match(page, /if \(!orderedMemoryEnabled&&\(options\.record \|\| options\.testStream\)\)/);
   assert.doesNotMatch(page, /recordEnabled|setRecordEnabled/);
   assert.match(page, /No recorded call was started/);
 });

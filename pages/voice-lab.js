@@ -12,6 +12,7 @@ import { extractVoiceCompanionLinks } from "../lib/destiny-agent/voice-links.js"
 import { classifyVoiceUtterance, createVoiceCallIdentity, createVoiceOpeningGreetingEvent, inferExpectedVoiceReply, isDirectedVoiceUtterance, isExpectedVoiceReply, isLikelyAssistantEcho, isVoiceTranscriptionArtifact, resolveVoiceModel, voiceLookupLabel, voiceProgressInstructions, VOICE_INPUT_CLASSIFICATION_TIMEOUT_MS, VOICE_MODEL, VOICE_TOOL_PROGRESS_SILENCE_MS } from "../lib/destiny-agent/voice-experience.js";
 import { buildRouterDecision } from "../lib/destiny-domain/shadow-router.js";
 import {isPrivatePeer} from '../lib/destiny-brain/boundary.js';
+import {getOrderedBrowserClient,TranscriptOrderBuffer} from '../lib/destiny-brain/ordered-client.js';
 
 const initialStatus = "Tap the call button when you're ready.";
 const PRIVATE_PREVIEW_SESSION_KEY = 'destiny_private_preview_session_v1';
@@ -20,11 +21,12 @@ export async function getServerSideProps({ req, res }) {
   res.setHeader("X-Robots-Tag", "noindex, nofollow, noarchive, nosnippet");
   res.setHeader("Cache-Control", "private, no-store");
   const hosted=process.env.VERCEL_ENV==='preview',privateRuntimeEnabled=hosted||isPrivatePeer(req);
-  return { props: { buildRevision: process.env.VERCEL_GIT_COMMIT_SHA || "local-uncommitted", privateRuntimeEnabled,hosted,privateModelCallsEnabled:hosted?!!process.env.OPENAI_API_KEY:process.env.DESTINY_PRIVATE_MODEL_CALLS==='1'&&!!process.env.OPENAI_API_KEY } };
+  const orderedMemoryEnabled=process.env.DESTINY_ORDERED_MEMORY==='1'&&process.env.VERCEL_ENV!=='production';
+  return { props: { buildRevision: process.env.VERCEL_GIT_COMMIT_SHA || "local-uncommitted", privateRuntimeEnabled,hosted,orderedMemoryEnabled,privateModelCallsEnabled:!!process.env.OPENAI_API_KEY&&((hosted&&!orderedMemoryEnabled)||process.env.DESTINY_PRIVATE_MODEL_CALLS==='1') } };
 }
 
 export default function VoiceLab(props){return <LegacyVoiceLab {...props}/>;}
-function LegacyVoiceLab({ buildRevision, privateRuntimeEnabled=false,privateModelCallsEnabled=false,hosted=false }) {
+function LegacyVoiceLab({ buildRevision, privateRuntimeEnabled=false,privateModelCallsEnabled=false,hosted=false,orderedMemoryEnabled=false }) {
   const [cloudEnabled, setCloudEnabled] = useState(false);
   const [cloudCode, setCloudCode] = useState("");
   const [cloudStatus, setCloudStatus] = useState("Unlock automatic private saving on this device (remembered for 7 days).");
@@ -74,6 +76,7 @@ function LegacyVoiceLab({ buildRevision, privateRuntimeEnabled=false,privateMode
   const lastKnowledgeCandidateIdsRef = useRef([]);
   const latestAcceptedTurnRef = useRef(null);
   const activeGatewayRef = useRef(null);
+  const transcriptOrderRef = useRef(null);
   const routerContextRef = useRef({ version: 0, activeCategory: null, focusedEntityIds: [], offeredEntityIds: [], booking: null, latestAnswerId: null, pendingExternalRestaurantSearch: null });
   const sessionRef = useRef(null);
   const privateSessionTokenRef = useRef(null);
@@ -112,6 +115,14 @@ function LegacyVoiceLab({ buildRevision, privateRuntimeEnabled=false,privateMode
     if (!privateRuntimeEnabled || typeof window === 'undefined') return;
     privateSessionTokenRef.current = window.sessionStorage.getItem(PRIVATE_PREVIEW_SESSION_KEY);
   }, [privateRuntimeEnabled]);
+
+  useEffect(()=>{
+    if(!privateRuntimeEnabled||!orderedMemoryEnabled)return;let active=true,unsubscribe;
+    getOrderedBrowserClient().then(client=>{if(active)unsubscribe=client.subscribe(s=>{
+      if(s.expired){stopCall({reason:'conversation_expired'});setTranscript([]);setCompanionLinks([]);historyRef.current=[];transcriptOrderRef.current=null;setStatus('This synthetic conversation expired. Reload to start a new one.');}
+    });}).catch(error=>{if(active)setStatus(error.message);});
+    return()=>{active=false;unsubscribe?.();};
+  },[privateRuntimeEnabled,orderedMemoryEnabled]);
 
   const sendInputEvent = event => {
     const channel = channelRef.current;
@@ -736,6 +747,23 @@ function LegacyVoiceLab({ buildRevision, privateRuntimeEnabled=false,privateMode
   ].join("\n");
 
   const executeAuthoritativeTurn = async ({ turnId, guestText, decision }) => {
+    if(privateRuntimeEnabled&&orderedMemoryEnabled){
+      // Audio ownership may change immediately; accepted Brain ingestion cannot
+      // be aborted by a new transcript, a stopped call, or an obsolete answer.
+      const ownedEpoch=callEpochRef.current,gateway={turnId,ownedEpoch,accepted:false};activeGatewayRef.current=gateway;
+      setStatus('Saving your words…');
+      try{
+        const client=await getOrderedBrowserClient();
+        const result=await client.enqueue(guestText,turnId,'voice',{onAccepted:()=>{gateway.accepted=true;if(activeGatewayRef.current===gateway)setStatus('Saved. Destiny is thinking…');}});
+        if(result.reply)addLine('destiny',result.reply,{turnId,sequence:result.sequence,audioSuppressed:activeGatewayRef.current!==gateway});
+        if(activeGatewayRef.current!==gateway||callEpochRef.current!==ownedEpoch||callRef.current==null)return;
+        if(!result.reply){setStatus('Listening…');return;}
+        setCompanionLinks((result.links||[]).map(href=>({href,label:extractVoiceCompanionLinks(href)[0]?.label||'Open source'})));
+        requestRoutedResponse(turnId,['Read this authoritative answer verbatim. Do not translate, paraphrase, add facts, act, or read URLs.',`Authoritative answer: ${JSON.stringify(result.reply)}`].join('\n'),{maxOutputTokens:1600});
+        setStatus('Destiny is answering…');
+      }catch(error){if(activeGatewayRef.current===gateway)setStatus(error.message+(gateway.accepted?' Your accepted words remain saved.':' Saving was not confirmed. Keep this text for review.'));}
+      return;
+    }
     activeGatewayRef.current?.abortController?.abort();
     const abortController = new AbortController();
     const ownedEpoch = callEpochRef.current;
@@ -1078,6 +1106,9 @@ function LegacyVoiceLab({ buildRevision, privateRuntimeEnabled=false,privateMode
     }
     if (event.type === "input_audio_buffer.committed") {
       const turnId = String(event.item_id || event.event_id || `turn-${Date.now()}`);
+      if(privateRuntimeEnabled&&orderedMemoryEnabled){
+        try{if(!transcriptOrderRef.current.register(turnId))return;}catch{stopCall({reason:'capture_order_unproven'});setStatus('Voice paused: input order could not be confirmed.');return;}
+      }
       const ownedEpoch = callEpochRef.current;
       const candidateId = activeCandidateRef.current?.candidateId || turnId;
       const turn = { turnId, candidateId, startedDuringPlayback: Boolean(activeCandidateRef.current?.startedDuringPlayback), classificationTimer: null, decisionRetireTimer: null };
@@ -1104,6 +1135,11 @@ function LegacyVoiceLab({ buildRevision, privateRuntimeEnabled=false,privateMode
       }
     }
     if (event.type === "conversation.item.input_audio_transcription.completed") {
+      if(privateRuntimeEnabled&&orderedMemoryEnabled&&!event.orderedReleased){
+        try{transcriptOrderRef.current.complete(event.item_id,{...event,orderedReleased:true});}
+        catch{stopCall({reason:'transcript_order_unproven'});setStatus('Voice paused: transcript order could not be confirmed.');}
+        return;
+      }
       const pendingTurn = pendingCommittedTurnsRef.current.get(event.item_id);
       if (pendingTurn?.timedOut) {
         queueVoiceEvent({ eventType: "late_transcript_received", role: "system", text: "processed_after_classification_deadline", turnId: event.item_id || "", providerEventId: event.event_id || "" });
@@ -1122,7 +1158,7 @@ function LegacyVoiceLab({ buildRevision, privateRuntimeEnabled=false,privateMode
         queueVoiceEvent({ eventType: "cancelled", role: "system", text: "ignored_empty_audio_transcript", turnId: event.item_id || "", providerEventId: event.item_id || event.event_id || "" });
         return;
       }
-      if (isVoiceTranscriptionArtifact(event.transcript)) {
+      if (!orderedMemoryEnabled && isVoiceTranscriptionArtifact(event.transcript)) {
         if (pendingTurn) {
           clearTimeout(pendingTurn.classificationTimer);
           clearTimeout(pendingTurn.decisionRetireTimer);
@@ -1155,7 +1191,15 @@ function LegacyVoiceLab({ buildRevision, privateRuntimeEnabled=false,privateMode
       const answersExpectedQuestion = isExpectedVoiceReply(event.transcript, expectedReplyRef.current?.kind);
       if (classification === "uncertain" && (answersExpectedQuestion || isDirectedVoiceUtterance(event.transcript, { duringPlayback }) || !leaseBeforeDecision)) classification = "substantive";
       queueVoiceEvent({ eventType: "candidate_classified", role: "system", text: classification, turnId: event.item_id || "", providerEventId: event.event_id || "" });
-      if (classification === "noise") coordinatorRef.current.restoreSpeech(candidateId, "noise_or_artifact");
+      if(privateRuntimeEnabled&&orderedMemoryEnabled){
+        // These are transcript candidates. The shared Brain decides directedness,
+        // cancellation, language and relation; browser regexes cannot drop them.
+        const interruptedLease=coordinatorRef.current.activeLease();
+        coordinatorRef.current.speechStarted(candidateId);
+        if(!activeCandidateRef.current?.interruptionConfirmed&&coordinatorRef.current.confirmInterruption(candidateId,'new_transcript_candidate',{dropQueued:false}))armCancellationWatchdog(interruptedLease);
+        executeAuthoritativeTurn({turnId:event.item_id||providerEventId,guestText:event.transcript,decision:null});
+      }
+      else if (classification === "noise") coordinatorRef.current.restoreSpeech(candidateId, "noise_or_artifact");
       else if (classification === "uncertain") coordinatorRef.current.restoreSpeech(candidateId, "uncertain_non_directed_audio");
       else if (classification === "presence") {
         const interruptedLease = coordinatorRef.current.activeLease();
@@ -1220,6 +1264,7 @@ function LegacyVoiceLab({ buildRevision, privateRuntimeEnabled=false,privateMode
       clearQuietInput();
     }
     if (event.type === "conversation.item.input_audio_transcription.failed") {
+      if(privateRuntimeEnabled&&orderedMemoryEnabled){transcriptOrderRef.current?.fail();stopCall({reason:'transcript_order_unproven'});setStatus('Voice paused: a transcript failed. Previously saved words remain.');return;}
       const pendingTurn = pendingCommittedTurnsRef.current.get(event.item_id);
       if (pendingTurn) {
         clearTimeout(pendingTurn.classificationTimer);
@@ -1242,7 +1287,7 @@ function LegacyVoiceLab({ buildRevision, privateRuntimeEnabled=false,privateMode
         const expectedKind = inferExpectedVoiceReply(event.transcript);
         expectedReplyRef.current = expectedKind ? { kind: expectedKind, responseId: event.response_id || "", itemId: event.item_id || "" } : null;
         routerContextRef.current = { ...routerContextRef.current, latestAnswerId: event.item_id || event.response_id || null };
-        addLine("destiny", event.transcript, { itemId: event.item_id || "", responseId: event.response_id || "" });
+        if(!(privateRuntimeEnabled&&orderedMemoryEnabled))addLine("destiny", event.transcript, { itemId: event.item_id || "", responseId: event.response_id || "" });
         queueVoiceEvent({ eventType: "assistant_transcript", role: "assistant", text: event.transcript, turnId: event.item_id || event.response_id || "", providerEventId });
       }
     }
@@ -1317,6 +1362,7 @@ function LegacyVoiceLab({ buildRevision, privateRuntimeEnabled=false,privateMode
     callStartedMonotonicRef.current = performance.now();
     callEpochRef.current += 1;
     const ownedEpoch = callEpochRef.current;
+    transcriptOrderRef.current=new TranscriptOrderBuffer(event=>handleEvent(event));
     const transportId = `transport_${identity.callId}`;
     transportIdRef.current = transportId;
     const setupAbort = new AbortController();
@@ -1332,7 +1378,7 @@ function LegacyVoiceLab({ buildRevision, privateRuntimeEnabled=false,privateMode
     setTranscript([]);
     setCompanionLinks([]);
     eventSequenceRef.current = 0;
-    if (options.record || options.testStream) {
+    if (!orderedMemoryEnabled&&(options.record || options.testStream)) {
       try {
         const captureOrigin = callStartedMonotonicRef.current;
         captureRef.current = new VoiceTestCapture({
@@ -1526,6 +1572,7 @@ function LegacyVoiceLab({ buildRevision, privateRuntimeEnabled=false,privateMode
         {phase !== "idle" ? <button type="button" className={styles.topHangup} onClick={() => stopCall()} aria-label="End call">End</button> : null}
         <div className={styles.private}>PRIVATE VOICE LAB</div>
         {privateRuntimeEnabled?<p>Owner preview: shared Chat/Voice conversation. Owner contact, alerts, lead delivery and reservation access are unavailable. <a href="/destiny-private">Continue in Chat</a></p>:null}
+        {orderedMemoryEnabled?<p>Synthetic speech only. Saved conversation text expires after 24 hours. No raw audio recording.</p>:null}
         {privateRuntimeEnabled&&!privateModelCallsEnabled?<p role="status">Voice model calls are disabled for this nonbillable preview.</p>:null}
         <div className={`${styles.pulse} ${phase === "live" ? styles.live : ""}`}>
           <Image src="/destiny_avatar.png" alt="Destiny Blue" fill priority sizes="144px" />
